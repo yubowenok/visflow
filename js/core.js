@@ -1,18 +1,15 @@
 
 "use strict";
 
-
-// import
-
-
 // program kernel
 var core;
 
-$.getScript("js/dataflow/dataflow.js", function(){} );
-
 // kernel definition
 var extObject = {
-
+  initialize: function() {
+    this.viewManager = ViewManager.new();
+    this.viewManager.showPanel();
+  }
 };
 
 var Core = Base.extend(extObject);

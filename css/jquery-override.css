@@ -1,0 +1,15 @@
+
+/*
+ * override some of the library settings, including
+ * jquery-ui
+ */
+
+.ui-corner-all,
+.ui-tooltip,
+.ui-dialog-title,
+.ui-dialog-content,
+.ui-button-text,
+.ui-dialong-content {
+  font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
+  font-size: 12px;
+}

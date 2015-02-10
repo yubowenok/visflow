@@ -1,0 +1,16 @@
+
+h2, h3, li, p {
+  font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
+}
+
+h3 {
+  font-size: 12px;
+}
+
+.panel {
+  width: 75px;
+}
+
+.view-header {
+  text-align: center;
+}
