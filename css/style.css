@@ -5,10 +5,11 @@ h2, h3, li, p {
 
 h3 {
   font-size: 12px;
+  margin: 0;
 }
 
 .panel {
-  width: 75px;
+  width: 120px;
 }
 
 .view-header {

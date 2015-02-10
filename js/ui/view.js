@@ -13,7 +13,6 @@ var extObject = {
       .attr("id", this.id);
   },
   show: function() {
-    console.log("show of view");
   },
   update: function() {
 

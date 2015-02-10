@@ -6,6 +6,7 @@
 
 .ui-corner-all,
 .ui-tooltip,
+.ui-menu-item,
 .ui-dialog-title,
 .ui-dialog-content,
 .ui-button-text,
@@ -13,3 +14,13 @@
   font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
   font-size: 12px;
 }
+
+.ui-menu-item {
+  white-space: nowrap;
+  font-weight: normal;
+}
+
+.ui-state-active, .ui-state-focus {
+  font-weight: normal !important;
+}
+
