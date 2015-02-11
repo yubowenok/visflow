@@ -21,16 +21,21 @@ h3 {
   position: absolute;
 }
 .dataflow-node {
-  width: 100px;
-  height: 100px;
+  width: 95px;
+  height: 95px;
   left: 300px;
   top: 300px;
   display: block;
-  line-height: 100px;
   text-align: center;
+  line-height: 30px;
+  padding: 5px;
+  border-radius: 10px;
 }
 
 .port {
   width: 50px;
   height: 50px;
+}
+
+.dialog-loaddata {
 }
