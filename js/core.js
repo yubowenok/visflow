@@ -9,6 +9,7 @@ var extObject = {
   initialize: function() {
     this.viewManager = ViewManager.new();
     this.viewManager.showPanel();
+    this.dataflowManager = DataflowManager.new();
   }
 };
 

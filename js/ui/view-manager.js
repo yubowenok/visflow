@@ -12,6 +12,14 @@ var extObject = {
   },
   hidePanel: function() {
     this.panel.close();
+  },
+  createNodeView: function(para) {
+    if (para == null)
+      para = {};
+    var jqview = $("<div></div>")
+      .appendTo("#dataflow");
+    jqview.css(para);
+    return jqview;
   }
 };
 

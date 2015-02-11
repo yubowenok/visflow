@@ -11,7 +11,6 @@ var extObject = {
   },
   show: function() {
     var view = this;
-
     this.jqheader = $("<h3>Panel</h3>")
       .appendTo(this.jqview)
       .addClass("ui-widget-header view-header");
@@ -22,7 +21,31 @@ var extObject = {
     this.jqmenu = $("<div></div>")
       .appendTo(this.jqview)
       .load("js/ui/menu.html", function() {
-        view.jqmenu.children("ul").menu();
+        view.jqmenu.children("ul").menu({
+          select: function(event, ui) {
+            var type = ui.item.attr("id").substr(5); // remove "menu_" prefix
+            switch(type) {
+              case "datasrc":
+              case "table":
+              case "scp":
+              case "pcp":
+              case "hist":
+              case "union":
+              case "intersect":
+              case "minus":
+                core.dataflowManager.createNode(type);
+                break;
+              case "edge":
+              case "edgesw":
+              break;
+              case "vismode":
+              break;
+              default:
+                console.error("unhandled menu item");
+            }
+          }
+        });
+
       });
   }
 };

@@ -10,7 +10,8 @@
 .ui-dialog-title,
 .ui-dialog-content,
 .ui-button-text,
-.ui-dialong-content {
+.ui-dialog-content,
+.ui-widget-content {
   font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
   font-size: 12px;
 }
@@ -20,7 +21,9 @@
   font-weight: normal;
 }
 
-.ui-state-active, .ui-state-focus {
+.ui-state-active,
+.ui-state-focus,
+.ui-state-default {
   font-weight: normal !important;
 }
 
