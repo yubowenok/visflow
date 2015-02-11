@@ -7,7 +7,6 @@ var extObject = {
   },
   setJqview: function(jqview) {
     this.jqview = jqview;
-
     jqview
       .addClass("dataflow-node ui-widget-content ui-widget")
       .draggable({
