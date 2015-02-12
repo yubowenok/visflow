@@ -8,13 +8,11 @@ var extObject = {
 
     var jqview = this.jqview;
 
-    this.jqview
-      .addClass("dataflow-node");
-
     $("<div>No data loaded</div>")
       .attr("id", "datahint")
       .appendTo(this.jqview);
 
+    // load data buttons
     $("<input type='button' id='load' value='Load Data'>")
       .button()
       .click(function(event, ui){
@@ -36,13 +34,12 @@ var extObject = {
             }
           ]
         });
-
         // hide the close button at the header bar
         jqdialog
           .dialog("widget")
           .find(".ui-dialog-titlebar-close")
           .hide();
-
+        // load data dialog content is stored in html
         jqdialog.load("js/dataflow/datasource/loaddata-dialog.html", function() {
           // .. nothing
         });

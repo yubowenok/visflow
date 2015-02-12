@@ -1,4 +1,12 @@
 
+/*
+ *
+ * DataflowManager handles all operations related to dataflow graph
+ * Currently, we assume only one graph is being editted at any time
+ * So the dataflow manager equivalently represent the graph itself
+ *
+ */
+
 "use strict";
 
 var extObject = {
@@ -12,6 +20,7 @@ var extObject = {
   createNode: function(type) {
     var newnode, dataflowClass;
     switch (type) {
+
     // data source
     case "datasrc":
     case "intersect":
@@ -32,6 +41,7 @@ var extObject = {
         nodeid: ++this.nodeCounter
       });
       break;
+
     // visualizations
     case "table":
     case "scatterplot":
@@ -54,10 +64,17 @@ var extObject = {
       console.error("unhandled createNode type", type);
       return;
     }
+
     var jqview = core.viewManager.createNodeView();
     newnode.setJqview(jqview);
     newnode.show();
-    this.nodes[newnode.id] = newnode;
+    this.nodes[newnode.nodeid] = newnode;
+  },
+
+  activateNode: function(nodeid) {
+    if (this.nodes[nodeid].jqview == null)
+      console.error("node does not have jqview");
+    core.viewManager.bringFrontView(this.nodes[nodeid].jqview);
   }
 };
 

@@ -3,6 +3,10 @@
 
 var extObject = {
 
+  initialize: function() {
+    this.topZindex = 0;
+  },
+
   showPanel: function() {
     var jqview = $("<div></div>").appendTo("body");
     this.panel = Panel.new({
@@ -37,6 +41,11 @@ var extObject = {
 
   removeDialog: function() {
     this.jqdialog = null;
+  },
+
+  bringFrontView: function(jqview) {
+    jqview
+      .css("z-index", ++this.topZindex);
   }
 };
 

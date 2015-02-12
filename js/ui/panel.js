@@ -20,7 +20,7 @@ var extObject = {
       });
     this.jqmenu = $("<div></div>")
       .appendTo(this.jqview)
-      .load("js/ui/menu.html", function() {
+      .load("js/ui/panel-menu.html", function() {
         var menu = view.jqmenu.children("ul");
         menu.menu({
           select: function(event, ui) {
