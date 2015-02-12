@@ -21,30 +21,39 @@ var extObject = {
     this.jqmenu = $("<div></div>")
       .appendTo(this.jqview)
       .load("js/ui/menu.html", function() {
-        view.jqmenu.children("ul").menu({
+        var menu = view.jqmenu.children("ul");
+        menu.menu({
           select: function(event, ui) {
+            if (ui.item.attr("id").substr(0,5) !== "menu_")
+              return; // non-reactive menu entrie
             var type = ui.item.attr("id").substr(5); // remove "menu_" prefix
             switch(type) {
-              case "datasrc":
-              case "table":
-              case "scp":
-              case "pcp":
-              case "hist":
-              case "union":
-              case "intersect":
-              case "minus":
-                core.dataflowManager.createNode(type);
-                break;
-              case "edge":
-              case "edgesw":
+            case "datasrc":
+            case "table":
+            case "scatterplot":
+            case "parallelcoordinates":
+            case "histogram":
+            case "union":
+            case "intersect":
+            case "minus":
+              core.dataflowManager.createNode(type);
               break;
-              case "vismode":
+            case "nodraw":
+              core.setMouseMode("none");
               break;
-              default:
-                console.error("unhandled menu item");
+            case "edge":
+              core.setMouseMode("edge");
+              break;
+            case "vismode":
+              break;
+            case "":
+              break;
+            default:
+              console.error("unhandled menu item");
             }
           }
         });
+        menu.menu("option", "delay", 0);
 
       });
   }

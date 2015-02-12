@@ -21,17 +21,61 @@ h3 {
   position: absolute;
 }
 .dataflow-node {
-  width: 95px;
-  height: 95px;
   left: 300px;
   top: 300px;
   display: block;
   text-align: center;
-  line-height: 30px;
+}
+.dataflow-node-shape {
+  width: 90px;
+  height: 90px;
   padding: 5px;
+  line-height: 30px;
   border-radius: 10px;
 }
+.dataflow-set-shape {
+  width: 90px;
+  height: 40px;
+  padding: 5px;
+}
 
+.dataflow-table-icon,
+.dataflow-scatterplot-icon,
+.dataflow-histogram-icon,
+.dataflow-parallelcoordinates-icon,
+.dataflow-intersect-icon,
+.dataflow-minus-icon,
+.dataflow-union-icon,
+.dataflow-value-icon {
+  position: relative;
+  float: left;
+  width: 100%;
+  height: 100%;
+}
+.dataflow-table-icon {
+  background: url(../imgs/table-icon.png) no-repeat center;
+}
+.dataflow-scatterplot-icon {
+  background: url(../imgs/scatterplot-icon.png) no-repeat center;
+}
+.dataflow-parallelcoordinates-icon {
+  background: url(../imgs/parallelcoordinates-icon.png) no-repeat center;
+}
+.dataflow-histogram-icon {
+  background: url(../imgs/histogram-icon.png) no-repeat center;
+}
+.dataflow-intersect-icon {
+  background: url(../imgs/intersect-icon.png) no-repeat center;
+}
+.dataflow-minus-icon {
+  background: url(../imgs/minus-icon.png) no-repeat center;
+}
+.dataflow-union-icon {
+  background: url(../imgs/union-icon.png) no-repeat center;
+}
+.dataflow-value-icon {
+  background: url(../imgs/value-icon.png) no-repeat center;
+}
 .port {
   width: 50px;
   height: 50px;
