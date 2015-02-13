@@ -7,6 +7,12 @@ var extObject = {
     if (para == null)
       console.error("null para passed to DataflowNode.initialize");
     this.nodeid = para.nodeid;
+
+    this.viewHeight = 100;
+
+    // no ports by default
+    this.inPorts = [];
+    this.outPorts = [];
   },
 
   setJqview: function(jqview) {
@@ -23,6 +29,7 @@ var extObject = {
     // right-click menu
     this.jqview.contextmenu({
       delegate: this.jqview,
+      addClass: "ui-contextmenu",
       menu: [
           {title: "Delete", cmd: "copy", uiIcon: "ui-icon-close"},
           /*
@@ -39,9 +46,42 @@ var extObject = {
     });
 
     var nodeid = this.nodeid;
-    this.jqview.mousedown(function(){
-      core.dataflowManager.activateNode(nodeid);
+    this.jqview.mousedown(function(event){
+      if (event.which === 1) // left click
+        core.dataflowManager.activateNode(nodeid);
+      else if (event.which === 3)
+        $(".ui-contextmenu")
+          .css("z-index", core.viewManager.getTopZindex() + 1); // over other things
     });
+
+    this.showPorts();
+  },
+
+  showPorts: function() {
+    var inTopBase = this.viewHeight/2 - this.inPorts.length * 10;
+    for (var i in this.inPorts) {
+      var port = this.inPorts[i];
+      var div = $("<div></div>")
+        .addClass("ui-widget-content dataflow-port dataflow-port-in")
+        .attr("id", port.id)
+        .css("top", inTopBase + i * 20)
+        .appendTo(this.jqview);
+      $("<div></div>")
+        .addClass("dataflow-port dataflow-port-icon-" + port.type)
+        .appendTo(div);
+    }
+    var outTopBase = this.viewHeight/2 - this.outPorts.length * 10;
+    for (var i in this.outPorts) {
+      var port = this.outPorts[i];
+      var div = $("<div></div>")
+        .addClass("ui-widget-content dataflow-port dataflow-port-out")
+        .attr("id", port.id)
+        .css("top", outTopBase + i * 20)
+        .appendTo(this.jqview);
+      $("<div></div>")
+        .addClass("dataflow-port dataflow-port-icon-" + port.type)
+        .appendTo(div);
+    }
   }
 };
 

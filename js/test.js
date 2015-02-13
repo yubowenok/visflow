@@ -2,6 +2,7 @@
 function test() {
   core.dataflowManager.createNode("datasrc");
   core.dataflowManager.createNode("table");
+  /*
   core.dataflowManager.createNode("scatterplot");
   core.dataflowManager.createNode("histogram");
   core.dataflowManager.createNode("parallelcoordinates");
@@ -9,4 +10,5 @@ function test() {
   core.dataflowManager.createNode("union");
   core.dataflowManager.createNode("minus");
   core.dataflowManager.createNode("value");
+  */
 }

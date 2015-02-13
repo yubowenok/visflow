@@ -24,7 +24,7 @@ var extObject = {
     if (para == null)
       para = {};
     var jqview = $("<div></div>")
-      .appendTo("#dataflow");
+      .prependTo("#dataflow");
     jqview.css(para);
     return jqview;
   },
@@ -46,6 +46,10 @@ var extObject = {
   bringFrontView: function(jqview) {
     jqview
       .css("z-index", ++this.topZindex);
+  },
+
+  getTopZindex: function() {
+    return this.topZindex;
   }
 };
 
