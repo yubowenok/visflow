@@ -36,13 +36,8 @@ var extObject = {
             case "union":
             case "intersect":
             case "minus":
+            case "value":
               core.dataflowManager.createNode(type);
-              break;
-            case "nodraw":
-              //core.setMouseMode("none");
-              break;
-            case "edge":
-              //core.setMouseMode("edge");
               break;
             case "vismode":
               break;
