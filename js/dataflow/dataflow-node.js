@@ -50,7 +50,7 @@ var extObject = {
       delegate: this.jqview,
       addClass: "ui-contextmenu",
       menu: [
-          {title: "Delete", cmd: "copy", uiIcon: "ui-icon-close"},
+          {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"},
           /*
           {title: "----"},
           {title: "More", children: [
@@ -60,7 +60,10 @@ var extObject = {
               */
           ],
       select: function(event, ui) {
-          //alert("select " + ui.cmd + " on " + ui.target.text());
+        if (ui.cmd === "delete") {
+          core.dataflowManager.deleteNode(node);
+        }
+        //alert("select " + ui.cmd + " on " + ui.target.text());
       }
     });
 
@@ -132,14 +135,11 @@ var extObject = {
           accept: ".dataflow-port-out",
           greedy: true,
           drop: function( event, ui ) {
-            core.dataflowManager.connectPorts(
-              {
-                node: node,
-                portid: event.target.id,
-              },
-              _(core.interactionManager.getDragstartPara())
-                .pick("node", "portid")
-            );
+            core.interactionManager.dropHandler({
+              type: "port",
+              node: node,
+              portid: event.target.id
+            });
           }
         });
     }
@@ -187,14 +187,11 @@ var extObject = {
           accept: ".dataflow-port-in",
           greedy: true,
           drop: function( event, ui ) {
-            core.dataflowManager.connectPorts(
-              _(core.interactionManager.getDragstartPara())
-                .pick("node", "portid"),
-              {
-                node: node,
-                portid: event.target.id,
-              }
-            );
+            core.interactionManager.dropHandler({
+              type: "port",
+              node: node,
+              portid: event.target.id
+            });
           }
         });
     }

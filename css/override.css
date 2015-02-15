@@ -1,8 +1,15 @@
 
 /*
  * override some of the library settings, including
+ * user agent
  * jquery-ui
+ * context-menu
  */
+
+body {
+  /* user agent might default to 8 */
+  margin: 0;
+}
 
 .ui-corner-all,
 .ui-tooltip,
@@ -27,3 +34,6 @@
   font-weight: normal !important;
 }
 
+.ui-contextmenu {
+  z-index: 1000;
+}

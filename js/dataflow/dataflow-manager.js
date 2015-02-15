@@ -75,7 +75,7 @@ var extObject = {
     }
   },
 
-  connectPorts: function(sourcePara, targetPara) {
+  createEdge: function(sourcePara, targetPara) {
     var sourceNode = sourcePara.node,
         targetNode = targetPara.node,
         sourcePort = sourceNode.ports[sourcePara.portid],
@@ -98,6 +98,14 @@ var extObject = {
     newedge.setJqview(jqview);
     newedge.show();
     this.edges[newedge.edgeid] = newedge;
+  },
+
+  deleteNode: function(node) {
+
+  },
+
+  deleteEdge: function(edge) {
+
   },
 
   activateNode: function(nodeid) {

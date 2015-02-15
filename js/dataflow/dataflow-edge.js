@@ -17,6 +17,29 @@ var extObject = {
   },
 
   show: function() {
+    $("<div></div>")
+      .addClass("dataflow-edge-arrow")
+      .appendTo(this.jqview);
+
+    // right-click menu
+    var edge = this;
+    this.jqview.contextmenu({
+      delegate: this.jqview,
+      addClass: "ui-contextmenu",
+      menu: [
+          {title: "Delete", cmd: "copy", uiIcon: "ui-icon-close"},
+          ],
+      select: function(event, ui) {
+         if (ui.cmd === "delete") {
+          core.dataflowManager.deleteEdge(edge);
+        }
+      }
+    });
+
+    this.update();
+  },
+
+  update: function() {
     var sx = this.sourcePort.jqview.offset().left + this.sourcePort.jqview.width() / 2,
         sy = this.sourcePort.jqview.offset().top + this.sourcePort.jqview.height() / 2,
         ex = this.targetPort.jqview.offset().left + this.targetPort.jqview.width() / 2,
@@ -32,10 +55,6 @@ var extObject = {
       .css("left", sx)
       .css("top", sy)
       .css("transform", "rotate(" + angle + "rad)");
-  },
-
-  update: function() {
-    this.show();
   }
 
 };
