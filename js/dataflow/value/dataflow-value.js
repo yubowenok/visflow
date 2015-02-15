@@ -20,6 +20,7 @@ var extObject = {
         type: "out-multiple"
       }
     ];
+    this.makePortList();
   },
 
   show: function() {

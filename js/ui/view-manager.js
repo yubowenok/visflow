@@ -28,6 +28,14 @@ var extObject = {
     jqview.css(para);
     return jqview;
   },
+  createEdgeView: function(para) {
+    if(para == null)
+      para = {};
+    var jqview = $("<div></div>")
+      .appendTo("#dataflow-edges");
+    jqview.css(para);
+    return jqview;
+  },
 
   createDialog: function() {
     if (this.jqdialog != null) {

@@ -5,7 +5,7 @@ var extObject = {
 
   initialize: function(para) {
     if (para == null)
-      console.error("null para passed to DataflowNode.initialize");
+      return console.error("null para passed to DataflowNode.initialize");
     this.nodeid = para.nodeid;
 
     this.viewHeight = 100;
@@ -13,6 +13,22 @@ var extObject = {
     // no ports by default
     this.inPorts = [];
     this.outPorts = [];
+    this.ports = {};
+  },
+
+  // prepares all necessary data structures for references
+  // called after initialize
+  prepare: function() {
+    this.preparePorts();
+  },
+
+  preparePorts: function() {
+    var allports = this.inPorts.concat(this.outPorts);
+    for (var i in allports) {
+      this.ports[allports[i].id] = allports[i];
+      allports[i].node = this;
+      allports[i].connections = [];
+    }
   },
 
   setJqview: function(jqview) {
@@ -20,10 +36,13 @@ var extObject = {
   },
 
   show: function() {
+    var node = this;
     this.jqview
       .addClass("dataflow-node dataflow-node-shape ui-widget-content ui-widget")
       .draggable({
-        // TODO ... handle?
+        drag: function(event, ui) {
+          node.updateEdges();
+        }
       });
 
     // right-click menu
@@ -57,28 +76,38 @@ var extObject = {
     this.showPorts();
   },
 
+  updateEdges: function() {
+    for (var key in this.ports) {
+      var port = this.ports[key];
+      for (var i in port.connections) {
+        var edge = port.connections[i];
+        edge.update();
+      }
+    }
+  },
+
   showPorts: function() {
     var node = this;
-    var inTopBase = this.viewHeight/2 - this.inPorts.length * 10;
+    var inTopBase = this.viewHeight / 2 - this.inPorts.length * 10;
     for (var i in this.inPorts) {
       var port = this.inPorts[i];
-      var div = $("<div></div>")
+      port.jqview = $("<div></div>")
         .addClass("ui-widget-content dataflow-port dataflow-port-in")
         .attr("id", port.id)
         .css("top", inTopBase + i * 20)
         .appendTo(this.jqview);
       $("<div></div>")
         .addClass("dataflow-port dataflow-port-icon-" + port.type)
-        .appendTo(div);
+        .appendTo(port.jqview);
 
-      div
+      port.jqview
         .draggable({
           helper: function(){ return $("<div></div>"); },
           start: function(event, ui) {
             core.interactionManager.dragstartHandler({
               type: "port",
               node: node,
-              port: port.id,
+              portid: event.target.id,
               event: event
             });
           },
@@ -86,7 +115,7 @@ var extObject = {
             core.interactionManager.dragmoveHandler({
               type: "port",
               node: node,
-              port: port.id,
+              portid: event.target.id,
               event: event
             });
           },
@@ -101,31 +130,39 @@ var extObject = {
           hoverClass: "dataflow-port-hover",
           tolerance: "pointer",
           accept: ".dataflow-port-out",
+          greedy: true,
           drop: function( event, ui ) {
-            console.log("dropped");
+            core.dataflowManager.connectPorts(
+              {
+                node: node,
+                portid: event.target.id,
+              },
+              _(core.interactionManager.getDragstartPara())
+                .pick("node", "portid")
+            );
           }
         });
     }
-    var outTopBase = this.viewHeight/2 - this.outPorts.length * 10;
+    var outTopBase = this.viewHeight / 2 - this.outPorts.length * 10;
     for (var i in this.outPorts) {
       var port = this.outPorts[i];
-      var div = $("<div></div>")
+      port.jqview = $("<div></div>")
         .addClass("ui-widget-content dataflow-port dataflow-port-out")
         .attr("id", port.id)
         .css("top", outTopBase + i * 20)
         .appendTo(this.jqview);
       $("<div></div>")
         .addClass("dataflow-port dataflow-port-icon-" + port.type)
-        .appendTo(div);
+        .appendTo(port.jqview);
 
-      div
+      port.jqview
         .draggable({
           helper: function(){ return $("<div></div>"); },
           start: function(event, ui) {
             core.interactionManager.dragstartHandler({
               type: "port",
               node: node,
-              port: port.id,
+              portid: event.target.id,
               event: event
             });
           },
@@ -133,7 +170,7 @@ var extObject = {
             core.interactionManager.dragmoveHandler({
               type: "port",
               node: node,
-              port: port.id,
+              portid: event.target.id,
               event: event
             });
           },
@@ -148,8 +185,16 @@ var extObject = {
           hoverClass: "dataflow-port-hover",
           tolerance: "pointer",
           accept: ".dataflow-port-in",
+          greedy: true,
           drop: function( event, ui ) {
-            console.log("dropped");
+            core.dataflowManager.connectPorts(
+              _(core.interactionManager.getDragstartPara())
+                .pick("node", "portid"),
+              {
+                node: node,
+                portid: event.target.id,
+              }
+            );
           }
         });
     }

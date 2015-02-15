@@ -10,12 +10,13 @@
 "use strict";
 
 var extObject = {
-  edges: {},
-  nodes: {},
   dataSources: [],
   initialize: function() {
     this.nodeCounter = 0;
     this.visCounter = 0;
+    this.edgeCounter = 0;
+    this.nodes = {};
+    this.edges = {};
   },
   createNode: function(type) {
     var newnode, dataflowClass;
@@ -69,6 +70,34 @@ var extObject = {
     newnode.setJqview(jqview);
     newnode.show();
     this.nodes[newnode.nodeid] = newnode;
+    if (type === "datasrc") {
+      this.dataSources.push(newnode);
+    }
+  },
+
+  connectPorts: function(sourcePara, targetPara) {
+    var sourceNode = sourcePara.node,
+        targetNode = targetPara.node,
+        sourcePort = sourceNode.ports[sourcePara.portid],
+        targetPort = targetNode.ports[targetPara.portid];
+
+    if (sourceNode === targetNode)
+      return console.log("cannot connect two ports of the same node");
+
+    var newedge = DataflowEdge.new({
+      edgeid: ++this.edgeCounter,
+      sourceNode: sourceNode,
+      sourcePort: sourcePort,
+      targetNode: targetNode,
+      targetPort: targetPort
+    });
+    sourcePort.connections.push(newedge);
+    targetPort.connections.push(newedge);
+
+    var jqview = core.viewManager.createEdgeView();
+    newedge.setJqview(jqview);
+    newedge.show();
+    this.edges[newedge.edgeid] = newedge;
   },
 
   activateNode: function(nodeid) {

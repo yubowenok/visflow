@@ -13,6 +13,7 @@ var extObject = {
         type: "out-multiple"
       }
     ];
+    this.prepare();
   },
 
   show: function() {

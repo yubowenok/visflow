@@ -1,4 +1,7 @@
 
+body {
+  margin: 0;
+}
 
 h2, h3, li, p {
   font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
@@ -23,16 +26,17 @@ h3 {
   height: 100%;
   position: absolute;
 }
+
+#dataflow-edges {
+  z-index: -1;
+}
+
 .dataflow-edge {
   position: absolute;
   width: 100px;
   background-color: #555;
   height: 3px;
   transform-origin: top left;
-
-  /*
-  transform: rotate(30deg);
-  */
 }
 
 .dataflow-node {
@@ -96,7 +100,6 @@ h3 {
 .dataflow-port {
   width: 20px;
   height: 20px;
-  float: left;
   position: absolute;
   line-height: 20px;
 }

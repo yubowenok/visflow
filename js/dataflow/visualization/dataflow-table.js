@@ -4,9 +4,7 @@
 var extObject = {
 
   initialize: function(para) {
-
     this.base.initialize.call(this, para);
-
     this.inPorts = [
       {
         id: "in",
@@ -19,6 +17,7 @@ var extObject = {
         type: "out-multiple"
       }
     ];
+    this.prepare();
   },
 
   show: function() {
