@@ -39,10 +39,10 @@ var extObject = {
               core.dataflowManager.createNode(type);
               break;
             case "nodraw":
-              core.setMouseMode("none");
+              //core.setMouseMode("none");
               break;
             case "edge":
-              core.setMouseMode("edge");
+              //core.setMouseMode("edge");
               break;
             case "vismode":
               break;

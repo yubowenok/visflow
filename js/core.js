@@ -10,9 +10,7 @@ var extObject = {
     this.viewManager = ViewManager.new();
     this.viewManager.showPanel();
     this.dataflowManager = DataflowManager.new();
-  },
-  setMouseMode: function(mode) {
-    this.mouseMode = mode;
+    this.interactionManager = InteractionManager.new();
   }
 };
 

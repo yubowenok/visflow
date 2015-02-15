@@ -58,6 +58,7 @@ var extObject = {
   },
 
   showPorts: function() {
+    var node = this;
     var inTopBase = this.viewHeight/2 - this.inPorts.length * 10;
     for (var i in this.inPorts) {
       var port = this.inPorts[i];
@@ -69,6 +70,41 @@ var extObject = {
       $("<div></div>")
         .addClass("dataflow-port dataflow-port-icon-" + port.type)
         .appendTo(div);
+
+      div
+        .draggable({
+          helper: function(){ return $("<div></div>"); },
+          start: function(event, ui) {
+            core.interactionManager.dragstartHandler({
+              type: "port",
+              node: node,
+              port: port.id,
+              event: event
+            });
+          },
+          drag: function(event, ui) {
+            core.interactionManager.dragmoveHandler({
+              type: "port",
+              node: node,
+              port: port.id,
+              event: event
+            });
+          },
+          stop: function(event, ui) {
+            core.interactionManager.dragstopHandler({
+              type: "port",
+              event: event
+            });
+          }
+        })
+        .droppable({
+          hoverClass: "dataflow-port-hover",
+          tolerance: "pointer",
+          accept: ".dataflow-port-out",
+          drop: function( event, ui ) {
+            console.log("dropped");
+          }
+        });
     }
     var outTopBase = this.viewHeight/2 - this.outPorts.length * 10;
     for (var i in this.outPorts) {
@@ -81,6 +117,41 @@ var extObject = {
       $("<div></div>")
         .addClass("dataflow-port dataflow-port-icon-" + port.type)
         .appendTo(div);
+
+      div
+        .draggable({
+          helper: function(){ return $("<div></div>"); },
+          start: function(event, ui) {
+            core.interactionManager.dragstartHandler({
+              type: "port",
+              node: node,
+              port: port.id,
+              event: event
+            });
+          },
+          drag: function(event, ui) {
+            core.interactionManager.dragmoveHandler({
+              type: "port",
+              node: node,
+              port: port.id,
+              event: event
+            });
+          },
+          stop: function(event, ui) {
+            core.interactionManager.dragstopHandler({
+              type: "port",
+              event: event
+            });
+          }
+        })
+        .droppable({
+          hoverClass: "dataflow-port-hover",
+          tolerance: "pointer",
+          accept: ".dataflow-port-in",
+          drop: function( event, ui ) {
+            console.log("dropped");
+          }
+        });
     }
   }
 };

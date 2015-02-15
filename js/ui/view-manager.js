@@ -24,7 +24,7 @@ var extObject = {
     if (para == null)
       para = {};
     var jqview = $("<div></div>")
-      .prependTo("#dataflow");
+      .appendTo("#dataflow");
     jqview.css(para);
     return jqview;
   },
