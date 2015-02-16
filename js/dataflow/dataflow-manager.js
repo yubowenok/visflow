@@ -84,6 +84,11 @@ var extObject = {
     if (sourceNode === targetNode)
       return console.log("cannot connect two ports of the same node");
 
+    if (sourcePort.type === "out-single" && sourcePort.connections.length)
+      return console.log("source port is single and has already been connected");
+    if (targetPort.type === "in-single" && targetPort.connections.length)
+      return console.log("target port is single and has already been connected");
+
     var newedge = DataflowEdge.new({
       edgeid: ++this.edgeCounter,
       sourceNode: sourceNode,
@@ -101,11 +106,43 @@ var extObject = {
   },
 
   deleteNode: function(node) {
-
+    for (var key in node.ports) {
+      var port = node.ports[key];
+      var connections = [];
+      // make a copy, because deleteEdge is goingn to traverse adjacency list
+      // preventing O(n^2) traversal
+      for (var i in port.connections) {
+        connections.push(port.connections[i]);
+      }
+      port.connections = [];
+      for (var i in connections) {
+        this.deleteEdge(connections[i]);
+      }
+    }
+    node.hide();
+    core.viewManager.removeNodeView(node.jqview);
+    delete this.nodes[node.nodeid];
   },
 
   deleteEdge: function(edge) {
-
+    // remove the references in port's connection list
+    var sourcePort = edge.sourcePort,
+        targetPort = edge.targetPort;
+    for (var i in sourcePort.connections) {
+      if (sourcePort.connections[i] === edge) {
+        sourcePort.connections.splice(i,1);
+        break;
+      }
+    }
+    for (var i in targetPort.connections) {
+      if (targetPort.connections[i] === edge) {
+        targetPort.connections.splice(i,1);
+        break;
+      }
+    }
+    edge.hide();
+    core.viewManager.removeEdgeView(edge.jqview);
+    delete this.edges[edge.edgeid];
   },
 
   activateNode: function(nodeid) {

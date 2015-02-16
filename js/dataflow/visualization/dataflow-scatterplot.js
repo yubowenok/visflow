@@ -31,4 +31,4 @@ var extObject = {
 
 };
 
-var DataflowScatterplot = DataflowNode.extend(extObject);
+var DataflowScatterplot = DataflowVisualization.extend(extObject);

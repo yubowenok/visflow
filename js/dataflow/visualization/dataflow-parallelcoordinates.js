@@ -31,4 +31,4 @@ var extObject = {
 
 };
 
-var DataflowParallelCoordinates = DataflowNode.extend(extObject);
+var DataflowParallelCoordinates = DataflowVisualization.extend(extObject);

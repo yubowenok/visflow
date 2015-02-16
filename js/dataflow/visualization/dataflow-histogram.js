@@ -31,4 +31,4 @@ var extObject = {
 
 };
 
-var DataflowHistogram = DataflowNode.extend(extObject);
+var DataflowHistogram = DataflowVisualization.extend(extObject);

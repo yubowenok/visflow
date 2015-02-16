@@ -27,7 +27,7 @@ var extObject = {
       delegate: this.jqview,
       addClass: "ui-contextmenu",
       menu: [
-          {title: "Delete", cmd: "copy", uiIcon: "ui-icon-close"},
+          {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"},
           ],
       select: function(event, ui) {
          if (ui.cmd === "delete") {
@@ -55,6 +55,10 @@ var extObject = {
       .css("left", sx)
       .css("top", sy)
       .css("transform", "rotate(" + angle + "rad)");
+  },
+
+  hide: function() {
+    $(this.jqview).children().remove();
   }
 
 };

@@ -31,4 +31,4 @@ var extObject = {
 
 };
 
-var DataflowTable = DataflowNode.extend(extObject);
+var DataflowTable = DataflowVisualization.extend(extObject);

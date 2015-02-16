@@ -41,7 +41,9 @@ var extObject = {
               break;
             case "vismode":
               break;
-            case "":
+            case "layout":
+              break;
+            case "":  // non-selectable menu entry
               break;
             default:
               console.error("unhandled menu item");

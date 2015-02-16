@@ -36,6 +36,12 @@ var extObject = {
     jqview.css(para);
     return jqview;
   },
+  removeNodeView: function(jqview) {
+    $(jqview).remove();
+  },
+  removeEdgeView: function(jqview) {
+    $(jqview).remove();
+  },
 
   createDialog: function() {
     if (this.jqdialog != null) {

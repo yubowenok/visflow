@@ -134,7 +134,7 @@ var extObject = {
           tolerance: "pointer",
           accept: ".dataflow-port-out",
           greedy: true,
-          drop: function( event, ui ) {
+          drop: function(event, ui) {
             core.interactionManager.dropHandler({
               type: "port",
               node: node,
@@ -186,7 +186,7 @@ var extObject = {
           tolerance: "pointer",
           accept: ".dataflow-port-in",
           greedy: true,
-          drop: function( event, ui ) {
+          drop: function(event, ui) {
             core.interactionManager.dropHandler({
               type: "port",
               node: node,
@@ -195,7 +195,12 @@ var extObject = {
           }
         });
     }
+  },
+
+  hide: function() {
+    $(this.jqview).children().remove();
   }
+
 };
 
 var DataflowNode = Base.extend(extObject);
