@@ -4,7 +4,7 @@
 var extObject = {
 
   initialize: function(para) {
-    this.base.initialize.call(this, para);
+    DataflowVisualization.initialize.call(this, para);
     this.inPorts = [
       {
         id: "in",
@@ -20,15 +20,15 @@ var extObject = {
     this.prepare();
   },
 
-  show: function() {
-
-    this.base.show.call(this); // call parent settings
-
+  showIcon: function() {
     this.jqicon = $("<div></div>")
       .addClass("dataflow-table-icon")
       .appendTo(this.jqview);
-  }
+  },
 
+  showVisualization: function() {
+    console.log("show vis");
+  }
 };
 
 var DataflowTable = DataflowVisualization.extend(extObject);

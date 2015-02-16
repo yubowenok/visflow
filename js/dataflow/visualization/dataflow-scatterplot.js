@@ -4,7 +4,7 @@
 var extObject = {
 
   initialize: function(para) {
-    this.base.initialize.call(this, para);
+    DataflowVisualization.initialize.call(this, para);
     this.inPorts = [
       {
         id: "in",

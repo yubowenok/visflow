@@ -98,7 +98,7 @@ var extobject = {
         port1 = port2;
         port2 = porttmp;
       }
-      core.dataflowManager.createEdge(port1, port2);
+      core.dataflowManager.createEdge(port1, port2, para.event);
       this.dropPossible = false; // prevent dropped on overlapping droppable
     }
   },

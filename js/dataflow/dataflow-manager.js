@@ -75,19 +75,49 @@ var extObject = {
     }
   },
 
-  createEdge: function(sourcePara, targetPara) {
+  cycleTest: function(sourceNode, targetNode) {
+    this.visited = {};
+    this.visited[sourceNode.nodeid] = true;
+    return this.traverse(targetNode);
+  },
+  traverse: function(node) {
+    if (this.visited[node.nodeid]) return true;
+    this.visited[node.nodeid] = true;
+    for (var i in node.outPorts) {
+      var port = node.outPorts[i];
+      for (var j in port.connections) {
+        if (this.traverse(port.connections[j].targetNode))
+          return true;
+      }
+    }
+    return false;
+  },
+
+  createEdge: function(sourcePara, targetPara, event) {
     var sourceNode = sourcePara.node,
         targetNode = targetPara.node,
         sourcePort = sourceNode.ports[sourcePara.portid],
         targetPort = targetNode.ports[targetPara.portid];
 
+    var cssparaError = {
+      left: event.pageX,
+      top: event.pageY
+    };
     if (sourceNode === targetNode)
-      return console.log("cannot connect two ports of the same node");
+      return core.viewManager.createTip("Cannot connect two ports of the same node", cssparaError);
 
     if (sourcePort.type === "out-single" && sourcePort.connections.length)
-      return console.log("source port is single and has already been connected");
+      return core.viewManager.createTip("Out port is single and has already been connected", cssparaError);
     if (targetPort.type === "in-single" && targetPort.connections.length)
-      return console.log("target port is single and has already been connected");
+      return core.viewManager.createTip("In port is single and has already been connected", cssparaError);
+
+    if (this.cycleTest(sourceNode, targetNode))
+      return core.viewManager.createTip("Cannot make connection that results in cycle", cssparaError);
+
+    if (sourcePort.type === "out-multiple" && targetPort.type === "in-multiple") {
+      // TODO
+      console.log("CODE TODO: need to check if the edge already exists");
+    }
 
     var newedge = DataflowEdge.new({
       edgeid: ++this.edgeCounter,

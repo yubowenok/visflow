@@ -14,6 +14,15 @@ var extObject = {
     this.inPorts = [];
     this.outPorts = [];
     this.ports = {};
+
+    // data
+    this.data = {
+      dimensions: ["x", "y"],
+      elements: [{
+        x:5,
+        y:6
+      }],
+    };
   },
 
   // prepares all necessary data structures for references
@@ -36,6 +45,9 @@ var extObject = {
   },
 
   show: function() {
+
+    this.jqview.children().remove();
+
     var node = this;
     this.jqview
       .addClass("dataflow-node dataflow-node-shape ui-widget-content ui-widget")
@@ -45,6 +57,20 @@ var extObject = {
         }
       });
 
+    var nodeid = this.nodeid;
+    this.jqview.mousedown(function(event){
+      if (event.which === 1) // left click
+        core.dataflowManager.activateNode(nodeid);
+      else if (event.which === 3)
+        $(".ui-contextmenu")
+          .css("z-index", core.viewManager.getTopZindex() + 1); // over other things
+    });
+
+    this.prepareContextMenu();
+    this.showPorts();
+  },
+
+  prepareContextMenu: function() {
     // right-click menu
     this.jqview.contextmenu({
       delegate: this.jqview,
@@ -66,17 +92,6 @@ var extObject = {
         //alert("select " + ui.cmd + " on " + ui.target.text());
       }
     });
-
-    var nodeid = this.nodeid;
-    this.jqview.mousedown(function(event){
-      if (event.which === 1) // left click
-        core.dataflowManager.activateNode(nodeid);
-      else if (event.which === 3)
-        $(".ui-contextmenu")
-          .css("z-index", core.viewManager.getTopZindex() + 1); // over other things
-    });
-
-    this.showPorts();
   },
 
   updateEdges: function() {
@@ -90,6 +105,7 @@ var extObject = {
   },
 
   showPorts: function() {
+    this.jqview.find(".dataflow-port").remove();
     var node = this;
     var inTopBase = this.viewHeight / 2 - this.inPorts.length * 10;
     for (var i in this.inPorts) {
@@ -138,7 +154,8 @@ var extObject = {
             core.interactionManager.dropHandler({
               type: "port",
               node: node,
-              portid: event.target.id
+              portid: event.target.id,
+              event: event
             });
           }
         });
@@ -190,11 +207,34 @@ var extObject = {
             core.interactionManager.dropHandler({
               type: "port",
               node: node,
-              portid: event.target.id
+              portid: event.target.id,
+              event: event
             });
           }
         });
     }
+  },
+
+  updatePorts: function() {
+      var node = this;
+      var inTopBase = this.viewHeight / 2 - this.inPorts.length * 10;
+      for (var i in this.inPorts) {
+        var port = this.inPorts[i];
+        port.jqview
+          .css("top", inTopBase + i * 20);
+        for (var j in port.connections) {
+          port.connections[j].update();
+        }
+      }
+      var outTopBase = this.viewHeight / 2 - this.outPorts.length * 10;
+      for (var i in this.outPorts) {
+        var port = this.outPorts[i];
+        port.jqview
+          .css("top", inTopBase + i * 20);
+        for (var j in port.connections) {
+          port.connections[j].update();
+        }
+      }
   },
 
   hide: function() {

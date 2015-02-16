@@ -64,6 +64,21 @@ var extObject = {
 
   getTopZindex: function() {
     return this.topZindex;
+  },
+
+  createTip: function(text, csspara) {
+    $("<div></div>")
+      .addClass("tip-mouse ui-tooltip ui-tooltip-content")
+      .text(text)
+      .css(csspara)
+      .appendTo("body")
+      .delay(1000)
+      .animate({
+        opacity: 0
+      }, 500, function() {
+        $(this).remove();
+      });
+
   }
 };
 
