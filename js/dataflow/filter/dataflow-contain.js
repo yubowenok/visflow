@@ -7,6 +7,10 @@ var extObject = {
     this.base.initialize.call(this, para);
     this.inPorts = [
       {
+        id: "inv",
+        type: "in-single"
+      },
+      {
         id: "in",
         type: "in-single"
       }
@@ -17,6 +21,8 @@ var extObject = {
         type: "out-multiple"
       }
     ];
+
+    this.prepare();
   },
 
   show: function() {

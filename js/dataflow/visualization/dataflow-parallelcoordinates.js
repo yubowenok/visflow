@@ -20,13 +20,14 @@ var extObject = {
     this.prepare();
   },
 
-  show: function() {
-
-    this.base.show.call(this); // call parent settings
-
+  showIcon: function() {
     this.jqicon = $("<div></div>")
       .addClass("dataflow-parallelcoordinates-icon")
       .appendTo(this.jqview);
+  },
+
+  showVisualization: function() {
+    console.log("show vis");
   }
 
 };

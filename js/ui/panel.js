@@ -36,7 +36,12 @@ var extObject = {
             case "union":
             case "intersect":
             case "minus":
-            case "value":
+            case "value_maker":
+            case "value_extractor":
+            case "range":
+            case "contain":
+            case "property_editor":
+            case "property_mapping":
               core.dataflowManager.createNode(type);
               break;
             case "vismode":

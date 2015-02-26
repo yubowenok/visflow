@@ -20,15 +20,15 @@ var extObject = {
     this.prepare();
   },
 
-  show: function() {
-
-    this.base.show.call(this); // call parent settings
-
+  showIcon: function() {
     this.jqicon = $("<div></div>")
       .addClass("dataflow-histogram-icon")
       .appendTo(this.jqview);
-  }
+  },
 
+  showVisualization: function() {
+    console.log("show vis");
+  }
 };
 
 var DataflowHistogram = DataflowVisualization.extend(extObject);

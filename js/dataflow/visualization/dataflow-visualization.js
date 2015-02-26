@@ -49,7 +49,7 @@ var extObject = {
     if (this.vismode === true) {
       this.jqview
         .removeClass("dataflow-node-shape")
-        .addClass("dataflow-vis-shape");
+        .addClass("dataflow-node-shape-vis");
       this.showVisualization();
 
       this.jqview.resizable({
@@ -65,7 +65,7 @@ var extObject = {
       this.updatePorts();
     } else {
       this.jqview
-        .removeClass("dataflow-vis-shape")
+        .removeClass("dataflow-node-shape-vis")
         .addClass("dataflow-node-shape");
       this.showIcon();
 

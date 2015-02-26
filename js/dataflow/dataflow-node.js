@@ -71,6 +71,7 @@ var extObject = {
   },
 
   prepareContextMenu: function() {
+    var node = this;
     // right-click menu
     this.jqview.contextmenu({
       delegate: this.jqview,

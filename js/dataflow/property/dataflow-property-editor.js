@@ -4,17 +4,10 @@
 var extObject = {
 
   initialize: function(para) {
-    DataflowSet.initialize.call(this, para);
-
-    this.viewHeight = 50;
-
+    this.base.initialize.call(this, para);
     this.inPorts = [
       {
-        id: "ina",
-        type: "in-single"
-      },
-      {
-        id: "inb",
+        id: "in",
         type: "in-single"
       }
     ];
@@ -24,18 +17,19 @@ var extObject = {
         type: "out-multiple"
       }
     ];
+
     this.prepare();
   },
 
   show: function() {
 
-    DataflowSet.show.call(this); // call parent settings
+    this.base.show.call(this); // call parent settings
 
     this.jqicon = $("<div></div>")
-      .addClass("dataflow-minus-icon")
+      .addClass("dataflow-property-editor-icon")
       .appendTo(this.jqview);
   }
 
 };
 
-var DataflowMinus = DataflowSet.extend(extObject);
+var DataflowPropertyEditor = DataflowNode.extend(extObject);

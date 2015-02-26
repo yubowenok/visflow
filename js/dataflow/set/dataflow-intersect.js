@@ -4,7 +4,7 @@
 var extObject = {
 
   initialize: function(para) {
-    this.base.initialize.call(this, para);
+    DataflowSet.initialize.call(this, para);
 
     this.viewHeight = 50;
 
@@ -29,11 +29,7 @@ var extObject = {
 
   show: function() {
 
-    this.base.show.call(this); // call parent settings
-
-    this.jqview
-      .removeClass("dataflow-node-shape")
-      .addClass("dataflow-set-shape");
+    DataflowSet.show.call(this); // call parent settings
 
     this.jqicon = $("<div></div>")
       .addClass("dataflow-intersect-icon")
@@ -42,4 +38,4 @@ var extObject = {
 
 };
 
-var DataflowIntersect = DataflowNode.extend(extObject);
+var DataflowIntersect = DataflowSet.extend(extObject);

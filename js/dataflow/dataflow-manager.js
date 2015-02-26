@@ -27,7 +27,12 @@ var extObject = {
     case "intersect":
     case "union":
     case "minus":
-    case "value":
+    case "range":
+    case "contain":
+    case "value_maker":
+    case "value_extractor":
+    case "property_editor":
+    case "property_mapping":
       if (type === "datasrc")
         dataflowClass = DataflowDataSource;
       if (type === "intersect")
@@ -36,8 +41,18 @@ var extObject = {
         dataflowClass = DataflowMinus;
       if (type === "union")
         dataflowClass = DataflowUnion;
-      if (type === "value")
+      if (type === "range")
+        dataflowClass = DataflowRangeFilter;
+      if (type === "contain")
+        dataflowClass = DataflowContainFilter;
+      if (type === "value_extractor")
         dataflowClass = DataflowValueExtractor;
+      if (type === "value_maker")
+        dataflowClass = DataflowValueMaker;
+      if (type === "property_editor")
+        dataflowClass = DataflowPropertyEditor;
+      if (type === "property_mapping")
+        dataflowClass = DataflowPropertyMapping;
       newnode = dataflowClass.new({
         nodeid: ++this.nodeCounter
       });

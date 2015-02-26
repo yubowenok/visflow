@@ -32,7 +32,7 @@ var extObject = {
       .addClass("dataflow-set-shape");
 
     this.jqicon = $("<div></div>")
-      .addClass("dataflow-value-icon")
+      .addClass("dataflow-value-extractor-icon")
       .appendTo(this.jqview);
   }
 
