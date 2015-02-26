@@ -58,19 +58,28 @@ h3 {
   line-height: 30px;
   border-radius: 10px;
 }
-
-.dataflow-vis-shape {
+.dataflow-node-shape-flat {
+  width: 90px;
+  height: 40px;
+  padding: 5px;
+}
+.dataflow-node-shape-vis {
   width: 295px;
   height: 295px;
   padding: 5px;
   border-radius: 10px;
 }
 
-.dataflow-set-shape {
-  width: 90px;
-  height: 40px;
-  padding: 5px;
+
+.menu-square-icon {
+  width: 80px;
+  height: 80px;
 }
+.menu-flat-icon {
+  width: 80px;
+  height: 40px;
+}
+
 
 .dataflow-table-icon,
 .dataflow-scatterplot-icon,
@@ -79,7 +88,12 @@ h3 {
 .dataflow-intersect-icon,
 .dataflow-minus-icon,
 .dataflow-union-icon,
-.dataflow-value-icon {
+.dataflow-range-icon,
+.dataflow-contain-icon,
+.dataflow-value-maker-icon,
+.dataflow-value-extractor-icon,
+.dataflow-property-editor-icon,
+.dataflow-property-mapping-icon {
   position: relative;
   float: left;
   width: 100%;
@@ -106,9 +120,25 @@ h3 {
 .dataflow-union-icon {
   background: url(../imgs/union-icon.png) no-repeat center;
 }
-.dataflow-value-icon {
-  background: url(../imgs/value-icon.png) no-repeat center;
+.dataflow-value-extractor-icon {
+  background: url(../imgs/value-extractor-icon.png) no-repeat center;
 }
+.dataflow-value-maker-icon {
+  background: url(../imgs/value-maker-icon.png) no-repeat center;
+}
+.dataflow-range-icon {
+  background: url(../imgs/range-icon.png) no-repeat center;
+}
+.dataflow-contain-icon {
+  background: url(../imgs/contain-icon.png) no-repeat center;
+}
+.dataflow-property-editor-icon {
+  background: url(../imgs/property-editor-icon.png) no-repeat center;
+}
+.dataflow-property-mapping-icon {
+  background: url(../imgs/property-mapping-icon.png) no-repeat center;
+}
+
 
 .dataflow-port {
   width: 20px;
