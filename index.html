@@ -7,21 +7,27 @@
   <!-- selfish.js -->
   <script type="text/javascript" src="libraries/selfish/selfish.js"></script>
   <!-- underscore.js -->
-  <script type="text/javascript" src="libraries/underscore/underscore-min.js"></script>
+  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
   <!-- d3.js -->
-  <script type="text/javascript" src="libraries/d3/d3.min.js"></script>
-  <script type="text/javascript" src="libraries/jquery/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+
   <!-- jquery and jquery.ui
-   * there are hacks made to the jquery-ui.js, so don't use min.js
+   * there are hacks made to the jquery-ui.js, so don't use min.js/bower_components
    * hacks include:
     - set menu delay to 0
     - replace mouseleave callback by collapseAll call
+
+    <script type="text/javascript" src="libraries/jquery-ui-1.11.3.custom/jquery-ui.js"></script>
+    <link rel="stylesheet" href="libraries/jquery-ui-1.11.3.custom/jquery-ui.min.css" />
+    <link rel="stylesheet" href="libraries/jquery-ui-1.11.3.custom/jquery-ui.theme.min.css" />
   -->
-  <script type="text/javascript" src="libraries/jquery-ui-1.11.3.custom/jquery-ui.js"></script>
-  <link rel="stylesheet" href="libraries/jquery-ui-1.11.3.custom/jquery-ui.min.css" />
-  <link rel="stylesheet" href="libraries/jquery-ui-1.11.3.custom/jquery-ui.theme.min.css" />
+  <script type="text/javascript" src="libraries/jquery-ui/jquery-ui.js"></script>
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/jquery-ui.min.css" />
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/theme.css" />
+
   <!-- context menu -->
-  <script type="text/javascript" src="libraries/contextmenu/jquery.ui-contextmenu.js"></script>
+  <script type="text/javascript" src="bower_components/ui-contextmenu/jquery.ui-contextmenu.min.js"></script>
   <!-- theme switcher -->
   <script type="text/javascript" src="libraries/themeswitcher/jquery.themeswitcher.min.js"></script>
 
@@ -33,6 +39,7 @@
   <!-- utils -->
   <script type="text/javascript" src="js/utils.js"></script>
   <!-- dataflow -->
+  <script type="text/javascript" src="js/dataflow/dataflow-package.js"></script>
   <script type="text/javascript" src="js/dataflow/dataflow-data.js"></script>
   <script type="text/javascript" src="js/dataflow/dataflow-port.js"></script>
   <script type="text/javascript" src="js/dataflow/dataflow-edge.js"></script>
