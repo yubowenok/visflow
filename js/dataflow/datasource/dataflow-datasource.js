@@ -75,7 +75,8 @@ var extObject = {
           console.error("loaded data is null");
           return;
         }
-        view.dataOut = result;
+        console.log(result);
+        view.ports["out"].data = DataflowData.new(result);
       }
     });
   }

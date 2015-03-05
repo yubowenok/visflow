@@ -90,24 +90,6 @@ var extObject = {
     }
   },
 
-  cycleTest: function(sourceNode, targetNode) {
-    this.visited = {};
-    this.visited[sourceNode.nodeid] = true;
-    return this.traverse(targetNode);
-  },
-  traverse: function(node) {
-    if (this.visited[node.nodeid]) return true;
-    this.visited[node.nodeid] = true;
-    for (var i in node.outPorts) {
-      var port = node.outPorts[i];
-      for (var j in port.connections) {
-        if (this.traverse(port.connections[j].targetNode))
-          return true;
-      }
-    }
-    return false;
-  },
-
   createEdge: function(sourcePara, targetPara, event) {
     var sourceNode = sourcePara.node,
         targetNode = targetPara.node,
@@ -141,7 +123,6 @@ var extObject = {
       targetNode: targetNode,
       targetPort: targetPort
     });
-    console.log(sourcePort);
     sourcePort.connect(newedge);
     targetPort.connect(newedge);
 
@@ -195,6 +176,45 @@ var extObject = {
     if (this.nodes[nodeid].jqview == null)
       console.error("node does not have jqview");
     core.viewManager.bringFrontView(this.nodes[nodeid].jqview);
+  },
+
+  // check if connecting source to target will result in cycle
+  cycleTest: function(sourceNode, targetNode) {
+    var visited = {};
+    visited[sourceNode.nodeid] = true;
+    // traverse graph to find cycle
+    var traverse = function(node) {
+      if (visited[node.nodeid]) return true;
+      visited[node.nodeid] = true;
+      for (var i in node.outPorts) {
+        var port = node.outPorts[i];
+        for (var j in port.connections) {
+          if (traverse(port.connections[j].targetNode))
+            return true;
+        }
+      }
+      return false;
+    };
+    return traverse(targetNode);
+  },
+
+  // propagate result starting from a given node
+  propagate: function(node) {
+    var visited = []; // visited node list, in reversed topo order
+    var traverse = function(node) {
+      visited.push(node);
+      for (var i in node.outPorts) {
+        var port = node.outPorts[i];
+        for (var j in port.connections) {
+          traverse(port.connections[j].targetNode);
+        }
+      }
+    };
+    traverse(node);
+    // iterate in reverse order to obtain topo order
+    for (var i = node.length - 1; i >= 0; i--) {
+      visited[i].update();
+    }
   }
 };
 
