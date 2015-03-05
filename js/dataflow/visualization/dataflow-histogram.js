@@ -6,16 +6,10 @@ var extObject = {
   initialize: function(para) {
     DataflowVisualization.initialize.call(this, para);
     this.inPorts = [
-      {
-        id: "in",
-        type: "in-single"
-      }
+      DataflowPort.new(this, "in", "in-single")
     ];
     this.outPorts = [
-      {
-        id: "out",
-        type: "out-multiple"
-      }
+      DataflowPort.new(this, "out", "out-multiple")
     ];
     this.prepare();
   },

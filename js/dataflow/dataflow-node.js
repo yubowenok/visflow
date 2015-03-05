@@ -14,15 +14,6 @@ var extObject = {
     this.inPorts = [];
     this.outPorts = [];
     this.ports = {};
-
-    // data
-    this.data = {
-      dimensions: ["x", "y"],
-      elements: [{
-        x:5,
-        y:6
-      }],
-    };
   },
 
   // prepares all necessary data structures for references
@@ -35,8 +26,6 @@ var extObject = {
     var allports = this.inPorts.concat(this.outPorts);
     for (var i in allports) {
       this.ports[allports[i].id] = allports[i];
-      allports[i].node = this;
-      allports[i].connections = [];
     }
   },
 
@@ -240,6 +229,10 @@ var extObject = {
 
   hide: function() {
     $(this.jqview).children().remove();
+  },
+
+  process: function() {
+    // process all the input data and generate output
   }
 
 };

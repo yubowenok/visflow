@@ -9,20 +9,11 @@ var extObject = {
     this.viewHeight = 50;
 
     this.inPorts = [
-      {
-        id: "ina",
-        type: "in-single"
-      },
-      {
-        id: "inb",
-        type: "in-single"
-      }
+      DataflowPort.new(this, "ina", "in-single"),
+      DataflowPort.new(this, "inb", "in-single")
     ];
     this.outPorts = [
-      {
-        id: "out",
-        type: "out-multiple"
-      }
+      DataflowPort.new(this, "out", "out-multiple")
     ];
     this.prepare();
   },

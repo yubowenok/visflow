@@ -4,20 +4,14 @@
 var extObject = {
 
   initialize: function(para) {
-    this.base.initialize.call(this, para);
+    DataflowNode.initialize.call(this, para);
+
     this.inPorts = [
-      {
-        id: "in",
-        type: "in-single"
-      }
+      DataflowPort.new(this, "in", "in-single")
     ];
     this.outPorts = [
-      {
-        id: "out",
-        type: "out-multiple"
-      }
+      DataflowPort.new(this, "out", "out-multiple")
     ];
-
     this.prepare();
   },
 

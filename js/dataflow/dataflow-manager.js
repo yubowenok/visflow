@@ -141,8 +141,9 @@ var extObject = {
       targetNode: targetNode,
       targetPort: targetPort
     });
-    sourcePort.connections.push(newedge);
-    targetPort.connections.push(newedge);
+    console.log(sourcePort);
+    sourcePort.connect(newedge);
+    targetPort.connect(newedge);
 
     var jqview = core.viewManager.createEdgeView();
     newedge.setJqview(jqview);

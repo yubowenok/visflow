@@ -4,22 +4,20 @@
 var extObject = {
 
   initialize: function(para) {
-    this.base.initialize.call(this, para);
+    DataflowNode.initialize.call(this, para);
 
     this.inPorts = [];
     this.outPorts = [
-      {
-        id: "out",
-        type: "out-multiple"
-      }
+      DataflowPort.new(this, "out", "out-multiple")
     ];
     this.prepare();
   },
 
   show: function() {
-    this.base.show.call(this); // call parent settings
+    DataflowNode.show.call(this); // call parent settings
 
-    var jqview = this.jqview;
+    var jqview = this.jqview,
+        view = this;
 
     $("<div>No data loaded</div>")
       .attr("id", "datahint")
@@ -42,6 +40,9 @@ var extObject = {
                     dataname = $(this).find("#data :selected").text();
                 jqview.find("#datahint")
                   .text(dataname);
+
+                view.loadData(data);
+
                 $(this).dialog("close");
               }
             }
@@ -58,7 +59,27 @@ var extObject = {
         });
       })
       .appendTo(this.jqview);
+  },
+
+  loadData: function(dataName) {
+    var view = this;
+    $.ajax({
+      type: 'GET',
+      url: "data/car.json",
+      dataType: 'json',
+      error: function(xhr, status, err){
+        console.error("cannot load data\n" + status + "\n" + err);
+      },
+      success: function(result){
+        if (result == null){
+          console.error("loaded data is null");
+          return;
+        }
+        view.dataOut = result;
+      }
+    });
   }
 };
+
 
 var DataflowDataSource = DataflowNode.extend(extObject);
