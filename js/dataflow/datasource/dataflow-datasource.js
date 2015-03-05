@@ -49,10 +49,12 @@ var extObject = {
           ]
         });
         // hide the close button at the header bar
+        /*
         jqdialog
           .dialog("widget")
           .find(".ui-dialog-titlebar-close")
           .hide();
+        */
         // load data dialog content is stored in html
         jqdialog.load("js/dataflow/datasource/loaddata-dialog.html", function() {
           // .. nothing
@@ -62,7 +64,7 @@ var extObject = {
   },
 
   loadData: function(dataName) {
-    var view = this;
+    var node = this;
     $.ajax({
       type: 'GET',
       url: "data/car.json",
@@ -75,8 +77,11 @@ var extObject = {
           console.error("loaded data is null");
           return;
         }
-        console.log(result);
-        view.ports["out"].data = DataflowData.new(result);
+
+        // overwrite data object (to keep the same reference)
+        $.extend(true, node.ports["out"].data, DataflowData.new(result));
+
+        core.dataflowManager.propagate(node); // push changes
       }
     });
   }

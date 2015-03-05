@@ -8,6 +8,8 @@ var extObject = {
       return console.error("null para passed to DataflowNode.initialize");
     this.nodeid = para.nodeid;
 
+    this.hashtag = "#" + Utils.randomString(8); // for debug
+
     this.viewHeight = 100;
 
     // no ports by default
@@ -31,6 +33,7 @@ var extObject = {
 
   setJqview: function(jqview) {
     this.jqview = jqview;
+    jqview.addClass(this.hashtag);
   },
 
   show: function() {
@@ -152,8 +155,14 @@ var extObject = {
   update: function() {
     if (!this.inPortsChanged())
         return; // everything not changed, do not process
+    console.log("process " + this.hashtag);
+
     this.process();
     this.show();
+
+    for (var i in this.outPorts) {
+      this.outPorts[i].data.changed = true; // mark changes
+    }
   },
 
   process: function() {

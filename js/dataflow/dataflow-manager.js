@@ -211,9 +211,15 @@ var extObject = {
       }
     };
     traverse(node);
+    console.log(visited);
     // iterate in reverse order to obtain topo order
-    for (var i = node.length - 1; i >= 0; i--) {
+    for (var i = visited.length - 1; i >= 0; i--) {
       visited[i].update();
+    }
+    for (var i in visited) {
+      for (var j in visited[i].outPorts) {
+        visited[i].outPorts[j].data.changed = false;  // unmark changes
+      }
     }
   }
 };
