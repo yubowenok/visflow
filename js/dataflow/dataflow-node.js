@@ -6,7 +6,7 @@ var extObject = {
   initialize: function(para) {
     if (para == null)
       return console.error("null para passed to DataflowNode.initialize");
-    this.nodeid = para.nodeid;
+    this.nodeId = para.nodeId;
 
     this.hashtag = "#" + Utils.randomString(8); // for debug
 
@@ -49,10 +49,10 @@ var extObject = {
         }
       });
 
-    var nodeid = this.nodeid;
+    var nodeId = this.nodeId;
     this.jqview.mousedown(function(event){
       if (event.which === 1) // left click
-        core.dataflowManager.activateNode(nodeid);
+        core.dataflowManager.activateNode(nodeId);
       else if (event.which === 3)
         $(".ui-contextmenu")
           .css("z-index", core.viewManager.getTopZindex() + 1); // over other things

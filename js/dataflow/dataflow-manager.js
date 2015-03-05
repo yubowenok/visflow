@@ -10,13 +10,21 @@
 "use strict";
 
 var extObject = {
-  dataSources: [],
   initialize: function() {
+    // counters start from 1
     this.nodeCounter = 0;
     this.visCounter = 0;
     this.edgeCounter = 0;
+    this.dataCounter = 0;
+
+    this.dataSources = [];
+
     this.nodes = {};
     this.edges = {};
+
+    // the whole data collection
+    // each id refers to a data object
+    this.data = {};
   },
   createNode: function(type) {
     var newnode, dataflowClass;
@@ -54,7 +62,7 @@ var extObject = {
       if (type === "property_mapping")
         dataflowClass = DataflowPropertyMapping;
       newnode = dataflowClass.new({
-        nodeid: ++this.nodeCounter
+        nodeId: ++this.nodeCounter
       });
       break;
 
@@ -72,8 +80,8 @@ var extObject = {
       if (type === "histogram")
         dataflowClass = DataflowHistogram;
       newnode = dataflowClass.new({
-        nodeid: ++this.nodeCounter,
-        visid: ++this.visCounter
+        nodeId: ++this.nodeCounter,
+        visId: ++this.visCounter
       });
       break;
     default:
@@ -84,17 +92,18 @@ var extObject = {
     var jqview = core.viewManager.createNodeView();
     newnode.setJqview(jqview);
     newnode.show();
-    this.nodes[newnode.nodeid] = newnode;
+    this.nodes[newnode.nodeId] = newnode;
     if (type === "datasrc") {
       this.dataSources.push(newnode);
+      newnode.dataId = ++this.dataCounter;
     }
   },
 
   createEdge: function(sourcePara, targetPara, event) {
     var sourceNode = sourcePara.node,
         targetNode = targetPara.node,
-        sourcePort = sourceNode.ports[sourcePara.portid],
-        targetPort = targetNode.ports[targetPara.portid];
+        sourcePort = sourceNode.ports[sourcePara.portId],
+        targetPort = targetNode.ports[targetPara.portId];
 
     var cssparaError = {
       left: event.pageX,
@@ -148,7 +157,7 @@ var extObject = {
     }
     node.hide();
     core.viewManager.removeNodeView(node.jqview);
-    delete this.nodes[node.nodeid];
+    delete this.nodes[node.nodeId];
   },
 
   deleteEdge: function(edge) {
@@ -172,20 +181,21 @@ var extObject = {
     delete this.edges[edge.edgeid];
   },
 
-  activateNode: function(nodeid) {
-    if (this.nodes[nodeid].jqview == null)
+  activateNode: function(nodeId) {
+    if (this.nodes[nodeId].jqview == null)
       console.error("node does not have jqview");
-    core.viewManager.bringFrontView(this.nodes[nodeid].jqview);
+    core.viewManager.bringFrontView(this.nodes[nodeId].jqview);
   },
 
   // check if connecting source to target will result in cycle
   cycleTest: function(sourceNode, targetNode) {
     var visited = {};
-    visited[sourceNode.nodeid] = true;
+    visited[sourceNode.nodeId] = true;
     // traverse graph to find cycle
     var traverse = function(node) {
-      if (visited[node.nodeid]) return true;
-      visited[node.nodeid] = true;
+      if (visited[node.nodeId])
+        return true;
+      visited[node.nodeId] = true;
       for (var i in node.outPorts) {
         var port = node.outPorts[i];
         for (var j in port.connections) {
@@ -200,9 +210,13 @@ var extObject = {
 
   // propagate result starting from a given node
   propagate: function(node) {
-    var visited = []; // visited node list, in reversed topo order
+    var topo = [], // visited node list, in reversed topo order
+        visited = {};
     var traverse = function(node) {
-      visited.push(node);
+      if (visited[node.nodeId])
+        return;
+      visited[node.nodeId] = true;
+      topo.push(node);
       for (var i in node.outPorts) {
         var port = node.outPorts[i];
         for (var j in port.connections) {
@@ -211,16 +225,20 @@ var extObject = {
       }
     };
     traverse(node);
-    console.log(visited);
+    console.log(topo);
     // iterate in reverse order to obtain topo order
-    for (var i = visited.length - 1; i >= 0; i--) {
-      visited[i].update();
+    for (var i = topo.length - 1; i >= 0; i--) {
+      topo[i].update();
     }
-    for (var i in visited) {
-      for (var j in visited[i].outPorts) {
-        visited[i].outPorts[j].data.changed = false;  // unmark changes
+    for (var i in topo) {
+      for (var j in topo[i].outPorts) {
+        topo[i].outPorts[j].data.changed = false;  // unmark changes
       }
     }
+  },
+
+  registerData: function(dataId, data) {
+    this.data[dataId] = data;
   }
 };
 

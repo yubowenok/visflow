@@ -13,7 +13,7 @@ var extObject = {
 
     this.connections = []; // to which other ports it is connected (edges)
 
-    this.data = DataflowData.new(); // stored data
+    this.data = DataflowPackage.new(); // stored data
   },
 
   connect: function(edge) {
@@ -52,7 +52,7 @@ var extObject = {
           core.interactionManager.dragstartHandler({
             type : "port",
             node : node,
-            portid : event.target.id,
+            portId : event.target.id,
             event : event
           });
         },
@@ -60,7 +60,7 @@ var extObject = {
           core.interactionManager.dragmoveHandler({
             type : "port",
             node : node,
-            portid : event.target.id,
+            portId : event.target.id,
             event : event
           });
         },
@@ -80,7 +80,7 @@ var extObject = {
           core.interactionManager.dropHandler({
             type : "port",
             node : node,
-            portid : event.target.id,
+            portId : event.target.id,
             event : event
           });
         }
