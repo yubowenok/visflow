@@ -4,7 +4,8 @@
 var extObject = {
 
   initialize: function(para) {
-    DataflowNode.initialize.call(this, para);
+
+    DataflowContainFilter.base.initialize.call(this, para);
 
     this.inPorts = [
       DataflowPort.new(this, "inv", "in-single"),
@@ -19,7 +20,7 @@ var extObject = {
 
   show: function() {
 
-    DataflowNode.show.call(this); // call parent settings
+    DataflowContainFilter.base.show.call(this); // call parent settings
 
     this.jqicon = $("<div></div>")
       .addClass("dataflow-contain-icon")
@@ -28,4 +29,4 @@ var extObject = {
 
 };
 
-var DataflowContainFilter = DataflowNode.extend(extObject);
+var DataflowContainFilter = DataflowFilter.extend(extObject);

@@ -9,8 +9,9 @@
 var extObject = {
   initialize: function(data) {
 
-    if (data == null)
-      return;
+    if (data == null) {
+      data = DataflowData.new();
+    }
 
     // maintain a reference to the original data object
     this.data = data;
@@ -19,6 +20,7 @@ var extObject = {
     this.items = [];
     for (var i in data.values) {
       this.items.push({
+        index: i,
         values: data.values[i],
         properties: {}  // create a rendering property object
       });

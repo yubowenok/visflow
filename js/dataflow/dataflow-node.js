@@ -11,6 +11,8 @@ var extObject = {
     this.hashtag = "#" + Utils.randomString(8); // for debug
 
     this.viewHeight = 100;
+    this.portHeight = 20;
+    this.portGap = 4;
 
     // no ports by default
     this.inPorts = [];
@@ -38,6 +40,8 @@ var extObject = {
 
   show: function() {
 
+    // this removes anything created (including those from inheriting classes)
+    // inheriting classes shall not remove again
     this.jqview.children().remove();
 
     var node = this;
@@ -99,20 +103,24 @@ var extObject = {
 
   showPorts: function() {
     this.jqview.find(".dataflow-port").remove();
+
+    console.log(this.viewHeight);
+
+    var portStep = this.portHeight + this.portGap;
     var node = this;
-    var inTopBase = this.viewHeight / 2 - this.inPorts.length * 10;
+    var inTopBase = (this.viewHeight - this.inPorts.length * portStep + this.portGap) / 2;
     for (var i in this.inPorts) {
       var port = this.inPorts[i];
       var jqview = $("<div></div>")
-        .css("top", inTopBase + i * 20)
+        .css("top", inTopBase + i * portStep)
         .appendTo(this.jqview);
       port.setJqview(jqview);
     }
-    var outTopBase = this.viewHeight / 2 - this.outPorts.length * 10;
+    var outTopBase = (this.viewHeight - this.outPorts.length * portStep + this.portGap) / 2;
     for (var i in this.outPorts) {
       var port = this.outPorts[i];
       var jqview = $("<div></div>")
-        .css("top", outTopBase + i * 20)
+        .css("top", outTopBase + i * portStep)
         .appendTo(this.jqview);
       port.setJqview(jqview);
     }
@@ -120,20 +128,21 @@ var extObject = {
 
   updatePorts: function() {
       var node = this;
-      var inTopBase = this.viewHeight / 2 - this.inPorts.length * 10;
+      var portStep = this.portHeight + this.portGap;
+      var inTopBase = (this.viewHeight - this.inPorts.length * portStep + this.portGap) / 2;
       for (var i in this.inPorts) {
         var port = this.inPorts[i];
         port.jqview
-          .css("top", inTopBase + i * 20);
+          .css("top", inTopBase + i * portStep);
         for (var j in port.connections) {
           port.connections[j].update();
         }
       }
-      var outTopBase = this.viewHeight / 2 - this.outPorts.length * 10;
+      var outTopBase = (this.viewHeight - this.outPorts.length * portStep + this.portGap) / 2;
       for (var i in this.outPorts) {
         var port = this.outPorts[i];
         port.jqview
-          .css("top", inTopBase + i * 20);
+          .css("top", outTopBase + i * portStep);
         for (var j in port.connections) {
           port.connections[j].update();
         }
@@ -146,7 +155,7 @@ var extObject = {
 
   inPortsChanged: function() {
     for (var i in this.inPorts) {
-      if (this.inPorts[i].data.changed)
+      if (this.inPorts[i].pack.changed)
         return true;
     }
     return false;
@@ -161,7 +170,7 @@ var extObject = {
     this.show();
 
     for (var i in this.outPorts) {
-      this.outPorts[i].data.changed = true; // mark changes
+      this.outPorts[i].pack.changed = true; // mark changes
     }
   },
 
@@ -170,9 +179,7 @@ var extObject = {
     // write this function in inheritting classes
   }
 
-
-
-
 };
 
 var DataflowNode = Base.extend(extObject);
+

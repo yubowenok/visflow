@@ -55,9 +55,6 @@ var extObject = {
             }
           }
         });
-        console.log(menu);
-        menu.menu("option", "delay", 0);
-
       });
   }
 };

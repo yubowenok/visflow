@@ -13,13 +13,15 @@ var extObject = {
 
     this.connections = []; // to which other ports it is connected (edges)
 
-    this.data = DataflowPackage.new(); // stored data
+    this.pack = DataflowPackage.new(); // stored data
   },
 
   connect: function(edge) {
     this.connections.push(edge);
-    if (this.isInPort)
-      this.data = edge.sourcePort.data; // make data reference
+    if (this.isInPort) {
+      this.pack = edge.sourcePort.pack; // make data reference
+    }
+    core.dataflowManager.propagate(edge.sourceNode);
   },
 
   setJqview: function(jqview) {
@@ -31,7 +33,7 @@ var extObject = {
       .addClass(this.isInPort ? "dataflow-port-in" : "dataflow-port-out");
 
     $("<div></div>")
-      .addClass("dataflow-port dataflow-port-icon-" + this.type)
+      .addClass("dataflow-port-icon dataflow-port-icon-" + this.type)
       .appendTo(jqview);
 
     this.prepareInteraction();
@@ -42,7 +44,7 @@ var extObject = {
         node = this.node;
     this.jqview
       .dblclick(function() {
-        console.log(port.data); // for debug
+        console.log(typeof(port.pack), port.pack); // for debug
       })
       .draggable({
         helper : function() {

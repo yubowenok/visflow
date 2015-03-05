@@ -5,6 +5,7 @@ var extObject = {
 
   initialize: function(para) {
     DataflowVisualization.initialize.call(this, para);
+
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
     ];
@@ -26,3 +27,4 @@ var extObject = {
 };
 
 var DataflowHistogram = DataflowVisualization.extend(extObject);
+

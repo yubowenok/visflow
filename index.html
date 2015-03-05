@@ -4,32 +4,25 @@
   <meta charset="utf-8">
   <title>Dataflow Visualization Builder</title>
 
-  <!-- selfish.js -->
-  <script type="text/javascript" src="libraries/selfish/selfish.js"></script>
-  <!-- underscore.js -->
+
   <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
-  <!-- d3.js -->
   <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/jquery-ui.min.css" />
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/theme.css" />
   <!-- jquery and jquery.ui
    * there are hacks made to the jquery-ui.js, so don't use min.js/bower_components
    * hacks include:
     - set menu delay to 0
     - replace mouseleave callback by collapseAll call
-
-    <script type="text/javascript" src="libraries/jquery-ui-1.11.3.custom/jquery-ui.js"></script>
-    <link rel="stylesheet" href="libraries/jquery-ui-1.11.3.custom/jquery-ui.min.css" />
-    <link rel="stylesheet" href="libraries/jquery-ui-1.11.3.custom/jquery-ui.theme.min.css" />
   -->
   <script type="text/javascript" src="libraries/jquery-ui/jquery-ui.js"></script>
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/jquery-ui.min.css" />
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/theme.css" />
-
-  <!-- context menu -->
   <script type="text/javascript" src="bower_components/ui-contextmenu/jquery.ui-contextmenu.min.js"></script>
-  <!-- theme switcher -->
+  <script type="text/javascript" src="libraries/selfish/selfish.js"></script>
   <script type="text/javascript" src="libraries/themeswitcher/jquery.themeswitcher.min.js"></script>
+
+  <script type="text/javascript" src="bower_components/select2/select2.min.js"></script>
+  <link type="text/css" rel="stylesheet" href="bower_components/select2/select2.css" />
 
   <!-- genotet css -->
   <link type="text/css" rel="stylesheet" href="css/override.css" />
@@ -45,6 +38,7 @@
   <script type="text/javascript" src="js/dataflow/dataflow-edge.js"></script>
   <script type="text/javascript" src="js/dataflow/dataflow-node.js"></script>
   <script type="text/javascript" src="js/dataflow/datasource/dataflow-datasource.js"></script>
+  <script type="text/javascript" src="js/dataflow/filter/dataflow-filter.js"></script>
   <script type="text/javascript" src="js/dataflow/filter/dataflow-range.js"></script>
   <script type="text/javascript" src="js/dataflow/filter/dataflow-contain.js"></script>
   <script type="text/javascript" src="js/dataflow/visualization/dataflow-visualization.js"></script>

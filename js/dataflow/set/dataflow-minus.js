@@ -6,8 +6,6 @@ var extObject = {
   initialize: function(para) {
     DataflowSet.initialize.call(this, para);
 
-    this.viewHeight = 50;
-
     this.inPorts = [
       DataflowPort.new(this, "ina", "in-single"),
       DataflowPort.new(this, "inb", "in-single")

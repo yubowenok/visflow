@@ -97,6 +97,7 @@ var extObject = {
       this.dataSources.push(newnode);
       newnode.dataId = ++this.dataCounter;
     }
+    this.activateNode(newnode.nodeId);
   },
 
   createEdge: function(sourcePara, targetPara, event) {
@@ -232,7 +233,7 @@ var extObject = {
     }
     for (var i in topo) {
       for (var j in topo[i].outPorts) {
-        topo[i].outPorts[j].data.changed = false;  // unmark changes
+        topo[i].outPorts[j].pack.changed = false;  // unmark changes
       }
     }
   },

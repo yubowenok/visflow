@@ -5,6 +5,8 @@ var extObject = {
 
   initialize: function(para) {
     DataflowNode.initialize.call(this, para);
+
+    this.viewHeight = 50;
   },
 
   show: function() {

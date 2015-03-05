@@ -42,10 +42,10 @@ var extObject = {
   },
 
   show: function() {
+    DataflowNode.show.call(this);
 
     var node = this;
 
-    DataflowNode.show.call(this);
     if (this.vismode === true) {
       this.jqview
         .removeClass("dataflow-node-shape")

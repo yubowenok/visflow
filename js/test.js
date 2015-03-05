@@ -1,6 +1,7 @@
 
 function test() {
   core.dataflowManager.createNode("datasrc");
+  core.dataflowManager.createNode("range");
 
   core.dataflowManager.createNode("union");
 
