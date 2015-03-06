@@ -143,16 +143,10 @@ var extObject = {
   },
 
   deleteNode: function(node) {
+
     for (var key in node.ports) {
       var port = node.ports[key];
-      var connections = [];
-      // make a copy, because deleteEdge is goingn to traverse adjacency list
-      // preventing O(n^2) traversal
       for (var i in port.connections) {
-        connections.push(port.connections[i]);
-      }
-      port.connections = [];
-      for (var i in connections) {
         this.deleteEdge(connections[i]);
       }
     }
@@ -165,18 +159,14 @@ var extObject = {
     // remove the references in port's connection list
     var sourcePort = edge.sourcePort,
         targetPort = edge.targetPort;
-    for (var i in sourcePort.connections) {
-      if (sourcePort.connections[i] === edge) {
-        sourcePort.connections.splice(i,1);
-        break;
-      }
-    }
-    for (var i in targetPort.connections) {
-      if (targetPort.connections[i] === edge) {
-        targetPort.connections.splice(i,1);
-        break;
-      }
-    }
+
+    sourcePort.disconnect(edge);
+    targetPort.disconnect(edge);
+
+    targetPort.pack = DataflowPackage.new();
+
+    this.propagate(edge.targetNode);  // not efficient when deleting nodes?
+
     edge.hide();
     core.viewManager.removeEdgeView(edge.jqview);
     delete this.edges[edge.edgeid];
@@ -239,7 +229,10 @@ var extObject = {
   },
 
   registerData: function(dataId, data) {
+    if (dataId == null || data == null)
+      return console.error("attempt register null data / null dataId");
     this.data[dataId] = data;
+    data.dataId = dataId;
   }
 };
 

@@ -23,6 +23,16 @@ var extObject = {
     this.jqicon = $("<div></div>")
       .addClass("dataflow-intersect-icon")
       .appendTo(this.jqview);
+  },
+
+  process: function() {
+    var packa = this.ports["ina"].pack,
+        packb = this.ports["inb"].pack;
+
+    if (!packa.data.matchDataFormat(packb.data))
+      return console.error("cannot make intersection of two different types of datasets");
+
+
   }
 
 };

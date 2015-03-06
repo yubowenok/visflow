@@ -22,9 +22,25 @@ var extObject = {
 
     DataflowContainFilter.base.show.call(this); // call parent settings
 
+    $("<div>contains</div>")
+      .appendTo(this.jqview);
+
+    $("<div><input id='v' style='width:80%'/></div>")
+      .appendTo(this.jqview);
+
+    this.jqview.find("input")
+      .prop("disabled", true)
+      .addClass("dataflow-input");
+
+    this.value = Infinity;
+
+    this.jqvalue = this.jqview.find("#v")
+      .val(this.value);
+    /*
     this.jqicon = $("<div></div>")
       .addClass("dataflow-contain-icon")
       .appendTo(this.jqview);
+      */
   }
 
 };

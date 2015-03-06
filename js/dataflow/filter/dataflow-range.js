@@ -33,12 +33,12 @@ var extObject = {
     this.jqview.find("input")
       .prop("disabled", true)
       .addClass("dataflow-input");
-    this.v1 = -Infinity;
-    this.v2 = +Infinity;
-    this.jqv1 = this.jqview.find("#v1")
-      .val(this.v1);
-    this.jqv2 = this.jqview.find("#v2")
-      .val(this.v2);
+    this.value1 = -Infinity;
+    this.value2 = +Infinity;
+    this.jqvalue1 = this.jqview.find("#v1")
+      .val(this.value1);
+    this.jqvalue2 = this.jqview.find("#v2")
+      .val(this.value2);
     //this.jqicon
       //.addClass("dataflow-range-icon");
   }

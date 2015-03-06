@@ -104,8 +104,6 @@ var extObject = {
   showPorts: function() {
     this.jqview.find(".dataflow-port").remove();
 
-    console.log(this.viewHeight);
-
     var portStep = this.portHeight + this.portGap;
     var node = this;
     var inTopBase = (this.viewHeight - this.inPorts.length * portStep + this.portGap) / 2;

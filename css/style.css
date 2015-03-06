@@ -54,7 +54,6 @@ h3, li, input {
 .dataflow-node-shape {
   width: 100px;
   height: 100px;
-  line-height: 30px;
   border-radius: 10px;
 }
 .dataflow-node-shape-flat {

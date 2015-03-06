@@ -19,7 +19,7 @@ var extObject = {
     var jqview = this.jqview,
         view = this;
 
-    $("<div>No data loaded</div>")
+    $("<div style='line-height:50px'>No data loaded</div>")
       .attr("id", "datahint")
       .appendTo(this.jqview);
 
@@ -80,7 +80,7 @@ var extObject = {
 
         var data = DataflowData.new(result);
 
-        core.dataflowManager.registerData(data, this.dataId);
+        core.dataflowManager.registerData(node.dataId, data);
 
         // overwrite data object (to keep the same reference)
         $.extend(true, node.ports["out"].pack, DataflowPackage.new(data));

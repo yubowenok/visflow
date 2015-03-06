@@ -1,9 +1,9 @@
 
 function test() {
   core.dataflowManager.createNode("datasrc");
-  core.dataflowManager.createNode("range");
+  core.dataflowManager.createNode("contain");
 
-  core.dataflowManager.createNode("union");
+  //core.dataflowManager.createNode("intersect");
 
   /*
   core.dataflowManager.createNode("range");

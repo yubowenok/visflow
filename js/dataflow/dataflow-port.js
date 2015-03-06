@@ -21,7 +21,17 @@ var extObject = {
     if (this.isInPort) {
       this.pack = edge.sourcePort.pack; // make data reference
     }
+    edge.sourcePort.pack.changed = true;
     core.dataflowManager.propagate(edge.sourceNode);
+  },
+
+  disconnect: function(edge) {
+    for (var i in this.connections) {
+      if (this.connections[i] === edge) {
+        this.connections.splice(i, 1);
+        break;
+      }
+    }
   },
 
   setJqview: function(jqview) {
