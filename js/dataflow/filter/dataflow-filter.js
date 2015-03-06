@@ -11,6 +11,7 @@ var extObject = {
     DataflowFilter.base.initialize.call(this, para);
 
     this.viewHeight = 90; // height + padding
+    this.dimension = null;
   },
 
   show: function() {
@@ -20,17 +21,23 @@ var extObject = {
       .removeClass("dataflow-node-shape")
       .addClass("dataflow-node-shape-longflat");
 
+ /*
     this.jqicon = $("<div></div>")
       .appendTo(this.jqview);
+*/
 
-    this.selectDimension = $("<select><option/></select>")
-      .addClass("dataflow-select")
+    var node = this;
+    this.selectDimension = $("<select class='dataflow-select'><option/></select>")
       .appendTo(this.jqview)
       .select2({
         placeholder: "Select"
+      })
+      .change(function(event){
+        node.dimension = event.target.value;
+        node.update();
       });
-
     this.updateDimensionList();
+    this.selectDimension.select2("val", this.dimension);  // must call after updateDimensionList
   },
 
   updateDimensionList: function() {

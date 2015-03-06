@@ -20,6 +20,10 @@ var extObject = {
       };
     }
 
+    if (data.type === "constants") {
+      console.error("reserved type 'constants' used for data");
+    }
+
     this.type = data.type;  // data types: empty, car, etc
 
     this.dimensions = data.dimensions;  // data dimensions

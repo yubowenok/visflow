@@ -110,16 +110,17 @@ var extObject = {
       left: event.pageX,
       top: event.pageY
     };
+
     if (sourceNode === targetNode)
-      return core.viewManager.createTip("Cannot connect two ports of the same node", cssparaError);
+      return core.viewManager.tip("Cannot connect two ports of the same node", cssparaError);
 
     if (sourcePort.type === "out-single" && sourcePort.connections.length)
-      return core.viewManager.createTip("Out port is single and has already been connected", cssparaError);
+      return core.viewManager.tip("Out port is single and has already been connected", cssparaError);
     if (targetPort.type === "in-single" && targetPort.connections.length)
-      return core.viewManager.createTip("In port is single and has already been connected", cssparaError);
+      return core.viewManager.tip("In port is single and has already been connected", cssparaError);
 
     if (this.cycleTest(sourceNode, targetNode))
-      return core.viewManager.createTip("Cannot make connection that results in cycle", cssparaError);
+      return core.viewManager.tip("Cannot make connection that results in cycle", cssparaError);
 
     if (sourcePort.type === "out-multiple" && targetPort.type === "in-multiple") {
       // TODO
@@ -162,8 +163,6 @@ var extObject = {
 
     sourcePort.disconnect(edge);
     targetPort.disconnect(edge);
-
-    targetPort.pack = DataflowPackage.new();
 
     this.propagate(edge.targetNode);  // not efficient when deleting nodes?
 

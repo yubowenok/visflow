@@ -11,6 +11,12 @@ var extobject = {
     this.dragstartPara = {};
     this.dragstopPara = {};
     this.dropPossible = false;
+
+    var manager = this;
+    $(document).mousemove(function(event) {
+        manager.currentMouseX = event.pageX;
+        manager.currentMouseY = event.pageY;
+    });
   },
 
   trackMousemove: function(disabled) {

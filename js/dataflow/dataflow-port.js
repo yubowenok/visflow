@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  initialize: function(node, id, type) {
+  initialize: function(node, id, type, isConstants) {
 
     this.node = node; // parent node
 
@@ -13,7 +13,8 @@ var extObject = {
 
     this.connections = []; // to which other ports it is connected (edges)
 
-    this.pack = DataflowPackage.new(); // stored data
+    this.packClass = isConstants ? DataflowConstants : DataflowPackage;
+    this.pack = this.packClass.new(); // stored data / constants
   },
 
   connect: function(edge) {
@@ -31,6 +32,9 @@ var extObject = {
         this.connections.splice(i, 1);
         break;
       }
+    }
+    if (this.isInPort && this.connections.length === 0) {
+      this.pack = this.packClass.new();
     }
   },
 

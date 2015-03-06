@@ -66,7 +66,15 @@ var extObject = {
     return this.topZindex;
   },
 
-  createTip: function(text, csspara) {
+  tip: function(text, csspara) {
+    // csspara is the css object to define the tip's position, style, etc
+    if (csspara == null)
+      // by default show at mouse cursor
+      csspara = {
+        left: core.interactionManager.currentMouseX,
+        top: core.interactionManager.currentMouseY
+      };
+
     $("<div></div>")
       .addClass("tip-mouse ui-tooltip ui-tooltip-content")
       .text(text)

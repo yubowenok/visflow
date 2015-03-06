@@ -8,7 +8,7 @@ var extObject = {
     DataflowContainFilter.base.initialize.call(this, para);
 
     this.inPorts = [
-      DataflowPort.new(this, "inv", "in-single"),
+      DataflowPort.new(this, "inv", "in-single", true),
       DataflowPort.new(this, "in", "in-single")
     ];
     this.outPorts = [

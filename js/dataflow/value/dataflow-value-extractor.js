@@ -6,7 +6,7 @@ var extObject = {
   initialize: function(para) {
     this.base.initialize.call(this, para);
 
-    this.viewHeight = 50;
+    this.viewHeight = 40; // height + padding
 
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
@@ -14,6 +14,9 @@ var extObject = {
     this.outPorts = [
       DataflowPort.new(this, "out", "out-multiple")
     ];
+
+    // overwrite with constants
+    this.outPorts[0].pack = DataflowConstants.new();
 
     this.prepare();
   },
@@ -24,11 +27,14 @@ var extObject = {
 
     this.jqview
       .removeClass("dataflow-node-shape")
-      .addClass("dataflow-set-shape");
+      .addClass("dataflow-node-shape-superflat");
 
+
+    /*
     this.jqicon = $("<div></div>")
       .addClass("dataflow-value-extractor-icon")
       .appendTo(this.jqview);
+      */
   }
 
 };
