@@ -10,11 +10,31 @@ var extObject = {
     this.id = id; // port id corresponding to its parent node
     this.type = type; // in-single, in-multiple, out-single, out-multiple
     this.isInPort = this.type.substr(0, 2) === "in";
+    this.isSingle = this.type.match("single") != null;
+    this.isConstants = isConstants === true;
 
     this.connections = []; // to which other ports it is connected (edges)
 
     this.packClass = isConstants ? DataflowConstants : DataflowPackage;
     this.pack = this.packClass.new(); // stored data / constants
+  },
+
+  connectable: function(port) {
+    if (this.node === port.node)
+      return "cannot connect ports of the same node";
+    if (this.isSingle && this.connections.length || port.isSingle && port.connections.length)
+      return "single port has already been connected";
+    if (this.isConstants !== port.isConstants) {
+
+      return "cannot connect constants port with non-constants port";
+    }
+    for (var i in this.connections) {
+      var edge = this.connections[i];
+      if (this.isInPort && edge.sourcePort === port ||
+          !this.isInPort && edge.targetPort === port)
+        return "connection already exists";
+    }
+    return 0;
   },
 
   connect: function(edge) {
@@ -58,7 +78,7 @@ var extObject = {
         node = this.node;
     this.jqview
       .dblclick(function() {
-        console.log(typeof(port.pack), port.pack); // for debug
+        console.log(port.isConstants, port.pack); // for debug
       })
       .draggable({
         helper : function() {

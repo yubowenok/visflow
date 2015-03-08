@@ -111,13 +111,9 @@ var extObject = {
       top: event.pageY
     };
 
-    if (sourceNode === targetNode)
-      return core.viewManager.tip("Cannot connect two ports of the same node", cssparaError);
-
-    if (sourcePort.type === "out-single" && sourcePort.connections.length)
-      return core.viewManager.tip("Out port is single and has already been connected", cssparaError);
-    if (targetPort.type === "in-single" && targetPort.connections.length)
-      return core.viewManager.tip("In port is single and has already been connected", cssparaError);
+    var con = sourcePort.connectable(targetPort);
+    if (con !== 0)  // 0 means okay
+      return core.viewManager.tip(con, cssparaError);
 
     if (this.cycleTest(sourceNode, targetNode))
       return core.viewManager.tip("Cannot make connection that results in cycle", cssparaError);

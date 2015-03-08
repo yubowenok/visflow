@@ -12,7 +12,7 @@ var extObject = {
       DataflowPort.new(this, "in", "in-single")
     ];
     this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
+      DataflowPort.new(this, "out", "out-multiple", true)
     ];
 
     // overwrite with constants
