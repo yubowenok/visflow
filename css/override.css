@@ -24,8 +24,16 @@ body {
 }
 
 .ui-menu-item {
+  left: 0px;
   white-space: nowrap;
   font-weight: normal;
+}
+
+/*
+ * Otherwise, the submenu will leave empty spaces for icons
+ */
+.ui-menu-icons .ui-menu-item .ui-menu-item {
+  padding-left: 0.4em;
 }
 
 .ui-state-active,
