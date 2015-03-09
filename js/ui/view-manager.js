@@ -43,20 +43,6 @@ var extObject = {
     $(jqview).remove();
   },
 
-  createDialog: function() {
-    if (this.jqdialog != null) {
-      console.log("a dialog is already opened. complete the action first.");
-      return null;
-    }
-    var jqview = $("<div></div>")
-      .dialog(); // TODO do we really need to make dialog here? though just redundant..
-    return jqview;
-  },
-
-  removeDialog: function() {
-    this.jqdialog = null;
-  },
-
   bringFrontView: function(jqview) {
     jqview
       .css("z-index", ++this.topZindex);

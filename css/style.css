@@ -191,8 +191,10 @@ h3, li, input {
   border: 1px solid #aaa;
   border-radius: 4px;
   line-height: 20px;
-  text-align: center;
   background-image: linear-gradient(to top, #eee 0%, #fff 50%);
+}
+.dataflow-input-node {
+  text-align: center;
 }
 
 .tip-mouse {
@@ -202,4 +204,8 @@ h3, li, input {
 }
 
 .dialog-loaddata {
+}
+
+.dataflow-input-leadtext {
+  padding-right: 1em;
 }

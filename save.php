@@ -9,6 +9,10 @@ if (!isset($_POST['filename']) || !isset($_POST['dataflow'])){
   $paraok = 0;
 }
 
+if (!file_exists('save')) {
+    mkdir('save', 0777, true);
+}
+
 if ($paraok) {
   $filename = $_POST['filename'];
   $dataflow = $_POST['dataflow'];

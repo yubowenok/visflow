@@ -39,7 +39,7 @@ var extObject = {
     var node = this;
     this.jqview.find("input")
       .prop("disabled", true)
-      .addClass("dataflow-input");
+      .addClass("dataflow-input dataflow-input-node");
 
     this.jqvalue1 = this.jqview.find("#v1")
       .val(this.value1 ? this.value1 : this.nullValueString);

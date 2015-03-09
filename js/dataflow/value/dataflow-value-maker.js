@@ -31,7 +31,7 @@ var extObject = {
       .prependTo(this.jqview);
 
     this.jqinput.find("input")
-      .addClass("dataflow-input");
+      .addClass("dataflow-input dataflow-input-node");
 
     var node = this;
     this.jqinput

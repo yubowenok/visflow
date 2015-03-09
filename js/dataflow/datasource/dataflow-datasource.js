@@ -27,7 +27,7 @@ var extObject = {
     $("<input type='button' id='load' value='Load Data'>")
       .button()
       .click(function(event, ui){
-        var jqdialog = core.viewManager.createDialog();
+        var jqdialog = $("<div></div>");
         jqdialog
           .addClass("dialog-loaddata")
           .dialog({

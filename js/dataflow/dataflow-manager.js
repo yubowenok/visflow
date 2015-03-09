@@ -228,6 +228,78 @@ var extObject = {
       return console.error("attempt register null data / null dataId");
     this.data[dataId] = data;
     data.dataId = dataId;
+  },
+
+  saveDataflow: function() {
+    var jqdialog = $("<div></div>");
+
+    $("<span>Name:</span>")
+      .addClass("dataflow-input-leadtext")
+      .appendTo(jqdialog);
+
+    $("<input></input>")
+      .val("myDataflow")
+      .css("width", "80%")
+      .appendTo(jqdialog);
+
+    var manager = this;
+    jqdialog
+      .css("line-height", "50px")
+      .dialog({
+        title: "Name Your Dataflow",
+        modal: true,
+        buttons: [
+          {
+            text: "OK",
+            click: function() {
+              var filename = $(this).find("input").val();
+              manager.uploadDataflow(filename);
+              $(this).dialog("close");
+            }
+          }
+        ]
+      });
+  },
+
+  // this function parses the current dataflow and
+  // returns a standard dataflow configuration object
+  serializeDataflow: function() {
+    return {
+      a: 5,
+      b: 4
+    };
+  },
+
+  uploadDataflow: function(filename) {
+    $.ajax({
+      type: "POST",
+      url: "save.php",
+      data: {
+        filename: filename,
+        dataflow: JSON.stringify(this.serializeDataflow())
+      },
+      success: function(data, textStatus, jqXHR) {
+        console.log(data);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error(jqXHR, textStatus, errorThrown);
+      }
+    });
+  },
+
+  loadDataflow: function() {
+    $.ajax({
+      type: "POST",
+      url: "load.php",
+      data: {
+      },
+      success: function(data, textStatus, jqXHR) {
+        console.log(data);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error(jqXHR, textStatus, errorThrown);
+      }
+    });
   }
 };
 

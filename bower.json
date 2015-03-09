@@ -23,6 +23,7 @@
     "ui-contextmenu": "~1.8.2",
     "underscore": "~1.8.2",
     "select2": "~3.5.2",
-    "d3": "~3.5.5"
+    "d3": "~3.5.5",
+    "DataTables": "~1.10.5"
   }
 }
