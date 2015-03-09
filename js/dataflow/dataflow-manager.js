@@ -246,7 +246,7 @@ var extObject = {
     jqdialog
       .css("line-height", "50px")
       .dialog({
-        title: "Name Your Dataflow",
+        title: "Save Dataflow",
         modal: true,
         buttons: [
           {
@@ -265,9 +265,12 @@ var extObject = {
   // returns a standard dataflow configuration object
   serializeDataflow: function() {
     return {
-      a: 5,
-      b: 4
+      timestamp: (new Date()).getTime()
     };
+  },
+
+  loadSerializedDataflow: function() {
+
   },
 
   uploadDataflow: function(filename) {
@@ -288,10 +291,82 @@ var extObject = {
   },
 
   loadDataflow: function() {
+    var manager = this;
     $.ajax({
       type: "POST",
       url: "load.php",
       data: {
+        type: "filelist"
+      },
+      success: function(data, textStatus, jqXHR) {
+        var filelist = data.filelist;
+        var jqdialog = $("<div></div>");
+        var jqtable = $("<table></table>")
+          .appendTo(jqdialog);
+        $("<thead><th>Name</th><th>Last Modified</th></thead>")
+          .appendTo(jqtable);
+        var jqtbody = $("<tbody></tbody>")
+          .appendTo(jqtable);
+
+        var selectedDataflow = null;
+
+        jqtbody.on( 'click', 'tr', function () {
+          $(this).parent().find("tr").removeClass("selected");
+          $(this).toggleClass('selected');
+          selectedDataflow = $(this).find("td:first").text();
+
+          // enable OK button as one item is now selected
+          jqdialog.parent().find("button:contains('OK')")
+            .prop("disabled", false)
+            .removeClass("ui-state-disabled");
+        });
+
+        for (var i in filelist) {
+          var file = filelist[i];
+          $("<tr>" +
+            "<td>" + file.filename + "</td>" +
+            "<td>" + (new Date(file.mtime)).toLocaleString() + "</td>" +
+            "</tr>")
+            .appendTo(jqtbody);
+        }
+
+        jqtable
+          .appendTo(jqdialog)
+          .DataTable();
+
+        jqdialog
+          .dialog({
+            title: "Load Dataflow",
+            width: 400,
+            modal: true,
+            buttons: [
+              {
+                text: "OK",
+                click: function() {
+                  manager.downloadDataflow(selectedDataflow);
+                  $(this).dialog("close");
+                }
+              }
+            ]
+          });
+        // disable OK button as no item is selected
+        jqdialog.parent().find("button:contains('OK')")
+          .prop("disabled", true)
+          .addClass("ui-state-disabled");
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.error(jqXHR, textStatus, errorThrown);
+      }
+    });
+  },
+
+  downloadDataflow: function(filename) {
+    $.ajax({
+      type: "POST",
+      url: "load.php",
+      data: {
+        type: "download",
+        filename: filename
       },
       success: function(data, textStatus, jqXHR) {
         console.log(data);

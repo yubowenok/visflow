@@ -3,7 +3,6 @@
 header('Content-type: application/json');
 
 $paraok = 1;
-$response = array();
 if (!isset($_POST['filename']) || !isset($_POST['dataflow'])){
   $response['status'] = 'error';
   $paraok = 0;

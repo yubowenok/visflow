@@ -8,10 +8,15 @@
   <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
   <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/base/all.css" />
+
+  <!-- DataTables partially using library because there was a bug in ui theme integration -->
+  <script type="text/javascript" src="bower_components/DataTables/media/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="libraries/DataTables/dataTables.jqueryui.min.js"></script>
+  <link rel="stylesheet" href="libraries/DataTables/dataTables.jqueryui.css" />
+
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/theme.css" />
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/jquery-ui.min.css" />
-  <!-- jquery and jquery.ui
+  <!-- jquery.ui modified
    * there are hacks made to the jquery-ui.js, so don't use min.js/bower_components
    * hacks include:
     - set menu delay to 0
