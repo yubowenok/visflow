@@ -28,6 +28,7 @@ var extObject = {
     jqview.css(para);
     return jqview;
   },
+
   createEdgeView: function(para) {
     if(para == null)
       para = {};
@@ -36,11 +37,19 @@ var extObject = {
     jqview.css(para);
     return jqview;
   },
+
   removeNodeView: function(jqview) {
     $(jqview).remove();
   },
+
   removeEdgeView: function(jqview) {
     $(jqview).remove();
+  },
+
+  clearDataflowViews: function() {
+    $(".dataflow-node").remove();
+    $(".dataflow-edge").remove();
+    // after this, nodes and edges cannot reuse their jqview
   },
 
   bringFrontView: function(jqview) {

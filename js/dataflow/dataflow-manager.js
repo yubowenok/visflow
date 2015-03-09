@@ -26,6 +26,7 @@ var extObject = {
     // each id refers to a data object
     this.data = {};
   },
+
   createNode: function(type) {
     var newnode, dataflowClass;
     switch (type) {
@@ -62,7 +63,8 @@ var extObject = {
       if (type === "property_mapping")
         dataflowClass = DataflowPropertyMapping;
       newnode = dataflowClass.new({
-        nodeId: ++this.nodeCounter
+        nodeId: ++this.nodeCounter,
+        type: type
       });
       break;
 
@@ -81,7 +83,8 @@ var extObject = {
         dataflowClass = DataflowHistogram;
       newnode = dataflowClass.new({
         nodeId: ++this.nodeCounter,
-        visId: ++this.visCounter
+        visId: ++this.visCounter,
+        type: type
       });
       break;
     default:
@@ -93,38 +96,28 @@ var extObject = {
     newnode.setJqview(jqview);
     newnode.show();
     this.nodes[newnode.nodeId] = newnode;
-    if (type === "datasrc") {
+    if (type == "datasrc" || type == "value_maker") {
       this.dataSources.push(newnode);
-      newnode.dataId = ++this.dataCounter;
+      if (type == "datasrc")
+        newnode.dataId = ++this.dataCounter;
     }
     this.activateNode(newnode.nodeId);
+    return newnode;
   },
 
-  createEdge: function(sourcePara, targetPara, event) {
+  createEdge: function(sourcePara, targetPara) {
     var sourceNode = sourcePara.node,
         targetNode = targetPara.node,
         sourcePort = sourceNode.ports[sourcePara.portId],
         targetPort = targetNode.ports[targetPara.portId];
 
-    var cssparaError = {
-      left: event.pageX,
-      top: event.pageY
-    };
-
     var con = sourcePort.connectable(targetPort);
+
     if (con !== 0)  // 0 means okay
-      return core.viewManager.tip(con, cssparaError);
-
-    if (this.cycleTest(sourceNode, targetNode))
-      return core.viewManager.tip("Cannot make connection that results in cycle", cssparaError);
-
-    if (sourcePort.type === "out-multiple" && targetPort.type === "in-multiple") {
-      // TODO
-      console.log("CODE TODO: need to check if the edge already exists");
-    }
+      return core.viewManager.tip(con), -1;
 
     var newedge = DataflowEdge.new({
-      edgeid: ++this.edgeCounter,
+      edgeId: ++this.edgeCounter,
       sourceNode: sourceNode,
       sourcePort: sourcePort,
       targetNode: targetNode,
@@ -136,15 +129,15 @@ var extObject = {
     var jqview = core.viewManager.createEdgeView();
     newedge.setJqview(jqview);
     newedge.show();
-    this.edges[newedge.edgeid] = newedge;
+    this.edges[newedge.edgeId] = newedge;
+    return newedge;
   },
 
   deleteNode: function(node) {
-
     for (var key in node.ports) {
       var port = node.ports[key];
       for (var i in port.connections) {
-        this.deleteEdge(connections[i]);
+        this.deleteEdge(port.connections[i]);
       }
     }
     node.hide();
@@ -164,7 +157,7 @@ var extObject = {
 
     edge.hide();
     core.viewManager.removeEdgeView(edge.jqview);
-    delete this.edges[edge.edgeid];
+    delete this.edges[edge.edgeId];
   },
 
   activateNode: function(nodeId) {
@@ -211,7 +204,7 @@ var extObject = {
       }
     };
     traverse(node);
-    console.log(topo);
+    //console.log(topo);
     // iterate in reverse order to obtain topo order
     for (var i = topo.length - 1; i >= 0; i--) {
       topo[i].update();
@@ -220,6 +213,12 @@ var extObject = {
       for (var j in topo[i].outPorts) {
         topo[i].outPorts[j].pack.changed = false;  // unmark changes
       }
+    }
+  },
+
+  fullPropagate: function() {
+    for (var i in this.dataSources) {
+      this.propagate(this.dataSources[i]);
     }
   },
 
@@ -264,13 +263,59 @@ var extObject = {
   // this function parses the current dataflow and
   // returns a standard dataflow configuration object
   serializeDataflow: function() {
-    return {
-      timestamp: (new Date()).getTime()
+    var result = {
+      timestamp: (new Date()).getTime(),
+      nodes: [],
+      edges: []
     };
+    for (var i in this.nodes) {
+      result.nodes.push(this.nodes[i].serialize());
+    }
+    for (var i in this.edges) {
+      result.edges.push(this.edges[i].serialize());
+    }
+    console.log(result);
+    return result;
   },
 
-  loadSerializedDataflow: function() {
+  deserializeDataflow: function(dataflow) {
+    this.clearDataflow();
 
+    console.log(this);
+
+    var hashes = {};
+
+    for (var i in dataflow.nodes) {
+      var nodeSaved = dataflow.nodes[i];
+      var type = nodeSaved.type;
+      var newnode = this.createNode(type);
+      hashes[nodeSaved.hashtag] = newnode;
+      newnode.jqview.css(nodeSaved.css);
+
+      newnode.deserialize(nodeSaved);
+    }
+    for (var i in dataflow.edges) {
+      var edgeSaved = dataflow.edges[i];
+      var sourceNode = hashes[edgeSaved.sourceNodeHash],
+          targetNode = hashes[edgeSaved.targetNodeHash],
+          sourcePortId = edgeSaved.sourcePortId,
+          targetPortId = edgeSaved.targetPortId;
+
+      this.createEdge({
+        node: sourceNode,
+        portId: sourcePortId
+      }, {
+        node: targetNode,
+        portId: targetPortId
+      });
+    }
+    this.fullPropagate();
+  },
+
+  clearDataflow: function() {
+    // clear screen
+    core.viewManager.clearDataflowViews();
+    this.initialize();
   },
 
   uploadDataflow: function(filename) {
@@ -361,6 +406,7 @@ var extObject = {
   },
 
   downloadDataflow: function(filename) {
+    var manager = this;
     $.ajax({
       type: "POST",
       url: "load.php",
@@ -369,7 +415,7 @@ var extObject = {
         filename: filename
       },
       success: function(data, textStatus, jqXHR) {
-        console.log(data);
+        manager.deserializeDataflow(data.dataflow);
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.error(jqXHR, textStatus, errorThrown);

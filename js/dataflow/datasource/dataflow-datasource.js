@@ -4,7 +4,10 @@
 var extObject = {
 
   initialize: function(para) {
-    DataflowNode.initialize.call(this, para);
+    DataflowDataSource.base.initialize.call(this, para);
+
+    this.dataSelected = "none"; // data identifier string
+    this.dataName = null; // full data name, for human read
 
     this.inPorts = [];
     this.outPorts = [
@@ -13,11 +16,23 @@ var extObject = {
     this.prepare();
   },
 
+  serialize: function() {
+    var result = DataflowDataSource.base.serialize.call(this);
+    result.dataSelected = this.dataSelected;
+    result.dataName = this.dataName;
+    return result;
+  },
+
+  deserialize: function(save) {
+    DataflowDataSource.base.deserialize.call(this, save);
+    this.loadData(save.dataSelected, save.dataName);
+  },
+
   show: function() {
-    DataflowNode.show.call(this); // call parent settings
+    DataflowDataSource.base.show.call(this); // call parent settings
 
     var jqview = this.jqview,
-        view = this;
+        node = this;
 
     $("<div style='line-height:50px'>No data loaded</div>")
       .attr("id", "datahint")
@@ -37,11 +52,10 @@ var extObject = {
               text: "OK",
               click: function() {
                 var data = $(this).find("#data :selected").val(),
-                    dataname = $(this).find("#data :selected").text();
-                jqview.find("#datahint")
-                  .text(dataname);
+                    dataName = $(this).find("#data :selected").text();
 
-                view.loadData(data);
+                if (data != "none")
+                  node.loadData(data, dataName);
 
                 $(this).dialog("close");
               }
@@ -57,17 +71,19 @@ var extObject = {
         */
         // load data dialog content is stored in html
         jqdialog.load("js/dataflow/datasource/loaddata-dialog.html", function() {
-          // .. nothing
+          if (node.data != null) {
+            $(this).find("#data").val(node.data);
+          }
         });
       })
       .appendTo(this.jqview);
   },
 
-  loadData: function(dataName) {
+  loadData: function(dataSelected, dataName) {
     var node = this;
     $.ajax({
       type: 'GET',
-      url: "data/car.json",
+      url: "data/" + dataSelected + ".json",
       dataType: 'json',
       error: function(xhr, status, err){
         console.error("cannot load data\n" + status + "\n" + err);
@@ -77,6 +93,10 @@ var extObject = {
           console.error("loaded data is null");
           return;
         }
+
+        node.dataSelected = dataSelected;
+        node.dataName = dataName;
+        node.jqview.find("#datahint").text(dataName);
 
         var data = DataflowData.new(result);
 

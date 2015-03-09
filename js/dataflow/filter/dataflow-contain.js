@@ -15,7 +15,18 @@ var extObject = {
       DataflowPort.new(this, "out", "out-multiple")
     ];
 
+    this.value = null;
+
     this.prepare();
+  },
+
+  serialize: function() {
+    var result = DataflowContainFilter.base.serialize.call(this);
+    return result;
+  },
+
+  deserialize: function(save) {
+    DataflowContainFilter.base.deserialize.call(this, save);
   },
 
   show: function() {

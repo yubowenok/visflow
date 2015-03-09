@@ -6,9 +6,10 @@ var extObject = {
   initialize: function(para) {
     if (para == null)
       return console.error("null para passed to DataflowNode.initialize");
-    this.nodeId = para.nodeId;
+    this.hashtag = "#" + Utils.randomString(8); // for serialization
 
-    this.hashtag = "#" + Utils.randomString(8); // for debug
+    this.nodeId = para.nodeId;
+    this.type = para.type;
 
     this.viewHeight = 100;
     this.portHeight = 20;
@@ -18,6 +19,23 @@ var extObject = {
     this.inPorts = [];
     this.outPorts = [];
     this.ports = {};
+  },
+
+  serialize: function() {
+    var result = {
+      nodeId: this.nodeId,
+      hashtag: this.hashtag,
+      type: this.type,
+      css: {
+        left: this.jqview.position().left,
+        top: this.jqview.position().top
+      }
+    };
+    return result;
+  },
+
+  deserialize: function(save) {
+
   },
 
   // prepares all necessary data structures for references
@@ -149,6 +167,7 @@ var extObject = {
 
   hide: function() {
     $(this.jqview).children().remove();
+    core.viewManager.removeNodeView(this.jqview);
   },
 
   inPortsChanged: function() {
@@ -162,7 +181,7 @@ var extObject = {
   update: function() {
     if (!this.inPortsChanged())
         return; // everything not changed, do not process
-    console.log("process " + this.hashtag);
+    //console.log("process " + this.hashtag);
 
     this.process();
     this.show();

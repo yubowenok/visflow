@@ -5,11 +5,23 @@ var extObject = {
   initialize: function(para) {
     if (para == null)
       return console.error("null para passed to DataflowEdge.initialize");
-    this.edgeid = para.edgeid;
+
+    this.edgeId = para.edgeId;
     this.sourceNode = para.sourceNode;
     this.sourcePort = para.sourcePort;
     this.targetNode = para.targetNode;
     this.targetPort = para.targetPort;
+  },
+
+  serialize: function() {
+    var result = {
+      edgeId: this.edgeId,
+      sourceNodeHash: this.sourceNode.hashtag,
+      targetNodeHash: this.targetNode.hashtag,
+      sourcePortId: this.sourcePort.id,
+      targetPortId: this.targetPort.id
+    };
+    return result;
   },
 
   setJqview: function(jqview) {
@@ -59,6 +71,7 @@ var extObject = {
 
   hide: function() {
     $(this.jqview).children().remove();
+    core.viewManager.removeEdgeView(this.jqview);
   }
 
 };

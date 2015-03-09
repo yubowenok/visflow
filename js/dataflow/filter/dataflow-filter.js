@@ -14,6 +14,17 @@ var extObject = {
     this.dimension = null;
   },
 
+  serialize: function() {
+    var result = DataflowFilter.base.serialize.call(this);
+    result.dimension = this.dimension;
+    return result;
+  },
+
+  deserialize: function(save) {
+    DataflowFilter.base.deserialize.call(this, save);
+    this.dimension = save.dimension;
+  },
+
   show: function() {
     DataflowFilter.base.show.call(this);
 

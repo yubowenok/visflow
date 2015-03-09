@@ -24,6 +24,14 @@ var extObject = {
     this.prepare();
   },
 
+  serialize: function() {
+    var result = DataflowRangeFilter.base.serialize.call(this);
+    return result;
+  },
+
+  deserialize: function(save) {
+    DataflowRangeFilter.base.deserialize.call(this, save);
+  },
 
   show: function() {
 
@@ -67,15 +75,15 @@ var extObject = {
     this.value1 = pack1.getOne();
     this.value2 = pack2.getOne();
 
-    console.log(this.value1, this.value);
+    //console.log(this.value1, this.value);
 
     if (this.value1 != null && this.value2 != null && this.value1 > this.value2) {
       this.value1 = this.value2 = null;
       core.viewManager.tip("value1 > value2 in range filter", this.jqview.offset());
     }
 
+    //console.log("filter process", this.value1, this.value2);
     var consantType = pack1.constantType;
-    console.log("filter process", this.value1, this.value2);
     this.jqvalue1.val(this.value1 ? this.value1 : this.nullValueString);
     this.jqvalue2.val(this.value2 ? this.value2 : this.nullValueString);
 

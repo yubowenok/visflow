@@ -51,6 +51,7 @@ var extobject = {
       this.dropPossible = true;
     }
   },
+
   dragmoveHandler: function(para) {
     this.dragstopPos = [para.event.pageX, para.event.pageY];
     if (this.mouseMode === "port") {
@@ -77,6 +78,7 @@ var extobject = {
         .css("visibility", "visible");
     }
   },
+
   dragstopHandler: function(para) {
     this.dragstopPara = para;
     this.dragstopPos = [para.event.pageX, para.event.pageY];
@@ -104,7 +106,7 @@ var extobject = {
         port1 = port2;
         port2 = porttmp;
       }
-      core.dataflowManager.createEdge(port1, port2, para.event);
+      core.dataflowManager.createEdge(port1, port2);
       this.dropPossible = false; // prevent dropped on overlapping droppable
     }
   },

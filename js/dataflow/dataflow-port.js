@@ -7,6 +7,8 @@ var extObject = {
 
     this.node = node; // parent node
 
+    this.hashtag = "#" + Utils.randomString(8); // for serialization
+
     this.id = id; // port id corresponding to its parent node
     this.type = type; // in-single, in-multiple, out-single, out-multiple
     this.isInPort = this.type.substr(0, 2) === "in";
@@ -15,7 +17,7 @@ var extObject = {
 
     this.connections = []; // to which other ports it is connected (edges)
 
-    this.packClass = isConstants ? DataflowConstants : DataflowPackage;
+    this.packClass = this.isConstants ? DataflowConstants : DataflowPackage;
     this.pack = this.packClass.new(); // stored data / constants
   },
 
@@ -24,16 +26,18 @@ var extObject = {
       return "cannot connect ports of the same node";
     if (this.isSingle && this.connections.length || port.isSingle && port.connections.length)
       return "single port has already been connected";
-    if (this.isConstants !== port.isConstants) {
-
+    if (this.isConstants !== port.isConstants)
       return "cannot connect constant port with data port";
-    }
     for (var i in this.connections) {
       var edge = this.connections[i];
       if (this.isInPort && edge.sourcePort === port ||
           !this.isInPort && edge.targetPort === port)
         return "connection already exists";
     }
+    var sourceNode = this.isInPort ? port.node : this.node,
+        targetNode = this.isInPort ? this.node : port.node;
+    if (core.dataflowManager.cycleTest(sourceNode, targetNode))
+      return core.viewManager.tip("Cannot make connection that results in cycle");
     return 0;
   },
 
