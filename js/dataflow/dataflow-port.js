@@ -26,7 +26,7 @@ var extObject = {
       return "single port has already been connected";
     if (this.isConstants !== port.isConstants) {
 
-      return "cannot connect constants port with non-constants port";
+      return "cannot connect constant port with data port";
     }
     for (var i in this.connections) {
       var edge = this.connections[i];
@@ -65,6 +65,9 @@ var extObject = {
       .attr("id", this.id)
       .addClass("ui-widget-content dataflow-port")
       .addClass(this.isInPort ? "dataflow-port-in" : "dataflow-port-out");
+
+    if (this.isConstants)
+      jqview.addClass("dataflow-port-constants");
 
     $("<div></div>")
       .addClass("dataflow-port-icon dataflow-port-icon-" + this.type)

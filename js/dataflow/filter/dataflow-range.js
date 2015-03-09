@@ -56,11 +56,13 @@ var extObject = {
 
     if (pack1.type !== "constants" ||
         pack2.type !== "constants")
-      return console.error("non-constants connected to range filter constants ports");
+      return core.viewManager.tip(
+        "non-constants connected to range filter constants ports", this.jqview.offset());
 
     if (pack1.constantType !== "empty" && pack2.constantType !== "empty" &&
         pack1.constantType !== pack2.constantType)
-      return console.error("different constant types passed to range filter");
+      return core.viewManager.tip(
+        "different constant types passed to range filter", this.jqview.offset());
 
     this.value1 = pack1.getOne();
     this.value2 = pack2.getOne();

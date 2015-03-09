@@ -166,6 +166,9 @@ h3, li, input {
   margin-left: -2px;
   margin-top: -2px;
 }
+.dataflow-port-constants {
+  background: #E7E7E4;
+}
 .dataflow-port-in {
   left: -22px;
 }
