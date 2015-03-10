@@ -14,21 +14,27 @@ var extobject = {
     this.dragstopPara = {};
     this.dropPossible = false;
 
+    this.mousedownPos = [0, 0];
+    this.mouseupPos = [0, 0];
+
+    this.jqdataflow = $("#dataflow");
     this.selectbox = {
       x1: 0,
       x2: 0,
       y1: 0,
       y2: 0
     };
-    this.prepareSelectbox();
+    this.prepareInteraction();
+
+    this.shifted = false;
   },
 
   trackMousemove: function(disabled) {
     var manager = this;
     if (disabled) {
-      $("#dataflow").off("mousemove");
+      this.jqdataflow.off("mousemove");
     } else {
-      $("#dataflow").mousemove(function(event, ui){
+      this.jqdataflow.mousemove(function(event, ui){
         manager.currentMouseX = event.pageX;
         manager.currentMouseY = event.pageY;
         manager.mousemoveHandler({
@@ -38,11 +44,11 @@ var extobject = {
     }
   },
 
-  prepareSelectbox: function() {
+  prepareInteraction: function() {
     this.jqselectbox = $("#dataflow-selectbox");
     this.jqselectbox.hide();
     var manager = this;
-    $("#dataflow")
+    this.jqdataflow
       .mousedown(function(event, ui) {
         manager.mousedownHandler({
           type: "selectbox",
@@ -55,57 +61,101 @@ var extobject = {
           type: "selectbox",
           event: event
         });
-        event.preventDefault();
       })
       .mouseup(function(event, ui) {
         manager.mouseupHandler({
           type: "selectbox",
           event: event
         });
-        event.preventDefault();
       });
+
+    // track keyboard: shift key
+    $(document).keydown(function(event) {
+      if (event.keyCode == 16) {
+        manager.shifted = true;
+      }
+      return true;
+    });
+    $(document).keyup(function(event) {
+      if (event.keyCode == 16) {
+        manager.shifted = false;
+      }
+      return true;
+    });
   },
+
   mousedownHandler: function(para) {
     var type = para.type,
         event = para.event;
-    if (type == "selectbox" && this.mouseMode == "none") {
+    this.mousedownPos = [event.pageX, event.pageY];
+    if (this.mouseMode != "none")
+      return;
+    if (type == "selectbox") {
       this.selectbox.x1 = event.pageX;
       this.selectbox.y1 = event.pageY;
-      this.jqselectbox
-        .css({
-          width: 0,
-          height: 0
-        })
-        .show();
       this.mouseMode = "selectbox";
+    } else if (type == "node") {
+      this.mouseMode = "node";
     }
   },
   mousemoveHandler: function(para) {
     var type = para.type,
         event = para.event;
-    if (type == "selectbox" && this.mouseMode == "selectbox") {
+    if (this.mouseMode != type)
+      return;
+    if (type == "selectbox") {
       this.selectbox.x2 = event.pageX;
       this.selectbox.y2 = event.pageY;
       var w = Math.abs(this.selectbox.x2 - this.selectbox.x1),
           h = Math.abs(this.selectbox.y2 - this.selectbox.y1),
           l = Math.min(this.selectbox.x1, this.selectbox.x2),
           t = Math.min(this.selectbox.y1, this.selectbox.y2);
-      this.jqselectbox
-        .css({
+      var box = {
           width: w,
           height: h,
           left: l,
           top: t
-        });
+      };
+      this.jqselectbox
+        .css(box)
+        .show();
+      var hovered = core.dataflowManager.getNodesInSelectbox(box);
+      core.dataflowManager.clearNodeHover();
+      core.dataflowManager.addNodeHover(hovered);
     }
   },
   mouseupHandler: function(para) {
     var type = para.type,
         event = para.event;
+    this.mouseupPos = [event.pageX, event.pageY];
+    var dx = this.mouseupPos[0] - this.mousedownPos[0],
+        dy = this.mousedownPos[1] - this.mousedownPos[1];
+    this.mouseMoved = Math.abs(dx) + Math.abs(dy) > 0;
+
+    if (this.mouseMode != type)
+      return;
     if (type == "selectbox") {
       this.jqselectbox.hide();
-      this.mouseMode = "none";
+      if (!this.mouseMoved){
+        // mouse not moved for select box
+        // trigger empty click
+        this.clickHandler({
+          type: "empty",
+          event: event
+        });
+      } else {
+        if (!this.shifted)
+          core.dataflowManager.clearNodeSelection();
+        core.dataflowManager.addHoveredToSelection();
+      }
+    } else if (type == "node") {
+      if (!this.mouseMoved) {
+        if (!this.shifted)
+          core.dataflowManager.clearNodeSelection();
+        core.dataflowManager.addNodeSelection(para.node);
+      }
     }
+    this.mouseMode = "none";
   },
 
   dragstartHandler: function(para) {
@@ -160,16 +210,17 @@ var extobject = {
     this.dragstopPara = para;
     this.dragstopPos = [para.event.pageX, para.event.pageY];
     if (type == "port") {
-      this.mouseMode = "none";
       $("#dataflow-edge-drawing")
         .css("visibility", "hidden");
     } else if (type == "node"){
-      this.mouseMode = "none";
     }
+    this.mouseMode = "none";
   },
 
   dropHandler: function(para) {
-    if (para.type === "port" && this.dropPossible) {
+    var type = para.type,
+        event = para.event;
+    if (type === "port" && this.dropPossible) {
       // connect ports
       var port1 = {
         node: this.dragstartPara.node,
@@ -189,6 +240,14 @@ var extobject = {
       this.dropPossible = false; // prevent dropped on overlapping droppable
     }
   },
+
+  clickHandler: function(para) {
+    var type = para.type,
+        event = para.event;
+    if (type == "empty") {
+      core.dataflowManager.clearNodeSelection();
+    }
+  }
 
 /*
   getDragstartPara: function() {

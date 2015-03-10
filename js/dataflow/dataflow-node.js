@@ -68,7 +68,24 @@ var extObject = {
     this.jqview
       .addClass("dataflow-node dataflow-node-shape ui-widget-content ui-widget")
       .mouseover(function() {
-        //jqview.addClass("dataflow-node-hover");
+        jqview.addClass("dataflow-node-hover");
+      })
+      .mouseleave(function() {
+        jqview.removeClass("dataflow-node-hover");
+      })
+      .mousedown(function(event, ui) {
+        core.interactionManager.mousedownHandler({
+          type: "node",
+          event: event,
+          node: node
+        });
+      })
+      .mouseup(function(event, ui) {
+        core.interactionManager.mouseupHandler({
+          type: "node",
+          event: event,
+          node: node
+        });
       })
       .draggable({
         start: function(event, ui) {
@@ -86,7 +103,7 @@ var extObject = {
             event: event
           });
         }
-      });
+     });
 
     var nodeId = this.nodeId;
     this.jqview.mousedown(function(event){

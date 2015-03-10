@@ -28,7 +28,9 @@ h3, li, input {
 }
 
 #dataflow-selectbox {
-  background: red;
+  background: #e0cfc2;
+  border: 1px solid gray;
+  opacity: 0.5;
   position: absolute;
   z-index: 1000;
 }
@@ -39,6 +41,9 @@ h3, li, input {
   background-color: #555;
   height: 3px;
   transform-origin: top left;
+}
+.dataflow-edge:hover {
+  background-color: #777;
 }
 .dataflow-edge-arrow {
   float: right;
@@ -57,10 +62,17 @@ h3, li, input {
   text-align: center;
   position: absolute;
 }
-.dataflow-node:hover {
-  border: 4px solid #e0cfc2;
+.dataflow-node-hover,
+.dataflow-node-selected {
+  border: 4px solid;
   margin-left: -3px;
   margin-top: -3px;
+}
+.dataflow-node-hover {
+  border-color: #e0cfc2;
+}
+.dataflow-node-selected {
+  border-color: #C0AFA2;
 }
 .dataflow-node-shape {
   width: 100px;
@@ -166,13 +178,7 @@ h3, li, input {
   position: absolute;
   line-height: 20px;
 }
-/*
-.dataflow-port-hover {
-  border: 2px solid #AAA;
-  margin-left: -1px;
-  margin-top: -1px;
-}
-*/
+.dataflow-port-hover,
 .dataflow-port:hover {
   border: 2px solid #AAA;
   margin-left: -1px;

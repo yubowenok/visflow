@@ -25,6 +25,9 @@ var extObject = {
     // the whole data collection
     // each id refers to a data object
     this.data = {};
+
+    this.nodesSelected = {};
+    this.nodesHovered = {};
   },
 
   createNode: function(type) {
@@ -123,12 +126,13 @@ var extObject = {
       targetNode: targetNode,
       targetPort: targetPort
     });
-    sourcePort.connect(newedge);
-    targetPort.connect(newedge);
-
     var jqview = core.viewManager.createEdgeView();
     newedge.setJqview(jqview);
     newedge.show();
+
+    sourcePort.connect(newedge);
+    targetPort.connect(newedge);
+
     this.edges[newedge.edgeId] = newedge;
     return newedge;
   },
@@ -421,6 +425,102 @@ var extObject = {
         console.error(jqXHR, textStatus, errorThrown);
       }
     });
+  },
+
+  addNodeSelection: function(nodes) {
+    var toAdd = {};
+    if (nodes instanceof Array) {
+      for (var i in nodes) {
+        toAdd[nodes[i].nodeId] = nodes[i];
+      }
+    } else if (DataflowNode.isPrototypeOf(nodes)){
+      toAdd[nodes[i].nodeId] = nodes;
+    } else {
+      toAdd = nodes;
+    }
+    for (var i in nodes) {
+      var node = nodes[i];
+      this.nodesSelected[node.nodeId] = node;
+      node.jqview.addClass("dataflow-node-selected");
+    }
+  },
+
+  clearNodeSelection: function(nodes) {
+    var toClear = {};
+    if (nodes == null) {
+      toClear = this.nodesSelected;
+    } else if (nodes instanceof Array) {
+      for (var i in nodes) {
+        var node = nodes[i];
+        toClear[node.nodeId] = node;
+      }
+    } else {
+      toClear[nodes.nodeId] = nodes;
+    }
+    for (var i in toClear) {
+      var node = toClear[i];
+      node.jqview.removeClass("dataflow-node-selected");
+      delete this.nodesSelected[node.nodeId];
+    }
+  },
+
+  addNodeHover: function(nodes) {
+    var toAdd = {};
+    if (nodes instanceof Array) {
+      for (var i in nodes) {
+        toAdd[nodes[i].nodeId] = nodes[i];
+      }
+    } else if (DataflowNode.isPrototypeOf(nodes)){
+      toAdd[nodes[i].nodeId] = nodes;
+    } else {
+      toAdd = nodes;
+    }
+    for (var i in nodes) {
+      var node = nodes[i];
+      node.jqview.addClass("dataflow-node-hover");
+      this.nodesHovered[node.nodeId] = node;
+    }
+  },
+
+  clearNodeHover: function(nodes) {
+    var toClear = {};
+    if (nodes == null) {
+      toClear = this.nodesHovered;
+    } else if (nodes instanceof Array) {
+      for (var i in nodes) {
+        var node = nodes[i];
+        toClear[node.nodeId] = node;
+      }
+    } else {
+      toClear[nodes.nodeId] = nodes;
+    }
+    for (var i in toClear) {
+      var node = toClear[i];
+      node.jqview.removeClass("dataflow-node-hover");
+      delete this.nodesHovered[node.nodeId];
+    }
+  },
+
+  getNodesInSelectbox: function(selectbox) {
+    var result = [];
+    for (var i in this.nodes) {
+      var jqview = this.nodes[i].jqview;
+      var box1 = {
+        width: jqview.width(),
+        height: jqview.height(),
+        left: jqview.position().left,
+        top: jqview.position().top
+      };
+      if (core.viewManager.intersectBox(box1, selectbox)) {
+        result.push(this.nodes[i]);
+      }
+    }
+    return result;
+  },
+
+  addHoveredToSelection: function() {
+    this.addNodeSelection(this.nodesHovered);
+    this.clearNodeHover();
   }
 };
 

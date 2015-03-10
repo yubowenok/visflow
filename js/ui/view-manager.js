@@ -81,7 +81,19 @@ var extObject = {
       }, 500, function() {
         $(this).remove();
       });
+  },
 
+  // check if two rectangular boxes intersect
+  intersectBox: function(box1, box2) {
+    var x1l = box1.left,
+        x1r = box1.left + box1.width,
+        y1l = box1.top,
+        y1r = box1.top + box1.height;
+    var x2l = box2.left,
+        x2r = box2.left + box2.width,
+        y2l = box2.top,
+        y2r = box2.top + box2.height;
+    return x1l <= x2r && x2l <= x1r && y1l <= y2r && y2l <= y1r;
   }
 };
 
