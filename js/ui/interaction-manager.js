@@ -9,6 +9,7 @@ var extobject = {
     this.mouseMode = "none";  // node, port, selectbox
 
     this.dragstartPos = [0, 0];
+    this.draglastPos = [0, 0];
     this.dragstopPos = [0, 0];
     this.dragstartPara = {};
     this.dragstopPara = {};
@@ -37,14 +38,13 @@ var extobject = {
       this.jqdataflow.mousemove(function(event, ui){
         manager.currentMouseX = event.pageX;
         manager.currentMouseY = event.pageY;
-        manager.mousemoveHandler({
-          event: event
-        });
       });
     }
   },
 
   prepareInteraction: function() {
+    this.trackMousemove();
+
     this.jqselectbox = $("#dataflow-selectbox");
     this.jqselectbox.hide();
     var manager = this;
@@ -82,6 +82,7 @@ var extobject = {
       }
       return true;
     });
+
   },
 
   mousedownHandler: function(para) {
@@ -172,6 +173,15 @@ var extobject = {
       this.dropPossible = true;
     } else if (type == "node") {
       this.mouseMode = "node";
+
+      if (core.dataflowManager.isNodeSelected(para.node)) {
+        // already selected, then drag all selection
+      } else {
+        // make a new exclusive selection
+        core.dataflowManager.clearNodeSelection();
+        core.dataflowManager.addNodeSelection(para.node);
+      }
+      this.draglastPos = [event.pageX, event.pageY];
     }
   },
 
@@ -179,7 +189,9 @@ var extobject = {
     var type = para.type,
         event = para.event;
     this.dragstopPos = [para.event.pageX, para.event.pageY];
-    if (type == "port" && this.mouseMode == "port") {
+    if (this.mouseMode != type)
+      return;
+    if (type == "port") {
       var dx = this.dragstopPos[0] - this.dragstartPos[0],
           dy = this.dragstopPos[1] - this.dragstartPos[1];
 
@@ -201,6 +213,11 @@ var extobject = {
         .css("width", length)
         .css("transform", "rotate("+ angle +"rad)")
         .css("visibility", "visible");
+    } else if (type == "node") {
+      var dx = event.pageX - this.draglastPos[0],
+          dy = event.pageY - this.draglastPos[1];
+      core.dataflowManager.moveNodeSelection(dx, dy, para.node);  // delta, exception
+      this.draglastPos = [event.pageX, event.pageY];
     }
   },
 

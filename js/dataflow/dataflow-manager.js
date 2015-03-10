@@ -434,12 +434,12 @@ var extObject = {
         toAdd[nodes[i].nodeId] = nodes[i];
       }
     } else if (DataflowNode.isPrototypeOf(nodes)){
-      toAdd[nodes[i].nodeId] = nodes;
+      toAdd[nodes.nodeId] = nodes;
     } else {
       toAdd = nodes;
     }
-    for (var i in nodes) {
-      var node = nodes[i];
+    for (var i in toAdd) {
+      var node = toAdd[i];
       this.nodesSelected[node.nodeId] = node;
       node.jqview.addClass("dataflow-node-selected");
     }
@@ -471,12 +471,12 @@ var extObject = {
         toAdd[nodes[i].nodeId] = nodes[i];
       }
     } else if (DataflowNode.isPrototypeOf(nodes)){
-      toAdd[nodes[i].nodeId] = nodes;
+      toAdd[nodes.nodeId] = nodes;
     } else {
       toAdd = nodes;
     }
-    for (var i in nodes) {
-      var node = nodes[i];
+    for (var i in toAdd) {
+      var node = toAdd[i];
       node.jqview.addClass("dataflow-node-hover");
       this.nodesHovered[node.nodeId] = node;
     }
@@ -521,6 +521,23 @@ var extObject = {
   addHoveredToSelection: function() {
     this.addNodeSelection(this.nodesHovered);
     this.clearNodeHover();
+  },
+
+  moveNodeSelection: function(dx, dy, nodeDragged) {
+    for (var i in this.nodesSelected) {
+      var node = this.nodesSelected[i];
+      var x = node.jqview.position().left,
+          y = node.jqview.position().top;
+      node.jqview.css({
+        left: x + dx,
+        top: y + dy
+      });
+      node.updatePorts();
+    }
+  },
+
+  isNodeSelected: function(node) {
+    return this.nodesSelected[node.nodeId] != null;
   }
 };
 

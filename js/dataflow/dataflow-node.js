@@ -91,10 +91,16 @@ var extObject = {
         start: function(event, ui) {
           core.interactionManager.dragstartHandler({
             type: "node",
-            event: event
+            event: event,
+            node: node
           });
         },
         drag: function(event, ui) {
+          core.interactionManager.dragmoveHandler({
+            type: "node",
+            event: event,
+            node: node
+          });
           node.updateEdges();
         },
         stop: function(event, ui) {

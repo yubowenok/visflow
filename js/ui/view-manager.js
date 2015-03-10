@@ -66,8 +66,8 @@ var extObject = {
     if (csspara == null)
       // by default show at mouse cursor
       csspara = {
-        left: core.interactionManager.currentMouseX,
-        top: core.interactionManager.currentMouseY
+        left: core.interactionManager.currentMouseX + 5,
+        top: core.interactionManager.currentMouseY + 5
       };
 
     $("<div></div>")
