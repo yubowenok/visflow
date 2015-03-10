@@ -8,6 +8,12 @@ h3, li, input {
   margin: 0;
 }
 
+div {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
 .panel {
   width: 150px;
   position: absolute;
@@ -38,12 +44,12 @@ h3, li, input {
 .dataflow-edge {
   position: absolute;
   width: 100px;
-  background-color: #555;
+  background-color: #777;
   height: 3px;
   transform-origin: top left;
 }
 .dataflow-edge:hover {
-  background-color: #777;
+  box-shadow: 0px 0px 0px 5px #e0cfc2;
 }
 .dataflow-edge-arrow {
   float: right;
@@ -216,6 +222,10 @@ h3, li, input {
 }
 .dataflow-input-node {
   text-align: center;
+}
+
+.dataflow-text {
+  pointer-events: none;
 }
 
 .tip-mouse {

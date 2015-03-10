@@ -54,7 +54,6 @@ var extobject = {
           type: "selectbox",
           event: event
         });
-        event.preventDefault();
       })
       .mousemove(function(event, ui) {
         manager.mousemoveHandler({

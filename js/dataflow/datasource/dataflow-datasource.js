@@ -36,6 +36,7 @@ var extObject = {
 
     $("<div style='line-height:50px'>No data loaded</div>")
       .attr("id", "datahint")
+      .addClass("dataflow-text")
       .appendTo(this.jqview);
 
     // load data buttons
@@ -71,8 +72,8 @@ var extObject = {
         */
         // load data dialog content is stored in html
         jqdialog.load("js/dataflow/datasource/loaddata-dialog.html", function() {
-          if (node.data != null) {
-            $(this).find("#data").val(node.data);
+          if (node.dataSelected != null) {
+            $(this).find("#data").val(node.dataSelected);
           }
         });
       })
