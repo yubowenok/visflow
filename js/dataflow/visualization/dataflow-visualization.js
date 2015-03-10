@@ -11,6 +11,7 @@ var extObject = {
   serialize: function() {
     var result = DataflowVisualization.base.serialize.call(this);
     result.vismode = this.vismode;
+    result.viewHeight = this.viewHeight;
     return result;
   },
 
@@ -18,6 +19,9 @@ var extObject = {
     DataflowVisualization.base.deserialize.call(this, save);
     if (this.vismode != save.vismode) {
       this.vismode = save.vismode;
+      this.viewHeight = save.viewHeight;
+      this.jqview
+        .css("height", this.viewHeight);
       this.show();
     }
   },
