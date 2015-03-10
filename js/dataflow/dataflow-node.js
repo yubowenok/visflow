@@ -62,12 +62,29 @@ var extObject = {
     // inheriting classes shall not remove again
     this.jqview.children().remove();
 
-    var node = this;
+    var node = this,
+        jqview = this.jqview;
+
     this.jqview
       .addClass("dataflow-node dataflow-node-shape ui-widget-content ui-widget")
+      .mouseover(function() {
+        //jqview.addClass("dataflow-node-hover");
+      })
       .draggable({
+        start: function(event, ui) {
+          core.interactionManager.dragstartHandler({
+            type: "node",
+            event: event
+          });
+        },
         drag: function(event, ui) {
           node.updateEdges();
+        },
+        stop: function(event, ui) {
+          core.interactionManager.dragstopHandler({
+            type: "node",
+            event: event
+          });
         }
       });
 

@@ -23,7 +23,7 @@ var extObject = {
       .load("js/ui/panel-menu.html", function() {
         var menu = view.jqmenu.children("ul");
         menu.menu({
-          position: { my: "left-10 top", at: "right top" },
+          //position: { my: "left top", at: "right top" },
           select: function(event, ui) {
             if (ui.item.attr("id").substr(0,5) !== "menu_")
               return; // non-reactive menu entrie
@@ -48,6 +48,9 @@ var extObject = {
             case "vismode":
               break;
             case "layout":
+              break;
+            case "new":
+              core.dataflowManager.clearDataflow();
               break;
             case "save":
               core.dataflowManager.saveDataflow();

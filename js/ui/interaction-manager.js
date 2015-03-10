@@ -5,18 +5,22 @@ var extobject = {
 
   initialize: function() {
     // some declarations for clearer structure
-    this.mouseMode = "none";
+
+    this.mouseMode = "none";  // node, port, selectbox
+
     this.dragstartPos = [0, 0];
     this.dragstopPos = [0, 0];
     this.dragstartPara = {};
     this.dragstopPara = {};
     this.dropPossible = false;
 
-    var manager = this;
-    $(document).mousemove(function(event) {
-        manager.currentMouseX = event.pageX;
-        manager.currentMouseY = event.pageY;
-    });
+    this.selectbox = {
+      x1: 0,
+      x2: 0,
+      y1: 0,
+      y2: 0
+    };
+    this.prepareSelectbox();
   },
 
   trackMousemove: function(disabled) {
@@ -25,6 +29,8 @@ var extobject = {
       $("#dataflow").off("mousemove");
     } else {
       $("#dataflow").mousemove(function(event, ui){
+        manager.currentMouseX = event.pageX;
+        manager.currentMouseY = event.pageY;
         manager.mousemoveHandler({
           event: event
         });
@@ -32,16 +38,81 @@ var extobject = {
     }
   },
 
-  mousemoveHandler: function(para) {
+  prepareSelectbox: function() {
+    this.jqselectbox = $("#dataflow-selectbox");
+    this.jqselectbox.hide();
+    var manager = this;
+    $("#dataflow")
+      .mousedown(function(event, ui) {
+        manager.mousedownHandler({
+          type: "selectbox",
+          event: event
+        });
+        event.preventDefault();
+      })
+      .mousemove(function(event, ui) {
+        manager.mousemoveHandler({
+          type: "selectbox",
+          event: event
+        });
+        event.preventDefault();
+      })
+      .mouseup(function(event, ui) {
+        manager.mouseupHandler({
+          type: "selectbox",
+          event: event
+        });
+        event.preventDefault();
+      });
   },
   mousedownHandler: function(para) {
+    var type = para.type,
+        event = para.event;
+    if (type == "selectbox" && this.mouseMode == "none") {
+      this.selectbox.x1 = event.pageX;
+      this.selectbox.y1 = event.pageY;
+      this.jqselectbox
+        .css({
+          width: 0,
+          height: 0
+        })
+        .show();
+      this.mouseMode = "selectbox";
+    }
+  },
+  mousemoveHandler: function(para) {
+    var type = para.type,
+        event = para.event;
+    if (type == "selectbox" && this.mouseMode == "selectbox") {
+      this.selectbox.x2 = event.pageX;
+      this.selectbox.y2 = event.pageY;
+      var w = Math.abs(this.selectbox.x2 - this.selectbox.x1),
+          h = Math.abs(this.selectbox.y2 - this.selectbox.y1),
+          l = Math.min(this.selectbox.x1, this.selectbox.x2),
+          t = Math.min(this.selectbox.y1, this.selectbox.y2);
+      this.jqselectbox
+        .css({
+          width: w,
+          height: h,
+          left: l,
+          top: t
+        });
+    }
   },
   mouseupHandler: function(para) {
+    var type = para.type,
+        event = para.event;
+    if (type == "selectbox") {
+      this.jqselectbox.hide();
+      this.mouseMode = "none";
+    }
   },
 
   dragstartHandler: function(para) {
+    var type = para.type,
+        event = para.event;
     this.dragstartPara = para;
-    if (para.type === "port") {
+    if (type == "port") {
       this.mouseMode = "port";
       var jqtarget = $(para.event.target);
       var x = jqtarget.offset().left + jqtarget.outerWidth() / 2,
@@ -49,12 +120,16 @@ var extobject = {
       //console.log(jqtarget,x,y, jqtarget.outerWidth());
       this.dragstartPos = [x, y];
       this.dropPossible = true;
+    } else if (type == "node") {
+      this.mouseMode = "node";
     }
   },
 
   dragmoveHandler: function(para) {
+    var type = para.type,
+        event = para.event;
     this.dragstopPos = [para.event.pageX, para.event.pageY];
-    if (this.mouseMode === "port") {
+    if (type == "port" && this.mouseMode == "port") {
       var dx = this.dragstopPos[0] - this.dragstartPos[0],
           dy = this.dragstopPos[1] - this.dragstartPos[1];
 
@@ -80,12 +155,16 @@ var extobject = {
   },
 
   dragstopHandler: function(para) {
+    var type = para.type,
+        event = para.event;
     this.dragstopPara = para;
     this.dragstopPos = [para.event.pageX, para.event.pageY];
-    if (para.type === "port") {
+    if (type == "port") {
       this.mouseMode = "none";
       $("#dataflow-edge-drawing")
         .css("visibility", "hidden");
+    } else if (type == "node"){
+      this.mouseMode = "none";
     }
   },
 

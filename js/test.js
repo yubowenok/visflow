@@ -1,6 +1,6 @@
 
 function test() {
-  //core.dataflowManager.createNode("datasrc");
+  core.dataflowManager.createNode("datasrc");
   //core.dataflowManager.createNode("value_maker");
   //core.dataflowManager.createNode("value_maker");
   //core.dataflowManager.createNode("range");

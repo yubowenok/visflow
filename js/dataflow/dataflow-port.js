@@ -115,7 +115,7 @@ var extObject = {
         }
       })
       .droppable({
-        hoverClass : "dataflow-port-hover",
+        //hoverClass : "dataflow-port-hover",
         tolerance : "pointer",
         accept : port.isInPort ? ".dataflow-port-out" : ".dataflow-port-in",
         greedy : true,
