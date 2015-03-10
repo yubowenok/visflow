@@ -107,6 +107,7 @@ var extObject = {
         $.extend(true, node.ports["out"].pack, DataflowPackage.new(data));
 
         // TODO: this will cause multi-propagation in dataflow loading
+        // because this load is async and cannot be controlled by dataflowManager.propagateDisabled
         core.dataflowManager.propagate(node); // push changes
       }
     });

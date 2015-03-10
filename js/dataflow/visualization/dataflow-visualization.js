@@ -22,7 +22,7 @@ var extObject = {
       this.viewHeight = save.viewHeight;
       this.jqview
         .css("height", this.viewHeight);
-      this.show();
+      this.deserializeChange = true;
     }
   },
 

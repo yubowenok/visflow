@@ -14,6 +14,27 @@ var extObject = {
     ];
     this.prepare();
 
+    this.selected = {};
+  },
+
+  serialize: function() {
+    var result = DataflowTable.base.serialize.call(this);
+    result.selected = this.selected;
+    return result;
+  },
+
+  deserialize: function(save) {
+    DataflowTable.base.deserialize.call(this, save);
+    if (save.selected == null)
+      save.selected = {};
+
+    this.selected = save.selected;
+    if ($.isEmptyObject(this.selected) == false)
+      this.deserializeChange = true;
+
+    if (this.deserializeChange) {
+      this.show();
+    }
   },
 
   showIcon: function() {
@@ -25,11 +46,10 @@ var extObject = {
   },
 
   showVisualization: function() {
-    var pack = this.ports["in"].pack,
+    var node = this,
+        pack = this.ports["in"].pack,
         data = pack.data,
         items = pack.items;
-
-    var selected = {};
 
     if (this.table) {
       this.table.destroy(true);
@@ -48,12 +68,17 @@ var extObject = {
     if (items.length > 0){  // avoid selecting "no data" msg
       jqtbody.on("click", "tr", function () {
         $(this).toggleClass("selected");
-        var id = $(this).find("td:first").text();
+        var jqfirstcol = $(this).find("td:first");
+        var id = jqfirstcol.text();
 
-        if (selected[id])
-          delete selected[id];
+        if (node.selected[id])
+          delete node.selected[id];
         else
-          selected[id] = true;
+          node.selected[id] = jqfirstcol.parent().attr("id");
+
+        node.process();
+
+        core.dataflowManager.propagate(node);
       });
     }
 
@@ -66,6 +91,7 @@ var extObject = {
     // make table rows
     for (var i in items) {
       var jqtr = $("<tr></tr>")
+        .attr("id", i)  // offset in array
         .appendTo(jqtbody);
 
       // index column
@@ -98,9 +124,27 @@ var extObject = {
         maxWidth: jqtheadr.width(),
         maxHeight: jqwrapper.height()
       });
+
+
+    for (var i in this.selected) {
+      jqtbody.find("tr[id=" + this.selected[i] + "]")
+        .addClass("selected");
+    }
   },
 
   updateVisualization: function() {
+  },
+
+  process: function() {
+    var outpack = this.ports["out"].pack,
+        inpack = this.ports["in"].pack;
+    outpack.copy(inpack);
+    var result = [];
+    for (var i in this.selected) {
+      result.push(inpack.items[this.selected[i]]);
+    }
+    console.log(result);
+    outpack.items = result;
   },
 
   resize: function(size) {

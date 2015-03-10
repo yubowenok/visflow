@@ -235,10 +235,9 @@ var extObject = {
   },
 
   update: function() {
-    if (!this.inPortsChanged()){
-        return; // everything not changed, do not process
-      }
-    //console.log("process " + this.hashtag);
+    if (!this.inPortsChanged()) {
+      return; // everything not changed, do not process
+    }
 
     this.process();
     this.show();
@@ -251,6 +250,9 @@ var extObject = {
   process: function() {
     // process input data and generate output
     // write this function in inheritting classes
+
+    // WARNING: you cannot call propagate in process, otherwise
+    // dataflowManager will endlessly call process
   },
 
   // called when node is resized

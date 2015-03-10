@@ -93,11 +93,13 @@ var extObject = {
 
   filter: function() {
     // slow implementation
-    var pack = this.ports["in"].pack;
-    var items = pack.items,
-        data = pack.data,
+    var inpack = this.ports["in"].pack;
+    var items = inpack.items,
+        data = inpack.data,
         dim = parseInt(this.dimension);
-    console.log("filter", dim, data.dimensions[dim]);
+
+    //console.log("filter", dim, data.dimensions[dim]);
+
     var result = [];
     for (var i in items) {
       var index = items[i].index,
@@ -110,9 +112,8 @@ var extObject = {
       }
     }
     var outpack = this.ports["out"].pack;
-    outpack.copy(pack);
+    outpack.copy(inpack);
     outpack.items = result;
-    console.error(outpack);
   }
 
 };
