@@ -28,6 +28,8 @@ var extObject = {
 
     this.nodesSelected = {};
     this.nodesHovered = {};
+
+    this.propagateDisabled = false;
   },
 
   createNode: function(type) {
@@ -193,21 +195,31 @@ var extObject = {
 
   // propagate result starting from a given node
   propagate: function(node) {
+
+    if (this.propagateDisabled)
+      return;
+
     var topo = [], // visited node list, in reversed topo order
         visited = {};
     var traverse = function(node) {
       if (visited[node.nodeId])
         return;
       visited[node.nodeId] = true;
-      topo.push(node);
       for (var i in node.outPorts) {
         var port = node.outPorts[i];
         for (var j in port.connections) {
           traverse(port.connections[j].targetNode);
         }
       }
+      topo.push(node);
     };
-    traverse(node);
+    if (DataflowNode.isPrototypeOf(node)) {
+      traverse(node);
+    } else if (node instanceof Array) {
+      for (var i in node) {
+        traverse(node[i]);
+      }
+    }
     //console.log(topo);
     // iterate in reverse order to obtain topo order
     for (var i = topo.length - 1; i >= 0; i--) {
@@ -217,12 +229,6 @@ var extObject = {
       for (var j in topo[i].outPorts) {
         topo[i].outPorts[j].pack.changed = false;  // unmark changes
       }
-    }
-  },
-
-  fullPropagate: function() {
-    for (var i in this.dataSources) {
-      this.propagate(this.dataSources[i]);
     }
   },
 
@@ -285,7 +291,7 @@ var extObject = {
   deserializeDataflow: function(dataflow) {
     this.clearDataflow();
 
-    console.log(this);
+    this.propagateDisabled = true;  // temporarily switch off propagation
 
     var hashes = {};
 
@@ -313,7 +319,9 @@ var extObject = {
         portId: targetPortId
       });
     }
-    this.fullPropagate();
+
+    this.propagateDisabled = false; // full propagation
+    this.propagate(this.dataSources);
   },
 
   clearDataflow: function() {
@@ -359,7 +367,7 @@ var extObject = {
 
         var selectedDataflow = null;
 
-        jqtbody.on( 'click', 'tr', function () {
+        jqtbody.on("click", "tr", function () {
           $(this).parent().find("tr").removeClass("selected");
           $(this).toggleClass('selected');
           selectedDataflow = $(this).find("td:first").text();
@@ -379,7 +387,7 @@ var extObject = {
             .appendTo(jqtbody);
         }
 
-        jqtable
+        var table = jqtable
           .appendTo(jqdialog)
           .DataTable();
 
@@ -393,6 +401,7 @@ var extObject = {
                 text: "OK",
                 click: function() {
                   manager.downloadDataflow(selectedDataflow);
+                  table.destroy(true);
                   $(this).dialog("close");
                 }
               }

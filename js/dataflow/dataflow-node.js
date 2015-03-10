@@ -60,7 +60,9 @@ var extObject = {
 
     // this removes anything created (including those from inheriting classes)
     // inheriting classes shall not remove again
-    this.jqview.children().remove();
+    this.jqview.children()
+      .not(".ui-resizable-handle")
+      .remove();
 
     var node = this,
         jqview = this.jqview;
@@ -87,6 +89,15 @@ var extObject = {
           node: node
         });
       })
+      .resizable({
+        handles: "all",
+        resize: function(event, ui) {
+          node.resize(ui.size);
+        },
+        stop: function(event, ui) {
+          node.resizestop(ui.size);
+        }
+      })
       .draggable({
         start: function(event, ui) {
           core.interactionManager.dragstartHandler({
@@ -110,6 +121,11 @@ var extObject = {
           });
         }
      });
+
+    // remove resizable handler icon at se
+    this.jqview.find(".ui-icon-gripsmall-diagonal-se")
+      .removeClass("ui-icon ui-icon-gripsmall-diagonal-se");
+    this.jqview.resizable("disable");
 
     var nodeId = this.nodeId;
     this.jqview.mousedown(function(event){
@@ -219,8 +235,9 @@ var extObject = {
   },
 
   update: function() {
-    if (!this.inPortsChanged())
+    if (!this.inPortsChanged()){
         return; // everything not changed, do not process
+      }
     //console.log("process " + this.hashtag);
 
     this.process();
@@ -234,8 +251,17 @@ var extObject = {
   process: function() {
     // process input data and generate output
     // write this function in inheritting classes
-  }
+  },
 
+  // called when node is resized
+  resize: function(size) {
+    this.viewHeight = size.height;
+    this.updatePorts();
+  },
+
+  resizestop: function(size) {
+    this.resize(size);
+  }
 };
 
 var DataflowNode = Base.extend(extObject);

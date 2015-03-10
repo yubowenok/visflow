@@ -21,12 +21,18 @@ var extObject = {
     for (var i in data.values) {
       this.items.push({
         index: i,
-        values: data.values[i],
         properties: {}  // create a rendering property object
       });
     }
 
     // change status
+    this.changed = true;
+  },
+
+  // make full references to another package
+  copy: function(pack) {
+    this.data = pack.data;
+    this.items = pack.items;
     this.changed = true;
   }
 };

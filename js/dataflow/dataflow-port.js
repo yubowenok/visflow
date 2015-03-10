@@ -47,7 +47,7 @@ var extObject = {
       this.pack = edge.sourcePort.pack; // make data reference
     }
     edge.sourcePort.pack.changed = true;
-    core.dataflowManager.propagate(edge.sourceNode);
+    core.dataflowManager.propagate(edge.targetNode);
   },
 
   disconnect: function(edge) {

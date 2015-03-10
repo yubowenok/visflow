@@ -87,6 +87,32 @@ var extObject = {
     this.jqvalue1.val(this.value1 ? this.value1 : this.nullValueString);
     this.jqvalue2.val(this.value2 ? this.value2 : this.nullValueString);
 
+    // do the actual filtering
+    this.filter();
+  },
+
+  filter: function() {
+    // slow implementation
+    var pack = this.ports["in"].pack;
+    var items = pack.items,
+        data = pack.data,
+        dim = parseInt(this.dimension);
+    console.log("filter", dim, data.dimensions[dim]);
+    var result = [];
+    for (var i in items) {
+      var index = items[i].index,
+          value = data.values[index][dim],
+          ok = 1;
+      if (this.value1 && value < this.value1 || this.value2 && value > this.value2)
+        ok = 0;
+      if (ok) {
+        result.push(items[i]);
+      }
+    }
+    var outpack = this.ports["out"].pack;
+    outpack.copy(pack);
+    outpack.items = result;
+    console.error(outpack);
   }
 
 };

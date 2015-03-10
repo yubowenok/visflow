@@ -106,6 +106,7 @@ var extObject = {
         // overwrite data object (to keep the same reference)
         $.extend(true, node.ports["out"].pack, DataflowPackage.new(data));
 
+        // TODO: this will cause multi-propagation in dataflow loading
         core.dataflowManager.propagate(node); // push changes
       }
     });

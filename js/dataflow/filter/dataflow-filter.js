@@ -58,6 +58,10 @@ var extObject = {
       $("<option value='" + i + "'>" + dims[i] + "</option>")
         .appendTo(this.selectDimension);
     }
+  },
+
+  filter: function() {
+    // filter the data by constraints
   }
 };
 
