@@ -139,12 +139,12 @@ var extObject = {
     var outpack = this.ports["out"].pack,
         inpack = this.ports["in"].pack;
 
-    if (inpack.data.type == "empty")  // avoid rushing in async
-      return;
-
     outpack.copy(inpack);
     var result = [];
     for (var i in this.selected) {
+      // due to async loading, this.selected may get selection before data reaches the node
+      if (this.selected[i] >= inpack.items.length) continue;
+
       result.push(inpack.items[this.selected[i]]);
     }
     //console.log(result);

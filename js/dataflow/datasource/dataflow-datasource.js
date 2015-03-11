@@ -82,6 +82,10 @@ var extObject = {
 
   loadData: function(dataSelected, dataName) {
     var node = this;
+
+    // add to async queue
+    core.dataflowManager.asyncDataloadStart(this);
+
     $.ajax({
       type: 'GET',
       url: "data/" + dataSelected + ".json",
@@ -106,9 +110,8 @@ var extObject = {
         // overwrite data object (to keep the same reference)
         $.extend(true, node.ports["out"].pack, DataflowPackage.new(data));
 
-        // TODO: this will cause multi-propagation in dataflow loading
-        // because this load is async and cannot be controlled by dataflowManager.propagateDisabled
-        core.dataflowManager.propagate(node); // push changes
+        // decrement async count
+        core.dataflowManager.asyncDataloadEnd(); // push changes
       }
     });
   }

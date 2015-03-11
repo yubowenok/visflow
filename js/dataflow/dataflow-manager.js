@@ -30,6 +30,9 @@ var extObject = {
     this.nodesHovered = {};
 
     this.propagateDisabled = false;
+
+    this.asyncDataloadCount = 0;
+    this.asyncDataloadQueue = [];
   },
 
   createNode: function(type) {
@@ -547,6 +550,20 @@ var extObject = {
 
   isNodeSelected: function(node) {
     return this.nodesSelected[node.nodeId] != null;
+  },
+
+  // prevent rushing in loading
+  asyncDataloadStart: function(node) {
+    this.asyncDataloadCount ++;
+    this.asyncDataloadQueue.push(node);
+  },
+
+  asyncDataloadEnd: function() {
+    this.asyncDataloadCount --;
+    if (this.asyncDataloadCount == 0) {
+      this.propagate(this.asyncDataloadQueue);
+      this.asyncDataloadQueue = [];
+    }
   }
 };
 
