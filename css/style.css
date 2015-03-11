@@ -72,10 +72,11 @@ div {
   display: block;
   text-align: center;
   position: absolute;
+  border-radius: 6px;
 }
 .dataflow-node-hover,
 .dataflow-node-selected {
-  border: 4px solid;
+  border-width: 4px;
   margin-left: -3px;
   margin-top: -3px;
 }
@@ -88,7 +89,6 @@ div {
 .dataflow-node-shape {
   width: 100px;
   height: 100px;
-  border-radius: 10px;
 }
 .dataflow-node-shape-superflat {
   width: 100px;
