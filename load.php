@@ -30,7 +30,7 @@ if ($_POST['type'] == 'filelist') {
   if (!file_exists($filepath))
     abort('file does not exist');
 
-  $dataflow = json_decode(file_get_contents($filepath), true);
+  $dataflow = json_decode(file_get_contents($filepath));
   $response['dataflow'] = $dataflow;
 }
 $response['status'] = 'success';

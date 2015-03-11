@@ -46,5 +46,5 @@ body {
   z-index: 1000;
 }
 .ui-widget-overlay {
-  z-index: 1001;
+  z-index: 10000;
 }

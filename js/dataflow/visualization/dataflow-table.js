@@ -27,8 +27,12 @@ var extObject = {
     DataflowTable.base.deserialize.call(this, save);
     if (save.selected == null)
       save.selected = {};
-
     this.selected = save.selected;
+    if (this.selected instanceof Array) {
+      console.error("Array appears as selected!!!");
+      this.selected = {};
+    }
+
     if ($.isEmptyObject(this.selected) == false)
       this.deserializeChange = true;
 
@@ -69,12 +73,12 @@ var extObject = {
       jqtbody.on("click", "tr", function () {
         $(this).toggleClass("selected");
         var jqfirstcol = $(this).find("td:first");
-        var id = jqfirstcol.text();
+        var index = jqfirstcol.text();
 
-        if (node.selected[id])
-          delete node.selected[id];
+        if (node.selected[index])
+          delete node.selected[index];
         else
-          node.selected[id] = jqfirstcol.parent().attr("id");
+          node.selected[index] = jqfirstcol.parent().attr("id");
 
         node.process();
 
@@ -142,13 +146,33 @@ var extObject = {
     var outpack = this.ports["out"].pack,
         inpack = this.ports["in"].pack;
 
-    outpack.copy(inpack);
-    var result = [];
-    for (var i in this.selected) {
-      // due to async loading, this.selected may get selection before data reaches the node
-      if (this.selected[i] >= inpack.items.length) continue;
+    // during async data load, selection is first deserialized to vis nodes
+    // however the data have not passed in
+    // thus the selection might be erronesouly cleared if continue processing
+    if (inpack.data.type == "empty")
+      return;
 
-      result.push(inpack.items[this.selected[i]]);
+    outpack.copy(inpack);
+
+    // some selection items no longer exists in the input
+    // we shall remove those selection
+    var has = {};
+    for (var i in inpack.items) {
+      has[inpack.items[i].index] = true;
+    }
+    for (var index in this.selected) {
+      if (has[index] == null){
+        delete this.selected[index];
+      }
+    }
+
+    var result = [];
+    for (var index in this.selected) {
+      // due to async loading, this.selected may get selection before data reaches the node
+      if (this.selected[index] >= inpack.items.length)
+        continue;
+
+      result.push(inpack.items[this.selected[index]]);
     }
     //console.log(result);
     outpack.items = result;

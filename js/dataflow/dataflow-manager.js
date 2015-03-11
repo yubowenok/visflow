@@ -535,9 +535,9 @@ var extObject = {
     this.clearNodeHover();
   },
 
-  moveNodeSelection: function(dx, dy, nodeDragged) {
-    for (var i in this.nodesSelected) {
-      var node = this.nodesSelected[i];
+  moveNodes: function(dx, dy, nodes) {
+    for (var i in nodes) {
+      var node = nodes[i];
       var x = node.jqview.position().left,
           y = node.jqview.position().top;
       node.jqview.css({

@@ -21,6 +21,7 @@ div {
 .panel {
   width: 150px;
   position: absolute;
+  z-index: 2000;
 }
 
 .view-header {
@@ -39,8 +40,8 @@ div {
 
 #dataflow-selectbox {
   background: #e0cfc2;
-  border: 1px solid gray;
-  opacity: 0.5;
+  border: 1px solid black;
+  opacity: 0.25;
   position: absolute;
   z-index: 1000;
 }

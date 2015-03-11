@@ -17,6 +17,7 @@ var extobject = {
 
     this.mousedownPos = [0, 0];
     this.mouseupPos = [0, 0];
+    this.mouselastPos = [0, 0];
 
     this.jqdataflow = $("#dataflow");
     this.selectbox = {
@@ -28,6 +29,7 @@ var extobject = {
     this.prepareInteraction();
 
     this.shifted = false;
+    this.ctrled = false;
   },
 
   trackMousemove: function(disabled) {
@@ -72,12 +74,18 @@ var extobject = {
     $(document).keydown(function(event) {
       if (event.keyCode == 16) {
         manager.shifted = true;
+      } else if (event.keyCode == 17) {
+        manager.ctrled = true;
+        manager.jqdataflow.css("cursor", "move");
       }
       return true;
     });
     $(document).keyup(function(event) {
       if (event.keyCode == 16) {
         manager.shifted = false;
+      } else if (event.keyCode == 17) {
+        manager.ctrled = false;
+        manager.jqdataflow.css("cursor", "");
       }
       return true;
     });
@@ -88,6 +96,7 @@ var extobject = {
     var type = para.type,
         event = para.event;
     this.mousedownPos = [event.pageX, event.pageY];
+    this.mouselastPos = [event.pageX, event.pageY];
     if (this.mouseMode != "none")
       return;
     if (type == "selectbox") {
@@ -104,25 +113,32 @@ var extobject = {
     if (this.mouseMode != type)
       return;
     if (type == "selectbox") {
-      this.selectbox.x2 = event.pageX;
-      this.selectbox.y2 = event.pageY;
-      var w = Math.abs(this.selectbox.x2 - this.selectbox.x1),
-          h = Math.abs(this.selectbox.y2 - this.selectbox.y1),
-          l = Math.min(this.selectbox.x1, this.selectbox.x2),
-          t = Math.min(this.selectbox.y1, this.selectbox.y2);
-      var box = {
-          width: w,
-          height: h,
-          left: l,
-          top: t
-      };
-      this.jqselectbox
-        .css(box)
-        .show();
-      var hovered = core.dataflowManager.getNodesInSelectbox(box);
-      core.dataflowManager.clearNodeHover();
-      core.dataflowManager.addNodeHover(hovered);
+      if (this.ctrled) {
+        var dx = event.pageX - this.mouselastPos[0],
+            dy = event.pageY - this.mouselastPos[1];
+        core.dataflowManager.moveNodes(dx, dy, core.dataflowManager.nodes);
+      } else {
+        this.selectbox.x2 = event.pageX;
+        this.selectbox.y2 = event.pageY;
+        var w = Math.abs(this.selectbox.x2 - this.selectbox.x1),
+            h = Math.abs(this.selectbox.y2 - this.selectbox.y1),
+            l = Math.min(this.selectbox.x1, this.selectbox.x2),
+            t = Math.min(this.selectbox.y1, this.selectbox.y2);
+        var box = {
+            width: w,
+            height: h,
+            left: l,
+            top: t
+        };
+        this.jqselectbox
+          .css(box)
+          .show();
+        var hovered = core.dataflowManager.getNodesInSelectbox(box);
+        core.dataflowManager.clearNodeHover();
+        core.dataflowManager.addNodeHover(hovered);
+      }
     }
+    this.mouselastPos = [event.pageX, event.pageY];
   },
   mouseupHandler: function(para) {
     var type = para.type,
@@ -143,7 +159,7 @@ var extobject = {
           type: "empty",
           event: event
         });
-      } else {
+      } else if (!this.ctrled) {  // not panning, then selecting
         if (!this.shifted)
           core.dataflowManager.clearNodeSelection();
         core.dataflowManager.addHoveredToSelection();
@@ -215,7 +231,10 @@ var extobject = {
     } else if (type == "node") {
       var dx = event.pageX - this.draglastPos[0],
           dy = event.pageY - this.draglastPos[1];
-      core.dataflowManager.moveNodeSelection(dx, dy, para.node);  // delta, exception
+
+      // the dragged node is moving together (with more offset)
+      // the more offset will be reset immediately by jquery draggable however
+      core.dataflowManager.moveNodes(dx, dy, core.dataflowManager.nodesSelected);  // delta & nodes
       this.draglastPos = [event.pageX, event.pageY];
     }
   },
