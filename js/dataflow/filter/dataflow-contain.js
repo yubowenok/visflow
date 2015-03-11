@@ -61,6 +61,8 @@ var extObject = {
 
     this.value = pack.getAll();
 
+    //console.log(this.value);
+
     this.jqvalue.val(this.value ? pack.stringify() : this.nullValueString);
 
     // do the actual filtering

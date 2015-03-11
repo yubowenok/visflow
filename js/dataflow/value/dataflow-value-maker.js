@@ -67,7 +67,7 @@ var extObject = {
     this.value = DataflowConstants.new(str);
     this.jqinput.val(str);
 
-    $.extend(true, this.outPorts[0].pack, this.value);
+    $.extend(this.ports["out"].pack, this.value);
 
     core.dataflowManager.propagate(this);
   }

@@ -108,7 +108,7 @@ var extObject = {
         core.dataflowManager.registerData(node.dataId, data);
 
         // overwrite data object (to keep the same reference)
-        $.extend(true, node.ports["out"].pack, DataflowPackage.new(data));
+        $.extend(node.ports["out"].pack, DataflowPackage.new(data));
 
         // decrement async count
         core.dataflowManager.asyncDataloadEnd(); // push changes
