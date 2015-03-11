@@ -37,6 +37,15 @@ var extObject = {
     }
   },
 
+  stringify: function() {
+    var result = "";
+    for (var i in this.elements) {
+      result += this.elements[i];
+      result += i == this.elements.length - 1 ? "" : ", ";
+    }
+    return result;
+  },
+
   // parse input string
   parse: function(text) {
     var res;

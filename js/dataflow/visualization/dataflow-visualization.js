@@ -83,6 +83,8 @@ var extObject = {
       this.updatePorts();
     } else {
       this.jqview
+        .css("width", "")
+        .css("height", "")
         .removeClass("dataflow-node-shape-vis")
         .addClass("dataflow-node-shape")
         .resizable("disable");

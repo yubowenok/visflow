@@ -7,6 +7,8 @@
 
 var extObject = {
 
+  nullValueString: "{N/A}",
+
   initialize: function(para) {
     DataflowFilter.base.initialize.call(this, para);
 

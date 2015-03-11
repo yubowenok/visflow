@@ -3,8 +3,6 @@
 
 var extObject = {
 
-  nullValueString: "{N/A}",
-
   initialize: function(para) {
 
     DataflowRangeFilter.base.initialize.call(this, para);
@@ -53,6 +51,7 @@ var extObject = {
       .val(this.value1 ? this.value1 : this.nullValueString);
     this.jqvalue2 = this.jqview.find("#v2")
       .val(this.value2 ? this.value2 : this.nullValueString);
+
     //this.jqicon
       //.addClass("dataflow-range-icon");
   },
@@ -62,11 +61,10 @@ var extObject = {
     var pack1 = this.ports["inv1"].pack,
         pack2 = this.ports["inv2"].pack;
 
-    if (pack1.type !== "constants" ||
-        pack2.type !== "constants")
-      return core.viewManager.tip(
-        "non-constants connected to range filter constants ports", this.jqview.offset());
+    if (pack1.type !== "constants" || pack2.type !== "constants")
+      return console.error("data connected to constants ports");
 
+    // TODO promote constant type?
     if (pack1.constantType !== "empty" && pack2.constantType !== "empty" &&
         pack1.constantType !== pack2.constantType)
       return core.viewManager.tip(
@@ -75,15 +73,13 @@ var extObject = {
     this.value1 = pack1.getOne();
     this.value2 = pack2.getOne();
 
-    //console.log(this.value1, this.value);
-
     if (this.value1 != null && this.value2 != null && this.value1 > this.value2) {
       this.value1 = this.value2 = null;
       core.viewManager.tip("value1 > value2 in range filter", this.jqview.offset());
     }
 
     //console.log("filter process", this.value1, this.value2);
-    var consantType = pack1.constantType;
+
     this.jqvalue1.val(this.value1 ? this.value1 : this.nullValueString);
     this.jqvalue2.val(this.value2 ? this.value2 : this.nullValueString);
 
@@ -92,7 +88,7 @@ var extObject = {
   },
 
   filter: function() {
-    // slow implementation
+    // slow implementation: linear scan
     var inpack = this.ports["in"].pack;
     var items = inpack.items,
         data = inpack.data,
