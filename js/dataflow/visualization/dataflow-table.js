@@ -67,6 +67,10 @@ var extObject = {
       .appendTo(jqtable);
     var jqtheadr = jqtable.find("thead tr");
     var jqtbody = $("<tbody></tbody>")
+      .mousedown(function(event){
+        // block events from elements below
+        event.stopPropagation();
+      })
       .appendTo(jqtable);
 
     if (items.length > 0){  // avoid selecting "no data" msg

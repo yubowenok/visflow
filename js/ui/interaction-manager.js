@@ -53,19 +53,19 @@ var extobject = {
     this.jqdataflow
       .mousedown(function(event, ui) {
         manager.mousedownHandler({
-          type: "selectbox",
+          type: "background",
           event: event
         });
       })
       .mousemove(function(event, ui) {
         manager.mousemoveHandler({
-          type: "selectbox",
+          type: "background",
           event: event
         });
       })
       .mouseup(function(event, ui) {
         manager.mouseupHandler({
-          type: "selectbox",
+          type: "background",
           event: event
         });
       });
@@ -97,12 +97,18 @@ var extobject = {
         event = para.event;
     this.mousedownPos = [event.pageX, event.pageY];
     this.mouselastPos = [event.pageX, event.pageY];
+
     if (this.mouseMode != "none")
       return;
-    if (type == "selectbox") {
-      this.selectbox.x1 = event.pageX;
-      this.selectbox.y1 = event.pageY;
-      this.mouseMode = "selectbox";
+
+    if (type == "background") {
+      if (this.ctrled) {
+        this.mouseMode = "pan";
+      } else {
+        this.selectbox.x1 = event.pageX;
+        this.selectbox.y1 = event.pageY;
+        this.mouseMode = "selectbox";
+      }
     } else if (type == "node") {
       this.mouseMode = "node";
     }
@@ -110,14 +116,14 @@ var extobject = {
   mousemoveHandler: function(para) {
     var type = para.type,
         event = para.event;
-    if (this.mouseMode != type)
-      return;
-    if (type == "selectbox") {
-      if (this.ctrled) {
+    //if (this.mouseMode != type)
+    //  return;
+    if (type == "background") {
+      if (this.mouseMode == "pan") {
         var dx = event.pageX - this.mouselastPos[0],
             dy = event.pageY - this.mouselastPos[1];
         core.dataflowManager.moveNodes(dx, dy, core.dataflowManager.nodes);
-      } else {
+      } else if (this.mouseMode == "selectbox") {
         this.selectbox.x2 = event.pageX;
         this.selectbox.y2 = event.pageY;
         var w = Math.abs(this.selectbox.x2 - this.selectbox.x1),
@@ -148,21 +154,23 @@ var extobject = {
         dy = this.mousedownPos[1] - this.mousedownPos[1];
     this.mouseMoved = Math.abs(dx) + Math.abs(dy) > 0;
 
-    if (this.mouseMode != type)
-      return;
-    if (type == "selectbox") {
-      this.jqselectbox.hide();
-      if (!this.mouseMoved){
-        // mouse not moved for select box
-        // trigger empty click
-        this.clickHandler({
-          type: "empty",
-          event: event
-        });
-      } else if (!this.ctrled) {  // not panning, then selecting
-        if (!this.shifted)
-          core.dataflowManager.clearNodeSelection();
-        core.dataflowManager.addHoveredToSelection();
+    if (type == "background") {
+      if (this.mouseMode == "pan") {
+        this.jqdataflow.css("cursor", "");
+      } else if (this.mouseMode == "selectbox") {
+        this.jqselectbox.hide();
+        if (!this.mouseMoved){
+          // mouse not moved for select box
+          // trigger empty click
+          this.clickHandler({
+            type: "empty",
+            event: event
+          });
+        } else if (!this.ctrled) {  // not panning, then selecting
+          if (!this.shifted)
+            core.dataflowManager.clearNodeSelection();
+          core.dataflowManager.addHoveredToSelection();
+        }
       }
     } else if (type == "node") {
       if (!this.mouseMoved) {
