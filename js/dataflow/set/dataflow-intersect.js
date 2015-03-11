@@ -4,7 +4,7 @@
 var extObject = {
 
   initialize: function(para) {
-    DataflowSet.initialize.call(this, para);
+    DataflowIntersect.base.initialize.call(this, para);
 
     this.inPorts = [
       DataflowPort.new(this, "ina", "in-single"),
@@ -18,7 +18,7 @@ var extObject = {
 
   show: function() {
 
-    DataflowSet.show.call(this); // call parent settings
+    DataflowIntersect.base.show.call(this); // call parent settings
 
     this.jqicon = $("<div></div>")
       .addClass("dataflow-intersect-icon")

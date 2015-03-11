@@ -124,6 +124,9 @@ var extObject = {
         maxWidth: jqtheadr.width(),
         maxHeight: jqwrapper.height()
       });
+    // as size might be changed, we make a copy to serialize
+    this.viewWidth = this.jqview.width();
+    this.viewHeight = this.jqview.height();
 
     // add previously saved selection
     for (var i in this.selected) {

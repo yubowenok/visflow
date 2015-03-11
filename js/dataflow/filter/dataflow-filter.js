@@ -45,7 +45,10 @@ var extObject = {
       })
       .change(function(event){
         node.dimension = event.target.value;
-        node.update();
+        node.process();
+
+        // push dimension change to downflow
+        core.dataflowManager.propagate(node);
       });
     this.updateDimensionList();
     this.selectDimension.select2("val", this.dimension);  // must call after updateDimensionList
