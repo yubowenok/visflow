@@ -145,12 +145,13 @@ var extObject = {
   deleteNode: function(node) {
     for (var key in node.ports) {
       var port = node.ports[key];
-      for (var i in port.connections) {
-        this.deleteEdge(port.connections[i]);
+      var connections = port.connections.slice();
+      // cannot use port.connections, because the length is changing
+      for (var i in connections) {
+        this.deleteEdge(connections[i]);
       }
     }
-    node.hide();
-    core.viewManager.removeNodeView(node.jqview);
+    node.hide();  // removes the jqview
     delete this.nodes[node.nodeId];
   },
 
@@ -164,8 +165,7 @@ var extObject = {
 
     this.propagate(edge.targetNode);  // not efficient when deleting nodes?
 
-    edge.hide();
-    core.viewManager.removeEdgeView(edge.jqview);
+    edge.hide();  // removes the jqview
     delete this.edges[edge.edgeId];
   },
 

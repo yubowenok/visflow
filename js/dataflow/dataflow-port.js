@@ -57,7 +57,7 @@ var extObject = {
         break;
       }
     }
-    if (this.isInPort && this.connections.length === 0) {
+    if (this.isInPort && this.connections.length == 0) {
       this.pack = this.packClass.new();
     }
   },
@@ -85,7 +85,7 @@ var extObject = {
         node = this.node;
     this.jqview
       .dblclick(function() {
-        console.log(port.pack, port.node.selected); // for debug
+        console.log(port.pack, port.connections); // for debug
       })
       .draggable({
         helper : function() {
