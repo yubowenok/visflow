@@ -32,8 +32,25 @@ var extObject = {
     if (!packa.data.matchDataFormat(packb.data))
       return console.error("cannot make intersection of two different types of datasets");
 
-    // TODO
-
+    // for every item in A, check if it is in B
+    // first make a dict for B
+    var hasb = {};
+    for (var i in packb.items) {
+      var item = packb.items[i];
+      hasb[item.index] = item;
+    }
+    var result = [];
+    for (var i in packa.items) {
+      var item = packa.items[i];
+      var itemb = hasb[item.index];
+      if (itemb != null) {
+        result.push(item);
+        _(item.properties).extend(itemb.properties);  // overwrite rendering property
+      }
+    }
+    var outpack = this.ports["out"].pack;
+    outpack.copy(packa);  // either A or B works
+    outpack.items = result;
   }
 
 };

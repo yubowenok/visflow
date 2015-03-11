@@ -45,3 +45,6 @@ body {
 .ui-contextmenu {
   z-index: 1000;
 }
+.ui-widget-overlay {
+  z-index: 1001;
+}

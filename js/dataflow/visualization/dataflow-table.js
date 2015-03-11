@@ -125,7 +125,7 @@ var extObject = {
         maxHeight: jqwrapper.height()
       });
 
-
+    // add previously saved selection
     for (var i in this.selected) {
       jqtbody.find("tr[id=" + this.selected[i] + "]")
         .addClass("selected");
@@ -138,12 +138,16 @@ var extObject = {
   process: function() {
     var outpack = this.ports["out"].pack,
         inpack = this.ports["in"].pack;
+
+    if (inpack.data.type == "empty")  // avoid rushing in async
+      return;
+
     outpack.copy(inpack);
     var result = [];
     for (var i in this.selected) {
       result.push(inpack.items[this.selected[i]]);
     }
-    console.log(result);
+    //console.log(result);
     outpack.items = result;
   },
 

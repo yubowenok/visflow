@@ -11,6 +11,7 @@ var extObject = {
   serialize: function() {
     var result = DataflowVisualization.base.serialize.call(this);
     result.vismode = this.vismode;
+    result.viewWidth = this.viewWidth;
     result.viewHeight = this.viewHeight;
     return result;
   },
@@ -19,9 +20,13 @@ var extObject = {
     DataflowVisualization.base.deserialize.call(this, save);
     if (this.vismode != save.vismode) {
       this.vismode = save.vismode;
+      this.viewWidth = save.viewWidth;
       this.viewHeight = save.viewHeight;
       this.jqview
-        .css("height", this.viewHeight);
+        .css({
+          width: this.viewWidth,
+          height: this.viewHeight
+        });
       this.deserializeChange = true;
     }
   },
@@ -72,6 +77,7 @@ var extObject = {
         .removeClass("dataflow-node-shape")
         .addClass("dataflow-node-shape-vis")
         .resizable("enable");
+      this.viewHeight = this.jqview.width();
       this.viewHeight = this.jqview.height();
       this.showVisualization();
       this.updatePorts();
@@ -80,6 +86,7 @@ var extObject = {
         .removeClass("dataflow-node-shape-vis")
         .addClass("dataflow-node-shape")
         .resizable("disable");
+      this.viewHeight = this.jqview.width();
       this.viewHeight = this.jqview.height();
       this.showIcon();
       this.updatePorts();
