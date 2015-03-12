@@ -241,9 +241,15 @@ var extObject = {
 
     var scale = this.screenScales[d] = d3.scale.linear();
 
+    var interval = [this.plotMargins[d].before, this.svgSize[d] - this.plotMargins[d].after];
+    if (d) {
+      var t = interval[0];
+      interval[0] = interval[1];
+      interval[1] = t;
+    }
     scale
       .domain([0, 1])
-      .range([this.plotMargins[d].before, this.svgSize[d] - this.plotMargins[d].after]);
+      .range(interval);
   },
 
   prepareDimensionList: function(d) {
