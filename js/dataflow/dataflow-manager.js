@@ -431,7 +431,6 @@ var extObject = {
         filename: filename
       },
       success: function(data, textStatus, jqXHR) {
-        console.log(data);
         if (data.status != "success") {
           $("<div>No dataflow record has the given name.</div>")
           .css("line-height", "50px")

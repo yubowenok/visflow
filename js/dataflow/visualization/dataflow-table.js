@@ -71,7 +71,8 @@ var extObject = {
     var jqtbody = $("<tbody></tbody>")
       .mousedown(function(event){
         // block events from elements below
-        event.stopPropagation();
+        if(core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
       })
       .appendTo(jqtable);
 

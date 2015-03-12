@@ -67,13 +67,13 @@ var extObject = {
   show: function() {
     DataflowVisualization.base.show.call(this);
 
-    this.jqvis = $("<div></div>")
-      .addClass("dataflow-visualization")
-      .appendTo(this.jqview);
-
     var node = this;
 
     if (this.vismode === true) {
+      this.jqvis = $("<div></div>")
+      .addClass("dataflow-visualization")
+      .appendTo(this.jqview);
+
       this.jqview
         .removeClass("dataflow-node-shape")
         .addClass("dataflow-node-shape-vis")
@@ -83,6 +83,8 @@ var extObject = {
       this.showVisualization();
       this.updatePorts();
     } else {
+      if (this.jqvis)
+        this.jqvis.remove();
       this.jqview
         .css("width", "")
         .css("height", "")

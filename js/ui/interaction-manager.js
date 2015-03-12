@@ -30,6 +30,8 @@ var extobject = {
 
     this.shifted = false;
     this.ctrled = false;
+
+    this.visualizationBlocking = true;
   },
 
   trackMousemove: function(disabled) {
@@ -77,6 +79,8 @@ var extobject = {
       } else if (event.keyCode == 17) {
         manager.ctrled = true;
         manager.jqdataflow.css("cursor", "move");
+
+        manager.visualizationBlocking = false;
       }
       return true;
     });
@@ -86,6 +90,8 @@ var extobject = {
       } else if (event.keyCode == 17) {
         manager.ctrled = false;
         manager.jqdataflow.css("cursor", "");
+
+        manager.visualizationBlocking = true;
       }
       return true;
     });

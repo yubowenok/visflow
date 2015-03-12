@@ -41,14 +41,15 @@ var extObject = {
     this.jqsvg = $(this.svg[0]);
     this.jqsvg.mousedown( function(event) {
         // block mouse
-        event.stopPropagation();
+        if(core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
       });
     this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
 
     if (this.ports["in"].pack.data.type == "empty" ||
       this.ports["in"].pack.items.length == 0) {
       // otherwise scales may be undefined
-      this.showMessage("empty");
+      this.showMessage("empty data in scatterplot");
       return;
     }
     this.clearMessage();
