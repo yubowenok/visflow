@@ -57,8 +57,7 @@ var extObject = {
                 var data = $(this).find("#data :selected").val(),
                     dataName = $(this).find("#data :selected").text();
 
-                if (data != "none")
-                  node.loadData(data, dataName);
+                node.loadData(data, dataName);
 
                 $(this).dialog("close");
               }
@@ -87,6 +86,16 @@ var extObject = {
 
     // add to async queue
     core.dataflowManager.asyncDataloadStart(this);
+
+    if (dataSelected == "none") {
+      this.jqview.find("#datahint")
+        .text("No data loaded");
+      this.dataSelected = dataSelected;
+      this.dataName = null;
+      $.extend(node.ports["out"].pack, DataflowPackage.new());
+      core.dataflowManager.asyncDataloadEnd();  // propagate null data
+      return;
+    }
 
     $.ajax({
       type: 'GET',

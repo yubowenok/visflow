@@ -7,7 +7,7 @@ var extObject = {
 
     this.node = node; // parent node
 
-    this.hashtag = "#" + Utils.randomString(8); // for serialization
+    this.hashtag = "h-" + Utils.randomString(8); // for serialization
 
     this.id = id; // port id corresponding to its parent node
     this.type = type; // in-single, in-multiple, out-single, out-multiple

@@ -6,7 +6,7 @@ var extObject = {
   initialize: function(para) {
     if (para == null)
       return console.error("null para passed to DataflowNode.initialize");
-    this.hashtag = "#" + Utils.randomString(8); // for serialization
+    this.hashtag = "h-" + Utils.randomString(8); // for serialization
 
     this.nodeId = para.nodeId;
     this.type = para.type;
