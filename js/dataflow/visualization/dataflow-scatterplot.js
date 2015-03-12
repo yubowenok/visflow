@@ -23,7 +23,9 @@ var extObject = {
     // screenScale: screen pixel <-> ?
     this.screenScales = [null, null];
     // leave some space for axes
-    this.plotMargins = [ { before: 30, after: 0 }, { before: 0, after: 30 } ];
+    this.plotMargins = [ { before: 30, after: 10 }, { before: 10, after: 30 } ];
+
+    this.isEmpty = true;
   },
 
   showIcon: function() {
@@ -46,13 +48,21 @@ var extObject = {
       });
     this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
 
+    this.clearMessage();
     if (this.ports["in"].pack.data.type == "empty" ||
       this.ports["in"].pack.items.length == 0) {
       // otherwise scales may be undefined
       this.showMessage("empty data in scatterplot");
+      this.isEmpty = true;
       return;
     }
-    this.clearMessage();
+
+    this.isEmpty = false;
+
+    for (var d in [0, 1]) {
+      this.prepareDataScale(d);
+      this.prepareScreenScale(d);
+    }
   },
 
   showVisualization: function() {
@@ -63,6 +73,9 @@ var extObject = {
         values = data.values;
 
     this.prepareSvg();
+
+    if (this.isEmpty)
+      return;
 
     var node = this;
     this.svg.selectAll(".df-scatterplot-circle").data(items).enter().append("circle")
@@ -88,9 +101,6 @@ var extObject = {
     var inpack = this.ports["in"].pack;
     var items = inpack.items,
         data = inpack.data;
-
-    if (data.type == "empty" || items.length == 0)
-      return;
 
     var dim = this.dimensions[d],
         dimType = data.dimensionTypes[dim];
@@ -130,9 +140,6 @@ var extObject = {
     var items = inpack.items,
         data = inpack.data;
 
-    if (data.type == "empty" || items.length == 0)
-      return;
-
     var scale = this.screenScales[d] = d3.scale.linear();
     scale
       .domain([0, 1])
@@ -151,11 +158,6 @@ var extObject = {
 
     // use first two dimensions
     this.dimensions = [0, 1 % data.dimensions.length];
-
-    for (var d in [0, 1]) {
-      this.prepareDataScale(d);
-      this.prepareScreenScale(d);
-    }
 
     outpack.copy(inpack);
     outpack.items = [];

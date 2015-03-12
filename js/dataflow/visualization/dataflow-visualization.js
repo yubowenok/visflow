@@ -42,14 +42,20 @@ var extObject = {
         addClass: "ui-contextmenu",
         menu: [
             {title: "Visualization On", cmd: "vis", uiIcon: "ui-icon-image"},
+            {title: "Select All", cmd: "selall"},
+            {title: "Clear Selection", cmd: "selclear"},
             {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"}
-            ],
+          ],
         select: function(event, ui) {
-          if (ui.cmd === "vis") {
+          if (ui.cmd == "vis") {
             node.vismode = !node.vismode;
             node.show();
             node.prepareContextMenu();
-          } else if (ui.cmd === "delete") {
+          } else if (ui.cmd == "selall") {
+            node.selectAll();
+          } else if (ui.cmd == "selclear") {
+            node.clearSelection();
+          } else if (ui.cmd == "delete") {
             core.dataflowManager.deleteNode(node);
           }
         }
@@ -58,12 +64,15 @@ var extObject = {
       this.jqview.contextmenu({
         menu: [
             {title: "Visualization Off", cmd: "vis", uiIcon: "ui-icon-minus"},
+            {title: "Select All", cmd: "selall"},
+            {title: "Clear Selection", cmd: "selclear"},
             {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"}
         ]
       });
     }
-
   },
+
+
 
   show: function() {
     DataflowVisualization.base.show.call(this);
@@ -132,7 +141,9 @@ var extObject = {
   // abstract: to implement in inheriting class
   showIcon: function() {},
   showVisualization: function() {},
-  updateVisualization: function() {}
+  updateVisualization: function() {},
+  clearSelection: function() {},
+  selectAll: function() {}
 
 };
 

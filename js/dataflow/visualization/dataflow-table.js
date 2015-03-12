@@ -41,6 +41,13 @@ var extObject = {
     }
   },
 
+  prepareContextMenu: function() {
+    DataflowTable.base.prepareContextMenu.call(this);
+
+    this.jqview
+      .contextmenu("setEntry", "cut", {title: "Cuty", uiIcon: "ui-icon-heart", disabled: true});
+  },
+
   showIcon: function() {
     this.jqview
       .removeClass("dataflow-table-view");
@@ -127,21 +134,35 @@ var extObject = {
           scrollX: true,
           scrollY: "300px"
         });
+
+    this.table.on("draw.dt", function() {
+      node.showPageSelection();
+    });
+
     var jqwrapper = this.jqvis.find(".dataTables_wrapper");
 
+
+    var paddedHeight = jqwrapper.height() + 10;
     this.jqview
       .addClass("dataflow-table-view")
+      .css({
+        height: paddedHeight
+      })
       .resizable({
         maxWidth: jqtheadr.width(),
-        maxHeight: jqwrapper.height()
+        maxHeight: paddedHeight
       });
     // as size might be changed, we make a copy to serialize
     this.viewWidth = this.jqview.width();
     this.viewHeight = this.jqview.height();
 
-    // add previously saved selection
+    // previously saved selection
+    this.showPageSelection();
+  },
+
+  showPageSelection: function() {
     for (var i in this.selected) {
-      jqtbody.find("tr[id=" + this.selected[i] + "]")
+      this.jqtable.find("tr[id=" + this.selected[i] + "]")
         .addClass("selected");
     }
   },
@@ -174,15 +195,41 @@ var extObject = {
     }
 
     var result = [];
-    for (var index in this.selected) {
-      // due to async loading, this.selected may get selection before data reaches the node
-      if (this.selected[index] >= inpack.items.length)
-        continue;
-
-      result.push(inpack.items[this.selected[index]]);
+    if ($.isEmptyObject(this.selected) == false) {
+      // pass selection down
+      for (var index in this.selected) {
+        // due to async loading, this.selected may get selection before data reaches the node
+        if (this.selected[index] >= inpack.items.length) {
+          console.log("how come?");
+          continue;
+        }
+        result.push(inpack.items[this.selected[index]]);
+      }
+    } else {
+      // pass nothing down?
     }
+
     //console.log(result);
     outpack.items = result;
+  },
+
+  clearSelection: function() {
+    this.selected = {};
+    this.jqtable.find("tr").removeClass("selected");
+    this.process();
+    core.dataflowManager.propagate(this);
+  },
+
+  selectAll: function() {
+    var inpack = this.ports["in"].pack;
+    this.selected = {};
+    for (var i in inpack.items) {
+      var item = inpack.items[i];
+      this.selected[item.index] = i;
+    }
+    this.jqtable.find("tbody tr").addClass("selected");
+    this.process();
+    core.dataflowManager.propagate(this);
   },
 
   resize: function(size) {

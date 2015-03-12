@@ -131,9 +131,6 @@ div {
   height: 100%;
   overflow: hidden;
 }
-.dataflow-table-view {
-  width: 400px;
-}
 
 .dataflow-table-icon,
 .dataflow-scatterplot-icon,

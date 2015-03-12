@@ -23,3 +23,7 @@ svg {
 .df-scatterplot-circle {
   fill: black;
 }
+
+.dataflow-table-view {
+  width: 450px;
+}
