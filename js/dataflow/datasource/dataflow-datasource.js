@@ -47,23 +47,22 @@ var extObject = {
       .click(function(event, ui){
         var jqdialog = $("<div></div>");
         jqdialog
-          .addClass("dialog-loaddata")
           .dialog({
-          title: "Select a Dataset",
-          buttons: [
-            {
-              text: "OK",
-              click: function() {
-                var data = $(this).find("#data :selected").val(),
-                    dataName = $(this).find("#data :selected").text();
+            title: "Select a Dataset",
+            buttons: [
+              {
+                text: "OK",
+                click: function() {
+                  var data = $(this).find("#data :selected").val(),
+                      dataName = $(this).find("#data :selected").text();
 
-                node.loadData(data, dataName);
+                  node.loadData(data, dataName);
 
-                $(this).dialog("close");
+                  $(this).dialog("close");
+                }
               }
-            }
-          ]
-        });
+            ]
+          });
         // hide the close button at the header bar
         /*
         jqdialog

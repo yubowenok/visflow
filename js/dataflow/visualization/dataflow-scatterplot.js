@@ -17,7 +17,7 @@ var extObject = {
 
     // 0: X axis, 1: Y axis
     this.dimensions = [0, 0];
-
+    this.dimensionLists = [[], []];
 
     this.scaleTypes = [null, null];
     // dataScale : datavalue <-> [0, 1]
@@ -28,6 +28,38 @@ var extObject = {
     this.plotMargins = [ { before: 30, after: 10 }, { before: 10, after: 30 } ];
 
     this.isEmpty = true;
+
+    this.lastDataId = 0;  // default: empty data
+  },
+
+  serialize: function() {
+    var result = DataflowScatterplot.base.serialize.call(this);
+    result.dimensions = this.dimensions;
+    return result;
+  },
+
+  deserialize: function(save) {
+    DataflowScatterplot.base.deserialize.call(this, save);
+    this.dimensions = save.dimensions;
+    if (this.dimensions == null) {
+      console.error("dimensions not saved");
+      this.dimensions = [0, 0];
+    }
+    /*
+    if (save.selected == null)
+      save.selected = {};
+    this.selected = save.selected;
+    if (this.selected instanceof Array) {
+      console.error("Array appears as selected!!!");
+      this.selected = {};
+    }
+    if ($.isEmptyObject(this.selected) == false)
+      this.deserializeChange = true;
+      */
+
+    if (this.deserializeChange) {
+      this.show();
+    }
   },
 
   showIcon: function() {
@@ -61,14 +93,13 @@ var extObject = {
 
     this.isEmpty = false;
 
-    for (var d in [0, 1]) {
+    [0, 1].map(function(d) {
       this.prepareDataScale(d);
       this.prepareScreenScale(d);
-    }
+    }, this);
   },
 
   showVisualization: function() {
-
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         data = inpack.data,
@@ -98,34 +129,69 @@ var extObject = {
         return e.properties.r != null ? e.properties.r : 3;
       });
 
-    this.showAxes();
+    [0, 1].map(function(d) {
+      this.showAxis(d);
+    }, this);
   },
 
-  showAxes: function() {
-    var margins = this.plotMargins;
-    // x axis
-    var axes = [];
+  showOptions: function() {
     [0, 1].map(function(d) {
-      var axis = axes[d] = d3.svg.axis()
-        .orient(!d ? "bottom" : "left")
-        .ticks(5);
-      if (this.scaleTypes[d] == "ordinal"){
-        axis.scale(this.dataScales[d]
-            .rangePoints(this.screenScales[d].range(), 1.0));
-      } else {
-        axis.scale(this.dataScales[d]
-            .range(this.screenScales[d].range()));
-      }
-      this.svg.append("g")
-        .attr("class", (!d ? "x" : "y") + " axis")
-        .attr("transform", "translate(" +
-            (!d ?
-              "0,"+ (this.svgSize[1] - margins[1].after) :
-              margins[0].before + ",0"
-            )
-            + ")")
-        .call(axis);
+      var node = this;
+      var div = $("<div></div>")
+        .addClass("dataflow-options-item")
+        .appendTo(this.jqoptions);
+      $("<label></label>")
+        .addClass("dataflow-options-text")
+        .text( (!d ? "X" : "Y" ) + " Axis:")
+        .appendTo(div);
+      this.dimensionLists[d] = $("<select class='dataflow-select'></select>")
+        .addClass("dataflow-options-select")
+        .appendTo(div)
+        .select2()
+        .change(function(event){
+          node.dimensions[d] = event.target.value;
+          node.showVisualization();
+          node.process();
+
+          // push dimension change to downflow
+          core.dataflowManager.propagate(node);
+        });
+
+      this.prepareDimensionList(d);
+      // show current selection, must call after prepareDimensionList
+      this.dimensionLists[d].select2("val", this.dimensions[d]);
+
     }, this);
+  },
+
+  showAxis: function(d) {
+    var margins = this.plotMargins;
+    var axis = d3.svg.axis()
+      .orient(!d ? "bottom" : "left")
+      .ticks(5);
+    if (this.scaleTypes[d] == "ordinal"){
+      axis.scale(this.dataScales[d]
+          .rangePoints(this.screenScales[d].range(), 1.0));
+    } else {
+      axis.scale(this.dataScales[d]
+          .range(this.screenScales[d].range()));
+    }
+    var transX = !d ? 0 : margins[0].before,
+        transY = !d ? this.svgSize[1] - margins[1].after : 0;
+    var labelX = !d ? this.svgSize[0] - margins[0].after : margins[1].before,
+        labelY = -5;
+
+    var data = this.ports["in"].pack.data;
+    this.svg.append("g")
+      .attr("class", (!d ? "x" : "y") + " axis")
+      .attr("transform", "translate(" + transX + "," + transY + ")")
+      .call(axis)
+      .append("text")
+        .attr("x", labelX)
+        .attr("y", labelY)
+        .style("text-anchor", !d ? "end" : "")
+        .attr("transform", !d ? "" : "rotate(90)")
+        .text(data.dimensions[this.dimensions[d]]);
   },
 
   prepareDataScale: function(d) {
@@ -149,7 +215,8 @@ var extObject = {
         minVal = Math.min(minVal, value);
         maxVal = Math.max(maxVal, value);
       }
-      scale.domain([minVal, maxVal]);
+      var span = maxVal - minVal;
+      scale.domain([minVal - span * .15, maxVal + span * .15]);
 
     } else if (scaleType == "ordinal") {
       scale = this.dataScales[d] = d3.scale.ordinal().rangePoints([0,1], 1.0);  // TODO check padding
@@ -179,18 +246,43 @@ var extObject = {
       .range([this.plotMargins[d].before, this.svgSize[d] - this.plotMargins[d].after]);
   },
 
+  prepareDimensionList: function(d) {
+    var dims = this.ports["in"].pack.data.dimensions;
+    for (var i in dims) {
+      $("<option value='" + i + "'>" + dims[i] + "</option>")
+        .appendTo(this.dimensionLists[d]);
+    }
+  },
+
   process: function() {
     var inpack = this.ports["in"].pack,
         outpack = this.ports["out"].pack;
 
     var data = inpack.data;
     if (data.type == "empty") {
-      this.dimension1 = this.dimension2 = null;
+      this.dimensions = [0, 0];
       return;
     }
 
-    // use first two dimensions
-    this.dimensions = [1, 2 % data.dimensions.length];
+    if (data.dataId != this.lastDataId) {
+      // data has changed, use first 2 non-string dimensions
+      var chosen = [];
+      for (var i in data.dimensionTypes) {
+        if (data.dimensionTypes[i] != "string") {
+          chosen.push(i);
+        }
+        if (chosen.length == 2)
+          break;
+      }
+      this.dimensions = [chosen[0], chosen[1 % chosen.length]];
+    }
+
+    this.lastDataId = data.dataId;
+
+    [0, 1].map(function(d) {
+      // when data changed, use modulo dimension id
+      this.dimensions[d] %= data.dimensions.length;
+    }, this);
 
     outpack.copy(inpack);
     outpack.items = [];
@@ -198,9 +290,9 @@ var extObject = {
 
   resize: function(size) {
     DataflowScatterplot.base.resize.call(this, size);
-    for (var d in [0, 1]) {
+    [0, 1].map(function(d) {
       this.prepareScreenScale(d);
-    }
+    }, this);
     this.showVisualization();
   }
 

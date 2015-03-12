@@ -1,6 +1,7 @@
 
 .axis text {
-  font: 10px sans-serif;
+  font-size: 10px;
+  font-family: sans-serif;
 }
 
 .axis line,
@@ -28,6 +29,25 @@ svg {
   width: 100%;
   text-align: center;
   pointer-events: none;
+}
+
+.dataflow-options {
+  left: 100%;
+  top: 0%;
+  position: absolute;
+  width: 200px;
+}
+
+.dataflow-options-item {
+  margin: 5px;
+}
+
+.dataflow-options-select {
+  width: 70%;
+}
+
+.dataflow-options-text {
+  margin-right: 1em;
 }
 
 .df-scatterplot-circle {

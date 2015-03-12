@@ -40,7 +40,8 @@ var extObject = {
 */
 
     var node = this;
-    this.selectDimension = $("<select class='dataflow-select'><option/></select>")
+    this.dimensionList = $("<select><option/></select>")
+      .addClass("dataflow-node-select")
       .appendTo(this.jqview)
       .select2({
         placeholder: "Select"
@@ -52,16 +53,17 @@ var extObject = {
         // push dimension change to downflow
         core.dataflowManager.propagate(node);
       });
-    this.updateDimensionList();
-    this.selectDimension.select2("val", this.dimension);  // must call after updateDimensionList
+    this.prepareDimensionList();
+
+    // show current selection, must call after prepareDimensionList
+    this.dimensionList.select2("val", this.dimension);
   },
 
-  updateDimensionList: function() {
+  prepareDimensionList: function() {
     var dims = this.ports["in"].pack.data.dimensions;
-    console.log(dims);
     for (var i in dims) {
       $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.selectDimension);
+        .appendTo(this.dimensionList);
     }
   },
 
