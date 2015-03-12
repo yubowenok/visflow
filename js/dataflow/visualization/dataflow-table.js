@@ -141,7 +141,6 @@ var extObject = {
 
     var jqwrapper = this.jqvis.find(".dataTables_wrapper");
 
-
     var paddedHeight = jqwrapper.height() + 10;
     this.jqview
       .addClass("dataflow-table-view")

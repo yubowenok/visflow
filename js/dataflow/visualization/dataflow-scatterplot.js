@@ -18,9 +18,11 @@ var extObject = {
     // 0: X axis, 1: Y axis
     this.dimensions = [0, 0];
 
+
+    this.scaleTypes = [null, null];
     // dataScale : datavalue <-> [0, 1]
     this.dataScales = [null, null];
-    // screenScale: screen pixel <-> ?
+    // screenScale: [0, 1] <-> screen pixel (rendering region)
     this.screenScales = [null, null];
     // leave some space for axes
     this.plotMargins = [ { before: 30, after: 10 }, { before: 10, after: 30 } ];
@@ -95,6 +97,35 @@ var extObject = {
       .attr("r", function(e) {
         return e.properties.r != null ? e.properties.r : 3;
       });
+
+    this.showAxes();
+  },
+
+  showAxes: function() {
+    var margins = this.plotMargins;
+    // x axis
+    var axes = [];
+    [0, 1].map(function(d) {
+      var axis = axes[d] = d3.svg.axis()
+        .orient(!d ? "bottom" : "left")
+        .ticks(5);
+      if (this.scaleTypes[d] == "ordinal"){
+        axis.scale(this.dataScales[d]
+            .rangePoints(this.screenScales[d].range(), 1.0));
+      } else {
+        axis.scale(this.dataScales[d]
+            .range(this.screenScales[d].range()));
+      }
+      this.svg.append("g")
+        .attr("class", (!d ? "x" : "y") + " axis")
+        .attr("transform", "translate(" +
+            (!d ?
+              "0,"+ (this.svgSize[1] - margins[1].after) :
+              margins[0].before + ",0"
+            )
+            + ")")
+        .call(axis);
+    }, this);
   },
 
   prepareDataScale: function(d) {
@@ -106,6 +137,7 @@ var extObject = {
         dimType = data.dimensionTypes[dim];
 
     var scaleType = dimType == "string" ? "ordinal" : "numerical";
+    this.scaleTypes[d] = scaleType;
     var scale;
     if (scaleType == "numerical") {
       scale = this.dataScales[d] = d3.scale.linear().range([0,1]);
@@ -141,6 +173,7 @@ var extObject = {
         data = inpack.data;
 
     var scale = this.screenScales[d] = d3.scale.linear();
+
     scale
       .domain([0, 1])
       .range([this.plotMargins[d].before, this.svgSize[d] - this.plotMargins[d].after]);
@@ -157,7 +190,7 @@ var extObject = {
     }
 
     // use first two dimensions
-    this.dimensions = [0, 1 % data.dimensions.length];
+    this.dimensions = [1, 2 % data.dimensions.length];
 
     outpack.copy(inpack);
     outpack.items = [];
