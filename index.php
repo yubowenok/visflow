@@ -13,7 +13,6 @@ if (!isset($_GET['filename'])) {
   );
 }
 
-
 function get_client_ip() {
   $ipaddress = '';
   if (getenv('HTTP_CLIENT_IP'))
@@ -37,7 +36,8 @@ date_default_timezone_set('America/New_York');
 $fp = fopen('dataflow.log', 'a');
 $ip = get_client_ip();
 $date = date('m/d/Y h:i:s A', time());
-fwrite($fp, "[$ip $date ts=".time()."]");
+$user = getenv('REMOTE_USER');
+fwrite($fp, "[$user $ip $date ts=".time()."]");
 if(isset($_GET["filename"])) {
   $x = $_GET["filename"];
   fwrite($fp, " filename=$x");
