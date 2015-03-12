@@ -22,7 +22,8 @@ var extObject = {
   },
 
   showVisualization: function() {
-    console.log("show vis");
+    this.jqsvg = $("<svg></svg>")
+      .appendTo(this.jqvis);
   }
 
 };

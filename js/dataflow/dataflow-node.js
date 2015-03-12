@@ -134,7 +134,7 @@ var extObject = {
         core.dataflowManager.activateNode(nodeId);
       else if (event.which === 3)
         $(".ui-contextmenu")
-          .css("z-index", core.viewManager.getTopZindex() + 1); // over other things
+          .css("z-index", 1000); // over other things
     });
 
     this.prepareContextMenu();

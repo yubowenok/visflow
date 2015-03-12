@@ -68,6 +68,7 @@ var extObject = {
     DataflowVisualization.base.show.call(this);
 
     this.jqvis = $("<div></div>")
+      .addClass("dataflow-visualization")
       .appendTo(this.jqview);
 
     var node = this;

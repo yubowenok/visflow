@@ -25,7 +25,9 @@ var extObject = {
 
   deserialize: function(save) {
     DataflowDataSource.base.deserialize.call(this, save);
-    this.loadData(save.dataSelected, save.dataName);
+    if (save.dataSelected != "none") {
+      this.loadData(save.dataSelected, save.dataName);
+    }
   },
 
   show: function() {
