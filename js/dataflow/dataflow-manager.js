@@ -431,6 +431,21 @@ var extObject = {
         filename: filename
       },
       success: function(data, textStatus, jqXHR) {
+        console.log(data);
+        if (data.status != "success") {
+          $("<div>No dataflow record has the given name.</div>")
+          .css("line-height", "50px")
+          .dialog({
+            modal: true,
+            title: "Load Error",
+            buttons: {
+              OK: function() {
+                $(this).dialog("close");
+              }
+            }
+          });
+          return;
+        }
         manager.deserializeDataflow(data.dataflow);
       },
       error: function(jqXHR, textStatus, errorThrown) {
