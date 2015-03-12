@@ -88,6 +88,10 @@ var extObject = {
     var inpack = this.ports["in"].pack;
     var items = inpack.items,
         data = inpack.data;
+
+    if (data.type == "empty" || items.length == 0)
+      return;
+
     var dim = this.dimensions[d],
         dimType = data.dimensionTypes[dim];
 
@@ -122,6 +126,13 @@ var extObject = {
   },
 
   prepareScreenScale: function(d) {
+    var inpack = this.ports["in"].pack;
+    var items = inpack.items,
+        data = inpack.data;
+
+    if (data.type == "empty" || items.length == 0)
+      return;
+
     var scale = this.screenScales[d] = d3.scale.linear();
     scale
       .domain([0, 1])

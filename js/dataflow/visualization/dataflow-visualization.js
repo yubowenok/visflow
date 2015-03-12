@@ -6,6 +6,8 @@ var extObject = {
   initialize: function(para) {
     DataflowVisualization.base.initialize.call(this, para);
     this.vismode = false;
+    this.visWidth = null;
+    this.visHeight = null;
   },
 
   serialize: function() {
@@ -13,20 +15,19 @@ var extObject = {
     result.vismode = this.vismode;
     result.viewWidth = this.viewWidth;
     result.viewHeight = this.viewHeight;
+    result.visWidth = this.visWidth;
+    result.visHeight = this.visHeight;
     return result;
   },
 
   deserialize: function(save) {
     DataflowVisualization.base.deserialize.call(this, save);
-    if (this.vismode != save.vismode) {
+    this.visWidth = this.visWidth;
+    this.visHeight = this.visHeight;
+    if (save.vismode === true) {
       this.vismode = save.vismode;
       this.viewWidth = save.viewWidth;
       this.viewHeight = save.viewHeight;
-      this.jqview
-        .css({
-          width: this.viewWidth,
-          height: this.viewHeight
-        });
       this.deserializeChange = true;
     }
   },
@@ -77,9 +78,12 @@ var extObject = {
       this.jqview
         .removeClass("dataflow-node-shape")
         .addClass("dataflow-node-shape-vis")
+        .css("width", this.visWidth)
+        .css("height", this.visHeight)
         .resizable("enable");
-      this.viewHeight = this.jqview.width();
+      this.viewWidth = this.jqview.width();
       this.viewHeight = this.jqview.height();
+
       this.showVisualization();
       this.updatePorts();
     } else {
@@ -91,7 +95,7 @@ var extObject = {
         .removeClass("dataflow-node-shape-vis")
         .addClass("dataflow-node-shape")
         .resizable("disable");
-      this.viewHeight = this.jqview.width();
+      this.viewWidth = this.jqview.width();
       this.viewHeight = this.jqview.height();
       this.showIcon();
       this.updatePorts();
@@ -115,6 +119,10 @@ var extObject = {
   // need to call parent classes
   resize: function(size) {
     DataflowVisualization.base.resize.call(this, size);
+    if (this.vismode) {
+      this.visWidth = size.width;
+      this.visHeight = size.height;
+    }
   },
 
   resizestop: function(size) {
