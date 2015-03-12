@@ -1,0 +1,25 @@
+
+
+svg {
+  background: #FFF;
+  width: 100%;
+  height: 100%;
+  pointer-events: all;
+}
+
+.dataflow-visualization {
+  margin: 5px;
+  width: calc(100% - 10px);
+  height: calc(100% - 10px);
+}
+
+.dataflow-visualization-message {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.df-scatterplot-circle {
+  fill: black;
+}

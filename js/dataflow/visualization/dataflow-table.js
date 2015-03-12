@@ -66,6 +66,8 @@ var extObject = {
     $("<thead><tr></tr></thead>")
       .appendTo(jqtable);
     var jqtheadr = jqtable.find("thead tr");
+
+    // table rows, also the interactive region
     var jqtbody = $("<tbody></tbody>")
       .mousedown(function(event){
         // block events from elements below

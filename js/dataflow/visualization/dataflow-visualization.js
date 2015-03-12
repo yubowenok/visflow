@@ -96,22 +96,34 @@ var extObject = {
     }
   },
 
-  showIcon: function() {
+  // display a text message at the center of the node
+  showMessage: function(msg) {
+    this.jqmsg = $("<div></div>")
+      .text(msg)
+      .addClass("dataflow-visualization-message")
+      .css("line-height", this.viewHeight + "px")
+      .prependTo(this.jqview);
   },
 
-  showVisualization: function() {
+  clearMessage: function() {
+    if (this.jqmsg)
+      this.jqmsg.remove();
   },
 
-  updateVisualization: function() {
-  },
-
+  // need to call parent classes
   resize: function(size) {
     DataflowVisualization.base.resize.call(this, size);
   },
 
   resizestop: function(size) {
     DataflowVisualization.base.resizestop.call(this, size);
-  }
+  },
+
+  // abstract: to implement in inheriting class
+  showIcon: function() {},
+  showVisualization: function() {},
+  updateVisualization: function() {}
+
 };
 
 var DataflowVisualization = DataflowNode.extend(extObject);

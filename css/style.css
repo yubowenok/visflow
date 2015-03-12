@@ -18,11 +18,6 @@ div {
   -webkit-user-drag: none;
 }
 
-svg {
-  background: #FFF;
-  width: 100%;
-  height: 100%;
-}
 
 .panel {
   width: 150px;
@@ -120,10 +115,6 @@ svg {
   padding: 3px;
 }
 
-.dataflow-visualization {
-  width: 100%;
-  height: 100%;
-}
 
 
 .menu-square-icon {
