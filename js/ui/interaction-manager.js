@@ -196,6 +196,7 @@ var extobject = {
       this.dropPossible = true;
     } else if (type == "node") {
       this.mouseMode = "node";
+      this.jqdataflow.css("cursor", "move");
 
       if (core.dataflowManager.isNodeSelected(para.node)) {
         // already selected, then drag all selection
@@ -204,8 +205,8 @@ var extobject = {
         core.dataflowManager.clearNodeSelection();
         core.dataflowManager.addNodeSelection(para.node);
       }
-      this.draglastPos = [event.pageX, event.pageY];
     }
+    this.draglastPos = [event.pageX, event.pageY];
   },
 
   dragmoveHandler: function(para) {
@@ -256,6 +257,7 @@ var extobject = {
       $("#dataflow-edge-drawing")
         .css("visibility", "hidden");
     } else if (type == "node"){
+      this.jqdataflow.css("cursor", "");
     }
     this.mouseMode = "none";
   },
