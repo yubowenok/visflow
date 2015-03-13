@@ -72,7 +72,7 @@ var extObject = {
     // make table rows
     for (var i in items) {
       var jqtr = $("<tr></tr>")
-        .attr("id", i)  // offset in array
+        .attr("id", "i" + i)  // offset in array
         .appendTo(jqtbody);
       // index column
       var index = items[i].index;
@@ -134,7 +134,7 @@ var extObject = {
         if (node.selected[index])
           delete node.selected[index];
         else
-          node.selected[index] = jqfirstcol.parent().attr("id");
+          node.selected[index] = jqfirstcol.parent().attr("id").substr(1);  // remove leading 'i'
 
         node.process();
 
@@ -149,7 +149,7 @@ var extObject = {
 
   showSelection: function() {
     for (var i in this.selected) {
-      this.jqtable.find("tr[id=" + this.selected[i] + "]")
+      this.jqtable.find("tr[id=i" + this.selected[i] + "]")
         .addClass("selected");
     }
   },

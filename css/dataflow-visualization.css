@@ -50,15 +50,14 @@ svg {
   margin-right: 1em;
 }
 
-.df-scatterplot-circle {
-  fill: black;
-}
 .df-scatterplot-selectbox {
   fill: #e0cfc2;
   stroke: black;
   opacity: 0.25;
 }
-
 .dataflow-table-view {
   width: 450px;
 }
+
+
+

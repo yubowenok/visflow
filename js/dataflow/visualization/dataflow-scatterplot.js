@@ -3,6 +3,26 @@
 
 var extObject = {
 
+  // use object to specify default rendering properties
+  defaultProperties: {
+    "fill": "black",
+    "stroke": "black",
+    "stroke-width": "1px",
+    "r" : 3
+  },
+  // show these properties when items are selected
+  selectedProperties: {
+    "fill": "#FF4400",
+    "stroke": "black"
+  },
+  // let d3 know to use attr or style for each key
+  isAttr: {
+    "id": true,
+    "r": true,
+    "cx": true,
+    "cy": true
+  },
+
   initialize: function(para) {
     DataflowScatterplot.base.initialize.call(this, para);
 
@@ -66,12 +86,6 @@ var extObject = {
 
     this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
     this.jqsvg = $(this.svg[0]);
-    this.jqsvg
-      .mousedown( function(event) {
-        // block mouse
-        if(core.interactionManager.visualizationBlocking)
-          event.stopPropagation();
-      });
 
     this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
 
@@ -167,17 +181,9 @@ var extObject = {
         this.selected[index] = true;
       }
     }
-    this.highlightSelection();
+    this.showVisualization();
     this.process();
     core.dataflowManager.propagate(this);
-  },
-
-  highlightSelection: function() {
-    var items = this.ports["in"].pack.items;
-    this.svg.selectAll("circle").data([0,1,2])
-      .attr("fill", "red");
-      //_(this.selected).allKeys()
-
   },
 
   showSelectbox: function(box) {
@@ -207,28 +213,92 @@ var extObject = {
       return;
 
     var node = this;
-    this.svg.selectAll(".df-scatterplot-circle").data(items).enter().append("circle")
-      .attr("class", "df-scatterplot-circle")
-      .attr("cx", function(e) {
-        var value = values[e.index][node.dimensions[0]];
-        value = node.dataScales[0](value);
-        value = node.screenScales[0](value);
-        return value;
-      })
-      .attr("cy", function(e) {
-        var value = values[e.index][node.dimensions[1]];
-        value = node.dataScales[1](value);
-        value = node.screenScales[1](value);
-        return value;
-      })
-      .attr("r", function(e) {
-        return e.properties.r != null ? e.properties.r : 3;
-      });
+
+    for (var i in items) {
+      var item = items[i];
+
+      var c = [];
+      [0, 1].map(function(d) {
+        var value = values[item.index][node.dimensions[d]];
+        value = node.dataScales[d](value);
+        value = node.screenScales[d](value);
+        c[d] = value;
+      }, this);
+
+      var properties = _.extend(
+        {},
+        this.defaultProperties,
+        item.properties,
+        {
+          id: "i" + item.index,
+          cx: c[0],
+          cy: c[1]
+        }
+      );
+      var u = this.svg.select("#i" + item.index);
+      if (u.empty())
+        u = this.svg.append("circle");
+      for (var key in properties) {
+        if (this.isAttr[key] == true)
+          u.attr(key, properties[key]);
+        else
+          u.style(key, properties[key]);
+      }
+    }
 
     [0, 1].map(function(d) {
       this.showAxis(d);
     }, this);
+
+    this.showSelection();
   },
+
+  showSelection: function() {
+    // otherwise no item data can be used
+    if (this.isEmpty)
+      return;
+
+    // re-render the selection to make them appear on top
+    var inpack = this.ports["in"].pack,
+        items = inpack.items,
+        values = inpack.data.values,
+        node = this;
+
+    for (var index in this.selected) {
+      var item = items[index];
+
+      var c = [];
+      [0, 1].map(function(d) {
+        var value = values[item.index][node.dimensions[d]];
+        value = node.dataScales[d](value);
+        value = node.screenScales[d](value);
+        c[d] = value;
+      }, this);
+
+      var properties = _.extend(
+        {},
+        this.defaultProperties,
+        item.properties,
+        this.selectedProperties,
+        {
+          id: "i" + item.index,
+          cx: c[0],
+          cy: c[1]
+        }
+      );
+
+      var jqu = $(this.svg.select("#i" + index)[0])
+        .appendTo(this.jqsvg);  // change position of tag
+      var u = d3.selectAll(jqu.toArray());
+      for (var key in properties) {
+        if (this.isAttr[key] == true)
+          u.attr(key, properties[key]);
+        else
+          u.style(key, properties[key]);
+      }
+    }
+  },
+
 
   showOptions: function() {
     [0, 1].map(function(d) {
@@ -261,6 +331,7 @@ var extObject = {
   },
 
   showAxis: function(d) {
+    var dt = !d? "x" : "y";
     var margins = this.plotMargins;
     var axis = d3.svg.axis()
       .orient(!d ? "bottom" : "left")
@@ -278,16 +349,24 @@ var extObject = {
         labelY = -5;
 
     var data = this.ports["in"].pack.data;
-    this.svg.append("g")
-      .attr("class", (!d ? "x" : "y") + " axis")
-      .attr("transform", "translate(" + transX + "," + transY + ")")
-      .call(axis)
-      .append("text")
-        .attr("x", labelX)
-        .attr("y", labelY)
+
+    var u = this.svg.select("." + dt +".axis");
+    if (u.empty()) {
+      u = this.svg.append("g")
+       .attr("class", dt + " axis")
+       .attr("transform", "translate(" + transX + "," + transY + ")");
+    }
+    u.call(axis);
+    var t = u.select(".label");
+    if (t.empty()) {
+      t = u.append("text")
+        .attr("class", "label")
         .style("text-anchor", !d ? "end" : "")
         .attr("transform", !d ? "" : "rotate(90)")
-        .text(data.dimensions[this.dimensions[d]]);
+        .attr("x", labelX)
+        .attr("y", labelY);
+      }
+    t.text(data.dimensions[this.dimensions[d]]);
   },
 
   prepareDataScale: function(d) {
@@ -365,6 +444,8 @@ var extObject = {
       return;
     }
 
+    this.validateSelection();
+
     if (data.dataId != this.lastDataId) {
       // data has changed, use first 2 non-string dimensions
       var chosen = [];
@@ -378,7 +459,6 @@ var extObject = {
       this.dimensions = [chosen[0], chosen[1 % chosen.length]];
       this.lastDataId = data.dataId;
     }
-
 
     [0, 1].map(function(d) {
       // when data changed, use modulo dimension id
