@@ -45,6 +45,14 @@ var extObject = {
          if (ui.cmd === "delete") {
           core.dataflowManager.deleteEdge(edge);
         }
+      },
+      beforeOpen: function(event, ui) {
+        if (core.interactionManager.contextmenuLock)
+          return false;
+        core.interactionManager.contextmenuLock = true;
+      },
+      close: function(event, ui) {
+        core.interactionManager.contextmenuLock = false;
       }
     });
 
