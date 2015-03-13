@@ -45,7 +45,7 @@ var extObject = {
     // screenScale: [0, 1] <-> screen pixel (rendering region)
     this.screenScales = [null, null];
     // leave some space for axes
-    this.plotMargins = [ { before: 40, after: 10 }, { before: 10, after: 30 } ];
+    this.plotMargins = [ { before: 30, after: 10 }, { before: 10, after: 30 } ];
 
     this.isEmpty = true;
 
@@ -68,9 +68,6 @@ var extObject = {
       console.error("dimensions not saved for scatterplot");
       this.dimensions = [0, 0];
     }
-
-    if (this.deserializeChange)
-      this.show();
   },
 
   showIcon: function() {
@@ -91,7 +88,7 @@ var extObject = {
 
     this.clearMessage();
     if (this.ports["in"].pack.data.type == "empty" ||
-      this.ports["in"].pack.items.length == 0) {
+      this.ports["in"].pack.isEmpty()) {
       // otherwise scales may be undefined
       this.showMessage("empty data in scatterplot");
       this.isEmpty = true;
@@ -169,8 +166,7 @@ var extObject = {
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         values = inpack.data.values;
-    for (var i in items) {
-      var index = items[i].index;
+    for (var index in items) {
       var ok = 1;
       [0, 1].map(function(d) {
         var value = values[index][this.dimensions[d]];
@@ -219,12 +215,10 @@ var extObject = {
 
     var node = this;
 
-    for (var i in items) {
-      var item = items[i];
-
+    for (var index in items) {
       var c = [];
       [0, 1].map(function(d) {
-        var value = values[item.index][node.dimensions[d]];
+        var value = values[index][node.dimensions[d]];
         value = node.dataScales[d](value);
         value = node.screenScales[d](value);
         c[d] = value;
@@ -233,9 +227,9 @@ var extObject = {
       var properties = _.extend(
         {},
         this.defaultProperties,
-        item.properties,
+        items[index].properties,
         {
-          id: "i" + item.index,
+          id: "i" + index,
           cx: c[0],
           cy: c[1]
         }
@@ -279,7 +273,7 @@ var extObject = {
       var properties = _.extend(
         {},
         this.defaultProperties,
-        inpack.hasItem[index].properties,
+        items[index].properties,
         this.selectedProperties,
         {
           id: "i" + index,
@@ -387,8 +381,8 @@ var extObject = {
 
       var minVal = Infinity, maxVal = -Infinity;
       // compute min max
-      for (var i in items) {
-        var value = data.values[items[i].index][dim];
+      for (var index in items) {
+        var value = data.values[index][dim];
         minVal = Math.min(minVal, value);
         maxVal = Math.max(maxVal, value);
       }
@@ -399,8 +393,8 @@ var extObject = {
       scale = this.dataScales[d] = d3.scale.ordinal().rangePoints([0,1], 1.0);  // TODO check padding
       // find unique values
       var has = {};
-      for (var i in items) {
-        var value = data.values[items[i].index][dim];
+      for (var index in items) {
+        var value = data.values[index][dim];
         has[value] = true;
       }
       var values = [];

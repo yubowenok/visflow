@@ -13,18 +13,19 @@ var extObject = {
       DataflowPort.new(this, "out", "out-multiple")
     ];
     this.prepare();
+
+    this.keepSize = null;
   },
 
   serialize: function() {
     var result = DataflowTable.base.serialize.call(this);
+    result.keepSize = this.keepSize;
     return result;
   },
 
   deserialize: function(save) {
     DataflowTable.base.deserialize.call(this, save);
-
-    if (this.deserializeChange)
-      this.show();
+    this.keepSize = save.keepSize;
   },
 
   prepareContextMenu: function() {
@@ -70,12 +71,11 @@ var extObject = {
         .appendTo(jqtheadr);
 
     // make table rows
-    for (var i in items) {
+    for (var index in items) {
       var jqtr = $("<tr></tr>")
-        .attr("id", "i" + i)  // offset in array
+        .attr("id", "i" + index)
         .appendTo(jqtbody);
       // index column
-      var index = items[i].index;
       $("<td>" + index + "</td>")
         .appendTo(jqtr);
       // values
@@ -97,7 +97,6 @@ var extObject = {
           info: false
         });
 
-
     var jqwrapper = this.jqvis.find(".dataTables_wrapper");
 
     var paddedHeight = jqwrapper.height() + 10;
@@ -110,9 +109,11 @@ var extObject = {
         maxWidth: jqtheadr.width(),
         maxHeight: paddedHeight
       });
-    // as size might be changed, we make a copy to serialize
-    this.viewWidth = this.jqview.width();
-    this.viewHeight = this.jqview.height();
+
+    if (this.keepSize != null) {
+      // use previous size regardless of how table entries changed
+      this.jqview.css(this.keepSize);
+    }
   },
 
   interaction: function() {
@@ -125,7 +126,7 @@ var extObject = {
           event.stopPropagation();
       });
 
-    if (this.ports["in"].pack.items.length > 0){  // avoid selecting "no data" msg
+    if (!this.ports["in"].pack.isEmpty()){  // avoid selecting "no data" msg
       this.jqtbody.on("click", "tr", function () {
         $(this).toggleClass("selected");
         var jqfirstcol = $(this).find("td:first");
@@ -134,7 +135,7 @@ var extObject = {
         if (node.selected[index])
           delete node.selected[index];
         else
-          node.selected[index] = jqfirstcol.parent().attr("id").substr(1);  // remove leading 'i'
+          node.selected[index] = true;
 
         node.process();
 
@@ -148,8 +149,11 @@ var extObject = {
   },
 
   showSelection: function() {
-    for (var i in this.selected) {
-      this.jqtable.find("tr[id=i" + this.selected[i] + "]")
+    if (this.ports["in"].pack.isEmpty())
+      return;
+
+    for (var index in this.selected) {
+      this.jqtable.find("tr[id=i" + index + "]")
         .addClass("selected");
     }
   },
@@ -185,9 +189,8 @@ var extObject = {
   selectAll: function() {
     var inpack = this.ports["in"].pack;
     this.selected = {};
-    for (var i in inpack.items) {
-      var item = inpack.items[i];
-      this.selected[item.index] = i;
+    for (var index in inpack.items) {
+      this.selected[index] = true;
     }
     this.jqtable.find("tbody tr").addClass("selected");
     this.process();
@@ -196,6 +199,10 @@ var extObject = {
 
   resize: function(size) {
     DataflowTable.base.resize.call(this, size);
+    this.keepSize = {
+      width: this.viewWidth,
+      height: this.viewHeight
+    };
   },
 
   resizestop: function(size) {

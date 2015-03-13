@@ -83,17 +83,16 @@ var extObject = {
       values[this.value[i]] = true;
     }
     var result = [];
-    for (var i in items) {
-      var index = items[i].index,
-          value = data.values[index][dim],
+    for (var index in items) {
+      var value = data.values[index][dim],
           ok = 1;
       if (values[value] != null) {
-        result.push(items[i]);
+        result.push(index);
       }
     }
     var outpack = this.ports["out"].pack;
     outpack.copy(inpack);
-    outpack.items = result;
+    outpack.filter(result);
   }
 };
 

@@ -33,23 +33,17 @@ var extObject = {
       return console.error("cannot make intersection of two different types of datasets");
 
     // for every item in A, check if it is in B
-    // first make a dict for B
-    var hasb = {};
-    for (var i in packb.items) {
-      var item = packb.items[i];
-      hasb[item.index] = item;
-    }
     var result = [];
-    for (var i in packa.items) {
-      var item = packa.items[i];
-      var itemb = hasb[item.index];
+    for (var index in packa.items) {
+      var itema = packa.items[index];
+      var itemb = packb.items[index];
       if (itemb == null) {
-        result.push(item);
+        result.push(index);
       }
     }
     var outpack = this.ports["out"].pack;
     outpack.copy(packa);  // either A or B works
-    outpack.items = result;
+    outpack.filter(result);
   }
 
 

@@ -32,38 +32,31 @@ var extObject = {
     if (!packa.data.matchDataFormat(packb.data))
       return console.error("cannot make intersection of two different types of datasets");
 
-    // for every item in A, check if it is in B
-    // first make a dict for B
-    var hasa= {},
-        hasb = {};
-    for (var i in packa.items) {
-      var item = packa.items[i];
-      hasa[item.index] = item;
-    }
-    for (var i in packb.items) {
-      var item = packb.items[i];
-      hasb[item.index] = item;
-    }
-    var result = [];
+    var result = {};
     // first get all items from A, if it exists in B as well, overwrite rendering properties
-    for (var i in packa.items) {
-      var item = packa.items[i];
-      var itemb = hasb[item.index];
+    for (var index in packa.items) {
+      var itema = packa.items[index];
+      var itemb = packb.items[index];
       if (itemb != null) {
-        _(item.properties).extend(itemb.properties);
+        var e = {
+          properties: {}
+        };
+        // merge rendering property in to a new one
+        _(e).extend(itema.properties, itemb.properties);
+        result[index] = e;
       }
-      result.push(item);
     }
     // then for every element in B but not in A, add it to result
-    for (var i in packb.items) {
-      var item = packb.items[i];
-      var itema = hasa[item.index];
+    for (var index in packb.items) {
+      var itemb = packb.items[index];
+      var itema = packa.items[index];
       if (itema == null) {
-        result.push(item);
+        result[index] = itemb;
       }
     }
     var outpack = this.ports["out"].pack;
     outpack.copy(packa);  // either A or B works
+    // not using filter because the properties are new
     outpack.items = result;
   }
 

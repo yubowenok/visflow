@@ -17,15 +17,12 @@ var extObject = {
     this.data = data;
 
     // list of references
-    this.items = [];
-    this.hasItem = {};
+    this.items = {};
     for (var i in data.values) {
       var e = {
-        index: i,
         properties: {}  // create a rendering property object
       };
-      this.items.push(e);
-      this.hasItem[i] = e;
+      this.items[i] = e;
     }
 
     // change status
@@ -36,26 +33,22 @@ var extObject = {
   copy: function(pack) {
     this.data = pack.data;
     this.items = pack.items;
-    this.hasItem = pack.hasItem;
     this.changed = true;
   },
 
   // accept a list of indexes to be the new items, and update items and hasItem
   filter: function(indexes) {
-    var newHasItem = {},
-        newItems = [];
+    var newItems = {};
     for (var i in indexes) {
       var index = indexes[i];
-      var e = this.hasItem[index];
-      if (e == null) {
-        console.log("?");
-        continue;
-      }
-      newItems.push(e);
-      newHasItem[index] = e;
+      var e = this.items[index];
+      newItems[index] = e;
     }
-    this.hasItem = newHasItem;
     this.items = newItems;
+  },
+
+  isEmpty: function() {
+    return $.isEmptyObject(this.items);
   }
 };
 

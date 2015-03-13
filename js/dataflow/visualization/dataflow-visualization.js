@@ -47,13 +47,6 @@ var extObject = {
       console.error("incorrect selection saved: array/null");
       this.selected = {};
     }
-
-    if ($.isEmptyObject(this.selected) == false)
-      this.deserializeChange = true;
-
-    if (save.visOn === true) {
-      this.deserializeChange = true;
-    }
   },
 
   prepareContextMenu: function() {
@@ -158,7 +151,7 @@ var extObject = {
     // some selection items no longer exists in the input
     // we shall remove those selection
     for (var index in this.selected) {
-      if (inpack.hasItem[index] == null){
+      if (inpack.items[index] == null){
         delete this.selected[index];
       }
     }

@@ -97,19 +97,18 @@ var extObject = {
     //console.log("filter", dim, data.dimensions[dim]);
 
     var result = [];
-    for (var i in items) {
-      var index = items[i].index,
-          value = data.values[index][dim],
+    for (var index in items) {
+      var value = data.values[index][dim],
           ok = 1;
       if (this.value1 && value < this.value1 || this.value2 && value > this.value2)
         ok = 0;
       if (ok) {
-        result.push(items[i]);
+        result.push(index);
       }
     }
     var outpack = this.ports["out"].pack;
     outpack.copy(inpack);
-    outpack.items = result;
+    outpack.filter(result);
   }
 
 };
