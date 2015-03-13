@@ -45,7 +45,7 @@ var extObject = {
     // screenScale: [0, 1] <-> screen pixel (rendering region)
     this.screenScales = [null, null];
     // leave some space for axes
-    this.plotMargins = [ { before: 30, after: 10 }, { before: 10, after: 30 } ];
+    this.plotMargins = [ { before: 40, after: 10 }, { before: 10, after: 30 } ];
 
     this.isEmpty = true;
 
@@ -150,7 +150,11 @@ var extObject = {
             [selectbox.x1, selectbox.x2],
             [selectbox.y1, selectbox.y2]
           ]);
-        node.selectbox.remove();
+
+        if (node.selectbox) {
+          node.selectbox.remove();
+          node.selectbox = null;
+        }
 
         if (core.interactionManager.visualizationBlocking)
           event.stopPropagation();
@@ -181,6 +185,7 @@ var extObject = {
         this.selected[index] = true;
       }
     }
+
     this.showVisualization();
     this.process();
     core.dataflowManager.propagate(this);
@@ -235,9 +240,7 @@ var extObject = {
           cy: c[1]
         }
       );
-      var u = this.svg.select("#i" + item.index);
-      if (u.empty())
-        u = this.svg.append("circle");
+      var u = this.svg.append("circle");
       for (var key in properties) {
         if (this.isAttr[key] == true)
           u.attr(key, properties[key]);
@@ -265,11 +268,9 @@ var extObject = {
         node = this;
 
     for (var index in this.selected) {
-      var item = items[index];
-
       var c = [];
       [0, 1].map(function(d) {
-        var value = values[item.index][node.dimensions[d]];
+        var value = values[index][node.dimensions[d]];
         value = node.dataScales[d](value);
         value = node.screenScales[d](value);
         c[d] = value;
@@ -278,18 +279,19 @@ var extObject = {
       var properties = _.extend(
         {},
         this.defaultProperties,
-        item.properties,
+        inpack.hasItem[index].properties,
         this.selectedProperties,
         {
-          id: "i" + item.index,
+          id: "i" + index,
           cx: c[0],
           cy: c[1]
         }
       );
 
-      var jqu = $(this.svg.select("#i" + index)[0])
+      var d3sel = this.svg.selectAll("#i" + index);
+      var jqu = $(d3sel[0])
         .appendTo(this.jqsvg);  // change position of tag
-      var u = d3.selectAll(jqu.toArray());
+      var u = d3sel;
       for (var key in properties) {
         if (this.isAttr[key] == true)
           u.attr(key, properties[key]);
@@ -460,13 +462,8 @@ var extObject = {
       this.lastDataId = data.dataId;
     }
 
-    [0, 1].map(function(d) {
-      // when data changed, use modulo dimension id
-      this.dimensions[d] %= data.dimensions.length;
-    }, this);
-
     outpack.copy(inpack);
-    outpack.items = [];
+    outpack.filter(_.allKeys(this.selected));
   },
 
   resize: function(size) {

@@ -171,25 +171,8 @@ var extObject = {
 
     this.validateSelection();
 
-
-
-    var result = [];
-    if ($.isEmptyObject(this.selected) == false) {
-      // pass selection down
-      for (var index in this.selected) {
-        // due to async loading, this.selected may get selection before data reaches the node
-        if (this.selected[index] >= inpack.items.length) {
-          console.log("how come?");
-          continue;
-        }
-        result.push(inpack.items[this.selected[index]]);
-      }
-    } else {
-      // pass nothing down?
-    }
-
+    outpack.filter(_.allKeys(this.selected));
     //console.log(result);
-    outpack.items = result;
   },
 
   clearSelection: function() {

@@ -85,6 +85,14 @@ var extObject = {
         } else if (ui.cmd == "delete") {
           core.dataflowManager.deleteNode(node);
         }
+      },
+      beforeOpen: function(event, ui) {
+        if (core.interactionManager.contextmenuLock)
+          return false;
+        core.interactionManager.contextmenuLock = true;
+      },
+      close: function(event, ui) {
+        core.interactionManager.contextmenuLock = false;
       }
     });
   },
@@ -149,12 +157,8 @@ var extObject = {
     var inpack = this.ports["in"].pack;
     // some selection items no longer exists in the input
     // we shall remove those selection
-    var has = {};
-    for (var i in inpack.items) {
-      has[inpack.items[i].index] = true;
-    }
     for (var index in this.selected) {
-      if (has[index] == null){
+      if (inpack.hasItem[index] == null){
         delete this.selected[index];
       }
     }

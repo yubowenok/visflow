@@ -32,6 +32,9 @@ var extobject = {
     this.ctrled = false;
 
     this.visualizationBlocking = true;
+
+    // overlapping contextmenued items may show menu together, thus need a lock
+    this.contextmenuLock = false;
   },
 
   trackMousemove: function(disabled) {
@@ -103,6 +106,14 @@ var extobject = {
         ],
       select: function(event, ui) {
         core.viewManager.tip("O(∩_∩)O");
+      },
+      beforeOpen: function(event, ui) {
+        if (core.interactionManager.contextmenuLock)
+          return false;
+        core.interactionManager.contextmenuLock = true;
+      },
+      close: function(event, ui) {
+        core.interactionManager.contextmenuLock = false;
       }
     });
 
