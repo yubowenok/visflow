@@ -35,6 +35,7 @@ var extObject = {
   serialize: function() {
     var result = DataflowScatterplot.base.serialize.call(this);
     result.dimensions = this.dimensions;
+    result.lastDataId = this.lastDataId;
     return result;
   },
 
@@ -42,6 +43,7 @@ var extObject = {
     DataflowScatterplot.base.deserialize.call(this, save);
 
     this.dimensions = save.dimensions;
+    this.lastDataId = save.lastDataId;
     if (this.dimensions == null) {
       console.error("dimensions not saved for scatterplot");
       this.dimensions = [0, 0];
@@ -165,9 +167,17 @@ var extObject = {
         this.selected[index] = true;
       }
     }
-    console.log(this.selected);
+    this.highlightSelection();
     this.process();
     core.dataflowManager.propagate(this);
+  },
+
+  highlightSelection: function() {
+    var items = this.ports["in"].pack.items;
+    this.svg.selectAll("circle").data([0,1,2])
+      .attr("fill", "red");
+      //_(this.selected).allKeys()
+
   },
 
   showSelectbox: function(box) {
@@ -352,7 +362,6 @@ var extObject = {
 
     var data = inpack.data;
     if (data.type == "empty") {
-      this.dimensions = [0, 0];
       return;
     }
 
@@ -367,9 +376,9 @@ var extObject = {
           break;
       }
       this.dimensions = [chosen[0], chosen[1 % chosen.length]];
+      this.lastDataId = data.dataId;
     }
 
-    this.lastDataId = data.dataId;
 
     [0, 1].map(function(d) {
       // when data changed, use modulo dimension id
