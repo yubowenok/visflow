@@ -121,9 +121,12 @@ var extObject = {
     };
     this.jqsvg
       .mousedown(function(event) {
-        startPos = getOffset(event, $(this));
-        mode = "selectbox";
 
+        startPos = getOffset(event, $(this));
+
+        if (event.which == 1) { // left click triggers selectbox
+          mode = "selectbox";
+        }
         if (core.interactionManager.visualizationBlocking)
           event.stopPropagation();
       })
@@ -142,16 +145,20 @@ var extObject = {
       })
       .mouseup(function(event) {
         //var pos = getOffset(event, $(this));
-        mode = "none";
-        node.selectItemsInBox([
-            [selectbox.x1, selectbox.x2],
-            [selectbox.y1, selectbox.y2]
-          ]);
 
-        if (node.selectbox) {
-          node.selectbox.remove();
-          node.selectbox = null;
+        if (mode == "selectbox") {
+          node.selectItemsInBox([
+              [selectbox.x1, selectbox.x2],
+              [selectbox.y1, selectbox.y2]
+            ]);
+
+          if (node.selectbox) {
+            node.selectbox.remove();
+            node.selectbox = null;
+          }
         }
+
+        mode = "none";
 
         if (core.interactionManager.visualizationBlocking)
           event.stopPropagation();
@@ -458,6 +465,16 @@ var extObject = {
 
     outpack.copy(inpack);
     outpack.filter(_.allKeys(this.selected));
+  },
+
+  selectAll: function() {
+    DataflowScatterplot.base.selectAll.call(this);
+    this.showSelection();
+  },
+
+  clearSelection: function() {
+    DataflowTable.base.clearSelection.call(this);
+    this.showVisualization(); // TODO　not efficient
   },
 
   resize: function(size) {

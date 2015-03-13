@@ -179,22 +179,14 @@ var extObject = {
     //console.log(result);
   },
 
-  clearSelection: function() {
-    this.selected = {};
-    this.jqtable.find("tr").removeClass("selected");
-    this.process();
-    core.dataflowManager.propagate(this);
+  selectAll: function() {
+    DataflowTable.base.selectAll.call(this);
+    this.jqtable.find("tbody tr").addClass("selected");
   },
 
-  selectAll: function() {
-    var inpack = this.ports["in"].pack;
-    this.selected = {};
-    for (var index in inpack.items) {
-      this.selected[index] = true;
-    }
-    this.jqtable.find("tbody tr").addClass("selected");
-    this.process();
-    core.dataflowManager.propagate(this);
+  clearSelection: function() {
+    DataflowTable.base.clearSelection.call(this);
+    this.jqtable.find("tr").removeClass("selected");
   },
 
   resize: function(size) {

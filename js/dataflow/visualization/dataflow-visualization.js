@@ -157,6 +157,22 @@ var extObject = {
     }
   },
 
+  selectAll: function() {
+    var inpack = this.ports["in"].pack;
+    this.selected = {};
+    for (var index in inpack.items) {
+      this.selected[index] = true;
+    }
+    this.process();
+    core.dataflowManager.propagate(this);
+  },
+
+  clearSelection: function() {
+    this.selected = {};
+    this.process();
+    core.dataflowManager.propagate(this);
+  },
+
   // display a text message at the center of the node
   showMessage: function(msg) {
     this.jqmsg = $("<div></div>")
@@ -191,8 +207,6 @@ var extObject = {
   showOptions: function() {},
   showSelection: function() {},
   updateVisualization: function() {},
-  clearSelection: function() {},
-  selectAll: function() {},
   prepareInteraction: function() {}
 
 };
