@@ -96,6 +96,16 @@ var extobject = {
       return true;
     });
 
+    this.jqdataflow.contextmenu({
+      addClass: "ui-contextmenu",
+      menu: [
+          {title: "(O_O)?", cmd: "", uiIcon: "ui-icon-alert"}
+        ],
+      select: function(event, ui) {
+        core.viewManager.tip("O(∩_∩)O");
+      }
+    });
+
   },
 
   mousedownHandler: function(para) {
@@ -152,6 +162,7 @@ var extobject = {
     }
     this.mouselastPos = [event.pageX, event.pageY];
   },
+
   mouseupHandler: function(para) {
     var type = para.type,
         event = para.event;

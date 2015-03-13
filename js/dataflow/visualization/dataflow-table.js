@@ -13,32 +13,18 @@ var extObject = {
       DataflowPort.new(this, "out", "out-multiple")
     ];
     this.prepare();
-
-    this.selected = {};
   },
 
   serialize: function() {
     var result = DataflowTable.base.serialize.call(this);
-    result.selected = this.selected;
     return result;
   },
 
   deserialize: function(save) {
     DataflowTable.base.deserialize.call(this, save);
-    if (save.selected == null)
-      save.selected = {};
-    this.selected = save.selected;
-    if (this.selected instanceof Array) {
-      console.error("Array appears as selected!!!");
-      this.selected = {};
-    }
 
-    if ($.isEmptyObject(this.selected) == false)
-      this.deserializeChange = true;
-
-    if (this.deserializeChange) {
+    if (this.deserializeChange)
       this.show();
-    }
   },
 
   prepareContextMenu: function() {
@@ -62,9 +48,8 @@ var extObject = {
         data = pack.data,
         items = pack.items;
 
-    if (this.table) {
+    if (this.table)
       this.table.destroy(true);
-    }
 
     this.jqvis.addClass("dataflow-table");
 
@@ -75,30 +60,8 @@ var extObject = {
     var jqtheadr = jqtable.find("thead tr");
 
     // table rows, also the interactive region
-    var jqtbody = $("<tbody></tbody>")
-      .mousedown(function(event){
-        // block events from elements below
-        if(core.interactionManager.visualizationBlocking)
-          event.stopPropagation();
-      })
+    var jqtbody = this.jqtbody = $("<tbody></tbody>")
       .appendTo(jqtable);
-
-    if (items.length > 0){  // avoid selecting "no data" msg
-      jqtbody.on("click", "tr", function () {
-        $(this).toggleClass("selected");
-        var jqfirstcol = $(this).find("td:first");
-        var index = jqfirstcol.text();
-
-        if (node.selected[index])
-          delete node.selected[index];
-        else
-          node.selected[index] = jqfirstcol.parent().attr("id");
-
-        node.process();
-
-        core.dataflowManager.propagate(node);
-      });
-    }
 
     // make head row
     $("<th>#</th>").appendTo(jqtheadr);  // index column
@@ -111,12 +74,10 @@ var extObject = {
       var jqtr = $("<tr></tr>")
         .attr("id", i)  // offset in array
         .appendTo(jqtbody);
-
       // index column
       var index = items[i].index;
       $("<td>" + index + "</td>")
         .appendTo(jqtr);
-
       // values
       for (var j in data.dimensions) {
         var value = data.values[index][j];
@@ -132,12 +93,10 @@ var extObject = {
     this.table = jqtable
         .DataTable({
           scrollX: true,
-          scrollY: "300px"
+          scrollY: "300px",
+          info: false
         });
 
-    this.table.on("draw.dt", function() {
-      node.showPageSelection();
-    });
 
     var jqwrapper = this.jqvis.find(".dataTables_wrapper");
 
@@ -154,12 +113,41 @@ var extObject = {
     // as size might be changed, we make a copy to serialize
     this.viewWidth = this.jqview.width();
     this.viewHeight = this.jqview.height();
-
-    // previously saved selection
-    this.showPageSelection();
   },
 
-  showPageSelection: function() {
+  interaction: function() {
+    var node = this;
+
+    this.jqtbody
+      .mousedown(function(event){
+        // block events from elements below
+        if(core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
+      });
+
+    if (this.ports["in"].pack.items.length > 0){  // avoid selecting "no data" msg
+      this.jqtbody.on("click", "tr", function () {
+        $(this).toggleClass("selected");
+        var jqfirstcol = $(this).find("td:first");
+        var index = jqfirstcol.text();
+
+        if (node.selected[index])
+          delete node.selected[index];
+        else
+          node.selected[index] = jqfirstcol.parent().attr("id");
+
+        node.process();
+
+        core.dataflowManager.propagate(node);
+      });
+    }
+
+    this.table.on("draw.dt", function() {
+      node.showSelection();
+    });
+  },
+
+  showSelection: function() {
     for (var i in this.selected) {
       this.jqtable.find("tr[id=" + this.selected[i] + "]")
         .addClass("selected");
@@ -181,17 +169,9 @@ var extObject = {
 
     outpack.copy(inpack);
 
-    // some selection items no longer exists in the input
-    // we shall remove those selection
-    var has = {};
-    for (var i in inpack.items) {
-      has[inpack.items[i].index] = true;
-    }
-    for (var index in this.selected) {
-      if (has[index] == null){
-        delete this.selected[index];
-      }
-    }
+    this.validateSelection();
+
+
 
     var result = [];
     if ($.isEmptyObject(this.selected) == false) {

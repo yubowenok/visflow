@@ -4,7 +4,7 @@
 var extObject = {
 
   initialize: function(para) {
-    DataflowVisualization.initialize.call(this, para);
+    DataflowScatterplot.base.initialize.call(this, para);
 
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
@@ -40,26 +40,15 @@ var extObject = {
 
   deserialize: function(save) {
     DataflowScatterplot.base.deserialize.call(this, save);
+
     this.dimensions = save.dimensions;
     if (this.dimensions == null) {
-      console.error("dimensions not saved");
+      console.error("dimensions not saved for scatterplot");
       this.dimensions = [0, 0];
     }
-    /*
-    if (save.selected == null)
-      save.selected = {};
-    this.selected = save.selected;
-    if (this.selected instanceof Array) {
-      console.error("Array appears as selected!!!");
-      this.selected = {};
-    }
-    if ($.isEmptyObject(this.selected) == false)
-      this.deserializeChange = true;
-      */
 
-    if (this.deserializeChange) {
+    if (this.deserializeChange)
       this.show();
-    }
   },
 
   showIcon: function() {
@@ -75,11 +64,13 @@ var extObject = {
 
     this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
     this.jqsvg = $(this.svg[0]);
-    this.jqsvg.mousedown( function(event) {
+    this.jqsvg
+      .mousedown( function(event) {
         // block mouse
         if(core.interactionManager.visualizationBlocking)
           event.stopPropagation();
       });
+
     this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
 
     this.clearMessage();
@@ -99,6 +90,100 @@ var extObject = {
     }, this);
   },
 
+  interaction: function() {
+    var node = this,
+        mode = "none";
+    var startPos = [0, 0],
+        lastPos = [0, 0],
+        endPos = [0, 0];
+    var selectbox = {
+      x1: 0,
+      x2: 0,
+      y1: 0,
+      y2: 0
+    };
+    var getOffset = function(event, jqthis) {
+      var parentOffset = jqthis.parent().offset();
+      return [event.pageX - parentOffset.left, event.pageY - parentOffset.top];
+    };
+    this.jqsvg
+      .mousedown(function(event) {
+        startPos = getOffset(event, $(this));
+        mode = "selectbox";
+
+        if (core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
+      })
+      .mousemove(function(event) {
+
+        if (mode == "selectbox") {
+          endPos = getOffset(event, $(this));
+          selectbox.x1 = Math.min(startPos[0], endPos[0]);
+          selectbox.x2 = Math.max(startPos[0], endPos[0]);
+          selectbox.y1 = Math.min(startPos[1], endPos[1]);
+          selectbox.y2 = Math.max(startPos[1], endPos[1]);
+          node.showSelectbox(selectbox);
+        }
+        // we shall not block mousemove (otherwise dragging edge will be problematic)
+        // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
+      })
+      .mouseup(function(event) {
+        //var pos = getOffset(event, $(this));
+        mode = "none";
+        node.selectItemsInBox([
+            [selectbox.x1, selectbox.x2],
+            [selectbox.y1, selectbox.y2]
+          ]);
+        node.selectbox.remove();
+
+        if (core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
+      });
+  },
+
+  selectItemsInBox: function(box) {
+    if (!core.interactionManager.shifted) {
+      this.selected = {}; // reset selection if shift key is not down
+    }
+
+    var inpack = this.ports["in"].pack,
+        items = inpack.items,
+        values = inpack.data.values;
+    for (var i in items) {
+      var index = items[i].index;
+      var ok = 1;
+      [0, 1].map(function(d) {
+        var value = values[index][this.dimensions[d]];
+        value = this.dataScales[d](value);
+        value = this.screenScales[d](value);
+        if (value < box[d][0] || value > box[d][1]) {
+          ok = 0;
+        }
+      }, this);
+
+      if (ok) {
+        this.selected[index] = true;
+      }
+    }
+    console.log(this.selected);
+    this.process();
+    core.dataflowManager.propagate(this);
+  },
+
+  showSelectbox: function(box) {
+    var node = this;
+    this.selectbox = this.svg.select(".df-scatterplot-selectbox");
+    if (this.selectbox.empty())
+      this.selectbox = this.svg.append("rect")
+        .attr("class", "df-scatterplot-selectbox");
+
+    this.selectbox
+      .attr("x", box.x1)
+      .attr("y", box.y1)
+      .attr("width", box.x2 - box.x1)
+      .attr("height", box.y2 - box.y1);
+  },
+
   showVisualization: function() {
     var inpack = this.ports["in"].pack,
         items = inpack.items,
@@ -106,6 +191,7 @@ var extObject = {
         values = data.values;
 
     this.prepareSvg();
+    this.interaction();
 
     if (this.isEmpty)
       return;
@@ -170,10 +256,10 @@ var extObject = {
       .orient(!d ? "bottom" : "left")
       .ticks(5);
     if (this.scaleTypes[d] == "ordinal"){
-      axis.scale(this.dataScales[d]
+      axis.scale(this.dataScales[d].copy()
           .rangePoints(this.screenScales[d].range(), 1.0));
     } else {
-      axis.scale(this.dataScales[d]
+      axis.scale(this.dataScales[d].copy()
           .range(this.screenScales[d].range()));
     }
     var transX = !d ? 0 : margins[0].before,

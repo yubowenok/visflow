@@ -9,28 +9,49 @@ var extObject = {
     this.optionsOn = false;
     this.visWidth = null;
     this.visHeight = null;
+
+    // selection applies to all visualization
+    this.selected = {};
   },
 
   serialize: function() {
     var result = DataflowVisualization.base.serialize.call(this);
+
+    // mode toggles
     result.visOn = this.visOn;
     result.optionsOn = this.optionsOn;
+
+    // view sizes
     result.viewWidth = this.viewWidth;
     result.viewHeight = this.viewHeight;
     result.visWidth = this.visWidth;
     result.visHeight = this.visHeight;
+
+    // selection
+    result.selected = this.selected;
+
     return result;
   },
 
   deserialize: function(save) {
     DataflowVisualization.base.deserialize.call(this, save);
-    this.visWidth = this.visWidth;
-    this.visHeight = this.visHeight;
+    this.visWidth = save.visWidth;
+    this.visHeight = save.visHeight;
+    this.visOn = save.visOn;
+    this.optionsOn = save.optionsOn;
+    this.viewWidth = save.viewWidth;
+    this.viewHeight = save.viewHeight;
+    this.selected = save.selected;
+
+    if (this.selected instanceof Array || this.selected == null) {
+      console.error("incorrect selection saved: array/null");
+      this.selected = {};
+    }
+
+    if ($.isEmptyObject(this.selected) == false)
+      this.deserializeChange = true;
+
     if (save.visOn === true) {
-      this.visOn = save.visOn;
-      this.optionsOn = save.optionsOn;
-      this.viewWidth = save.viewWidth;
-      this.viewHeight = save.viewHeight;
       this.deserializeChange = true;
     }
   },
@@ -89,6 +110,8 @@ var extObject = {
       this.viewHeight = this.jqview.height();
 
       this.showVisualization();
+      this.showSelection();
+      this.interaction();
       this.options();
     } else {
       if (this.jqvis)
@@ -122,6 +145,21 @@ var extObject = {
     }
   },
 
+  validateSelection: function() {
+    var inpack = this.ports["in"].pack;
+    // some selection items no longer exists in the input
+    // we shall remove those selection
+    var has = {};
+    for (var i in inpack.items) {
+      has[inpack.items[i].index] = true;
+    }
+    for (var index in this.selected) {
+      if (has[index] == null){
+        delete this.selected[index];
+      }
+    }
+  },
+
   // display a text message at the center of the node
   showMessage: function(msg) {
     this.jqmsg = $("<div></div>")
@@ -150,12 +188,15 @@ var extObject = {
   },
 
   // abstract: to implement in inheriting class
+  interaction: function() {},
   showIcon: function() {},
   showVisualization: function() {},
   showOptions: function() {},
+  showSelection: function() {},
   updateVisualization: function() {},
   clearSelection: function() {},
-  selectAll: function() {}
+  selectAll: function() {},
+  prepareInteraction: function() {}
 
 };
 
