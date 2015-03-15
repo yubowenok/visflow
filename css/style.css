@@ -41,6 +41,9 @@ div {
 #dataflow-edges {
   z-index: -1;
 }
+#dataflow-edge-drawing {
+   z-index: 1000; /* over other elements */
+}
 
 #dataflow-selectbox {
   background: #e0cfc2;
