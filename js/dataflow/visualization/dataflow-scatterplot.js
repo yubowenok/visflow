@@ -26,6 +26,8 @@ var extObject = {
   initialize: function(para) {
     DataflowScatterplot.base.initialize.call(this, para);
 
+    this.plotName = "Scatterplot";
+
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
     ];
@@ -65,7 +67,7 @@ var extObject = {
     this.dimensions = save.dimensions;
     this.lastDataId = save.lastDataId;
     if (this.dimensions == null) {
-      console.error("dimensions not saved for scatterplot");
+      console.error("dimensions not saved for " + this.plotName);
       this.dimensions = [0, 0];
     }
   },
@@ -76,26 +78,9 @@ var extObject = {
       .appendTo(this.jqview);
   },
 
-  prepareSvg: function() {
 
-    if (this.jqsvg)
-      this.jqsvg.remove();
 
-    this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
-    this.jqsvg = $(this.svg[0]);
-
-    this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
-
-    this.clearMessage();
-    if (this.ports["in"].pack.isEmpty()) {
-      // otherwise scales may be undefined
-      this.showMessage("empty data in scatterplot");
-      this.isEmpty = true;
-      return;
-    }
-
-    this.isEmpty = false;
-
+  prepareScales: function() {
     [0, 1].map(function(d) {
       this.prepareDataScale(d);
       this.prepareScreenScale(d);
@@ -210,6 +195,7 @@ var extObject = {
         values = data.values;
 
     this.prepareSvg();
+    this.prepareScales();
     this.interaction();
 
     if (this.isEmpty)

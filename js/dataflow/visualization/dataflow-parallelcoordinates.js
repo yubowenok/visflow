@@ -22,6 +22,8 @@ var extObject = {
   initialize: function(para) {
     DataflowParallelCoordinates.base.initialize.call(this, para);
 
+    this.plotName = "ParallelCoordinates";
+
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
     ];
@@ -73,26 +75,7 @@ var extObject = {
       .appendTo(this.jqview);
   },
 
-  prepareSvg: function() {
-
-    if (this.jqsvg)
-      this.jqsvg.remove();
-
-    this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
-    this.jqsvg = $(this.svg[0]);
-
-    this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
-
-    this.clearMessage();
-    if (this.ports["in"].pack.isEmpty()) {
-      // otherwise scales may be undefined
-      this.showMessage("empty data in parallel coordinates");
-      this.isEmpty = true;
-      return;
-    }
-
-    this.isEmpty = false;
-
+  prepareScales: function() {
     for (var d in this.dimensions) {
       this.prepareDataScale(d);
       this.prepareScreenScale(d);
@@ -217,6 +200,7 @@ var extObject = {
         values = data.values;
 
     this.prepareSvg();
+    this.prepareScales();
     this.interaction();
 
     if (this.isEmpty)

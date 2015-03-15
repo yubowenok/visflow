@@ -90,6 +90,26 @@ var extObject = {
     });
   },
 
+  prepareSvg: function() {
+    if (this.jqsvg)
+      this.jqsvg.remove();
+
+    this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
+    this.jqsvg = $(this.svg[0]);
+
+    this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
+
+    this.clearMessage();
+    if (this.ports["in"].pack.isEmpty()) {
+      // otherwise scales may be undefined
+      this.showMessage("empty data in " + this.plotName);
+      this.isEmpty = true;
+      return;
+    }
+
+    this.isEmpty = false;
+  },
+
 
   show: function() {
     DataflowVisualization.base.show.call(this);
@@ -207,7 +227,8 @@ var extObject = {
   showOptions: function() {},
   showSelection: function() {},
   updateVisualization: function() {},
-  prepareInteraction: function() {}
+  prepareInteraction: function() {},
+  prepareScales: function() {}
 
 };
 
