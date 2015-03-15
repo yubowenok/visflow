@@ -87,8 +87,7 @@ var extObject = {
     this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
 
     this.clearMessage();
-    if (this.ports["in"].pack.data.type == "empty" ||
-      this.ports["in"].pack.isEmpty()) {
+    if (this.ports["in"].pack.isEmpty()) {
       // otherwise scales may be undefined
       this.showMessage("empty data in scatterplot");
       this.isEmpty = true;
@@ -115,14 +114,10 @@ var extObject = {
       y1: 0,
       y2: 0
     };
-    var getOffset = function(event, jqthis) {
-      var parentOffset = jqthis.parent().offset();
-      return [event.pageX - parentOffset.left, event.pageY - parentOffset.top];
-    };
     this.jqsvg
       .mousedown(function(event) {
 
-        startPos = getOffset(event, $(this));
+        startPos = Utils.getOffset(event, $(this));
 
         if (event.which == 1) { // left click triggers selectbox
           mode = "selectbox";
@@ -133,7 +128,7 @@ var extObject = {
       .mousemove(function(event) {
 
         if (mode == "selectbox") {
-          endPos = getOffset(event, $(this));
+          endPos = Utils.getOffset(event, $(this));
           selectbox.x1 = Math.min(startPos[0], endPos[0]);
           selectbox.x2 = Math.max(startPos[0], endPos[0]);
           selectbox.y1 = Math.min(startPos[1], endPos[1]);
@@ -313,7 +308,7 @@ var extObject = {
         .addClass("dataflow-options-text")
         .text( (!d ? "X" : "Y" ) + " Axis:")
         .appendTo(div);
-      this.dimensionLists[d] = $("<select class='dataflow-select'></select>")
+      this.dimensionLists[d] = $("<select></select>")
         .addClass("dataflow-options-select")
         .appendTo(div)
         .select2()
@@ -394,6 +389,8 @@ var extObject = {
         maxVal = Math.max(maxVal, value);
       }
       var span = maxVal - minVal;
+
+      // leave some spaces on the margin
       scale.domain([minVal - span * .15, maxVal + span * .15]);
 
     } else if (scaleType == "ordinal") {
@@ -413,12 +410,7 @@ var extObject = {
   },
 
   prepareScreenScale: function(d) {
-    var inpack = this.ports["in"].pack;
-    var items = inpack.items,
-        data = inpack.data;
-
     var scale = this.screenScales[d] = d3.scale.linear();
-
     var interval = [this.plotMargins[d].before, this.svgSize[d] - this.plotMargins[d].after];
     if (d) {
       var t = interval[0];
@@ -473,7 +465,7 @@ var extObject = {
   },
 
   clearSelection: function() {
-    DataflowTable.base.clearSelection.call(this);
+    DataflowScatterplot.base.clearSelection.call(this);
     this.showVisualization(); // TODO　not efficient
   },
 

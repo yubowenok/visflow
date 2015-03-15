@@ -46,6 +46,10 @@ svg {
   width: 70%;
 }
 
+.dataflow-options-select-multiple {
+  width: 90%;
+}
+
 .dataflow-options-text {
   margin-right: 1em;
 }
@@ -59,5 +63,9 @@ svg {
   width: 450px;
 }
 
+
+.df-parallelcoordinates-brush {
+
+}
 
 

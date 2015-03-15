@@ -168,7 +168,7 @@ var extObject = {
     // during async data load, selection is first deserialized to vis nodes
     // however the data have not passed in
     // thus the selection might be erronesouly cleared if continue processing
-    if (inpack.data.type == "empty")
+    if (inpack.isEmpty())
       return;
 
     outpack.copy(inpack);

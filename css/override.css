@@ -48,3 +48,8 @@ body {
 .ui-widget-overlay {
   z-index: 10000;
 }
+
+
+.select2-search input {
+  font-size: 0.8em;
+}

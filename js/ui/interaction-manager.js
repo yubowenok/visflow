@@ -79,6 +79,7 @@ var extobject = {
     $(document).keydown(function(event) {
       if (event.keyCode == 16) {
         manager.shifted = true;
+        manager.jqdataflow.css("cursor", "crosshair");
       } else if (event.keyCode == 17) {
         manager.ctrled = true;
         manager.jqdataflow.css("cursor", "move");
@@ -90,6 +91,7 @@ var extobject = {
     $(document).keyup(function(event) {
       if (event.keyCode == 16) {
         manager.shifted = false;
+        manager.jqdataflow.css("cursor", "");
       } else if (event.keyCode == 17) {
         manager.ctrled = false;
         manager.jqdataflow.css("cursor", "");
