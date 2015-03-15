@@ -20,6 +20,7 @@ if ($paraok) {
     $file = fopen('save/'.$filename.'.json','w');
     fwrite($file, $dataflow);
     fclose($file);
+    $response['filename'] = $filename;
     $response['status'] = 'success';
   } else {
     $response['status'] = 'error';

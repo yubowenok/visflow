@@ -251,6 +251,7 @@ var extObject = {
 
     $("<input></input>")
       .val("myDataflow")
+      .attr("maxlength", 30)
       .css("width", "80%")
       .appendTo(jqdialog);
 
@@ -342,7 +343,22 @@ var extObject = {
         dataflow: JSON.stringify(this.serializeDataflow())
       },
       success: function(data, textStatus, jqXHR) {
-        console.log(data);
+        var dialog = $("<div></div>")
+          .css("line-height", "50px");
+        var ok = data.status == "success";
+        var successMsg = "Dataflow uploaded to the server (" + data.filename + ")",
+            errorMsg = "Cannot save dataflow. Server sent error response.";
+        dialog
+          .text(ok ? successMsg : errorMsg)
+          .dialog({
+            modal: true,
+            title: ok ? "Dataflow Saved" : "Save Error",
+            buttons: {
+              OK: function() {
+                $(this).dialog("close");
+              }
+            }
+          });
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.error(jqXHR, textStatus, errorThrown);

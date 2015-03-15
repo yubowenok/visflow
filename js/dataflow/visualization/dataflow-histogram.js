@@ -41,8 +41,11 @@ var extObject = {
     this.axisTicks = [[], []];
     // screenScale: [0, 1] <-> screen pixel (rendering region)
     this.screenScales = [null, null];
+
+    // data bin -> screen positino
+    this.histogramScale = null;
     // leave some space for axes
-    this.plotMargins = [ { before: 20, after: 20 }, { before: 30, after: 40 } ];
+    this.plotMargins = [ { before: 30, after: 20 }, { before: 20, after: 40 } ];
 
     this.isEmpty = true;
 
@@ -157,6 +160,69 @@ var extObject = {
       .attr("height", this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after);
   },
 
+  prepareHistogramScale: function() {
+    var inpack = this.ports["in"].pack,
+        items = inpack.items,
+        values = inpack.data.values;
+    var scale,
+        vals = [],
+        binCount = this.numBins,
+        dim = this.dimension;
+    if (this.scaleTypes[0] == "ordinal") {
+      var ordinalMap = {}, count = 0;
+      for (var index in items) {
+        var value = values[index][dim];
+        if (ordinalMap[value] == null)
+          ordinalMap[value] = count++;
+      }
+      for (var index in items) {
+        var value = values[index][dim];
+        value = ordinalMap[value];
+        vals.push(value);
+      }
+      scale = d3.scale.linear()
+        .domain([0, count - 1]);
+      binCount = count;
+    } else if (this.scaleTypes[0] == "numerical"){
+      for (var index in items) {
+        var value = values[index][dim];
+        vals.push(value);
+      }
+      scale = this.dataScales[0].copy();
+    }
+    scale.range(this.screenScales[0].range());
+
+    this.histogramScale = scale;
+
+    var histogram = d3.layout.histogram()
+      .range(scale.domain())
+      .bins(binCount);
+    var data = this.histogramData = histogram(vals);
+
+    console.log(data);
+
+    if (this.scaleTypes[0] == "numerical") {
+      var ticks = [];
+      for (var i in data) {
+        var e = data[i];
+        ticks.push(d3.round(e.x, 2));
+      }
+      ticks.push(scale.domain()[1]);
+      this.axisTicks[0] = ticks;
+    } else {
+      this.axisTicks[0] = _.allKeys(ordinalMap);
+    }
+    var height = this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after;
+
+    this.dataScales[1] = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.y; })])
+      .range([0, 1]);
+    this.screenScales[1] = d3.scale.linear()
+      .domain([0, 1])
+      .range([height, 0]);
+    this.axisTicks[1] = this.dataScales[1].copy().nice().ticks(5);
+  },
+
   showVisualization: function() {
     var inpack = this.ports["in"].pack,
         items = inpack.items,
@@ -172,76 +238,36 @@ var extObject = {
 
     var node = this;
 
-    var scale;
-    var vals = [];
-    var binCount = this.numBins;
-    if (this.scaleTypes[0] == "ordinal") {
-      var ordinalMap = {}, count = 0;
-      for (var index in items) {
-        var value = values[index][node.dimension];
-        if (ordinalMap[value] == null)
-          ordinalMap[value] = count++;
-      }
-      for (var index in items) {
-        var value = values[index][node.dimension];
-        value = ordinalMap[value];
-        vals.push(value);
-      }
-      scale = d3.scale.linear()
-        .domain([0, count - 1]);
-      binCount = count;
-    } else if (this.scaleTypes[0] == "numerical"){
-      for (var index in items) {
-        var value = values[index][node.dimension];
-        vals.push(value);
-      }
-      scale = this.dataScales[0].copy();
-    }
-    scale.range(this.screenScales[0].range());
-    var histogram = d3.layout.histogram()
-      .range(scale.domain())
-      .bins(binCount);
-    var data = histogram(vals);
-
-    if (this.scaleTypes[0] == "numerical") {
-      var ticks = [];
-      for (var i in data) {
-        var e = data[i];
-        ticks.push(e.x);
-      }
-      ticks.push(scale.domain()[1]);
-      this.axisTicks[0] = ticks;
-    } else {
-      this.axisTicks[0] = _.allKeys(ordinalMap);
-    }
-
     var height = this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after;
 
-    var y = d3.scale.linear()
-      .domain([0, d3.max(data, function(d) { return d.y; })])
-      .range([0, height]);
+    var yScale = this.dataScales[1].copy().range(this.screenScales[1].range());
 
-    var bar = this.svg.selectAll(".df-histogram-bar").data(data).enter().append("g")
+    var bar = this.svg.selectAll(".df-histogram-bar")
+      .data(this.histogramData).enter().append("g")
       .attr("class", "df-histogram-bar")
+      .attr("id", function(d, i) {
+        return "b" + i;
+      })
       .attr("transform", function(d) {
-        return "translate(" + scale(d.x) + ","
-          + (node.svgSize[1] - node.plotMargins[1].after - y(d.y)) + ")";
+        return "translate(" + node.histogramScale(d.x) + ","
+          + (node.plotMargins[1].before + yScale(d.y)) + ")";
       });
 
-    var width = scale(data[0].dx) - scale(0) - 1;
+    var width = this.histogramScale(this.histogramData[0].dx) - this.histogramScale(0) - 1;
     if (width < 0)  // happens when only 1 value in domain
       width = this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after;
     bar.append("rect")
       .attr("x", 1)
       .attr("width", width)
       .attr("height", function(d) {
-        return y(d.y);
+        return height - yScale(d.y);
       });
 
     this.showSelection();
 
     // axis appears on top
     this.showAxis(0);
+    this.showAxis(1);
   },
 
   showSelection: function() {
@@ -307,18 +333,18 @@ var extObject = {
     var margins = this.plotMargins;
     var axis = d3.svg.axis()
       .orient(!d ? "bottom" : "left")
-      .tickValues(this.axisTicks[d]);
+      .tickValues(this.axisTicks[d])
+      .tickFormat(d3.format("s"));
 
     if (this.scaleTypes[d] == "ordinal"){
       axis.scale(this.dataScales[d].copy()
           .rangeBands(this.screenScales[d].range()));
-
     } else {
       axis.scale(this.dataScales[d].copy()
           .range(this.screenScales[d].range()));
     }
     var transX = !d ? 0 : margins[0].before,
-        transY = !d ? this.svgSize[1] - margins[1].after : 0;
+        transY = !d ? this.svgSize[1] - margins[1].after : margins[1].before;
     var labelX = !d ? this.svgSize[0]/2: margins[1].before,
         labelY = 30;
 
@@ -349,6 +375,7 @@ var extObject = {
     [0, 1].map(function(d) {
       this.prepareScreenScale(d);
     }, this);
+    this.prepareHistogramScale();
   },
 
   prepareDataScale: function() {
