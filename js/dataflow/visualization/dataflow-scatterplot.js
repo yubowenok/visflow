@@ -245,11 +245,13 @@ var extObject = {
       }
     }
 
+    this.showSelection();
+
+    // axis appears on top
     [0, 1].map(function(d) {
       this.showAxis(d);
     }, this);
 
-    this.showSelection();
   },
 
   showSelection: function() {
@@ -257,7 +259,6 @@ var extObject = {
     if (this.isEmpty)
       return;
 
-    // re-render the selection to make them appear on top
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         values = inpack.data.values,
@@ -286,7 +287,7 @@ var extObject = {
 
       var d3sel = this.svg.selectAll("#i" + index);
       var jqu = $(d3sel[0])
-        .appendTo(this.jqsvg);  // change position of tag
+        .appendTo(this.jqsvg);  // change position of tag to make them appear on top
       var u = d3sel;
       for (var key in properties) {
         if (this.isAttr[key] == true)

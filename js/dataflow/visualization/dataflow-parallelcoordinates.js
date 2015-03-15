@@ -128,7 +128,10 @@ var extObject = {
         if (mode == "brush") {
           endPos = getOffset(event, $(this));
           brush.push(endPos);
+
           node.showBrush(brush);
+
+          lastPos = [endPos[0], endPos[1]];
         }
         // we shall not block mousemove (otherwise dragging edge will be problematic)
         // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
@@ -161,19 +164,29 @@ var extObject = {
         items = inpack.items,
         values = inpack.data.values;
 
+    var points = [];
+    for (var d in this.dimensions) {
+      // use axisScale to map d-th axis to its X position
+      points[d] = [this.axisScale(d)];
+    }
+
     for (var index in items) {
-      var ok = 1;
+      if (this.selected[index] != null) // already selected
+        continue;
       for (var d in this.dimensions) {
         var value = values[index][this.dimensions[d]];
         value = this.dataScales[d](value);
         value = this.screenScales[d](value);
-        if (0) {  // TODO check intersection
-          ok = 0;
-        }
+        points[d][1] = value;
       }
-
-      if (ok) {
-        this.selected[index] = true;
+      var ok = 0;
+      for (var d = 0; d < this.dimensions.length - 1 && !ok; d++) {
+        for (var i = 0; i < brush.length - 1; i++) {
+          if (Utils.intersect(points[d], points[d + 1], brush[i], brush[i+1])) {
+            this.selected[index] = true;
+            break;
+          }
+        }
       }
     }
 
@@ -182,18 +195,19 @@ var extObject = {
     core.dataflowManager.propagate(this);
   },
 
-  showBrush: function(box) {
+  showBrush: function(points) {
     var node = this;
-    this.selectbox = this.svg.select(".df-scatterplot-selectbox");
-    if (this.selectbox.empty())
-      this.selectbox = this.svg.append("rect")
-        .attr("class", "df-scatterplot-selectbox");
-
-    this.selectbox
-      .attr("x", box.x1)
-      .attr("y", box.y1)
-      .attr("width", box.x2 - box.x1)
-      .attr("height", box.y2 - box.y1);
+    var line = d3.svg.line()
+        .x(function(e) {
+          return e[0];
+        })
+        .y(function(e) {
+          return e[1];
+        })
+        .interpolate("linear");
+    this.brush = this.svg.append("path")
+      .attr("class", "df-parallelcoordinates-brush")
+      .attr("d", line(points));
   },
 
   showVisualization: function() {
@@ -242,6 +256,7 @@ var extObject = {
         .interpolate("linear");
 
       var u = this.svg.append("path")
+        .attr("id", "i" + index)
         .attr("d", line(points));
       for (var key in properties) {
         if (this.isAttr[key] == true)
@@ -251,17 +266,59 @@ var extObject = {
       }
     }
 
+    this.showSelection();
+
+    // axis appears on top
     for (var d in this.dimensions) {
       this.showAxis(d);
     }
-
-    this.showSelection();
   },
 
   showSelection: function() {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
+
+    var inpack = this.ports["in"].pack,
+        items = inpack.items,
+        values = inpack.data.values,
+        node = this;
+
+    var points = [];
+    for (var d in this.dimensions) {
+      // use axisScale to map d-th axis to its X position
+      points[d] = [this.axisScale(d)];
+    }
+
+    for (var index in this.selected) {
+      for (var d in this.dimensions) {
+        var value = values[index][node.dimensions[d]];
+        value = this.dataScales[d](value);
+        value = this.screenScales[d](value);
+        points[d][1] = value;
+      }
+
+      var properties = _.extend(
+        {},
+        this.defaultProperties,
+        items[index].properties,
+        this.selectedProperties,
+        {
+          id: "i" + index
+        }
+      );
+
+      var d3sel = this.svg.selectAll("#i" + index);
+      var jqu = $(d3sel[0])
+        .appendTo(this.jqsvg);  // change position of tag to make them appear on top
+      var u = d3sel;
+      for (var key in properties) {
+        if (this.isAttr[key] == true)
+          u.attr(key, properties[key]);
+        else
+          u.style(key, properties[key]);
+      }
+    }
   },
 
 

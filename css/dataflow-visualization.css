@@ -65,7 +65,11 @@ svg {
 
 
 .df-parallelcoordinates-brush {
-
+  fill: none;
+  stroke: #FF4400;
+  stroke-width: 2px;
+  stroke-linecap: round;
+  shape-rendering: crispEdges;
 }
 
 
