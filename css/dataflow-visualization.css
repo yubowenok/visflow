@@ -35,25 +35,27 @@ svg {
   left: 100%;
   top: 0%;
   position: absolute;
-  width: 200px;
+  padding: 5px;
+  min-width: 100px;
 }
 
 .dataflow-options-item {
-  margin: 5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .dataflow-options-select {
-  width: 70%;
 }
 
 .dataflow-options-select-multiple {
-  width: 90%;
 }
 
 .dataflow-options-text {
-  margin-right: 1em;
+  display: block;
+  margin-bottom: 5px;
 }
 
+.df-histogram-selectbox,
 .df-scatterplot-selectbox {
   fill: #e0cfc2;
   stroke: black;
@@ -72,4 +74,12 @@ svg {
   shape-rendering: crispEdges;
 }
 
+.df-histogram-bar {
+  fill: #AAA;
+}
+
+.df-visualization-label {
+  font-size: 11px !important;
+  font-weight: bold;
+}
 

@@ -75,14 +75,6 @@ var extObject = {
       .appendTo(this.jqview);
   },
 
-  prepareScales: function() {
-    for (var d in this.dimensions) {
-      this.prepareDataScale(d);
-      this.prepareScreenScale(d);
-    }
-    this.prepareAxisScale();
-  },
-
   interaction: function() {
     var node = this,
         mode = "none";
@@ -96,6 +88,8 @@ var extObject = {
     };
     this.jqsvg
       .mousedown(function(event) {
+        if (core.interactionManager.ctrled) // ctrl drag mode blocks
+          return;
 
         startPos = getOffset(event, $(this));
 
@@ -392,15 +386,23 @@ var extObject = {
        .attr("transform", "translate(" + transX + "," + transY + ")");
     }
     u.call(axis);
-    var t = u.select(".label");
+    var t = u.select(".df-visualization-label");
     if (t.empty()) {
       t = u.append("text")
-        .attr("class", "label")
+        .attr("class", "df-visualization-label")
         .style("text-anchor", "middle")
         .attr("x", labelX)
         .attr("y", labelY);
       }
     t.text(data.dimensions[this.dimensions[d]]);
+  },
+
+  prepareScales: function() {
+    for (var d in this.dimensions) {
+      this.prepareDataScale(d);
+      this.prepareScreenScale(d);
+    }
+    this.prepareAxisScale();
   },
 
   prepareDataScale: function(d) {
@@ -485,8 +487,11 @@ var extObject = {
     if (data.dataId != this.lastDataId) {
       // data has changed, by default load all dimensions
       this.dimensions = [];
-      for (var i in data.dimensionTypes)
+      for (var i in data.dimensionTypes) {
+        if (data.dimensionTypes[i] == "string") // ignore string by default
+          continue;
         this.dimensions.push(i);
+      }
       this.lastDataId = data.dataId;
     }
 

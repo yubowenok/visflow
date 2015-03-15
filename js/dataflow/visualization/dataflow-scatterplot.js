@@ -78,15 +78,6 @@ var extObject = {
       .appendTo(this.jqview);
   },
 
-
-
-  prepareScales: function() {
-    [0, 1].map(function(d) {
-      this.prepareDataScale(d);
-      this.prepareScreenScale(d);
-    }, this);
-  },
-
   interaction: function() {
     var node = this,
         mode = "none";
@@ -101,6 +92,8 @@ var extObject = {
     };
     this.jqsvg
       .mousedown(function(event) {
+        if (core.interactionManager.ctrled) // ctrl drag mode blocks
+          return;
 
         startPos = Utils.getOffset(event, $(this));
 
@@ -188,13 +181,14 @@ var extObject = {
       .attr("height", box.y2 - box.y1);
   },
 
-  showVisualization: function() {
+  showVisualization: function(useTransition) {
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         data = inpack.data,
         values = data.values;
 
-    this.prepareSvg();
+    if (!useTransition)
+      this.prepareSvg();
     this.prepareScales();
     this.interaction();
 
@@ -222,7 +216,12 @@ var extObject = {
           cy: c[1]
         }
       );
-      var u = this.svg.append("circle");
+      var u;
+      if (useTransition) {
+        u = this.svg.select("#i" + index).transition();
+      } else {
+        u = this.svg.append("circle");
+      }
       for (var key in properties) {
         if (this.isAttr[key] == true)
           u.attr(key, properties[key]);
@@ -231,7 +230,7 @@ var extObject = {
       }
     }
 
-    this.showSelection();
+    this.showSelection(useTransition);
 
     // axis appears on top
     [0, 1].map(function(d) {
@@ -240,7 +239,7 @@ var extObject = {
 
   },
 
-  showSelection: function() {
+  showSelection: function(useTransition) {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
@@ -275,6 +274,9 @@ var extObject = {
       var jqu = $(d3sel[0])
         .appendTo(this.jqsvg);  // change position of tag to make them appear on top
       var u = d3sel;
+      if (useTransition) {
+        u = u.transition();
+      }
       for (var key in properties) {
         if (this.isAttr[key] == true)
           u.attr(key, properties[key]);
@@ -293,7 +295,7 @@ var extObject = {
         .appendTo(this.jqoptions);
       $("<label></label>")
         .addClass("dataflow-options-text")
-        .text( (!d ? "X" : "Y" ) + " Axis:")
+        .text( (!d ? "X" : "Y" ) + " Axis")
         .appendTo(div);
       this.dimensionLists[d] = $("<select></select>")
         .addClass("dataflow-options-select")
@@ -301,7 +303,7 @@ var extObject = {
         .select2()
         .change(function(event){
           node.dimensions[d] = event.target.value;
-          node.showVisualization();
+          node.showVisualization(true);
           node.process();
 
           // push dimension change to downflow
@@ -342,16 +344,23 @@ var extObject = {
        .attr("transform", "translate(" + transX + "," + transY + ")");
     }
     u.call(axis);
-    var t = u.select(".label");
+    var t = u.select(".df-visualization-label");
     if (t.empty()) {
       t = u.append("text")
-        .attr("class", "label")
+        .attr("class", "df-visualization-label")
         .style("text-anchor", !d ? "end" : "")
         .attr("transform", !d ? "" : "rotate(90)")
         .attr("x", labelX)
         .attr("y", labelY);
       }
     t.text(data.dimensions[this.dimensions[d]]);
+  },
+
+  prepareScales: function() {
+    [0, 1].map(function(d) {
+      this.prepareDataScale(d);
+      this.prepareScreenScale(d);
+    }, this);
   },
 
   prepareDataScale: function(d) {

@@ -121,6 +121,8 @@ var extObject = {
 
     this.jqtbody
       .mousedown(function(event){
+        if (core.interactionManager.ctrled) // ctrl drag mode blocks
+          return;
         // block events from elements below
         if(core.interactionManager.visualizationBlocking)
           event.stopPropagation();

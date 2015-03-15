@@ -3,8 +3,25 @@
 
 var extObject = {
 
+  // use object to specify default rendering properties
+  defaultProperties: {
+    "fill": "black",
+    "stroke": "black",
+    "stroke-width": "1px",
+    "r" : 3
+  },
+  // show these properties when items are selected
+  selectedProperties: {
+    "fill": "#FF4400",
+    "stroke": "black"
+  },
+  // let d3 know to use attr or style for each key
+  isAttr: {
+    "id": true
+  },
+
   initialize: function(para) {
-    DataflowVisualization.initialize.call(this, para);
+    DataflowHistogram.base.initialize.call(this, para);
 
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
@@ -13,6 +30,43 @@ var extObject = {
       DataflowPort.new(this, "out", "out-multiple")
     ];
     this.prepare();
+
+    // 0: X axis, 1: Y axis
+    this.dimension = 0;
+
+    this.scaleTypes = [null, "numerical"];
+    // dataScale : datavalue <-> [0, 1]
+    this.dataScales = [null, null];
+    // ticks to be shown on axis
+    this.axisTicks = [[], []];
+    // screenScale: [0, 1] <-> screen pixel (rendering region)
+    this.screenScales = [null, null];
+    // leave some space for axes
+    this.plotMargins = [ { before: 20, after: 20 }, { before: 30, after: 40 } ];
+
+    this.isEmpty = true;
+
+    this.lastDataId = 0;  // default: empty data
+
+    this.numBins = 10;
+  },
+
+  serialize: function() {
+    var result = DataflowHistogram.base.serialize.call(this);
+    result.dimension = this.dimension;
+    result.lastDataId = this.lastDataId;
+    return result;
+  },
+
+  deserialize: function(save) {
+    DataflowHistogram.base.deserialize.call(this, save);
+
+    this.dimension = save.dimension;
+    this.lastDataId = save.lastDataId;
+    if (this.dimension == null) {
+      console.error("dimension not saved for histogram");
+      this.dimension = 0;
+    }
   },
 
   showIcon: function() {
@@ -21,9 +75,381 @@ var extObject = {
       .appendTo(this.jqview);
   },
 
+  interaction: function() {
+    var node = this,
+        mode = "none";
+    var startPos = [0, 0],
+        lastPos = [0, 0],
+        endPos = [0, 0];
+    var selectbox = {
+      x1: 0,
+      x2: 0
+    };
+    this.jqsvg
+      .mousedown(function(event) {
+        if (core.interactionManager.ctrled) // ctrl drag mode blocks
+          return;
+
+        startPos = Utils.getOffset(event, $(this));
+
+        if (event.which == 1) { // left click triggers selectbox
+          mode = "selectbox";
+        }
+        if (core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
+      })
+      .mousemove(function(event) {
+
+        if (mode == "selectbox") {
+          endPos = Utils.getOffset(event, $(this));
+          selectbox.x1 = Math.min(startPos[0], endPos[0]);
+          selectbox.x2 = Math.max(startPos[0], endPos[0]);
+          node.showSelectbox(selectbox);
+        }
+        // we shall not block mousemove (otherwise dragging edge will be problematic)
+        // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
+      })
+      .mouseup(function(event) {
+        //var pos = getOffset(event, $(this));
+
+        if (mode == "selectbox") {
+          node.selectItemsInBox([selectbox.x1, selectbox.x2]);
+
+          if (node.selectbox) {
+            node.selectbox.remove();
+            node.selectbox = null;
+          }
+        }
+
+        mode = "none";
+
+        if (core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
+      });
+  },
+
+  selectItemsInBox: function(box) {
+    if (!core.interactionManager.shifted) {
+      this.selected = {}; // reset selection if shift key is not down
+    }
+
+    var inpack = this.ports["in"].pack,
+        items = inpack.items,
+        values = inpack.data.values;
+    // TODO check bins and get items
+
+    this.showVisualization();
+    this.process();
+    core.dataflowManager.propagate(this);
+  },
+
+  showSelectbox: function(box) {
+    var node = this;
+    this.selectbox = this.svg.select(".df-histogram-selectbox");
+    if (this.selectbox.empty())
+      this.selectbox = this.svg.append("rect")
+        .attr("class", "df-histogram-selectbox");
+
+    this.selectbox
+      .attr("x", box.x1)
+      .attr("y", this.plotMargins[1].before)
+      .attr("width", box.x2 - box.x1)
+      .attr("height", this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after);
+  },
+
   showVisualization: function() {
-    console.log("show vis");
+    var inpack = this.ports["in"].pack,
+        items = inpack.items,
+        values = inpack.data.values;
+
+    this.prepareSvg();
+    this.prepareScales();
+
+    this.interaction();
+
+    if (this.isEmpty)
+      return;
+
+    var node = this;
+
+    var scale;
+    var vals = [];
+    var binCount = this.numBins;
+    if (this.scaleTypes[0] == "ordinal") {
+      var ordinalMap = {}, count = 0;
+      for (var index in items) {
+        var value = values[index][node.dimension];
+        if (ordinalMap[value] == null)
+          ordinalMap[value] = count++;
+      }
+      for (var index in items) {
+        var value = values[index][node.dimension];
+        value = ordinalMap[value];
+        vals.push(value);
+      }
+      scale = d3.scale.linear()
+        .domain([0, count - 1]);
+      binCount = count;
+    } else if (this.scaleTypes[0] == "numerical"){
+      for (var index in items) {
+        var value = values[index][node.dimension];
+        vals.push(value);
+      }
+      scale = this.dataScales[0].copy();
+    }
+    scale.range(this.screenScales[0].range());
+    var histogram = d3.layout.histogram()
+      .range(scale.domain())
+      .bins(binCount);
+    var data = histogram(vals);
+
+    if (this.scaleTypes[0] == "numerical") {
+      var ticks = [];
+      for (var i in data) {
+        var e = data[i];
+        ticks.push(e.x);
+      }
+      ticks.push(scale.domain()[1]);
+      this.axisTicks[0] = ticks;
+    } else {
+      this.axisTicks[0] = _.allKeys(ordinalMap);
+    }
+
+    var height = this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after;
+
+    var y = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.y; })])
+      .range([0, height]);
+
+    var bar = this.svg.selectAll(".df-histogram-bar").data(data).enter().append("g")
+      .attr("class", "df-histogram-bar")
+      .attr("transform", function(d) {
+        return "translate(" + scale(d.x) + ","
+          + (node.svgSize[1] - node.plotMargins[1].after - y(d.y)) + ")";
+      });
+
+    var width = scale(data[0].dx) - scale(0) - 1;
+    if (width < 0)  // happens when only 1 value in domain
+      width = this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after;
+    bar.append("rect")
+      .attr("x", 1)
+      .attr("width", width)
+      .attr("height", function(d) {
+        return y(d.y);
+      });
+
+    this.showSelection();
+
+    // axis appears on top
+    this.showAxis(0);
+  },
+
+  showSelection: function() {
+    // otherwise no item data can be used
+    if (this.isEmpty)
+      return;
+  },
+
+  showOptions: function() {
+    var node = this;
+    var div = $("<div></div>")
+      .addClass("dataflow-options-item")
+      .appendTo(this.jqoptions);
+    $("<label></label>")
+      .addClass("dataflow-options-text")
+      .text("Dimension")
+      .appendTo(div);
+    this.dimensionSelect = $("<select></select>")
+      .addClass("dataflow-options-select")
+      .appendTo(div)
+      .select2()
+      .change(function(event){
+        node.dimension = event.target.value;
+        node.showVisualization();
+        node.process();
+
+        // push dimension change to downflow
+        core.dataflowManager.propagate(node);
+      });
+
+    var div2 = $("<div></div>")
+      .addClass("dataflow-options-item")
+      .appendTo(this.jqoptions);
+    $("<label></label>")
+      .addClass("dataflow-options-text")
+      .text("Bins")
+      .appendTo(div2);
+    this.binSelect = $("<select>" +
+      "<option val='5'>5</option>" +
+      "<option val='10'>10</option>" +
+      "<option val='25'>25</option>" +
+      "<option val='50'>50</option>" +
+      "<option val='100'>100</option>" +
+      "</select>")
+      .addClass("dataflow-options-select")
+      .appendTo(div2)
+      .select2()
+      .change(function(event){
+        node.numBins = parseInt(event.target.value);
+        node.showVisualization();
+      });
+
+    this.binSelect.select2("val", this.numBins);
+
+    this.prepareDimensionList();
+    // show current selection, must call after prepareDimensionList
+    this.dimensionSelect.select2("val", this.dimension);
+
+  },
+
+  showAxis: function(d) {
+    var dt = !d? "x" : "y";
+    var margins = this.plotMargins;
+    var axis = d3.svg.axis()
+      .orient(!d ? "bottom" : "left")
+      .tickValues(this.axisTicks[d]);
+
+    if (this.scaleTypes[d] == "ordinal"){
+      axis.scale(this.dataScales[d].copy()
+          .rangeBands(this.screenScales[d].range()));
+
+    } else {
+      axis.scale(this.dataScales[d].copy()
+          .range(this.screenScales[d].range()));
+    }
+    var transX = !d ? 0 : margins[0].before,
+        transY = !d ? this.svgSize[1] - margins[1].after : 0;
+    var labelX = !d ? this.svgSize[0]/2: margins[1].before,
+        labelY = 30;
+
+    var data = this.ports["in"].pack.data;
+
+    var u = this.svg.select("." + dt +".axis");
+    if (u.empty()) {
+      u = this.svg.append("g")
+       .attr("class", dt + " axis")
+       .attr("transform", "translate(" + transX + "," + transY + ")");
+    }
+    u.call(axis);
+    var t = u.select(".df-visualization-label");
+    if (t.empty()) {
+      t = u.append("text")
+        .attr("class", "df-visualization-label")
+        .style("text-anchor", !d ? "middle" : "")
+        .attr("transform", !d ? "" : "rotate(90)")
+        .attr("x", labelX)
+        .attr("y", labelY);
+      }
+    if (!d)
+      t.text(data.dimensions[this.dimension]);
+  },
+
+  prepareScales: function() {
+    this.prepareDataScale();
+    [0, 1].map(function(d) {
+      this.prepareScreenScale(d);
+    }, this);
+  },
+
+  prepareDataScale: function() {
+    var inpack = this.ports["in"].pack;
+    var items = inpack.items,
+        data = inpack.data;
+
+    var dim = this.dimension,
+        dimType = data.dimensionTypes[dim];
+
+    var scaleType = dimType == "string" ? "ordinal" : "numerical";
+    this.scaleTypes[0] = scaleType;
+    var scale;
+    if (scaleType == "numerical") {
+      scale = this.dataScales[0] = d3.scale.linear().range([0,1]);
+
+      var minVal = Infinity, maxVal = -Infinity;
+      // compute min max
+      for (var index in items) {
+        var value = data.values[index][dim];
+        minVal = Math.min(minVal, value);
+        maxVal = Math.max(maxVal, value);
+      }
+      // leave some spaces
+      var span = maxVal - minVal;
+      scale.domain([minVal - span * .25, maxVal + span * .25]);
+
+    } else if (scaleType == "ordinal") {
+      scale = this.dataScales[0] = d3.scale.ordinal().rangeBands([0,1]);  // TODO check padding
+      // find unique values
+      var has = {};
+      for (var index in items) {
+        var value = data.values[index][dim];
+        has[value] = true;
+      }
+      var values = [];
+      for (var value in has) {
+        values.push(value);
+      }
+      scale.domain(values);
+    }
+  },
+
+  prepareScreenScale: function(d) {
+    var scale = this.screenScales[d] = d3.scale.linear();
+    var interval = [this.plotMargins[d].before, this.svgSize[d] - this.plotMargins[d].after];
+    if (d) {
+      var t = interval[0];
+      interval[0] = interval[1];
+      interval[1] = t;
+    }
+    scale
+      .domain([0, 1])
+      .range(interval);
+  },
+
+  prepareDimensionList: function() {
+    var dims = this.ports["in"].pack.data.dimensions;
+    for (var i in dims) {
+      $("<option value='" + i + "'>" + dims[i] + "</option>")
+        .appendTo(this.dimensionSelect);
+    }
+  },
+
+  process: function() {
+    var inpack = this.ports["in"].pack,
+        outpack = this.ports["out"].pack;
+
+    var data = inpack.data;
+    if (inpack.isEmpty()) {
+      return;
+    }
+
+    this.validateSelection();
+
+    if (data.dataId != this.lastDataId) {
+      // data has changed, by default load the first dimension
+      this.dimension = 0;
+      this.lastDataId = data.dataId;
+    }
+
+    outpack.copy(inpack);
+    outpack.filter(_.allKeys(this.selected));
+  },
+
+  selectAll: function() {
+    DataflowHistogram.base.selectAll.call(this);
+    this.showSelection();
+  },
+
+  clearSelection: function() {
+    DataflowHistogram.base.clearSelection.call(this);
+    this.showVisualization(); // TODO　not efficient
+  },
+
+  resize: function(size) {
+    DataflowHistogram.base.resize.call(this, size);
+    // TODO update scales for dimensions
+    this.showVisualization();
   }
+
 };
 
 var DataflowHistogram = DataflowVisualization.extend(extObject);
