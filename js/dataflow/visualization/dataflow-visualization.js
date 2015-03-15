@@ -12,6 +12,8 @@ var extObject = {
 
     // selection applies to all visualization
     this.selected = {};
+
+    this.optionsOffset = null;
   },
 
   serialize: function() {
@@ -20,6 +22,9 @@ var extObject = {
     // mode toggles
     result.visOn = this.visOn;
     result.optionsOn = this.optionsOn;
+    // option position
+    result.optionsOffset = this.optionsOffset;
+
 
     // view sizes
     result.viewWidth = this.viewWidth;
@@ -37,11 +42,14 @@ var extObject = {
     DataflowVisualization.base.deserialize.call(this, save);
     this.visWidth = save.visWidth;
     this.visHeight = save.visHeight;
+    this.optionsOffset = save.optionsOffset;
+
     this.visOn = save.visOn;
     this.optionsOn = save.optionsOn;
     this.viewWidth = save.viewWidth;
     this.viewHeight = save.viewHeight;
     this.selected = save.selected;
+
 
     if (this.selected instanceof Array || this.selected == null) {
       console.error("incorrect selection saved: array/null");
@@ -154,11 +162,21 @@ var extObject = {
 
   // option handle, to implement options, write showOptions()
   options: function() {
+    var node = this;
     if (this.optionsOn == true) {
       this.jqoptions = $("<div></div>")
         .addClass("dataflow-options")
         .addClass("ui-widget-content ui-widget")
-        .appendTo(this.jqview);
+        .appendTo(this.jqview)
+        .draggable({
+          stop: function(event) {
+            var offset = $(event.target).position();  // relative position
+            node.optionsOffset = offset;
+          }
+        });
+      if (this.optionsOffset != null) {
+        this.jqoptions.css(this.optionsOffset);
+      }
       this.showOptions();
     } else {
       if (this.jqoptions)
