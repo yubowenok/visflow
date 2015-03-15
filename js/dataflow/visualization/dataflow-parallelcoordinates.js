@@ -12,7 +12,8 @@ var extObject = {
   },
   // show these properties when items are selected
   selectedProperties: {
-    "stroke": "#FF4400"
+    "stroke": "#FF4400",
+    "stroke-width": "2px"
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -45,8 +46,6 @@ var extObject = {
     this.axisScale = null;
     // leave some space for axes
     this.plotMargins = [ { before: 30, after: 30 }, { before: 20, after: 20 } ];
-
-    this.isEmpty = true;
 
     this.lastDataId = 0;  // default: empty data
   },

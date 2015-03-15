@@ -14,6 +14,8 @@ var extObject = {
     this.selected = {};
 
     this.optionsOffset = null;
+
+    this.isEmpty = true;
   },
 
   serialize: function() {

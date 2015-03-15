@@ -49,8 +49,6 @@ var extObject = {
     // leave some space for axes
     this.plotMargins = [ { before: 30, after: 10 }, { before: 10, after: 30 } ];
 
-    this.isEmpty = true;
-
     this.lastDataId = 0;  // default: empty data
   },
 

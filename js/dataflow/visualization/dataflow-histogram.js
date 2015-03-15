@@ -47,11 +47,11 @@ var extObject = {
     // leave some space for axes
     this.plotMargins = [ { before: 30, after: 20 }, { before: 20, after: 40 } ];
 
-    this.isEmpty = true;
-
     this.lastDataId = 0;  // default: empty data
 
-    this.numBins = 10;
+    this.numBins = 10; // default number of bins
+
+    this.selectedBins = {};
   },
 
   serialize: function() {
@@ -237,9 +237,7 @@ var extObject = {
       return;
 
     var node = this;
-
     var height = this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after;
-
     var yScale = this.dataScales[1].copy().range(this.screenScales[1].range());
 
     var bar = this.svg.selectAll(".df-histogram-bar")
@@ -257,7 +255,7 @@ var extObject = {
     if (width < 0)  // happens when only 1 value in domain
       width = this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after;
     bar.append("rect")
-      .attr("x", 1)
+      .attr("x", 1) // 1 pixel gap
       .attr("width", width)
       .attr("height", function(d) {
         return height - yScale(d.y);
@@ -274,6 +272,35 @@ var extObject = {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
+
+    /*
+    for (var id in this.selectedBins) {
+      this.svg.select("#b" + id)
+        .attr("")
+    }
+    this.svg.selectAll(".df-histogram-bar")
+      .data(this.histogramData).enter().append("g")
+      .attr("class", "df-histogram-bar")
+      .attr("id", function(d, i) {
+        return "b" + i;
+      })
+      .attr("transform", function(d) {
+        return "translate(" + node.histogramScale(d.x) + ","
+          + (node.plotMargins[1].before + yScale(d.y)) + ")";
+      });
+
+    var width = this.histogramScale(this.histogramData[0].dx) - this.histogramScale(0) - 1;
+    if (width < 0)  // happens when only 1 value in domain
+      width = this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after;
+    bar.append("rect")
+      .attr("x", 1) // 1 pixel gap
+      .attr("width", width)
+      .attr("height", function(d) {
+        return height - yScale(d.y);
+      });
+
+    this.showSelection();
+    */
   },
 
   showOptions: function() {
