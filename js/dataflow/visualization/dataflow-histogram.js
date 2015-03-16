@@ -5,15 +5,11 @@ var extObject = {
 
   // use object to specify default rendering properties
   defaultProperties: {
-    "fill": "black",
-    "stroke": "black",
-    "stroke-width": "1px",
-    "r" : 3
+    "fill": "#AAA"
   },
   // show these properties when items are selected
   selectedProperties: {
-    "fill": "#FF4400",
-    "stroke": "black"
+    "fill": "#FF4400"
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -219,7 +215,71 @@ var extObject = {
       this.axisTicks[0] = _.allKeys(ordinalMap);
     }
 
-    console.log(this.histogramData);
+    this.groupHistogramBins();
+  },
+
+  groupHistogramBins: function() {
+    // group the items in each bin by their properties
+    var inpack = this.ports["in"].pack,
+        items = inpack.items;
+
+    var data = this.histogramData;
+
+    var propertiesCompare = function(a, b) {
+      var sa = "",
+          sb = "";
+      ["fill", "fill-stroke", "fill-opacity",
+        "stroke", "stroke-width", "stroke-opacity"].map(function(key, i) {
+          if (a.hash == null)
+            sa += i + ":" + (a.properties[key] == null? "*" : a.properties[key]) + ",";
+          if (b.hash == null)
+            sb += i + ":" + (b.properties[key] == null? "*" : b.properties[key]) + ",";
+        });
+
+      if (a.hash == null)
+        a.hash = Utils.hashString(sa);
+      if (b.hash == null)
+        b.hash = Utils.hashString(sb);
+
+      if (a.hash < b.hash) return -1;
+      else if (a.hash === b.hash) return 0;
+      return 1;
+    };
+
+    for (var i = 0; i < data.length; i++) {
+      var bin = data[i];
+      for (var j = 0; j < bin.length; j++) {
+        bin[j] = {
+          properties: items[bin[j][1]].properties,
+          index: bin[j][1]
+        };
+      }
+      bin.sort(propertiesCompare);
+      var newbin = [];
+      data[i] = _.extend([], _(bin).pick("x", "y", "dx"));
+      _(newbin).extend(_(bin).pick("x", "y", "dx")); // copy d3 histogram attributes
+
+      var y = 0;
+      for (var j = 0; j < bin.length; j++) {
+        var k = j;
+        var members = [];
+        while(k < bin.length && bin[k].hash == bin[j].hash) {
+          members.push(bin[k].index);
+          k++;  // same group
+        }
+        newbin = {
+          x: newbin.x,
+          y: y,
+          y2: y + k - j,
+          dx: newbin.dx,
+          properties: bin[j].properties,
+          members: members
+        };
+        data[i].push(newbin);
+        y += k - j; // the current accumulative bar height
+        j = k - 1;
+      }
+    }
   },
 
   prepareHistogramScale: function() {
@@ -250,30 +310,55 @@ var extObject = {
     if (this.isEmpty)
       return;
 
+    var data = this.histogramData;
     var node = this;
     var height = this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after;
     var yScale = this.dataScales[1].copy().range(this.screenScales[1].range());
 
-    var bar = this.svg.selectAll(".df-histogram-bar")
+    var bins = this.svg.selectAll("g")
       .data(this.histogramData).enter().append("g")
-      .attr("class", "df-histogram-bar")
       .attr("id", function(d, i) {
         return "b" + i;
       })
       .attr("transform", function(d) {
         return "translate(" + node.histogramScale(d.x) + ","
-          + (node.plotMargins[1].before + yScale(d.y)) + ")";
+          + node.plotMargins[1].before + ")";
       });
 
     var width = this.histogramScale(this.histogramData[0].dx) - this.histogramScale(0) - 1;
     if (width < 0)  // happens when only 1 value in domain
       width = this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after;
-    bar.append("rect")
+
+    var bars = bins.selectAll(".rect")
+      .data(function(d){ return d; }) // use the array as data
+      .enter().append("rect")
       .attr("x", 1) // 1 pixel gap
+      .attr("y", function(d) {
+        return yScale(d.y2);
+      })
       .attr("width", width)
       .attr("height", function(d) {
-        return height - yScale(d.y);
+        return yScale(d.y) - yScale(d.y2);
       });
+
+    for (var i = 0; i < bars.length; i++) {
+      var lasty = 0;
+      for (var j = 0; j < bars[i].length; j++) {
+        var properties = _.extend(
+          {},
+          this.defaultProperties,
+          bars[i][j].__data__.properties
+        );
+        var u = d3.select(bars[i][j]);
+        for (var key in properties) {
+          if (this.isAttr[key] == true)
+            u.attr(key, properties[key]);
+          else {
+            u.style(key, properties[key]);
+          }
+        }
+      }
+    }
 
     this.showSelection();
 

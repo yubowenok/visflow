@@ -74,10 +74,6 @@ svg {
   shape-rendering: crispEdges;
 }
 
-.df-histogram-bar {
-  fill: #AAA;
-}
-
 .df-visualization-label {
   font-size: 11px !important;
   font-weight: bold;

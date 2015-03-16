@@ -34,5 +34,19 @@ var Utils = {
     if (Math.abs(v1) < eps || Math.abs(v2) < eps) // touch
       return true;
     return v1 * v2 < 0;
+  },
+
+  // hash a string
+  hashString: function(s) {
+    if (typeof s != "string") {
+      return console.error("x is not a string to hash");
+    }
+    var a = 3, p = 1000000007;
+    var result = 0;
+    for (var i = 0; i < s.length; i++) {
+      var x = s.charCodeAt(i);
+      result = (result * a + x) % p;
+    }
+    return result;
   }
 };
