@@ -94,16 +94,14 @@ var extObject = {
         start : function(event, ui) {
           core.interactionManager.dragstartHandler({
             type : "port",
-            node : node,
-            portId : event.target.id,
+            port : port,
             event : event
           });
         },
         drag : function(event, ui) {
           core.interactionManager.dragmoveHandler({
             type : "port",
-            node : node,
-            portId : event.target.id,
+            port : port,
             event : event
           });
         },
@@ -122,8 +120,7 @@ var extObject = {
         drop : function(event, ui) {
           core.interactionManager.dropHandler({
             type : "port",
-            node : node,
-            portId : event.target.id,
+            port : port,
             event : event
           });
         }

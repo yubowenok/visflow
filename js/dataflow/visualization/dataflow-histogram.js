@@ -619,7 +619,6 @@ var extObject = {
       // data has changed, by default load the first dimension
       this.dimension = 0;
       this.lastDataId = data.dataId;
-      console.log("changed");
     }
 
     outpack.copy(inpack);

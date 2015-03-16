@@ -114,11 +114,9 @@ var extObject = {
     return newnode;
   },
 
-  createEdge: function(sourcePara, targetPara) {
-    var sourceNode = sourcePara.node,
-        targetNode = targetPara.node,
-        sourcePort = sourceNode.ports[sourcePara.portId],
-        targetPort = targetNode.ports[targetPara.portId];
+  createEdge: function(sourcePort, targetPort) {
+    var sourceNode = sourcePort.node,
+        targetNode = targetPort.node;
 
     var con = sourcePort.connectable(targetPort);
 
@@ -313,16 +311,10 @@ var extObject = {
       var edgeSaved = dataflow.edges[i];
       var sourceNode = hashes[edgeSaved.sourceNodeHash],
           targetNode = hashes[edgeSaved.targetNodeHash],
-          sourcePortId = edgeSaved.sourcePortId,
-          targetPortId = edgeSaved.targetPortId;
+          sourcePort = sourceNode.ports[edgeSaved.sourcePortId],
+          targetPort = targetNode.ports[edgeSaved.targetPortId];
 
-      this.createEdge({
-        node: sourceNode,
-        portId: sourcePortId
-      }, {
-        node: targetNode,
-        portId: targetPortId
-      });
+      this.createEdge(sourcePort, targetPort);
     }
 
     this.propagateDisabled = false; // full propagation

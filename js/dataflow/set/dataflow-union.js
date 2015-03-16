@@ -51,7 +51,7 @@ var extObject = {
       }
     }
     var outpack = this.ports["out"].pack;
-    outpack.copy(packa);  // either A or B works
+    outpack.copy(packa.isEmpty() ? packb : packa);  // pack a non-empty pack
     // not using filter because the properties are new
     outpack.items = result;
   }

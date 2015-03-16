@@ -265,7 +265,7 @@ var extobject = {
       var dx = this.dragstopPos[0] - this.dragstartPos[0],
           dy = this.dragstopPos[1] - this.dragstartPos[1];
 
-      if (para.portId.substr(0,2) === "in") {
+      if (para.port.isInPort) {
         dx = -dx;
         dy = -dy;
         $("#dataflow-edge-drawing")
@@ -313,16 +313,10 @@ var extobject = {
         event = para.event;
     if (type === "port" && this.dropPossible) {
       // connect ports
-      var port1 = {
-        node: this.dragstartPara.node,
-        portId: this.dragstartPara.portId,
-      };
-      var port2 = {
-        node: para.node,
-        portId: para.portId
-      };
-      if (port1.portId.substr(0,2) === "in") {
-        // always connect from out to in
+      var port1 = this.dragstartPara.port,
+          port2 = para.port;
+      if (port1.isInPort) {
+        // always connect from out to in, swap
         var porttmp = port1;
         port1 = port2;
         port2 = porttmp;
