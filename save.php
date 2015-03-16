@@ -18,10 +18,14 @@ if ($paraok) {
 
   if (json_decode($dataflow) != null) {
     $file = fopen('save/'.$filename.'.json','w');
-    fwrite($file, $dataflow);
+    $ok = fwrite($file, $dataflow);
     fclose($file);
-    $response['filename'] = $filename;
-    $response['status'] = 'success';
+    if ($ok == false) {
+      $response['status'] = 'error';
+    } else {
+      $response['filename'] = $filename;
+      $response['status'] = 'success';
+    }
   } else {
     $response['status'] = 'error';
   }
