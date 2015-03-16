@@ -11,6 +11,11 @@
 
 var extObject = {
   initialize: function() {
+    this.resetDataflow();
+    this.lastFilename = "myDataflow";
+  },
+
+  resetDataflow: function() {
     // counters start from 1
     this.nodeCounter = 0;
     this.visCounter = 0;
@@ -250,7 +255,7 @@ var extObject = {
       .appendTo(jqdialog);
 
     $("<input></input>")
-      .val("myDataflow")
+      .val(this.lastFilename)
       .attr("maxlength", 30)
       .css("width", "80%")
       .appendTo(jqdialog);
@@ -331,10 +336,11 @@ var extObject = {
   clearDataflow: function() {
     // clear screen
     core.viewManager.clearDataflowViews();
-    this.initialize();
+    this.resetDataflow();
   },
 
   uploadDataflow: function(filename) {
+    this.lastFilename = filename;
     $.ajax({
       type: "POST",
       url: "save.php",
@@ -438,6 +444,8 @@ var extObject = {
   },
 
   downloadDataflow: function(filename) {
+    this.lastFilename = filename;
+
     var manager = this;
     $.ajax({
       type: "POST",

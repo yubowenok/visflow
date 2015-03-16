@@ -49,7 +49,7 @@ var extObject = {
     // screenScale: [0, 1] <-> screen pixel (rendering region)
     this.screenScales = [null, null];
     // leave some space for axes
-    this.plotMargins = [ { before: 30, after: 10 }, { before: 10, after: 30 } ];
+    this.plotMargins = [ { before: 40, after: 10 }, { before: 10, after: 30 } ];
 
     this.lastDataId = 0;  // default: empty data
   },

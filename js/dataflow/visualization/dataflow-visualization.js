@@ -5,7 +5,7 @@ var extObject = {
 
   initialize: function(para) {
     DataflowVisualization.base.initialize.call(this, para);
-    this.visOn = false;
+    this.visOn = true;
     this.optionsOn = false;
     this.visWidth = null;
     this.visHeight = null;
