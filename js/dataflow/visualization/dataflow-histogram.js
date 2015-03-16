@@ -146,6 +146,11 @@ var extObject = {
         items = inpack.items,
         values = inpack.data.values;
     // TODO check bins and get items
+    var bars = this.histogramData;
+    console.log(bars);
+    for (var i = 0; i < data.length; i++) {
+
+    }
 
     this.showVisualization();
     this.process();
@@ -282,8 +287,8 @@ var extObject = {
           y: y,
           y2: y + k - j,
           dx: newbin.dx,
-          0: bin[j].properties,
-          1: members
+          p: bin[j].properties, // p for properties
+          m: members            // m for members
         };
         data[i].push(newbin);
         y += k - j; // the current accumulative bar height
@@ -358,7 +363,7 @@ var extObject = {
         var properties = _.extend(
           {},
           this.defaultProperties,
-          bars[i][j].__data__[0]
+          bars[i][j].__data__["p"]
         );
         var u = d3.select(bars[i][j]);
         for (var key in properties) {

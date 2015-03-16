@@ -233,24 +233,24 @@ var extObject = {
       if (this.selected[index]) {
         _(properties).extend(this.selectedProperties);
       }
-      ritems.push([properties, index]);
+      ritems.push(properties);
     }
 
     var points;
     if (!useTransition) {
       points = this.svgPoints.selectAll("circle").data(ritems, function(e) {
-        return e[0].id;
+        return e.id;
       }).enter()
         .append("circle")[0];
     }
     else {
       points = this.svgPoints.selectAll("circle").data(ritems, function(e) {
-        return e[0].id;
+        return e.id;
       })[0];
     }
 
     for (var i = 0; i < points.length; i++) {
-      var properties = points[i].__data__[0];
+      var properties = points[i].__data__;
       var u = d3.select(points[i]);
       if (useTransition)
         u = u.interrupt().transition();
