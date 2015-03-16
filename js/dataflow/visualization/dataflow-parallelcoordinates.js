@@ -63,7 +63,7 @@ var extObject = {
     this.dimensions = save.dimensions;
     this.lastDataId = save.lastDataId;
     if (this.dimensions == null) {
-      console.error("dimensions not saved for scatterplot");
+      console.error("dimensions not saved for " + this.plotName);
       this.dimensions = [0, 0];
     }
   },

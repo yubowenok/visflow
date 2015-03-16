@@ -161,13 +161,17 @@ var extObject = {
   },
 
   prepareHistogramScale: function() {
+    // arrange items into bins
+
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         values = inpack.data.values;
     var scale,
         vals = [],
+        indexes = [],
         binCount = this.numBins,
-        dim = this.dimension;
+        dim = this.dimension,
+        ticks = [];
     if (this.scaleTypes[0] == "ordinal") {
       var ordinalMap = {}, count = 0;
       for (var index in items) {
@@ -179,16 +183,22 @@ var extObject = {
         var value = values[index][dim];
         value = ordinalMap[value];
         vals.push(value);
+        indexes.push(index);
       }
       scale = d3.scale.linear()
         .domain([0, count - 1]);
       binCount = count;
+
+      //ticks = scale.ticks(binCount);
     } else if (this.scaleTypes[0] == "numerical"){
       for (var index in items) {
         var value = values[index][dim];
         vals.push(value);
+        indexes.push(index);
       }
       scale = this.dataScales[0].copy();
+
+      //ticks = scale.ticks(binCount);
     }
     scale.range(this.screenScales[0].range());
 
@@ -196,7 +206,7 @@ var extObject = {
 
     var histogram = d3.layout.histogram()
       .range(scale.domain())
-      .bins(binCount);
+      .bins(ticks.length == 0 ? binCount : ticks);
     var data = this.histogramData = histogram(vals);
 
     console.log(data);
@@ -360,8 +370,8 @@ var extObject = {
     var margins = this.plotMargins;
     var axis = d3.svg.axis()
       .orient(!d ? "bottom" : "left")
-      .tickValues(this.axisTicks[d])
-      .tickFormat(d3.format("s"));
+      .tickValues(this.axisTicks[d]);
+      //.tickFormat(d3.format("s"));
 
     if (this.scaleTypes[d] == "ordinal"){
       axis.scale(this.dataScales[d].copy()
