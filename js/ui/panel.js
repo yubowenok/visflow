@@ -50,6 +50,7 @@ var extObject = {
             case "layout":
               break;
             case "new":
+              core.dataflowManager.lastFilename = "myDataflow";
               core.dataflowManager.clearDataflow();
               break;
             case "save":

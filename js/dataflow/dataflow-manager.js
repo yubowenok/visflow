@@ -258,7 +258,7 @@ var extObject = {
 
     var manager = this;
     jqdialog
-      .css("line-height", "50px")
+      .css("padding", "20px")
       .dialog({
         title: "Save Dataflow",
         modal: true,
@@ -346,7 +346,7 @@ var extObject = {
       },
       success: function(data, textStatus, jqXHR) {
         var dialog = $("<div></div>")
-          .css("line-height", "50px");
+          .css("padding", "20px");
         var ok = data.status == "success";
         var successMsg = "Dataflow uploaded to the server (" + data.filename + ")",
             errorMsg = "Cannot save dataflow. Server sent error response.";
@@ -453,7 +453,7 @@ var extObject = {
       success: function(data, textStatus, jqXHR) {
         if (data.status != "success") {
           $("<div>No dataflow record has the given name.</div>")
-          .css("line-height", "50px")
+          .css("padding", "20px")
           .dialog({
             modal: true,
             title: "Load Error",

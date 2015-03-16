@@ -49,30 +49,31 @@ var extObject = {
 
     this.numBins = 10; // default number of bins
 
-    this.selectedBins = {};
+    this.selectedBars = {};
   },
 
   serialize: function() {
     var result = DataflowHistogram.base.serialize.call(this);
     result.dimension = this.dimension;
     result.lastDataId = this.lastDataId;
-    result.selectedBins = this.selectedBins;
+    result.selectedBars = this.selectedBars;
     return result;
   },
 
   deserialize: function(save) {
     DataflowHistogram.base.deserialize.call(this, save);
+    this.lastDataId = save.lastDataId;
 
     this.dimension = save.dimension;
-    this.lastDataId = save.lastDataId;
-    this.selectedBins = save.selectedBins;
     if (this.dimension == null) {
       console.error("dimension not saved for histogram");
       this.dimension = 0;
     }
-    if (this.selectedBins == null) {
+
+    this.selectedBars = save.selectedBars;
+    if (this.selectedBars == null) {
       console.error("selectedBins not saved for histogram");
-      this.selectedBins = {};
+      this.selectedBars = {};
     }
   },
 
@@ -90,15 +91,26 @@ var extObject = {
         endPos = [0, 0];
     var selectbox = {
       x1: 0,
-      x2: 0
+      x2: 0,
+      y1: 0,
+      y2: 0
     };
     var mouseupHandler = function(event) {
       if (mode == "selectbox") {
-        node.selectItemsInBox([selectbox.x1, selectbox.x2]);
 
-        if (node.selectbox) {
+        if (node.selectbox) { // if mouse not moved, then no selectbox
+          node.selectItemsInBox([
+            [selectbox.x1, selectbox.x2],
+            [0, node.svgSize[1]] // no constraint on y
+          ]);
           node.selectbox.remove();
           node.selectbox = null;
+        }
+        else {
+          node.selectItemsInBox([
+            [selectbox.x1, selectbox.x2],
+            [selectbox.y1, selectbox.y2]
+          ]);
         }
       }
       mode = "none";
@@ -114,6 +126,8 @@ var extObject = {
 
         if (event.which == 1) { // left click triggers selectbox
           mode = "selectbox";
+          selectbox.x1 = selectbox.x2 = startPos[0];
+          selectbox.y1 = selectbox.y2 = startPos[1];
         }
         if (core.interactionManager.visualizationBlocking)
           event.stopPropagation();
@@ -124,6 +138,8 @@ var extObject = {
           endPos = Utils.getOffset(event, $(this));
           selectbox.x1 = Math.min(startPos[0], endPos[0]);
           selectbox.x2 = Math.max(startPos[0], endPos[0]);
+          selectbox.y1 = Math.min(startPos[1], endPos[1]);
+          selectbox.y2 = Math.max(startPos[1], endPos[1]);
           node.showSelectbox(selectbox);
         }
         // we shall not block mousemove (otherwise dragging edge will be problematic)
@@ -145,17 +161,35 @@ var extObject = {
 
   selectItemsInBox: function(box) {
     if (!core.interactionManager.shifted) {
-      this.selected = {}; // reset selection if shift key is not down
+      this.selectedBars = {}; // reset selection if shift key is not down
+      this.selected = {};
     }
 
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         values = inpack.data.values;
-    // TODO check bins and get items
-    var bars = this.histogramData;
-    console.log(bars);
-    for (var i = 0; i < data.length; i++) {
 
+    // check bins and get items
+    var data = this.histogramData,
+        scaleX = this.histogramScale,
+        scaleY = this.dataScales[1].copy()
+          .range(this.screenScales[1].range());
+    for (var i = 0; i < data.length; i++) {
+      var xl = scaleX(data[i].x),
+          xr = scaleX(data[i].x + data[i].dx);
+      if (xr < box[0][0] || xl > box[0][1])
+        continue;
+      for (var j = 0; j < data[i].length; j++) {
+        var yl = scaleY(data[i][j].y + data[i][j].dy),  // y axis is reversed!
+            yr = scaleY(data[i][j].y);
+        if (yr < box[1][0] || yl > box[1][1])
+          continue;
+        // this bar is selected
+        this.selectedBars[i+ "," + j] = true;
+        for (var k in data[i][j].m) {
+          this.selected[data[i][j].m[k]] = true;  // add items to selection
+        }
+      }
     }
 
     this.showVisualization();
@@ -215,7 +249,10 @@ var extObject = {
     }
     scale.range(this.screenScales[0].range());
 
+    // histogramScale is a convolted scale on numerical fields
+    // ordinal data is mapped to integers
     this.histogramScale = scale;
+
     var histogram = d3.layout.histogram()
       .value(function(e) {
         return e[0]; // use value
@@ -291,7 +328,7 @@ var extObject = {
         newbin = {
           x: newbin.x,
           y: y,
-          y2: y + k - j,
+          dy: k - j,
           dx: newbin.dx,
           p: bin[j].properties, // p for properties
           m: members            // m for members
@@ -351,16 +388,16 @@ var extObject = {
     if (width < 0)  // happens when only 1 value in domain
       width = this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after;
 
-    var bars = bins.selectAll(".rect")
+    var bars = this.bars = bins.selectAll(".rect")
       .data(function(d){ return d; }) // use the array as data
       .enter().append("rect")
       .attr("x", 1) // 1 pixel gap
       .attr("y", function(d) {
-        return yScale(d.y2);
+        return yScale(d.y + d.dy);
       })
       .attr("width", width)
       .attr("height", function(d) {
-        return yScale(d.y) - yScale(d.y2);
+        return yScale(0) - yScale(d.dy);
       });
 
     for (var i = 0; i < bars.length; i++) {
@@ -369,8 +406,11 @@ var extObject = {
         var properties = _.extend(
           {},
           this.defaultProperties,
-          bars[i][j].__data__["p"]
+          bars[i][j].__data__.p
         );
+        if (this.selectedBars[i + "," + j]) {
+          _(properties).extend(this.selectedProperties);
+        }
         var u = d3.select(bars[i][j]);
         for (var key in properties) {
           if (this.isAttr[key] == true)
@@ -393,35 +433,7 @@ var extObject = {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
-
-    /*
-    for (var id in this.selectedBins) {
-      this.svg.select("#b" + id)
-        .attr("")
-    }
-    this.svg.selectAll(".df-histogram-bar")
-      .data(this.histogramData).enter().append("g")
-      .attr("class", "df-histogram-bar")
-      .attr("id", function(d, i) {
-        return "b" + i;
-      })
-      .attr("transform", function(d) {
-        return "translate(" + node.histogramScale(d.x) + ","
-          + (node.plotMargins[1].before + yScale(d.y)) + ")";
-      });
-
-    var width = this.histogramScale(this.histogramData[0].dx) - this.histogramScale(0) - 1;
-    if (width < 0)  // happens when only 1 value in domain
-      width = this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after;
-    bar.append("rect")
-      .attr("x", 1) // 1 pixel gap
-      .attr("width", width)
-      .attr("height", function(d) {
-        return height - yScale(d.y);
-      });
-
-    this.showSelection();
-    */
+    // nothing, histogram does not need move to front
   },
 
   showOptions: function() {
@@ -465,6 +477,11 @@ var extObject = {
       .select2()
       .change(function(event){
         node.numBins = parseInt(event.target.value);
+
+        // clear selection, bins have changed
+        node.selectedBars = {};
+        node.selected = {};
+
         node.showVisualization();
       });
 
