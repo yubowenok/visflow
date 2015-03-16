@@ -231,6 +231,11 @@ var extObject = {
           id: "i" + index
         }
       );
+
+      if (this.selected[index]) {
+        _(properties).extend(this.selectedProperties);
+      }
+
       var line = d3.svg.line()
         .x(function(e) {
           return e[0];
@@ -263,46 +268,10 @@ var extObject = {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
-
-    var inpack = this.ports["in"].pack,
-        items = inpack.items,
-        values = inpack.data.values,
-        node = this;
-
-    var points = [];
-    for (var d in this.dimensions) {
-      // use axisScale to map d-th axis to its X position
-      points[d] = [this.axisScale(d)];
-    }
-
+    // change position of tag to make them appear on top
     for (var index in this.selected) {
-      for (var d in this.dimensions) {
-        var value = values[index][node.dimensions[d]];
-        value = this.dataScales[d](value);
-        value = this.screenScales[d](value);
-        points[d][1] = value;
-      }
-
-      var properties = _.extend(
-        {},
-        this.defaultProperties,
-        items[index].properties,
-        this.selectedProperties,
-        {
-          id: "i" + index
-        }
-      );
-
-      var d3sel = this.svg.selectAll("#i" + index);
-      var jqu = $(d3sel[0])
-        .appendTo($(this.svgLines[0]));  // change position of tag to make them appear on top
-      var u = d3sel;
-      for (var key in properties) {
-        if (this.isAttr[key] == true)
-          u.attr(key, properties[key]);
-        else
-          u.style(key, properties[key]);
-      }
+      var jqu = this.jqsvg.find("#i" + index)
+        .appendTo($(this.svgLines[0]));
     }
   },
 

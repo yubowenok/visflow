@@ -210,6 +210,7 @@ var extObject = {
       this.svgPoints = this.svg.append("g");
     }
 
+    var ritems = []; // data to be rendered
     for (var index in items) {
       var c = [];
       [0, 1].map(function(d) {
@@ -229,12 +230,30 @@ var extObject = {
           cy: c[1]
         }
       );
-      var u;
-      if (useTransition) {
-        u = this.svgPoints.select("#i" + index).transition();
-      } else {
-        u = this.svgPoints.append("circle");
+      if (this.selected[index]) {
+        _(properties).extend(this.selectedProperties);
       }
+      ritems.push([properties, index]);
+    }
+
+    var points;
+    if (!useTransition) {
+      points = this.svgPoints.selectAll("circle").data(ritems, function(e) {
+        return e[0].id;
+      }).enter()
+        .append("circle")[0];
+    }
+    else {
+      points = this.svgPoints.selectAll("circle").data(ritems, function(e) {
+        return e[0].id;
+      })[0];
+    }
+
+    for (var i = 0; i < points.length; i++) {
+      var properties = points[i].__data__[0];
+      var u = d3.select(points[i]);
+      if (useTransition)
+        u = u.interrupt().transition();
       for (var key in properties) {
         if (this.isAttr[key] == true)
           u.attr(key, properties[key]);
@@ -243,7 +262,7 @@ var extObject = {
       }
     }
 
-    this.showSelection(useTransition);
+    this.showSelection();
 
     // axis appears on top
     [0, 1].map(function(d) {
@@ -252,50 +271,14 @@ var extObject = {
 
   },
 
-  showSelection: function(useTransition) {
+  showSelection: function() {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
-
-    var inpack = this.ports["in"].pack,
-        items = inpack.items,
-        values = inpack.data.values,
-        node = this;
-
+    // change position of tag to make them appear on top
     for (var index in this.selected) {
-      var c = [];
-      [0, 1].map(function(d) {
-        var value = values[index][node.dimensions[d]];
-        value = node.dataScales[d](value);
-        value = node.screenScales[d](value);
-        c[d] = value;
-      }, this);
-
-      var properties = _.extend(
-        {},
-        this.defaultProperties,
-        items[index].properties,
-        this.selectedProperties,
-        {
-          id: "i" + index,
-          cx: c[0],
-          cy: c[1]
-        }
-      );
-
-      var d3sel = this.svg.selectAll("#i" + index);
-      var jqu = $(d3sel[0])
-        .appendTo($(this.svgPoints[0]));  // change position of tag to make them appear on top
-      var u = d3sel;
-      if (useTransition) {
-        u = u.transition();
-      }
-      for (var key in properties) {
-        if (this.isAttr[key] == true)
-          u.attr(key, properties[key]);
-        else
-          u.style(key, properties[key]);
-      }
+      var jqu = this.jqsvg.find("#i" + index)
+        .appendTo($(this.svgPoints[0]));
     }
   },
 

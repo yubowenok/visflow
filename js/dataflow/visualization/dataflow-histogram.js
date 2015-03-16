@@ -282,8 +282,8 @@ var extObject = {
           y: y,
           y2: y + k - j,
           dx: newbin.dx,
-          properties: bin[j].properties,
-          members: members
+          0: bin[j].properties,
+          1: members
         };
         data[i].push(newbin);
         y += k - j; // the current accumulative bar height
@@ -358,7 +358,7 @@ var extObject = {
         var properties = _.extend(
           {},
           this.defaultProperties,
-          bars[i][j].__data__.properties
+          bars[i][j].__data__[0]
         );
         var u = d3.select(bars[i][j]);
         for (var key in properties) {
