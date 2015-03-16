@@ -29,7 +29,7 @@ var extObject = {
   },
 
   deserialize: function(save) {
-    DataflowValueMaker.base.deserialize.call(save);
+    DataflowValueMaker.base.deserialize.call(this, save);
     this.setValueString(save.valueString);
   },
 

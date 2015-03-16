@@ -97,7 +97,6 @@ var extObject = {
             [selectbox.x1, selectbox.x2],
             [selectbox.y1, selectbox.y2]
           ]);
-
         if (node.selectbox) {
           node.selectbox.remove();
           node.selectbox = null;
@@ -122,7 +121,6 @@ var extObject = {
           event.stopPropagation();
       })
       .mousemove(function(event) {
-
         if (mode == "selectbox") {
           endPos = Utils.getOffset(event, $(this));
           selectbox.x1 = Math.min(startPos[0], endPos[0]);
@@ -137,7 +135,7 @@ var extObject = {
       .mouseup(mouseupHandler)
       .mouseout(function(event) {
         if ($(this).parent().length == 0) {
-          console.error($(this));
+          return; // during svg update, the parent of mouseout event is unstable
         }
         // when mouse is over drawn objects, mouseout is also triggered!
         var pos = Utils.getOffset(event, $(this));

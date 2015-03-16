@@ -49,6 +49,28 @@ var extobject = {
     }
   },
 
+
+  // release function that will be called after
+  // a shift/ctrl terminating event (e.g. node drag)
+  // if not called, sometimes browser will fail to capture shift/ctrl release
+  // and the two keys are considered down forever
+  keyReleased: function(key) {
+    if (!(key instanceof Array)) {
+      key = [key];
+    }
+    key.map(function(key){
+      if (key == "shift") {
+        this.shifted = false;
+        this.jqdataflow.css("cursor", "");
+      }
+      else if (key == "ctrl") {
+        this.ctrled = false;
+        this.jqdataflow.css("cursor", "");
+        this.visualizationBlocking = true;
+      }
+    }, this);
+  },
+
   prepareInteraction: function() {
     this.trackMousemove();
 
@@ -83,19 +105,14 @@ var extobject = {
       } else if (event.keyCode == 17) {
         manager.ctrled = true;
         manager.jqdataflow.css("cursor", "move");
-
         manager.visualizationBlocking = false;
       }
     });
     $(document).keyup(function(event) {
       if (event.keyCode == 16) {
-        manager.shifted = false;
-        manager.jqdataflow.css("cursor", "");
+        manager.keyReleased("shift");
       } else if (event.keyCode == 17) {
-        manager.ctrled = false;
-        manager.jqdataflow.css("cursor", "");
-
-        manager.visualizationBlocking = true;
+        manager.keyReleased("ctrl");
       }
     });
 
@@ -207,6 +224,7 @@ var extobject = {
         core.dataflowManager.addNodeSelection(para.node);
       }
     }
+    this.keyReleased(["shift", "ctrl"]);
     this.mouseMode = "none";
   },
 

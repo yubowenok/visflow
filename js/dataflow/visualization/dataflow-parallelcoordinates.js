@@ -124,6 +124,9 @@ var extObject = {
       })
       .mouseup(mouseupHandler)
       .mouseout(function(event) {
+        if ($(this).parent().length == 0) {
+          return; // during svg update, the parent of mouseout event is unstable
+        }
         // when mouse is over drawn objects, mouseout is also triggered!
         var pos = Utils.getOffset(event, $(this));
         if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {

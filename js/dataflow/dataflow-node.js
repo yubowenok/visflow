@@ -23,6 +23,8 @@ var extObject = {
 
     // default not showing icon
     this.detailsOn = true;
+
+
   },
 
   serialize: function() {
@@ -66,12 +68,23 @@ var extObject = {
   },
 
   show: function() {
-
-    // this removes anything created (including those from inheriting classes)
+    // this removes everything created (including those from inheriting classes)
     // inheriting classes shall not remove again
     this.jqview.children()
       .not(".ui-resizable-handle")
       .remove();
+
+    this.prepareNodeInteraction();
+
+
+    this.prepareContextMenu();
+    this.showPorts();
+  },
+
+  prepareNodeInteraction: function() {
+    if (this.nodeInteractionOn) // prevent making interaction twice
+      return;
+    this.nodeInteractionOn = true;
 
     var node = this,
         jqview = this.jqview;
@@ -85,6 +98,11 @@ var extObject = {
         jqview.removeClass("dataflow-node-hover");
       })
       .mousedown(function(event, ui) {
+        if (event.which === 1) // left click
+          core.dataflowManager.activateNode(node.nodeId);
+        else if (event.which === 3)
+          $(".ui-contextmenu")
+            .css("z-index", 1000); // over other things
         core.interactionManager.mousedownHandler({
           type: "node",
           event: event,
@@ -135,18 +153,6 @@ var extObject = {
     this.jqview.find(".ui-icon-gripsmall-diagonal-se")
       .removeClass("ui-icon ui-icon-gripsmall-diagonal-se");
     this.jqview.resizable("disable");
-
-    var nodeId = this.nodeId;
-    this.jqview.mousedown(function(event){
-      if (event.which === 1) // left click
-        core.dataflowManager.activateNode(nodeId);
-      else if (event.which === 3)
-        $(".ui-contextmenu")
-          .css("z-index", 1000); // over other things
-    });
-
-    this.prepareContextMenu();
-    this.showPorts();
   },
 
   prepareContextMenu: function() {
