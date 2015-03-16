@@ -3,6 +3,9 @@
 
 var extObject = {
 
+  plotName: "ParallelCoordinates",
+  iconName: "parallelcoordinates",
+
   // use object to specify default rendering properties
   defaultProperties: {
     "stroke": "black",
@@ -22,8 +25,6 @@ var extObject = {
 
   initialize: function(para) {
     DataflowParallelCoordinates.base.initialize.call(this, para);
-
-    this.plotName = "ParallelCoordinates";
 
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
@@ -66,12 +67,6 @@ var extObject = {
       console.error("dimensions not saved for " + this.plotName);
       this.dimensions = [0, 0];
     }
-  },
-
-  showIcon: function() {
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-parallelcoordinates-icon")
-      .appendTo(this.jqview);
   },
 
   prepareInteraction: function() {

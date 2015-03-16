@@ -3,6 +3,9 @@
 
 var extObject = {
 
+  plotName: "Scatterplot",
+  iconName: "scatterplot",
+
   // use object to specify default rendering properties
   defaultProperties: {
     "fill": "#555",
@@ -27,8 +30,6 @@ var extObject = {
 
   initialize: function(para) {
     DataflowScatterplot.base.initialize.call(this, para);
-
-    this.plotName = "Scatterplot";
 
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
@@ -70,12 +71,6 @@ var extObject = {
       console.error("dimensions not saved for " + this.plotName);
       this.dimensions = [0, 0];
     }
-  },
-
-  showIcon: function() {
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-scatterplot-icon")
-      .appendTo(this.jqview);
   },
 
   prepareInteraction: function() {

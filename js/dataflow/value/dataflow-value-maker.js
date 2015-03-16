@@ -3,8 +3,10 @@
 
 var extObject = {
 
+  iconName: "value-maker",
+
   initialize: function(para) {
-    this.base.initialize.call(this, para);
+    DataflowValueMaker.base.initialize.call(this, para);
 
     this.viewHeight = 40; // height + padding
 
@@ -35,7 +37,7 @@ var extObject = {
 
   show: function() {
 
-    this.base.show.call(this); // call parent settings
+    DataflowValueMaker.base.show.call(this); // call parent settings
 
     this.jqview
       .removeClass("dataflow-node-shape")
@@ -52,11 +54,11 @@ var extObject = {
       .change(function(event) {
         node.setValueString(event.target.value);
       });
-    /*
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-value-maker-icon")
-      .appendTo(this.jqview);
-      */
+  },
+
+  prepareContextMenu: function() {
+    DataflowValueMaker.base.prepareContextMenu.call(this);
+    this.jqview.contextmenu("showEntry", "details", false);
   },
 
   setValueString: function(str) {

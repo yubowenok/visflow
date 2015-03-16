@@ -3,8 +3,10 @@
 
 var extObject = {
 
+  iconName: "value-extractor",
+
   initialize: function(para) {
-    this.base.initialize.call(this, para);
+    DataflowValueExtractor.base.initialize.call(this, para);
 
     this.viewHeight = 40; // height + padding
 
@@ -23,18 +25,16 @@ var extObject = {
 
   show: function() {
 
-    this.base.show.call(this); // call parent settings
+    DataflowValueExtractor.base.show.call(this); // call parent settings
 
     this.jqview
       .removeClass("dataflow-node-shape")
       .addClass("dataflow-node-shape-superflat");
+  },
 
-
-    /*
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-value-extractor-icon")
-      .appendTo(this.jqview);
-      */
+  prepareContextMenu: function() {
+    DataflowValueExtractor.base.prepareContextMenu.call(this);
+    this.jqview.contextmenu("showEntry", "details", false);
   }
 
 };

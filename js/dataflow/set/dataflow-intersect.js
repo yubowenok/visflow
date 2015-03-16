@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  iconName: "intersect",
+
   initialize: function(para) {
     DataflowIntersect.base.initialize.call(this, para);
 
@@ -17,12 +19,8 @@ var extObject = {
   },
 
   show: function() {
-
     DataflowIntersect.base.show.call(this); // call parent settings
-
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-intersect-icon")
-      .appendTo(this.jqview);
+    this.showIcon();
   },
 
   process: function() {

@@ -3,6 +3,9 @@
 
 var extObject = {
 
+  plotName: "Table",
+  iconName: "table",
+
   initialize: function(para) {
     DataflowVisualization.initialize.call(this, para);
 

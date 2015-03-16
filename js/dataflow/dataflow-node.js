@@ -23,8 +23,6 @@ var extObject = {
 
     // default not showing icon
     this.detailsOn = true;
-
-
   },
 
   serialize: function() {
@@ -76,9 +74,14 @@ var extObject = {
 
     this.prepareNodeInteraction();
 
-
     this.prepareContextMenu();
     this.showPorts();
+  },
+
+  showIcon: function() {
+    this.jqicon = $("<div></div>")
+      .addClass("dataflow-" + this.iconName + "-icon")
+      .appendTo(this.jqview);
   },
 
   prepareNodeInteraction: function() {

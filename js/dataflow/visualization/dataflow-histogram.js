@@ -3,6 +3,9 @@
 
 var extObject = {
 
+  plotName: "Histogram",
+  iconName: "histogram",
+
   // use object to specify default rendering properties
   defaultProperties: {
     "fill": "#AAA"
@@ -18,8 +21,6 @@ var extObject = {
 
   initialize: function(para) {
     DataflowHistogram.base.initialize.call(this, para);
-
-    this.plotName = "Histogram";
 
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
@@ -75,12 +76,6 @@ var extObject = {
       console.error("selectedBins not saved for histogram");
       this.selectedBars = {};
     }
-  },
-
-  showIcon: function() {
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-histogram-icon")
-      .appendTo(this.jqview);
   },
 
   prepareInteraction: function() {

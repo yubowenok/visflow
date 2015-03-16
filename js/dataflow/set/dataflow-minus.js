@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  iconName: "minus",
+
   initialize: function(para) {
     DataflowMinus.base.initialize.call(this, para);
 
@@ -17,12 +19,8 @@ var extObject = {
   },
 
   show: function() {
-
     DataflowMinus.base.show.call(this); // call parent settings
-
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-minus-icon")
-      .appendTo(this.jqview);
+    this.showIcon();
   },
 
   process: function() {

@@ -254,7 +254,6 @@ var extObject = {
   },
 
   // abstract: to implement in inheriting class
-  showIcon: function() {},
   showVisualization: function() {},
   showOptions: function() {},
   showSelection: function() {},

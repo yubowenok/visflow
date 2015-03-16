@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  iconName: "union",
+
   initialize: function(para) {
     DataflowUnion.base.initialize.call(this, para);
 
@@ -17,12 +19,8 @@ var extObject = {
   },
 
   show: function() {
-
     DataflowUnion.base.show.call(this); // call parent settings
-
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-union-icon")
-      .appendTo(this.jqview);
+    this.showIcon();
   },
 
   process: function() {
