@@ -165,6 +165,10 @@ var extObject = {
       this.selected = {};
     }
 
+    // scales range are [0, height], so we need to shift mouse coordinate
+    box[1][0] -= this.plotMargins[1].before;
+    box[1][1] -= this.plotMargins[1].before;
+
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         values = inpack.data.values;
