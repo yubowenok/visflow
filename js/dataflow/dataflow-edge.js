@@ -58,6 +58,19 @@ var extObject = {
     });
 
     this.update();
+
+    var jqview = this.jqview;
+    this.jqview
+      .mouseover(function(event) {
+        jqview.children(".dataflow-edge-segment")
+          .clone()
+          .appendTo(jqview)
+          .addClass("dataflow-edge-segment-hover");
+      })
+      .mouseout(function(event) {
+        jqview.children(".dataflow-edge-segment-hover")
+          .remove();
+      });
   },
 
   update: function() {
@@ -74,25 +87,32 @@ var extObject = {
     //var angle = Math.atan2(dy, dx);
     this.jqview.children().not(".dataflow-edge-arrow").remove();
 
+    var hseg = 3,
+        harrow = 9,
+        warrow = 25;
     var topOffset = {
-      up: 20,
-      down: -27
+      up: warrow,
+      down: -warrow - 5
     };
+    sx -= hseg / 2;
+    ex -= hseg / 2;
+    sy -= hseg / 2;
+    ey -= hseg / 2;
     var yDir = ey > sy ? "down" : "up";
     var yAngle = Math.atan2(ey - sy, 0);
     if (ex >= sx) {
-      var headWidth = Math.max(0, (ex - sx) / 2 - 25);
+      var headWidth = Math.max(0, (ex - sx) / 2 - warrow);
       var head = $("<div></div>")
         .appendTo(this.jqview)
         .addClass("dataflow-edge-segment")
         .css({
-          width: headWidth,
+          width: headWidth + hseg / 2,
           left: sx,
           top: sy
         });
 
       var tailWidth = ex - sx - headWidth;
-      if (tailWidth < 25 && Math.abs(ey - sy) >= 25) {
+      if (tailWidth < warrow && Math.abs(ey - sy) >= warrow) {
         // tail too short, and sufficient y space
         headWidth = ex - sx;
         // go right and then up
@@ -102,13 +122,13 @@ var extObject = {
           .appendTo(this.jqview)
           .addClass("dataflow-edge-segment")
           .css({
-            width: Math.abs(ey - sy),
+            width: Math.abs(ey - sy) + hseg / 2,
             left: sx + headWidth,
             top: sy,
             transform: "rotate(" + yAngle + "rad)"
           });
         this.jqarrow.css({
-          left: ex,
+          left: ex + hseg / 2,
           top: ey + topOffset[yDir],
           transform: "rotate(" + yAngle + "rad)"
         });
@@ -118,7 +138,7 @@ var extObject = {
           .appendTo(this.jqview)
           .addClass("dataflow-edge-segment")
           .css({
-            width: Math.abs(ey - sy),
+            width: Math.abs(ey - sy) + hseg / 2,
             left: sx + headWidth,
             top: sy,
             transform: "rotate(" + Math.atan2(ey - sy, 0) + "rad)"
@@ -127,13 +147,13 @@ var extObject = {
           .appendTo(this.jqview)
           .addClass("dataflow-edge-segment")
           .css({
-            width: ex - sx - headWidth,
+            width: ex - sx - headWidth + hseg / 2,
             left: sx + headWidth,
             top: ey
           });
         this.jqarrow.css({
-          left: ex - 24,
-          top: ey - 3,
+          left: ex - warrow,
+          top: ey + hseg / 2 - harrow / 2,
           transform: ""
         });
       }
@@ -166,7 +186,7 @@ var extObject = {
         .appendTo(this.jqview)
         .addClass("dataflow-edge-segment")
         .css({
-          width: headWidth,
+          width: headWidth + hseg / 2,
           left: sx,
           top: sy,
           transform: "rotate(" + Math.atan2(midy - sy, 0) + "rad)"
@@ -175,7 +195,7 @@ var extObject = {
         .appendTo(this.jqview)
         .addClass("dataflow-edge-segment")
         .css({
-          width: Math.abs(ex - sx),
+          width: Math.abs(ex - sx) + hseg / 2,
           left: sx,
           top: midy,
           transform: "rotate(" + Math.atan2(0, ex - sx) + "rad)"
@@ -185,13 +205,13 @@ var extObject = {
         .appendTo(this.jqview)
         .addClass("dataflow-edge-segment")
         .css({
-          width: tailWidth,
+          width: tailWidth + hseg / 2,
           left: ex,
           top: midy,
           transform: "rotate(" + Math.atan2(ey - midy, 0) + "rad)"
         });
       this.jqarrow.css({
-        left: ex,
+        left: ex + hseg / 2,
         top: ey + topOffset[ey > midy ? "down" : "up"],
         transform: "rotate(" + Math.atan2(ey - midy, 0) + "rad)"
       });

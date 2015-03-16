@@ -42,7 +42,9 @@ div {
 #dataflow-edges {
   z-index: -1;
 }
-#dataflow-edge-drawing {
+#dataflow-edge-drawing
+{
+  position: absolute;
   z-index: 1000; /* over other elements */
 }
 
@@ -61,15 +63,17 @@ div {
   height: 3px;
   transform-origin: 1.5px 50%;  /* half height to make rotated lines appear connected*/
 }
-.dataflow-edge:hover {
+.dataflow-edge-segment-hover {
   box-shadow: 0px 0px 0px 5px #e0cfc2;
+  background-color: #e0cfc2;
+  z-index: -1;
 }
 .dataflow-edge-arrow {
   position: absolute;
   width: 18px;
   height: 9px;
   background: url(../imgs/edge-arrow.png) no-repeat center;
-  transform-origin: 1.5px 50%;
+  transform-origin: 0px 50%;
 }
 
 .dataflow-node {
