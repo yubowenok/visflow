@@ -49,6 +49,7 @@ var extObject = {
   clearDataflowViews: function() {
     $(".dataflow-node").remove();
     $(".dataflow-edge").not("#dataflow-edge-drawing").remove();
+    $(".dataflow-edge-arrow").not("#dataflow-edge-arrow-drawing").remove();
     // after this, nodes and edges cannot reuse their jqview
   },
 

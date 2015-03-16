@@ -43,7 +43,7 @@ div {
   z-index: -1;
 }
 #dataflow-edge-drawing {
-   z-index: 1000; /* over other elements */
+  z-index: 1000; /* over other elements */
 }
 
 #dataflow-selectbox {
@@ -54,24 +54,22 @@ div {
   z-index: 1000;
 }
 
-.dataflow-edge {
+.dataflow-edge-segment {
   position: absolute;
   width: 100px;
   background-color: #777;
   height: 3px;
-  transform-origin: top left;
+  transform-origin: 1.5px 50%;  /* half height to make rotated lines appear connected*/
 }
 .dataflow-edge:hover {
   box-shadow: 0px 0px 0px 5px #e0cfc2;
 }
 .dataflow-edge-arrow {
-  float: right;
-  position: relative;
+  position: absolute;
   width: 18px;
   height: 9px;
-  top: -3px;
-  margin-right: 6px;
   background: url(../imgs/edge-arrow.png) no-repeat center;
+  transform-origin: 1.5px 50%;
 }
 
 .dataflow-node {

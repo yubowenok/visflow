@@ -58,8 +58,9 @@ svg {
 .df-histogram-selectbox,
 .df-scatterplot-selectbox {
   fill: #e0cfc2;
-  stroke: black;
-  opacity: 0.25;
+  stroke: #555;
+  stroke-width: 1px;
+  fill-opacity: 0.5;
   pointer-events: none;
 }
 .dataflow-table-view {
