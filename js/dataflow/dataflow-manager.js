@@ -42,8 +42,8 @@ var extObject = {
 
   createNode: function(type) {
     var newnode, dataflowClass;
+    var para = {};
     switch (type) {
-
     // data source
     case "datasrc":
     case "intersect":
@@ -75,10 +75,6 @@ var extObject = {
         dataflowClass = DataflowPropertyEditor;
       if (type === "property_mapping")
         dataflowClass = DataflowPropertyMapping;
-      newnode = dataflowClass.new({
-        nodeId: ++this.nodeCounter,
-        type: type
-      });
       break;
 
     // visualizations
@@ -94,25 +90,25 @@ var extObject = {
         dataflowClass = DataflowParallelCoordinates;
       if (type === "histogram")
         dataflowClass = DataflowHistogram;
-      newnode = dataflowClass.new({
-        nodeId: ++this.nodeCounter,
+      _(para).extend({
         visId: ++this.visCounter,
-        type: type
       });
       break;
     default:
       console.error("unhandled createNode type", type);
       return;
     }
-
+    _(para).extend({
+      nodeId: ++this.nodeCounter,
+      type: type
+    });
+    newnode = dataflowClass.new(para);
     var jqview = core.viewManager.createNodeView();
     newnode.setJqview(jqview);
     newnode.show();
     this.nodes[newnode.nodeId] = newnode;
     if (type == "datasrc" || type == "value_maker") {
       this.dataSources.push(newnode);
-      if (type == "datasrc")
-        newnode.dataId = ++this.dataCounter;
     }
     this.activateNode(newnode.nodeId);
     return newnode;
@@ -240,11 +236,11 @@ var extObject = {
     }
   },
 
-  registerData: function(dataId, data) {
-    if (dataId == null || data == null)
-      return console.error("attempt register null data / null dataId");
-    this.data[dataId] = data;
-    data.dataId = dataId;
+  registerData: function(data) {
+    if (data == null || data.type == "empty")
+      return console.error("attempt register null/empty data");
+    this.data[++this.dataCounter] = data;
+    data.dataId = this.dataCounter;
   },
 
   saveDataflow: function() {

@@ -56,6 +56,7 @@ var extObject = {
     var result = DataflowHistogram.base.serialize.call(this);
     result.dimension = this.dimension;
     result.lastDataId = this.lastDataId;
+    result.selectedBins = this.selectedBins;
     return result;
   },
 
@@ -64,9 +65,14 @@ var extObject = {
 
     this.dimension = save.dimension;
     this.lastDataId = save.lastDataId;
+    this.selectedBins = save.selectedBins;
     if (this.dimension == null) {
       console.error("dimension not saved for histogram");
       this.dimension = 0;
+    }
+    if (this.selectedBins == null) {
+      console.error("selectedBins not saved for histogram");
+      this.selectedBins = {};
     }
   },
 
@@ -597,6 +603,7 @@ var extObject = {
       // data has changed, by default load the first dimension
       this.dimension = 0;
       this.lastDataId = data.dataId;
+      console.log("changed");
     }
 
     outpack.copy(inpack);

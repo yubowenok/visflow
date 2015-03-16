@@ -120,7 +120,7 @@ var extObject = {
 
         var data = DataflowData.new(result);
 
-        core.dataflowManager.registerData(node.dataId, data);
+        core.dataflowManager.registerData(data);
 
         // overwrite data object (to keep the same reference)
         $.extend(node.ports["out"].pack, DataflowPackage.new(data));

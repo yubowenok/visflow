@@ -85,7 +85,7 @@ var extObject = {
         node = this.node;
     this.jqview
       .dblclick(function() {
-        console.log(port.pack, port.node.detailsOn); // for debug
+        console.log(port.pack, port.pack.data); // for debug
       })
       .draggable({
         helper : function() {
