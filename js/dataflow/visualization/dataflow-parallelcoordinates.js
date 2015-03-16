@@ -81,16 +81,27 @@ var extObject = {
         lastPos = [0, 0],
         endPos = [0, 0];
     var brush = [];
-    var getOffset = function(event, jqthis) {
-      var parentOffset = jqthis.parent().offset();
-      return [event.pageX - parentOffset.left, event.pageY - parentOffset.top];
+
+    var mouseupHandler = function(event) {
+      if (mode == "brush") {
+        node.selectItemsBrushed(brush);
+
+        if (node.brush) {
+          node.brush.remove();
+          node.brush = null;
+        }
+      }
+      mode = "none";
+      if (core.interactionManager.visualizationBlocking)
+        event.stopPropagation();
     };
+
     this.jqsvg
       .mousedown(function(event) {
         if (core.interactionManager.ctrled) // ctrl drag mode blocks
           return;
 
-        startPos = getOffset(event, $(this));
+        startPos = Utils.getOffset(event, $(this));
 
         if (event.which == 1) { // left click triggers brush
           mode = "brush";
@@ -100,9 +111,8 @@ var extObject = {
           event.stopPropagation();
       })
       .mousemove(function(event) {
-
         if (mode == "brush") {
-          endPos = getOffset(event, $(this));
+          endPos = Utils.getOffset(event, $(this));
           brush.push(endPos);
 
           node.showBrush(brush);
@@ -112,22 +122,14 @@ var extObject = {
         // we shall not block mousemove (otherwise dragging edge will be problematic)
         // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
       })
-      .mouseup(function(event) {
-        //var pos = getOffset(event, $(this));
-
-        if (mode == "brush") {
-          node.selectItemsBrushed(brush);
-
-          if (node.brush) {
-            node.brush.remove();
-            node.brush = null;
-          }
+      .mouseup(mouseupHandler)
+      .mouseout(function(event) {
+        // when mouse is over drawn objects, mouseout is also triggered!
+        var pos = Utils.getOffset(event, $(this));
+        if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {
+          // out of svg, then do the same as mouseup
+          mouseupHandler(event);
         }
-
-        mode = "none";
-
-        if (core.interactionManager.visualizationBlocking)
-          event.stopPropagation();
       });
   },
 
@@ -192,6 +194,7 @@ var extObject = {
         data = inpack.data,
         values = data.values;
 
+    this.checkDataEmpty();
     this.prepareSvg();
     this.prepareScales();
     this.interaction();
@@ -200,6 +203,8 @@ var extObject = {
       return;
 
     var node = this;
+
+    this.svgLines = this.svg.append("g");
 
     var points = [];
     for (var d in this.dimensions) {
@@ -232,7 +237,7 @@ var extObject = {
         })
         .interpolate("linear");
 
-      var u = this.svg.append("path")
+      var u = this.svgLines.append("path")
         .attr("id", "i" + index)
         .attr("d", line(points));
       for (var key in properties) {
@@ -287,7 +292,7 @@ var extObject = {
 
       var d3sel = this.svg.selectAll("#i" + index);
       var jqu = $(d3sel[0])
-        .appendTo(this.jqsvg);  // change position of tag to make them appear on top
+        .appendTo($(this.svgLines[0]));  // change position of tag to make them appear on top
       var u = d3sel;
       for (var key in properties) {
         if (this.isAttr[key] == true)

@@ -100,15 +100,7 @@ var extObject = {
     });
   },
 
-  prepareSvg: function() {
-    if (this.jqsvg)
-      this.jqsvg.remove();
-
-    this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
-    this.jqsvg = $(this.svg[0]);
-
-    this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
-
+  checkDataEmpty: function() {
     this.clearMessage();
     if (this.ports["in"].pack.isEmpty()) {
       // otherwise scales may be undefined
@@ -116,10 +108,21 @@ var extObject = {
       this.isEmpty = true;
       return;
     }
-
     this.isEmpty = false;
   },
 
+  prepareSvg: function(keepOld) {
+    if (this.jqsvg) {
+      if (keepOld == true) {
+        return;
+      }
+      this.jqsvg.remove();
+    }
+    this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
+    this.jqsvg = $(this.svg[0]);
+
+    this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
+  },
 
   show: function() {
     DataflowVisualization.base.show.call(this);

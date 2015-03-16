@@ -28,7 +28,6 @@ var extObject = {
       if ( typeof text !== "string")
         return console.error("non-string input sent to DataflowConstants");
 
-      var grade = 0;
       var eles = text.split(/[,;]+/);
       for (var i in eles)
         this.add(eles[i]);

@@ -86,7 +86,6 @@ var extobject = {
 
         manager.visualizationBlocking = false;
       }
-      return true;
     });
     $(document).keyup(function(event) {
       if (event.keyCode == 16) {
@@ -98,7 +97,6 @@ var extobject = {
 
         manager.visualizationBlocking = true;
       }
-      return true;
     });
 
     this.jqdataflow.contextmenu({

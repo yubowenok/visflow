@@ -5,15 +5,17 @@ var extObject = {
 
   // use object to specify default rendering properties
   defaultProperties: {
-    "fill": "black",
+    "fill": "#555",
     "stroke": "black",
     "stroke-width": "1px",
+    "fill-opacity": 0.75,
     "r" : 3
   },
   // show these properties when items are selected
   selectedProperties: {
     "fill": "#FF4400",
-    "stroke": "black"
+    "stroke": "black",
+    "fill-opacity": 1.0
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -88,6 +90,24 @@ var extObject = {
       y1: 0,
       y2: 0
     };
+
+    var mouseupHandler = function(event) {
+      if (mode == "selectbox") {
+        node.selectItemsInBox([
+            [selectbox.x1, selectbox.x2],
+            [selectbox.y1, selectbox.y2]
+          ]);
+
+        if (node.selectbox) {
+          node.selectbox.remove();
+          node.selectbox = null;
+        }
+      }
+      mode = "none";
+      if (core.interactionManager.visualizationBlocking)
+        event.stopPropagation();
+    };
+
     this.jqsvg
       .mousedown(function(event) {
         if (core.interactionManager.ctrled) // ctrl drag mode blocks
@@ -114,25 +134,14 @@ var extObject = {
         // we shall not block mousemove (otherwise dragging edge will be problematic)
         // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
       })
-      .mouseup(function(event) {
-        //var pos = getOffset(event, $(this));
-
-        if (mode == "selectbox") {
-          node.selectItemsInBox([
-              [selectbox.x1, selectbox.x2],
-              [selectbox.y1, selectbox.y2]
-            ]);
-
-          if (node.selectbox) {
-            node.selectbox.remove();
-            node.selectbox = null;
-          }
+      .mouseup(mouseupHandler)
+      .mouseout(function(event) {
+        // when mouse is over drawn objects, mouseout is also triggered!
+        var pos = Utils.getOffset(event, $(this));
+        if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {
+          // out of svg, then do the same as mouseup
+          mouseupHandler(event);
         }
-
-        mode = "none";
-
-        if (core.interactionManager.visualizationBlocking)
-          event.stopPropagation();
       });
   },
 
@@ -185,15 +194,20 @@ var extObject = {
         data = inpack.data,
         values = data.values;
 
-    if (!useTransition)
-      this.prepareSvg();
-    this.prepareScales();
+    this.checkDataEmpty();
+    this.prepareSvg(useTransition);
+
+    this.prepareScales();
     this.interaction();
 
     if (this.isEmpty)
       return;
 
     var node = this;
+
+    if (!useTransition) {
+      this.svgPoints = this.svg.append("g");
+    }
 
     for (var index in items) {
       var c = [];
@@ -216,9 +230,9 @@ var extObject = {
       );
       var u;
       if (useTransition) {
-        u = this.svg.select("#i" + index).transition();
+        u = this.svgPoints.select("#i" + index).transition();
       } else {
-        u = this.svg.append("circle");
+        u = this.svgPoints.append("circle");
       }
       for (var key in properties) {
         if (this.isAttr[key] == true)
@@ -270,7 +284,7 @@ var extObject = {
 
       var d3sel = this.svg.selectAll("#i" + index);
       var jqu = $(d3sel[0])
-        .appendTo(this.jqsvg);  // change position of tag to make them appear on top
+        .appendTo($(this.svgPoints[0]));  // change position of tag to make them appear on top
       var u = d3sel;
       if (useTransition) {
         u = u.transition();
@@ -429,7 +443,7 @@ var extObject = {
         outpack = this.ports["out"].pack;
 
     var data = inpack.data;
-    if (data.type == "empty") {
+    if (inpack.isEmpty()) {
       return;
     }
 

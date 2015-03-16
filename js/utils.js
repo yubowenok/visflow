@@ -9,6 +9,9 @@ var Utils = {
   // get event offset corresponding to parent element
   getOffset: function(event, jqthis) {
     var parentOffset = jqthis.parent().offset();
+    if (parentOffset == null) {
+      console.log("?");
+    }
     return [event.pageX - parentOffset.left, event.pageY - parentOffset.top];
   },
 

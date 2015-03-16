@@ -19,6 +19,8 @@ var extObject = {
   initialize: function(para) {
     DataflowHistogram.base.initialize.call(this, para);
 
+    this.plotName = "Histogram";
+
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
     ];
@@ -84,6 +86,19 @@ var extObject = {
       x1: 0,
       x2: 0
     };
+    var mouseupHandler = function(event) {
+      if (mode == "selectbox") {
+        node.selectItemsInBox([selectbox.x1, selectbox.x2]);
+
+        if (node.selectbox) {
+          node.selectbox.remove();
+          node.selectbox = null;
+        }
+      }
+      mode = "none";
+      if (core.interactionManager.visualizationBlocking)
+        event.stopPropagation();
+    };
     this.jqsvg
       .mousedown(function(event) {
         if (core.interactionManager.ctrled) // ctrl drag mode blocks
@@ -108,22 +123,17 @@ var extObject = {
         // we shall not block mousemove (otherwise dragging edge will be problematic)
         // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
       })
-      .mouseup(function(event) {
-        //var pos = getOffset(event, $(this));
-
-        if (mode == "selectbox") {
-          node.selectItemsInBox([selectbox.x1, selectbox.x2]);
-
-          if (node.selectbox) {
-            node.selectbox.remove();
-            node.selectbox = null;
-          }
+      .mouseup(mouseupHandler)
+      .mouseout(function(event) {
+        if (event.target.tagName != "svg")
+          return true;
+        console.log(event.target.tagName, $(this).parent());
+        // when mouse is over drawn objects, mouseout is also triggered!
+        var pos = Utils.getOffset(event, $(this));
+        if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {
+          // out of svg, then do the same as mouseup
+          mouseupHandler(event);
         }
-
-        mode = "none";
-
-        if (core.interactionManager.visualizationBlocking)
-          event.stopPropagation();
       });
   },
 
@@ -302,6 +312,7 @@ var extObject = {
         items = inpack.items,
         values = inpack.data.values;
 
+    this.checkDataEmpty();
     this.prepareSvg();
     this.prepareScales();
 
