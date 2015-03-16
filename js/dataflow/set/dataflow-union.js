@@ -38,12 +38,10 @@ var extObject = {
       var itema = packa.items[index];
       var itemb = packb.items[index];
       if (itemb != null) {
-        var e = {
-          properties: {}
-        };
         // merge rendering property in to a new one
-        _(e).extend(itema.properties, itemb.properties);
-        result[index] = e;
+        result[index] =  {
+          properties: _.extend({}, itema.properties, itemb.properties)
+        };
       }
     }
     // then for every element in B but not in A, add it to result

@@ -38,12 +38,10 @@ var extObject = {
       var itema = packa.items[index];
       var itemb = packb.items[index];
       if (itemb != null) {
-        var e = {
-          properties: {}
-        };
         // merge rendering property in to a new one
-        _(e).extend(itema.properties, itemb.properties);
-        result[index] = e;
+        result[index] =  {
+          properties: _.extend({}, itema.properties, itemb.properties)
+        };
       }
     }
     var outpack = this.ports["out"].pack;

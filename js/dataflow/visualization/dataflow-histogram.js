@@ -160,19 +160,19 @@ var extObject = {
       .attr("height", this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after);
   },
 
-  prepareHistogramScale: function() {
-    // arrange items into bins
-
+  prepareBins: function() {
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         values = inpack.data.values;
+
     var scale,
         vals = [],
-        indexes = [],
         binCount = this.numBins,
         dim = this.dimension,
         ticks = [];
+
     if (this.scaleTypes[0] == "ordinal") {
+      // remap every string to [0, count - 1]
       var ordinalMap = {}, count = 0;
       for (var index in items) {
         var value = values[index][dim];
@@ -182,34 +182,30 @@ var extObject = {
       for (var index in items) {
         var value = values[index][dim];
         value = ordinalMap[value];
-        vals.push(value);
-        indexes.push(index);
+        vals.push([value, index]);
       }
       scale = d3.scale.linear()
         .domain([0, count - 1]);
+      // ordinal data not using ticks
       binCount = count;
-
-      //ticks = scale.ticks(binCount);
-    } else if (this.scaleTypes[0] == "numerical"){
+    } else if (this.scaleTypes[0] == "numerical") {
       for (var index in items) {
         var value = values[index][dim];
-        vals.push(value);
-        indexes.push(index);
+        vals.push([value, index]);
       }
       scale = this.dataScales[0].copy();
-
-      //ticks = scale.ticks(binCount);
+      ticks = scale.ticks(binCount);
     }
     scale.range(this.screenScales[0].range());
 
     this.histogramScale = scale;
-
     var histogram = d3.layout.histogram()
+      .value(function(e) {
+        return e[0]; // use value
+      })
       .range(scale.domain())
       .bins(ticks.length == 0 ? binCount : ticks);
     var data = this.histogramData = histogram(vals);
-
-    console.log(data);
 
     if (this.scaleTypes[0] == "numerical") {
       var ticks = [];
@@ -217,15 +213,23 @@ var extObject = {
         var e = data[i];
         ticks.push(d3.round(e.x, 2));
       }
-      ticks.push(scale.domain()[1]);
+      ticks.push(this.histogramScale.domain()[1]);
       this.axisTicks[0] = ticks;
     } else {
       this.axisTicks[0] = _.allKeys(ordinalMap);
     }
+
+    console.log(this.histogramData);
+  },
+
+  prepareHistogramScale: function() {
+    // arrange items into bins
+    this.prepareBins();
+
     var height = this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after;
 
     this.dataScales[1] = d3.scale.linear()
-      .domain([0, d3.max(data, function(d) { return d.y; })])
+      .domain([0, d3.max(this.histogramData, function(d) { return d.y; })])
       .range([0, 1]);
     this.screenScales[1] = d3.scale.linear()
       .domain([0, 1])
