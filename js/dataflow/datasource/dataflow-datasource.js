@@ -30,6 +30,11 @@ var extObject = {
     }
   },
 
+  prepareContextMenu: function() {
+    DataflowSet.base.prepareContextMenu.call(this);
+    this.jqview.contextmenu("showEntry", "icon", false);
+  },
+
   show: function() {
     DataflowDataSource.base.show.call(this); // call parent settings
 

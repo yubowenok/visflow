@@ -49,8 +49,10 @@ var extObject = {
         data = pack.data,
         items = pack.items;
 
-    if (this.table)
+    if (this.table) {
       this.table.destroy(true);
+      this.interactionOn = false;
+    }
 
     this.jqvis.addClass("dataflow-table");
 
@@ -116,7 +118,7 @@ var extObject = {
     }
   },
 
-  interaction: function() {
+  prepareInteraction: function() {
     var node = this;
 
     this.jqtbody

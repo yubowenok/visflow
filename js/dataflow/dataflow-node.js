@@ -20,6 +20,9 @@ var extObject = {
     this.inPorts = [];
     this.outPorts = [];
     this.ports = {};
+
+    // default not showing icon
+    this.detailsOn = true;
   },
 
   serialize: function() {
@@ -30,13 +33,18 @@ var extObject = {
       css: {
         left: this.jqview.position().left,
         top: this.jqview.position().top
-      }
+      },
+      detailsOn: this.detailsOn
     };
     return result;
   },
 
   deserialize: function(save) {
-
+    this.detailsOn = save.detailsOn;
+    if (this.detailsOn == null) {
+      this.detailsOn = true;
+      console.error("detailsOn not saved");
+    }
   },
 
   // prepares all necessary data structures for references
@@ -143,25 +151,21 @@ var extObject = {
 
   prepareContextMenu: function() {
     var node = this;
+
     // right-click menu
     this.jqview.contextmenu({
       delegate: this.jqview,
       addClass: "ui-contextmenu",
       menu: [
+          {title: "Toggle Details", cmd: "details", uiIcon: "ui-icon-document"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"},
-          /*
-          {title: "----"},
-          {title: "More", children: [
-              {title: "Sub 1", cmd: "sub1"},
-              {title: "Sub 2", cmd: "sub1"}
-              ]}
-              */
           ],
       select: function(event, ui) {
-        if (ui.cmd === "delete") {
+        if (ui.cmd == "details") {
+          node.details = !node.details;
+        } else if (ui.cmd === "delete") {
           core.dataflowManager.deleteNode(node);
         }
-        //alert("select " + ui.cmd + " on " + ui.target.text());
       },
       beforeOpen: function(event, ui) {
         if (core.interactionManager.contextmenuLock)

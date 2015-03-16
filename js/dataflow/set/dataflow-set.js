@@ -14,6 +14,11 @@ var extObject = {
     this.jqview
       .removeClass("dataflow-node-shape")
       .addClass("dataflow-node-shape-flat");
+  },
+
+  prepareContextMenu: function() {
+    DataflowSet.base.prepareContextMenu.call(this);
+    this.jqview.contextmenu("showEntry", "icon", false);
   }
 
 };

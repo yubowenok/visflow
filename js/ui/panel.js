@@ -45,7 +45,7 @@ var extObject = {
             case "property_mapping":
               core.dataflowManager.createNode(type);
               break;
-            case "visOn":
+            case "vismode":
               break;
             case "layout":
               break;

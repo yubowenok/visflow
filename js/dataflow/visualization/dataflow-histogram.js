@@ -76,7 +76,7 @@ var extObject = {
       .appendTo(this.jqview);
   },
 
-  interaction: function() {
+  prepareInteraction: function() {
     var node = this,
         mode = "none";
     var startPos = [0, 0],
@@ -125,9 +125,8 @@ var extObject = {
       })
       .mouseup(mouseupHandler)
       .mouseout(function(event) {
-        if (event.target.tagName != "svg")
+        if (event.target.tagName != "svg" || $(this).parent().length == 0)
           return true;
-        console.log(event.target.tagName, $(this).parent());
         // when mouse is over drawn objects, mouseout is also triggered!
         var pos = Utils.getOffset(event, $(this));
         if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {

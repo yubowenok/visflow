@@ -74,7 +74,7 @@ var extObject = {
       .appendTo(this.jqview);
   },
 
-  interaction: function() {
+  prepareInteraction: function() {
     var node = this,
         mode = "none";
     var startPos = [0, 0],

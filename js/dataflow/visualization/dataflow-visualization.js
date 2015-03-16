@@ -5,7 +5,6 @@ var extObject = {
 
   initialize: function(para) {
     DataflowVisualization.base.initialize.call(this, para);
-    this.visOn = true;
     this.optionsOn = false;
     this.visWidth = null;
     this.visHeight = null;
@@ -22,7 +21,6 @@ var extObject = {
     var result = DataflowVisualization.base.serialize.call(this);
 
     // mode toggles
-    result.visOn = this.visOn;
     result.optionsOn = this.optionsOn;
     // option position
     result.optionsOffset = this.optionsOffset;
@@ -46,7 +44,6 @@ var extObject = {
     this.visHeight = save.visHeight;
     this.optionsOffset = save.optionsOffset;
 
-    this.visOn = save.visOn;
     this.optionsOn = save.optionsOn;
     this.viewWidth = save.viewWidth;
     this.viewHeight = save.viewHeight;
@@ -67,15 +64,15 @@ var extObject = {
       delegate: this.jqview,
       addClass: "ui-contextmenu",
       menu: [
-          {title: "Toggle Visualization", cmd: "vis", uiIcon: "ui-icon-image"},
+          {title: "Toggle Visualization", cmd: "details", uiIcon: "ui-icon-image"},
           {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
           {title: "Select All", cmd: "selall"},
           {title: "Clear Selection", cmd: "selclear"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"}
         ],
       select: function(event, ui) {
-        if (ui.cmd == "vis") {
-          node.visOn = !node.visOn;
+        if (ui.cmd == "details") {
+          node.detailsOn = !node.detailsOn;
           node.show();
           node.prepareContextMenu();
         } else if (ui.cmd == "options") {
@@ -106,17 +103,23 @@ var extObject = {
       // otherwise scales may be undefined
       this.showMessage("empty data in " + this.plotName);
       this.isEmpty = true;
+
+      if (this.svg) {
+        this.svg.remove();
+        this.interactionOn = false;
+      }
       return;
     }
     this.isEmpty = false;
   },
 
   prepareSvg: function(keepOld) {
-    if (this.jqsvg) {
+    if (this.svg) {
       if (keepOld == true) {
         return;
       }
-      this.jqsvg.remove();
+      this.svg.remove();
+      this.interactionOn = false;
     }
     this.svg = d3.selectAll(this.jqvis.toArray()).append("svg");
     this.jqsvg = $(this.svg[0]);
@@ -129,7 +132,7 @@ var extObject = {
 
     var node = this;
 
-    if (this.visOn === true) {
+    if (this.detailsOn) {
       this.jqvis = $("<div></div>")
       .addClass("dataflow-visualization")
       .appendTo(this.jqview);
@@ -216,6 +219,13 @@ var extObject = {
     core.dataflowManager.propagate(this);
   },
 
+  interaction: function() {
+    if (!this.interactionOn) {
+      this.prepareInteraction();
+      this.interactionOn = true;
+    }
+  },
+
   // display a text message at the center of the node
   showMessage: function(msg) {
     this.jqmsg = $("<div></div>")
@@ -233,7 +243,7 @@ var extObject = {
   // need to call parent classes
   resize: function(size) {
     DataflowVisualization.base.resize.call(this, size);
-    if (this.visOn) {
+    if (this.detailsOn) {
       this.visWidth = size.width;
       this.visHeight = size.height;
     }
@@ -244,7 +254,6 @@ var extObject = {
   },
 
   // abstract: to implement in inheriting class
-  interaction: function() {},
   showIcon: function() {},
   showVisualization: function() {},
   showOptions: function() {},
