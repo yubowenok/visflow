@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  iconName: "range",
+
   initialize: function(para) {
 
     DataflowRangeFilter.base.initialize.call(this, para);
@@ -51,9 +53,6 @@ var extObject = {
       .val(this.value1 ? this.value1 : this.nullValueString);
     this.jqvalue2 = this.jqview.find("#v2")
       .val(this.value2 ? this.value2 : this.nullValueString);
-
-    //this.jqicon
-      //.addClass("dataflow-range-icon");
   },
 
   process: function() {

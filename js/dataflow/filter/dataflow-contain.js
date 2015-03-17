@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  iconName: "contain",
+
   initialize: function(para) {
 
     DataflowContainFilter.base.initialize.call(this, para);
@@ -45,11 +47,31 @@ var extObject = {
 
     this.jqvalue = this.jqview.find("#v")
       .val(this.value ? this.value : this.nullValueString);
-    /*
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-contain-icon")
-      .appendTo(this.jqview);
-      */
+  },
+
+  showOptions: function() {
+    var div = $("<div></div>")
+      .addClass("dataflow-options-item")
+      .appendTo(this.jqoptions);
+    $("<label></label>")
+      .addClass("dataflow-options-text")
+      .text("Mode")
+      .appendTo(div);
+    this.modeSelect = $("<select>"
+      + "<option></option>"
+      + "<option></option>"
+      + "<option></option>"
+      + "</select>")
+      .addClass("dataflow-options-select")
+      .appendTo(div)
+      .select2()
+      .change(function(event){
+        node.dimensions[d] = event.target.value;
+        node.process();
+
+        // push filter mode change to downflow
+        core.dataflowManager.propagate(node);
+      });
   },
 
   process: function() {

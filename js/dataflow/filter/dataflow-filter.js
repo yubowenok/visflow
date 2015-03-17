@@ -27,17 +27,17 @@ var extObject = {
     this.dimension = save.dimension;
   },
 
+  prepareContextMenu: function() {
+    DataflowFilter.base.prepareContextMenu.call(this);
+    this.jqview.contextmenu("showEntry", "details", false);
+  },
+
   show: function() {
     DataflowFilter.base.show.call(this);
 
     this.jqview
       .removeClass("dataflow-node-shape")
       .addClass("dataflow-node-shape-longflat");
-
- /*
-    this.jqicon = $("<div></div>")
-      .appendTo(this.jqview);
-*/
 
     var node = this;
     this.dimensionList = $("<select><option/></select>")

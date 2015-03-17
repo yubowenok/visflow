@@ -12,19 +12,11 @@ var extObject = {
     // selection applies to all visualization
     this.selected = {};
 
-    this.optionsOffset = null;
-
     this.isEmpty = true;
   },
 
   serialize: function() {
     var result = DataflowVisualization.base.serialize.call(this);
-
-    // mode toggles
-    result.optionsOn = this.optionsOn;
-    // option position
-    result.optionsOffset = this.optionsOffset;
-
 
     // view sizes
     result.viewWidth = this.viewWidth;
@@ -166,30 +158,6 @@ var extObject = {
 
     // must be called AFTER viewWidth & viewHeight are set
     this.updatePorts();
-  },
-
-  // option handle, to implement options, write showOptions()
-  options: function() {
-    var node = this;
-    if (this.optionsOn == true) {
-      this.jqoptions = $("<div></div>")
-        .addClass("dataflow-options")
-        .addClass("ui-widget-content ui-widget")
-        .appendTo(this.jqview)
-        .draggable({
-          stop: function(event) {
-            var offset = $(event.target).position();  // relative position
-            node.optionsOffset = offset;
-          }
-        });
-      if (this.optionsOffset != null) {
-        this.jqoptions.css(this.optionsOffset);
-      }
-      this.showOptions();
-    } else {
-      if (this.jqoptions)
-        this.jqoptions.remove();
-    }
   },
 
   validateSelection: function() {

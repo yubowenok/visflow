@@ -33,6 +33,7 @@ var extObject = {
   prepareContextMenu: function() {
     DataflowSet.base.prepareContextMenu.call(this);
     this.jqview.contextmenu("showEntry", "details", false);
+    this.jqview.contextmenu("showEntry", "options", false);
   },
 
   show: function() {

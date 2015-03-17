@@ -23,6 +23,8 @@ var extObject = {
 
     // default not showing icon
     this.detailsOn = true;
+
+    this.optionsOffset = null;
   },
 
   serialize: function() {
@@ -34,8 +36,11 @@ var extObject = {
         left: this.jqview.position().left,
         top: this.jqview.position().top
       },
-      detailsOn: this.detailsOn
+      detailsOn: this.detailsOn,
+      optionsOn: this.optionsOn,
+      optionsOffset: this.optionsOffset
     };
+
     return result;
   },
 
@@ -82,6 +87,30 @@ var extObject = {
     this.jqicon = $("<div></div>")
       .addClass("dataflow-" + this.iconName + "-icon")
       .appendTo(this.jqview);
+  },
+
+  // option handle, to implement options, write showOptions()
+  options: function() {
+    var node = this;
+    if (this.optionsOn == true) {
+      this.jqoptions = $("<div></div>")
+        .addClass("dataflow-options")
+        .addClass("ui-widget-content ui-widget")
+        .appendTo(this.jqview)
+        .draggable({
+          stop: function(event) {
+            var offset = $(event.target).position();  // relative position
+            node.optionsOffset = offset;
+          }
+        });
+      if (this.optionsOffset != null) {
+        this.jqoptions.css(this.optionsOffset);
+      }
+      this.showOptions();
+    } else {
+      if (this.jqoptions)
+        this.jqoptions.remove();
+    }
   },
 
   prepareNodeInteraction: function() {
@@ -167,11 +196,15 @@ var extObject = {
       addClass: "ui-contextmenu",
       menu: [
           {title: "Toggle Details", cmd: "details", uiIcon: "ui-icon-document"},
+          {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"},
           ],
       select: function(event, ui) {
         if (ui.cmd == "details") {
           node.details = !node.details;
+        } else if (ui.cmd == "options") {
+          node.optionsOn = !node.optionsOn;
+          node.options();
         } else if (ui.cmd === "delete") {
           core.dataflowManager.deleteNode(node);
         }
@@ -286,7 +319,10 @@ var extObject = {
 
   resizestop: function(size) {
     this.resize(size);
-  }
+  },
+
+  // abstract
+  showOptions: function(){}
 };
 
 var DataflowNode = Base.extend(extObject);
