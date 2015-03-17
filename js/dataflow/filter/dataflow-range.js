@@ -82,6 +82,12 @@ var extObject = {
     this.jqvalue1.val(this.value1 ? this.value1 : this.nullValueString);
     this.jqvalue2.val(this.value2 ? this.value2 : this.nullValueString);
 
+    var inpack = this.ports["in"].pack;
+    if (inpack.data.dataId != this.lastDataId) {
+      this.lastDataId = inpack.data.dataId;
+      this.dimension = inpack.isEmpty() ? null : 0;
+    }
+
     // do the actual filtering
     this.filter();
   },
@@ -92,8 +98,6 @@ var extObject = {
     var items = inpack.items,
         data = inpack.data,
         dim = parseInt(this.dimension);
-
-    //console.log("filter", dim, data.dimensions[dim]);
 
     var result = [];
     for (var index in items) {

@@ -13,6 +13,8 @@ var extObject = {
     this.selected = {};
 
     this.isEmpty = true;
+
+    this.lastDataId = 0;  // default: empty data
   },
 
   serialize: function() {
@@ -26,6 +28,9 @@ var extObject = {
 
     // selection
     result.selected = this.selected;
+
+    // last data
+    result.lastDataId = this.lastDataId;
 
     return result;
   },
@@ -41,6 +46,12 @@ var extObject = {
     if (this.selected instanceof Array || this.selected == null) {
       console.error("incorrect selection saved: array/null");
       this.selected = {};
+    }
+
+    this.lastDataId = save.lastDataId;
+    if (this.lastDataId == null) {
+      console.error("lastDataId not saved in visualization");
+      this.lastDataId = 0;
     }
   },
 

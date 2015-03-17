@@ -21,7 +21,7 @@ var extObject = {
 
   show: function() {
 
-    this.base.show.call(this); // call parent settings
+    DataflowPropertyEditor.base.show.call(this); // call parent settings
 
     this.jqicon = $("<div></div>")
       .addClass("dataflow-property-editor-icon")

@@ -47,14 +47,11 @@ var extObject = {
     this.axisScale = null;
     // leave some space for axes
     this.plotMargins = [ { before: 30, after: 30 }, { before: 20, after: 20 } ];
-
-    this.lastDataId = 0;  // default: empty data
   },
 
   serialize: function() {
     var result = DataflowParallelCoordinates.base.serialize.call(this);
     result.dimensions = this.dimensions;
-    result.lastDataId = this.lastDataId;
     return result;
   },
 
@@ -62,7 +59,6 @@ var extObject = {
     DataflowParallelCoordinates.base.deserialize.call(this, save);
 
     this.dimensions = save.dimensions;
-    this.lastDataId = save.lastDataId;
     if (this.dimensions == null) {
       console.error("dimensions not saved for " + this.plotName);
       this.dimensions = [0, 0];

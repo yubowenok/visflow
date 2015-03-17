@@ -113,9 +113,7 @@ var extObject = {
   },
 
   process: function() {
-
     var pack = this.ports["inv"].pack;
-
     if (pack.type !== "constants")
       return console.error("data connected to constants ports");
 

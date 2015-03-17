@@ -46,8 +46,6 @@ var extObject = {
     // leave some space for axes
     this.plotMargins = [ { before: 30, after: 20 }, { before: 20, after: 40 } ];
 
-    this.lastDataId = 0;  // default: empty data
-
     this.numBins = 10; // default number of bins
 
     this.selectedBars = {};
@@ -56,15 +54,12 @@ var extObject = {
   serialize: function() {
     var result = DataflowHistogram.base.serialize.call(this);
     result.dimension = this.dimension;
-    result.lastDataId = this.lastDataId;
     result.selectedBars = this.selectedBars;
     return result;
   },
 
   deserialize: function(save) {
     DataflowHistogram.base.deserialize.call(this, save);
-    this.lastDataId = save.lastDataId;
-
     this.dimension = save.dimension;
     if (this.dimension == null) {
       console.error("dimension not saved for histogram");

@@ -14,6 +14,8 @@ var extObject = {
 
     this.viewHeight = 90; // height + padding
     this.dimension = null;
+
+    this.lastDataId = 0;  // default empty data
   },
 
   serialize: function() {
@@ -40,7 +42,7 @@ var extObject = {
       .addClass("dataflow-node-shape-longflat");
 
     var node = this;
-    this.dimensionList = $("<select><option/></select>")
+    this.selectDimension = $("<select><option/></select>")
       .addClass("dataflow-node-select")
       .appendTo(this.jqview)
       .select2({
@@ -56,14 +58,14 @@ var extObject = {
     this.prepareDimensionList();
 
     // show current selection, must call after prepareDimensionList
-    this.dimensionList.select2("val", this.dimension);
+    this.selectDimension.select2("val", this.dimension);
   },
 
   prepareDimensionList: function() {
     var dims = this.ports["in"].pack.data.dimensions;
     for (var i in dims) {
       $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.dimensionList);
+        .appendTo(this.selectDimension);
     }
   },
 
