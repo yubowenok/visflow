@@ -117,6 +117,15 @@ var extObject = {
     if (pack.type !== "constants")
       return console.error("data connected to constants ports");
 
+    var inpack = this.ports["in"].pack;
+    if (inpack.isEmpty())
+      return;
+
+    if (this.lastDataId != inpack.data.dataId) {
+      this.dimension = 0;
+      this.lastDataId = inpack.data.dataId;
+    }
+
     this.value = pack.getAll();
 
     this.jqvalue.val(this.value ? pack.stringify() : this.nullValueString);

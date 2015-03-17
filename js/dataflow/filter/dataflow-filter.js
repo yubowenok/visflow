@@ -22,12 +22,14 @@ var extObject = {
   serialize: function() {
     var result = DataflowFilter.base.serialize.call(this);
     result.dimension = this.dimension;
+    result.lastDataId = this.lastDataId;
     return result;
   },
 
   deserialize: function(save) {
     DataflowFilter.base.deserialize.call(this, save);
     this.dimension = save.dimension;
+    this.lastDataId = save.lastDataId;
   },
 
   prepareContextMenu: function() {

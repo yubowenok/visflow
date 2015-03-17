@@ -63,6 +63,14 @@ var extObject = {
     if (pack1.type !== "constants" || pack2.type !== "constants")
       return console.error("data connected to constants ports");
 
+    var inpack = this.ports["in"].pack;
+    if (inpack.isEmpty())
+      return;
+    if (this.lastDataId != inpack.data.dataId) {
+      this.dimension = 0;
+      this.lastDataId = inpack.data.dataId;
+    }
+
     // TODO promote constant type?
     if (pack1.constantType !== "empty" && pack2.constantType !== "empty" &&
         pack1.constantType !== pack2.constantType)
