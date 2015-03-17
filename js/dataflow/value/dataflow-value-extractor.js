@@ -4,6 +4,7 @@
 var extObject = {
 
   iconName: "value-extractor",
+  nodeShapeName: "ve",  // abbr. value extractor
 
   initialize: function(para) {
     DataflowValueExtractor.base.initialize.call(this, para);
@@ -44,12 +45,19 @@ var extObject = {
 
     this.jqview
       .removeClass("dataflow-node-shape")
-      .addClass("dataflow-node-shape-superflat");
+      .addClass("dataflow-node-shape-" + this.nodeShapeName);
 
     var node = this;
+    var div = $("<div></div>")
+        .addClass("dataflow-options-item")
+        .appendTo(this.jqview);
+      $("<label></label>")
+        .addClass("dataflow-options-text")
+        .text("Extract values from")
+        .appendTo(div);
     this.selectDimension = $("<select><option/></select>")
       .addClass("dataflow-node-select")
-      .appendTo(this.jqview)
+      .appendTo(div)
       .select2({
         placeholder: "Select"
       })

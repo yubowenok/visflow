@@ -165,9 +165,6 @@ var extObject = {
     }
   },
 
-  updateVisualization: function() {
-  },
-
   process: function() {
     var outpack = this.ports["out"].pack,
         inpack = this.ports["in"].pack;

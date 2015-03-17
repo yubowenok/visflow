@@ -468,7 +468,7 @@ var extObject = {
 
   selectAll: function() {
     DataflowParallelCoordinates.base.selectAll.call(this);
-    this.showSelection();
+    this.showVisualization();
   },
 
   clearSelection: function() {

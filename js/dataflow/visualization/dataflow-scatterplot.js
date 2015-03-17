@@ -444,7 +444,7 @@ var extObject = {
 
   selectAll: function() {
     DataflowScatterplot.base.selectAll.call(this);
-    this.showSelection();
+    this.showVisualization();
   },
 
   clearSelection: function() {

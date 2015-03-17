@@ -622,7 +622,7 @@ var extObject = {
 
   selectAll: function() {
     DataflowHistogram.base.selectAll.call(this);
-    this.showSelection();
+    this.showVisualization();
   },
 
   clearSelection: function() {
