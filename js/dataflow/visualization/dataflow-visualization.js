@@ -34,14 +34,10 @@ var extObject = {
     DataflowVisualization.base.deserialize.call(this, save);
     this.visWidth = save.visWidth;
     this.visHeight = save.visHeight;
-    this.optionsOffset = save.optionsOffset;
-
-    this.optionsOn = save.optionsOn;
     this.viewWidth = save.viewWidth;
     this.viewHeight = save.viewHeight;
+
     this.selected = save.selected;
-
-
     if (this.selected instanceof Array || this.selected == null) {
       console.error("incorrect selection saved: array/null");
       this.selected = {};

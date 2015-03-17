@@ -50,6 +50,8 @@ var extObject = {
       this.detailsOn = true;
       console.error("detailsOn not saved");
     }
+    this.optionsOffset = save.optionsOffset;
+    this.optionsOn = save.optionsOn;
   },
 
   // prepares all necessary data structures for references
@@ -78,9 +80,10 @@ var extObject = {
       .remove();
 
     this.prepareNodeInteraction();
-
     this.prepareContextMenu();
+
     this.showPorts();
+    this.options();
   },
 
   showIcon: function() {
@@ -93,6 +96,9 @@ var extObject = {
   options: function() {
     var node = this;
     if (this.optionsOn == true) {
+      if (this.jqoptions) { // already shown, clear
+        this.jqoptions.remove();
+      }
       this.jqoptions = $("<div></div>")
         .addClass("dataflow-options")
         .addClass("ui-widget-content ui-widget")
@@ -108,8 +114,10 @@ var extObject = {
       }
       this.showOptions();
     } else {
-      if (this.jqoptions)
+      if (this.jqoptions) {
         this.jqoptions.remove();
+        this.jqoptions = null;
+      }
     }
   },
 

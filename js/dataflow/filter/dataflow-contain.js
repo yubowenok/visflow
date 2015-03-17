@@ -18,17 +18,31 @@ var extObject = {
     ];
 
     this.value = null;
+    this.inputMode = "text";
+    this.matchMode = "exact";
 
     this.prepare();
   },
 
   serialize: function() {
     var result = DataflowContainFilter.base.serialize.call(this);
+    result.inputMode = this.inputMode;
+    result.matchMode = this.matchMode;
     return result;
   },
 
   deserialize: function(save) {
     DataflowContainFilter.base.deserialize.call(this, save);
+    this.inputMode = save.inputMode;
+    this.matchMode = save.matchMode;
+    if (this.inputMode == null) {
+      console.error("contain filter inputMode not saved");
+      this.inputMode = "text";
+    }
+    if (this.matchMode == null) {
+      console.error("contain filter matchMode not saved");
+      this.matchMode = "exact";
+    }
   },
 
   show: function() {
@@ -50,28 +64,52 @@ var extObject = {
   },
 
   showOptions: function() {
+    var node = this;
     var div = $("<div></div>")
       .addClass("dataflow-options-item")
       .appendTo(this.jqoptions);
     $("<label></label>")
       .addClass("dataflow-options-text")
-      .text("Mode")
+      .text("Input Mode")
       .appendTo(div);
-    this.modeSelect = $("<select>"
-      + "<option></option>"
-      + "<option></option>"
-      + "<option></option>"
+    this.inputModeSelect = $("<select>"
+      + "<option value='text'>Text</option>"
+      + "<option value='regex'>Regular Expression</option>"
       + "</select>")
       .addClass("dataflow-options-select")
       .appendTo(div)
       .select2()
       .change(function(event){
-        node.dimensions[d] = event.target.value;
+        node.inputMode = event.target.value;
         node.process();
 
         // push filter mode change to downflow
         core.dataflowManager.propagate(node);
       });
+    this.inputModeSelect.select2("val", this.inputMode);
+
+    var div2 = $("<div></div>")
+      .addClass("dataflow-options-item")
+      .appendTo(this.jqoptions);
+    $("<label></label>")
+      .addClass("dataflow-options-text")
+      .text("Match Mode")
+      .appendTo(div);
+    this.matchModeSelect = $("<select>"
+      + "<option value='exact'>Exact</option>"
+      + "<option value='substring'>Substring</option>"
+      + "</select>")
+      .addClass("dataflow-options-select")
+      .appendTo(div)
+      .select2()
+      .change(function(event){
+        node.matchMode = event.target.value;
+        node.process();
+
+        // push filter mode change to downflow
+        core.dataflowManager.propagate(node);
+      });
+    this.matchModeSelect.select2("val", this.matchMode);
   },
 
   process: function() {
@@ -83,8 +121,6 @@ var extObject = {
 
     this.value = pack.getAll();
 
-    //console.log(this.value);
-
     this.jqvalue.val(this.value ? pack.stringify() : this.nullValueString);
 
     // do the actual filtering
@@ -93,26 +129,33 @@ var extObject = {
 
   filter: function() {
     // slow implementation: linear scan
-    var inpack = this.ports["in"].pack;
+    var inpack = this.ports["in"].pack,
+        outpack = this.ports["out"].pack;
     var items = inpack.items,
         data = inpack.data,
         dim = parseInt(this.dimension);
 
-    //console.log("filter", dim, data.dimensions[dim]);
-
-    var values = {};
-    for (var i in this.value) {
-      values[this.value[i]] = true;
-    }
     var result = [];
     for (var index in items) {
-      var value = data.values[index][dim],
-          ok = 1;
-      if (values[value] != null) {
-        result.push(index);
+      var value = "" + data.values[index][dim],
+          ok = 0;
+      for (var j in this.value) {
+        var pattern = this.value[j];
+
+        if (this.inputMode == "regex")
+          pattern = RegExp(pattern);
+
+        var m = value.match(pattern);
+        if (m != null) {
+
+          if (this.matchMode == "exact" && m[0] === value ||
+              this.matchMode == "substring") {
+             result.push(index);
+             break;
+           }
+        }
       }
     }
-    var outpack = this.ports["out"].pack;
     outpack.copy(inpack);
     outpack.filter(result);
   }
