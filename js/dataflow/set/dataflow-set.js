@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  nodeShapeName: "flat",
+
   initialize: function(para) {
     DataflowSet.base.initialize.call(this, para);
 
@@ -11,9 +13,6 @@ var extObject = {
 
   show: function() {
     DataflowSet.base.show.call(this);
-    this.jqview
-      .removeClass("dataflow-node-shape")
-      .addClass("dataflow-node-shape-flat");
   },
 
   prepareContextMenu: function() {

@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  nodeShapeName: "vis",
+
   initialize: function(para) {
     DataflowVisualization.base.initialize.call(this, para);
     this.optionsOn = false;
@@ -137,27 +139,23 @@ var extObject = {
       .appendTo(this.jqview);
 
       this.jqview
-        .removeClass("dataflow-node-shape")
-        .addClass("dataflow-node-shape-vis")
         .css("width", this.visWidth)
         .css("height", this.visHeight)
         .resizable("enable");
       this.viewWidth = this.jqview.width();
       this.viewHeight = this.jqview.height();
 
+      // show selection shall be in show visualization
+      // so does interaction()
       this.showVisualization();
-      this.showSelection();
-      this.interaction();
-      this.options();
     } else {
       if (this.jqvis)
         this.jqvis.remove();
       this.jqview
         .css("width", "")
         .css("height", "")
-        .removeClass("dataflow-node-shape-vis")
-        .addClass("dataflow-node-shape")
         .resizable("disable");
+
       this.viewWidth = this.jqview.width();
       this.viewHeight = this.jqview.height();
       this.showIcon();

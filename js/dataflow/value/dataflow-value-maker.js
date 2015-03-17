@@ -4,6 +4,7 @@
 var extObject = {
 
   iconName: "value-maker",
+  nodeShapeName: "superflat",
 
   initialize: function(para) {
     DataflowValueMaker.base.initialize.call(this, para);
@@ -38,10 +39,6 @@ var extObject = {
   show: function() {
 
     DataflowValueMaker.base.show.call(this); // call parent settings
-
-    this.jqview
-      .removeClass("dataflow-node-shape")
-      .addClass("dataflow-node-shape-superflat");
 
     $("<div><input id='v' style='width:80%'/></div>")
       .prependTo(this.jqview);

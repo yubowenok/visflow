@@ -7,7 +7,8 @@
 
 var extObject = {
 
-  nullValueString: "{N/A}",
+  nullValueString: "-",
+  nodeShapeName: "longflat",
 
   initialize: function(para) {
     DataflowFilter.base.initialize.call(this, para);
@@ -36,10 +37,6 @@ var extObject = {
 
   show: function() {
     DataflowFilter.base.show.call(this);
-
-    this.jqview
-      .removeClass("dataflow-node-shape")
-      .addClass("dataflow-node-shape-longflat");
 
     var node = this;
     this.selectDimension = $("<select><option/></select>")

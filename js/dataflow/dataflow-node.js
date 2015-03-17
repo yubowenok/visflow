@@ -3,6 +3,8 @@
 
 var extObject = {
 
+  nodeShapeName: "none",
+
   initialize: function(para) {
     if (para == null)
       return console.error("null para passed to DataflowNode.initialize");
@@ -79,8 +81,24 @@ var extObject = {
       .not(".ui-resizable-handle")
       .remove();
 
-    this.prepareNodeInteraction();
-    this.prepareContextMenu();
+    if (this.detailsOn) {
+      this.jqview
+        .addClass("dataflow-node dataflow-node-shape ui-widget-content ui-widget");
+
+      if (this.nodeShapeName != "none") {
+        this.jqview
+          .removeClass("dataflow-node-shape")
+          .addClass("dataflow-node-shape-" + this.nodeShapeName);
+      }
+
+      this.prepareNodeInteraction();
+      this.prepareContextMenu();
+    } else {
+      this.jqview
+        .removeClass("dataflow-node-shape-" + this.nodeShapeName)
+        .addClass("dataflow-node-shape");
+      this.showIcon();
+    }
 
     this.showPorts();
     this.options();
@@ -130,7 +148,6 @@ var extObject = {
         jqview = this.jqview;
 
     this.jqview
-      .addClass("dataflow-node dataflow-node-shape ui-widget-content ui-widget")
       .mouseover(function() {
         jqview.addClass("dataflow-node-hover");
       })

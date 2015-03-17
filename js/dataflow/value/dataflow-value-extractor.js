@@ -4,7 +4,7 @@
 var extObject = {
 
   iconName: "value-extractor",
-  nodeShapeName: "ve",  // abbr. value extractor
+  nodeShapeName: "value-extractor", // special shape for itself
 
   initialize: function(para) {
     DataflowValueExtractor.base.initialize.call(this, para);
@@ -31,21 +31,19 @@ var extObject = {
   serialize: function() {
     var result = DataflowValueExtractor.base.serialize.call(this);
     result.dimension = this.dimension;
+    result.lastDataId = this.lastDataId;
     return result;
   },
 
   deserialize: function(save) {
     DataflowValueExtractor.base.deserialize.call(this, save);
     this.dimension = save.dimension;
+    this.lastDataId = save.lastDataId;
   },
 
   show: function() {
 
     DataflowValueExtractor.base.show.call(this); // call parent settings
-
-    this.jqview
-      .removeClass("dataflow-node-shape")
-      .addClass("dataflow-node-shape-" + this.nodeShapeName);
 
     var node = this;
     var div = $("<div></div>")
@@ -78,6 +76,9 @@ var extObject = {
     var inpack = this.ports["in"].pack;
     if (inpack.type === "constants")
       return console.error("constants in connected to value extractor");
+
+    if (inpack.isEmpty())
+      return;
 
     if (inpack.data.dataId != this.lastDataId) {
       this.lastDataId = inpack.data.dataId;

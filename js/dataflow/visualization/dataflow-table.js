@@ -35,7 +35,7 @@ var extObject = {
     DataflowTable.base.prepareContextMenu.call(this);
 
     this.jqview
-      .contextmenu("setEntry", "cut", {title: "Cuty", uiIcon: "ui-icon-heart", disabled: true});
+      .contextmenu("showEntry", "options", false);
   },
 
   showIcon: function() {

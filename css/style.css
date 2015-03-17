@@ -132,6 +132,11 @@ div {
   border-radius: 10px;
   padding: 3px;
 }
+.dataflow-node-shape-value-extractor {
+  width: 150px;
+  height: 60px;
+  line-height: 10px;
+}
 
 
 
