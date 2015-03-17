@@ -40,6 +40,8 @@ var extObject = {
         result[index] =  {
           properties: _.extend({}, itema.properties, itemb.properties)
         };
+      } else {
+        result[index] = itema;
       }
     }
     // then for every element in B but not in A, add it to result

@@ -180,8 +180,10 @@ var extObject = {
     visited[sourceNode.nodeId] = true;
     // traverse graph to find cycle
     var traverse = function(node) {
-      if (visited[node.nodeId])
+      if (node.nodeId == sourceNode.nodeId)
         return true;
+      if (visited[node.nodeId])
+        return false;
       visited[node.nodeId] = true;
       for (var i in node.outPorts) {
         var port = node.outPorts[i];

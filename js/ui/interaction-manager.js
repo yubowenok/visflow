@@ -116,6 +116,10 @@ var extobject = {
       }
     });
 
+    $(document).mousewheel(function(event) {
+      // TODO : zoom in view ?
+    });
+
     this.jqdataflow.contextmenu({
       addClass: "ui-contextmenu",
       menu: [
@@ -224,7 +228,12 @@ var extobject = {
         core.dataflowManager.addNodeSelection(para.node);
       }
     }
+
+    // forcefully end all interactions
+    // to prevent inconsistent interaction states resulting from an uncaptured event
     this.keyReleased(["shift", "ctrl"]);
+    core.viewManager.clearEdgeHover();
+
     this.mouseMode = "none";
   },
 

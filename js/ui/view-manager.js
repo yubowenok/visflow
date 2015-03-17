@@ -52,6 +52,11 @@ var extObject = {
     // after this, nodes and edges cannot reuse their jqview
   },
 
+  clearEdgeHover: function() {
+    $("#dataflow").find(".dataflow-edge-clone")
+      .remove();
+  },
+
   bringFrontView: function(jqview) {
     jqview
       .css("z-index", ++this.topZindex);

@@ -62,14 +62,26 @@ var extObject = {
     var jqview = this.jqview;
     this.jqview
       .mouseover(function(event) {
-        jqview.children(".dataflow-edge-segment")
+        // make a shadow
+        jqview.children(".dataflow-edge-segment").clone()
+          .appendTo("#dataflow")
+          .addClass("dataflow-edge-segment-hover dataflow-edge-clone");
+        jqview.children().clone()
+          .appendTo("#dataflow")
+          .addClass("dataflow-edge-clone");
+        edge.sourcePort.jqview
           .clone()
-          .appendTo(jqview)
-          .addClass("dataflow-edge-segment-hover");
+          .appendTo("#dataflow")
+          .addClass("dataflow-edge-clone")
+          .css(edge.sourcePort.jqview.offset());
+        edge.targetPort.jqview
+          .clone()
+          .appendTo("#dataflow")
+          .addClass("dataflow-edge-clone")
+          .css(edge.targetPort.jqview.offset());
       })
       .mouseout(function(event) {
-        jqview.children(".dataflow-edge-segment-hover")
-          .remove();
+        core.viewManager.clearEdgeHover();
       });
   },
 
@@ -88,12 +100,14 @@ var extObject = {
     this.jqview.children().not(".dataflow-edge-arrow").remove();
 
     var hseg = 3,
-        harrow = 9,
-        warrow = 25;
+        hArrow = 9,
+        wArrow = 25;
     var topOffset = {
-      up: warrow,
-      down: -warrow - 5
+      up: wArrow,
+      down: -wArrow - 5
     };
+    // edge segment has height, the anchor point is considered to be
+    // at the middle of the segment, we need to shift this biase when computing position
     sx -= hseg / 2;
     ex -= hseg / 2;
     sy -= hseg / 2;
@@ -101,7 +115,7 @@ var extObject = {
     var yDir = ey > sy ? "down" : "up";
     var yAngle = Math.atan2(ey - sy, 0);
     if (ex >= sx) {
-      var headWidth = Math.max(0, (ex - sx) / 2 - warrow);
+      var headWidth = Math.max(0, (ex - sx) / 2 - wArrow);
       var head = $("<div></div>")
         .appendTo(this.jqview)
         .addClass("dataflow-edge-segment")
@@ -112,7 +126,7 @@ var extObject = {
         });
 
       var tailWidth = ex - sx - headWidth;
-      if (tailWidth < warrow && Math.abs(ey - sy) >= warrow) {
+      if (tailWidth < wArrow && Math.abs(ey - sy) >= wArrow) {
         // tail too short, and sufficient y space
         headWidth = ex - sx;
         // go right and then up
@@ -152,8 +166,8 @@ var extObject = {
             top: ey
           });
         this.jqarrow.css({
-          left: ex - warrow,
-          top: ey + hseg / 2 - harrow / 2,
+          left: ex - wArrow,
+          top: ey + hseg / 2 - hArrow / 2,
           transform: ""
         });
       }

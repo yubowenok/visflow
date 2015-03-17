@@ -40,7 +40,7 @@ div {
 }
 
 #dataflow-edges {
-  z-index: -1;
+  position: absolute;
 }
 #dataflow-edge-drawing
 {
@@ -54,6 +54,10 @@ div {
   opacity: 0.25;
   position: absolute;
   z-index: 1000;
+}
+
+.dataflow-edge {
+  z-index: -1;
 }
 
 .dataflow-edge-segment {
@@ -74,6 +78,11 @@ div {
   height: 9px;
   background: url(../imgs/edge-arrow.png) no-repeat center;
   transform-origin: 0px 50%;
+}
+
+.dataflow-edge-clone {
+  z-index: 1000;
+  pointer-events: none;
 }
 
 .dataflow-node {
