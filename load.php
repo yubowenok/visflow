@@ -27,8 +27,8 @@ if ($_POST['type'] == 'filelist') {
 
 } elseif ($_POST['type'] == 'download') {
   $filepath = 'save/'.$_POST['filename'].'.json';
-  if (!file_exists($filepath))
-    abort('file does not exist');
+  if (!is_readable($filepath))
+    abort('file does not exist/not readable');
 
   $dataflow = json_decode(file_get_contents($filepath));
   $response['dataflow'] = $dataflow;

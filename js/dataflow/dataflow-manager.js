@@ -448,7 +448,7 @@ var extObject = {
       },
       success: function(data, textStatus, jqXHR) {
         if (data.status != "success") {
-          $("<div>No dataflow record has the given name.</div>")
+          $("<div>Failed to download dataflow.</div>")
           .css("padding", "20px")
           .dialog({
             modal: true,
