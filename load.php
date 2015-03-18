@@ -9,7 +9,7 @@ function abort($msg='') {
 }
 
 if (!isset($_POST['type']))
-  abort('post type not set for load.php');
+  abort('Post type not set for load.php.');
 
 if ($_POST['type'] == 'filelist') {
   $filelist = glob('save/*.json');
@@ -28,7 +28,7 @@ if ($_POST['type'] == 'filelist') {
 } elseif ($_POST['type'] == 'download') {
   $filepath = 'save/'.$_POST['filename'].'.json';
   if (!is_readable($filepath))
-    abort('file does not exist/not readable');
+    abort('File does not exist/is not readable.');
 
   $dataflow = json_decode(file_get_contents($filepath));
   $response['dataflow'] = $dataflow;

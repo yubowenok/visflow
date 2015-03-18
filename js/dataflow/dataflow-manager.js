@@ -345,7 +345,7 @@ var extObject = {
           .css("padding", "20px");
         var ok = data.status == "success";
         var successMsg = "Dataflow uploaded to the server (" + data.filename + ")",
-            errorMsg = "Cannot save dataflow. Server sent error response.";
+            errorMsg = "Failed to save dataflow. " + data.msg;
         dialog
           .text(ok ? successMsg : errorMsg)
           .dialog({
@@ -448,7 +448,8 @@ var extObject = {
       },
       success: function(data, textStatus, jqXHR) {
         if (data.status != "success") {
-          $("<div>Failed to download dataflow.</div>")
+          $("<div></div>")
+          .text("Failed to download dataflow. " + data.msg)
           .css("padding", "20px")
           .dialog({
             modal: true,

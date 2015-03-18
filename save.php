@@ -5,6 +5,7 @@ header('Content-type: application/json');
 $paraok = 1;
 if (!isset($_POST['filename']) || !isset($_POST['dataflow'])){
   $response['status'] = 'error';
+  $response['msg'] = 'Filename or dataflow not set.';
   $paraok = 0;
 }
 
@@ -22,12 +23,14 @@ if ($paraok) {
     fclose($file);
     if ($ok == false) {
       $response['status'] = 'error';
+      $response['msg'] = 'Cannot write to file.';
     } else {
       $response['filename'] = $filename;
       $response['status'] = 'success';
     }
   } else {
     $response['status'] = 'error';
+    $response['msg'] = 'Dataflow cannot be decoded.';
   }
 }
 
