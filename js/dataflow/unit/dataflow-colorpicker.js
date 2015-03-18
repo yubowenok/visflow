@@ -48,7 +48,7 @@ var extObject = {
 
     });
     input.iris({
-      palettes: ['#125', '#459', '#78b', '#ab0', '#de3', '#f0f'],
+      palettes: true,
       change: function(event, ui) {
         var color = ui.color.toString();
         colorpicker.setColor(color, event);

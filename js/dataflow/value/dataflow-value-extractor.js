@@ -6,6 +6,11 @@ var extObject = {
   iconName: "value-extractor",
   nodeShapeName: "value-extractor", // dedicate shape
 
+  contextmenuDisabled: {
+    "details": true,
+    "options": true
+  },
+
   initialize: function(para) {
     DataflowValueExtractor.base.initialize.call(this, para);
 
@@ -73,21 +78,22 @@ var extObject = {
   },
 
   process: function() {
-    var inpack = this.ports["in"].pack;
+    var inpack = this.ports["in"].pack,
+        outpack = this.ports["out"].pack;
     if (inpack.type === "constants")
       return console.error("constants in connected to value extractor");
 
-    if (inpack.isEmpty())
+    // overwrite to maintain reference downflow
+    $.extend(outpack, DataflowConstants.new());
+
+    if (inpack.isEmpty()) {
       return;
+    }
 
     if (inpack.data.dataId != this.lastDataId) {
       this.lastDataId = inpack.data.dataId;
       this.dimension = 0;
     }
-
-    // overwrite to maintain reference downflow
-    $.extend(this.ports["out"].pack, DataflowConstants.new());
-    var outpack = this.ports["out"].pack;
 
     var items = inpack.items,
         values = inpack.data.values;
@@ -111,10 +117,8 @@ var extObject = {
     }
   },
 
-  prepareContextMenu: function() {
-    DataflowValueExtractor.base.prepareContextMenu.call(this);
-    this.jqview.contextmenu("showEntry", "details", false);
-    this.jqview.contextmenu("showEntry", "options", false);
+  prepareContextmenu: function() {
+    DataflowValueExtractor.base.prepareContextmenu.call(this);
   }
 
 };

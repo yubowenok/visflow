@@ -456,6 +456,7 @@ var extObject = {
 
     var data = inpack.data;
     if (inpack.isEmpty()) {
+      outpack.copy(inpack);
       return;
     }
 

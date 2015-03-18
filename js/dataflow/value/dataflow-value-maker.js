@@ -6,6 +6,10 @@ var extObject = {
   iconName: "value-maker",
   nodeShapeName: "superflat",
 
+  contextmenuDisabled: {
+    "options": true
+  },
+
   initialize: function(para) {
     DataflowValueMaker.base.initialize.call(this, para);
 
@@ -51,11 +55,6 @@ var extObject = {
       .change(function(event) {
         node.setValueString(event.target.value);
       });
-  },
-
-  prepareContextMenu: function() {
-    DataflowValueMaker.base.prepareContextMenu.call(this);
-    this.jqview.contextmenu("showEntry", "details", false);
   },
 
   setValueString: function(str) {

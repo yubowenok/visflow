@@ -5,6 +5,8 @@ var extObject = {
 
   nodeShapeName: "vis",
 
+  contextmenuDisabled: {},
+
   initialize: function(para) {
     DataflowVisualization.base.initialize.call(this, para);
     this.optionsOn = false;
@@ -57,7 +59,7 @@ var extObject = {
     }
   },
 
-  prepareContextMenu: function() {
+  prepareContextmenu: function() {
     var node = this;
     // right-click menu
 
@@ -75,7 +77,7 @@ var extObject = {
         if (ui.cmd == "details") {
           node.detailsOn = !node.detailsOn;
           node.show();
-          node.prepareContextMenu();
+          node.prepareContextmenu();
         } else if (ui.cmd == "options") {
           node.optionsOn = !node.optionsOn;
           node.options();
@@ -211,6 +213,15 @@ var extObject = {
   clearMessage: function() {
     if (this.jqmsg)
       this.jqmsg.remove();
+  },
+
+  keyAction: function(key) {
+    DataflowVisualization.base.keyAction.call(this, key);
+
+    if (key == "ctrl+A")
+      this.selectAll();
+    else if (key == "ctrl+shift+A")
+      this.clearSelection();
   },
 
   // need to call parent classes

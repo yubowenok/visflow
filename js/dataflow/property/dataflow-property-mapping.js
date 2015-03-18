@@ -5,6 +5,10 @@ var extObject = {
 
   iconName: "property-mapping",
 
+  contextmenuDisabled: {
+    "options": true
+  },
+
   initialize: function(para) {
     DataflowPropertyMapping.base.initialize.call(this, para);
 

@@ -108,9 +108,14 @@ var extobject = {
         manager.visualizationBlocking = false;
       } else {
         var c = String.fromCharCode(event.keyCode);
-        if (c == "A" && manager.ctrled) {
-          core.dataflowManager.selectAllInNodeSelection();
-        }
+        var key = c;
+        if (manager.shifted)
+          key = "shift+" + key;
+        if (manager.ctrled)
+          key = "ctrl+" + key;
+
+        //console.log(key);
+        core.dataflowManager.keyAction(key);
       }
     });
     $(document).keyup(function(event) {

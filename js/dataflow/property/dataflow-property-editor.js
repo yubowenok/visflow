@@ -6,6 +6,10 @@ var extObject = {
   iconName: "property-editor",
   nodeShapeName: "property-editor", // dedicate shape
 
+  contextmenuDisabled: {
+    "options": true
+  },
+
   initialize: function(para) {
     DataflowPropertyEditor.base.initialize.call(this, para);
 

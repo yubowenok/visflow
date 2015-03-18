@@ -5,6 +5,11 @@ var extObject = {
 
   nodeShapeName: "flat",
 
+  contextmenuDisabled: {
+    "details": true,
+    "options": true
+  },
+
   initialize: function(para) {
     DataflowSet.base.initialize.call(this, para);
 
@@ -14,11 +19,6 @@ var extObject = {
   show: function() {
     DataflowSet.base.show.call(this);
   },
-
-  prepareContextMenu: function() {
-    DataflowSet.base.prepareContextMenu.call(this);
-    this.jqview.contextmenu("showEntry", "details", false);
-  }
 
 };
 

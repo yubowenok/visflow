@@ -117,9 +117,12 @@ var extObject = {
     if (pack.type !== "constants")
       return console.error("data connected to constants ports");
 
-    var inpack = this.ports["in"].pack;
-    if (inpack.isEmpty())
+    var inpack = this.ports["in"].pack,
+        outpack = this.ports["out"].pack;
+    if (inpack.isEmpty()) {
+      outpack.copy(inpack);
       return;
+    }
 
     if (this.lastDataId != inpack.data.dataId) {
       this.dimension = 0;

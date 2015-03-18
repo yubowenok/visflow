@@ -5,6 +5,8 @@ var extObject = {
 
   nodeShapeName: "none",
 
+  contextmenuDisabled: {},
+
   initialize: function(para) {
     if (para == null)
       return console.error("null para passed to DataflowNode.initialize");
@@ -92,7 +94,7 @@ var extObject = {
       }
 
       this.prepareNodeInteraction();
-      this.prepareContextMenu();
+      this.prepareContextmenu();
     } else {
       this.jqview
         .removeClass("dataflow-node-shape-" + this.nodeShapeName)
@@ -213,7 +215,7 @@ var extObject = {
     this.jqview.resizable("disable");
   },
 
-  prepareContextMenu: function() {
+  prepareContextmenu: function() {
     var node = this;
 
     // right-click menu
@@ -245,6 +247,12 @@ var extObject = {
         core.interactionManager.contextmenuLock = false;
       }
     });
+
+    // disable some of the entries based on child class specification
+    // in this.contextmenuDisabled
+    for (var entry in this.contextmenuDisabled) {
+      this.jqview.contextmenu("showEntry", entry, false);
+    }
   },
 
   updateEdges: function() {
@@ -337,6 +345,20 @@ var extObject = {
     // dataflowManager will endlessly call process
   },
 
+  keyAction: function(key) {
+    if (key == ".") {
+      core.dataflowManager.deleteNode(this);
+    }
+    else if (key == "D" && this.contextmenuDisabled["details"] == null) {
+      this.detailsOn = !this.detailsOn;
+      this.show();
+    }
+    else if (key == "T" && this.contextmenuDisabled["options"] == null) {
+      this.optionsOn = !this.optionsOn;
+      this.options();
+    }
+  },
+
   // called when node is resized
   resize: function(size) {
     this.viewWidth = size.width;
@@ -350,6 +372,7 @@ var extObject = {
 
   // abstract
   showOptions: function(){}
+
 };
 
 var DataflowNode = Base.extend(extObject);

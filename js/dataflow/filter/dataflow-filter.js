@@ -10,6 +10,11 @@ var extObject = {
   nullValueString: "-",
   nodeShapeName: "longflat",
 
+  contextmenuDisabled: {
+    "options": true,
+    "delete": true
+  },
+
   initialize: function(para) {
     DataflowFilter.base.initialize.call(this, para);
 
@@ -30,11 +35,6 @@ var extObject = {
     DataflowFilter.base.deserialize.call(this, save);
     this.dimension = save.dimension;
     this.lastDataId = save.lastDataId;
-  },
-
-  prepareContextMenu: function() {
-    DataflowFilter.base.prepareContextMenu.call(this);
-    this.jqview.contextmenu("showEntry", "details", false);
   },
 
   show: function() {

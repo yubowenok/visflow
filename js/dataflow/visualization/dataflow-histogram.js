@@ -616,6 +616,7 @@ var extObject = {
 
     var data = inpack.data;
     if (inpack.isEmpty()) {
+      outpack.copy(inpack);
       return;
     }
 
@@ -633,17 +634,25 @@ var extObject = {
 
   selectAll: function() {
     DataflowHistogram.base.selectAll.call(this);
+    // parent class already selects all elements
+    // here we only select bars
+    var data = this.histogramData;
+    for (var i = 0; i < data.length; i++) {
+      for (var j = 0; j < data[i].length; j++) {
+        this.selectedBars[i+ "," + j] = true;
+      }
+    }
     this.showVisualization();
   },
 
   clearSelection: function() {
     DataflowHistogram.base.clearSelection.call(this);
-    this.showVisualization(); // TODO　not efficient
+    this.selectedBars = {};
+    this.showVisualization();
   },
 
   resize: function(size) {
     DataflowHistogram.base.resize.call(this, size);
-    // TODO update scales for dimensions
     this.showVisualization();
   }
 

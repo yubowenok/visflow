@@ -3,6 +3,11 @@
 
 var extObject = {
 
+  contextmenuDisabled: {
+    "details": true,
+    "options": true
+  },
+
   initialize: function(para) {
     DataflowDataSource.base.initialize.call(this, para);
 
@@ -28,12 +33,6 @@ var extObject = {
     if (save.dataSelected != "none") {
       this.loadData(save.dataSelected, save.dataName);
     }
-  },
-
-  prepareContextMenu: function() {
-    DataflowSet.base.prepareContextMenu.call(this);
-    this.jqview.contextmenu("showEntry", "details", false);
-    this.jqview.contextmenu("showEntry", "options", false);
   },
 
   show: function() {

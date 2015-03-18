@@ -63,9 +63,13 @@ var extObject = {
     if (pack1.type !== "constants" || pack2.type !== "constants")
       return console.error("data connected to constants ports");
 
-    var inpack = this.ports["in"].pack;
-    if (inpack.isEmpty())
+    var inpack = this.ports["in"].pack,
+        outpack = this.ports["out"].pack;
+    if (inpack.isEmpty()) {
+      outpack.copy(inpack);
       return;
+    }
+
     if (this.lastDataId != inpack.data.dataId) {
       this.dimension = 0;
       this.lastDataId = inpack.data.dataId;
@@ -90,7 +94,6 @@ var extObject = {
     this.jqvalue1.val(this.value1 ? this.value1 : this.nullValueString);
     this.jqvalue2.val(this.value2 ? this.value2 : this.nullValueString);
 
-    var inpack = this.ports["in"].pack;
     if (inpack.data.dataId != this.lastDataId) {
       this.lastDataId = inpack.data.dataId;
       this.dimension = inpack.isEmpty() ? null : 0;

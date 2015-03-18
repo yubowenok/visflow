@@ -6,6 +6,10 @@ var extObject = {
   plotName: "Table",
   iconName: "table",
 
+  contextmenuDisabled: {
+    "options": true
+  },
+
   initialize: function(para) {
     DataflowVisualization.initialize.call(this, para);
 
@@ -29,13 +33,6 @@ var extObject = {
   deserialize: function(save) {
     DataflowTable.base.deserialize.call(this, save);
     this.keepSize = save.keepSize;
-  },
-
-  prepareContextMenu: function() {
-    DataflowTable.base.prepareContextMenu.call(this);
-
-    this.jqview
-      .contextmenu("showEntry", "options", false);
   },
 
   showIcon: function() {
@@ -119,6 +116,8 @@ var extObject = {
       // use previous size regardless of how table entries changed
       this.jqview.css(this.keepSize);
     }
+
+    this.interaction();
   },
 
   prepareInteraction: function() {
@@ -172,8 +171,10 @@ var extObject = {
     // during async data load, selection is first deserialized to vis nodes
     // however the data have not passed in
     // thus the selection might be erronesouly cleared if continue processing
-    if (inpack.isEmpty())
+    if (inpack.isEmpty()) {
+      outpack.copy(inpack);
       return;
+    }
 
     outpack.copy(inpack);
 

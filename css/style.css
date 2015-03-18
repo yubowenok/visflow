@@ -133,6 +133,7 @@ div {
   width: 150px;
   height: 60px;
   line-height: 10px;
+  text-align: center;
 }
 .dataflow-node-shape-property-editor {
   width: 150px;
