@@ -59,6 +59,9 @@ var extObject = {
             case "load":
               core.dataflowManager.loadDataflow();
               break;
+            case "about":
+              core.viewManager.aboutDataflow();
+              break;
             case "":  // non-selectable menu entry
               break;
             default:

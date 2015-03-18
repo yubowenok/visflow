@@ -103,6 +103,24 @@ var extObject = {
         y2l = box2.top,
         y2r = box2.top + box2.height;
     return x1l <= x2r && x2l <= x1r && y1l <= y2r && y2l <= y1r;
+  },
+
+  // display a dialog showing info
+  aboutDataflow: function() {
+    var dialog = $("<div></div>")
+      .css("padding", "20px")
+      .dialog({
+        modal: true,
+        title: "About Dataflow",
+        buttons: {
+          OK: function() {
+            $(this).dialog("close");
+          }
+        }
+      });
+    $( "<p>Dataflow Visualization Builder</p>"
+     + "<p>Preliminary Version, Bowen Yu, March 2015</p>")
+      .appendTo(dialog);
   }
 };
 
