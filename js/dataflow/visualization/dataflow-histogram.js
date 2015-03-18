@@ -287,6 +287,8 @@ var extObject = {
     var propertiesCompare = function(a, b) {
       var sa = "",
           sb = "";
+      // TODO using hashes in compare may result in unstable behavior when upflow
+      // changes the rendering properties
       ["color", "border", "border-width"].map(function(key, i) {
           if (a.hash == null)
             sa += i + ":" + (a.properties[key] == null? "" : a.properties[key]) + ",";

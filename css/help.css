@@ -1,0 +1,52 @@
+h1, h2, h3, li, p, label {
+  font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
+}
+
+h1 {
+  font-size: 2em;
+  color: black;
+  background: #e0cfc2;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border-left: 20px solid black;
+  border-right: 10px solid #3F3731;
+  border-top: 1px solid gray;
+  border-bottom: 1px solid gray;
+}
+
+h2 {
+  font-size: 1.5em;
+  background: #e0cfc2;
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-left: 1em;
+  border: 1px solid gray;
+  border-left: 5px solid #555;
+}
+
+h3 {
+  font-size: 1.2em;
+  background: #EDE4D4;
+  padding: 3px 10px;
+  border-radius: 5px;
+  margin-left: 2.5em;
+  border: 1px solid gray;
+}
+
+
+.box,
+.box2,
+.box3 {
+  border: 1px solid #e0cfc2;
+  border-bottom: 3px solid #e0cfc2;
+  border-radius: 5px;
+  padding: 10px;
+  margin-left: 2em;
+}
+
+.box2 {
+  margin-left: 3em;
+}
+.box3 {
+  margin-left: 4em;
+}

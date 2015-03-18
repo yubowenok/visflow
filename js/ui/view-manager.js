@@ -121,6 +121,11 @@ var extObject = {
     $( "<p>Dataflow Visualization Builder</p>"
      + "<p>Preliminary Version, Bowen Yu, March 2015</p>")
       .appendTo(dialog);
+  },
+
+  // display a help dialog
+  helpDataflow: function() {
+    window.open("help.html");
   }
 };
 
