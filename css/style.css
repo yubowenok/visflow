@@ -112,6 +112,7 @@ div {
   height: 30px;
   line-height: 30px;
   padding: 5px;
+  text-align: center;
 }
 .dataflow-node-shape-flat {
   width: 100px;

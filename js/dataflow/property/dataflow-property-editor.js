@@ -68,11 +68,14 @@ var extObject = {
     var inpack = this.ports["in"].pack,
         outpack = this.ports["out"].pack;
     outpack.copy(inpack);
+    var newitems = {};
     for (var index in inpack.items) {
-      outpack.items[index] = {
+      newitems[index] = {
         properties: _.extend({}, inpack.items[index].properties, this.properties)
       };
     }
+    // cannot reuse old items
+    outpack.items = newitems;
   }
 };
 
