@@ -288,16 +288,19 @@ var extobject = {
           jqarrow = $("#dataflow-edge-drawing > .dataflow-edge-arrow");
       var hseg = 3,
           harrow = 9;
+
+      var pos = para.port.isInPort ? this.dragstopPos : this.dragstartPos,
+          rpos = !para.port.isInPort ? this.dragstopPos : this.dragstartPos;
       if (para.port.isInPort) {
         dx = -dx;
         dy = -dy;
         jqsegment
-          .css("left", this.dragstopPos[0] - hseg / 2)
-          .css("top", this.dragstopPos[1] - hseg / 2);
+          .css("left", pos[0] - hseg / 2)
+          .css("top", pos[1] - hseg / 2);
       } else {
         jqsegment
-          .css("left", this.dragstartPos[0] - hseg / 2)
-          .css("top", this.dragstartPos[1] - hseg / 2);
+          .css("left", pos[0] - hseg / 2)
+          .css("top", pos[1] - hseg / 2);
       }
       var length = Math.sqrt(dx * dx + dy * dy) - 10;
       var angle = Math.atan2(dy, dx);
@@ -309,10 +312,14 @@ var extobject = {
         });
       jqarrow
         .css({
-          left: this.dragstopPos[0] - 20 * Math.cos(angle),
-          top: this.dragstopPos[1] - 20 * Math.sin(angle) - harrow / 2,
           transform: "rotate("+ angle +"rad)"
         });
+      jqarrow
+        .css({
+          left: rpos[0] - 20 * Math.cos(angle),
+          top: rpos[1] - 20 * Math.sin(angle) - harrow / 2,
+        });
+
       $("#dataflow-edge-drawing")
         .css("visibility", "visible");
     } else if (type == "node") {
