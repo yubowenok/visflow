@@ -1,0 +1,34 @@
+
+
+
+.dataflow-unit {
+  margin: 5px;
+  line-height: 25px;
+}
+.dataflow-unit-text {
+  margin-right: 5px;
+  display: inline-block;
+  width: 30%;
+}
+
+.dataflow-input-color {
+  font-family: Courier !important;
+  text-align: center;
+  width: 60px;
+}
+
+.dataflow-colorbox {
+  width: 22px;
+  height: 22px;
+  border: 1px solid gray;
+  border-radius: 3px;
+  display: inline;
+  position: absolute;
+  left: 80%;
+}
+
+.dataflow-colorpicker-container {
+  position: absolute;
+  display: inline;
+  left: 35%;
+}

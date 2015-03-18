@@ -3,8 +3,10 @@
 
 var extObject = {
 
+  iconName: "property-mapping",
+
   initialize: function(para) {
-    DataflowNode.initialize.call(this, para);
+    DataflowPropertyMapping.base.initialize.call(this, para);
 
     this.inPorts = [
       DataflowPort.new(this, "in", "in-single")
@@ -17,11 +19,7 @@ var extObject = {
 
   show: function() {
 
-    this.base.show.call(this); // call parent settings
-
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-property-mapping-icon")
-      .appendTo(this.jqview);
+    DataflowPropertyMapping.base.show.call(this); // call parent settings
   }
 
 };

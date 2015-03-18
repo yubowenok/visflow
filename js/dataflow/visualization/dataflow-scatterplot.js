@@ -8,17 +8,16 @@ var extObject = {
 
   // use object to specify default rendering properties
   defaultProperties: {
-    "fill": "#555",
-    "stroke": "black",
-    "stroke-width": "1px",
-    "fill-opacity": 0.75,
+    "color": "#555",
+    "border": "black",
+    "border-width": "1px",
     "r" : 3
   },
   // show these properties when items are selected
   selectedProperties: {
-    "fill": "#FF4400",
-    "stroke": "black",
-    "fill-opacity": 1.0
+    "color": "#FF4400",
+    "border": "black",
+    "size" : 3.5
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -26,6 +25,13 @@ var extObject = {
     "r": true,
     "cx": true,
     "cy": true
+  },
+  // translate what user see to css property
+  propertyTranslate: {
+    "size": "r",
+    "color": "fill",
+    "border": "stroke",
+    "border-width": "stroke-width"
   },
 
   initialize: function(para) {
@@ -124,7 +130,7 @@ var extObject = {
         // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
       })
       .mouseup(mouseupHandler)
-      .mouseout(function(event) {
+      .mouseleave(function(event) {
         if ($(this).parent().length == 0) {
           return; // during svg update, the parent of mouseout event is unstable
         }
@@ -245,11 +251,17 @@ var extObject = {
       var u = d3.select(points[i]);
       if (useTransition)
         u = u.interrupt().transition();
+
       for (var key in properties) {
+        var value = properties[key];
+        if (this.propertyTranslate[key] != null)
+          key = this.propertyTranslate[key];
+        if (key == "ignore")
+          continue;
         if (this.isAttr[key] == true)
-          u.attr(key, properties[key]);
+          u.attr(key, value);
         else
-          u.style(key, properties[key]);
+          u.style(key, value);
       }
     }
 

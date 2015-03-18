@@ -4,7 +4,7 @@
 var extObject = {
 
   iconName: "value-extractor",
-  nodeShapeName: "value-extractor", // special shape for itself
+  nodeShapeName: "value-extractor", // dedicate shape
 
   initialize: function(para) {
     DataflowValueExtractor.base.initialize.call(this, para);

@@ -101,6 +101,7 @@ var extObject = {
     }
 
     this.showPorts();
+    this.updatePorts();
     this.options();
   },
 
@@ -226,7 +227,8 @@ var extObject = {
           ],
       select: function(event, ui) {
         if (ui.cmd == "details") {
-          node.details = !node.details;
+          node.detailsOn = !node.detailsOn;
+          node.show();
         } else if (ui.cmd == "options") {
           node.optionsOn = !node.optionsOn;
           node.options();

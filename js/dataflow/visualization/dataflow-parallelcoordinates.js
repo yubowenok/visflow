@@ -8,19 +8,24 @@ var extObject = {
 
   // use object to specify default rendering properties
   defaultProperties: {
-    "stroke": "black",
-    "stroke-width": "1px",
+    "color": "black",
+    "size": "1px",
     "fill": "none",
     "opacity": 0.5
   },
   // show these properties when items are selected
   selectedProperties: {
-    "stroke": "#FF4400",
-    "stroke-width": "2px"
+    "color": "#FF4400",
+    "size": "2px"
   },
   // let d3 know to use attr or style for each key
   isAttr: {
     "id": true
+  },
+  // translate what user see to css property
+  propertyTranslate: {
+    "color": "stroke",
+    "size": "stroke-width"
   },
 
   initialize: function(para) {
@@ -114,7 +119,7 @@ var extObject = {
         // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
       })
       .mouseup(mouseupHandler)
-      .mouseout(function(event) {
+      .mouseleave(function(event) {
         if ($(this).parent().length == 0) {
           return; // during svg update, the parent of mouseout event is unstable
         }
@@ -240,10 +245,15 @@ var extObject = {
         .attr("id", "i" + index)
         .attr("d", line(points));
       for (var key in properties) {
+        var value = properties[key];
+        if (this.propertyTranslate[key] != null)
+          key = this.propertyTranslate[key];
+        if (key == "ignore")
+          continue;
         if (this.isAttr[key] == true)
-          u.attr(key, properties[key]);
+          u.attr(key, value);
         else
-          u.style(key, properties[key]);
+          u.style(key, value);
       }
     }
 

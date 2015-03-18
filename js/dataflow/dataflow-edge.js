@@ -80,7 +80,7 @@ var extObject = {
           .addClass("dataflow-edge-clone")
           .css(edge.targetPort.jqview.offset());
       })
-      .mouseout(function(event) {
+      .mouseleave(function(event) {
         core.viewManager.clearEdgeHover();
       });
   },

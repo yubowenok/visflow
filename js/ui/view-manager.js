@@ -57,6 +57,10 @@ var extObject = {
       .remove();
   },
 
+  hideColorpickers: function() {
+    $(".iris-picker").hide();
+  },
+
   bringFrontView: function(jqview) {
     jqview
       .css("z-index", ++this.topZindex);

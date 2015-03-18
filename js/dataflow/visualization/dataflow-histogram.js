@@ -8,15 +8,22 @@ var extObject = {
 
   // use object to specify default rendering properties
   defaultProperties: {
-    "fill": "#AAA"
+    "color": "#AAA"
   },
   // show these properties when items are selected
   selectedProperties: {
-    "fill": "#FF4400"
+    "color": "#FF4400"
   },
   // let d3 know to use attr or style for each key
   isAttr: {
     "id": true
+  },
+  // translate what user see to css property
+  propertyTranslate: {
+    "size": "ignore",
+    "color": "fill",
+    "border": "stroke",
+    "border-width": "stroke-width"
   },
 
   initialize: function(para) {
@@ -136,7 +143,7 @@ var extObject = {
         // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
       })
       .mouseup(mouseupHandler)
-      .mouseout(function(event) {
+      .mouseleave(function(event) {
         if ($(this).parent().length == 0) {
           return; // during svg update, the parent of mouseout event is unstable
         }
@@ -280,12 +287,11 @@ var extObject = {
     var propertiesCompare = function(a, b) {
       var sa = "",
           sb = "";
-      ["fill", "fill-stroke", "fill-opacity",
-        "stroke", "stroke-width", "stroke-opacity"].map(function(key, i) {
+      ["color", "border", "border-width"].map(function(key, i) {
           if (a.hash == null)
-            sa += i + ":" + (a.properties[key] == null? "*" : a.properties[key]) + ",";
+            sa += i + ":" + (a.properties[key] == null? "" : a.properties[key]) + ",";
           if (b.hash == null)
-            sb += i + ":" + (b.properties[key] == null? "*" : b.properties[key]) + ",";
+            sb += i + ":" + (b.properties[key] == null? "" : b.properties[key]) + ",";
         });
 
       if (a.hash == null)
@@ -406,12 +412,17 @@ var extObject = {
           _(properties).extend(this.selectedProperties);
         }
         var u = d3.select(bars[i][j]);
+
         for (var key in properties) {
+          var value = properties[key];
+          if (this.propertyTranslate[key] != null)
+            key = this.propertyTranslate[key];
+          if (key == "ignore")
+            continue;
           if (this.isAttr[key] == true)
-            u.attr(key, properties[key]);
-          else {
-            u.style(key, properties[key]);
-          }
+            u.attr(key, value);
+          else
+            u.style(key, value);
         }
       }
     }

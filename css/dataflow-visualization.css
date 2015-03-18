@@ -31,29 +31,6 @@ svg {
   pointer-events: none;
 }
 
-.dataflow-options {
-  left: 100%;
-  top: 0%;
-  position: absolute;
-  padding: 5px;
-  min-width: 100px;
-}
-
-.dataflow-options-item {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.dataflow-options-select {
-}
-
-.dataflow-options-select-multiple {
-}
-
-.dataflow-options-text {
-  display: block;
-  margin-bottom: 5px;
-}
 
 .df-histogram-selectbox,
 .df-scatterplot-selectbox {

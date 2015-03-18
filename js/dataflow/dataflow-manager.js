@@ -580,6 +580,15 @@ var extObject = {
     return this.nodesSelected[node.nodeId] != null;
   },
 
+  selectAllInNodeSelection: function() {
+    console.log("selectall");
+    for (var nodeId in this.nodesSelected) {
+      var node = this.nodesSelected[nodeId];
+      if (node.selectAll != null) // only visualization has selectAll
+        node.selectAll();
+    }
+  },
+
   // prevent rushing in loading
   asyncDataloadStart: function(node) {
     this.asyncDataloadCount ++;

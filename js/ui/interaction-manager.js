@@ -106,6 +106,11 @@ var extobject = {
         manager.ctrled = true;
         manager.jqdataflow.css("cursor", "move");
         manager.visualizationBlocking = false;
+      } else {
+        var c = String.fromCharCode(event.keyCode);
+        if (c == "A" && manager.ctrled) {
+          core.dataflowManager.selectAllInNodeSelection();
+        }
       }
     });
     $(document).keyup(function(event) {
@@ -353,6 +358,7 @@ var extobject = {
         event = para.event;
     if (type == "empty") {
       core.dataflowManager.clearNodeSelection();
+      core.viewManager.hideColorpickers();
     }
   }
 

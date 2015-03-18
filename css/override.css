@@ -53,3 +53,7 @@ body {
 .select2-search input {
   font-size: 0.8em;
 }
+
+.iris-picker {
+  z-index: 1000;
+}

@@ -42,9 +42,11 @@ var extObject = {
     var jqview = this.jqview,
         node = this;
 
+    this.jqview
+      .css("text-align", "center");
+
     $("<div style='line-height:50px'>No data loaded</div>")
       .attr("id", "datahint")
-      .addClass("dataflow-text")
       .appendTo(this.jqview);
 
     // load data buttons
