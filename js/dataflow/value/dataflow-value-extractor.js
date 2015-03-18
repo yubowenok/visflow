@@ -115,10 +115,6 @@ var extObject = {
       $("<option value='" + i + "'>" + dims[i] + "</option>")
         .appendTo(this.selectDimension);
     }
-  },
-
-  prepareContextmenu: function() {
-    DataflowValueExtractor.base.prepareContextmenu.call(this);
   }
 
 };

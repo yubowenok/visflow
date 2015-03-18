@@ -57,3 +57,9 @@ body {
 .iris-picker {
   z-index: 1000;
 }
+
+.iris-square-value {
+  /* prevent weird yellow/white box appear */
+  border: 0px !important;
+  background: transparent !important;
+}

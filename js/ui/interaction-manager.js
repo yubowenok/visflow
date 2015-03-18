@@ -79,10 +79,12 @@ var extobject = {
     var manager = this;
     this.jqdataflow
       .mousedown(function(event, ui) {
-        manager.mousedownHandler({
-          type: "background",
-          event: event
-        });
+        if ($(event.target).is("#dataflow")) {
+          manager.mousedownHandler({
+            type: "background",
+            event: event
+          });
+        }
       })
       .mousemove(function(event, ui) {
         manager.mousemoveHandler({
@@ -159,6 +161,13 @@ var extobject = {
     if (this.mouseMode != "none")
       return;
 
+    // block mousedown for iris
+    if ($(event.target).is(".iris-picker, .iris-square-inner, "
+      + ".iris-square-handle, .ui-slider-handle")) {
+      type = "iris";
+      return;
+    }
+
     if (type == "background") {
       if (this.ctrled) {
         this.mouseMode = "pan";
@@ -171,17 +180,20 @@ var extobject = {
       this.mouseMode = "node";
     }
   },
+
   mousemoveHandler: function(para) {
     var type = para.type,
         event = para.event;
     //if (this.mouseMode != type)
     //  return;
+
     if (type == "background") {
       if (this.mouseMode == "pan") {
         var dx = event.pageX - this.mouselastPos[0],
             dy = event.pageY - this.mouselastPos[1];
         core.dataflowManager.moveNodes(dx, dy, core.dataflowManager.nodes);
-      } else if (this.mouseMode == "selectbox") {
+      }
+      else if (this.mouseMode == "selectbox") {
         this.selectbox.x2 = event.pageX;
         this.selectbox.y2 = event.pageY;
         var w = Math.abs(this.selectbox.x2 - this.selectbox.x1),
@@ -250,6 +262,7 @@ var extobject = {
   dragstartHandler: function(para) {
     var type = para.type,
         event = para.event;
+
     this.dragstartPara = para;
     if (type == "port") {
       this.mouseMode = "port";
@@ -259,7 +272,8 @@ var extobject = {
       //console.log(jqtarget,x,y, jqtarget.outerWidth());
       this.dragstartPos = [x, y];
       this.dropPossible = true;
-    } else if (type == "node") {
+    }
+    else if (type == "node") {
       this.mouseMode = "node";
       this.jqdataflow.css("cursor", "move");
 
@@ -278,8 +292,10 @@ var extobject = {
     var type = para.type,
         event = para.event;
     this.dragstopPos = [para.event.pageX, para.event.pageY];
+
     if (this.mouseMode != type)
       return;
+
     if (type == "port") {
       var dx = this.dragstopPos[0] - this.dragstartPos[0],
           dy = this.dragstopPos[1] - this.dragstartPos[1];
@@ -322,7 +338,8 @@ var extobject = {
 
       $("#dataflow-edge-drawing")
         .css("visibility", "visible");
-    } else if (type == "node") {
+    }
+    else if (type == "node") {
       var dx = event.pageX - this.draglastPos[0],
           dy = event.pageY - this.draglastPos[1];
 
@@ -341,7 +358,8 @@ var extobject = {
     if (type == "port") {
       $("#dataflow-edge-drawing")
         .css("visibility", "hidden");
-    } else if (type == "node"){
+    }
+    else if (type == "node"){
       this.jqdataflow.css("cursor", "");
     }
     this.mouseMode = "none";

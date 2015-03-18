@@ -38,26 +38,29 @@ var extObject = {
 
     var colorbox = this.jqcolorbox = $("<div></div>")
       .addClass("dataflow-colorbox")
-      .css("background-color", "#000")
+      .css("background-color", "none")
       .appendTo(this.jqunit);
 
     var colorpicker = this;
     input.change(function(event) {
       var color = event.target.value;
       colorpicker.setColor(color, event);
-
     });
     input.iris({
-      palettes: true,
+      palettes: ['none', '#125', '#459', '#78b', '#ab0', '#de3', '#f0f'],
       change: function(event, ui) {
-        var color = ui.color.toString();
+        var color = ui.color;
+        if (color.error == true)
+          color = "none";
+        else
+          color = color.toString();
         colorpicker.setColor(color, event);
       }
     });
     var toggleIris = function(event) {
       // exclusively hide all other iris picker
       core.viewManager.hideColorpickers();
-      input.iris("toggle");
+      input.iris("show");
     };
     colorbox.mousedown(toggleIris);
     input.mousedown(toggleIris);
@@ -73,7 +76,8 @@ var extObject = {
       // incorrect color format
       color = "none";
     }
-    this.jqcolorbox.css("background-color", color == "none" ? "#000" : color);
+    this.jqcolorbox
+      .css("background-color", color == "none" ? "transparent" : color);
     this.jqinput.val(color);
     event.unitChange = {
       value: color,

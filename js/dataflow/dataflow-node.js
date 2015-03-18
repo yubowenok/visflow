@@ -68,6 +68,7 @@ var extObject = {
     var allports = this.inPorts.concat(this.outPorts);
     for (var i in allports) {
       this.ports[allports[i].id] = allports[i];
+      allports[i].pack.changed = false; // initialize change to false after creation
     }
   },
 
@@ -79,6 +80,7 @@ var extObject = {
   show: function() {
     // this removes everything created (including those from inheriting classes)
     // inheriting classes shall not remove again
+
     this.jqview.children()
       .not(".ui-resizable-handle")
       .remove();
