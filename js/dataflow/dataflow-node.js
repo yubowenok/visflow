@@ -347,7 +347,12 @@ var extObject = {
     // dataflowManager will endlessly call process
   },
 
-  keyAction: function(key) {
+  keyAction: function(key, event) {
+    if ($(event.target).is("input")) {
+      // avoid interfering with user typing input
+      return;
+    }
+    console.log(event);
     if (key == ".") {
       core.dataflowManager.deleteNode(this);
     }

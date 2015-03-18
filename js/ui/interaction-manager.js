@@ -117,7 +117,7 @@ var extobject = {
           key = "ctrl+" + key;
 
         //console.log(key);
-        core.dataflowManager.keyAction(key);
+        core.dataflowManager.keyAction(key, event);
       }
     });
     $(document).keyup(function(event) {

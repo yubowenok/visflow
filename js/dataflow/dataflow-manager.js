@@ -581,10 +581,10 @@ var extObject = {
   },
 
   // pass key actions to selected nodes
-  keyAction: function(key) {
+  keyAction: function(key, event) {
     for (var nodeId in this.nodesSelected) {
       var node = this.nodesSelected[nodeId];
-      node.keyAction(key);
+      node.keyAction(key, event);
     }
   },
 

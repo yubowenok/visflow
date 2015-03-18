@@ -13,6 +13,8 @@ var extObject = {
     this.id = id;
     this.label = label != null ? label : "";
 
+    this.color = "none";
+
     this.prepare();
 
     this.changeCallback = function(event) {};
@@ -47,7 +49,8 @@ var extObject = {
       colorpicker.setColor(color, event);
     });
     input.iris({
-      palettes: ['none', '#125', '#459', '#78b', '#ab0', '#de3', '#f0f'],
+      color: this.color,
+      palettes: ["none"].concat(d3.scale.category10().range()),
       change: function(event, ui) {
         var color = ui.color;
         if (color.error == true)
@@ -83,6 +86,7 @@ var extObject = {
       value: color,
       id: this.id
     };
+    this.color = color;
     this.changeCallback(event);
   },
 
