@@ -444,31 +444,22 @@ var extObject = {
     }
   },
 
-  process: function() {
+  dataChanged: function() {
+    // data has changed, by default load all dimensions
+    this.dimensions = [];
+    for (var i in data.dimensionTypes) {
+      if (data.dimensionTypes[i] == "string") // ignore string by default
+        continue;
+      this.dimensions.push(i);
+    }
+    this.lastDataId = data.dataId;
+  },
+
+  processSelection: function() {
     var inpack = this.ports["in"].pack,
-        outpack = this.ports["out"].pack;
-
-    var data = inpack.data;
-    if (inpack.isEmpty()) {
-      outpack.copy(inpack);
-      return;
-    }
-
-    this.validateSelection();
-
-    if (data.dataId != this.lastDataId) {
-      // data has changed, by default load all dimensions
-      this.dimensions = [];
-      for (var i in data.dimensionTypes) {
-        if (data.dimensionTypes[i] == "string") // ignore string by default
-          continue;
-        this.dimensions.push(i);
-      }
-      this.lastDataId = data.dataId;
-    }
-
-    outpack.copy(inpack);
-    outpack.filter(_.allKeys(this.selected));
+        outspack = this.ports["outs"].pack;
+    outspack.copy(inpack);
+    outspack.filter(_.allKeys(this.selected));
   },
 
   selectAll: function() {

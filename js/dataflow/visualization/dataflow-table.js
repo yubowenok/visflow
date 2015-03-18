@@ -111,6 +111,11 @@ var extObject = {
       this.jqview.css(this.keepSize);
     }
 
+    // update ports
+    this.viewWidth = this.jqview.width();
+    this.viewHeight = this.jqview.height();
+    this.updatePorts();
+
     this.interaction();
   },
 
@@ -158,24 +163,11 @@ var extObject = {
     }
   },
 
-  process: function() {
-    var outpack = this.ports["out"].pack,
+  processSelection: function() {
+    var outspack = this.ports["outs"].pack,
         inpack = this.ports["in"].pack;
-
-    // during async data load, selection is first deserialized to vis nodes
-    // however the data have not passed in
-    // thus the selection might be erronesouly cleared if continue processing
-    if (inpack.isEmpty()) {
-      outpack.copy(inpack);
-      return;
-    }
-
-    outpack.copy(inpack);
-
-    this.validateSelection();
-
-    outpack.filter(_.allKeys(this.selected));
-    //console.log(result);
+    outspack.copy(inpack);
+    outspack.filter(_.allKeys(this.selected));
   },
 
   selectAll: function() {

@@ -419,34 +419,23 @@ var extObject = {
     }
   },
 
-  process: function() {
-    var inpack = this.ports["in"].pack,
-        outpack = this.ports["out"].pack;
-
-    var data = inpack.data;
-    if (inpack.isEmpty()) {
-      outpack.copy(inpack);
-      return;
-    }
-
-    this.validateSelection();
-
-    if (data.dataId != this.lastDataId) {
-      // data has changed, use first 2 non-string dimensions
-      var chosen = [];
-      for (var i in data.dimensionTypes) {
-        if (data.dimensionTypes[i] != "string") {
-          chosen.push(i);
-        }
-        if (chosen.length == 2)
-          break;
+  dataChanged: function() {
+    var chosen = [];
+    for (var i in data.dimensionTypes) {
+      if (data.dimensionTypes[i] != "string") {
+        chosen.push(i);
       }
-      this.dimensions = [chosen[0], chosen[1 % chosen.length]];
-      this.lastDataId = data.dataId;
+      if (chosen.length == 2)
+        break;
     }
+    this.dimensions = [chosen[0], chosen[1 % chosen.length]];
+  },
 
-    outpack.copy(inpack);
-    outpack.filter(_.allKeys(this.selected));
+  processSelection: function() {
+    var inpack = this.ports["in"].pack,
+        outspack = this.ports["outs"].pack;
+    outspack.copy(inpack);
+    outspack.filter(_.allKeys(this.selected));
   },
 
   selectAll: function() {

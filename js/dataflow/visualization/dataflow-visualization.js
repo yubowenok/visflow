@@ -15,6 +15,7 @@ var extObject = {
       DataflowPort.new(this, "in", "in-single", "D")
     ];
     this.outPorts = [
+      DataflowPort.new(this, "outs", "out-multiple", "S"),
       DataflowPort.new(this, "out", "out-multiple", "D")
     ];
 
@@ -176,6 +177,37 @@ var extObject = {
     this.updatePorts();
   },
 
+  process: function() {
+    var inpack = this.ports["in"].pack,
+        outpack = this.ports["out"].pack,
+        outspack = this.ports["outs"].pack;
+
+    // during async data load, selection is first deserialized to vis nodes
+    // however the data have not passed in
+    // thus the selection might be erronesouly cleared if continue processing
+    if (inpack.isEmpty()) {
+      outpack.copy(inpack);
+      outspack.copy(inpack);
+      outspack.items = [];
+      return;
+    }
+    this.validateSelection();
+
+    if (this.lastDataId != inpack.data.dataId) {
+      // data has changed, fire change event
+      // visualization can update selected dimension in this function
+      this.dataChanged();
+
+      this.lastDataId = inpack.data.dataId;
+    }
+
+    // inheriting visualization classes implement this to send output to selection out port
+    this.processSelection();
+
+    // pass data through
+    outpack.copy(inpack);
+  },
+
   validateSelection: function() {
     var inpack = this.ports["in"].pack;
     // some selection items no longer exists in the input
@@ -252,7 +284,9 @@ var extObject = {
   showSelection: function() {},
   updateVisualization: function() {},
   prepareInteraction: function() {},
-  prepareScales: function() {}
+  prepareScales: function() {},
+  processSelection: function() {},
+  dataChanged: function() {}
 
 };
 
