@@ -62,6 +62,7 @@ var extObject = {
     var jqview = this.jqview;
     this.jqview
       .mouseover(function(event) {
+        core.dataflowManager.addEdgeSelection(edge);
         // make a shadow
         jqview.children(".dataflow-edge-segment").clone()
           .appendTo("#dataflow")
@@ -81,6 +82,7 @@ var extObject = {
           .css(edge.targetPort.jqview.offset());
       })
       .mouseleave(function(event) {
+        core.dataflowManager.clearEdgeSelection();
         core.viewManager.clearEdgeHover();
       });
   },
@@ -238,7 +240,14 @@ var extObject = {
   hide: function() {
     this.jqview.children().remove();
     core.viewManager.removeEdgeView(this.jqview);
-  }
+  },
+
+  keyAction: function(key, event) {
+    if (key == ".") {
+      core.dataflowManager.deleteEdge(this);
+      core.viewManager.clearEdgeHover();
+    }
+  },
 
 };
 

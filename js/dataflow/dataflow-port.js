@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  initialize: function(node, id, type, isConstants) {
+  initialize: function(node, id, type, text, isConstants) {
 
     this.node = node; // parent node
 
@@ -11,6 +11,9 @@ var extObject = {
 
     this.id = id; // port id corresponding to its parent node
     this.type = type; // in-single, in-multiple, out-single, out-multiple
+
+    this.text = text == null ? "" : text; // text to show on port
+
     this.isInPort = this.type.substr(0, 2) === "in";
     this.isSingle = this.type.match("single") != null;
     this.isConstants = isConstants === true;
@@ -74,7 +77,9 @@ var extObject = {
       jqview.addClass("dataflow-port-constants");
 
     $("<div></div>")
-      .addClass("dataflow-port-icon dataflow-port-icon-" + this.type)
+      .text(this.text)
+      .addClass("dataflow-port-icon dataflow-port-icon-"
+        + (this.isSingle ? "single" : "multiple"))
       .appendTo(jqview);
 
     this.prepareInteraction();

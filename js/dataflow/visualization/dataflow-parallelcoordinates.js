@@ -31,12 +31,6 @@ var extObject = {
   initialize: function(para) {
     DataflowParallelCoordinates.base.initialize.call(this, para);
 
-    this.inPorts = [
-      DataflowPort.new(this, "in", "in-single")
-    ];
-    this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
-    ];
     this.prepare();
 
     // shown dimensions in parallel coordinates

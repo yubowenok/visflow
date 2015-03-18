@@ -352,7 +352,6 @@ var extObject = {
       // avoid interfering with user typing input
       return;
     }
-    console.log(event);
     if (key == ".") {
       core.dataflowManager.deleteNode(this);
     }

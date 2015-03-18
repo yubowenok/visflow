@@ -34,6 +34,8 @@ var extObject = {
     this.nodesSelected = {};
     this.nodesHovered = {};
 
+    this.edgeSelected = null;
+
     this.propagateDisabled = false;
 
     this.asyncDataloadCount = 0;
@@ -467,6 +469,15 @@ var extObject = {
     });
   },
 
+  addEdgeSelection: function(edge) {
+    // can only select a single edge at a time by hovering
+    this.edgeSelected = edge;
+  },
+
+  clearEdgeSelection: function() {
+    this.edgeSelected = null;
+  },
+
   addNodeSelection: function(nodes) {
     var toAdd = {};
     if (nodes instanceof Array) {
@@ -580,11 +591,14 @@ var extObject = {
     return this.nodesSelected[node.nodeId] != null;
   },
 
-  // pass key actions to selected nodes
+  // pass key actions to selected nodes & edge
   keyAction: function(key, event) {
     for (var nodeId in this.nodesSelected) {
       var node = this.nodesSelected[nodeId];
       node.keyAction(key, event);
+    }
+    if (this.edgeSelected != null) {
+      this.edgeSelected.keyAction(key, event);
     }
   },
 

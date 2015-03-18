@@ -17,10 +17,10 @@ var extObject = {
     this.viewHeight = 40; // height + padding
 
     this.inPorts = [
-      DataflowPort.new(this, "in", "in-single")
+      DataflowPort.new(this, "in", "in-single", "V")
     ];
     this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple", true)
+      DataflowPort.new(this, "out", "out-multiple", "V", true)
     ];
 
     // overwrite with constants

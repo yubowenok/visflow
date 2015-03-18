@@ -37,12 +37,6 @@ var extObject = {
   initialize: function(para) {
     DataflowScatterplot.base.initialize.call(this, para);
 
-    this.inPorts = [
-      DataflowPort.new(this, "in", "in-single")
-    ];
-    this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
-    ];
     this.prepare();
 
 

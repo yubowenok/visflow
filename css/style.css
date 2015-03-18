@@ -241,7 +241,6 @@ div {
   width: 20px;
   height: 20px;
   position: absolute;
-  line-height: 20px;
 }
 .dataflow-port-hover,
 .dataflow-port:hover {
@@ -250,7 +249,7 @@ div {
   margin-top: -1px;
 }
 .dataflow-port-constants {
-  background: #E7E7E4;
+  background: #e2e2e2;
 }
 .dataflow-port-in {
   left: -22px;
@@ -258,14 +257,19 @@ div {
 .dataflow-port-out {
   left: 100%;
 }
-.dataflow-port-icon-in-single {
-  background: url(../imgs/in-single.png) no-repeat center;
+.dataflow-port-icon {
+  /* allow port to show text */
+  line-height: 15px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  pointer-events: none;
 }
-.dataflow-port-icon-out-single {
-  background: url(../imgs/out-single.png) no-repeat center;
+.dataflow-port-icon-single {
+  background: url(../imgs/port-single.png) no-repeat center;
 }
-.dataflow-port-icon-out-multiple {
-  background: url(../imgs/out-multiple.png) no-repeat center;
+.dataflow-port-icon-multiple {
+  background: url(../imgs/port-multiple.png) no-repeat center;
 }
 
 .dataflow-node-select {

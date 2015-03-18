@@ -14,10 +14,10 @@ var extObject = {
     DataflowPropertyEditor.base.initialize.call(this, para);
 
     this.inPorts = [
-      DataflowPort.new(this, "in", "in-single")
+      DataflowPort.new(this, "in", "in-single", "D")
     ];
     this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
+      DataflowPort.new(this, "out", "out-multiple", "D")
     ];
     this.prepare();
 

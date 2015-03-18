@@ -29,12 +29,6 @@ var extObject = {
   initialize: function(para) {
     DataflowHistogram.base.initialize.call(this, para);
 
-    this.inPorts = [
-      DataflowPort.new(this, "in", "in-single")
-    ];
-    this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
-    ];
     this.prepare();
 
     // 0: X axis, 1: Y axis
@@ -61,6 +55,7 @@ var extObject = {
   serialize: function() {
     var result = DataflowHistogram.base.serialize.call(this);
     result.dimension = this.dimension;
+    result.numBins = this.numBins;
     result.selectedBars = this.selectedBars;
     return result;
   },
@@ -77,6 +72,11 @@ var extObject = {
     if (this.selectedBars == null) {
       console.error("selectedBins not saved for histogram");
       this.selectedBars = {};
+    }
+    this.numBins = save.numBins;
+    if (this.numBins == null) {
+      console.error("numBins not saved for histogram");
+      this.numBins = 10;
     }
   },
 

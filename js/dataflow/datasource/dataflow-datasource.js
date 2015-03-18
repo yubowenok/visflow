@@ -16,7 +16,7 @@ var extObject = {
 
     this.inPorts = [];
     this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
+      DataflowPort.new(this, "out", "out-multiple", "D")
     ];
     this.prepare();
   },

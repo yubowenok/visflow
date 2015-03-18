@@ -8,13 +8,6 @@ var extObject = {
   initialize: function(para) {
     DataflowMinus.base.initialize.call(this, para);
 
-    this.inPorts = [
-      DataflowPort.new(this, "ina", "in-single"),
-      DataflowPort.new(this, "inb", "in-single")
-    ];
-    this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
-    ];
     this.prepare();
   },
 

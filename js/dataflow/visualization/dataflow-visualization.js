@@ -9,6 +9,15 @@ var extObject = {
 
   initialize: function(para) {
     DataflowVisualization.base.initialize.call(this, para);
+
+    // visualization nodes have same ports
+    this.inPorts = [
+      DataflowPort.new(this, "in", "in-single", "D")
+    ];
+    this.outPorts = [
+      DataflowPort.new(this, "out", "out-multiple", "D")
+    ];
+
     this.optionsOn = false;
     this.visWidth = null;
     this.visHeight = null;
@@ -215,8 +224,8 @@ var extObject = {
       this.jqmsg.remove();
   },
 
-  keyAction: function(key) {
-    DataflowVisualization.base.keyAction.call(this, key);
+  keyAction: function(key, event) {
+    DataflowVisualization.base.keyAction.call(this, key, event);
 
     if (key == "ctrl+A")
       this.selectAll();

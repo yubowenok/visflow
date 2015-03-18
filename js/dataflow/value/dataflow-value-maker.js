@@ -17,7 +17,7 @@ var extObject = {
 
     this.inPorts = [];
     this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple", true)
+      DataflowPort.new(this, "out", "out-multiple", "V", true)
     ];
 
     // stored input value

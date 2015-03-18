@@ -10,12 +10,12 @@ var extObject = {
     DataflowRangeFilter.base.initialize.call(this, para);
 
     this.inPorts = [
-      DataflowPort.new(this, "inv1", "in-single", true),
-      DataflowPort.new(this, "inv2", "in-single", true),
-      DataflowPort.new(this, "in", "in-single")
+      DataflowPort.new(this, "inv1", "in-single", "V", true),
+      DataflowPort.new(this, "inv2", "in-single", "V", true),
+      DataflowPort.new(this, "in", "in-single", "D")
     ];
     this.outPorts = [
-      DataflowPort.new(this, "out", "out-multiple")
+      DataflowPort.new(this, "out", "out-multiple", "D")
     ];
 
     this.value1 = null;
