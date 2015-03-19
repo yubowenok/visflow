@@ -8,6 +8,14 @@ var extObject = {
   initialize: function(para) {
     DataflowMinus.base.initialize.call(this, para);
 
+    this.inPorts = [
+      DataflowPort.new(this, "inx", "in-single", "D"), // to be subtract from
+      DataflowPort.new(this, "in", "in-multiple", "D") // to subtract
+    ];
+    this.outPorts = [
+      DataflowPort.new(this, "out", "out-multiple", "D")
+    ];
+
     this.prepare();
   },
 
@@ -17,27 +25,29 @@ var extObject = {
   },
 
   process: function() {
-    var packa = this.ports["ina"].pack,
-        packb = this.ports["inb"].pack;
+    var xpack = this.ports["inx"].pack,
+        inpacks = this.ports["in"].packs,
+        outpack = this.ports["out"].pack;
 
-    if (!packa.data.matchDataFormat(packb.data))
-      return console.error("cannot make intersection of two different types of datasets");
+    outpack.copy(xpack);  // pick the X pack, potentially empty
 
-    // for every item in A, check if it is in B
-    var result = [];
-    for (var index in packa.items) {
-      var itema = packa.items[index];
-      var itemb = packb.items[index];
-      if (itemb == null) {
-        result.push(index);
+    if (inpacks.length == 0 || xpack.isEmpty()) {
+      // nothing to minus
+      return;
+    }
+
+    for (var i in inpacks) {
+      var inpack = inpacks[i];
+      if (!outpack.data.matchDataFormat(inpack.data))
+        return console.error("cannot make intersection of two different types of datasets");
+
+      for (var index in inpack.items) {
+        if (outpack.items[index] != null) {
+          delete outpack.items[index];
+        }
       }
     }
-    var outpack = this.ports["out"].pack;
-    outpack.copy(packa);  // either A or B works
-    outpack.filter(result);
   }
-
-
 };
 
 var DataflowMinus = DataflowSet.extend(extObject);

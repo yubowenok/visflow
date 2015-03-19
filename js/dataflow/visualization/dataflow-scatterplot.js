@@ -418,6 +418,7 @@ var extObject = {
   },
 
   dataChanged: function() {
+    var data = this.ports["in"].pack.data;
     var chosen = [];
     for (var i in data.dimensionTypes) {
       if (data.dimensionTypes[i] != "string") {
@@ -427,13 +428,6 @@ var extObject = {
         break;
     }
     this.dimensions = [chosen[0], chosen[1 % chosen.length]];
-  },
-
-  processSelection: function() {
-    var inpack = this.ports["in"].pack,
-        outspack = this.ports["outs"].pack;
-    outspack.copy(inpack);
-    outspack.filter(_.allKeys(this.selected));
   },
 
   selectAll: function() {

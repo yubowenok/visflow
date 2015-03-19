@@ -49,7 +49,7 @@ var extObject = {
       [
         ["Color", DataflowColorpicker],
         ["Border", DataflowColorpicker],
-        ["BorderWidth", DataflowInput, "float", [0, 1E9], 0.1],
+        ["Width", DataflowInput, "float", [0, 1E9], 0.1],
         ["Size", DataflowInput, "float", [0, 1E9], 0.5],
         ["Opacity", DataflowInput, "float", [0, 1], 0.05]
       ].map(function(unit) {
@@ -72,6 +72,10 @@ var extObject = {
         input.jqunit.appendTo(this.jqview);
       }, this);
     }
+
+    this.viewWidth = this.jqview.width();
+    this.viewHeight = this.jqview.height();
+    this.updatePorts();
   },
 
   process: function() {

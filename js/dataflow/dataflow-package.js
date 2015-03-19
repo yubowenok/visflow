@@ -30,9 +30,18 @@ var extObject = {
   },
 
   // make full references to another package
-  copy: function(pack) {
+  copy: function(pack, shallow) {
     this.data = pack.data;
-    this.items = pack.items;
+    if (!shallow) {   // default deep copy
+      this.items = {};
+      for (var index in pack.items) {
+        this.items[index] = {
+          properties: _.extend({}, pack.items[index])
+        };
+      }
+    } else {
+      this.items = pack.items;  // shallow copy only makes reference to items
+    }
     this.changed = true;
   },
 
@@ -49,6 +58,10 @@ var extObject = {
 
   isEmpty: function() {
     return $.isEmptyObject(this.items);
+  },
+
+  isEmptyData: function() {
+    return this.data.type == "empty";
   }
 };
 

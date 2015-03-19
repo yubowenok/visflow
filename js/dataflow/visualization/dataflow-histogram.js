@@ -23,7 +23,7 @@ var extObject = {
     "size": "ignore",
     "color": "fill",
     "border": "stroke",
-    "borderwidth": "stroke-width"
+    "width": "stroke-width"
   },
 
   initialize: function(para) {
@@ -613,14 +613,13 @@ var extObject = {
 
   dataChanged: function() {
     // data has changed, by default load the first dimension
-    this.dimension = 0;
-  },
-
-  processSelection: function() {
-    var inpack = this.ports["in"].pack,
-        outspack = this.ports["outs"].pack;
-    outspack.copy(inpack);
-    outspack.filter(_.allKeys(this.selected));
+    var data = this.ports["in"].pack.data;
+    for (var i in data.dimensionTypes) {
+      if (data.dimensionTypes[i] != "string") {
+        this.dimension = i;
+        break;
+      }
+    }
   },
 
   selectAll: function() {

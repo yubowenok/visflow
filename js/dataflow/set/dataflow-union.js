@@ -17,38 +17,43 @@ var extObject = {
   },
 
   process: function() {
-    var packa = this.ports["ina"].pack,
-        packb = this.ports["inb"].pack;
+    var inpacks = this.ports["in"].packs,
+        outpack = this.ports["out"].pack;
 
-    if (!packa.data.matchDataFormat(packb.data))
-      return console.error("cannot make intersection of two different types of datasets");
+    outpack.copy(DataflowPackage.new());
 
-    var result = {};
-    // first get all items from A, if it exists in B as well, overwrite rendering properties
-    for (var index in packa.items) {
-      var itema = packa.items[index];
-      var itemb = packb.items[index];
-      if (itemb != null) {
-        // merge rendering property in to a new one
-        result[index] =  {
-          properties: _.extend({}, itema.properties, itemb.properties)
-        };
-      } else {
-        result[index] = itema;
+    for (var i in inpacks) {
+      if (!inpacks[i].isEmpty()) {
+        outpack.copy(inpacks[i]);
+        outpack.items = {};
+        break;
       }
     }
-    // then for every element in B but not in A, add it to result
-    for (var index in packb.items) {
-      var itemb = packb.items[index];
-      var itema = packa.items[index];
-      if (itema == null) {
-        result[index] = itemb;
+    if (outpack.isEmptyData()) {
+      // no data to union
+      return;
+    }
+
+    for (var i in inpacks) {
+      var inpack = inpacks[i];
+
+      if (!outpack.data.matchDataFormat(inpack.data))
+        return console.error("cannot make intersection of two different types of datasets");
+
+      // enumerate all in pack, overwrite rendering properties
+      for (var index in inpack.items) {
+        var itemout = outpack.items[index];
+        var item = inpack.items[index];
+        if (itemout != null) {
+          // merge rendering property
+          _(itemout.properties).extend(item.properties);
+        } else {
+          outpack.items[index] = {
+            properties: _.extend({}, item.properties)
+          };
+        }
       }
     }
-    var outpack = this.ports["out"].pack;
-    outpack.copy(packa.isEmpty() ? packb : packa);  // pack a non-empty pack
-    // not using filter because the properties are new
-    outpack.items = result;
   }
 
 };

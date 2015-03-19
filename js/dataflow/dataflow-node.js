@@ -94,7 +94,6 @@ var extObject = {
           .removeClass("dataflow-node-shape")
           .addClass("dataflow-node-shape-" + this.nodeShapeName);
       }
-
       this.prepareNodeInteraction();
       this.prepareContextmenu();
     } else {
@@ -105,7 +104,6 @@ var extObject = {
     }
 
     this.showPorts();
-    this.updatePorts();
     this.options();
   },
 
@@ -320,8 +318,15 @@ var extObject = {
 
   inPortsChanged: function() {
     for (var i in this.inPorts) {
-      if (this.inPorts[i].pack.changed)
-        return true;
+      if (this.inPorts[i].isSingle) {
+        if (this.inPorts[i].pack.changed)
+          return true;
+      } else {  // in-multiple
+        for (var j in this.inPorts[i].packs) {
+          if (this.inPorts[i].packs[j].changed)
+            return true;
+        }
+      }
     }
     return false;
   },

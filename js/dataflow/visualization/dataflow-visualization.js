@@ -188,7 +188,7 @@ var extObject = {
     if (inpack.isEmpty()) {
       outpack.copy(inpack);
       outspack.copy(inpack);
-      outspack.items = [];
+      outspack.items = {};
       return;
     }
     this.validateSelection();
@@ -201,7 +201,8 @@ var extObject = {
       this.lastDataId = inpack.data.dataId;
     }
 
-    // inheriting visualization classes implement this to send output to selection out port
+    // inheriting visualization classes may implement this
+    // to change routine that sends selection to output S
     this.processSelection();
 
     // pass data through
@@ -238,6 +239,13 @@ var extObject = {
       this.prepareInteraction();
       this.interactionOn = true;
     }
+  },
+
+  processSelection: function() {
+    var inpack = this.ports["in"].pack,
+        outspack = this.ports["outs"].pack;
+    outspack.copy(inpack);
+    outspack.filter(_.allKeys(this.selected));
   },
 
   // display a text message at the center of the node
@@ -283,7 +291,6 @@ var extObject = {
   updateVisualization: function() {},
   prepareInteraction: function() {},
   prepareScales: function() {},
-  processSelection: function() {},
   dataChanged: function() {}
 
 };

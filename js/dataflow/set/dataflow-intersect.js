@@ -17,28 +17,39 @@ var extObject = {
   },
 
   process: function() {
-    var packa = this.ports["ina"].pack,
-        packb = this.ports["inb"].pack;
+    var inpacks = this.ports["in"].packs,
+        outpack = this.ports["out"].pack;
 
-    if (!packa.data.matchDataFormat(packb.data))
-      return console.error("cannot make intersection of two different types of datasets");
+    outpack.copy(DataflowPackage.new());
 
-    // for every item in A, check if it is in B
-    var result = {};
-    for (var index in packa.items) {
-      var itema = packa.items[index];
-      var itemb = packb.items[index];
-      if (itemb != null) {
-        // merge rendering property in to a new one
-        result[index] =  {
-          properties: _.extend({}, itema.properties, itemb.properties)
-        };
+    for (var i in inpacks) {
+      if (!inpacks[i].isEmpty()) {
+        outpack.copy(inpacks[i]);
+        break;
       }
     }
-    var outpack = this.ports["out"].pack;
-    outpack.copy(packa);  // either A or B will work
-    // not using filter because the properties are new
-    outpack.items = result;
+
+    if (outpack.isEmptyData()) {
+      // no data to intersect
+      return;
+    }
+
+    for (var i in inpacks) {
+      var inpack = inpacks[i];
+
+      if (!outpack.data.matchDataFormat(inpack.data))
+        return console.error("cannot make intersection of two different types of datasets");
+
+      for (var index in outpack.items) {
+        var item = inpack.items[index];
+        if (item != null) {
+          // merge rendering property
+          _(outpack.items[index].properties).extend(item.properties);
+        } else {
+          delete outpack.items[index];
+        }
+      }
+    }
   }
 
 };

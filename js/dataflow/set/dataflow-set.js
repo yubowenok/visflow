@@ -14,8 +14,7 @@ var extObject = {
     DataflowSet.base.initialize.call(this, para);
 
     this.inPorts = [
-      DataflowPort.new(this, "ina", "in-single", "D"),
-      DataflowPort.new(this, "inb", "in-single", "D")
+      DataflowPort.new(this, "in", "in-multiple", "D"),
     ];
     this.outPorts = [
       DataflowPort.new(this, "out", "out-multiple", "D")

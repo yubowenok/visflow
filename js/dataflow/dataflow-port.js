@@ -21,7 +21,13 @@ var extObject = {
     this.connections = []; // to which other ports it is connected (edges)
 
     this.packClass = this.isConstants ? DataflowConstants : DataflowPackage;
+
     this.pack = this.packClass.new(); // stored data / constants
+    if (this.isInPort && !this.isSingle) {
+      // for in-multiple, use array to store packs
+      // this.pack will be referencing the last connected pack
+      this.packs = [];
+    }
   },
 
   connectable: function(port) {
@@ -47,7 +53,11 @@ var extObject = {
   connect: function(edge) {
     this.connections.push(edge);
     if (this.isInPort) {
-      this.pack = edge.sourcePort.pack; // make data reference
+      // make data reference, for in-multiple this references the last connected pack
+      this.pack = edge.sourcePort.pack;
+      if (!this.isSingle) { // in-multiple
+        this.packs.push(edge.sourcePort.pack);
+      }
     }
     edge.sourcePort.pack.changed = true;
     core.dataflowManager.propagate(edge.targetNode);
@@ -57,6 +67,9 @@ var extObject = {
     for (var i in this.connections) {
       if (this.connections[i] === edge) {
         this.connections.splice(i, 1);
+        if (this.isInPort && !this.isSingle) {
+          this.packs.splice(i, 1);  // also remove from packs for in-multiple
+        }
         break;
       }
     }
@@ -90,7 +103,7 @@ var extObject = {
         node = this.node;
     this.jqview
       .dblclick(function() {
-        console.log(port.pack, port.pack.items); // for debug
+        console.log(port.pack, port.packs); // for debug
       })
       .draggable({
         helper : function() {

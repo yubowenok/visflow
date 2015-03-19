@@ -115,6 +115,7 @@ var extObject = {
     this.viewWidth = this.jqview.width();
     this.viewHeight = this.jqview.height();
     this.updatePorts();
+    this.showSelection();
 
     this.interaction();
   },
@@ -161,11 +162,8 @@ var extObject = {
     }
   },
 
-  processSelection: function() {
-    var outspack = this.ports["outs"].pack,
-        inpack = this.ports["in"].pack;
-    outspack.copy(inpack);
-    outspack.filter(_.allKeys(this.selected));
+  dataChanged: function() {
+    // nothing
   },
 
   selectAll: function() {

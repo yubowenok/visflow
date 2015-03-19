@@ -318,6 +318,11 @@ var extObject = {
           sourcePort = sourceNode.ports[edgeSaved.sourcePortId],
           targetPort = targetNode.ports[edgeSaved.targetPortId];
 
+      if (targetPort == null) {
+        console.error("older version set nodes detected");
+        targetPort = targetNode.ports["in"];
+      }
+
       this.createEdge(sourcePort, targetPort);
     }
 
@@ -594,12 +599,24 @@ var extObject = {
 
   // pass key actions to selected nodes & edge
   keyAction: function(key, event) {
-    for (var nodeId in this.nodesSelected) {
-      var node = this.nodesSelected[nodeId];
-      node.keyAction(key, event);
+
+    if (key == "ctrl+S") {
+      this.saveDataflow();
+      event.preventDefault();
     }
-    if (this.edgeSelected != null) {
-      this.edgeSelected.keyAction(key, event);
+    else if (key == "ctrl+L") {
+      this.loadDataflow();
+      event.preventDefault();
+    }
+    else {
+      if (this.edgeSelected == null) { // edge and node selection are exclusive
+        for (var nodeId in this.nodesSelected) {
+          var node = this.nodesSelected[nodeId];
+          node.keyAction(key, event);
+        }
+      } else {
+        this.edgeSelected.keyAction(key, event);
+      }
     }
   },
 

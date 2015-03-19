@@ -23,8 +23,9 @@ var extObject = {
   },
   // translate what user see to css property
   propertyTranslate: {
+    "size": "ignore",
     "color": "stroke",
-    "size": "stroke-width"
+    "width": "stroke-width"
   },
 
   initialize: function(para) {
@@ -444,6 +445,7 @@ var extObject = {
   },
 
   dataChanged: function() {
+    var data = this.ports["in"].pack.data;
     // data has changed, by default load all dimensions
     this.dimensions = [];
     for (var i in data.dimensionTypes) {
@@ -452,13 +454,6 @@ var extObject = {
       this.dimensions.push(i);
     }
     this.lastDataId = data.dataId;
-  },
-
-  processSelection: function() {
-    var inpack = this.ports["in"].pack,
-        outspack = this.ports["outs"].pack;
-    outspack.copy(inpack);
-    outspack.filter(_.allKeys(this.selected));
   },
 
   selectAll: function() {
