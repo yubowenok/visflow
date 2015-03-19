@@ -358,6 +358,7 @@ var extObject = {
     else if (key == "D" && this.contextmenuDisabled["details"] == null) {
       this.detailsOn = !this.detailsOn;
       this.show();
+      this.updatePorts();
     }
     else if (key == "T" && this.contextmenuDisabled["options"] == null) {
       this.optionsOn = !this.optionsOn;

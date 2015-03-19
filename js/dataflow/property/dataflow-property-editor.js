@@ -4,7 +4,7 @@
 var extObject = {
 
   iconName: "property-editor",
-  nodeShapeName: "property-editor", // dedicate shape
+  nodeShapeName: "property",
 
   contextmenuDisabled: {
     "options": true
@@ -49,6 +49,7 @@ var extObject = {
       [
         ["Color", DataflowColorpicker],
         ["Border", DataflowColorpicker],
+        ["BorderWidth", DataflowInput, "float", [0, 1E9], 0.1],
         ["Size", DataflowInput, "float", [0, 1E9], 0.5],
         ["Opacity", DataflowInput, "float", [0, 1], 0.05]
       ].map(function(unit) {

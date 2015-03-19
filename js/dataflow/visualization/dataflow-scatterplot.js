@@ -30,7 +30,7 @@ var extObject = {
     "size": "r",
     "color": "fill",
     "border": "stroke",
-    "border-width": "stroke-width"
+    "borderwidth": "stroke-width"
   },
 
   initialize: function(para) {

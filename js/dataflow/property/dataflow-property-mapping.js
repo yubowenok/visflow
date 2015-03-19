@@ -4,6 +4,7 @@
 var extObject = {
 
   iconName: "property-mapping",
+  nodeShapeName: "property", // dedicate shape
 
   contextmenuDisabled: {
     "options": true
