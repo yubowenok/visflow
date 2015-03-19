@@ -57,8 +57,8 @@ var extObject = {
       .remove();
   },
 
-  hideColorpickers: function() {
-    $(".iris-picker").hide();
+  hideColorpickers: function(exception) {
+    $(".iris-picker").not(exception).hide();
   },
 
   bringFrontView: function(jqview) {

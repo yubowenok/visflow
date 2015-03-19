@@ -53,10 +53,7 @@ var extObject = {
       })
       .change(function(event){
         node.dimension = event.target.value;
-        node.process();
-
-        // push dimension change to downflow
-        core.dataflowManager.propagate(node);
+        node.pushflow();
       });
     this.prepareDimensionList();
 

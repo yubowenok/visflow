@@ -1,17 +1,18 @@
 
 /*
- * color picker unit that provides interface for choosing color
  *
+ * colorpicker unit that provides interface for choosing color
  * change will be fired in {id:..., value:...}
+ *
  */
 
 "use strict";
 
 var extObject = {
 
-  initialize: function(id, label) {
-    this.id = id;
-    this.label = label != null ? label : "";
+  initialize: function(para) {
+    this.id = para.id;
+    this.label = para.label != null ? para.label : "";
 
     this.color = "none";
 
@@ -31,7 +32,7 @@ var extObject = {
       .appendTo(this.jqunit);
 
     var container = $("<div></div>")
-      .addClass("dataflow-colorpicker-container")
+      .addClass("dataflow-unit-container")
       .appendTo(this.jqunit);
 
     var input = this.jqinput = $("<input type='text' value='none'/>")
@@ -46,7 +47,7 @@ var extObject = {
     var colorpicker = this;
     input.change(function(event) {
       var color = event.target.value;
-      colorpicker.setColor(color, event);
+      colorpicker.setValue(color, event);
     });
     input.iris({
       color: this.color,
@@ -57,19 +58,19 @@ var extObject = {
           color = "none";
         else
           color = color.toString();
-        colorpicker.setColor(color, event);
+        colorpicker.setValue(color, event);
       }
     });
     var toggleIris = function(event) {
-      // exclusively hide all other iris picker
-      core.viewManager.hideColorpickers();
-      input.iris("show");
+      // exclusively hide all other iris picker, except this one
+      core.viewManager.hideColorpickers(container.find(".iris-picker"));
+      input.iris("toggle");
     };
     colorbox.mousedown(toggleIris);
     input.mousedown(toggleIris);
   },
 
-  setColor: function(color, event) {
+  setValue: function(color, event) {
     if (event == null)
       event = {};
 

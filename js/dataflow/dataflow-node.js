@@ -365,6 +365,12 @@ var extObject = {
     }
   },
 
+  // process and propagate changes
+  pushflow: function() {
+    this.process();
+    core.dataflowManager.propagate(this); // push property changes to downflow
+  },
+
   // called when node is resized
   resize: function(size) {
     this.viewWidth = size.width;

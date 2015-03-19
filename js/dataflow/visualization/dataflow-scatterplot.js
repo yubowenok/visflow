@@ -16,8 +16,7 @@ var extObject = {
   // show these properties when items are selected
   selectedProperties: {
     "color": "#FF4400",
-    "border": "black",
-    "size" : 3.5
+    "border": "black"
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -162,8 +161,7 @@ var extObject = {
     }
 
     this.showVisualization();
-    this.process();
-    core.dataflowManager.propagate(this);
+    this.pushflow();
   },
 
   showSelectbox: function(box) {

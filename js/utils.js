@@ -51,5 +51,47 @@ var Utils = {
       result = (result * a + x) % p;
     }
     return result;
+  },
+
+  // parse a token and returns its value and type
+  gradeToType: ["empty", "int", "float", "string"],
+  typeToGrade: {
+    empty: 0,
+    int: 1,
+    float: 2,
+    stirng: 3
+  },
+  parseToken: function(text) {
+    // grades: [empty, int, float, string]
+    text += ""; // convert to string
+    var res;
+    res = text.match(/^-?[0-9]+/);
+    if (res && res[0] === text) {
+      return {
+        type: "int",
+        value: parseInt(text),
+        grade: 1
+      };
+    }
+    res = text.match(/^-?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)/);
+    if (res && res[0] === text) {
+      return {
+        type: "float",
+        value: parseFloat(text),
+        grade: 2
+      };
+    }
+    if (text === "") {  // empty constants are ignored
+      return {
+        type: "empty",
+        value: null,
+        grade: 0
+      };
+    }
+    return {
+      type: "string",
+      value: text,
+      grade: 3
+    };
   }
 };

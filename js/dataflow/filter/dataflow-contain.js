@@ -81,10 +81,7 @@ var extObject = {
       .select2()
       .change(function(event){
         node.inputMode = event.target.value;
-        node.process();
-
-        // push filter mode change to downflow
-        core.dataflowManager.propagate(node);
+        node.pushflow();
       });
     this.inputModeSelect.select2("val", this.inputMode);
 
@@ -104,10 +101,7 @@ var extObject = {
       .select2()
       .change(function(event){
         node.matchMode = event.target.value;
-        node.process();
-
-        // push filter mode change to downflow
-        core.dataflowManager.propagate(node);
+        node.pushflow();
       });
     this.matchModeSelect.select2("val", this.matchMode);
   },

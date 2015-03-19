@@ -9,14 +9,13 @@ var extObject = {
   // use object to specify default rendering properties
   defaultProperties: {
     "color": "black",
-    "size": "1px",
+    "size": 1,
     "fill": "none",
     "opacity": 0.5
   },
   // show these properties when items are selected
   selectedProperties: {
-    "color": "#FF4400",
-    "size": "2px"
+    "color": "#FF4400"
   },
   // let d3 know to use attr or style for each key
   isAttr: {

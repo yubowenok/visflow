@@ -241,6 +241,9 @@ var extobject = {
           if (!this.shifted)
             core.dataflowManager.clearNodeSelection();
           core.dataflowManager.addHoveredToSelection();
+
+          // also hide colorpickers
+          core.viewManager.hideColorpickers();
         }
       }
     } else if (type == "node") {

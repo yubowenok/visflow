@@ -194,8 +194,7 @@ var extObject = {
     }
 
     this.showVisualization();
-    this.process();
-    core.dataflowManager.propagate(this);
+    this.pushflow();
   },
 
   showSelectbox: function(box) {

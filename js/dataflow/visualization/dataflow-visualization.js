@@ -225,14 +225,12 @@ var extObject = {
     for (var index in inpack.items) {
       this.selected[index] = true;
     }
-    this.process();
-    core.dataflowManager.propagate(this);
+    this.pushflow();
   },
 
   clearSelection: function() {
     this.selected = {};
-    this.process();
-    core.dataflowManager.propagate(this);
+    this.pushflow();
   },
 
   interaction: function() {

@@ -61,7 +61,12 @@ var extObject = {
 
     var jqview = this.jqview;
     this.jqview
-      .mouseover(function(event) {
+      .mouseenter(function(event) {
+
+        // prevent drag interference
+        if (core.interactionManager.mouseMode != "none")
+          return;
+
         core.dataflowManager.addEdgeSelection(edge);
         // make a shadow
         jqview.children(".dataflow-edge-segment").clone()

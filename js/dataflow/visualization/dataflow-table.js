@@ -142,9 +142,7 @@ var extObject = {
         else
           node.selected[index] = true;
 
-        node.process();
-
-        core.dataflowManager.propagate(node);
+        node.pushflow();
       });
     }
 

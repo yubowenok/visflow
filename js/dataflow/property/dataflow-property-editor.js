@@ -45,21 +45,30 @@ var extObject = {
 
     if (this.detailsOn) {
       var node = this;
-      ["Color", "Border"].map(function(text) {
-        var id = text.toLowerCase();
-        var colorpicker = DataflowColorpicker.new(id, text);
+      // color and border
+      [
+        ["Color", DataflowColorpicker],
+        ["Border", DataflowColorpicker],
+        ["Size", DataflowInput, "float", [0, 1E9], 0.5],
+        ["Opacity", DataflowInput, "float", [0, 1], 0.05]
+      ].map(function(unit) {
+        var id = unit[0].toLowerCase();
+        var input = unit[1].new({
+          id: id,
+          label: unit[0],
+          accept: unit[2],
+          range: unit[3],
+          scrollDelta: unit[4]
+        });
         if (this.properties[id] != null) {
-          colorpicker.setColor(this.properties[id]);
+          input.setValue(this.properties[id]);
         }
-        colorpicker.change(function(event){
+        input.change(function(event){
           var unitChange = event.unitChange;
           node.properties[unitChange.id] = unitChange.value;
-          node.process();
-
-          // push property changes to downflow
-          core.dataflowManager.propagate(node);
+          node.pushflow();
         });
-        colorpicker.jqunit.appendTo(this.jqview);
+        input.jqunit.appendTo(this.jqview);
       }, this);
     }
   },

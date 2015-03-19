@@ -27,8 +27,16 @@
   left: 80%;
 }
 
-.dataflow-colorpicker-container {
+.dataflow-unit-container {
   position: absolute;
   display: inline;
   left: 35%;
+  width: 65%;
+}
+
+.dataflow-unit-input {
+  width: 90%;
+  font-family: Courier !important;
+  text-align: center;
+  line-height: 20px;
 }
