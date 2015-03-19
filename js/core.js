@@ -8,7 +8,7 @@ var core;
 var extObject = {
   initialize: function() {
     this.viewManager = ViewManager.new();
-    this.viewManager.showPanel();
+    this.viewManager.showMenuPanel();
     this.dataflowManager = DataflowManager.new();
     this.interactionManager = InteractionManager.new();
   }

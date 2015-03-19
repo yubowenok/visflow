@@ -186,12 +186,10 @@ var extObject = {
 
     this.checkDataEmpty();
     this.prepareSvg(useTransition);
-
-    this.prepareScales();
-    this.interaction();
-
     if (this.isEmpty)
       return;
+    this.prepareScales();
+    this.interaction();
 
     var node = this;
 

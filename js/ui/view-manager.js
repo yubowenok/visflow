@@ -7,17 +7,135 @@ var extObject = {
     this.topZindex = 0;
   },
 
-  showPanel: function() {
-    var jqview = $("<div></div>").appendTo("body");
-    this.panel = Panel.new({
+  showMenuPanel: function() {
+    var manager = this;
+    var jqview = $("<div></div>")
+      .appendTo("body");
+
+    this.menuPanel = Panel.new({
+      id: "menuPanel", // required by view
+      class: "menupanel",
       jqview: jqview,
-      id: "panel"
+      htmlFile: "menu-panel.html",
+      buttons: [
+      {
+          id: "add",
+          click: function(event) {
+            manager.showAddPanel(event);
+          }
+        },
+        {
+          id: "new",
+          click: function() {
+            core.dataflowManager.lastFilename = "myDataflow";
+            core.dataflowManager.clearDataflow();
+          }
+        },
+        {
+          id: "save",
+          click: function() {
+            core.dataflowManager.saveDataflow();
+          }
+        },
+        {
+          id: "load",
+          click: function() {
+            core.dataflowManager.loadDataflow();
+          }
+        },
+        {
+          id: "help",
+          click: function() {
+            manager.helpDataflow();
+          }
+        },
+        {
+          id: "about",
+          click: function() {
+            manager.aboutDataflow();
+          }
+        }
+      ]
     });
-    this.panel.show();
+    this.menuPanel.show();
   },
 
-  hidePanel: function() {
-    this.panel.close();
+  hideMenuPanel: function() {
+    this.menuPanel.hide();
+  },
+
+  closePopupPanel: function() {
+    if (this.popupPanel) {
+      this.popupPanel.jqview.remove();
+      this.popupPanel = null;
+    }
+  },
+
+  filterAddPanel: function(key) {
+    if (this.popupPanel == null)
+      return console.error("filterAddPanel found no addpanel");
+    // two children(), there is a container div
+    this.popupPanel.jqview.find(".group").not("." + key).remove();    this.popupPanel.jqview.find(".addpanel-button").not("." + key).remove();
+  },
+
+  showAddPanel: function(event, compact) {
+    this.closePopupPanel();
+    var manager = this;
+    var jqview = $("<div></div>")
+      .appendTo("body");
+
+    var buttons = [];
+    [ "datasrc",   // data source
+      "range", "contain", // filter
+      "property-editor", "property-mapping", // rendering property
+      "intersect", "minus", "union",  // set
+      "value-extractor", "value-maker",   // value
+      "histogram", "parallelcoordinates", "scatterplot", "table" // visualization
+    ].map(function(id) {
+      buttons.push({
+        id: id,
+        click: function(event) {
+          var node = core.dataflowManager.createNode(id);
+
+          node.jqview.css({
+            left: event.pageX - node.jqview.width() / 2,
+            top: event.pageY - node.jqview.height() / 2,
+            opacity: 0.0,
+            zoom: 2,
+          });
+          node.jqview.animate({
+            opacity: 1.0,
+            zoom: 1,
+          }, 200, function(){
+            node.jqview.css("zoom", "");
+          });
+          manager.closePopupPanel();
+        }
+      });
+    });
+    this.popupPanel = Panel.new({
+      id: "popupPanel", // required by view
+      name: "add",
+      jqview: jqview,
+      class: !compact ? "addpanel" : "addpanel-compact",
+      rightClickClose: true,
+      css: {
+        left: event.pageX + 50, // always near mouse
+        top: event.pageY
+      },
+      fadeIn: 200,
+      htmlFile: !compact ? "add-panel.html" : "add-panel-compact.html",
+      buttons: buttons,
+      htmlLoadComplete: function() {
+        jqview.find(".addpanel-button").tooltip({
+          tooltipClass: "addpanel-tooltip",
+          show: {
+            delay: 1000
+          }
+        });
+      }
+    });
+    this.popupPanel.show();
   },
 
   createNodeView: function(para) {
@@ -68,6 +186,12 @@ var extObject = {
 
   getTopZindex: function() {
     return this.topZindex;
+  },
+
+  getPopupPanelName: function() {
+    if (this.popupPanel == null)
+      return null;
+    return this.popupPanel.name;
   },
 
   tip: function(text, csspara) {

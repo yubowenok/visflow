@@ -5,74 +5,66 @@
 
 var extObject = {
   initialize: function(para) {
-    this.base.initialize.call(this, para); // call parent constructor
-    para.jqview
-      .addClass("panel");
+    Panel.base.initialize.call(this, para); // call parent constructor
+
+    this.name = para.name;
+    this.initCss = para.css != null ? para.css : {};
+    this.htmlFile = para.htmlFile;
+    this.buttons = para.buttons != null ? para.buttons : [];
+    this.fadeIn = para.fadeIn != null ? para.fadeIn : 1000;
+    this.class = para.class != null ? para.class : "";
+    this.rightClickClose = para.rightClickClose != null ? para.rightClickClose : false;
+    this.htmlLoadComplete = para.htmlLoadComplete != null ? para.htmlLoadComplete : function(){};
   },
+
   show: function() {
-    var view = this;
-    this.jqheader = $("<h3>Panel</h3>")
+    var panel = this;
+
+    var container = $("<div></div>")
+      .bind("contextmenu", function(){
+        return false;
+      })
+      .addClass(this.class)
+      .appendTo(this.jqview);
+
+    container
+      .draggable()
+      .addClass("panel ui-widget ui-widget-content")
       .appendTo(this.jqview)
-      .addClass("ui-widget-header view-header");
-    this.jqview
-      .draggable({
-        handle: "h3"
-      });
-    this.jqmenu = $("<div></div>")
-      .appendTo(this.jqview)
-      .load("js/ui/panel-menu.html", function() {
-        var menu = view.jqmenu.children("ul");
-        menu.menu({
-          //position: { my: "left top", at: "right top" },
-          select: function(event, ui) {
-            if (ui.item.attr("id").substr(0,5) !== "menu_")
-              return; // non-reactive menu entrie
-            var type = ui.item.attr("id").substr(5); // remove "menu_" prefix
-            switch(type) {
-            case "datasrc":
-            case "table":
-            case "scatterplot":
-            case "parallelcoordinates":
-            case "histogram":
-            case "union":
-            case "intersect":
-            case "minus":
-            case "value_maker":
-            case "value_extractor":
-            case "range":
-            case "contain":
-            case "property_editor":
-            case "property_mapping":
-              core.dataflowManager.createNode(type);
-              break;
-            case "vismode":
-              break;
-            case "layout":
-              break;
-            case "new":
-              core.dataflowManager.lastFilename = "myDataflow";
-              core.dataflowManager.clearDataflow();
-              break;
-            case "save":
-              core.dataflowManager.saveDataflow();
-              break;
-            case "load":
-              core.dataflowManager.loadDataflow();
-              break;
-            case "about":
-              core.viewManager.aboutDataflow();
-              break;
-            case "help":
-              core.viewManager.helpDataflow();
-              break;
-            case "":  // non-selectable menu entry
-              break;
-            default:
-              console.error("unhandled menu item");
-            }
-          }
+      .load("js/ui/" + this.htmlFile, function() {
+        panel.buttons.map(function(button) {
+          panel.jqview.find("#" + button.id).click(function(event){
+            event.id = button.id;
+            button.click(event);
+          });
         });
+        // prepare html, usually tooltips
+        panel.htmlLoadComplete();
       });
+    container
+      .css({
+        opacity: 0,
+        left: -50
+      });
+
+    if (this.fadeIn !== false) {
+      container.animate({
+          opacity: 1.0,
+          left: "+=50",
+        }, this.fadeIn, function() {
+      });
+    }
+
+    this.jqview
+      .css("position", "absolute")
+      .css(this.initCss);
+
+    this.jqview.mousedown(function(event) {
+      if (event.which == 3) {
+        panel.jqview.remove();
+        return false;
+      }
+    });
   }
 };
 

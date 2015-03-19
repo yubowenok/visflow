@@ -248,7 +248,7 @@ var extObject = {
   },
 
   keyAction: function(key, event) {
-    if (key == ".") {
+    if (key == "." || key == "ctrl+X") {
       core.dataflowManager.deleteEdge(this);
       core.viewManager.clearEdgeHover();
     }

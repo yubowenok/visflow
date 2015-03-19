@@ -1,0 +1,111 @@
+.panel {
+  border-radius: 10px;
+  width: 56px;
+  z-index: 2000;
+  padding: 3px;
+  border: 3px solid #e0cfc2;
+  background: rgba(224, 207, 194, 0.25);
+  display: inline-block;
+  position: absolute;
+}
+
+.menupanel {
+  padding: 20px 3px;
+}
+
+.panel-button {
+  width: 50px;
+  height: 50px;
+}
+
+.addpanel-button,
+.panel-button {
+  margin: 5px 0px;
+  margin-right: 5px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.panel-button:hover {
+  position: relative;
+  cursor: pointer;
+}
+.panel-button:hover > img {
+  width: 55px;
+  height: 55px;
+}
+
+.addpanel-button {
+  padding: 2px;
+}
+.addpanel-button:hover {
+  position: relative;
+  cursor: pointer;
+  padding: 0px;
+  border: 2px solid #444;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.addpanel-button-text {
+  width: 100%;
+  text-align: center;
+}
+
+.panel-button > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.menupanel-square-icon {
+  border: #444 solid 2px;
+  border-radius: 10px;
+}
+
+.addpanel-compact,
+.addpanel {
+  background: rgba(224, 207, 194, 0.5);
+}
+
+.addpanel {
+  width: 650px;
+}
+.addpanel-compact {
+  width: 250px;
+}
+
+.addpanel * > p {
+  font-weight: bold;
+  font-size: 1em;
+  margin: 5px;
+  margin-left: 1em;
+  background: linear-gradient(to right, rgba(224, 207, 194, 0.75), rgba(224, 207, 194, 0.0) 10%);
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.addpanel * > .addpanel-button {
+  width: 80px;
+  margin: 0px 10px;
+}
+.addpanel-square-icon,
+.addpanel-flat-icon {
+  width: 60px;
+  margin-left: 10px;
+}
+
+.addpanel-compact * > .addpanel-button,
+.addpanel-compact * > .addpanel-square-icon,
+.addpanel-compact * > .addpanel-flat-icon
+{
+  width: 50px;
+  margin: 0;
+}
+
+.addpanel-tooltip {
+  border: 1px solid #444;
+  padding: 3px;
+  border-radius: 3px;
+  pointer-events: none;
+}

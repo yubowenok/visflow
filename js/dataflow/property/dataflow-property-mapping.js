@@ -23,7 +23,6 @@ var extObject = {
   },
 
   show: function() {
-
     DataflowPropertyMapping.base.show.call(this); // call parent settings
   }
 

@@ -96,8 +96,8 @@ var extObject = {
     var jqwrapper = this.jqvis.find(".dataTables_wrapper");
 
     var paddedHeight = jqwrapper.height() + 10;
+
     this.jqview
-      .addClass("dataflow-table-view")
       .css({
         height: paddedHeight
       })
@@ -105,6 +105,10 @@ var extObject = {
         maxWidth: jqtheadr.width(),
         maxHeight: paddedHeight
       });
+
+    // otherwise size is not quite correct when empty
+    if (!this.isEmpty)
+      this.jqview.addClass("dataflow-table-view");
 
     if (this.keepSize != null) {
       // use previous size regardless of how table entries changed
@@ -117,6 +121,8 @@ var extObject = {
     this.updatePorts();
     this.showSelection();
 
+    if (this.isEmpty) // do not interact if data is empty
+      return;
     this.interaction();
   },
 

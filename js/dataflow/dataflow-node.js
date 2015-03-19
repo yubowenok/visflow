@@ -357,7 +357,7 @@ var extObject = {
       // avoid interfering with user typing input
       return;
     }
-    if (key == ".") {
+    if (key == "." || key == "ctrl+X") {
       core.dataflowManager.deleteNode(this);
     }
     else if (key == "D" && this.contextmenuDisabled["details"] == null) {

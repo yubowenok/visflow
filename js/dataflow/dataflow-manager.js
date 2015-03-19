@@ -43,6 +43,7 @@ var extObject = {
   },
 
   createNode: function(type) {
+
     var newnode, dataflowClass;
     var para = {};
     switch (type) {
@@ -53,10 +54,10 @@ var extObject = {
     case "minus":
     case "range":
     case "contain":
-    case "value_maker":
-    case "value_extractor":
-    case "property_editor":
-    case "property_mapping":
+    case "value-maker":
+    case "value-extractor":
+    case "property-editor":
+    case "property-mapping":
       if (type === "datasrc")
         dataflowClass = DataflowDataSource;
       if (type === "intersect")
@@ -69,13 +70,13 @@ var extObject = {
         dataflowClass = DataflowRangeFilter;
       if (type === "contain")
         dataflowClass = DataflowContainFilter;
-      if (type === "value_extractor")
+      if (type === "value-extractor")
         dataflowClass = DataflowValueExtractor;
-      if (type === "value_maker")
+      if (type === "value-maker")
         dataflowClass = DataflowValueMaker;
-      if (type === "property_editor")
+      if (type === "property-editor")
         dataflowClass = DataflowPropertyEditor;
-      if (type === "property_mapping")
+      if (type === "property-mapping")
         dataflowClass = DataflowPropertyMapping;
       break;
 
@@ -109,10 +110,14 @@ var extObject = {
     newnode.setJqview(jqview);
     newnode.show();
     this.nodes[newnode.nodeId] = newnode;
-    if (type == "datasrc" || type == "value_maker") {
+    if (type == "datasrc" || type == "value-maker") {
       this.dataSources.push(newnode);
     }
     this.activateNode(newnode.nodeId);
+
+    // select newnode (exclusive) after
+    this.clearNodeSelection();
+    this.addNodeSelection(newnode);
     return newnode;
   },
 
@@ -305,6 +310,15 @@ var extObject = {
     for (var i in dataflow.nodes) {
       var nodeSaved = dataflow.nodes[i];
       var type = nodeSaved.type;
+
+      for (var j in type) {
+        if (type[j] == "_") {
+          type = type.replace(/_/g, "-");
+          console.error("fix old type with underscore");
+          break;
+        }
+      }
+
       var newnode = this.createNode(type);
       hashes[nodeSaved.hashtag] = newnode;
       newnode.jqview.css(nodeSaved.css);

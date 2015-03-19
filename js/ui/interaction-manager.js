@@ -108,6 +108,8 @@ var extobject = {
         manager.ctrled = true;
         manager.jqdataflow.css("cursor", "move");
         manager.visualizationBlocking = false;
+      } else if (event.keyCode == 27) {   // esc
+        manager.escHandler();
       } else {
         var c = String.fromCharCode(event.keyCode);
         var key = c;
@@ -116,10 +118,33 @@ var extobject = {
         if (manager.ctrled)
           key = "ctrl+" + key;
 
-        //console.log(key);
-        core.dataflowManager.keyAction(key, event);
+        if (key == "A") {
+          event.pageX = manager.currentMouseX;
+          event.pageY = Math.max(20,
+            Math.min(manager.currentMouseY,
+              $(window).height() - 260)
+          );
+          core.viewManager.showAddPanel(event, true); // compact mode
+        }
+        else if (key == "shift+A") {
+          event.pageX = manager.currentMouseX;
+          event.pageY = Math.max(20,
+            Math.min(manager.currentMouseY,
+              $(window).height() - 800)
+          );
+          core.viewManager.showAddPanel(event);
+        }
+        else if (core.viewManager.getPopupPanelName() == "add") {
+            // further filtering popup entries
+            core.viewManager.filterAddPanel(key);
+        }
+        else {
+          // not global interaction event, pass to dataflow
+          core.dataflowManager.keyAction(key, event);
+        }
       }
     });
+
     $(document).keyup(function(event) {
       if (event.keyCode == 16) {
         manager.keyReleased("shift");
@@ -258,6 +283,7 @@ var extobject = {
     // to prevent inconsistent interaction states resulting from an uncaptured event
     this.keyReleased(["shift", "ctrl"]);
     core.viewManager.clearEdgeHover();
+    core.viewManager.closePopupPanel();
 
     this.mouseMode = "none";
   },
@@ -393,6 +419,12 @@ var extobject = {
       core.dataflowManager.clearNodeSelection();
       core.viewManager.hideColorpickers();
     }
+  },
+
+  escHandler: function() {
+    core.dataflowManager.clearNodeSelection();
+    core.viewManager.hideColorpickers();
+    core.viewManager.closePopupPanel();
   }
 
 /*

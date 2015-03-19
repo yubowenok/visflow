@@ -23,11 +23,6 @@ div {
 }
 
 
-.panel {
-  width: 150px;
-  position: absolute;
-  z-index: 2000;
-}
 
 .view-header {
   text-align: center;
@@ -118,6 +113,7 @@ div {
   width: 100px;
   height: 50px;
   line-height: 25px;
+  background-size: 50px 25px;
 }
 .dataflow-node-shape-longflat {
   width: 160px;
@@ -161,16 +157,6 @@ div {
 }
 
 
-
-.menu-square-icon {
-  width: 80px;
-  height: 80px;
-}
-.menu-flat-icon {
-  width: 80px;
-  height: 40px;
-}
-
 .dataflow-table {
   width: 100%;
   height: 100%;
@@ -208,12 +194,15 @@ div {
 }
 .dataflow-intersect-icon {
   background: url(../imgs/intersect-icon.png) no-repeat center;
+  background-size: 70px;
 }
 .dataflow-minus-icon {
   background: url(../imgs/minus-icon.png) no-repeat center;
+  background-size: 70px;
 }
 .dataflow-union-icon {
   background: url(../imgs/union-icon.png) no-repeat center;
+  background-size: 70px;
 }
 .dataflow-value-extractor-icon {
   background: url(../imgs/value-extractor-icon.png) no-repeat center;
