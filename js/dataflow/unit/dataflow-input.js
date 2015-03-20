@@ -56,6 +56,8 @@ var extObject = {
         // send scroll event to callback
         var delta = event.deltaY * event.deltaFactor;
         var sign = delta > 0 ? 1 : -1;
+        if (unit.value == "")
+          unit.value = 0; // prevent NaN
         var newValue = (parseFloat(unit.value) + sign * unit.scrollDelta).toPrecision(3);
         unit.setValue(newValue);
       });

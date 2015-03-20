@@ -38,6 +38,12 @@ var extObject = {
       console.error("properties not saved in property editor");
       this.properties = {};
     }
+    for (var key in this.properties) {
+      if (this.properties[key] == "" || this.properties[key] == null) {
+        console.error("null/empty property key saved");
+        delete this.properties[key];
+      }
+    }
   },
 
   show: function() {
@@ -66,7 +72,14 @@ var extObject = {
         }
         input.change(function(event){
           var unitChange = event.unitChange;
-          node.properties[unitChange.id] = unitChange.value;
+          console.log(unitChange);
+          if (unitChange.value != null) {
+            node.properties[unitChange.id] = unitChange.value;
+          } else {
+            // the property is null, and thus removed
+            // otherwise downflow will get null svg value
+            delete node.properties[unitChange.id];
+          }
           node.pushflow();
         });
         input.jqunit.appendTo(this.jqview);

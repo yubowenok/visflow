@@ -118,10 +118,10 @@ var extObject = {
       name: "add",
       jqview: jqview,
       class: !compact ? "addpanel" : "addpanel-compact",
-      rightClickClose: true,
       css: {
         left: event.pageX + 50, // always near mouse
-        top: event.pageY
+        top: Math.max(20,
+          Math.min(event.pageY, $(window).height() - (compact ? 260 : 800)))
       },
       fadeIn: 200,
       htmlFile: !compact ? "add-panel.html" : "add-panel-compact.html",

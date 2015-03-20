@@ -109,3 +109,7 @@
   border-radius: 3px;
   pointer-events: none;
 }
+
+.panel-button-disabled {
+  opacity: 0.5;
+}

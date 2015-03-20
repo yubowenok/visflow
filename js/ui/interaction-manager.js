@@ -120,18 +120,12 @@ var extobject = {
 
         if (key == "A") {
           event.pageX = manager.currentMouseX;
-          event.pageY = Math.max(20,
-            Math.min(manager.currentMouseY,
-              $(window).height() - 260)
-          );
+          event.pageY = manager.currentMouseY;
           core.viewManager.showAddPanel(event, true); // compact mode
         }
         else if (key == "shift+A") {
           event.pageX = manager.currentMouseX;
-          event.pageY = Math.max(20,
-            Math.min(manager.currentMouseY,
-              $(window).height() - 800)
-          );
+          event.pageY = manager.currentMouseY;
           core.viewManager.showAddPanel(event);
         }
         else if (core.viewManager.getPopupPanelName() == "add") {

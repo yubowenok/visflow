@@ -13,7 +13,6 @@ var extObject = {
     this.buttons = para.buttons != null ? para.buttons : [];
     this.fadeIn = para.fadeIn != null ? para.fadeIn : 1000;
     this.class = para.class != null ? para.class : "";
-    this.rightClickClose = para.rightClickClose != null ? para.rightClickClose : false;
     this.htmlLoadComplete = para.htmlLoadComplete != null ? para.htmlLoadComplete : function(){};
   },
 
@@ -58,13 +57,6 @@ var extObject = {
     this.jqview
       .css("position", "absolute")
       .css(this.initCss);
-
-    this.jqview.mousedown(function(event) {
-      if (event.which == 3) {
-        panel.jqview.remove();
-        return false;
-      }
-    });
   }
 };
 
