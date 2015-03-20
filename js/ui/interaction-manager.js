@@ -129,8 +129,11 @@ var extobject = {
           core.viewManager.showAddPanel(event);
         }
         else if (core.viewManager.getPopupPanelName() == "add") {
-            // further filtering popup entries
-            core.viewManager.filterAddPanel(key);
+          // further filtering popup entries
+          core.viewManager.filterAddPanel(key);
+        }
+        else if (key == "M"){
+          core.viewManager.toggleMenuPanel();
         }
         else {
           // not global interaction event, pass to dataflow

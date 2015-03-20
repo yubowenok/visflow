@@ -1,3 +1,8 @@
+
+#menuPanel {
+  z-index: 3000;
+}
+
 .panel {
   border-radius: 10px;
   width: 56px;

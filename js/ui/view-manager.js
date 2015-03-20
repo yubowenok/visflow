@@ -5,6 +5,7 @@ var extObject = {
 
   initialize: function() {
     this.topZindex = 0;
+    this.menuOn = true;
   },
 
   showMenuPanel: function() {
@@ -61,7 +62,23 @@ var extObject = {
   },
 
   hideMenuPanel: function() {
-    this.menuPanel.hide();
+    this.menuOn = false;
+    this.menuPanel.jqview.hide();
+  },
+
+  toggleMenuPanel: function() {
+    this.menuOn = !this.menuOn;
+    if (this.menuOn) {
+      this.menuPanel.jqview.animate({
+        opacity: 1.0,
+        top: "+=50"
+      }, 1000);
+    } else {
+      this.menuPanel.jqview.animate({
+        opacity: 0.0,
+        top: "-=50"
+      }, 1000);
+    }
   },
 
   closePopupPanel: function() {

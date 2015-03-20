@@ -12,6 +12,16 @@ var extObject = {
     this.htmlFile = para.htmlFile;
     this.buttons = para.buttons != null ? para.buttons : [];
     this.fadeIn = para.fadeIn != null ? para.fadeIn : 1000;
+    this.fadeInCssBegin = para.fadeInCssBegin != null ? para.fadeInCssBegin :
+      {
+        opacity: 0.0,
+        top: -50
+      };
+    this.fadeInCssEnd = para.fadeInCssEnd != null ? para.fadeInCssEnd :
+      {
+        opacity: 1.0,
+        top: "+=50",
+      };
     this.class = para.class != null ? para.class : "";
     this.htmlLoadComplete = para.htmlLoadComplete != null ? para.htmlLoadComplete : function(){};
   },
@@ -40,18 +50,10 @@ var extObject = {
         // prepare html, usually tooltips
         panel.htmlLoadComplete();
       });
-    container
-      .css({
-        opacity: 0,
-        left: -50
-      });
 
     if (this.fadeIn !== false) {
-      container.animate({
-          opacity: 1.0,
-          left: "+=50",
-        }, this.fadeIn, function() {
-      });
+      container.css(this.fadeInCssBegin);
+      container.animate(this.fadeInCssEnd, this.fadeIn, function() {});
     }
 
     this.jqview
