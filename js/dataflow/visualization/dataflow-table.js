@@ -125,6 +125,9 @@ var extObject = {
   },
 
   prepareInteraction: function() {
+
+    DataflowTable.base.prepareInteraction.call(this);
+
     var node = this;
 
     this.jqtbody

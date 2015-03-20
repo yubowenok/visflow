@@ -112,7 +112,7 @@ var extObject = {
 
   checkDataEmpty: function() {
     this.clearMessage();
-    if (this.ports["in"].pack.isEmptyData()) {
+    if (this.ports["in"].pack.isEmpty()) {
       // otherwise scales may be undefined
       this.showMessage("empty data in " + this.plotName);
       this.isEmpty = true;
@@ -182,6 +182,8 @@ var extObject = {
         outpack = this.ports["out"].pack,
         outspack = this.ports["outs"].pack;
 
+    outpack.copy(inpack, true); // always pass through
+
     // during async data load, selection is first deserialized to vis nodes
     // however the data have not passed in
     // thus the selection might be erronesouly cleared if continue processing
@@ -204,9 +206,13 @@ var extObject = {
     // inheriting visualization classes may implement this
     // to change routine that sends selection to output S
     this.processSelection();
+  },
 
-    // pass data through
-    outpack.copy(inpack);
+  processSelection: function() {
+    var inpack = this.ports["in"].pack,
+        outspack = this.ports["outs"].pack;
+    outspack.copy(inpack);
+    outspack.filter(_.allKeys(this.selected));
   },
 
   validateSelection: function() {
@@ -241,13 +247,6 @@ var extObject = {
     }
   },
 
-  processSelection: function() {
-    var inpack = this.ports["in"].pack,
-        outspack = this.ports["outs"].pack;
-    outspack.copy(inpack);
-    outspack.filter(_.allKeys(this.selected));
-  },
-
   // display a text message at the center of the node
   showMessage: function(msg) {
     this.jqmsg = $("<div></div>")
@@ -271,6 +270,19 @@ var extObject = {
       this.clearSelection();
   },
 
+  // setting up the callback so that once a vis is interacted with
+  // the view is selected
+  prepareInteraction: function() {
+    if (this.jqsvg == null)
+      return console.error("no svg for prepareInteraction");
+    var node = this;
+    this.jqsvg.mousedown(function(){
+      if (!core.interactionManager.shifted)
+        core.dataflowManager.clearNodeSelection();
+      core.dataflowManager.addNodeSelection(node);
+    });
+  },
+
   // need to call parent classes
   resize: function(size) {
     DataflowVisualization.base.resize.call(this, size);
@@ -289,7 +301,6 @@ var extObject = {
   showOptions: function() {},
   showSelection: function() {},
   updateVisualization: function() {},
-  prepareInteraction: function() {},
   prepareScales: function() {},
   dataChanged: function() {}
 

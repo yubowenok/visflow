@@ -81,6 +81,9 @@ var extObject = {
   },
 
   prepareInteraction: function() {
+
+    DataflowHistogram.base.prepareInteraction.call(this);
+
     var node = this,
         mode = "none";
     var startPos = [0, 0],

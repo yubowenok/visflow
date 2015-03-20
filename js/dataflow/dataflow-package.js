@@ -36,7 +36,7 @@ var extObject = {
       this.items = {};
       for (var index in pack.items) {
         this.items[index] = {
-          properties: _.extend({}, pack.items[index])
+          properties: _.extend({}, pack.items[index].properties)
         };
       }
     } else {
@@ -51,6 +51,8 @@ var extObject = {
     for (var i in indexes) {
       var index = indexes[i];
       var e = this.items[index];
+      if(this.items[index] == null)
+        console.error("selected element not exists");
       newItems[index] = e;
     }
     this.items = newItems;
