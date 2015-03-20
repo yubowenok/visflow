@@ -43,59 +43,53 @@ var extObject = {
         data = pack.data,
         items = pack.items;
 
+    this.checkDataEmpty();
+    if (this.isEmpty) {
+      this.prepareSvg();
+      return;
+    }
+
     if (this.table) {
       this.table.destroy(true);
       this.interactionOn = false;
     }
 
+    this.jqview.addClass("dataflow-table-view");
     this.jqvis.addClass("dataflow-table");
 
-    var jqtable = $("<table></table>")
-      .appendTo(this.jqvis);
-    $("<thead><tr></tr></thead>")
-      .appendTo(jqtable);
-    var jqtheadr = jqtable.find("thead tr");
-
-    // table rows, also the interactive region
-    var jqtbody = this.jqtbody = $("<tbody></tbody>")
-      .appendTo(jqtable);
-
-    // make head row
-    $("<th>#</th>").appendTo(jqtheadr);  // index column
-    for (var i in data.dimensions)  // dimensions
-      $("<th>" + data.dimensions[i] + "</th>")
-        .appendTo(jqtheadr);
-
-    // make table rows
-    for (var index in items) {
-      var jqtr = $("<tr></tr>")
-        .attr("id", "i" + index)
-        .appendTo(jqtbody);
-      // index column
-      $("<td>" + index + "</td>")
-        .appendTo(jqtr);
-      // values
-      for (var j in data.dimensions) {
-        var value = data.values[index][j];
-        $("<td>" + value + "</td>")
-          .appendTo(jqtr);
-      }
+    var rows = [],
+        columns = [];
+    columns.push({
+      title: "#"
+    }); // index column
+    for (var i in data.dimensions) { // dimensions
+      columns.push({
+        title: data.dimensions[i]
+      });
     }
-
-    var toolbarHeight = 0;
-
-    this.jqtable = jqtable;
+    for (var index in items) {
+      var row = [index].concat(data.values[index]);
+      rows.push(row);
+    }
+    var jqtable = this.jqtable
+      = $("<table class='display'></table>")
+      .appendTo(this.jqvis);
 
     this.table = jqtable
         .DataTable({
+          data: rows,
+          columns: columns,
           scrollX: true,
           scrollY: "300px",
           info: false
         });
 
-    var jqwrapper = this.jqvis.find(".dataTables_wrapper");
+    // get thead and tbody selection
+    var jqtheadr = jqtable.find("thead");
+    this.jqtbody = jqtable.find("tbody");
 
-    var paddedHeight = jqwrapper.height() + 10;
+    var jqwrapper = this.jqvis.find(".dataTables_wrapper"),
+        paddedHeight = jqwrapper.height() + 10;
 
     this.jqview
       .css({
@@ -105,10 +99,6 @@ var extObject = {
         maxWidth: jqtheadr.width(),
         maxHeight: paddedHeight
       });
-
-    // otherwise size is not quite correct when empty
-    if (!this.isEmpty)
-      this.jqview.addClass("dataflow-table-view");
 
     if (this.keepSize != null) {
       // use previous size regardless of how table entries changed
@@ -121,8 +111,6 @@ var extObject = {
     this.updatePorts();
     this.showSelection();
 
-    if (this.isEmpty) // do not interact if data is empty
-      return;
     this.interaction();
   },
 
@@ -159,13 +147,12 @@ var extObject = {
   },
 
   showSelection: function() {
-    if (this.ports["in"].pack.isEmpty())
-      return;
-
-    for (var index in this.selected) {
-      this.jqtable.find("tr[id=i" + index + "]")
-        .addClass("selected");
-    }
+    var node = this;
+    this.jqtable.find("tr").filter(function() {
+      var index = $(this).find("td:first").text();
+      return node.selected[index] != null;
+    })
+      .addClass("selected");
   },
 
   dataChanged: function() {

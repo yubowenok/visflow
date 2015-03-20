@@ -112,7 +112,7 @@ var extObject = {
 
   checkDataEmpty: function() {
     this.clearMessage();
-    if (this.ports["in"].pack.isEmpty()) {
+    if (this.ports["in"].pack.isEmptyData()) {
       // otherwise scales may be undefined
       this.showMessage("empty data in " + this.plotName);
       this.isEmpty = true;

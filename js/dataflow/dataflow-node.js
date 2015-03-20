@@ -186,6 +186,7 @@ var extObject = {
         }
       })
       .draggable({
+        containment: "#dataflow",
         start: function(event, ui) {
           core.interactionManager.dragstartHandler({
             type: "node",
