@@ -16,16 +16,21 @@ var extObject = {
     this.prepare();
 
     this.keepSize = null;
+
+    this.tableState = null; // last table state
   },
 
   serialize: function() {
     var result = DataflowTable.base.serialize.call(this);
     result.keepSize = this.keepSize;
+    result.tableState = this.table != null ? this.table.state() : null;
     return result;
   },
 
   deserialize: function(save) {
     DataflowTable.base.deserialize.call(this, save);
+
+    this.tableState = save.tableState;
     this.keepSize = save.keepSize;
   },
 
@@ -77,12 +82,17 @@ var extObject = {
 
     this.table = jqtable
         .DataTable({
+          stateSave: true,
           data: rows,
           columns: columns,
           scrollX: true,
           scrollY: "300px",
           info: false
         });
+
+    // blend better with other nodes
+    this.jqview.find(".ui-widget-header")
+      .removeClass("ui-widget-header");
 
     // get thead and tbody selection
     var jqtheadr = jqtable.find("thead");
