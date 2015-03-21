@@ -4,7 +4,7 @@
 var extObject = {
 
   iconName: "property-editor",
-  nodeShapeName: "property",
+  nodeShapeName: "property-editor",
 
   contextmenuDisabled: {
     "options": true
@@ -63,6 +63,7 @@ var extObject = {
         var input = unit[1].new({
           id: id,
           label: unit[0],
+          labelWidth: 60,
           accept: unit[2],
           range: unit[3],
           scrollDelta: unit[4]

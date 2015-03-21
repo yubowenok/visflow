@@ -11,33 +11,23 @@
 var extObject = {
 
   initialize: function(para) {
-    this.id = para.id;
-    this.label = para.label != null ? para.label : "";
+
+    DataflowColorpicker.base.initialize.call(this, para);
 
     this.color = "none";
 
     this.prepare();
-
-    this.changeCallback = function(event) {};
   },
 
   prepare: function() {
 
-    this.jqunit = $("<div></div>")
-      .addClass("dataflow-unit");
+    DataflowColorpicker.base.prepare.call(this);
 
-    $("<div></div>")
-      .addClass("dataflow-unit-text")
-      .text(this.label)
-      .appendTo(this.jqunit);
-
-    var container = $("<div></div>")
-      .addClass("dataflow-unit-container")
-      .appendTo(this.jqunit);
+    var unit = this;
 
     var input = this.jqinput = $("<input type='text' value='none'/>")
       .addClass("dataflow-input dataflow-input-color")
-      .appendTo(container);
+      .appendTo(this.jqcontainer);
 
     var colorbox = this.jqcolorbox = $("<div></div>")
       .addClass("dataflow-colorbox")
@@ -63,7 +53,7 @@ var extObject = {
     });
     var toggleIris = function(event) {
       // exclusively hide all other iris picker, except this one
-      core.viewManager.hideColorpickers(container.find(".iris-picker"));
+      core.viewManager.hideColorpickers(unit.jqcontainer.find(".iris-picker"));
       input.iris("toggle");
     };
     colorbox.mousedown(toggleIris);
@@ -89,13 +79,8 @@ var extObject = {
     };
     this.color = color;
     this.changeCallback(event);
-  },
-
-  change: function(callback) {
-    this.changeCallback = callback;
   }
-
 
 };
 
-var DataflowColorpicker = Base.extend(extObject);
+var DataflowColorpicker = DataflowUnit.extend(extObject);

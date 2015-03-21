@@ -53,6 +53,12 @@ var Utils = {
     return result;
   },
 
+  // remove the bumpy jquery ui style widget header for table
+  blendTableHeader: function(jqview) {
+    jqview.find(".ui-widget-header")
+      .removeClass("ui-widget-header");
+  },
+
   // parse a token and returns its value and type
   gradeToType: ["empty", "int", "float", "string"],
   typeToGrade: {

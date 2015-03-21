@@ -131,8 +131,12 @@ div {
   line-height: 10px;
   text-align: center;
 }
-.dataflow-node-shape-property {
+.dataflow-node-shape-property-editor {
   width: 150px;
+  padding: 5px;
+}
+.dataflow-node-shape-property-mapping {
+  width: 200px;
   padding: 5px;
 }
 

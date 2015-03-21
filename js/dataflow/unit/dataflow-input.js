@@ -11,8 +11,9 @@
 var extObject = {
 
   initialize: function(para) {
-    this.id = para.id;
-    this.label = para.label != null ? para.label : "";
+
+    DataflowInput.base.initialize.call(this, para);
+
     this.accept = para.accept != null ? para.accept : "string";
     this.range = para.range != null ? para.range : [null, null];
     this.scrollDelta = para.scrollDelta != null ? para.scrollDelta : false;
@@ -25,23 +26,13 @@ var extObject = {
 
   prepare: function() {
 
+    DataflowInput.base.prepare.call(this);
+
     var unit = this;
-
-    this.jqunit = $("<div></div>")
-      .addClass("dataflow-unit");
-
-    $("<div></div>")
-      .addClass("dataflow-unit-text")
-      .text(this.label)
-      .appendTo(this.jqunit);
-
-    var container = $("<div></div>")
-      .addClass("dataflow-unit-container")
-      .appendTo(this.jqunit);
 
     var input = this.jqinput = $("<input type='text' value=''/>")
       .addClass("dataflow-input dataflow-unit-input")
-      .appendTo(container);
+      .appendTo(this.jqcontainer);
 
     input.change(function(event) {
       var value = event.target.value;
@@ -91,13 +82,8 @@ var extObject = {
     };
     this.value = value;
     this.changeCallback(event);
-  },
-
-  change: function(callback) {
-    this.changeCallback = callback;
   }
-
 
 };
 
-var DataflowInput = Base.extend(extObject);
+var DataflowInput = DataflowUnit.extend(extObject);

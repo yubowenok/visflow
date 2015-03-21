@@ -426,6 +426,7 @@ var extObject = {
         var table = jqtable
           .appendTo(jqdialog)
           .DataTable();
+        Utils.blendTableHeader(jqtable.parent());
 
         jqdialog
           .dialog({

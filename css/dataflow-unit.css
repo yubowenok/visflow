@@ -8,7 +8,6 @@
 .dataflow-unit-text {
   margin-right: 5px;
   display: inline-block;
-  width: 30%;
 }
 
 .dataflow-input-color {
@@ -24,14 +23,12 @@
   border-radius: 3px;
   display: inline;
   position: absolute;
-  left: 80%;
+  right: 10px;
 }
 
 .dataflow-unit-container {
   position: absolute;
-  display: inline;
-  left: 35%;
-  width: 65%;
+  display: inline-block;
 }
 
 .dataflow-unit-input {
@@ -39,4 +36,8 @@
   font-family: Courier !important;
   text-align: center;
   line-height: 20px;
+}
+
+.dataflow-unit-select {
+  width: 100%;
 }

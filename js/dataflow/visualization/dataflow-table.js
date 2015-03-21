@@ -89,10 +89,7 @@ var extObject = {
           scrollY: "300px",
           info: false
         });
-
-    // blend better with other nodes
-    this.jqview.find(".ui-widget-header")
-      .removeClass("ui-widget-header");
+    Utils.blendTableHeader(this.jqview);
 
     // get thead and tbody selection
     var jqtheadr = jqtable.find("thead");

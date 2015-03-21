@@ -1,0 +1,8 @@
+[
+  {
+    "value": "",
+    "type": "color",
+    "range": [-1, 0, 1],
+    "domain": ["red", "gray", "green"]
+  }
+]
