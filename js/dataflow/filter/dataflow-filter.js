@@ -11,8 +11,8 @@ var extObject = {
   nodeShapeName: "longflat",
 
   contextmenuDisabled: {
-    "options": true,
-    "delete": true
+    "details": true,
+    "options": true
   },
 
   initialize: function(para) {

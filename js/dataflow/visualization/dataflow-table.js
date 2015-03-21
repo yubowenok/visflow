@@ -188,6 +188,7 @@ var extObject = {
       width: this.viewWidth,
       height: this.viewHeight
     };
+    //this.showVisualization();
   },
 
   resizestop: function(size) {

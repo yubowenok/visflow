@@ -11,6 +11,8 @@ var extObject = {
     this.initCss = para.css != null ? para.css : {};
     this.htmlFile = para.htmlFile;
     this.buttons = para.buttons != null ? para.buttons : [];
+    this.draggable = para.draggable != null ? para.draggable : true;
+
     this.fadeIn = para.fadeIn != null ? para.fadeIn : 1000;
     this.fadeInCssBegin = para.fadeInCssBegin != null ? para.fadeInCssBegin :
       {
@@ -37,19 +39,40 @@ var extObject = {
       .appendTo(this.jqview);
 
     container
-      .draggable()
       .addClass("panel ui-widget ui-widget-content")
       .appendTo(this.jqview)
       .load("js/ui/" + this.htmlFile, function() {
         panel.buttons.map(function(button) {
-          panel.jqview.find("#" + button.id).click(function(event){
-            event.id = button.id;
-            button.click(event);
-          });
+
+          if (button.dragstart != null) {
+            panel.jqview.find("#" + button.id)
+              .draggable({
+                revert: "valid",
+                revertDuration: 100,
+                start: function(event){
+                  event.id = button.id;
+                  button.dragstart(event);
+                }
+              });
+          }
+          if (button.click != null) {
+            panel.jqview.find("#" + button.id)
+              .click(function(event){
+                event.id = button.id;
+                button.click(event);
+              });
+          }
+
         });
         // prepare html, usually tooltips
         panel.htmlLoadComplete();
       });
+
+    if (this.draggable) {
+      container.draggable();
+    }
+
+
 
     if (this.fadeIn !== false) {
       container.css(this.fadeInCssBegin);

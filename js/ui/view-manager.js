@@ -109,24 +109,55 @@ var extObject = {
       "value-extractor", "value-maker",   // value
       "histogram", "parallelcoordinates", "scatterplot", "table" // visualization
     ].map(function(id) {
+      var callback = function(event) {
+        console.log("dataflow");
+        var node = core.dataflowManager.createNode(id);
+        node.jqview.css({
+          left: event.pageX - node.jqview.width() / 2,
+          top: event.pageY - node.jqview.height() / 2,
+          opacity: 0.0,
+          zoom: 2,
+        });
+        node.jqview.animate({
+          opacity: 1.0,
+          zoom: 1,
+        }, 200, function(){
+          node.jqview.css("zoom", "");
+        });
+        manager.closePopupPanel();
+        //$(".dataflow-dropzone-temp").remove();
+        //$("#dataflow").droppable("disable");
+      };
       buttons.push({
         id: id,
-        click: function(event) {
-          var node = core.dataflowManager.createNode(id);
+        click: callback,
+        dragstart: function(event) {
 
-          node.jqview.css({
-            left: event.pageX - node.jqview.width() / 2,
-            top: event.pageY - node.jqview.height() / 2,
-            opacity: 0.0,
-            zoom: 2,
+          var container = $("#popupPanel").find(".panel");
+
+          // create a temporary droppable under #dataflow
+          // so that we cannot drop the button to panel
+
+          // container is under #popupPanel
+          // container has size, #popupPanel has screen position offset
+          $("<div></div>")
+            .addClass("dataflow-dropzone-temp")
+            .css({
+              width: container.width(),
+              height: container.height(),
+              left: container.parent().offset().left,
+              top: container.parent().offset().top
+            })
+            .appendTo("#dataflow")
+            .droppable({
+              accept: ".addpanel-button",
+              greedy: true, // this will prevent #dataflow be dropped at the same time
+              tolerance: "pointer"
+            });
+          $("#dataflow").droppable({
+            accept: ".addpanel-button",
+            drop: callback
           });
-          node.jqview.animate({
-            opacity: 1.0,
-            zoom: 1,
-          }, 200, function(){
-            node.jqview.css("zoom", "");
-          });
-          manager.closePopupPanel();
         }
       });
     });
@@ -134,6 +165,7 @@ var extObject = {
       id: "popupPanel", // required by view
       name: "add",
       jqview: jqview,
+      draggable: false,
       class: !compact ? "addpanel" : "addpanel-compact",
       css: {
         left: event.pageX + 50, // always near mouse

@@ -95,7 +95,6 @@ var extObject = {
         outpack = this.ports["out"].pack;
     outpack.copy(inpack);
     var newitems = {};
-    console.log(this.properties);
     for (var index in inpack.items) {
       newitems[index] = {
         properties: _.extend({}, inpack.items[index].properties, this.properties)
