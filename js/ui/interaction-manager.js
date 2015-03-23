@@ -410,19 +410,32 @@ var extobject = {
   dropHandler: function(para) {
     var type = para.type,
         event = para.event;
-    if (type === "port" && this.dropPossible) {
-      // connect ports
-      var port1 = this.dragstartPara.port,
-          port2 = para.port;
-      if (port1.isInPort) {
-        // always connect from out to in, swap
-        var porttmp = port1;
-        port1 = port2;
-        port2 = porttmp;
+
+    if (this.dropPossible) {
+      if (type == "port") {
+        // connect ports
+        var port1 = this.dragstartPara.port,
+            port2 = para.port;
+        if (port1.isInPort) {
+          // always connect from out to in, swap
+          var porttmp = port1;
+          port1 = port2;
+          port2 = porttmp;
+        }
+        core.dataflowManager.createEdge(port1, port2);
+      } else if (type == "node") {
+        var port1 = this.dragstartPara.port,
+            port2 = para.node.firstConnectable(port1);
+        if (port2 != null) {
+          core.dataflowManager.createEdge(port1, port2);
+        } else {
+          // show error message
+          core.viewManager.tip("No connectable port available");
+        }
       }
-      core.dataflowManager.createEdge(port1, port2);
       this.dropPossible = false; // prevent dropped on overlapping droppable
     }
+
   },
 
   clickHandler: function(para) {

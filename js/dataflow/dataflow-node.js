@@ -208,6 +208,15 @@ var extObject = {
             event: event
           });
         }
+     })
+     .droppable({
+        drop: function(event, ui) {
+          core.interactionManager.dropHandler({
+            type: "node",
+            event: event,
+            node: node
+          });
+        }
      });
 
     // remove resizable handler icon at se
@@ -320,6 +329,17 @@ var extObject = {
   hide: function() {
     $(this.jqview).children().remove();
     core.viewManager.removeNodeView(this.jqview);
+  },
+
+  firstConnectable: function(port) {
+    var ports = port.isInPort ? this.outPorts : this.inPorts;
+    for (var i in ports) {
+      var port2 = ports[i];
+      if (port2.connectable(port) == 0){
+        return port2;
+      }
+    }
+    return null;
   },
 
   inPortsChanged: function() {

@@ -110,7 +110,7 @@ var extObject = {
       "histogram", "parallelcoordinates", "scatterplot", "table" // visualization
     ].map(function(id) {
       var callback = function(event) {
-        console.log("dataflow");
+        //console.log("dataflow");
         var node = core.dataflowManager.createNode(id);
         node.jqview.css({
           left: event.pageX - node.jqview.width() / 2,
@@ -125,8 +125,8 @@ var extObject = {
           node.jqview.css("zoom", "");
         });
         manager.closePopupPanel();
-        //$(".dataflow-dropzone-temp").remove();
-        //$("#dataflow").droppable("disable");
+        $(".dataflow-dropzone-temp").remove();
+        $("#dataflow").droppable("disable");
       };
       buttons.push({
         id: id,
@@ -155,6 +155,7 @@ var extObject = {
               tolerance: "pointer"
             });
           $("#dataflow").droppable({
+            disabled: false,
             accept: ".addpanel-button",
             drop: callback
           });

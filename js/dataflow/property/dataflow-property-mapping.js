@@ -220,7 +220,6 @@ var extObject = {
         this.selectColorScale.setList(this.colorScaleList);
         if (this.colorScale != null) {
           this.selectColorScale.setValue(this.colorScale, null, true);
-          this.pushflow();
         }
       }
     } else if (mappingType == "number"){
@@ -271,6 +270,9 @@ var extObject = {
         });
       }
       node.colorScaleList = list;
+      if (node.colorScale　!= null) {
+        node.pushflow();  // async done, colorScale ready
+      }
       node.prepareScaleList();  // load complete, prepare
     });
   },

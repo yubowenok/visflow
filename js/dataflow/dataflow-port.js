@@ -46,8 +46,8 @@ var extObject = {
     var sourceNode = this.isInPort ? port.node : this.node,
         targetNode = this.isInPort ? this.node : port.node;
     if (core.dataflowManager.cycleTest(sourceNode, targetNode))
-      return core.viewManager.tip("Cannot make connection that results in cycle");
-    return 0;
+      return "Cannot make connection that results in cycle";
+    return 0; // indicates NO error
   },
 
   connect: function(edge) {
