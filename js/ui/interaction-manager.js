@@ -101,27 +101,34 @@ var extobject = {
 
     // track keyboard: shift key
     $(document).keydown(function(event) {
-      if (event.keyCode == 16) {
+      var code = event.keyCode, index;
+      if ((index = [38, 40, 37, 39].indexOf(code)) != -1){
+        // move up/down/left/right
+        var shift = [[0, -1], [0, 1], [-1, 0], [1, 0]],
+            delta = 50;
+        core.dataflowManager.moveNodes(shift[index][0] * delta, shift[index][1] * delta,
+          core.dataflowManager.nodes);
+      }
+      else if (code == 16) {
         manager.shifted = true;
         manager.jqdataflow.css("cursor", "crosshair");
-      } else if (event.keyCode == 17) {
+      } else if (code == 17) {
         manager.ctrled = true;
-        manager.jqdataflow.css("cursor", "move");
+        //manager.jqdataflow.css("cursor", "move");
         manager.visualizationBlocking = false;
-      } else if (event.keyCode == 27) {   // esc
+      } else if (code == 27) {   // esc
         manager.escHandler();
       } else {
         // avoid interfering with input
         if ($(event.target).is("input"))
           return true;
 
-        var c = String.fromCharCode(event.keyCode);
+        var c = String.fromCharCode(code);
         var key = c;
         if (manager.shifted)
           key = "shift+" + key;
         if (manager.ctrled)
           key = "ctrl+" + key;
-
 
         if (key == "A") {
           event.pageX = manager.currentMouseX;
@@ -162,10 +169,12 @@ var extobject = {
     this.jqdataflow.contextmenu({
       addClass: "ui-contextmenu",
       menu: [
-          {title: "(O_O)?", cmd: "", uiIcon: "ui-icon-alert"}
+          {title: "Add Node", cmd: "add", uiIcon: "ui-icon-plus"}
         ],
       select: function(event, ui) {
-        core.viewManager.tip("O(∩_∩)O");
+        if (ui.cmd == "add") {
+          core.viewManager.showAddPanel(event);
+        }
       },
       beforeOpen: function(event, ui) {
         if (core.interactionManager.contextmenuLock)
@@ -196,8 +205,9 @@ var extobject = {
     }
 
     if (type == "background") {
-      if (this.ctrled) {
+      if (!this.ctrled) {
         this.mouseMode = "pan";
+        this.jqdataflow.css("cursor", "move");
       } else {
         this.selectbox.x1 = event.pageX;
         this.selectbox.y1 = event.pageY;
@@ -254,9 +264,6 @@ var extobject = {
 
     if (type == "background") {
       if (this.mouseMode == "pan") {
-        this.jqdataflow.css("cursor", "");
-      } else if (this.mouseMode == "selectbox") {
-        this.jqselectbox.hide();
         if (!this.mouseMoved){
           // mouse not moved for select box
           // trigger empty click
@@ -264,7 +271,11 @@ var extobject = {
             type: "empty",
             event: event
           });
-        } else if (!this.ctrled) {  // not panning, then selecting
+        }
+        this.jqdataflow.css("cursor", "");
+      } else if (this.mouseMode == "selectbox") {
+        this.jqselectbox.hide();
+        if (this.ctrled) {  // not panning, then selecting
           if (!this.shifted)
             core.dataflowManager.clearNodeSelection();
           core.dataflowManager.addHoveredToSelection();

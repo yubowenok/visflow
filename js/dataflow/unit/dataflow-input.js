@@ -56,7 +56,7 @@ var extObject = {
 
   },
 
-  setValue: function(value, event) {
+  setValue: function(value, event, noCallback) {
     if (event == null)
       event = {};
 
@@ -75,13 +75,15 @@ var extObject = {
       value = this.range[1];
 
     this.jqinput.val(value);
-
-    event.unitChange = {
-      value: value,
-      id: this.id
-    };
     this.value = value;
-    this.changeCallback(event);
+
+    if (!noCallback) {
+      event.unitChange = {
+        value: value,
+        id: this.id
+      };
+      this.changeCallback(event);
+    }
   }
 
 };

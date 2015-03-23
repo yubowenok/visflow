@@ -48,6 +48,10 @@ var extObject = {
 
   change: function(callback) {
     this.changeCallback = callback;
+  },
+
+  remove: function() {
+    this.jqunit.remove();
   }
 
 };

@@ -105,6 +105,15 @@ var extObject = {
       .dblclick(function() {
         console.log(port.pack, port.packs); // for debug
       })
+      .mousedown( function(event){
+        if(event.which == 3){
+          core.interactionManager.contextmenuLock = true;
+          var connections = port.connections.concat();
+          for(var i in connections) {
+            core.dataflowManager.deleteEdge(connections[i]);
+          }
+        }
+      })
       .draggable({
         helper : function() {
           return $("<div></div>");

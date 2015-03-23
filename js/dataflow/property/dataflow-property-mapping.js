@@ -6,6 +6,26 @@ var extObject = {
   iconName: "property-mapping",
   nodeShapeName: "property-mapping", // dedicate shape
 
+  mappingTypes: {
+    "color": "color",
+    "border": "color",
+    "size": "number",
+    "width": "number",
+    "opacity": "number"
+  },
+
+  mappingRange: {
+    "size": [0, 1E9],
+    "width": [0, 1E9],
+    "opacity": [0, 1]
+  },
+
+  mappingScrollDelta: {
+    "size": 0.5,
+    "width": 0.1,
+    "opacity": 0.05
+  },
+
   contextmenuDisabled: {
     "options": true
   },
@@ -22,26 +42,32 @@ var extObject = {
     this.prepare();
 
     this.dimension = null;
-    this.scale = null;
-    this.scales = null;
+    this.mapping = null;
+    this.colorScale = null;
+    this.numberScale = [];  // [l, r]
+    this.colorScales = null;
+
     this.properties = {};
   },
 
   serialize: function() {
     var result = DataflowPropertyMapping.base.serialize.call(this);
-    result.scale = this.scale;
+
     result.dimension = this.dimension;
+    result.mapping = this.mapping;
+    result.colorScale = this.colorScale;
+    result.numberScale = this.numberScale;
+
     return result;
   },
 
   deserialize: function(save) {
     DataflowPropertyMapping.base.deserialize.call(this, save);
 
-    this.scale = save.scale;
     this.dimension = save.dimension;
-    if (this.scale == "red-green1") {
-      this.scale = "red-green";
-    }
+    this.mapping = save.mapping;
+    this.colorScale = save.colorScale;
+    this.numberScale = save.numberScale;
   },
 
   show: function() {
@@ -69,26 +95,95 @@ var extObject = {
         this.selectDimension.setValue(this.dimension, null, true);
         // not pushflow here, push after async scales load
       }
-      // select scale
-      this.selectScale = DataflowSelect.new({
+
+      // select mapping
+      this.selectMapping = DataflowSelect.new({
         id: "mapping",
         label: "Mapping",
         labelWidth: 75,
         placeholder: "Select",
         containerWidth: this.jqview.width() - 75,
         change: function(event) {
-          //console.log("change map")
           var unitChange = event.unitChange;
-          node.scale = unitChange.value;
+          node.mapping = unitChange.value;
+          node.show();
           node.pushflow();
         }
       });
-      this.selectScale.jqunit.appendTo(this.jqview);
-      if (this.scales == null) {
-        this.loadScaleList();
-        // Do NOT prepareScaleList here because loadScaleList is async
-      } else {
+      this.selectMapping.jqunit.appendTo(this.jqview);
+      this.prepareMappingList();
+      if (this.mapping != null) {
+        this.selectMapping.setValue(this.mapping, null, true);
+      }
+
+      var mappingType = this.mappingTypes[this.mapping];
+
+      if (mappingType == "color") {
+        if (this.inputNumberScale != null) {
+          this.inputNumberScale[0].remove();
+          this.inputNumberScale[1].remove();
+          this.inputNumberScale = null;
+        }
+        // a select list of color scales
+        this.selectColorScale = DataflowSelect.new({
+          id: "scale",
+          label: "Scale",
+          labelWidth: 75,
+          placeholder: "No Mapping",
+          containerWidth: this.jqview.width() - 75,
+          change: function(event) {
+            //console.log("change map")
+            var unitChange = event.unitChange;
+            node.colorScale = unitChange.value;
+            node.pushflow();
+          }
+        });
+        this.selectColorScale.jqunit.appendTo(this.jqview);
         this.prepareScaleList();
+      } else if (mappingType == "number"){  // number
+        if (this.selectColorScale != null) {
+          this.selectColorScale.remove();
+          this.selectColorScale = null;
+        }
+        // two input boxes of range
+        this.inputNumberScale = [];
+        [
+          [0, "Min"],
+          [1, "Max"]
+        ].map(function(unit){
+          var id = unit[0];
+          var input = this.inputNumberScale[id] = DataflowInput.new({
+            id: id,
+            label: unit[1],
+            labelWidth: 40,
+            containerWidth: 50,
+            accept: "float",
+            range: this.mappingRange[this.mapping],
+            scrollDelta: this.mappingScrollDelta[this.mapping]
+          });
+          if (this.numberScale[id] != null) {
+            input.setValue(this.numberScale[id]);
+            this.numberScale[id] = input.value; // value maybe fixed
+          }
+          input.change(function(event){
+            var unitChange = event.unitChange;
+            if (unitChange.value != null) {
+              node.numberScale[id] = unitChange.value;
+            } else {
+              node.numberScale[id] = null;
+            }
+            node.pushflow();
+          });
+
+          input.jqunit.appendTo(this.jqview);
+          if (id == 1) {
+            input.jqunit.css({
+              left: 95,
+              top: 65,
+              position: "absolute"
+            });
+          }
+        }, this);
       }
 
     }
@@ -107,27 +202,47 @@ var extObject = {
     this.selectDimension.setList(list);
   },
 
+  prepareMappingList: function() {
+    ["color", "border", "size", "width", "opacity"].map(function(mapping) {
+      $("<option val='" + mapping + "'>" + mapping + "</option>")
+        .appendTo(this.selectMapping.input);
+    }, this);
+  },
+
   prepareScaleList: function() {
-    this.selectScale.setList(this.scaleList);
-    if (this.scale != null) {
-      this.selectScale.setValue(this.scale, null, true);
+    var mappingType = this.mappingTypes[this.mapping];
+    if (mappingType == "color") {
+      // use color scale
+      if (this.colorScales == null) {
+        this.loadColorScaleList();
+        // Do NOT prepareScaleList here because loadScaleList is async
+      } else {
+        this.selectColorScale.setList(this.colorScaleList);
+        if (this.colorScale != null) {
+          this.selectColorScale.setValue(this.colorScale, null, true);
+          this.pushflow();
+        }
+      }
+    } else if (mappingType == "number"){
+      // nothing to do
+      if (this.numberScale != null) {
+        this.inputNumberScale[0].setValue(this.numberScale[0], null, true);
+        this.inputNumberScale[1].setValue(this.numberScale[1], null, true);
+      }
     }
     // tricky: view height may change because of setValue (add a div)
     this.updatePorts();
   },
 
-  loadScaleList: function() {
+  loadColorScaleList: function() {
     var node = this;
-    $.get("js/dataflow/property/mappings.json", function(scales) {
+    $.get("js/dataflow/property/colorScales.json", function(scales) {
       var list = [];
-
-      node.scales = {};
-
+      node.colorScales = {};
       for (var i in scales) {
         var scale = scales[i];
-
         // save to node, map from value to scale object
-        node.scales[scale.value] = scale;
+        node.colorScales[scale.value] = scale;
 
         var div = $("<div></div>")
           .addClass("dataflow-scalevis");
@@ -155,8 +270,8 @@ var extObject = {
           div: div
         });
       }
-      node.scaleList = list;
-      node.prepareScaleList();
+      node.colorScaleList = list;
+      node.prepareScaleList();  // load complete, prepare
     });
   },
 
@@ -165,13 +280,28 @@ var extObject = {
         outpack = this.ports["out"].pack,
         data = inpack.data;
     outpack.copy(inpack);
-    if (this.dimension == null || this.scale == null  // not selected
-       || this.scales == null) { // async not complete
+
+    var mappingType = this.mappingTypes[this.mapping];
+    if (this.dimension == null || this.mapping == null
+       || (mappingType == "color" &&
+        (this.colorScale == null || this.colorScales == null))
+       || (mappingType == "number" && this.numberScale == null)) {
       return; // skip
     }
 
-    var dataScale, propertyScale;
-    var scale = this.scales[this.scale];
+
+    var inpack = this.ports["in"].pack,
+        outpack = this.ports["out"].pack,
+        data = inpack.data;
+    var dataScale, propertyScale, scale;
+
+    if (mappingType == "color")
+      scale = this.colorScales[this.colorScale];
+    else if (mappingType == "number")
+      scale = {
+        domain: [0, 1],
+        range: this.numberScale
+      };
 
     if (data.dimensionTypes[this.dimension] != "string") {
       // get min/max value
@@ -189,11 +319,11 @@ var extObject = {
           maxValue = value;
       }
       dataScale = d3.scale.linear()
-      .domain([minValue, maxValue])
-      .range([0, 1]);
+        .domain([minValue, maxValue])
+        .range([0, 1]);
       propertyScale = d3.scale.linear()
-      .domain(scale.domain)
-      .range(scale.range);
+        .domain(scale.domain)
+        .range(scale.range);
     } else {
       var values = {};
       for (var index in inpack.items) {
@@ -214,7 +344,7 @@ var extObject = {
     for (var index in inpack.items) {
       var value = data.values[index][this.dimension];
       var property = {};
-      property[scale.property] = propertyScale(dataScale(value));
+      property[this.mapping] = propertyScale(dataScale(value));
       newitems[index] = {
         properties: _.extend({}, inpack.items[index].properties, property)
       };
