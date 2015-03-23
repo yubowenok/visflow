@@ -269,9 +269,12 @@ var extObject = {
   showPorts: function() {
     this.jqview.find(".dataflow-port").remove();
 
+    var width = this.jqview.width(),
+        height = this.jqview.innerHeight();
+
     var portStep = this.portHeight + this.portGap;
     var node = this;
-    var inTopBase = (this.viewHeight - this.inPorts.length * portStep + this.portGap) / 2;
+    var inTopBase = (height - this.inPorts.length * portStep + this.portGap) / 2;
     for (var i in this.inPorts) {
       var port = this.inPorts[i];
       var jqview = $("<div></div>")
@@ -279,7 +282,7 @@ var extObject = {
         .appendTo(this.jqview);
       port.setJqview(jqview);
     }
-    var outTopBase = (this.viewHeight - this.outPorts.length * portStep + this.portGap) / 2;
+    var outTopBase = (height - this.outPorts.length * portStep + this.portGap) / 2;
     for (var i in this.outPorts) {
       var port = this.outPorts[i];
       var jqview = $("<div></div>")
@@ -290,26 +293,28 @@ var extObject = {
   },
 
   updatePorts: function() {
-      var node = this;
-      var portStep = this.portHeight + this.portGap;
-      var inTopBase = (this.viewHeight - this.inPorts.length * portStep + this.portGap) / 2;
-      for (var i in this.inPorts) {
-        var port = this.inPorts[i];
-        port.jqview
-          .css("top", inTopBase + i * portStep);
-        for (var j in port.connections) {
-          port.connections[j].update();
-        }
+    var width = this.jqview.width(),
+        height = this.jqview.innerHeight();
+    var node = this;
+    var portStep = this.portHeight + this.portGap;
+    var inTopBase = (height - this.inPorts.length * portStep + this.portGap) / 2;
+    for (var i in this.inPorts) {
+      var port = this.inPorts[i];
+      port.jqview
+        .css("top", inTopBase + i * portStep);
+      for (var j in port.connections) {
+        port.connections[j].update();
       }
-      var outTopBase = (this.viewHeight - this.outPorts.length * portStep + this.portGap) / 2;
-      for (var i in this.outPorts) {
-        var port = this.outPorts[i];
-        port.jqview
-          .css("top", outTopBase + i * portStep);
-        for (var j in port.connections) {
-          port.connections[j].update();
-        }
+    }
+    var outTopBase = (height - this.outPorts.length * portStep + this.portGap) / 2;
+    for (var i in this.outPorts) {
+      var port = this.outPorts[i];
+      port.jqview
+        .css("top", outTopBase + i * portStep);
+      for (var j in port.connections) {
+        port.connections[j].update();
       }
+    }
   },
 
   hide: function() {
