@@ -105,7 +105,15 @@ var extObject = {
       .dblclick(function() {
         console.log(port.pack, port.packs); // for debug
       })
-      .mousedown( function(event){
+      .mouseenter(function(event){
+        for (var i in port.connections) {
+          core.viewManager.addEdgeHover(port.connections[i]);
+        }
+      })
+      .mouseleave(function(event){
+        core.viewManager.clearEdgeHover();
+      })
+      .mousedown(function(event){
         if(event.which == 3){
           core.interactionManager.contextmenuLock = true;
           var connections = port.connections.concat();

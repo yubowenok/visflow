@@ -66,25 +66,8 @@ var extObject = {
         // prevent drag interference
         if (core.interactionManager.mouseMode != "none")
           return;
-
         core.dataflowManager.addEdgeSelection(edge);
-        // make a shadow
-        jqview.children(".dataflow-edge-segment").clone()
-          .appendTo("#dataflow")
-          .addClass("dataflow-edge-segment-hover dataflow-edge-clone");
-        jqview.children().clone()
-          .appendTo("#dataflow")
-          .addClass("dataflow-edge-clone");
-        edge.sourcePort.jqview
-          .clone()
-          .appendTo("#dataflow")
-          .addClass("dataflow-edge-clone")
-          .css(edge.sourcePort.jqview.offset());
-        edge.targetPort.jqview
-          .clone()
-          .appendTo("#dataflow")
-          .addClass("dataflow-edge-clone")
-          .css(edge.targetPort.jqview.offset());
+        core.viewManager.addEdgeHover(edge);
       })
       .mouseleave(function(event) {
         core.dataflowManager.clearEdgeSelection();

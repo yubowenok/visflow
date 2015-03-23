@@ -220,6 +220,28 @@ var extObject = {
     // after this, nodes and edges cannot reuse their jqview
   },
 
+  addEdgeHover: function(edge) {
+    var jqview = edge.jqview;
+    // make a shadow
+    jqview.children(".dataflow-edge-segment").clone()
+      .appendTo("#dataflow-hover")
+      .addClass("dataflow-edge-segment-hover dataflow-edge-clone");
+    jqview.children().clone()
+      .appendTo("#dataflow")
+      .addClass("dataflow-edge-clone");
+    // copy port
+    edge.sourcePort.jqview
+      .clone()
+      .appendTo("#dataflow")
+      .addClass("dataflow-edge-clone")
+      .css(edge.sourcePort.jqview.offset());
+    edge.targetPort.jqview
+      .clone()
+      .appendTo("#dataflow")
+      .addClass("dataflow-edge-clone")
+      .css(edge.targetPort.jqview.offset());
+  },
+
   clearEdgeHover: function() {
     $("#dataflow").find(".dataflow-edge-clone")
       .remove();
