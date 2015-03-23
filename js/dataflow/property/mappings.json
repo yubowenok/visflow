@@ -1,8 +1,42 @@
 [
   {
-    "value": "",
+    "value": "red-green",
+    "text": "Red-Green",
     "type": "color",
-    "range": [-1, 0, 1],
-    "domain": ["red", "gray", "green"]
+    "property": "color",
+    "domain": [0.0, 0.5, 1.0],
+    "range": ["red", "#333", "green"]
+  },
+  {
+    "value": "black-white",
+    "text": "Black-White",
+    "type": "color",
+    "property": "color",
+    "domain": [0.0, 1.0],
+    "range": ["black", "white"]
+  },
+  {
+    "value": "red-yellow",
+    "text": "Red-Yellow",
+    "type": "color",
+    "property": "color",
+    "domain": [0.0, 0.5, 1.0],
+    "range": ["red", "#333", "yellow"]
+  },
+  {
+    "value": "yellow-blue",
+    "text": "Yellow-Blue",
+    "type": "color",
+    "property": "color",
+    "domain": [0.0, 0.5, 1.0],
+    "range": ["yellow", "#333", "blue"]
+  },
+  {
+    "value": "category",
+    "text": "Category",
+    "type": "color-category10",
+    "property": "color",
+    "domain": [],
+    "range": []
   }
 ]

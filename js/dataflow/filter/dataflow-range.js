@@ -45,7 +45,7 @@ var extObject = {
       .prependTo(this.jqview);
 
     var node = this;
-    this.jqview.find("input")
+    this.jqview.find("input").not(".select2-input")
       .prop("disabled", true)
       .addClass("dataflow-input dataflow-input-node");
 
@@ -65,7 +65,7 @@ var extObject = {
 
     var inpack = this.ports["in"].pack,
         outpack = this.ports["out"].pack;
-    if (inpack.isEmpty()) {
+    if (inpack.isEmpty() || this.dimension == null) {
       outpack.copy(inpack);
       return;
     }

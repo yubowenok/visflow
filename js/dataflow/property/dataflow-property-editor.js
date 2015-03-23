@@ -85,9 +85,6 @@ var extObject = {
         input.jqunit.appendTo(this.jqview);
       }, this);
     }
-
-    this.viewWidth = this.jqview.width();
-    this.viewHeight = this.jqview.height();
     this.updatePorts();
   },
 

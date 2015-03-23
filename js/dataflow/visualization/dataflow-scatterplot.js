@@ -10,13 +10,14 @@ var extObject = {
   defaultProperties: {
     "color": "#555",
     "border": "black",
-    "border-width": "1px",
+    "width": "1px",
     "r" : 3
   },
   // show these properties when items are selected
   selectedProperties: {
-    "color": "#FF4400",
-    "border": "black"
+    "color": "white",
+    "border": "#FF4400",
+    "width": "1.5px",
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -30,7 +31,7 @@ var extObject = {
     "size": "r",
     "color": "fill",
     "border": "stroke",
-    "borderwidth": "stroke-width"
+    "width": "stroke-width"
   },
 
   initialize: function(para) {

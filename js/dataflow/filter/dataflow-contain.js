@@ -113,7 +113,7 @@ var extObject = {
 
     var inpack = this.ports["in"].pack,
         outpack = this.ports["out"].pack;
-    if (inpack.isEmpty()) {
+    if (inpack.isEmpty() || this.dimension == null) {
       outpack.copy(inpack);
       return;
     }

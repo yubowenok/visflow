@@ -159,6 +159,9 @@ div {
   margin-bottom: 5px;
 }
 
+.dataflow-scalevis {
+  height: 10px;
+}
 
 .dataflow-table {
   width: 100%;

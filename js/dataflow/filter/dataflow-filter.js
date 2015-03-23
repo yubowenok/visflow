@@ -49,10 +49,13 @@ var extObject = {
       .addClass("dataflow-node-select")
       .appendTo(this.jqview)
       .select2({
-        placeholder: "Select"
+        placeholder: "Select",
+        allowClear: true
       })
       .change(function(event){
         node.dimension = event.target.value;
+        if (node.dimension == "")
+          node.dimension = null;
         node.pushflow();
       });
     this.prepareDimensionList();

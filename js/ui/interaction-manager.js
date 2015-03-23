@@ -111,12 +111,17 @@ var extobject = {
       } else if (event.keyCode == 27) {   // esc
         manager.escHandler();
       } else {
+        // avoid interfering with input
+        if ($(event.target).is("input"))
+          return true;
+
         var c = String.fromCharCode(event.keyCode);
         var key = c;
         if (manager.shifted)
           key = "shift+" + key;
         if (manager.ctrled)
           key = "ctrl+" + key;
+
 
         if (key == "A") {
           event.pageX = manager.currentMouseX;
