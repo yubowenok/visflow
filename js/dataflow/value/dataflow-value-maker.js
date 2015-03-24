@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "value-maker",
+  iconClass: "dataflow-value-maker-icon dataflow-flat-icon",
   nodeShapeName: "superflat",
 
   contextmenuDisabled: {
@@ -40,9 +40,9 @@ var extObject = {
     this.setValueString(save.valueString);
   },
 
-  show: function() {
+  showDetails: function() {
 
-    DataflowValueMaker.base.show.call(this); // call parent settings
+    DataflowValueMaker.base.showDetails.call(this); // call parent settings
 
     $("<div><input id='v' style='width:80%'/></div>")
       .prependTo(this.jqview);

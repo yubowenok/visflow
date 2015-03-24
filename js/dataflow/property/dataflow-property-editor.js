@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "property-editor",
+  iconClass: "dataflow-property-editor-icon dataflow-square-icon",
   nodeShapeName: "property-editor",
 
   contextmenuDisabled: {

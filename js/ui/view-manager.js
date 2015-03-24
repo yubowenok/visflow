@@ -107,7 +107,8 @@ var extObject = {
       "property-editor", "property-mapping", // rendering property
       "intersect", "minus", "union",  // set
       "value-extractor", "value-maker",   // value
-      "histogram", "parallelcoordinates", "scatterplot", "table" // visualization
+      "table", "histogram", "parallelcoordinates", "scatterplot", "heatmap",
+      //"network" // visualization
     ].map(function(id) {
       var callback = function(event) {
         //console.log("dataflow");

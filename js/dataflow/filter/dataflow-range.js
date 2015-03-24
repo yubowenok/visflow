@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "range",
+  iconClass: "dataflow-range-icon dataflow-square-icon",
 
   initialize: function(para) {
 
@@ -33,9 +33,9 @@ var extObject = {
     DataflowRangeFilter.base.deserialize.call(this, save);
   },
 
-  show: function() {
+  showDetails: function() {
 
-    DataflowRangeFilter.base.show.call(this); // call parent settings
+    DataflowRangeFilter.base.showDetails.call(this); // call parent settings
 
     $("<div>on</div>")
       .prependTo(this.jqview);

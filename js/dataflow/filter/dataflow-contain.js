@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "contain",
+  iconClass: "dataflow-contain-icon dataflow-square-icon",
 
   initialize: function(para) {
 
@@ -45,9 +45,9 @@ var extObject = {
     }
   },
 
-  show: function() {
+  showDetails: function() {
 
-    DataflowContainFilter.base.show.call(this); // call parent settings
+    DataflowContainFilter.base.showDetails.call(this); // call parent settings
 
     $("<div>contains</div>")
       .appendTo(this.jqview);

@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "value-extractor",
+  iconClass: "dataflow-value-extractor-icon dataflow-flat-icon",
   nodeShapeName: "value-extractor", // dedicate shape
 
   contextmenuDisabled: {
@@ -46,9 +46,9 @@ var extObject = {
     this.lastDataId = save.lastDataId;
   },
 
-  show: function() {
+  showDetails: function() {
 
-    DataflowValueExtractor.base.show.call(this); // call parent settings
+    DataflowValueExtractor.base.showDetails.call(this); // call parent settings
 
     var node = this;
     var div = $("<div></div>")

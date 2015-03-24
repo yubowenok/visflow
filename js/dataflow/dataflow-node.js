@@ -96,6 +96,7 @@ var extObject = {
       }
       this.prepareNodeInteraction();
       this.prepareContextmenu();
+      this.showDetails();
     } else {
       this.jqview
         .removeClass("dataflow-node-shape-" + this.nodeShapeName)
@@ -109,7 +110,7 @@ var extObject = {
 
   showIcon: function() {
     this.jqicon = $("<div></div>")
-      .addClass("dataflow-" + this.iconName + "-icon")
+      .addClass(this.iconClass)
       .appendTo(this.jqview);
   },
 
@@ -415,7 +416,8 @@ var extObject = {
   },
 
   // abstract
-  showOptions: function(){}
+  showOptions: function() {},
+  showDetails: function() {}
 
 };
 

@@ -11,7 +11,6 @@ var extObject = {
   nodeShapeName: "longflat",
 
   contextmenuDisabled: {
-    "details": true,
     "options": true
   },
 
@@ -37,13 +36,12 @@ var extObject = {
     this.lastDataId = save.lastDataId;
   },
 
-  show: function() {
-    DataflowFilter.base.show.call(this);
+  showDetails: function() {
+    DataflowFilter.base.showDetails.call(this);
 
     this.jqview
       .css("text-align", "center")
       .css("line-height", "25px");
-
     var node = this;
     this.selectDimension = $("<select><option/></select>")
       .addClass("dataflow-node-select")

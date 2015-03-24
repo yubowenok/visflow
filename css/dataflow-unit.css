@@ -43,3 +43,8 @@
   text-align: center;
   top: -3px;
 }
+
+.dataflow-scalevis {
+  height: 10px;
+  margin-top: 3px;
+}

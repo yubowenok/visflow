@@ -3,8 +3,10 @@
 
 var extObject = {
 
+  iconClass: "dataflow-datasrc-icon dataflow-square-icon",
+  nodeShapeName: "normal",
+
   contextmenuDisabled: {
-    "details": true,
     "options": true
   },
 
@@ -41,50 +43,57 @@ var extObject = {
     var jqview = this.jqview,
         node = this;
 
-    this.jqview
-      .css("text-align", "center");
+    if (this.detailsOn) {
+      this.jqview
+        .css("text-align", "center");
 
-    $("<div style='line-height:50px'>No data loaded</div>")
-      .attr("id", "datahint")
-      .appendTo(this.jqview);
+      $("<div style='line-height:50px'>No data loaded</div>")
+        .attr("id", "datahint")
+        .appendTo(this.jqview);
 
-    // load data buttons
-    $("<input type='button' id='load' value='Load Data'>")
-      .button()
-      .click(function(event, ui){
-        var jqdialog = $("<div></div>");
-        jqdialog
-          .dialog({
-            title: "Select a Dataset",
-            buttons: [
-              {
-                text: "OK",
-                click: function() {
-                  var data = $(this).find("#data :selected").val(),
-                      dataName = $(this).find("#data :selected").text();
+      // load data buttons
+      $("<input type='button' id='load' value='Load Data'>")
+        .button()
+        .click(function(event, ui){
+          var jqdialog = $("<div></div>");
+          jqdialog
+            .dialog({
+              title: "Select a Dataset",
+              buttons: [
+                {
+                  text: "OK",
+                  click: function() {
+                    var data = $(this).find("#data :selected").val(),
+                        dataName = $(this).find("#data :selected").text();
 
-                  node.loadData(data, dataName);
+                    node.loadData(data, dataName);
 
-                  $(this).dialog("close");
+                    $(this).dialog("close");
+                  }
                 }
-              }
-            ]
+              ]
+            });
+          // hide the close button at the header bar
+          /*
+          jqdialog
+            .dialog("widget")
+            .find(".ui-dialog-titlebar-close")
+            .hide();
+          */
+          // load data dialog content is stored in html
+          jqdialog.load("js/dataflow/datasource/loaddata-dialog.html", function() {
+            if (node.dataSelected != null) {
+              $(this).find("#data").val(node.dataSelected);
+            }
           });
-        // hide the close button at the header bar
-        /*
-        jqdialog
-          .dialog("widget")
-          .find(".ui-dialog-titlebar-close")
-          .hide();
-        */
-        // load data dialog content is stored in html
-        jqdialog.load("js/dataflow/datasource/loaddata-dialog.html", function() {
-          if (node.dataSelected != null) {
-            $(this).find("#data").val(node.dataSelected);
-          }
-        });
-      })
-      .appendTo(this.jqview);
+        })
+        .appendTo(this.jqview);
+
+      if (this.dataName != null) {
+        this.jqview.find("#datahint").text(this.dataName);
+      }
+    }
+
   },
 
   loadData: function(dataSelected, dataName) {

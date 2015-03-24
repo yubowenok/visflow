@@ -4,20 +4,24 @@
 var extObject = {
 
   plotName: "Scatterplot",
-  iconName: "scatterplot",
+  iconClass: "dataflow-scatterplot-icon dataflow-square-icon",
 
   // use object to specify default rendering properties
   defaultProperties: {
     "color": "#555",
     "border": "black",
-    "width": "1px",
-    "r" : 3
+    "width": 1,
+    "size" : 3
   },
   // show these properties when items are selected
   selectedProperties: {
     "color": "white",
-    "border": "#FF4400",
-    "width": "1.5px",
+    "border": "#FF4400"
+  },
+  // create highlight effect for selected, using multiplier
+  selectedMultiplier: {
+    "size": 1.2,
+    "width": 1.2
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -131,12 +135,7 @@ var extObject = {
         if ($(this).parent().length == 0) {
           return; // during svg update, the parent of mouseout event is unstable
         }
-        // when mouse is over drawn objects, mouseout is also triggered!
-        var pos = Utils.getOffset(event, $(this));
-        if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {
-          // out of svg, then do the same as mouseup
-          mouseupHandler(event);
-        }
+        mouseupHandler(event);
       });
   },
 
@@ -170,10 +169,10 @@ var extObject = {
 
   showSelectbox: function(box) {
     var node = this;
-    this.selectbox = this.svg.select(".df-scatterplot-selectbox");
+    this.selectbox = this.svg.select(".df-vis-selectbox");
     if (this.selectbox.empty())
       this.selectbox = this.svg.append("rect")
-        .attr("class", "df-scatterplot-selectbox");
+        .attr("class", "df-vis-selectbox");
 
     this.selectbox
       .attr("x", box.x1)
@@ -223,6 +222,12 @@ var extObject = {
       );
       if (this.selected[index]) {
         _(properties).extend(this.selectedProperties);
+        for (var p in this.selectedMultiplier) {
+          var v = properties[p];
+          if (v != null) {
+            properties[p] = v * this.selectedMultiplier[p];
+          }
+        }
       }
       ritems.push(properties);
     }

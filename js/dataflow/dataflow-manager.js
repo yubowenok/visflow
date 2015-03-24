@@ -58,25 +58,25 @@ var extObject = {
     case "value-extractor":
     case "property-editor":
     case "property-mapping":
-      if (type === "datasrc")
+      if (type == "datasrc")
         dataflowClass = DataflowDataSource;
-      if (type === "intersect")
+      if (type == "intersect")
         dataflowClass = DataflowIntersect;
-      if (type === "minus")
+      if (type == "minus")
         dataflowClass = DataflowMinus;
-      if (type === "union")
+      if (type == "union")
         dataflowClass = DataflowUnion;
-      if (type === "range")
+      if (type == "range")
         dataflowClass = DataflowRangeFilter;
-      if (type === "contain")
+      if (type == "contain")
         dataflowClass = DataflowContainFilter;
-      if (type === "value-extractor")
+      if (type == "value-extractor")
         dataflowClass = DataflowValueExtractor;
-      if (type === "value-maker")
+      if (type == "value-maker")
         dataflowClass = DataflowValueMaker;
-      if (type === "property-editor")
+      if (type == "property-editor")
         dataflowClass = DataflowPropertyEditor;
-      if (type === "property-mapping")
+      if (type == "property-mapping")
         dataflowClass = DataflowPropertyMapping;
       break;
 
@@ -85,14 +85,17 @@ var extObject = {
     case "scatterplot":
     case "parallelcoordinates":
     case "histogram":
-      if (type === "table")
+    case "heatmap":
+      if (type == "table")
         dataflowClass = DataflowTable;
-      if (type === "scatterplot")
+      if (type == "scatterplot")
         dataflowClass = DataflowScatterplot;
-      if (type === "parallelcoordinates")
+      if (type == "parallelcoordinates")
         dataflowClass = DataflowParallelCoordinates;
-      if (type === "histogram")
+      if (type == "histogram")
         dataflowClass = DataflowHistogram;
+      if (type == "heatmap")
+        dataflowClass = DataflowHeatmap;
       _(para).extend({
         visId: ++this.visCounter,
       });

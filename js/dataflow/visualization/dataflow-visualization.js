@@ -140,41 +140,40 @@ var extObject = {
     this.svgSize = [this.jqsvg.width(), this.jqsvg.height()];
   },
 
-  show: function() {
-    DataflowVisualization.base.show.call(this);
+  showDetails: function() {
+    DataflowVisualization.base.showDetails.call(this);
 
     var node = this;
 
-    if (this.detailsOn) {
-      this.jqvis = $("<div></div>")
+    this.jqvis = $("<div></div>")
       .addClass("dataflow-visualization")
       .appendTo(this.jqview);
 
-      this.jqview
-        .css("width", this.visWidth)
-        .css("height", this.visHeight)
-        .resizable("enable");
-      this.viewWidth = this.jqview.width();
-      this.viewHeight = this.jqview.height();
+    this.jqview
+      .css("width", this.visWidth)
+      .css("height", this.visHeight)
+      .resizable("enable");
+    this.viewWidth = this.jqview.width();
+    this.viewHeight = this.jqview.height();
 
-      // show selection shall be in show visualization
-      // so does interaction()
-      this.showVisualization();
-    } else {
-      if (this.jqvis)
-        this.jqvis.remove();
-      this.jqview
-        .css("width", "")
-        .css("height", "")
-        .resizable("disable");
+    // show selection shall be in show visualization
+    // so does interaction()
+    this.showVisualization();
+  },
 
-      this.viewWidth = this.jqview.width();
-      this.viewHeight = this.jqview.height();
-      this.showIcon();
-    }
+  showIcon: function() {
+    DataflowVisualization.base.showIcon.call(this);
 
+    if (this.jqvis)
+      this.jqvis.remove();
+    this.jqview
+      .css("width", "")
+      .css("height", "")
+      .resizable("disable");
+
+    this.viewWidth = this.jqview.width();
+    this.viewHeight = this.jqview.height();
     // must be called AFTER viewWidth & viewHeight are set
-    this.updatePorts();
   },
 
   process: function() {
@@ -206,6 +205,9 @@ var extObject = {
     // inheriting visualization classes may implement this
     // to change routine that sends selection to output S
     this.processSelection();
+
+    // do extra processing, such as sorting the item indexes in heatmap
+    this.processExtra();
   },
 
   processSelection: function() {
@@ -302,7 +304,8 @@ var extObject = {
   showSelection: function() {},
   updateVisualization: function() {},
   prepareScales: function() {},
-  dataChanged: function() {}
+  dataChanged: function() {},
+  processExtra: function() {}
 
 };
 

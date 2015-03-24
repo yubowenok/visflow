@@ -4,7 +4,7 @@
 var extObject = {
 
   plotName: "Histogram",
-  iconName: "histogram",
+  iconClass: "dataflow-histogram-icon dataflow-square-icon",
 
   // use object to specify default rendering properties
   defaultProperties: {
@@ -150,12 +150,7 @@ var extObject = {
         if ($(this).parent().length == 0) {
           return; // during svg update, the parent of mouseout event is unstable
         }
-        // when mouse is over drawn objects, mouseout is also triggered!
-        var pos = Utils.getOffset(event, $(this));
-        if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {
-          // out of svg, then do the same as mouseup
-          mouseupHandler(event);
-        }
+        mouseupHandler(event);
       });
   },
 
@@ -202,10 +197,10 @@ var extObject = {
 
   showSelectbox: function(box) {
     var node = this;
-    this.selectbox = this.svg.select(".df-histogram-selectbox");
+    this.selectbox = this.svg.select(".df-vis-selectbox");
     if (this.selectbox.empty())
       this.selectbox = this.svg.append("rect")
-        .attr("class", "df-histogram-selectbox");
+        .attr("class", "df-vis-selectbox");
 
     this.selectbox
       .attr("x", box.x1)
@@ -452,7 +447,7 @@ var extObject = {
       .addClass("dataflow-options-text")
       .text("Dimension")
       .appendTo(div);
-    this.dimensionSelect = $("<select></select>")
+    this.selectDimension = $("<select></select>")
       .addClass("dataflow-options-select")
       .appendTo(div)
       .select2()
@@ -496,7 +491,7 @@ var extObject = {
 
     this.prepareDimensionList();
     // show current selection, must call after prepareDimensionList
-    this.dimensionSelect.select2("val", this.dimension);
+    this.selectDimension.select2("val", this.dimension);
 
   },
 
@@ -608,7 +603,7 @@ var extObject = {
     var dims = this.ports["in"].pack.data.dimensions;
     for (var i in dims) {
       $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.dimensionSelect);
+        .appendTo(this.selectDimension);
     }
   },
 

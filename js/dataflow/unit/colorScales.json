@@ -1,7 +1,7 @@
 [
   {
     "value": "red-green",
-    "text": "Red-Green (c)",
+    "text": "Red-Green",
     "type": "color",
     "property": "color",
     "domain": [0.0, 0.5, 1.0],
@@ -9,7 +9,7 @@
   },
   {
     "value": "black-white",
-    "text": "Black-White (c)",
+    "text": "Black-White",
     "type": "color",
     "property": "color",
     "domain": [0.0, 1.0],
@@ -17,7 +17,7 @@
   },
   {
     "value": "red-yellow",
-    "text": "Red-Yellow (c)",
+    "text": "Red-Yellow",
     "type": "color",
     "property": "color",
     "domain": [0.0, 0.5, 1.0],
@@ -25,7 +25,7 @@
   },
   {
     "value": "yellow-blue",
-    "text": "Yellow-Blue (c)",
+    "text": "Yellow-Blue",
     "type": "color",
     "property": "color",
     "domain": [0.0, 0.5, 1.0],
@@ -33,7 +33,7 @@
   },
   {
     "value": "category",
-    "text": "Category (c)",
+    "text": "Category",
     "type": "color-category10",
     "property": "color",
     "domain": [],

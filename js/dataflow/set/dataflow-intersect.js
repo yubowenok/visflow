@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "intersect",
+  iconClass: "dataflow-intersect-icon dataflow-flat-icon",
 
   initialize: function(para) {
     DataflowIntersect.base.initialize.call(this, para);

@@ -32,8 +32,7 @@ svg {
 }
 
 
-.df-histogram-selectbox,
-.df-scatterplot-selectbox {
+.df-vis-selectbox {
   fill: #e0cfc2;
   stroke: #555;
   stroke-width: 1px;

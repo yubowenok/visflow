@@ -98,6 +98,10 @@ div {
   border-color: #C0AFA2;
 }
 .dataflow-node-shape {
+  width: 75px;
+  height: 75px;
+}
+.dataflow-node-shape-normal {
   width: 100px;
   height: 100px;
 }
@@ -108,8 +112,8 @@ div {
   padding: 5px;
   text-align: center;
 }
-.dataflow-node-shape-flat {
-  width: 100px;
+.dataflow-node-shape-set {
+  width: 80px;
   height: 50px;
   line-height: 25px;
   background-size: 50px 25px;
@@ -159,10 +163,6 @@ div {
   margin-bottom: 5px;
 }
 
-.dataflow-scalevis {
-  height: 10px;
-}
-
 .dataflow-table {
   width: 100%;
   height: 100%;
@@ -174,6 +174,7 @@ div {
 .dataflow-histogram-icon,
 .dataflow-parallelcoordinates-icon,
 .dataflow-intersect-icon,
+.dataflow-heatmap-icon,
 .dataflow-minus-icon,
 .dataflow-union-icon,
 .dataflow-range-icon,
@@ -181,52 +182,66 @@ div {
 .dataflow-value-maker-icon,
 .dataflow-value-extractor-icon,
 .dataflow-property-editor-icon,
-.dataflow-property-mapping-icon {
+.dataflow-property-mapping-icon,
+.dataflow-datasrc-icon {
   position: absolute;
   width: 100%;
   height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.dataflow-square-icon {
+  background-size: 75px;
+}
+.dataflow-flat-icon {
+  background-size: 70px;
+}
+
+.dataflow-datasrc-icon {
+  background-image: url(../imgs/datasrc-icon.png);
 }
 .dataflow-table-icon {
-  background: url(../imgs/table-icon.png) no-repeat center;
+  background-image: url(../imgs/table-icon.png);
 }
 .dataflow-scatterplot-icon {
-  background: url(../imgs/scatterplot-icon.png) no-repeat center;
+  background-image: url(../imgs/scatterplot-icon.png);
 }
 .dataflow-parallelcoordinates-icon {
-  background: url(../imgs/parallelcoordinates-icon.png) no-repeat center;
+  background-image: url(../imgs/parallelcoordinates-icon.png);
 }
 .dataflow-histogram-icon {
-  background: url(../imgs/histogram-icon.png) no-repeat center;
+  background-image: url(../imgs/histogram-icon.png);
+}
+.dataflow-heatmap-icon {
+  background-image: url(../imgs/heatmap-icon.png);
 }
 .dataflow-intersect-icon {
-  background: url(../imgs/intersect-icon.png) no-repeat center;
-  background-size: 70px;
+  background-image: url(../imgs/intersect-icon.png);
 }
 .dataflow-minus-icon {
-  background: url(../imgs/minus-icon.png) no-repeat center;
-  background-size: 70px;
+  background-image: url(../imgs/minus-icon.png);
 }
 .dataflow-union-icon {
-  background: url(../imgs/union-icon.png) no-repeat center;
-  background-size: 70px;
+  background-image: url(../imgs/union-icon.png);
 }
 .dataflow-value-extractor-icon {
-  background: url(../imgs/value-extractor-icon.png) no-repeat center;
+  background-image: url(../imgs/value-extractor-icon.png);
 }
 .dataflow-value-maker-icon {
-  background: url(../imgs/value-maker-icon.png) no-repeat center;
+  background-image: url(../imgs/value-maker-icon.png);
 }
 .dataflow-range-icon {
-  background: url(../imgs/range-icon.png) no-repeat center;
+  background-image: url(../imgs/range-icon.png);
 }
 .dataflow-contain-icon {
-  background: url(../imgs/contain-icon.png) no-repeat center;
+  background-image: url(../imgs/contain-icon.png);
 }
 .dataflow-property-editor-icon {
-  background: url(../imgs/property-editor-icon.png) no-repeat center;
+  background-image: url(../imgs/property-editor-icon.png);
 }
 .dataflow-property-mapping-icon {
-  background: url(../imgs/property-mapping-icon.png) no-repeat center;
+  background-image: url(../imgs/property-mapping-icon.png);
 }
 
 
@@ -258,12 +273,14 @@ div {
   font-size: 10px;
   font-weight: bold;
   pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 .dataflow-port-icon-single {
-  background: url(../imgs/port-single.png) no-repeat center;
+  background: url(../imgs/port-single.png);
 }
 .dataflow-port-icon-multiple {
-  background: url(../imgs/port-multiple.png) no-repeat center;
+  background: url(../imgs/port-multiple.png);
 }
 
 .dataflow-node-select {

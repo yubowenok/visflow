@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "minus",
+  iconClass: "dataflow-minus-icon dataflow-flat-icon",
 
   initialize: function(para) {
     DataflowMinus.base.initialize.call(this, para);

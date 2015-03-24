@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  iconName: "union",
+  iconClass: "dataflow-union-icon dataflow-flat-icon",
 
   initialize: function(para) {
     DataflowUnion.base.initialize.call(this, para);

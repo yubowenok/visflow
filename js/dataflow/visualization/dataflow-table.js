@@ -4,7 +4,7 @@
 var extObject = {
 
   plotName: "Table",
-  iconName: "table",
+  iconClass: "dataflow-dataflow-table-icon dataflow-square-icon",
 
   contextmenuDisabled: {
     "options": true

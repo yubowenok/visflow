@@ -4,7 +4,7 @@
 var extObject = {
 
   plotName: "ParallelCoordinates",
-  iconName: "parallelcoordinates",
+  iconClass: "dataflow-parallelcoordinates-icon dataflow-square-icon",
 
   // use object to specify default rendering properties
   defaultProperties: {
@@ -120,12 +120,7 @@ var extObject = {
         if ($(this).parent().length == 0) {
           return; // during svg update, the parent of mouseout event is unstable
         }
-        // when mouse is over drawn objects, mouseout is also triggered!
-        var pos = Utils.getOffset(event, $(this));
-        if (pos[0] < 0 || pos[0] >= node.svgSize[0] || pos[1] < 0 || pos[1] >= node.svgSize[1]) {
-          // out of svg, then do the same as mouseup
-          mouseupHandler(event);
-        }
+        mouseupHandler(event);
       });
   },
 
@@ -288,7 +283,7 @@ var extObject = {
       core.dataflowManager.propagate(node);
     };
 
-    this.dimensionSelect = $("<select></select>")
+    this.selectDimension = $("<select></select>")
       .attr("multiple", "multiple")
       .addClass("dataflow-options-select-multiple")
       .appendTo(div)
@@ -312,7 +307,7 @@ var extObject = {
         dimensionsUpdated();
       });
 
-    this.dimensionSelect.parent().find(".select2-choices")
+    this.selectDimension.parent().find(".select2-choices")
       .sortable({
         update: function(event, ui) {
           node.dimensions = [];
@@ -327,7 +322,7 @@ var extObject = {
 
     this.prepareDimensionList();
     // show current selection, must call after prepareDimensionList
-    this.dimensionSelect.select2("val", this.dimensions);
+    this.selectDimension.select2("val", this.dimensions);
   },
 
   showAxis: function(d) {
@@ -440,7 +435,7 @@ var extObject = {
     for (var i in dims) {
       this.dimensionIndexes[dims[i]] = i;
       $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.dimensionSelect);
+        .appendTo(this.selectDimension);
     }
   },
 

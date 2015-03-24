@@ -3,7 +3,7 @@
 
 var extObject = {
 
-  nodeShapeName: "flat",
+  nodeShapeName: "set",
 
   contextmenuDisabled: {
     "details": true,
@@ -23,9 +23,12 @@ var extObject = {
     this.viewHeight = 50;
   },
 
+  showDetails: function() {
+    DataflowSet.base.showDetails.call(this);
+  },
   show: function() {
     DataflowSet.base.show.call(this);
-  },
+  }
 
 };
 
