@@ -79,6 +79,7 @@ var extObject = {
       this.selectDimension = DataflowSelect.new({
         id: "dimension",
         label: "Dimension",
+        target: this.jqview,
         list: this.prepareDimensionList(),
         value: this.dimension,
         labelWidth: 75,
@@ -91,12 +92,12 @@ var extObject = {
           node.pushflow();
         }
       });
-      this.selectDimension.jqunit.appendTo(this.jqview);
 
       // select mapping
       this.selectMapping = DataflowSelect.new({
         id: "mapping",
         label: "Mapping",
+        target: this.jqview,
         list: this.prepareMappingList(),
         value: this.mapping,
         labelWidth: 75,
@@ -109,7 +110,6 @@ var extObject = {
           node.pushflow();
         }
       });
-      this.selectMapping.jqunit.appendTo(this.jqview);
 
       var mappingType = this.mappingTypes[this.mapping];
 
@@ -123,6 +123,7 @@ var extObject = {
         this.selectColorScale = DataflowColorScale.new({
           id: "scale",
           label: "Scale",
+          target: this.jqview,
           labelWidth: 75,
           value: this.colorScale,
           placeholder: "No Scale",
@@ -134,7 +135,6 @@ var extObject = {
             node.pushflow();
           }
         });
-        this.selectColorScale.jqunit.appendTo(this.jqview);
       } else if (mappingType == "number"){  // number
         if (this.selectColorScale != null) {
           this.selectColorScale.remove();
@@ -150,6 +150,7 @@ var extObject = {
           var input = this.inputNumberScale[id] = DataflowInput.new({
             id: id,
             label: unit[1],
+            target: this.jqview,
             value: this.inputNumberScale[id],
             labelWidth: 40,
             containerWidth: 50,
@@ -170,9 +171,7 @@ var extObject = {
             }
             node.pushflow();
           });
-
-          input.jqunit.appendTo(this.jqview);
-          if (id == 1) {
+          if (id == 1) {  // make appear in the same line, HACKY...
             input.jqunit.css({
               left: 95,
               top: 65,

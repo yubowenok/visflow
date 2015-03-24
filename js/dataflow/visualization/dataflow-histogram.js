@@ -454,6 +454,7 @@ var extObject = {
     this.selectDimension = DataflowSelect.new({
       id: "dimension",
       label: "Dimension",
+      target: this.jqoptions,
       list: this.prepareDimensionList(),
       relative: true,
       value: this.dimension,
@@ -464,11 +465,11 @@ var extObject = {
         node.showVisualization();
       }
     });
-    this.selectDimension.jqunit.appendTo(this.jqoptions);
 
     this.inputBins = DataflowInput.new({
       id: "bins",
       label: "Bins",
+      target: this.jqoptions,
       relative: true,
       accept: "int",
       range: [1, 100],
@@ -485,7 +486,6 @@ var extObject = {
         node.showVisualization();
       }
     });
-    this.inputBins.jqunit.appendTo(this.jqoptions);
   },
 
   showAxis: function(d) {

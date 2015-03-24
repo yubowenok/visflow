@@ -30,6 +30,10 @@ var extObject = {
     }
   },
 
+  connected: function() {
+    return this.connections.length > 0;
+  },
+
   connectable: function(port) {
     if (this.node === port.node)
       return "cannot connect ports of the same node";

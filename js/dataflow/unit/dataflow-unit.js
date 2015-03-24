@@ -17,6 +17,7 @@ var extObject = {
     this.id = para.id;
     this.label = para.label != null ? para.label : "";
     this.value = para.value; // default value, usually for save
+    this.target = para.target;
 
     // layout
     this.relative = para.relative;
@@ -54,6 +55,10 @@ var extObject = {
       };
       this.jqlabel.css(css);
       this.jqcontainer.css(css);
+    }
+
+    if (this.target != null) {
+      this.jqunit.appendTo(this.target);
     }
   },
 

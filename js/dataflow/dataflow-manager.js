@@ -339,9 +339,9 @@ var extObject = {
         console.error("older version set nodes detected");
         targetPort = targetNode.ports["in"];
       }
-
       this.createEdge(sourcePort, targetPort);
     }
+
 
     this.propagateDisabled = false; // full propagation
     this.propagate(this.dataSources);
@@ -440,7 +440,9 @@ var extObject = {
               {
                 text: "OK",
                 click: function() {
-                  manager.downloadDataflow(selectedDataflow);
+                  // now open a new page (for logging)
+                  window.open("index.php?filename=" + selectedDataflow, "_self");
+                  //manager.downloadDataflow(selectedDataflow);
                   table.destroy(true);
                   $(this).dialog("close");
                 }

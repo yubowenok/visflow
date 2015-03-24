@@ -27,6 +27,7 @@ var extObject = {
       .appendTo(this.jqunit);
 
     $(this.jqlabel)
+      .css("margin-right", 5)
       .appendTo(this.jqcontainer);
     this.jqcontainer
       .css("display", "inline-block");

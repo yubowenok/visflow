@@ -272,6 +272,7 @@ var extObject = {
     this.selectDimensions = DataflowSelect.new({
       id: "dimensions",
       label: "Dimensions",
+      target: this.jqoptions,
       multiple: true,
       sortable: true,
       relative: true,
@@ -284,7 +285,6 @@ var extObject = {
         node.showVisualization();
       }
     });
-    this.selectDimensions.jqunit.appendTo(this.jqoptions);
   },
 
   showAxis: function(d) {

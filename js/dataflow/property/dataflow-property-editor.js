@@ -63,6 +63,7 @@ var extObject = {
         var input = unit[1].new({
           id: id,
           label: unit[0],
+          target: this.jqview,
           labelWidth: 60,
           accept: unit[2],
           range: unit[3],
@@ -82,7 +83,6 @@ var extObject = {
           }
           node.pushflow();
         });
-        input.jqunit.appendTo(this.jqview);
       }, this);
     }
     this.updatePorts();

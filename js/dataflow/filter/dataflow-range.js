@@ -10,58 +10,77 @@ var extObject = {
     DataflowRangeFilter.base.initialize.call(this, para);
 
     this.inPorts = [
+      DataflowPort.new(this, "inv0", "in-single", "V", true),
       DataflowPort.new(this, "inv1", "in-single", "V", true),
-      DataflowPort.new(this, "inv2", "in-single", "V", true),
       DataflowPort.new(this, "in", "in-single", "D")
     ];
     this.outPorts = [
       DataflowPort.new(this, "out", "out-multiple", "D")
     ];
 
-    this.value1 = null;
-    this.value2 = null;
+    this.value = [];
+    this.embedValue = [];
+    this.jqvalue = [];
 
     this.prepare();
   },
 
   serialize: function() {
     var result = DataflowRangeFilter.base.serialize.call(this);
+    result.embedValue = this.embedValue;
     return result;
   },
 
   deserialize: function(save) {
     DataflowRangeFilter.base.deserialize.call(this, save);
+    this.embedValue = save.embedValue;
+    if (this.embedValue == null) {
+      console.error("embedValue not saved");
+      this.embedValue = [];
+    }
   },
 
   showDetails: function() {
 
     DataflowRangeFilter.base.showDetails.call(this); // call parent settings
 
-    $("<div>on</div>")
-      .prependTo(this.jqview);
-
-    $("<div>[ <input id='v1' style='width:40%'/> , " +
-    "<input id='v2' style='width:40%'/> ]</div>")
-      .prependTo(this.jqview);
-
     var node = this;
-    this.jqview.find("input").not(".select2-input")
-      .prop("disabled", true)
-      .addClass("dataflow-input dataflow-input-node");
 
-    this.jqvalue1 = this.jqview.find("#v1")
-      .val(this.value1 ? this.value1 : this.nullValueString);
-    this.jqvalue2 = this.jqview.find("#v2")
-      .val(this.value2 ? this.value2 : this.nullValueString);
+    $("<div>on</div>")
+      .css("padding", 5)
+      .prependTo(this.jqview);
+
+    $("<div>[ <input id='v0' style='width:40%'/> , " +
+      "<input id='v1' style='width:40%'/> ]</div>")
+      .prependTo(this.jqview);
+    [0, 1].map(function(id) {
+      this.jqvalue[id] = this.jqview.find("#v" + id);
+      this.jqvalue[id]
+        .addClass("dataflow-input dataflow-input-node")
+        .val(this.value[id] != null ? this.value[id] : this.nullValueString)
+        .change(function(event) {
+          var value = event.target.value;
+          node.embedValue[id] = value;
+          node.pushflow();
+        });
+      if (this.ports["inv" + id].connected())
+        this.jqvalue[id].prop("disabled", true);
+    }, this);
   },
 
   process: function() {
-
-    var pack1 = this.ports["inv1"].pack,
-        pack2 = this.ports["inv2"].pack;
-
-    if (pack1.type !== "constants" || pack2.type !== "constants")
-      return console.error("data connected to constants ports");
+    var pack = [];
+    [0, 1].map(function(id) {
+      var port = this.ports["inv" + id];
+      if (port.connected())
+        pack[id] = port.pack;
+      else if (this.embedValue[id] != null)
+        pack[id] = DataflowConstants.new(this.embedValue[id]);
+      else
+        pack[id] = port.pack;
+      this.value[id] = pack[id].getOne();
+      this.jqvalue[id].val(this.value[id] != null ? this.value[id] : this.nullValueString);
+    }, this);
 
     var inpack = this.ports["in"].pack,
         outpack = this.ports["out"].pack;
@@ -76,23 +95,14 @@ var extObject = {
     }
 
     // TODO promote constant type?
-    if (pack1.constantType !== "empty" && pack2.constantType !== "empty" &&
-        pack1.constantType !== pack2.constantType)
+    if (!pack[0].compatible(pack[1]))
       return core.viewManager.tip(
-        "different constant types passed to range filter", this.jqview.offset());
+        "incompatible constant types passed to range filter", this.jqview.offset());
 
-    this.value1 = pack1.getOne();
-    this.value2 = pack2.getOne();
-
-    if (this.value1 != null && this.value2 != null && this.value1 > this.value2) {
-      this.value1 = this.value2 = null;
+    if (this.value[0] != null && this.value[1] != null && this.value[0] > this.value[1]) {
+      this.value[0] = this.value[1] = null;
       core.viewManager.tip("value1 > value2 in range filter", this.jqview.offset());
     }
-
-    //console.log("filter process", this.value1, this.value2);
-
-    this.jqvalue1.val(this.value1 ? this.value1 : this.nullValueString);
-    this.jqvalue2.val(this.value2 ? this.value2 : this.nullValueString);
 
     if (inpack.data.dataId != this.lastDataId) {
       this.lastDataId = inpack.data.dataId;
@@ -114,7 +124,8 @@ var extObject = {
     for (var index in items) {
       var value = data.values[index][dim],
           ok = 1;
-      if (this.value1 && value < this.value1 || this.value2 && value > this.value2)
+      if (this.value[0] != null && value < this.value[0]
+        || this.value[1] != null && value > this.value[1])
         ok = 0;
       if (ok) {
         result.push(index);

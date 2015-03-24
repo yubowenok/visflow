@@ -36,6 +36,14 @@ var extObject = {
     }
   },
 
+  compatible: function(pack) {
+    if (this.constantType == "empty" || pack.constantType == "empty")
+      return true;
+    if (this.constantType == "string" ^ pack.constantType == "string")
+      return false;
+    return true;
+  },
+
   stringify: function() {
     var result = "";
     for (var i in this.elements) {

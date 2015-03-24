@@ -322,6 +322,7 @@ var extObject = {
     this.selectDimensions = DataflowSelect.new({
       id: "dimensions",
       label: "Dimensions",
+      target: this.jqoptions,
       multiple: true,
       sortable: true,
       relative: true,
@@ -334,12 +335,12 @@ var extObject = {
         node.showVisualization(); // show after process (in pushflow)
       }
     });
-    this.selectDimensions.jqunit.appendTo(this.jqoptions);
 
     // a select list of color scales
     this.selectColorScale = DataflowColorScale.new({
       id: "scale",
       label: "Scale",
+      target: this.jqoptions,
       value: this.colorScale,
       placeholder: "No Scale",
       relative: true,
@@ -350,11 +351,11 @@ var extObject = {
         node.showVisualization(); // show after process (in pushflow)
       }
     });
-    this.selectColorScale.jqunit.appendTo(this.jqoptions);
 
     this.checkboxAllColumns = DataflowCheckbox.new({
       id: "allColumns",
       label: "All Columns",
+      target: this.jqoptions,
       value: this.allColumns,
       relative: true,
       change: function(event) {
@@ -364,11 +365,11 @@ var extObject = {
         node.showVisualization(); // show after process (in pushflow)
       }
     });
-    this.checkboxAllColumns.jqunit.appendTo(this.jqoptions);
 
     this.selectRowLabels = DataflowSelect.new({
       id: "rowLabels",
       label: "Row Labels",
+      target: this.jqoptions,
       value: this.rowLabels,
       placeholder: "No Labels",
       relative: true,
@@ -380,11 +381,11 @@ var extObject = {
         node.showVisualization(); // show after process (in pushflow)
       }
     });
-    this.selectRowLabels.jqunit.appendTo(this.jqoptions);
 
     this.selectSortBy = DataflowSelect.new({
       id: "sortby",
       label: "Sort By",
+      target: this.jqoptions,
       value: this.sortBy,
       placeholder: "(auto-index)",
       relative: true,
@@ -396,7 +397,6 @@ var extObject = {
         node.showVisualization(); // show after process (in pushflow)
       }
     });
-    this.selectSortBy.jqunit.appendTo(this.jqoptions);
   },
 
   processExtra: function() {

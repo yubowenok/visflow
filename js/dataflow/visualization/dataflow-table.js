@@ -112,12 +112,7 @@ var extObject = {
       this.jqview.css(this.keepSize);
     }
 
-    // update ports
-    this.viewWidth = this.jqview.width();
-    this.viewHeight = this.jqview.height();
-    this.updatePorts();
     this.showSelection();
-
     this.interaction();
   },
 

@@ -105,6 +105,7 @@ var extObject = {
     }
 
     this.showPorts();
+    this.updatePorts(); // update edges
     this.options();
   },
 
@@ -264,6 +265,27 @@ var extObject = {
     for (var entry in this.contextmenuDisabled) {
       this.jqview.contextmenu("showEntry", entry, false);
     }
+  },
+
+  prepareDimensionList: function(ignoreTypes) {
+    if (ignoreTypes == null)
+      ignoreTypes = [];
+
+    var inpack = this.ports["in"].pack;
+    if (inpack.isEmptyData())
+      return [];
+    var dims = inpack.data.dimensions,
+        dimTypes = inpack.data.dimensionTypes;
+    var list = [];
+    for (var i in dims) {
+      if (ignoreTypes.indexOf(dimTypes[i]) != -1)
+        continue;
+      list.push({
+        value: i,
+        text: dims[i]
+      });
+    }
+    return list;
   },
 
   updateEdges: function() {

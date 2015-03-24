@@ -66,3 +66,7 @@ body {
 .select2-results {
   font-size: 0.8em;
 }
+
+input:disabled {
+  color: #AAA;
+}

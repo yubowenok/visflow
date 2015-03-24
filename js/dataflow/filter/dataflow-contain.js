@@ -18,6 +18,7 @@ var extObject = {
     ];
 
     this.value = null;
+    this.embedValue = null;
     this.inputMode = "text";
     this.matchMode = "exact";
 
@@ -28,6 +29,7 @@ var extObject = {
     var result = DataflowContainFilter.base.serialize.call(this);
     result.inputMode = this.inputMode;
     result.matchMode = this.matchMode;
+    result.embedValue = this.embedValue;
     return result;
   },
 
@@ -35,6 +37,7 @@ var extObject = {
     DataflowContainFilter.base.deserialize.call(this, save);
     this.inputMode = save.inputMode;
     this.matchMode = save.matchMode;
+    this.embedValue = save.embedValue;
     if (this.inputMode == null) {
       console.error("contain filter inputMode not saved");
       this.inputMode = "text";
@@ -48,68 +51,83 @@ var extObject = {
   showDetails: function() {
 
     DataflowContainFilter.base.showDetails.call(this); // call parent settings
-
+    var node = this;
     $("<div>contains</div>")
+      .css("padding-bottom", 3)
       .appendTo(this.jqview);
 
     $("<div><input id='v' style='width:80%'/></div>")
       .appendTo(this.jqview);
 
-    this.jqview.find("input")
-      .prop("disabled", true)
-      .addClass("dataflow-input dataflow-input-node");
-
     this.jqvalue = this.jqview.find("#v")
-      .val(this.value ? this.value : this.nullValueString);
+      .addClass("dataflow-input dataflow-input-node")
+      .val(this.value ? this.value : this.nullValueString)
+      .change(function(event) {
+        node.embedValue = event.target.value;
+        node.pushflow();
+      });
+
+    if (this.ports["inv"].connected())
+      this.jqvalue.prop("disabled", true);
   },
 
   showOptions: function() {
     var node = this;
-    var div = $("<div></div>")
-      .addClass("dataflow-options-item")
-      .appendTo(this.jqoptions);
-    $("<label></label>")
-      .addClass("dataflow-options-text")
-      .text("Input Mode")
-      .appendTo(div);
-    this.inputModeSelect = $("<select>"
-      + "<option value='text'>Text</option>"
-      + "<option value='regex'>Regular Expression</option>"
-      + "</select>")
-      .addClass("dataflow-options-select")
-      .appendTo(div)
-      .select2()
-      .change(function(event){
-        node.inputMode = event.target.value;
-        node.pushflow();
-      });
-    this.inputModeSelect.select2("val", this.inputMode);
 
-    var div2 = $("<div></div>")
-      .addClass("dataflow-options-item")
-      .appendTo(this.jqoptions);
-    $("<label></label>")
-      .addClass("dataflow-options-text")
-      .text("Match Mode")
-      .appendTo(div);
-    this.matchModeSelect = $("<select>"
-      + "<option value='exact'>Exact</option>"
-      + "<option value='substring'>Substring</option>"
-      + "</select>")
-      .addClass("dataflow-options-select")
-      .appendTo(div)
-      .select2()
-      .change(function(event){
-        node.matchMode = event.target.value;
+    this.selectInputMode = DataflowSelect.new({
+      id: "inputmode",
+      label: "Input Mode",
+      target: this.jqoptions,
+      list: [
+        {
+          value: "text",
+          text: "Text"
+        },
+        {
+          value: "regex",
+          text: "Regular Expression"
+        }
+      ],
+      value: this.inputMode,
+      relative: true,
+      change: function(event) {
+        node.inputMode = event.unitChange.value;
         node.pushflow();
-      });
-    this.matchModeSelect.select2("val", this.matchMode);
+      }
+    });
+
+    this.selectMatchMode = DataflowSelect.new({
+      id: "matchmode",
+      label: "Match Mode",
+      target: this.jqoptions,
+      list: [
+        {
+          value: "exact",
+          text: "Exact"
+        },
+        {
+          value: "substring",
+          text: "Substring"
+        }
+      ],
+      value: this.matchMode,
+      relative: true,
+      change: function(event) {
+        node.matchMode = event.unitChange.value;
+        node.pushflow();
+      },
+    });
   },
 
   process: function() {
-    var pack = this.ports["inv"].pack;
-    if (pack.type !== "constants")
-      return console.error("data connected to constants ports");
+    var port = this.ports["inv"],
+        pack;
+    if (port.connected())
+      pack = port.pack;
+    else if (this.embedValue != null)
+      pack = DataflowConstants.new(this.embedValue);
+    else
+      pack = port.pack; // empty constants
 
     var inpack = this.ports["in"].pack,
         outpack = this.ports["out"].pack;

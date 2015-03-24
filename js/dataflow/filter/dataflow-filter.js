@@ -40,34 +40,24 @@ var extObject = {
     DataflowFilter.base.showDetails.call(this);
 
     this.jqview
-      .css("text-align", "center")
-      .css("line-height", "25px");
+      .css("text-align", "center");
+
     var node = this;
-    this.selectDimension = $("<select><option/></select>")
-      .addClass("dataflow-node-select")
-      .appendTo(this.jqview)
-      .select2({
-        placeholder: "Select",
-        allowClear: true
-      })
-      .change(function(event){
+    this.selectDimension = DataflowSelect.new({
+      id: "dimension",
+      list: this.prepareDimensionList(),
+      value: this.dimension,
+      relative: true,
+      placeholder: "Select",
+      change: function(event){
         node.dimension = event.target.value;
         if (node.dimension == "")
           node.dimension = null;
         node.pushflow();
-      });
-    this.prepareDimensionList();
-
-    // show current selection, must call after prepareDimensionList
-    this.selectDimension.select2("val", this.dimension);
-  },
-
-  prepareDimensionList: function() {
-    var dims = this.ports["in"].pack.data.dimensions;
-    for (var i in dims) {
-      $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.selectDimension);
-    }
+      }
+    });
+    this.selectDimension.jqunit
+      .appendTo(this.jqview);
   },
 
   filter: function() {

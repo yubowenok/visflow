@@ -23,7 +23,7 @@ if ($paraok) {
     fclose($file);
     if ($ok == false) {
       $response['status'] = 'error';
-      $response['msg'] = 'Cannot write to file.';
+      $response['msg'] = 'Cannot write to file: no write permission.';
     } else {
       $response['filename'] = $filename;
       $response['status'] = 'success';
