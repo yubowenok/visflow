@@ -11,7 +11,6 @@
 var extObject = {
 
   initialize: function(para) {
-
     DataflowColorpicker.base.initialize.call(this, para);
 
     this.color = "none";

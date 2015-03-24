@@ -11,13 +11,10 @@
 var extObject = {
 
   initialize: function(para) {
-
     DataflowSelect.base.initialize.call(this, para);
 
     this.options = para.options != null ? para.optinos : [];
-
     this.valueToItem = {};
-
     this.placeholder = para.placeholder;
 
     this.prepare();
@@ -128,6 +125,7 @@ var extObject = {
           .addClass("dataflow-scalevis");
         var gradient = "linear-gradient(to right,";
         if (scale.type == "color") {
+          // NOT support uneven scales
           for (var j in scale.range) {
             gradient += scale.range[j];
             gradient += j == scale.range.length - 1 ? ")" : ",";

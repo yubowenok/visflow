@@ -16,11 +16,10 @@ var extObject = {
 
     this.id = para.id;
     this.label = para.label != null ? para.label : "";
-
     this.value = para.value; // default value, usually for save
 
+    // layout
     this.relative = para.relative;
-
     this.labelWidth = para.labelWidth;
     this.containerWidth = para.containerWidth;
     this.changeCallback = para.change != null ? para.change : function(event) {};

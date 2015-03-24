@@ -11,18 +11,14 @@
 var extObject = {
 
   initialize: function(para) {
-
     DataflowSelect.base.initialize.call(this, para);
 
     this.options = para.options != null ? para.optinos : [];
 
     this.multiple = para.multiple;
     this.sortable = para.sortable;  // allow reordering of multiple
-
     this.list = para.list;  // list of options
-
     this.placeholder = para.placeholder;
-
     this.textToValue = {};
 
     this.prepare();

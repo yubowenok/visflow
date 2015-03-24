@@ -11,15 +11,11 @@
 var extObject = {
 
   initialize: function(para) {
-
     DataflowInput.base.initialize.call(this, para);
 
     this.accept = para.accept != null ? para.accept : "string";
     this.range = para.range != null ? para.range : [null, null];
     this.scrollDelta = para.scrollDelta != null ? para.scrollDelta : false;
-    this.changeCallback = para.change != null? para.change : function(event) {};
-
-    this.value = "";
 
     this.prepare();
   },

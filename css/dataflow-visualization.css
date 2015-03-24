@@ -57,3 +57,10 @@ svg {
   text-anchor: middle;
 }
 
+.df-row-label {
+  font-size: 11px;
+  dominant-baseline: middle;
+  text-anchor: end;
+  font-family: Courier;
+}
+

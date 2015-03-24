@@ -476,35 +476,6 @@ var extObject = {
       }
     });
     this.inputBins.jqunit.appendTo(this.jqoptions);
-    /*
-    var div2 = $("<div></div>")
-      .addClass("dataflow-options-item")
-      .appendTo(this.jqoptions);
-    $("<label></label>")
-      .addClass("dataflow-options-text")
-      .text("Bins")
-      .appendTo(div2);
-    this.binSelect = $("<select>" +
-      "<option val='5'>5</option>" +
-      "<option val='10'>10</option>" +
-      "<option val='25'>25</option>" +
-      "<option val='50'>50</option>" +
-      "<option val='100'>100</option>" +
-      "</select>")
-      .addClass("dataflow-options-select")
-      .appendTo(div2)
-      .select2()
-      .change(function(event){
-        node.numBins = parseInt(event.target.value);
-
-        // clear selection, bins have changed
-        node.selectedBars = {};
-        node.selected = {};
-
-        node.showVisualization();
-      });
-    this.binSelect.select2("val", this.numBins);
-    */
   },
 
   showAxis: function(d) {

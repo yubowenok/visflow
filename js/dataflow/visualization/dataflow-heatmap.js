@@ -18,6 +18,9 @@ var extObject = {
   isAttr: {
     "id": true
   },
+
+  fontWidth: 8,
+
   // no translate for heatmap, heatmap's rendering is not item based
   propertyTranslate: {
   },
@@ -39,12 +42,18 @@ var extObject = {
 
     // leave some space for axes
     this.plotMargins = [ { before: 10, after: 10 }, { before: 30, after: 10 } ];
+    this.plotMarginsInit = {};
+    $.extend(true, this.plotMarginsInit, this.plotMargins);
+
+    this.rowLabelsShifts = [-5, 0];
+    this.rowLabels = null;
   },
 
   serialize: function() {
     var result = DataflowHeatmap.base.serialize.call(this);
     result.dimensions = this.dimensions;
     result.colorScale = this.colorScale;
+    result.rowLabels = this.rowLabels;
     return result;
   },
 
@@ -52,6 +61,7 @@ var extObject = {
     DataflowHeatmap.base.deserialize.call(this, save);
 
     this.colorScale = save.colorScale;
+    this.rowLabels = save.rowLabels;
     this.dimensions = save.dimensions;
     if (this.dimensions == null) {
       console.error("dimensions not saved for " + this.plotName);
@@ -197,6 +207,9 @@ var extObject = {
           color = colorScale(this.dataScale(value));
         cols.push(color);
       }
+      if (this.rowLabels) {
+        cols.label = data.values[index][this.rowLabels];
+      }
       ritems.push(cols);
     }
 
@@ -215,7 +228,7 @@ var extObject = {
     width = Math.ceil(width);
     height = Math.ceil(height);
 
-    this.cells = rows.selectAll(".rect")
+    var cells = rows.selectAll(".rect")
       .data(function(row){ return row; }) // use the array as data
       .enter().append("rect")
       .attr("transform", function(e, j) {
@@ -227,26 +240,18 @@ var extObject = {
       .attr("width", width)
       .attr("height", height);
 
-
-
-/*
-    for (var i = 0; i < points.length; i++) {
-      var properties = points[i].__data__;
-      var u = d3.select(points[i]);
-
-      for (var key in properties) {
-        var value = properties[key];
-        if (this.propertyTranslate[key] != null)
-          key = this.propertyTranslate[key];
-        if (key == "ignore")
-          continue;
-        if (this.isAttr[key] == true)
-          u.attr(key, value);
-        else
-          u.style(key, value);
-      }
+    if (this.rowLabels) {
+      var labels = this.svg.selectAll("g")
+        .data(ritems).append("text")
+        .attr("class", "df-row-label")
+        .text(function(e) {
+          return e.label;
+        })
+        .attr("transform", function(e, i) {
+          return "translate(" + (node.plotMargins[0].before + node.rowLabelsShifts[0]) + ","
+            + (height/2) + ")";
+        });
     }
-    */
     this.showDimensionLabels();
     this.showSelection();
   },
@@ -276,13 +281,6 @@ var extObject = {
 
   showOptions: function() {
     var node = this;
-
-    var dimensionsUpdated = function() {
-      node.showVisualization();
-      node.process();
-      // push dimension change to downflow
-      core.dataflowManager.propagate(node);
-    };
 
     this.selectDimensions = DataflowSelect.new({
       id: "dimensions",
@@ -316,12 +314,30 @@ var extObject = {
       }
     });
     this.selectColorScale.jqunit.appendTo(this.jqoptions);
+
+    this.selectRowLabels = DataflowSelect.new({
+      id: "rowLabels",
+      label: "Row Labels",
+      value: this.rowLabels,
+      placeholder: "No Labels",
+      relative: true,
+      list: this.prepareDimensionList(),
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.rowLabels = unitChange.value;
+        node.pushflow();
+        node.showVisualization(); // show after process (in pushflow)
+      }
+    });
+    this.selectRowLabels.jqunit.appendTo(this.jqoptions);
   },
 
   processExtra: function() {
-    var inpack = this.ports["in"].pack;
+    var inpack = this.ports["in"].pack,
+        items = inpack.items,
+        data = inpack.data;
+
     // get a sorted list of indexes
-    var items = inpack.items;
     this.itemIndexes = [];
     for (var index in items) {
       this.itemIndexes.push(parseInt(index)); // index is string
@@ -329,7 +345,6 @@ var extObject = {
     this.itemIndexes.sort(function(a, b){ return a - b; });
 
     // get dataScale
-    var data = inpack.data;
     var minVal = Infinity, maxVal = -Infinity;
     for (var index in items) {
       for (var i in this.dimensions) {
@@ -344,6 +359,16 @@ var extObject = {
     this.dataScale = d3.scale.linear()
       .domain([minVal, maxVal])
       .range([0, 1]);
+
+    // get left margin of row labels
+    var margin = this.plotMarginsInit[0].before;
+    if (this.rowLabels != null) {
+      for (var index in items) {
+        var value = "" + data.values[index][this.rowLabels];
+        margin = Math.max(margin, value.length * this.fontWidth);
+      }
+    }
+    this.plotMargins[0].before = margin + (-this.rowLabelsShifts[0]);
   },
 
   prepareScales: function() {
