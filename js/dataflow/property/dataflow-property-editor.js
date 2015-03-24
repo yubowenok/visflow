@@ -46,46 +46,43 @@ var extObject = {
     }
   },
 
-  show: function() {
-    DataflowPropertyEditor.base.show.call(this); // call parent settings
+  showDetails: function() {
+    DataflowPropertyEditor.base.showDetails.call(this); // call parent settings
 
-    if (this.detailsOn) {
-      var node = this;
-      // color and border
-      [
-        ["Color", DataflowColorpicker],
-        ["Border", DataflowColorpicker],
-        ["Width", DataflowInput, "float", [0, 1E9], 0.1],
-        ["Size", DataflowInput, "float", [0, 1E9], 0.5],
-        ["Opacity", DataflowInput, "float", [0, 1], 0.05]
-      ].map(function(unit) {
-        var id = unit[0].toLowerCase();
-        var input = unit[1].new({
-          id: id,
-          label: unit[0],
-          target: this.jqview,
-          labelWidth: 60,
-          accept: unit[2],
-          range: unit[3],
-          scrollDelta: unit[4]
-        });
-        if (this.properties[id] != null) {
-          input.setValue(this.properties[id]);
+    var node = this;
+    // color and border
+    [
+      ["Color", DataflowColorpicker],
+      ["Border", DataflowColorpicker],
+      ["Width", DataflowInput, "float", [0, 1E9], 0.1],
+      ["Size", DataflowInput, "float", [0, 1E9], 0.5],
+      ["Opacity", DataflowInput, "float", [0, 1], 0.05]
+    ].map(function(unit) {
+      var id = unit[0].toLowerCase();
+      var input = unit[1].new({
+        id: id,
+        label: unit[0],
+        target: this.jqview,
+        labelWidth: 60,
+        accept: unit[2],
+        range: unit[3],
+        scrollDelta: unit[4]
+      });
+      if (this.properties[id] != null) {
+        input.setValue(this.properties[id]);
+      }
+      input.change(function(event){
+        var unitChange = event.unitChange;
+        if (unitChange.value != null) {
+          node.properties[unitChange.id] = unitChange.value;
+        } else {
+          // the property is null, and thus removed
+          // otherwise downflow will get null svg value
+          delete node.properties[unitChange.id];
         }
-        input.change(function(event){
-          var unitChange = event.unitChange;
-          if (unitChange.value != null) {
-            node.properties[unitChange.id] = unitChange.value;
-          } else {
-            // the property is null, and thus removed
-            // otherwise downflow will get null svg value
-            delete node.properties[unitChange.id];
-          }
-          node.pushflow();
-        });
-      }, this);
-    }
-    this.updatePorts();
+        node.pushflow();
+      });
+    }, this);
   },
 
   process: function() {

@@ -20,12 +20,22 @@ var extObject = {
       DataflowPort.new(this, "out", "out-multiple", "D")
     ];
 
-    this.viewHeight = 50;
+    this.lastConnectionNumber = 0;
+  },
+
+  //  may change because of removed connections
+  inPortsChanged: function() {
+    if (this.lastConnectionNumber != this.ports["in"].connections.length) {
+      this.lastConnectionNumber = this.ports["in"].connections.length;
+      return true;
+    }
+    return DataflowSet.base.inPortsChanged.call(this);
   },
 
   showDetails: function() {
     DataflowSet.base.showDetails.call(this);
   },
+
   show: function() {
     DataflowSet.base.show.call(this);
   }

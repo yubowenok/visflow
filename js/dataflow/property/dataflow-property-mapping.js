@@ -70,119 +70,116 @@ var extObject = {
     this.numberScale = save.numberScale;
   },
 
-  show: function() {
-    DataflowPropertyMapping.base.show.call(this); // call parent settings
+  showDetails: function() {
+    DataflowPropertyMapping.base.showDetails.call(this); // call parent settings
 
     var node = this;
-    if (this.detailsOn) {
-      // select dimension
-      this.selectDimension = DataflowSelect.new({
-        id: "dimension",
-        label: "Dimension",
-        target: this.jqview,
-        list: this.prepareDimensionList(),
-        value: this.dimension,
-        labelWidth: 75,
-        placeholder: "Select",
-        containerWidth: this.jqview.width() - 75,
-        change: function(event) {
-          //console.log("change dim");
-          var unitChange = event.unitChange;
-          node.dimension = unitChange.value;
-          node.pushflow();
-        }
-      });
-
-      // select mapping
-      this.selectMapping = DataflowSelect.new({
-        id: "mapping",
-        label: "Mapping",
-        target: this.jqview,
-        list: this.prepareMappingList(),
-        value: this.mapping,
-        labelWidth: 75,
-        placeholder: "Select",
-        containerWidth: this.jqview.width() - 75,
-        change: function(event) {
-          var unitChange = event.unitChange;
-          node.mapping = unitChange.value;
-          node.show();
-          node.pushflow();
-        }
-      });
-
-      var mappingType = this.mappingTypes[this.mapping];
-
-      if (mappingType == "color") {
-        if (this.inputNumberScale != null) {
-          this.inputNumberScale[0].remove();
-          this.inputNumberScale[1].remove();
-          this.inputNumberScale = null;
-        }
-        // a select list of color scales
-        this.selectColorScale = DataflowColorScale.new({
-          id: "scale",
-          label: "Scale",
-          target: this.jqview,
-          labelWidth: 75,
-          value: this.colorScale,
-          placeholder: "No Scale",
-          containerWidth: this.jqview.width() - 75,
-          change: function(event) {
-            //console.log("scale change");
-            var unitChange = event.unitChange;
-            node.colorScale = unitChange.value;
-            node.pushflow();
-          }
-        });
-      } else if (mappingType == "number"){  // number
-        if (this.selectColorScale != null) {
-          this.selectColorScale.remove();
-          this.selectColorScale = null;
-        }
-        // two input boxes of range
-        this.inputNumberScale = [];
-        [
-          [0, "Min"],
-          [1, "Max"]
-        ].map(function(unit){
-          var id = unit[0];
-          var input = this.inputNumberScale[id] = DataflowInput.new({
-            id: id,
-            label: unit[1],
-            target: this.jqview,
-            value: this.inputNumberScale[id],
-            labelWidth: 40,
-            containerWidth: 50,
-            accept: "float",
-            range: this.mappingRange[this.mapping],
-            scrollDelta: this.mappingScrollDelta[this.mapping]
-          });
-          if (this.numberScale[id] != null) {
-            input.setValue(this.numberScale[id]);
-            this.numberScale[id] = input.value; // value maybe fixed
-          }
-          input.change(function(event){
-            var unitChange = event.unitChange;
-            if (unitChange.value != null) {
-              node.numberScale[id] = unitChange.value;
-            } else {
-              node.numberScale[id] = null;
-            }
-            node.pushflow();
-          });
-          if (id == 1) {  // make appear in the same line, HACKY...
-            input.jqunit.css({
-              left: 95,
-              top: 65,
-              position: "absolute"
-            });
-          }
-        }, this);
+    // select dimension
+    this.selectDimension = DataflowSelect.new({
+      id: "dimension",
+      label: "Dimension",
+      target: this.jqview,
+      list: this.prepareDimensionList(),
+      value: this.dimension,
+      labelWidth: 75,
+      placeholder: "Select",
+      containerWidth: this.jqview.width() - 75,
+      change: function(event) {
+        //console.log("change dim");
+        var unitChange = event.unitChange;
+        node.dimension = unitChange.value;
+        node.pushflow();
       }
+    });
 
+    // select mapping
+    this.selectMapping = DataflowSelect.new({
+      id: "mapping",
+      label: "Mapping",
+      target: this.jqview,
+      list: this.prepareMappingList(),
+      value: this.mapping,
+      labelWidth: 75,
+      placeholder: "Select",
+      containerWidth: this.jqview.width() - 75,
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.mapping = unitChange.value;
+        node.show();
+        node.pushflow();
+      }
+    });
+
+    var mappingType = this.mappingTypes[this.mapping];
+
+    if (mappingType == "color") {
+      if (this.inputNumberScale != null) {
+        this.inputNumberScale[0].remove();
+        this.inputNumberScale[1].remove();
+        this.inputNumberScale = null;
+      }
+      // a select list of color scales
+      this.selectColorScale = DataflowColorScale.new({
+        id: "scale",
+        label: "Scale",
+        target: this.jqview,
+        labelWidth: 75,
+        value: this.colorScale,
+        placeholder: "No Scale",
+        containerWidth: this.jqview.width() - 75,
+        change: function(event) {
+          //console.log("scale change");
+          var unitChange = event.unitChange;
+          node.colorScale = unitChange.value;
+          node.updatePorts();
+          node.pushflow();
+        }
+      });
+    } else if (mappingType == "number"){  // number
+      if (this.selectColorScale != null) {
+        this.selectColorScale.remove();
+        this.selectColorScale = null;
+      }
+      // two input boxes of range
+      this.inputNumberScale = [];
+      [
+        [0, "Min"],
+        [1, "Max"]
+      ].map(function(unit){
+        var id = unit[0];
+        var input = this.inputNumberScale[id] = DataflowInput.new({
+          id: id,
+          label: unit[1],
+          target: this.jqview,
+          value: this.inputNumberScale[id],
+          labelWidth: 40,
+          containerWidth: 50,
+          accept: "float",
+          range: this.mappingRange[this.mapping],
+          scrollDelta: this.mappingScrollDelta[this.mapping]
+        });
+        if (this.numberScale[id] != null) {
+          input.setValue(this.numberScale[id]);
+          this.numberScale[id] = input.value; // value maybe fixed
+        }
+        input.change(function(event){
+          var unitChange = event.unitChange;
+          if (unitChange.value != null) {
+            node.numberScale[id] = unitChange.value;
+          } else {
+            node.numberScale[id] = null;
+          }
+          node.pushflow();
+        });
+        if (id == 1) {  // make appear in the same line, HACKY...
+          input.jqunit.css({
+            left: 95,
+            top: 65,
+            position: "absolute"
+          });
+        }
+      }, this);
     }
-    this.updatePorts();
   },
 
   prepareDimensionList: function() {

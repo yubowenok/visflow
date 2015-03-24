@@ -286,25 +286,34 @@ var extObject = {
     var data = this.histogramData;
 
     var propertiesCompare = function(a, b) {
-      var sa = "",
-          sb = "";
+      var sa = [],
+          sb = [];
       // TODO using hashes in compare may result in unstable behavior when upflow
       // changes the rendering properties
-      ["color", "border", "border-width"].map(function(key, i) {
-          if (a.hash == null)
-            sa += i + ":" + (a.properties[key] == null? "" : a.properties[key]) + ",";
-          if (b.hash == null)
-            sb += i + ":" + (b.properties[key] == null? "" : b.properties[key]) + ",";
-        });
-
+      ["color", "border", "width", "opacity"].map(function(key, i) {
+        var pa = a.properties[key],
+            pb = b.properties[key];
+        if (pa == null) pa = "";
+        if (pb == null) pb = "";
+        if (key == "color") {
+          pa = d3.rgb(pa).hsl();
+          pa = [isNaN(pa.h) ? 0 : pa.h, isNaN(pa.s) ? 0 : pa.s, pa.l];
+          pb = d3.rgb(pb).hsl();
+          pb = [isNaN(pb.h) ? 0 : pb.h, isNaN(pb.s) ? 0 : pb.s, pb.l];
+        } else {
+          pa = [pa];
+          pb = [pb];
+        }
+        if (a.hash == null)
+          sa = sa.concat(pa);
+        if (b.hash == null)
+          sb = sb.concat(pb);
+      }, this);
       if (a.hash == null)
-        a.hash = Utils.hashString(sa);
+        a.hash = sa; //Utils.hashString(sa);
       if (b.hash == null)
-        b.hash = Utils.hashString(sb);
-
-      if (a.hash < b.hash) return -1;
-      else if (a.hash === b.hash) return 0;
-      return 1;
+        b.hash = sb; //Utils.hashString(sb);
+      return Utils.compare(a.hash, b.hash);
     };
 
     for (var i = 0; i < data.length; i++) {
@@ -316,6 +325,7 @@ var extObject = {
         };
       }
       bin.sort(propertiesCompare);
+
       var newbin = [];
       data[i] = _.extend([], _(bin).pick("x", "y", "dx"));
       _(newbin).extend(_(bin).pick("x", "y", "dx")); // copy d3 histogram attributes
@@ -324,7 +334,7 @@ var extObject = {
       for (var j = 0; j < bin.length; j++) {
         var k = j;
         var members = [];
-        while(k < bin.length && bin[k].hash == bin[j].hash) {
+        while(k < bin.length && Utils.compare(bin[k].hash, bin[j].hash) == 0) {
           members.push(bin[k].index);
           k++;  // same group
         }
@@ -392,13 +402,16 @@ var extObject = {
     var bars = this.bars = bins.selectAll(".rect")
       .data(function(d){ return d; }) // use the array as data
       .enter().append("rect")
-      .attr("x", 1) // 1 pixel gap
+      .attr("id", function(e, j) {
+        return "r" + j;
+      })
+      .attr("x", 1)
       .attr("y", function(e) {
-        return yScale(e.y + e.dy);
+        return Math.ceil(yScale(e.y + e.dy));
       })
       .attr("width", width)
       .attr("height", function(e) {
-        return yScale(0) - yScale(e.dy);
+        return Math.ceil(yScale(0) - yScale(e.dy));
       });
 
     for (var i = 0; i < bars.length; i++) {
@@ -445,7 +458,18 @@ var extObject = {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
-    // nothing, histogram does not need move to front
+
+    // find all bars that have selection
+    var bars = {};
+    for (var id in this.selectedBars) {
+      var ij = id.split(",");
+      bars[ij[0]] = true;
+    }
+    // move to top
+    for (var i in bars) {
+      this.jqsvg.find("#b" + i)
+        .appendTo(this.jqsvg);
+    }
   },
 
   showOptions: function() {

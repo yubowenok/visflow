@@ -15,8 +15,6 @@ var extObject = {
     this.nodeId = para.nodeId;
     this.type = para.type;
 
-    this.viewWidth = 100;
-    this.viewHeight = 100;
     this.portHeight = 20;
     this.portGap = 4;
 

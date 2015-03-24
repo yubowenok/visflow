@@ -41,14 +41,19 @@ var Utils = {
 
   // compare function
   compare: function(a, b, type) {
-    if (type == "int" || type == "float") {
-      return a - b;
-    } else if (type == "string") {
+    if (a instanceof Array) {
+      if (a.length != b.length)
+        return console.error("array length not match");
+      for (var i = 0; i < a.length; i++) {
+        if (a < b) return -1;
+        else if (a > b) return 1;
+      }
+      return 0;
+    } else {
       if (a < b) return -1;
       else if (a > b) return 1;
       return 0;
     }
-    console.error("unsupported compare type");
   },
 
   // hash a string
