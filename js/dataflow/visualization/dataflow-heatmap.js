@@ -14,7 +14,7 @@ var extObject = {
   selectedProperties: {
     "color": "white",
     "border": "#FF4400",
-    "width": "1.5px",
+    "width": 1.5,
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -39,22 +39,24 @@ var extObject = {
     this.scaleTypes = [];
     // index pair (0~n-1, 0~m-1) to screen pixels
     this.screenScales = [];
-    // value scale that handles all numerical entries
-    this.valueScale = [];
+    // value scale that handles all numerical entries to color
+    this.dataScale = [];
 
     // leave some space for axes
-    this.plotMargins = [ { before: 30, after: 30 }, { before: 20, after: 20 } ];
+    this.plotMargins = [ { before: 10, after: 10 }, { before: 20, after: 10 } ];
   },
 
   serialize: function() {
     var result = DataflowHeatmap.base.serialize.call(this);
     result.dimensions = this.dimensions;
+    result.colorScale = this.colorScale;
     return result;
   },
 
   deserialize: function(save) {
     DataflowHeatmap.base.deserialize.call(this, save);
 
+    this.colorScale = save.colorScale;
     this.dimensions = save.dimensions;
     if (this.dimensions == null) {
       console.error("dimensions not saved for " + this.plotName);
@@ -140,7 +142,6 @@ var extObject = {
     for (var i in this.itemIndexes) {
       var index = this.itemIndexes[i];
       var y = this.screenScales[1](i);
-
       if (y >= box.y1 && y <= box.y2) {
         this.selected[index] = true;
       }
@@ -158,20 +159,20 @@ var extObject = {
         .attr("class", "df-vis-selectbox");
 
     this.selectbox
-      .attr("x", box.x1)
+      .attr("x", this.plotMargins[0].before)
       .attr("y", box.y1)
-      .attr("width", box.x2 - box.x1)
+      .attr("width", this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after)
       .attr("height", box.y2 - box.y1);
   },
 
-  showVisualization: function(useTransition) {
+  showVisualization: function() {
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         data = inpack.data,
         values = data.values;
 
     this.checkDataEmpty();
-    this.prepareSvg(useTransition);
+    this.prepareSvg();
     if (this.isEmpty)
       return;
     this.prepareScales();
@@ -179,10 +180,8 @@ var extObject = {
 
     var node = this;
 
-    if (!useTransition) {
-      this.svgPoints = this.svg.append("g");
-    }
 
+  /*
     var ritems = []; // data to be rendered
     for (var index in items) {
       var c = [];
@@ -201,24 +200,10 @@ var extObject = {
       ritems.push(properties);
     }
 
-    var points;
-    if (!useTransition) {
-      points = this.svgPoints.selectAll("circle").data(ritems, function(e) {
-        return e.id;
-      }).enter()
-        .append("circle")[0];
-    }
-    else {
-      points = this.svgPoints.selectAll("circle").data(ritems, function(e) {
-        return e.id;
-      })[0];
-    }
 
     for (var i = 0; i < points.length; i++) {
       var properties = points[i].__data__;
       var u = d3.select(points[i]);
-      if (useTransition)
-        u = u.interrupt().transition();
 
       for (var key in properties) {
         var value = properties[key];
@@ -232,6 +217,7 @@ var extObject = {
           u.style(key, value);
       }
     }
+    */
 
     this.showSelection();
   },
@@ -240,23 +226,12 @@ var extObject = {
     // otherwise no item data can be used
     if (this.isEmpty)
       return;
-    // change position of tag to make them appear on top
-    for (var index in this.selected) {
-      var jqu = this.jqsvg.find("#i" + index)
-        .appendTo($(this.svgPoints[0]));
-    }
+    // nothing
   },
 
 
   showOptions: function() {
     var node = this;
-    var div = $("<div></div>")
-      .addClass("dataflow-options-item")
-      .appendTo(this.jqoptions);
-    $("<label></label>")
-      .addClass("dataflow-options-text")
-      .text("Dimensions")
-      .appendTo(div);
 
     var dimensionsUpdated = function() {
       node.showVisualization();
@@ -265,46 +240,21 @@ var extObject = {
       core.dataflowManager.propagate(node);
     };
 
-    this.selectDimension = $("<select></select>")
-      .attr("multiple", "multiple")
-      .addClass("dataflow-options-select-multiple")
-      .appendTo(div)
-      .select2()
-      .on("select2-selecting", function(event){
-        var dim = event.val;
-        for (var i in node.dimensions) {
-          if (node.dimensions[i] == dim)
-            return; // already selected, skip
-        }
-        node.dimensions.push(dim);
-        dimensionsUpdated();
-      })
-      .on("select2-removed", function(event){
-        var dim = event.val;
-        for (var i in node.dimensions) {
-          if (node.dimensions[i] == dim) {
-            node.dimensions.splice(i, 1); // remove this dimension
-          }
-        }
-        dimensionsUpdated();
-      });
-
-    this.selectDimension.parent().find(".select2-choices")
-      .sortable({
-        update: function(event, ui) {
-          node.dimensions = [];
-          node.dimensionSelect.parent().find(".select2-search-choice")
-            .each(function() {
-              var dimName = $(this).children("div").text(); // get dimension name inside tags
-              node.dimensions.push(node.dimensionIndexes[dimName]);
-            });
-          dimensionsUpdated();
-        }
-      });
-
-    this.prepareDimensionList();
-    // show current selection, must call after prepareDimensionList
-    this.selectDimension.select2("val", this.dimensions);
+    this.selectDimensions = DataflowSelect.new({
+      id: "dimensions",
+      label: "Dimensions",
+      multiple: true,
+      sortable: true,
+      relative: true,
+      value: this.dimensions,
+      list: this.prepareDimensionList(),
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.dimensions = unitChange.value;
+        node.pushflow();
+      }
+    });
+    this.selectDimensions.jqunit.appendTo(this.jqoptions);
 
 
     // a select list of color scales
@@ -315,7 +265,6 @@ var extObject = {
       placeholder: "No Mapping",
       relative: true,
       change: function(event) {
-        //console.log("change map")
         var unitChange = event.unitChange;
         node.colorScale = unitChange.value;
         node.pushflow();
@@ -328,12 +277,19 @@ var extObject = {
   },
 
   processExtra: function() {
+    // get a sorted list of indexes
     var items = this.ports["in"].pack.items;
     this.itemIndexes = [];
     for (var index in items) {
       this.itemIndexes.push(parseInt(index)); // index is string
     }
     this.itemIndexes.sort();
+
+    // get dataScale
+    var scale = this.dataScale = d3.scale.linear();
+    for (var index in items) {
+
+    }
   },
 
   prepareScales: function() {
@@ -362,15 +318,24 @@ var extObject = {
   },
 
   prepareDimensionList: function(d) {
-    var dims = this.ports["in"].pack.data.dimensions;
+    var data = this.ports["in"].pack.data,
+        dims = data.dimensions,
+        dimTypes = data.dimensionTypes;
+    var list = [];
     for (var i in dims) {
-      $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.selectDimension);
+      if (dimTypes[i] != "string") {
+        list.push({
+          value: i,
+          text: dims[i]
+        });
+      }
     }
+    return list;
   },
 
   dataChanged: function() {
     var data = this.ports["in"].pack.data;
+    // clear dimension selection upon data change
     this.dimensions = [];
     // find all non-string dimensions
     for (var i in data.dimensionTypes) {

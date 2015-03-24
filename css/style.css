@@ -7,7 +7,7 @@ h2, h3, li, p, label {
   font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
 }
 
-h3, li, input {
+h3, input {
   font-size: 0.8em;
   margin: 0;
 }

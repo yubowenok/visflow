@@ -52,6 +52,7 @@ var extObject = {
       });
     input.select2("val", this.value);
 
+    // color scale special, replace original item by gradient divs
     input
       .on("select2-loaded", function(event) {
         // replace items by divs
@@ -152,7 +153,7 @@ var extObject = {
       unit.colorScaleList = list;
       unit.setList(list); // must setList before setValue
       if (unit.value　!= null) {
-        unit.setValue(unit.value, {});
+        unit.setValue(unit.value);
       }
     });
   }

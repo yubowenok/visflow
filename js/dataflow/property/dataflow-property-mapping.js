@@ -79,6 +79,8 @@ var extObject = {
       this.selectDimension = DataflowSelect.new({
         id: "dimension",
         label: "Dimension",
+        list: this.prepareDimensionList(),
+        value: this.dimension,
         labelWidth: 75,
         placeholder: "Select",
         containerWidth: this.jqview.width() - 75,
@@ -90,16 +92,13 @@ var extObject = {
         }
       });
       this.selectDimension.jqunit.appendTo(this.jqview);
-      this.prepareDimensionList();
-      if (this.dimension != null) {
-        this.selectDimension.setValue(this.dimension, null, true);
-        // not pushflow here, push after async scales load
-      }
 
       // select mapping
       this.selectMapping = DataflowSelect.new({
         id: "mapping",
         label: "Mapping",
+        list: this.prepareMappingList(),
+        value: this.mapping,
         labelWidth: 75,
         placeholder: "Select",
         containerWidth: this.jqview.width() - 75,
@@ -111,10 +110,6 @@ var extObject = {
         }
       });
       this.selectMapping.jqunit.appendTo(this.jqview);
-      this.prepareMappingList();
-      if (this.mapping != null) {
-        this.selectMapping.setValue(this.mapping, null, true);
-      }
 
       var mappingType = this.mappingTypes[this.mapping];
 
@@ -139,7 +134,6 @@ var extObject = {
           }
         });
         this.selectColorScale.jqunit.appendTo(this.jqview);
-        this.prepareScaleList();
       } else if (mappingType == "number"){  // number
         if (this.selectColorScale != null) {
           this.selectColorScale.remove();
@@ -200,32 +194,18 @@ var extObject = {
         text: dims[i]
       });
     }
-    this.selectDimension.setList(list);
+    return list;
   },
 
   prepareMappingList: function() {
+    var list = [];
     ["color", "border", "size", "width", "opacity"].map(function(mapping) {
-      $("<option val='" + mapping + "'>" + mapping + "</option>")
-        .appendTo(this.selectMapping.input);
+      list.push({
+        value: mapping,
+        text: mapping
+      });
     }, this);
-  },
-
-  prepareScaleList: function() {
-    var mappingType = this.mappingTypes[this.mapping];
-    if (mappingType == "color") {
-      // use color scale
-      if (this.colorScale != null) {
-        //this.selectColorScale.setValue(this.colorScale, null, true);
-      }
-    } else if (mappingType == "number"){
-      // nothing to do
-      if (this.numberScale != null) {
-        //this.inputNumberScale[0].setValue(this.numberScale[0], null, true);
-        //this.inputNumberScale[1].setValue(this.numberScale[1], null, true);
-      }
-    }
-    // tricky: view height may change because of setValue (add a div)
-    this.updatePorts();
+    return list;
   },
 
   process: function() {

@@ -268,61 +268,23 @@ var extObject = {
 
   showOptions: function() {
     var node = this;
-    var div = $("<div></div>")
-      .addClass("dataflow-options-item")
-      .appendTo(this.jqoptions);
-    $("<label></label>")
-      .addClass("dataflow-options-text")
-      .text("Dimensions")
-      .appendTo(div);
 
-    var dimensionsUpdated = function() {
-      node.showVisualization();
-      node.process();
-      // push dimension change to downflow
-      core.dataflowManager.propagate(node);
-    };
-
-    this.selectDimension = $("<select></select>")
-      .attr("multiple", "multiple")
-      .addClass("dataflow-options-select-multiple")
-      .appendTo(div)
-      .select2()
-      .on("select2-selecting", function(event){
-        var dim = event.val;
-        for (var i in node.dimensions) {
-          if (node.dimensions[i] == dim)
-            return; // already selected, skip
-        }
-        node.dimensions.push(dim);
-        dimensionsUpdated();
-      })
-      .on("select2-removed", function(event){
-        var dim = event.val;
-        for (var i in node.dimensions) {
-          if (node.dimensions[i] == dim) {
-            node.dimensions.splice(i, 1); // remove this dimension
-          }
-        }
-        dimensionsUpdated();
-      });
-
-    this.selectDimension.parent().find(".select2-choices")
-      .sortable({
-        update: function(event, ui) {
-          node.dimensions = [];
-          node.dimensionSelect.parent().find(".select2-search-choice")
-            .each(function() {
-              var dimName = $(this).children("div").text(); // get dimension name inside tags
-              node.dimensions.push(node.dimensionIndexes[dimName]);
-            });
-          dimensionsUpdated();
-        }
-      });
-
-    this.prepareDimensionList();
-    // show current selection, must call after prepareDimensionList
-    this.selectDimension.select2("val", this.dimensions);
+    this.selectDimensions = DataflowSelect.new({
+      id: "dimensions",
+      label: "Dimensions",
+      multiple: true,
+      sortable: true,
+      relative: true,
+      value: this.dimensions,
+      list: this.prepareDimensionList(),
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.dimensions = unitChange.value;
+        node.showVisualization();
+        node.pushflow();
+      }
+    });
+    this.selectDimensions.jqunit.appendTo(this.jqoptions);
   },
 
   showAxis: function(d) {
@@ -426,17 +388,20 @@ var extObject = {
       .range([this.plotMargins[0].before, this.svgSize[0] - this.plotMargins[0].after]);
   },
 
-  prepareDimensionList: function() {
-    var dims = this.ports["in"].pack.data.dimensions;
-
-    // name to indexes
-    // for backward look up in select2 reordering
-    this.dimensionIndexes = {};
+  prepareDimensionList: function(d) {
+    var data = this.ports["in"].pack.data,
+        dims = data.dimensions,
+        dimTypes = data.dimensionTypes;
+    var list = [];
     for (var i in dims) {
-      this.dimensionIndexes[dims[i]] = i;
-      $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.selectDimension);
+      if (dimTypes[i] != "string") {
+        list.push({
+          value: i,
+          text: dims[i]
+        });
+      }
     }
+    return list;
   },
 
   dataChanged: function() {

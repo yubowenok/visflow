@@ -427,6 +427,12 @@ var extobject = {
         var port1 = this.dragstartPara.port,
             port2 = para.node.firstConnectable(port1);
         if (port2 != null) {
+          if (port1.isInPort) {
+            // always connect from out to in, swap
+            var porttmp = port1;
+            port1 = port2;
+            port2 = porttmp;
+          }
           core.dataflowManager.createEdge(port1, port2);
         } else {
           // show error message
