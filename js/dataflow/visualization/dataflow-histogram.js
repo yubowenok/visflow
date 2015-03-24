@@ -12,7 +12,11 @@ var extObject = {
   },
   // show these properties when items are selected
   selectedProperties: {
-    "color": "#FF4400"
+    "color": "white",
+    "border": "#FF4400"
+  },
+  selectedMultiplier: {
+    "width": 1.2
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -407,6 +411,12 @@ var extObject = {
         );
         if (this.selectedBars[i + "," + j]) {
           _(properties).extend(this.selectedProperties);
+          for (var p in this.selectedMultiplier) {
+            var v = properties[p];
+            if (v != null) {
+              properties[p] = v * this.selectedMultiplier[p];
+            }
+          }
         }
         var u = d3.select(bars[i][j]);
 

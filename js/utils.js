@@ -39,6 +39,18 @@ var Utils = {
     return v1 * v2 < 0;
   },
 
+  // compare function
+  compare: function(a, b, type) {
+    if (type == "int" || type == "float") {
+      return a - b;
+    } else if (type == "string") {
+      if (a < b) return -1;
+      else if (a > b) return 1;
+      return 0;
+    }
+    console.error("unsupported compare type");
+  },
+
   // hash a string
   hashString: function(s) {
     if (typeof s != "string") {

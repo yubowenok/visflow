@@ -12,7 +12,8 @@ var extObject = {
   },
   // show these properties when items are selected
   selectedProperties: {
-    "color": "#FF4400"
+    "border": "#FF4400",
+    "width": 1.5
   },
   // let d3 know to use attr or style for each key
   isAttr: {
@@ -50,6 +51,8 @@ var extObject = {
 
     // scale all columns
     this.allColumns = false;
+    // sort criterion
+    this.sortBy = null;
   },
 
   serialize: function() {
@@ -58,6 +61,7 @@ var extObject = {
     result.colorScale = this.colorScale;
     result.rowLabels = this.rowLabels;
     result.allColumns = this.allColumns;
+    result.sortBy = this.sortBy;
     return result;
   },
 
@@ -68,6 +72,7 @@ var extObject = {
     this.rowLabels = save.rowLabels;
     this.allColumns = save.allColumns;
     this.dimensions = save.dimensions;
+    this.sortBy = save.sortBy;
     if (this.dimensions == null) {
       console.error("dimensions not saved for " + this.plotName);
       this.dimensions = [];
@@ -206,27 +211,40 @@ var extObject = {
         var dim = this.dimensions[j],
             value = data.values[index][dim];
         var color;
-        if (this.selected[index])
-          color = this.selectedProperties.color;
-        else {
-          if (this.allColumns)
-            color = colorScale(this.dataScale(value));
-          else
-            color = colorScale(this.dataScale[j](value));
-        }
+        if (this.allColumns)
+          color = colorScale(this.dataScale(value));
+        else
+          color = colorScale(this.dataScale[j](value));
         cols.push(color);
       }
       if (this.rowLabels) {
         cols.label = data.values[index][this.rowLabels];
       }
+      if (this.selected[index]) {
+        // manually coded property for selected
+        cols.border = scale.contrast != null ? scale.contrast : this.selectedProperties.border;
+        cols.labelborder = this.selectedProperties.border;
+        cols.width = this.selectedProperties.width;
+      } else {
+        if (items[index].properties.color != null) {
+          cols.labelborder = items[index].properties.color;
+        }
+      }
+      cols.index = index;
       ritems.push(cols);
     }
 
     var rows = this.svg.selectAll("g")
       .data(ritems).enter().append("g")
-      .attr("id", function(e, i) {
-        return "r" + i;
+      .attr("id", function(e) {
+        return "r" + e.index;
       })
+      .style("stroke", function(e){ // selected properties
+        return e.border != null ? e.border : "";
+      })
+      .style("stroke-width", function(e){
+        return e.width != null ? e.width : "";
+      })                            // selected properties end
       .attr("transform", function(e, i) {
         return "translate(0,"
           + (node.screenScales[1](i + 1)) + ")";
@@ -253,6 +271,12 @@ var extObject = {
       var labels = this.svg.selectAll("g")
         .data(ritems).append("text")
         .attr("class", "df-row-label")
+        .style("stroke", function(e){ // selected properties
+          return e.labelborder != null ? e.labelborder : "";
+        })
+        .style("stroke-width", function(e){
+          return e.labelborder != null ? 1 : "";
+        })
         .text(function(e) {
           return e.label;
         })
@@ -270,6 +294,10 @@ var extObject = {
     if (this.isEmpty)
       return;
     // nothing
+    for (var index in this.selected) {
+      this.jqsvg.find("#r" + index)
+        .appendTo(this.jqsvg);
+    }
   },
 
   showDimensionLabels: function() {
@@ -353,10 +381,27 @@ var extObject = {
       }
     });
     this.selectRowLabels.jqunit.appendTo(this.jqoptions);
+
+    this.selectSortBy = DataflowSelect.new({
+      id: "sortby",
+      label: "Sort By",
+      value: this.sortBy,
+      placeholder: "(auto-index)",
+      relative: true,
+      list: this.prepareDimensionList(),
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.sortBy = unitChange.value;
+        node.pushflow();
+        node.showVisualization(); // show after process (in pushflow)
+      }
+    });
+    this.selectSortBy.jqunit.appendTo(this.jqoptions);
   },
 
   processExtra: function() {
-    var inpack = this.ports["in"].pack,
+    var node = this,
+        inpack = this.ports["in"].pack,
         items = inpack.items,
         data = inpack.data;
 
@@ -365,7 +410,14 @@ var extObject = {
     for (var index in items) {
       this.itemIndexes.push(parseInt(index)); // index is string
     }
-    this.itemIndexes.sort(function(a, b){ return a - b; });
+    this.itemIndexes.sort(function(a, b){
+      if (node.sortBy == null) {
+        return a - b; // default sort by index
+      } else {
+        return Utils.compare(data.values[a][node.sortBy], data.values[b][node.sortBy],
+          data.dimensionTypes[node.sortBy]);
+      }
+    });
 
     // get dataScale
     var minVal = Infinity, maxVal = -Infinity;
