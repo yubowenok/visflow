@@ -234,14 +234,14 @@ var extObject = {
         traverse(node[i]);
       }
     }
-    //console.log(topo);
     // iterate in reverse order to obtain topo order
+    // skip the first one (the node itself)
     for (var i = topo.length - 1; i >= 0; i--) {
       topo[i].update();
     }
     for (var i in topo) {
-      for (var j in topo[i].outPorts) {
-        topo[i].outPorts[j].pack.changed = false;  // unmark changes
+      for (var j in topo[i].ports) {  // include both in and out
+        topo[i].ports[j].pack.changed = false;  // unmark changes
       }
     }
   },

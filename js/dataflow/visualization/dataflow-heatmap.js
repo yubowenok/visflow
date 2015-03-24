@@ -19,7 +19,7 @@ var extObject = {
     "id": true
   },
 
-  fontWidth: 8,
+  fontWidth: 6,
 
   // no translate for heatmap, heatmap's rendering is not item based
   propertyTranslate: {
@@ -47,6 +47,9 @@ var extObject = {
 
     this.rowLabelsShifts = [-5, 0];
     this.rowLabels = null;
+
+    // scale all columns
+    this.allColumns = false;
   },
 
   serialize: function() {
@@ -54,6 +57,7 @@ var extObject = {
     result.dimensions = this.dimensions;
     result.colorScale = this.colorScale;
     result.rowLabels = this.rowLabels;
+    result.allColumns = this.allColumns;
     return result;
   },
 
@@ -62,6 +66,7 @@ var extObject = {
 
     this.colorScale = save.colorScale;
     this.rowLabels = save.rowLabels;
+    this.allColumns = save.allColumns;
     this.dimensions = save.dimensions;
     if (this.dimensions == null) {
       console.error("dimensions not saved for " + this.plotName);
@@ -203,8 +208,12 @@ var extObject = {
         var color;
         if (this.selected[index])
           color = this.selectedProperties.color;
-        else
-          color = colorScale(this.dataScale(value));
+        else {
+          if (this.allColumns)
+            color = colorScale(this.dataScale(value));
+          else
+            color = colorScale(this.dataScale[j](value));
+        }
         cols.push(color);
       }
       if (this.rowLabels) {
@@ -304,16 +313,30 @@ var extObject = {
       id: "scale",
       label: "Scale",
       value: this.colorScale,
-      placeholder: "No Mapping",
+      placeholder: "No Scale",
       relative: true,
       change: function(event) {
         var unitChange = event.unitChange;
         node.colorScale = unitChange.value;
-        node.pushflow();
+        //node.pushflow();  // not necessary, nothing changes downflow
         node.showVisualization(); // show after process (in pushflow)
       }
     });
     this.selectColorScale.jqunit.appendTo(this.jqoptions);
+
+    this.checkboxAllColumns = DataflowCheckbox.new({
+      id: "allColumns",
+      label: "All Columns",
+      value: this.allColumns,
+      relative: true,
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.allColumns = unitChange.value;
+        node.pushflow();
+        node.showVisualization(); // show after process (in pushflow)
+      }
+    });
+    this.checkboxAllColumns.jqunit.appendTo(this.jqoptions);
 
     this.selectRowLabels = DataflowSelect.new({
       id: "rowLabels",
@@ -346,8 +369,14 @@ var extObject = {
 
     // get dataScale
     var minVal = Infinity, maxVal = -Infinity;
-    for (var index in items) {
-      for (var i in this.dimensions) {
+    if (!this.allColumns)
+      this.dataScale = [];
+    for (var i in this.dimensions) {
+      if (!this.allColumns) {
+       minVal = Infinity;
+       maxVal = -Infinity;  // make scale for each column
+      }
+      for (var index in items) {
         var dim = this.dimensions[i];
         var value = data.values[index][dim];
         if (value < minVal)
@@ -355,10 +384,16 @@ var extObject = {
         if (value > maxVal)
           maxVal = value;
       }
+      if (!this.allColumns)
+        this.dataScale[i] = d3.scale.linear()
+          .domain([minVal, maxVal])
+          .range([0, 1]);
     }
-    this.dataScale = d3.scale.linear()
-      .domain([minVal, maxVal])
-      .range([0, 1]);
+    if (this.allColumns) {
+      this.dataScale = d3.scale.linear()
+        .domain([minVal, maxVal])
+        .range([0, 1]);
+    }
 
     // get left margin of row labels
     var margin = this.plotMarginsInit[0].before;

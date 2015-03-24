@@ -366,9 +366,11 @@ var extObject = {
     this.process();
     this.show();
 
+    /* TODO double check here, process shall already handles it
     for (var i in this.outPorts) {
       this.outPorts[i].pack.changed = true; // mark changes
     }
+    */
   },
 
   process: function() {

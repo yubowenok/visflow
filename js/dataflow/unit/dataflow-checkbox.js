@@ -23,12 +23,13 @@ var extObject = {
     var unit = this;
 
     var input = this.jqinput = $("<input type='checkbox' value=''/>")
-      .addClass("dataflow-input dataflow-unit-input")
-      .appendTo(this.jqcontainer);
+      .addClass("dataflow-input dataflow-unit-checkbox")
+      .appendTo(this.jqunit);
 
-    this.jqcontainer.css({
-      "padding-top": 2
-    });
+    $(this.jqlabel)
+      .appendTo(this.jqcontainer);
+    this.jqcontainer
+      .css("display", "inline-block");
 
     input.change(function(event) {
       var value = $(this).is(":checked");

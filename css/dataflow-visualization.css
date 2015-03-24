@@ -61,6 +61,6 @@ svg {
   font-size: 11px;
   dominant-baseline: middle;
   text-anchor: end;
-  font-family: Courier;
+  font-family: Helvetica, sans-serif, courier;
 }
 

@@ -125,9 +125,10 @@ var extObject = {
           label: "Scale",
           labelWidth: 75,
           value: this.colorScale,
-          placeholder: "No Mapping",
+          placeholder: "No Scale",
           containerWidth: this.jqview.width() - 75,
           change: function(event) {
+            //console.log("scale change");
             var unitChange = event.unitChange;
             node.colorScale = unitChange.value;
             node.pushflow();

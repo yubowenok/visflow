@@ -37,6 +37,10 @@
   text-align: center;
   line-height: 20px;
 }
+.dataflow-unit-checkbox {
+  top: 2px;
+  position: relative;
+}
 
 .dataflow-unit-select {
   width: 100%;
