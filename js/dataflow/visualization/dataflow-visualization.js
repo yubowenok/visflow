@@ -249,6 +249,27 @@ var extObject = {
     }
   },
 
+  prepareDimensionList: function(ignoreTypes) {
+    if (ignoreTypes == null)
+      ignoreTypes = [];
+
+    var inpack = this.ports["in"].pack;
+    if (inpack.isEmptyData())
+      return [];
+    var dims = inpack.data.dimensions,
+        dimTypes = inpack.data.dimensionTypes;
+    var list = [];
+    for (var i in dims) {
+      if (ignoreTypes.indexOf(dimTypes[i]) != -1)
+        continue;
+      list.push({
+        value: i,
+        text: dims[i]
+      });
+    }
+    return list;
+  },
+
   // display a text message at the center of the node
   showMessage: function(msg) {
     this.jqmsg = $("<div></div>")

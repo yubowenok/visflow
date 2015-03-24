@@ -286,33 +286,24 @@ var extObject = {
 
 
   showOptions: function() {
+    var node = this;
     [0, 1].map(function(d) {
-      var node = this;
-      var div = $("<div></div>")
-        .addClass("dataflow-options-item")
-        .appendTo(this.jqoptions);
-      $("<label></label>")
-        .addClass("dataflow-options-text")
-        .text( (!d ? "X" : "Y" ) + " Axis")
-        .appendTo(div);
-      this.dimensionLists[d] = $("<select></select>")
-        .addClass("dataflow-options-select")
-        .appendTo(div)
-        .select2()
-        .change(function(event){
-          node.dimensions[d] = event.target.value;
+      this.dimensionLists[d] = DataflowSelect.new({
+        id: d,
+        label: (!d ? "X" : "Y" ) + " Axis",
+        list: this.prepareDimensionList(),
+        relative: true,
+        value: this.dimensions[d],
+        change: function(event) {
+          var unitChange = event.unitChange;
+          node.dimensions[unitChange.id] = unitChange.value;
+          node.pushflow();
           node.showVisualization(true);
-          node.process();
-
-          // push dimension change to downflow
-          core.dataflowManager.propagate(node);
-        });
-
-      this.prepareDimensionList(d);
-      // show current selection, must call after prepareDimensionList
-      this.dimensionLists[d].select2("val", this.dimensions[d]);
-
+        }
+      });
+      this.dimensionLists[d].jqunit.appendTo(this.jqoptions);
     }, this);
+
   },
 
   showAxis: function(d) {
@@ -346,7 +337,7 @@ var extObject = {
     if (t.empty()) {
       t = u.append("text")
         .attr("class", "df-visualization-label")
-        .style("text-anchor", !d ? "end" : "")
+        .style("text-anchor", !d ? "end" : "start")
         .attr("transform", !d ? "" : "rotate(90)")
         .attr("x", labelX)
         .attr("y", labelY);
@@ -414,14 +405,6 @@ var extObject = {
     scale
       .domain([0, 1])
       .range(interval);
-  },
-
-  prepareDimensionList: function(d) {
-    var dims = this.ports["in"].pack.data.dimensions;
-    for (var i in dims) {
-      $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.dimensionLists[d]);
-    }
   },
 
   dataChanged: function() {

@@ -291,7 +291,7 @@ var extObject = {
       sortable: true,
       relative: true,
       value: this.dimensions,
-      list: this.prepareDimensionList(),
+      list: this.prepareDimensionList("string"),
       change: function(event) {
         var unitChange = event.unitChange;
         node.dimensions = unitChange.value;
@@ -369,22 +369,6 @@ var extObject = {
     } else {
       scale.domain([0, inpack.countItems()]);
     }
-  },
-
-  prepareDimensionList: function(d) {
-    var data = this.ports["in"].pack.data,
-        dims = data.dimensions,
-        dimTypes = data.dimensionTypes;
-    var list = [];
-    for (var i in dims) {
-      if (dimTypes[i] != "string") {
-        list.push({
-          value: i,
-          text: dims[i]
-        });
-      }
-    }
-    return list;
   },
 
   dataChanged: function() {
