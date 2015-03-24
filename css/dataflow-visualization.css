@@ -54,5 +54,6 @@ svg {
 .df-visualization-label {
   font-size: 11px !important;
   font-weight: bold;
+  text-anchor: middle;
 }
 

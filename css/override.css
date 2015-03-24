@@ -62,3 +62,7 @@ body {
   border: 0px !important;
   background: transparent !important;
 }
+
+.select2-results {
+  font-size: 0.8em;
+}

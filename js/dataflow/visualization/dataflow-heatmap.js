@@ -12,20 +12,14 @@ var extObject = {
   },
   // show these properties when items are selected
   selectedProperties: {
-    "color": "white",
-    "border": "#FF4400",
-    "width": 1.5,
+    "color": "#FF4400"
   },
   // let d3 know to use attr or style for each key
   isAttr: {
     "id": true
   },
-  // translate what user see to css property
+  // no translate for heatmap, heatmap's rendering is not item based
   propertyTranslate: {
-    "size": "ignore",
-    "color": "fill",
-    "border": "stroke",
-    "width": "stroke-width"
   },
 
   initialize: function(para) {
@@ -39,11 +33,12 @@ var extObject = {
     this.scaleTypes = [];
     // index pair (0~n-1, 0~m-1) to screen pixels
     this.screenScales = [];
-    // value scale that handles all numerical entries to color
+    // value scale that handles all numerical entries to [0, 1]
+    // [0, 1] is further mapped to color in rendering
     this.dataScale = [];
 
     // leave some space for axes
-    this.plotMargins = [ { before: 10, after: 10 }, { before: 20, after: 10 } ];
+    this.plotMargins = [ { before: 10, after: 10 }, { before: 30, after: 10 } ];
   },
 
   serialize: function() {
@@ -139,14 +134,14 @@ var extObject = {
         items = inpack.items,
         values = inpack.data.values;
 
-    for (var i in this.itemIndexes) {
+    for (var i = 0; i < this.itemIndexes.length; i++) { // avoid i being string
       var index = this.itemIndexes[i];
-      var y = this.screenScales[1](i);
-      if (y >= box.y1 && y <= box.y2) {
+      var y1 = this.screenScales[1](i+1), y2 = this.screenScales[1](i);
+
+      if (y2 >= box[1][0] && y1 <= box[1][1]) {
         this.selected[index] = true;
       }
     }
-
     this.showVisualization();
     this.pushflow();
   },
@@ -166,10 +161,10 @@ var extObject = {
   },
 
   showVisualization: function() {
+    var node = this;
     var inpack = this.ports["in"].pack,
         items = inpack.items,
-        data = inpack.data,
-        values = data.values;
+        data = inpack.data;
 
     this.checkDataEmpty();
     this.prepareSvg();
@@ -178,29 +173,63 @@ var extObject = {
     this.prepareScales();
     this.interaction();
 
-    var node = this;
-
-
-  /*
-    var ritems = []; // data to be rendered
-    for (var index in items) {
-      var c = [];
-
-      var properties = _.extend(
-        {},
-        this.defaultProperties,
-        items[index].properties,
-        {
-          id: "i" + index
-        }
-      );
-      if (this.selected[index]) {
-        _(properties).extend(this.selectedProperties);
-      }
-      ritems.push(properties);
+    var scale;
+    if (this.colorScale == null || this.selectColorScale == null
+       || (scale = this.selectColorScale.getScale(this.colorScale)) == null) {
+     return;
     }
 
+    var colorScale = d3.scale.linear()
+      .domain(scale.domain)
+      .range(scale.range);
 
+    var ritems = [];
+    for (var i in this.itemIndexes) {
+      var index = this.itemIndexes[i];
+      var cols = [];
+      for (var j in this.dimensions) {
+        var dim = this.dimensions[j],
+            value = data.values[index][dim];
+        var color;
+        if (this.selected[index])
+          color = this.selectedProperties.color;
+        else
+          color = colorScale(this.dataScale(value));
+        cols.push(color);
+      }
+      ritems.push(cols);
+    }
+
+    var rows = this.svg.selectAll("g")
+      .data(ritems).enter().append("g")
+      .attr("id", function(e, i) {
+        return "r" + i;
+      })
+      .attr("transform", function(e, i) {
+        return "translate(0,"
+          + (node.screenScales[1](i + 1)) + ")";
+      });
+
+    var width = this.screenScales[0](1) - this.screenScales[0](0),
+        height = this.screenScales[1](0) - this.screenScales[1](1);
+    width = Math.ceil(width);
+    height = Math.ceil(height);
+
+    this.cells = rows.selectAll(".rect")
+      .data(function(row){ return row; }) // use the array as data
+      .enter().append("rect")
+      .attr("transform", function(e, j) {
+        return "translate(" + node.screenScales[0](j) + ",0)";
+      })
+      .attr("fill", function(e) {
+        return e;
+      })
+      .attr("width", width)
+      .attr("height", height);
+
+
+
+/*
     for (var i = 0; i < points.length; i++) {
       var properties = points[i].__data__;
       var u = d3.select(points[i]);
@@ -218,7 +247,7 @@ var extObject = {
       }
     }
     */
-
+    this.showDimensionLabels();
     this.showSelection();
   },
 
@@ -229,6 +258,21 @@ var extObject = {
     // nothing
   },
 
+  showDimensionLabels: function() {
+    var inpack = this.ports["in"].pack,
+        data = inpack.data;
+    var node = this;
+    this.svg.selectAll(".df-visualization-label")
+      .data(this.dimensions).enter().append("text")
+      .attr("class", "df-visualization-label")
+      .text(function(e) {
+        return data.dimensions[e];
+      })
+      .attr("x", function(e, i) {
+        return node.screenScales[0](i + 0.5);
+      })
+      .attr("y", this.plotMargins[1].before - 10);
+  },
 
   showOptions: function() {
     var node = this;
@@ -252,10 +296,10 @@ var extObject = {
         var unitChange = event.unitChange;
         node.dimensions = unitChange.value;
         node.pushflow();
+        node.showVisualization(); // show after process (in pushflow)
       }
     });
     this.selectDimensions.jqunit.appendTo(this.jqoptions);
-
 
     // a select list of color scales
     this.selectColorScale = DataflowColorScale.new({
@@ -268,28 +312,38 @@ var extObject = {
         var unitChange = event.unitChange;
         node.colorScale = unitChange.value;
         node.pushflow();
+        node.showVisualization(); // show after process (in pushflow)
       }
     });
     this.selectColorScale.jqunit.appendTo(this.jqoptions);
   },
 
-  showAxis: function(d) {
-  },
-
   processExtra: function() {
+    var inpack = this.ports["in"].pack;
     // get a sorted list of indexes
-    var items = this.ports["in"].pack.items;
+    var items = inpack.items;
     this.itemIndexes = [];
     for (var index in items) {
       this.itemIndexes.push(parseInt(index)); // index is string
     }
-    this.itemIndexes.sort();
+    this.itemIndexes.sort(function(a, b){ return a - b; });
 
     // get dataScale
-    var scale = this.dataScale = d3.scale.linear();
+    var data = inpack.data;
+    var minVal = Infinity, maxVal = -Infinity;
     for (var index in items) {
-
+      for (var i in this.dimensions) {
+        var dim = this.dimensions[i];
+        var value = data.values[index][dim];
+        if (value < minVal)
+          minVal = value;
+        if (value > maxVal)
+          maxVal = value;
+      }
     }
+    this.dataScale = d3.scale.linear()
+      .domain([minVal, maxVal])
+      .range([0, 1]);
   },
 
   prepareScales: function() {
@@ -311,9 +365,9 @@ var extObject = {
     }
     scale.range(interval);
     if (!d){
-      scale.domain(d3.range(items.length));
+      scale.domain([0, this.dimensions.length]);
     } else {
-      scale.domain(d3.range(this.dimensions.length));
+      scale.domain([0, inpack.countItems()]);
     }
   },
 

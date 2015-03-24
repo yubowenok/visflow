@@ -58,6 +58,13 @@ var extObject = {
     this.items = newItems;
   },
 
+  countItems: function() {
+    var count = 0;
+    for (var index in this.items)
+      count ++;
+    return count;
+  },
+
   isEmpty: function() {
     return $.isEmptyObject(this.items);
   },

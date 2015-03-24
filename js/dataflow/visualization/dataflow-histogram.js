@@ -373,11 +373,11 @@ var extObject = {
 
     var bins = this.svg.selectAll("g")
       .data(this.histogramData).enter().append("g")
-      .attr("id", function(d, i) {
+      .attr("id", function(e, i) {
         return "b" + i;
       })
-      .attr("transform", function(d) {
-        return "translate(" + node.histogramScale(d.x) + ","
+      .attr("transform", function(e) {
+        return "translate(" + node.histogramScale(e.x) + ","
           + node.plotMargins[1].before + ")";
       });
 
@@ -389,12 +389,12 @@ var extObject = {
       .data(function(d){ return d; }) // use the array as data
       .enter().append("rect")
       .attr("x", 1) // 1 pixel gap
-      .attr("y", function(d) {
-        return yScale(d.y + d.dy);
+      .attr("y", function(e) {
+        return yScale(e.y + e.dy);
       })
       .attr("width", width)
-      .attr("height", function(d) {
-        return yScale(0) - yScale(d.dy);
+      .attr("height", function(e) {
+        return yScale(0) - yScale(e.dy);
       });
 
     for (var i = 0; i < bars.length; i++) {

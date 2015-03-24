@@ -280,8 +280,8 @@ var extObject = {
       change: function(event) {
         var unitChange = event.unitChange;
         node.dimensions = unitChange.value;
-        node.showVisualization();
         node.pushflow();
+        node.showVisualization();
       }
     });
     this.selectDimensions.jqunit.appendTo(this.jqoptions);
@@ -318,7 +318,6 @@ var extObject = {
     if (t.empty()) {
       t = u.append("text")
         .attr("class", "df-visualization-label")
-        .style("text-anchor", "middle")
         .attr("x", labelX)
         .attr("y", labelY);
       }
