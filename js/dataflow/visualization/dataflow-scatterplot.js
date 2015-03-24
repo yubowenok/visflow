@@ -46,7 +46,7 @@ var extObject = {
 
     // 0: X axis, 1: Y axis
     this.dimensions = [0, 0];
-    this.dimensionLists = [[], []];
+    this.selectDimensions = [];
 
     this.scaleTypes = [null, null];
     // dataScale : datavalue <-> [0, 1]
@@ -288,7 +288,7 @@ var extObject = {
   showOptions: function() {
     var node = this;
     [0, 1].map(function(d) {
-      this.dimensionLists[d] = DataflowSelect.new({
+      this.selectDimensions[d] = DataflowSelect.new({
         id: d,
         label: (!d ? "X" : "Y" ) + " Axis",
         list: this.prepareDimensionList(),
@@ -301,9 +301,8 @@ var extObject = {
           node.showVisualization(true);
         }
       });
-      this.dimensionLists[d].jqunit.appendTo(this.jqoptions);
+      this.selectDimensions[d].jqunit.appendTo(this.jqoptions);
     }, this);
-
   },
 
   showAxis: function(d) {

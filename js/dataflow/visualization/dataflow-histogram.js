@@ -440,26 +440,43 @@ var extObject = {
 
   showOptions: function() {
     var node = this;
-    var div = $("<div></div>")
-      .addClass("dataflow-options-item")
-      .appendTo(this.jqoptions);
-    $("<label></label>")
-      .addClass("dataflow-options-text")
-      .text("Dimension")
-      .appendTo(div);
-    this.selectDimension = $("<select></select>")
-      .addClass("dataflow-options-select")
-      .appendTo(div)
-      .select2()
-      .change(function(event){
-        node.dimension = event.target.value;
+
+    this.selectDimension = DataflowSelect.new({
+      id: "dimension",
+      label: "Dimension",
+      list: this.prepareDimensionList(),
+      relative: true,
+      value: this.dimension,
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.dimension = unitChange.value;
+        node.pushflow();
         node.showVisualization();
-        node.process();
+      }
+    });
+    this.selectDimension.jqunit.appendTo(this.jqoptions);
 
-        // push dimension change to downflow
-        core.dataflowManager.propagate(node);
-      });
+    this.inputBins = DataflowInput.new({
+      id: "bins",
+      label: "Bins",
+      relative: true,
+      accept: "int",
+      range: [1, 100],
+      scrollDelta: 1,
+      value: this.numBins,
+      change: function(event) {
+        var unitChange = event.unitChange;
 
+        node.numBins = parseInt(unitChange.value);
+        // clear selection, bins have changed
+        node.selectedBars = {};
+        node.selected = {};
+
+        node.showVisualization();
+      }
+    });
+    this.inputBins.jqunit.appendTo(this.jqoptions);
+    /*
     var div2 = $("<div></div>")
       .addClass("dataflow-options-item")
       .appendTo(this.jqoptions);
@@ -486,13 +503,8 @@ var extObject = {
 
         node.showVisualization();
       });
-
     this.binSelect.select2("val", this.numBins);
-
-    this.prepareDimensionList();
-    // show current selection, must call after prepareDimensionList
-    this.selectDimension.select2("val", this.dimension);
-
+    */
   },
 
   showAxis: function(d) {
@@ -597,14 +609,6 @@ var extObject = {
     scale
       .domain([0, 1])
       .range(interval);
-  },
-
-  prepareDimensionList: function() {
-    var dims = this.ports["in"].pack.data.dimensions;
-    for (var i in dims) {
-      $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.selectDimension);
-    }
   },
 
   dataChanged: function() {

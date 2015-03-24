@@ -49,11 +49,19 @@ var extObject = {
         var sign = delta > 0 ? 1 : -1;
         if (unit.value == "")
           unit.value = 0; // prevent NaN
-        var newValue = (parseFloat(unit.value) + sign * unit.scrollDelta).toPrecision(3);
+
+        var newValue;
+        if (unit.accept == "int") {
+          newValue = parseInt(unit.value + sign * unit.scrollDelta);
+        } else {
+          newValue = (parseFloat(unit.value) + sign * unit.scrollDelta).toPrecision(3);
+        }
         unit.setValue(newValue);
       });
     }
 
+    if (this.value != null)
+      this.setValue(this.value, null, true);
   },
 
   setValue: function(value, event, noCallback) {
