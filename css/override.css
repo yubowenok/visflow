@@ -70,3 +70,9 @@ body {
 input:disabled {
   color: #AAA;
 }
+
+div {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}

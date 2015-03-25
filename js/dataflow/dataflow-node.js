@@ -26,10 +26,16 @@ var extObject = {
     // default not showing icon
     this.detailsOn = true;
 
+    // default not showing label
+    this.labelOn = false;
+    this.label = "node label";
+
     this.optionsOffset = null;
   },
 
   serialize: function() {
+    this.label = this.jqview.find(".dataflow-node-label").text();
+
     var result = {
       nodeId: this.nodeId,
       hashtag: this.hashtag,
@@ -40,7 +46,9 @@ var extObject = {
       },
       detailsOn: this.detailsOn,
       optionsOn: this.optionsOn,
-      optionsOffset: this.optionsOffset
+      optionsOffset: this.optionsOffset,
+      labelOn: this.labelOn,
+      label: this.label
     };
 
     return result;
@@ -54,6 +62,17 @@ var extObject = {
     }
     this.optionsOffset = save.optionsOffset;
     this.optionsOn = save.optionsOn;
+    this.labelOn = save.labelOn;
+    this.label = save.label;
+
+    if (this.labelOn == null) {
+      console.error("labelOn not saved");
+      this.labelOn = false;
+    }
+    if (this.label == null) {
+      console.error("label not saved");
+      this.label = "node label";
+    }
   },
 
   // prepares all necessary data structures for references
@@ -83,6 +102,8 @@ var extObject = {
       .not(".ui-resizable-handle")
       .remove();
 
+    this.showLabel();
+
     if (this.detailsOn) {
       this.jqview
         .addClass("dataflow-node dataflow-node-shape ui-widget-content ui-widget");
@@ -111,6 +132,26 @@ var extObject = {
     this.jqicon = $("<div></div>")
       .addClass(this.iconClass)
       .appendTo(this.jqview);
+  },
+
+  // show label
+  showLabel: function() {
+    var node = this;
+    this.jqview.find(".dataflow-node-label").remove();
+    if (this.labelOn) {
+      $("<div></div>")
+        .attr("contenteditable", true)
+        .addClass("dataflow-node-label")
+        .text(this.label)
+        .prependTo(this.jqview)
+        .mousedown(function(event) {
+          $(this).attr("contenteditable", true);  // re-enable when clicked
+        })
+        .blur(function(event){
+          node.label = $(this).text();  // may contain html tag, ignore
+          $(this).attr("contenteditable", false); // disable, otherwise requires 2 clicks
+        });
+    }
   },
 
   // option handle, to implement options, write showOptions()
@@ -151,7 +192,7 @@ var extObject = {
         jqview = this.jqview;
 
     this.jqview
-      .mouseover(function() {
+      .mouseenter(function() {
         jqview.addClass("dataflow-node-hover");
       })
       .mouseleave(function() {
@@ -186,6 +227,7 @@ var extObject = {
         }
       })
       .draggable({
+        cancel: "input, .dataflow-node-label",
         containment: "#dataflow",
         start: function(event, ui) {
           core.interactionManager.dragstartHandler({
@@ -235,16 +277,17 @@ var extObject = {
       menu: [
           {title: "Toggle Details", cmd: "details", uiIcon: "ui-icon-document"},
           {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
+          {title: "Toggle Label", cmd: "label"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"},
           ],
       select: function(event, ui) {
         if (ui.cmd == "details") {
-          node.detailsOn = !node.detailsOn;
-          node.show();
+          node.toggleDetails();
         } else if (ui.cmd == "options") {
-          node.optionsOn = !node.optionsOn;
-          node.options();
-        } else if (ui.cmd === "delete") {
+          node.toggleOptions();
+        } else if (ui.cmd == "label") {
+          node.toggleLabel();
+        }else if (ui.cmd == "delete") {
           core.dataflowManager.deleteNode(node);
         }
       },
@@ -408,16 +451,35 @@ var extObject = {
     }
     if (key == "." || key == "ctrl+X") {
       core.dataflowManager.deleteNode(this);
+    } else if (key == "D") {
+      this.toggleDetails();
+    } else if (key == "T") {
+      this.toggleOptions();
+    } else if (key == "L") {
+      this.toggleLabel();
     }
-    else if (key == "D" && this.contextmenuDisabled["details"] == null) {
-      this.detailsOn = !this.detailsOn;
-      this.show();
-      this.updatePorts();
-    }
-    else if (key == "T" && this.contextmenuDisabled["options"] == null) {
-      this.optionsOn = !this.optionsOn;
+  },
+
+  toggleDetails: function() {
+    if (this.contextmenuDisabled["details"] != null)
+      return;
+    this.detailsOn = !this.detailsOn;
+    this.show();
+    this.updatePorts();
+  },
+
+  toggleOptions: function() {
+    if (this.contextmenuDisabled["options"] != null)
+      return;
+    this.optionsOn = !this.optionsOn;
       this.options();
-    }
+  },
+
+  toggleLabel: function() {
+    if (this.contextmenuDisabled["label"] != null)
+      return;
+    this.labelOn = !this.labelOn;
+    this.showLabel();
   },
 
   // process and propagate changes

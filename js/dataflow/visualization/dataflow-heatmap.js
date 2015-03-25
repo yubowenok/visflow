@@ -180,14 +180,18 @@ var extObject = {
       .attr("height", box.y2 - box.y1);
   },
 
-  showVisualization: function() {
+  showVisualization: function(useTransition) {
+    // may reach here when node is in icon mode but options are on, and colorscale callback
+    if (!this.detailsOn)
+      return;
+
     var node = this;
     var inpack = this.ports["in"].pack,
         items = inpack.items,
         data = inpack.data;
 
     this.checkDataEmpty();
-    this.prepareSvg();
+    this.prepareSvg(useTransition);
     if (this.isEmpty)
       return;
     this.prepareScales();
@@ -234,11 +238,19 @@ var extObject = {
       ritems.push(cols);
     }
 
-    var rows = this.svg.selectAll("g")
-      .data(ritems).enter().append("g")
-      .attr("id", function(e) {
-        return "r" + e.index;
-      })
+    var selrows = this.svg.selectAll("g").data(ritems, function(e){
+      return "" + e.index;
+    });
+    var rows = selrows;
+    if (useTransition)
+      rows = rows.interrupt().transition();
+    else {
+      rows = rows.enter().append("g")
+        .attr("id", function(e) {
+          return "r" + e.index;
+        });
+    }
+    rows
       .style("stroke", function(e){ // selected properties
         return e.border != null ? e.border : "";
       })
@@ -255,37 +267,41 @@ var extObject = {
     width = Math.ceil(width);
     height = Math.ceil(height);
 
-    var cells = rows.selectAll(".rect")
-      .data(function(row){ return row; }) // use the array as data
-      .enter().append("rect")
-      .attr("transform", function(e, j) {
-        return "translate(" + node.screenScales[0](j) + ",0)";
-      })
-      .attr("fill", function(e) {
-        return e;
-      })
-      .attr("width", width)
-      .attr("height", height);
+    if (!useTransition) {
+      var cells = rows.selectAll("rect").data(function(row){ return row; })
+        .enter().append("rect")
+        .attr("transform", function(e, j) {
+          return "translate(" + node.screenScales[0](j) + ",0)";
+        })
+        .attr("fill", function(e) {
+          return e;
+        })
+        .attr("width", width)
+        .attr("height", height);
+    }
 
+    this.svg.selectAll(".df-row-label").remove();
     if (this.rowLabels) {
-      var labels = this.svg.selectAll("g")
-        .data(ritems).append("text")
+      var labels = this.svg.selectAll("g").data(ritems, function(e) {
+          return e.index;
+        })
+        .append("text")
         .attr("class", "df-row-label")
+        .text(function(e) {
+          return e.label;
+        })
         .style("stroke", function(e){ // selected properties
           return e.labelborder != null ? e.labelborder : "";
         })
         .style("stroke-width", function(e){
           return e.labelborder != null ? 1 : "";
         })
-        .text(function(e) {
-          return e.label;
-        })
-        .attr("transform", function(e, i) {
+        .attr("transform", function(e) {
           return "translate(" + (node.plotMargins[0].before + node.rowLabelsShifts[0]) + ","
             + (height/2) + ")";
         });
     }
-    this.showDimensionLabels();
+    this.showDimensionLabels(useTransition);
     this.showSelection();
   },
 
@@ -300,12 +316,16 @@ var extObject = {
     }
   },
 
-  showDimensionLabels: function() {
+  showDimensionLabels: function(useTransition) {
     var inpack = this.ports["in"].pack,
         data = inpack.data;
     var node = this;
-    this.svg.selectAll(".df-visualization-label")
-      .data(this.dimensions).enter().append("text")
+    var labels = this.svg.selectAll(".df-visualization-label");
+    if (!useTransition)
+      labels = labels.data(this.dimensions).enter().append("text");
+    else
+      labels = labels.interrupt().transition();
+    labels
       .attr("class", "df-visualization-label")
       .text(function(e) {
         return data.dimensions[e];
@@ -394,7 +414,7 @@ var extObject = {
         var unitChange = event.unitChange;
         node.sortBy = unitChange.value;
         node.pushflow();
-        node.showVisualization(); // show after process (in pushflow)
+        node.showVisualization(true); // show after process (in pushflow)
       }
     });
   },

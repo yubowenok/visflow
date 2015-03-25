@@ -8,6 +8,7 @@ var extObject = {
   contextmenuDisabled: {},
 
   initialize: function(para) {
+
     DataflowVisualization.base.initialize.call(this, para);
 
     // visualization nodes have same ports
@@ -20,6 +21,9 @@ var extObject = {
     ];
 
     this.optionsOn = false;
+    this.labelOn = true;
+    this.label = this.plotName + " (" + this.nodeId + ")";
+
     this.visWidth = null;
     this.visHeight = null;
 
@@ -79,18 +83,19 @@ var extObject = {
       menu: [
           {title: "Toggle Visualization", cmd: "details", uiIcon: "ui-icon-image"},
           {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
+          {title: "Toggle Label", cmd: "label"},
           {title: "Select All", cmd: "selall"},
           {title: "Clear Selection", cmd: "selclear"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"}
         ],
       select: function(event, ui) {
         if (ui.cmd == "details") {
-          node.detailsOn = !node.detailsOn;
-          node.show();
-          node.prepareContextmenu();
+          node.toggleDetails();
+          //node.prepareContextmenu(); TODO ? why?
         } else if (ui.cmd == "options") {
-          node.optionsOn = !node.optionsOn;
-          node.options();
+          node.toggleOptions();
+        } else if (ui.cmd == "label") {
+          node.toggleLabel();
         } else if (ui.cmd == "selall") {
           node.selectAll();
         } else if (ui.cmd == "selclear") {

@@ -102,6 +102,10 @@ var extobject = {
     // track keyboard: shift key
     $(document).keydown(function(event) {
       var code = event.keyCode, index;
+      // avoid interfering with input and editable
+      if ($(event.target).is("input, .dataflow-node-label"))
+        return true;
+
       if ((index = [38, 40, 37, 39].indexOf(code)) != -1){
         // move up/down/left/right
         var shift = [[0, -1], [0, 1], [-1, 0], [1, 0]],
@@ -119,10 +123,6 @@ var extobject = {
       } else if (code == 27) {   // esc
         manager.escHandler();
       } else {
-        // avoid interfering with input
-        if ($(event.target).is("input"))
-          return true;
-
         var c = String.fromCharCode(code);
         var key = c;
         if (manager.shifted)
@@ -450,6 +450,7 @@ var extobject = {
     if (type == "empty") {
       core.dataflowManager.clearNodeSelection();
       core.viewManager.hideColorpickers();
+      $("input").blur();
     }
   },
 
