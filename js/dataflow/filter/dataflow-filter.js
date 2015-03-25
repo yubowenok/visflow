@@ -10,10 +10,6 @@ var extObject = {
   nullValueString: "-",
   nodeShapeName: "longflat",
 
-  contextmenuDisabled: {
-    "options": true
-  },
-
   initialize: function(para) {
     DataflowFilter.base.initialize.call(this, para);
 
