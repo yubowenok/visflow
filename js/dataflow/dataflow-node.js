@@ -228,7 +228,7 @@ var extObject = {
       })
       .draggable({
         cancel: "input, .dataflow-node-label",
-        containment: "#dataflow",
+        //containment: "#dataflow",
         start: function(event, ui) {
           core.interactionManager.dragstartHandler({
             type: "node",

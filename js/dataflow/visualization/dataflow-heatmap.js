@@ -41,6 +41,9 @@ var extObject = {
     // [0, 1] is further mapped to color in rendering
     this.dataScale = [];
 
+    // default
+    this.colorScale = "red-green";
+
     // leave some space for axes
     this.plotMargins = [ { before: 10, after: 10 }, { before: 30, after: 10 } ];
     this.plotMarginsInit = {};
