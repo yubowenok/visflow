@@ -217,8 +217,7 @@ var extObject = {
 
     if (mappingType == "color") {
       if (this.colorScale == null // no scale selected
-        || this.selectColorScale == null // select not loaded
-        || this.selectColorScale.getScale(this.colorScale) == null) // scales async not ready
+        || core.viewManager.colorScales[this.colorScale] == null) // scales async not ready
         return;
     } else if (mappingType == "number") {
       if (this.numberScale == null)
@@ -231,7 +230,7 @@ var extObject = {
     var dataScale, propertyScale, scale;
 
     if (mappingType == "color")
-      scale = this.selectColorScale.getScale(this.colorScale);
+      scale = core.viewManager.colorScales[this.colorScale];
     else if (mappingType == "number")
       scale = {
         domain: [0, 1],

@@ -17,6 +17,8 @@ var extObject = {
     this.valueToItem = {};
     this.placeholder = para.placeholder;
 
+    this.colorScales = core.viewManager.getColorScales(this.colorScalesLoaded);
+
     this.prepare();
   },
 
@@ -24,8 +26,6 @@ var extObject = {
 
     DataflowSelect.base.prepare.call(this);
     var unit = this;
-
-    this.loadColorScaleList();
 
     var select2options = {};
     var input = this.input = $("<select></select>");
@@ -61,6 +61,13 @@ var extObject = {
           }
         }
       });
+
+    if (this.colorScales != null) {
+      this.setList(core.viewManager.colorScaleList);
+      if (this.value != null) {
+        this.setValue(this.value, null, true);
+      }
+    }
   },
 
   setList: function(list) { // array of (value, text) pairs
@@ -73,10 +80,16 @@ var extObject = {
     this.valueToItem = {};
     for (var i in list) {
       this.valueToItem[list[i].value] = list[i];
-
       var option = $("<option value='" + list[i].value + "'>" + list[i].text + "</option>")
         .appendTo(this.input);
     }
+  },
+
+  colorScalesLoaded: function() {
+    this.colorScales = core.viewManager.colorScales;
+    this.setList(core.viewManager.colorScaleList);
+    if (this.value != null) // callback from view manager
+      this.setValue(this.value, null, true);
   },
 
   setValue: function(value, event, noCallback) {
@@ -101,59 +114,6 @@ var extObject = {
       };
       this.changeCallback(event);
     }
-  },
-
-  getScale: function(value) {
-    if (this.colorScales == null)
-      return null; // async not ready
-    return this.colorScales[value];
-  },
-
-  loadColorScaleList: function() {
-
-    var unit = this;
-
-    $.get("js/dataflow/unit/colorScales.json", function(scales) {
-      var list = [];
-      unit.colorScales = {};
-      for (var i in scales) {
-        var scale = scales[i];
-        // save to node, map from value to scale object
-        unit.colorScales[scale.value] = scale;
-
-        var div = $("<div></div>")
-          .addClass("dataflow-scalevis");
-        var gradient = "linear-gradient(to right,";
-        if (scale.type == "color") {
-          // NOT support uneven scales
-          for (var j in scale.range) {
-            gradient += scale.range[j];
-            gradient += j == scale.range.length - 1 ? ")" : ",";
-          }
-          div.css("background", gradient);
-        } else if (scale.type == "color-category10") {
-          scale.domain = d3.range(10);
-          scale.range = d3.scale.category10().range();
-          var n = scale.range.length;
-          for (var j = 0; j < n; j++) {
-            gradient += scale.range[j] + " " + (j * 100 / n) + "%,";
-            gradient += scale.range[j] + " " + ((j + 1) * 100 / n) + "%";
-            gradient += j == scale.range.length - 1 ? ")" : ",";
-          }
-          div.css("background", gradient);
-        }
-        list.push({
-          value: scale.value,
-          text: scale.text,
-          div: div
-        });
-      }
-      unit.colorScaleList = list;
-      unit.setList(list); // must setList before setValue
-      if (unit.value　!= null) {
-        unit.setValue(unit.value);
-      }
-    });
   }
 
 };

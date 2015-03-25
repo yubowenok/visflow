@@ -201,8 +201,8 @@ var extObject = {
     this.interaction();
 
     var scale;
-    if (this.colorScale == null || this.selectColorScale == null
-       || (scale = this.selectColorScale.getScale(this.colorScale)) == null) {
+    if (this.colorScale == null
+       || (scale = core.viewManager.colorScales[this.colorScale]) == null) {
      return;
     }
 
