@@ -4,7 +4,7 @@
 var extObject = {
 
   plotName: "Table",
-  iconClass: "dataflow-dataflow-table-icon dataflow-square-icon",
+  iconClass: "dataflow-table-icon dataflow-square-icon",
 
   contextmenuDisabled: {
     "options": true
@@ -32,14 +32,6 @@ var extObject = {
 
     this.tableState = save.tableState;
     this.keepSize = save.keepSize;
-  },
-
-  showIcon: function() {
-    this.jqview
-      .removeClass("dataflow-table-view");
-    this.jqicon = $("<div></div>")
-      .addClass("dataflow-table-icon")
-      .appendTo(this.jqview);
   },
 
   showVisualization: function() {

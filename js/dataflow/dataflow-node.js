@@ -30,25 +30,32 @@ var extObject = {
     this.labelOn = false;
     this.label = "node label";
 
+    this.visModeOn = false;
+
     this.optionsOffset = null;
+
+    this.css = {};
+    this.visCss = {};
   },
 
   serialize: function() {
     this.label = this.jqview.find(".dataflow-node-label").text();
 
+
+    this.saveCss();
+
     var result = {
       nodeId: this.nodeId,
       hashtag: this.hashtag,
       type: this.type,
-      css: {
-        left: this.jqview.position().left,
-        top: this.jqview.position().top
-      },
       detailsOn: this.detailsOn,
       optionsOn: this.optionsOn,
       optionsOffset: this.optionsOffset,
       labelOn: this.labelOn,
-      label: this.label
+      label: this.label,
+      css: this.css,
+      visModeOn: this.visModeOn,
+      visCss: this.visCss
     };
 
     return result;
@@ -64,6 +71,16 @@ var extObject = {
     this.optionsOn = save.optionsOn;
     this.labelOn = save.labelOn;
     this.label = save.label;
+
+    this.css = save.css;
+
+    this.visModeOn = save.visModeOn;
+    this.visCss = save.visCss;
+    if (this.visModeOn == null){
+      console.error("visModeOn not saved");
+      this.visModeOn = false;
+      this.visCss = {};
+    }
 
     if (this.labelOn == null) {
       console.error("labelOn not saved");
@@ -102,6 +119,11 @@ var extObject = {
       .not(".ui-resizable-handle")
       .remove();
 
+    if (!this.visModeOn && core.dataflowManager.visModeOn) {
+      // do not show if hidden in vis mode
+      return;
+    }
+    this.jqview.show();
     this.showLabel();
 
     if (this.detailsOn) {
@@ -123,8 +145,11 @@ var extObject = {
       this.showIcon();
     }
 
-    this.showPorts();
-    this.updatePorts(); // update edges
+    if (!core.dataflowManager.visModeOn) {
+      // not show edges with vis mode on
+      this.showPorts();
+      this.updatePorts(); // update edges
+    }
     this.options();
   },
 
@@ -278,6 +303,7 @@ var extObject = {
           {title: "Toggle Details", cmd: "details", uiIcon: "ui-icon-document"},
           {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
           {title: "Toggle Label", cmd: "label"},
+          {title: "Visualization Mode", cmd: "vismode"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"},
           ],
       select: function(event, ui) {
@@ -287,7 +313,9 @@ var extObject = {
           node.toggleOptions();
         } else if (ui.cmd == "label") {
           node.toggleLabel();
-        }else if (ui.cmd == "delete") {
+        } else if (ui.cmd == "vismode") {
+          node.toggleVisMode();
+        } else if (ui.cmd == "delete") {
           core.dataflowManager.deleteNode(node);
         }
       },
@@ -390,9 +418,13 @@ var extObject = {
     }
   },
 
-  hide: function() {
+  remove: function() {
     $(this.jqview).children().remove();
     core.viewManager.removeNodeView(this.jqview);
+  },
+
+  hide: function() {
+    $(this.jqview).hide();
   },
 
   firstConnectable: function(port) {
@@ -444,6 +476,28 @@ var extObject = {
     // dataflowManager will endlessly call process
   },
 
+  saveCss: function() {
+    var css = {
+      left: this.jqview.position().left,
+      top: this.jqview.position().top,
+      width: this.jqview.width(),
+      height: this.jqview.height()
+    };
+    if (!core.dataflowManager.visModeOn) {
+      _(this.css).extend(css);
+    } else {
+      _(this.visCss).extend(css);
+    }
+  },
+
+  loadCss: function() {
+    if (!core.dataflowManager.visModeOn) {
+      this.jqview.css(this.css);
+    } else {
+      this.jqview.css(this.visCss);
+    }
+  },
+
   keyAction: function(key, event) {
     if ($(event.target).is("input")) {
       // avoid interfering with user typing input
@@ -457,7 +511,13 @@ var extObject = {
       this.toggleOptions();
     } else if (key == "L") {
       this.toggleLabel();
+    } else if (key == "V") {
+      this.toggleVisMode();
     }
+  },
+
+  toggleVisMode: function() {
+    this.visModeOn = !this.visModeOn;
   },
 
   toggleDetails: function() {
@@ -490,9 +550,20 @@ var extObject = {
 
   // called when node is resized
   resize: function(size) {
-    this.viewWidth = size.width;
-    this.viewHeight = size.height;
-    this.updatePorts();
+    if (core.dataflowManager.visModeOn == false) {
+      this.viewWidth = size.width;
+      this.viewHeight = size.height;
+      _(this.css).extend({
+        width: size.width,
+        height: size.height
+      });
+      this.updatePorts();
+    } else {
+      _(this.visCss).extend({
+        width: size.width,
+        height: size.height
+      });
+    }
   },
 
   resizestop: function(size) {

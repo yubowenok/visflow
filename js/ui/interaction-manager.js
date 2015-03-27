@@ -140,6 +140,9 @@ var extobject = {
           event.pageY = manager.currentMouseY;
           core.viewManager.showAddPanel(event);
         }
+        else if (key == "shift+V") {
+          core.dataflowManager.toggleVisMode();
+        }
         else if (core.viewManager.getPopupPanelName() == "add") {
           // further filtering popup entries
           core.viewManager.filterAddPanel(key);

@@ -30,6 +30,14 @@ var extObject = {
   },
 
   show: function() {
+    // clear before drawing
+    this.jqview.children().remove();
+
+    if (core.dataflowManager.visModeOn)
+      return; // not showing edges in vis mode
+
+    this.jqview.show();
+
     this.jqarrow = $("<div></div>")
       .addClass("dataflow-edge-arrow")
       .appendTo(this.jqview);
@@ -225,9 +233,13 @@ var extObject = {
     //.css("transform", "rotate(" + angle + "rad)");
   },
 
-  hide: function() {
+  remove: function() {
     this.jqview.children().remove();
     core.viewManager.removeEdgeView(this.jqview);
+  },
+
+  hide: function() {
+    this.jqview.hide();
   },
 
   keyAction: function(key, event) {

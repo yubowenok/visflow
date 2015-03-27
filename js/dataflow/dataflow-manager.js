@@ -40,6 +40,8 @@ var extObject = {
 
     this.asyncDataloadCount = 0;
     this.asyncDataloadQueue = [];
+
+    this.visModeOn = false;
   },
 
   createNode: function(type) {
@@ -160,7 +162,7 @@ var extObject = {
         this.deleteEdge(connections[i]);
       }
     }
-    node.hide();  // removes the jqview
+    node.remove();  // removes the jqview
     delete this.nodes[node.nodeId];
   },
 
@@ -174,7 +176,7 @@ var extObject = {
 
     this.propagate(edge.targetNode);  // not efficient when deleting nodes?
 
-    edge.hide();  // removes the jqview
+    edge.remove();  // removes the jqview
     delete this.edges[edge.edgeId];
   },
 
@@ -324,9 +326,10 @@ var extObject = {
 
       var newnode = this.createNode(type);
       hashes[nodeSaved.hashtag] = newnode;
-      newnode.jqview.css(nodeSaved.css);
+      //newnode.jqview.css(nodeSaved.css);
 
       newnode.deserialize(nodeSaved);
+      newnode.loadCss();
     }
     for (var i in dataflow.edges) {
       var edgeSaved = dataflow.edges[i];
@@ -342,9 +345,61 @@ var extObject = {
       this.createEdge(sourcePort, targetPort);
     }
 
-
     this.propagateDisabled = false; // full propagation
     this.propagate(this.dataSources);
+  },
+
+  previewVisMode: function(on) {
+    if (on) {
+      for (var i in this.edges) {
+        var edge = this.edges[i];
+        edge.jqview.css("opacity", 0.2);
+      }
+      for (var i in this.nodes){
+        var node = this.nodes[i];
+        if (!node.visModeOn) {
+          node.jqview.css("opacity", 0.2);
+        }
+      }
+    } else {
+      for (var i in this.edges) {
+        var edge = this.edges[i];
+        edge.jqview.css("opacity", "");
+      }
+      for (var i in this.nodes){
+        var node = this.nodes[i];
+        node.jqview.css("opacity", "");
+        node.show();
+      }
+    }
+  },
+
+  toggleVisMode: function() {
+    // first save the current configuration
+    for (var i in this.nodes){
+      var node = this.nodes[i];
+      node.saveCss();
+    }
+    // then toggle the mode, otherwise saveCss will overwrite wrong settings
+    this.visModeOn = !this.visModeOn;
+
+    if (this.visModeOn) {
+      for (var i in this.edges)
+        this.edges[i].hide();
+      for (var i in this.nodes)
+        this.nodes[i].hide();
+      for (var i in this.nodes){
+        this.nodes[i].show();
+        this.nodes[i].loadCss();
+      }
+    } else {
+      for (var i in this.edges)
+        this.edges[i].show();
+      for (var i in this.nodes) {
+        this.nodes[i].loadCss();
+        this.nodes[i].show();
+      }
+    }
   },
 
   clearDataflow: function() {

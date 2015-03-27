@@ -44,23 +44,34 @@ var extObject = {
       .load("js/ui/" + this.htmlFile, function() {
         panel.buttons.map(function(button) {
 
+          var jqbutton = panel.jqview.find("#" + button.id);
           if (button.dragstart != null) {
-            panel.jqview.find("#" + button.id)
-              .draggable({
-                revert: "valid",
-                revertDuration: 100,
-                start: function(event){
-                  event.id = button.id;
-                  button.dragstart(event);
-                }
-              });
+            jqbutton.draggable({
+              revert: "valid",
+              revertDuration: 100,
+              start: function(event){
+                event.id = button.id;
+                button.dragstart(event);
+              }
+            });
           }
           if (button.click != null) {
-            panel.jqview.find("#" + button.id)
-              .click(function(event){
-                event.id = button.id;
-                button.click(event);
-              });
+            jqbutton.click(function(event){
+              event.id = button.id;
+              button.click(event);
+            });
+          }
+          if (button.mouseenter != null) {
+            jqbutton.mouseenter(function(event) {
+              event.id = button.id;
+              button.mouseenter(event);
+            });
+          }
+          if (button.mouseleave != null) {
+            jqbutton.mouseleave(function(event) {
+              event.id = button.id;
+              button.mouseleave(event);
+            });
           }
 
         });
@@ -71,8 +82,6 @@ var extObject = {
     if (this.draggable) {
       container.draggable();
     }
-
-
 
     if (this.fadeIn !== false) {
       container.css(this.fadeInCssBegin);

@@ -33,6 +33,8 @@ var extObject = {
     this.isEmpty = true;
 
     this.lastDataId = 0;  // default: empty data
+
+    this.visModeOn = true;
   },
 
   serialize: function() {
@@ -74,6 +76,8 @@ var extObject = {
   },
 
   prepareContextmenu: function() {
+
+
     var node = this;
     // right-click menu
 
@@ -84,6 +88,7 @@ var extObject = {
           {title: "Toggle Visualization", cmd: "details", uiIcon: "ui-icon-image"},
           {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
           {title: "Toggle Label", cmd: "label"},
+          {title: "Visualization Mode", cmd: "vismode"},
           {title: "Select All", cmd: "selall"},
           {title: "Clear Selection", cmd: "selclear"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"}
@@ -96,6 +101,8 @@ var extObject = {
           node.toggleOptions();
         } else if (ui.cmd == "label") {
           node.toggleLabel();
+        } else if (ui.cmd == "vismode") {
+          node.toggleVisMode();
         } else if (ui.cmd == "selall") {
           node.selectAll();
         } else if (ui.cmd == "selclear") {

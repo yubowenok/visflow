@@ -48,6 +48,18 @@ var extObject = {
           }
         },
         {
+          id: "vismode",
+          click: function() {
+            core.dataflowManager.toggleVisMode();
+          },
+          mouseenter: function() {
+            core.dataflowManager.previewVisMode(true);
+          },
+          mouseleave: function() {
+            core.dataflowManager.previewVisMode(false);
+          }
+        },
+        {
           id: "help",
           click: function() {
             manager.helpDataflow();
