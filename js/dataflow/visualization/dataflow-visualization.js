@@ -77,14 +77,12 @@ var extObject = {
 
   prepareContextmenu: function() {
 
+    DataflowVisualization.base.prepareContextmenu.call(this);
 
     var node = this;
-    // right-click menu
-
-    this.jqview.contextmenu({
-      delegate: this.jqview,
-      addClass: "ui-contextmenu",
-      menu: [
+    // override menu entries
+    this.jqview.contextmenu("replaceMenu",
+        [
           {title: "Toggle Visualization", cmd: "details", uiIcon: "ui-icon-image"},
           {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
           {title: "Toggle Label", cmd: "label"},
@@ -92,34 +90,19 @@ var extObject = {
           {title: "Select All", cmd: "selall"},
           {title: "Clear Selection", cmd: "selclear"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"}
-        ],
-      select: function(event, ui) {
-        if (ui.cmd == "details") {
-          node.toggleDetails();
-          //node.prepareContextmenu(); TODO ? why?
-        } else if (ui.cmd == "options") {
-          node.toggleOptions();
-        } else if (ui.cmd == "label") {
-          node.toggleLabel();
-        } else if (ui.cmd == "vismode") {
-          node.toggleVisMode();
-        } else if (ui.cmd == "selall") {
-          node.selectAll();
-        } else if (ui.cmd == "selclear") {
-          node.clearSelection();
-        } else if (ui.cmd == "delete") {
-          core.dataflowManager.deleteNode(node);
-        }
-      },
-      beforeOpen: function(event, ui) {
-        if (core.interactionManager.contextmenuLock)
-          return false;
-        core.interactionManager.contextmenuLock = true;
-      },
-      close: function(event, ui) {
-        core.interactionManager.contextmenuLock = false;
-      }
-    });
+        ]
+    );
+  },
+  // override select handler
+  contextmenuSelect: function(event, ui) {
+    if (ui.cmd == "selall") {
+      this.selectAll();
+    } else if (ui.cmd == "selclear") {
+      this.clearSelection();
+    } else {
+      // can be handled by base class handler
+      DataflowVisualization.base.contextmenuSelect.call(this, event, ui);
+    }
   },
 
   checkDataEmpty: function() {

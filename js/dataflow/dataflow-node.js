@@ -293,7 +293,8 @@ var extObject = {
   },
 
   prepareContextmenu: function() {
-    var node = this;
+    var node = this,
+        jqview = this.jqview;
 
     // right-click menu
     this.jqview.contextmenu({
@@ -305,35 +306,52 @@ var extObject = {
           {title: "Toggle Label", cmd: "label"},
           {title: "Visualization Mode", cmd: "vismode"},
           {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"},
-          ],
+        ],
       select: function(event, ui) {
-        if (ui.cmd == "details") {
-          node.toggleDetails();
-        } else if (ui.cmd == "options") {
-          node.toggleOptions();
-        } else if (ui.cmd == "label") {
-          node.toggleLabel();
-        } else if (ui.cmd == "vismode") {
-          node.toggleVisMode();
-        } else if (ui.cmd == "delete") {
-          core.dataflowManager.deleteNode(node);
-        }
+        return node.contextmenuSelect(event, ui);
       },
       beforeOpen: function(event, ui) {
-        if (core.interactionManager.contextmenuLock)
-          return false;
-        core.interactionManager.contextmenuLock = true;
+        return node.contextmenuBeforeOpen(event, ui);
       },
       close: function(event, ui) {
-        core.interactionManager.contextmenuLock = false;
+        return node.contextmenuClose(event, ui);
       }
     });
-
     // disable some of the entries based on child class specification
     // in this.contextmenuDisabled
     for (var entry in this.contextmenuDisabled) {
       this.jqview.contextmenu("showEntry", entry, false);
     }
+  },
+
+  contextmenuSelect: function(event, ui) {
+    if (ui.cmd == "details") {
+      this.toggleDetails();
+    } else if (ui.cmd == "options") {
+      this.toggleOptions();
+    } else if (ui.cmd == "label") {
+      this.toggleLabel();
+    } else if (ui.cmd == "vismode") {
+      this.toggleVisMode();
+    } else if (ui.cmd == "delete") {
+      core.dataflowManager.deleteNode(this);
+    }
+  },
+
+  contextmenuBeforeOpen: function(event, ui) {
+    if (!this.visModeOn)
+      this.jqview.contextmenu("setEntry", "vismode",
+        {title: "Visualization Mode"});
+    else
+      this.jqview.contextmenu("setEntry", "vismode",
+        {title: "Visualization Mode", uiIcon: "ui-icon-check"});
+    if (core.interactionManager.contextmenuLock)
+      return false;
+    core.interactionManager.contextmenuLock = true;
+  },
+
+  contextmenuClose: function(event, ui) {
+    core.interactionManager.contextmenuLock = false;
   },
 
   prepareDimensionList: function(ignoreTypes) {
