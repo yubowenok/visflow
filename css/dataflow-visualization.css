@@ -64,3 +64,7 @@ svg {
   font-family: Helvetica, sans-serif, courier;
 }
 
+.df-network-edge {
+  stroke-width: 1px;
+  stroke: black;
+}

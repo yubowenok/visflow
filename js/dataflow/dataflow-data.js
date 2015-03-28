@@ -11,13 +11,15 @@ var extObject = {
   initialize: function(data) {
 
     if (data == null) {
-      data = {
+      _(this).extend({  // empty data object
         dimensions: [],
         dimensionTypes: [],
         values: [],
         dataId: 0,
-        type: "empty"
-      };
+        type: "empty",
+        numItems: 0
+      });
+      return;
     }
 
     if (data.type === "constants") {

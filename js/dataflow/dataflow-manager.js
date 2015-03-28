@@ -88,6 +88,7 @@ var extObject = {
     case "parallelcoordinates":
     case "histogram":
     case "heatmap":
+    case "network":
       if (type == "table")
         dataflowClass = DataflowTable;
       if (type == "scatterplot")
@@ -98,6 +99,8 @@ var extObject = {
         dataflowClass = DataflowHistogram;
       if (type == "heatmap")
         dataflowClass = DataflowHeatmap;
+      if (type == "network")
+        dataflowClass = DataflowNetwork;
       _(para).extend({
         visId: ++this.visCounter,
       });
@@ -330,6 +333,7 @@ var extObject = {
 
       newnode.deserialize(nodeSaved);
       newnode.loadCss();
+      newnode.updatePorts();
     }
     for (var i in dataflow.edges) {
       var edgeSaved = dataflow.edges[i];

@@ -182,8 +182,7 @@ var extObject = {
     // however the data have not passed in
     // thus the selection might be erronesouly cleared if continue processing
     if (inpack.isEmpty()) {
-      outpack.copy(inpack);
-      outspack.copy(inpack);
+      outspack.copy(inpack, true);
       outspack.items = {};
       return;
     }
@@ -278,6 +277,96 @@ var extObject = {
         core.dataflowManager.clearNodeSelection();
       core.dataflowManager.addNodeSelection(node);
     });
+
+    // default select box interaction
+    this.prepareSelectboxInteraction();
+  },
+
+  prepareSelectboxInteraction: function() {
+    var node = this,
+        mode = "none";
+    var startPos = [0, 0],
+        lastPos = [0, 0],
+        endPos = [0, 0];
+    var selectbox = {
+      x1: 0,
+      x2: 0,
+      y1: 0,
+      y2: 0
+    };
+
+    var mouseupHandler = function(event) {
+      if (mode == "selectbox") {
+        node.selectItemsInBox([
+            [selectbox.x1, selectbox.x2],
+            [selectbox.y1, selectbox.y2]
+          ]);
+        if (node.selectbox) {
+          node.selectbox.remove();
+          node.selectbox = null;
+        }
+      }
+      mode = "none";
+      if (core.interactionManager.visualizationBlocking)
+        event.stopPropagation();
+    };
+
+    this.jqsvg
+      .mousedown(function(event) {
+        if (core.interactionManager.ctrled) // ctrl drag mode blocks
+          return;
+
+        startPos = Utils.getOffset(event, $(this));
+
+        if (event.which == 1) { // left click triggers selectbox
+          mode = "selectbox";
+        }
+        if (core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
+      })
+      .mousemove(function(event) {
+        if (mode == "selectbox") {
+          endPos = Utils.getOffset(event, $(this));
+          selectbox.x1 = Math.min(startPos[0], endPos[0]);
+          selectbox.x2 = Math.max(startPos[0], endPos[0]);
+          selectbox.y1 = Math.min(startPos[1], endPos[1]);
+          selectbox.y2 = Math.max(startPos[1], endPos[1]);
+          node.showSelectbox(selectbox);
+        }
+        // we shall not block mousemove (otherwise dragging edge will be problematic)
+        // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
+      })
+      .mouseup(mouseupHandler)
+      .mouseleave(function(event) {
+        if ($(this).parent().length == 0) {
+          return; // during svg update, the parent of mouseout event is unstable
+        }
+        mouseupHandler(event);
+      });
+  },
+
+  multiplyProperties: function(properties, multiplier) {
+    for (var p in multiplier) {
+      var v = properties[p];
+      if (v != null) {
+        properties[p] = v * multiplier[p];
+      }
+    }
+  },
+
+  applyProperties: function(u, properties, translate) {
+    // u is a d3 selection
+    for (var key in properties) {
+      var value = properties[key];
+      if (translate[key] != null)
+        key = translate[key];
+      if (key == "ignore")
+        continue;
+      if (this.isAttr[key] == true)
+        u.attr(key, value);
+      else
+        u.style(key, value);
+    }
   },
 
   // need to call parent classes

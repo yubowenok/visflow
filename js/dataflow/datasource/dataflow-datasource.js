@@ -47,7 +47,7 @@ var extObject = {
       this.jqview
         .css("text-align", "center");
 
-      $("<div style='line-height:50px'>No data loaded</div>")
+      $("<div style='padding: 10px'>No data loaded</div>")
         .attr("id", "datahint")
         .appendTo(this.jqview);
 

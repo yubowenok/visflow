@@ -107,7 +107,7 @@ var extObject = {
         node = this.node;
     this.jqview
       .dblclick(function() {
-        console.log(port.pack, port.packs); // for debug
+        console.log(port.pack, port.pack.countItems()); // for debug
       })
       .mouseenter(function(event){
         for (var i in port.connections) {
