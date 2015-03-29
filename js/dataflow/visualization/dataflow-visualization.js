@@ -273,16 +273,13 @@ var extObject = {
       return console.error("no svg for prepareInteraction");
     var node = this;
     this.jqsvg.mousedown(function(){
+      // always add this view to selection
       if (!core.interactionManager.shifted)
         core.dataflowManager.clearNodeSelection();
       core.dataflowManager.addNodeSelection(node);
     });
 
     // default select box interaction
-    this.prepareSelectboxInteraction();
-  },
-
-  prepareSelectboxInteraction: function() {
     var node = this,
         mode = "none";
     var startPos = [0, 0],

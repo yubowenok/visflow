@@ -81,15 +81,21 @@ var extObject = {
     this.nodes = null;  // refer to node objects
     this.edges = null;  // refer to edge objects
 
-    // leave some space for axes
+    // leave some space? TODO
     this.plotMargins = [ { before: 0, after: 0 }, { before: 0, after: 0 } ];
 
     this.selectedEdges = {};
 
+    // whether to show label, and which dimension is used as label
     this.nodeLabelOn = true;
     this.nodeLabel = null;
 
+    this.panOn = false;
+
     this.lastDataIdEdges = 0;
+
+    // network translate (transform)
+    this.translate = [0, 0];
   },
 
   serialize: function() {
@@ -98,6 +104,8 @@ var extObject = {
     result.lastDataIdEdges = this.lastDataIdEdges;
     result.nodeLabel = this.nodeLabel;
     result.nodeLabelOn = this.nodeLabelOn;
+    result.panOn = this.panOn;
+
     return result;
   },
 
@@ -107,6 +115,7 @@ var extObject = {
     this.lastDataIdEdges = save.lastDataIdEdges;
     this.nodeLabel = save.nodeLabel;
     this.nodeLabelOn = save.nodeLabelOn;
+    this.panOn = save.panOn;
 
     this.selectedEdges = save.selectedEdges;
     if (this.selectedEdges == null) {
@@ -115,7 +124,123 @@ var extObject = {
     }
   },
 
+  prepareContextmenu: function() {
 
+    DataflowNetwork.base.prepareContextmenu.call(this);
+
+    var node = this;
+    // override menu entries
+    this.jqview.contextmenu("replaceMenu",
+        [
+          {title: "Toggle Visualization", cmd: "details", uiIcon: "ui-icon-image"},
+          {title: "Toggle Options", cmd: "options", uiIcon: "ui-icon-note"},
+          {title: "Toggle Label", cmd: "label"},
+          {title: "Visualization Mode", cmd: "vismode"},
+          {title: "Panning", cmd: "pan"},
+          {title: "Select All", cmd: "selall"},
+          {title: "Clear Selection", cmd: "selclear"},
+          {title: "Delete", cmd: "delete", uiIcon: "ui-icon-close"}
+        ]
+    );
+  },
+  // override select handler
+  contextmenuSelect: function(event, ui) {
+    if (ui.cmd == "pan"){
+      this.togglePan();
+    } else {
+      // can be handled by base class handler
+      DataflowNetwork.base.contextmenuSelect.call(this, event, ui);
+    }
+  },
+
+  contextmenuBeforeOpen: function(event, ui) {
+    if (!this.panOn)
+      this.jqview.contextmenu("setEntry", "pan",
+        {title: "Panning"});
+    else
+      this.jqview.contextmenu("setEntry", "pan",
+        {title: "Panning", uiIcon: "ui-icon-check"});
+    DataflowNetwork.base.contextmenuBeforeOpen.call(this, event, ui);
+  },
+
+  prepareInteraction: function() {
+    var node = this;
+    this.jqsvg.mousedown(function(){
+      // always add this view to selection
+      if (!core.interactionManager.shifted)
+        core.dataflowManager.clearNodeSelection();
+      core.dataflowManager.addNodeSelection(node);
+    });
+
+    // default select box interaction
+    var mode = "none";
+    var startPos = [0, 0],
+        lastPos = [0, 0],
+        endPos = [0, 0];
+    var selectbox = {
+      x1: 0,
+      x2: 0,
+      y1: 0,
+      y2: 0
+    };
+
+    var mouseupHandler = function(event) {
+      if (mode == "selectbox") {
+        node.selectItemsInBox([
+            [selectbox.x1, selectbox.x2],
+            [selectbox.y1, selectbox.y2]
+          ]);
+        if (node.selectbox) {
+          node.selectbox.remove();
+          node.selectbox = null;
+        }
+      } else if (mode == "pan") {
+        // nothing, already panned
+      }
+      mode = "none";
+      if (core.interactionManager.visualizationBlocking)
+        event.stopPropagation();
+    };
+
+    this.jqsvg
+      .mousedown(function(event) {
+        if (core.interactionManager.ctrled) // ctrl drag mode blocks
+          return;
+
+        startPos = Utils.getOffset(event, $(this));
+
+        if (event.which == 1) { // left click triggers selectbox
+          mode = node.panOn ? "pan" : "selectbox";
+        }
+        if (core.interactionManager.visualizationBlocking)
+          event.stopPropagation();
+      })
+      .mousemove(function(event) {
+        endPos = Utils.getOffset(event, $(this));
+        if (mode == "selectbox") {
+          selectbox.x1 = Math.min(startPos[0], endPos[0]);
+          selectbox.x2 = Math.max(startPos[0], endPos[0]);
+          selectbox.y1 = Math.min(startPos[1], endPos[1]);
+          selectbox.y2 = Math.max(startPos[1], endPos[1]);
+          node.showSelectbox(selectbox);
+        } else if (mode == "pan"){
+          var dx = endPos[0] - lastPos[0],
+              dy = endPos[1] - lastPos[1];
+          node.moveNetwork(dx, dy);
+        }
+        lastPos = endPos;
+      })
+      .mouseup(mouseupHandler)
+      .mouseleave(function(event) {
+        mouseupHandler(event);
+      });
+  },
+
+  moveNetwork: function(dx, dy) {
+    this.translate[0] += dx;
+    this.translate[1] += dy;
+    this.updateVisualization();
+  },
 
   selectItemsInBox: function(box) {
     if (!core.interactionManager.shifted) {
@@ -130,7 +255,8 @@ var extObject = {
     for (var i in this.nodes) {
       var x = this.nodes[i].x,
           y = this.nodes[i].y; // get current node coordinates
-
+      x += this.translate[0];
+      y += this.translate[1];
       if (x >= box[0][0] && x <= box[0][1]
         && y >= box[1][0] && y <= box[1][1]) {
         this.selected[this.nodes[i].dfindex] = true;
@@ -141,14 +267,17 @@ var extObject = {
           y1 = this.edges[i].source.y,
           x2 = this.edges[i].target.x,
           y2 = this.edges[i].target.y;
-
+      x1 += this.translate[0];
+      y1 += this.translate[1];
+      x2 += this.translate[0];
+      y2 += this.translate[1];
       if ( (x1 >= box[0][0] && x1 <= box[0][1] && y1 >= box[1][0] && y1 <= box[1][1])
       && (x2 >= box[0][0] && x2 <= box[0][1] && y2 >= box[1][0] && y2 <= box[1][1]) ) {
         this.selectedEdges[this.edges[i].dfindex] = true;
       }
     }
     this.pushflow();
-    this.showVisualization();
+    this.showVisualization(false);
   },
 
   showSelectbox: function(box) {
@@ -184,7 +313,7 @@ var extObject = {
     this.isEmpty = false;
   },
 
-  showVisualization: function() {
+  showVisualization: function(preventForce) {
 
     this.checkDataEmpty();
     this.prepareSvg();
@@ -198,19 +327,24 @@ var extObject = {
 
     var node = this;
 
-    this.svgEdges = this.svg.selectAll(".df-network-edge")
+    this.svgg = this.svg.append("g")
+      .attr("transform", "translate(" + this.translate[0] + "," + this.translate[1] + ")");
+
+    this.svgEdges = this.svgg.selectAll(".df-network-edge")
       .data(this.edgeList).enter().append("line")
       .attr("class", "df-network-edge");
 
-    this.svgArrows = this.svg.selectAll(".df-network-arrow")
-      .data(this.edgeList).enter().append("line")
-      .attr("class", "df-netework-arrow");
-    this.svgArrows2 = this.svg.selectAll(".df-network-arrow")
-      .data(this.edgeList).enter().append("line")
-      .attr("class", "df-netework-arrow");
+    this.svgArrows = this.svgg.append("g")
+      .attr("class", "df-network-arrow")
+      .selectAll(".df-network-arrow")
+      .data(this.edgeList).enter().append("line");
+    this.svgArrows2 = this.svgg.append("g")
+      .attr("class", "df-network-arrow")
+      .selectAll(".df-network-arrow")
+      .data(this.edgeList).enter().append("line");
 
-    this.svgNodes = this.svg.selectAll(".circle")
-      .data(this.nodeList).enter().append("circle")
+    this.svgNodes = this.svgg.selectAll(".circle")
+      .data(this.nodeList, function(e) { return e.dfindex; }).enter().append("circle")
       .on("dblclick", function(e) {
         d3.select(this).classed("fixed", d.fixed = false);
       });
@@ -219,7 +353,7 @@ var extObject = {
         nodeData = inpackNodes.data;
 
     if (this.nodeLabelOn) {
-      this.svgLabels = this.svg.selectAll(".df-network-label")
+      this.svgLabels = this.svgg.selectAll(".df-network-label")
         .data(this.nodeList).enter().append("text")
         .attr("class", "df-network-label")
         .text(function(e) {
@@ -227,22 +361,18 @@ var extObject = {
         });
     }
 
-    var drag = this.force.drag()
-      .on("dragstart", function(e) {
-        d3.select(this).classed("fixed", d.fixed = true);
-      });
-
-    this.force.start();
-    /*
-    for (var i = 0; i < 100; i++)
-      this.force.tick();
-    this.force.stop();
-*/
+    if (!preventForce) {
+      this.prepareForce();
+      this.force.start();
+    }
     this.showSelection();
   },
 
 
   updateVisualization: function() {
+    // pan
+    this.svgg
+      .attr("transform", "translate(" + this.translate[0] + "," + this.translate[1] + ")");
     // must use dfindex to avoid conflict with d3 force layout index
     // first update edges
     var items = this.ports["ine"].pack.items,
@@ -278,6 +408,9 @@ var extObject = {
 
     var edges = this.svgEdges.data(ritems, function(e) { return e.dfindex; })[0];
     for (var i = 0; i < edges.length; i++) {
+      if (edges[i] == null) {
+        console.log(edges);
+      }
       var properties = edges[i].__data__;
       var u = d3.select(edges[i]);
       this.applyProperties(u, properties, this.propertyTranslateEdge);
@@ -313,7 +446,7 @@ var extObject = {
       });
     }
     var arrows2 = this.svgArrows2.data(ritems, function(e) { return e.dfindex; })[0];
-    for (var i = 0; i < arrows.length; i++) {
+    for (var i = 0; i < arrows2.length; i++) {
       var properties = arrows2[i].__data__;
       var u = d3.select(arrows2[i]);
       this.applyProperties(u, properties, this.propertyTranslateEdge);
@@ -405,41 +538,12 @@ var extObject = {
     });
   },
 
-  showAxis: function() {
-  },
-
-  processNodesFromEdges: function() {
-    var inpackEdges = this.ports["ine"].pack,
-        items = inpackEdges.items,
-        data = inpackEdges.data;
-    var nodeNames = {};
-    // update without changing nodes positions
-    for (var index in items) {
-      var values = data.values[index];
-      // TODO, temporarily assuming dimensions
-      var source = values[0], target = values[1];
-      nodeNames[source] = true;
-      nodeNames[target] = true;
-    }
-    var counter = 0;
-    for (var name in nodeNames) {
-      var node = this.nodes[name];
-      if (node == null) {
-        // create an empty object for new node
-        node = this.nodes[name] = {};
-      }
-      _(node).extend({
-        dfindex: counter++,
-        label: name
-      });
-      this.nodeList.push(node);
-    }
-  },
-
   processNodes: function() {
     var inpackNodes = this.ports["in"].pack,
         items = inpackNodes.items,
         data = inpackNodes.data;
+
+    this.nodeList = [];
 
     // eliminate randomness in initial layout
     var randValue = 3;
@@ -473,6 +577,9 @@ var extObject = {
     var inpack = this.ports["ine"].pack,
         items = inpack.items,
         data = inpack.data;
+
+    this.edgeList = [];
+
     var skipped = 0;
     for (var index in items) {
       var values = data.values[index];
@@ -503,24 +610,29 @@ var extObject = {
     var inpackNodes = this.ports["in"].pack,
         inpackEdges = this.ports["ine"].pack;
 
+    var deletedNodes = {};
     var items = inpackNodes.items;
     for (var i in this.nodes) {
-      var index = this.nodes[i].dfindex;
-      if (items[index] == null)
+      var node = this.nodes[i],
+          index = node.dfindex;
+      if (items[index] == null) {
         delete this.nodes[i];
+        deletedNodes[index] = true;
+      }
     }
     var items = inpackEdges.items;
     for (var i in this.edges) {
-      var index = this.edges[i].dfindex;
-      if (items[index] == null)
+      var edge = this.edges[i],
+          index = edge.dfindex;
+      if (items[index] == null
+        || deletedNodes[edge.source.dfindex] != null
+        || deletedNodes[edge.target.dfindex] != null) {
         delete this.edges[i];
+      }
     }
   },
 
   processNetwork: function() {
-    this.nodeList = [];
-    this.edgeList = [];
-
     var inpackNodes = this.ports["in"].pack,
         inpackEdges = this.ports["ine"].pack;
 
@@ -536,11 +648,7 @@ var extObject = {
     this.processNodes();
     this.processEdges();
 
-
-    console.log("net processed");
-    //console.log(this.nodeList, this.edgeList);
-
-    this.prepareForce();
+    //console.log("net processed");
   },
 
   processSelection: function() {
@@ -570,9 +678,8 @@ var extObject = {
         outspackEdges = this.ports["outse"].pack;
 
     if (this.force != null) {
-      this.force.stop();
+      this.force.stop();  // prevent further update
     }
-    console.log("stop");
 
     outpackNodes.copy(inpackNodes, true);
     outpackEdges.copy(inpackEdges, true); // always pass through
@@ -602,16 +709,23 @@ var extObject = {
 
   prepareForce: function() {
     var node = this;
+    if (this.force != null)
+      this.force.stop();
     this.force = d3.layout.force()
       .nodes(this.nodeList)
       .links(this.edgeList)
       .size([this.svgSize[0], this.svgSize[1]])
       .charge(-10000)
-      .linkDistance(40)
-      .gravity(1.0)
-      .friction(0.6)
+      .linkDistance(30)
+      .gravity(0.5)
+      .friction(0.25)
       .on("tick", function() {
         node.updateVisualization();
+      });
+    this.force.drag()
+      .on("dragstart", function(e) {
+        console.log("dd");
+        d3.select(this).classed("fixed", d.fixed = true);
       });
   },
 
@@ -620,6 +734,17 @@ var extObject = {
     this.edges = {};
     this.nodeLabel = 0;
     this.processNetwork();
+  },
+
+  togglePan: function() {
+    this.panOn = !this.panOn;
+  },
+
+  keyAction: function(key, event) {
+    DataflowNetwork.base.keyAction.call(this, key, event);
+
+    if (key == "H")
+      this.togglePan();
   },
 
   selectAll: function() {

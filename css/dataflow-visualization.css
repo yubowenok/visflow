@@ -71,4 +71,5 @@ svg {
 
 .df-network-label {
   text-anchor: middle;
+  pointer-events: none;
 }

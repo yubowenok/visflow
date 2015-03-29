@@ -141,7 +141,11 @@ var extObject = {
     } else {
       this.jqview
         .removeClass("dataflow-node-shape-" + this.nodeShapeName)
-        .addClass("dataflow-node-shape");
+        .addClass("dataflow-node-shape")
+        .css({
+          width: "",
+          height: ""
+        }); // remove constraints set in details mode
       this.showIcon();
     }
 
