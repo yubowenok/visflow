@@ -142,6 +142,10 @@ var extObject = {
     if (this.numElements === 0)
       return null;
     return this.elements;
+  },
+
+  count: function() {
+    return this.elements.length;
   }
 
 };

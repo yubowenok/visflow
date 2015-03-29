@@ -502,7 +502,7 @@ var extObject = {
     if (!d){
       scale.domain([0, this.dimensions.length]);
     } else {
-      scale.domain([0, inpack.countItems()]);
+      scale.domain([0, inpack.count()]);
     }
   },
 

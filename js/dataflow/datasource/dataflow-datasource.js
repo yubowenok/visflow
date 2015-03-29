@@ -112,6 +112,19 @@ var extObject = {
       return;
     }
 
+    // TODO re-use loaded data
+    /*
+    var data;
+    if ((data = core.dataflowManager.data[dataSelected]) != null) {
+      console.log("reused");
+      node.dataSelected = dataSelected;
+      node.dataName = dataName;
+      node.jqview.find("#datahint").text(dataName);
+      $.extend(node.ports["out"].pack, DataflowPackage.new(data));
+      return;
+    }
+    */
+
     $.ajax({
       type: 'GET',
       url: "data/" + dataSelected + ".json",
@@ -124,7 +137,6 @@ var extObject = {
           console.error("loaded data is null");
           return;
         }
-
         node.dataSelected = dataSelected;
         node.dataName = dataName;
         node.jqview.find("#datahint").text(dataName);

@@ -254,8 +254,8 @@ var extObject = {
   registerData: function(data) {
     if (data == null || data.type == "empty")
       return console.error("attempt register null/empty data");
-    this.data[++this.dataCounter] = data;
-    data.dataId = this.dataCounter;
+    this.data[data.type] = data;
+    data.dataId = ++this.dataCounter;
   },
 
   saveDataflow: function() {

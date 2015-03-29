@@ -58,11 +58,11 @@ var extObject = {
     this.items = newItems;
   },
 
-  countItems: function() {
-    var count = 0;
+  count: function() {
+    var ans = 0;
     for (var index in this.items)
-      count ++;
-    return count;
+      ans++;
+    return ans;
   },
 
   isEmpty: function() {

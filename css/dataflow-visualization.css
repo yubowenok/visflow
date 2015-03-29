@@ -68,3 +68,7 @@ svg {
   stroke-width: 1px;
   stroke: black;
 }
+
+.df-network-label {
+  text-anchor: middle;
+}
