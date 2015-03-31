@@ -393,16 +393,16 @@ var extObject = {
       for (var i in this.nodes)
         this.nodes[i].hide();
       for (var i in this.nodes){
-        this.nodes[i].show();
         this.nodes[i].loadCss();
+        this.nodes[i].show();
       }
     } else {
-      for (var i in this.edges)
-        this.edges[i].show();
       for (var i in this.nodes) {
         this.nodes[i].loadCss();
         this.nodes[i].show();
       }
+      for (var i in this.edges)
+        this.edges[i].show();
     }
   },
 

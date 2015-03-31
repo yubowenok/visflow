@@ -20,7 +20,7 @@ var extObject = {
     "id": true
   },
 
-  fontWidth: 5,
+  fontWidth: 5.5,
 
   // no translate for heatmap, heatmap's rendering is not item based
   propertyTranslate: {

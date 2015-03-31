@@ -454,6 +454,7 @@ var extobject = {
       core.dataflowManager.clearNodeSelection();
       core.viewManager.hideColorpickers();
       $("input").blur();
+      this.contextmenuLock = false;
     }
   },
 

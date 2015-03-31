@@ -39,9 +39,6 @@ svg {
   fill-opacity: 0.5;
   pointer-events: none;
 }
-.dataflow-table-view {
-  width: 450px;
-}
 
 .df-parallelcoordinates-brush {
   fill: none;

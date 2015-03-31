@@ -51,27 +51,20 @@ var extObject = {
     DataflowValueExtractor.base.showDetails.call(this); // call parent settings
 
     var node = this;
-    var div = $("<div></div>")
-        .addClass("dataflow-options-item")
-        .appendTo(this.jqview);
-      $("<label></label>")
-        .addClass("dataflow-options-text")
-        .text("Extract values from")
-        .appendTo(div);
-    this.selectDimension = $("<select><option/></select>")
-      .addClass("dataflow-node-select")
-      .appendTo(div)
-      .select2({
-        placeholder: "Select"
-      })
-      .change(function(event){
-        node.dimension = event.target.value;
+    this.selectDimension = DataflowSelect.new({
+      id: "dimension",
+      label: "Extract values from",
+      target: this.jqview,
+      relative: true,
+      placeholder: "Select",
+      value: this.dimension,
+      list: this.prepareDimensionList(),
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.dimension = unitChange.value;
         node.pushflow();
-      });
-    this.prepareDimensionList();
-
-    // show current selection, must call after prepareDimensionList
-    this.selectDimension.select2("val", this.dimension);
+      }
+    });
   },
 
   process: function() {
@@ -104,14 +97,6 @@ var extObject = {
       // insert each value into constants
       outpack.add(val);
     }, this);
-  },
-
-  prepareDimensionList: function() {
-    var dims = this.ports["in"].pack.data.dimensions;
-    for (var i in dims) {
-      $("<option value='" + i + "'>" + dims[i] + "</option>")
-        .appendTo(this.selectDimension);
-    }
   }
 
 };

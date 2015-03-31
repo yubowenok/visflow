@@ -66,8 +66,6 @@ var extObject = {
 
   prepareInteraction: function() {
 
-    DataflowParallelCoordinates.base.prepareInteraction.call(this);
-
     var node = this,
         mode = "none";
     var startPos = [0, 0],
@@ -277,7 +275,7 @@ var extObject = {
       sortable: true,
       relative: true,
       value: this.dimensions,
-      list: this.prepareDimensionList(["string"]),
+      list: this.prepareDimensionList(),
       change: function(event) {
         var unitChange = event.unitChange;
         node.dimensions = unitChange.value;

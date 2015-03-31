@@ -96,6 +96,8 @@ var extObject = {
 
     // network translate (transform)
     this.translate = [0, 0];
+
+    this.forceCharge = -10000;
   },
 
   serialize: function() {
@@ -105,6 +107,7 @@ var extObject = {
     result.nodeLabel = this.nodeLabel;
     result.nodeLabelOn = this.nodeLabelOn;
     result.panOn = this.panOn;
+    result.forceCharge = this.forceCharge;
 
     return result;
   },
@@ -116,7 +119,12 @@ var extObject = {
     this.nodeLabel = save.nodeLabel;
     this.nodeLabelOn = save.nodeLabelOn;
     this.panOn = save.panOn;
+    this.forceCharge = save.forceCharge;
 
+    if (this.forceCharge == null) {
+      this.forceCharge = -10000;
+      console.error("forceCharge not saved");
+    }
     this.selectedEdges = save.selectedEdges;
     if (this.selectedEdges == null) {
       this.selectedEdges = {};
@@ -536,6 +544,22 @@ var extObject = {
         node.showVisualization();
       }
     });
+
+    this.inputBins = DataflowInput.new({
+      id: "charge",
+      label: "Charge",
+      target: this.jqoptions,
+      relative: true,
+      accept: "int",
+      range: [-200000, 0],
+      scrollDelta: 500,
+      value: this.forceCharge,
+      change: function(event) {
+        var unitChange = event.unitChange;
+        node.forceCharge = parseInt(unitChange.value);
+        node.showVisualization();
+      }
+    });
   },
 
   processNodes: function() {
@@ -715,7 +739,7 @@ var extObject = {
       .nodes(this.nodeList)
       .links(this.edgeList)
       .size([this.svgSize[0], this.svgSize[1]])
-      .charge(-10000)
+      .charge(this.forceCharge)
       .linkDistance(30)
       .gravity(0.5)
       .friction(0.25)

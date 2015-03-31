@@ -145,7 +145,8 @@ var extObject = {
         .css({
           width: "",
           height: ""
-        }); // remove constraints set in details mode
+        })
+        .resizable("disable"); // remove constraints set in details mode
       this.showIcon();
     }
 

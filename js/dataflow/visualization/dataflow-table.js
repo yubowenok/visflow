@@ -5,6 +5,7 @@ var extObject = {
 
   plotName: "Table",
   iconClass: "dataflow-table-icon dataflow-square-icon",
+  nodeShapeName: "table",
 
   contextmenuDisabled: {
     "options": true
@@ -40,6 +41,8 @@ var extObject = {
         data = pack.data,
         items = pack.items;
 
+    this.jqvis.addClass("dataflow-table");
+
     this.checkDataEmpty();
     if (this.isEmpty) {
       this.prepareSvg();
@@ -50,9 +53,6 @@ var extObject = {
       this.table.destroy(true);
       this.interactionOn = false;
     }
-
-    this.jqview.addClass("dataflow-table-view");
-    this.jqvis.addClass("dataflow-table");
 
     var rows = [],
         columns = [];
@@ -95,7 +95,7 @@ var extObject = {
         height: paddedHeight
       })
       .resizable({
-        maxWidth: jqtheadr.width(),
+        maxWidth: Math.max(jqtheadr.width(), 300),
         maxHeight: paddedHeight
       });
 

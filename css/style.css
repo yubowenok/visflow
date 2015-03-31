@@ -137,6 +137,10 @@ input[type=search] {
   width: 200px;
   padding: 5px;
 }
+.dataflow-node-shape-table {
+  width: 300px;
+  height: 300px;
+}
 
 .dataflow-options {
   left: 100%;

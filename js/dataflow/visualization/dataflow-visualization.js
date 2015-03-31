@@ -161,11 +161,12 @@ var extObject = {
 
     if (this.jqvis)
       this.jqvis.remove();
+      /*
     this.jqview
       .css("width", "")
       .css("height", "")
       .resizable("disable");
-
+    */
     this.viewWidth = this.jqview.width();
     this.viewHeight = this.jqview.height();
     // must be called AFTER viewWidth & viewHeight are set
