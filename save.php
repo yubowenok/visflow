@@ -3,9 +3,9 @@
 header('Content-type: application/json');
 
 $paraok = 1;
-if (!isset($_POST['filename']) || !isset($_POST['dataflow'])){
+if (!isset($_POST['filename']) || !isset($_POST['flow'])){
   $response['status'] = 'error';
-  $response['msg'] = 'Filename or dataflow not set.';
+  $response['msg'] = 'Filename or flow not set.';
   $paraok = 0;
 }
 
@@ -15,11 +15,11 @@ if (!file_exists('save')) {
 
 if ($paraok) {
   $filename = $_POST['filename'];
-  $dataflow = $_POST['dataflow'];
+  $flow = $_POST['flow'];
 
-  if (json_decode($dataflow) != null) {
+  if (json_decode($flow) != null) {
     $file = fopen('save/'.$filename.'.json','w');
-    $ok = fwrite($file, $dataflow);
+    $ok = fwrite($file, $flow);
     fclose($file);
     if ($ok == false) {
       $response['status'] = 'error';

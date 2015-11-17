@@ -1,0 +1,327 @@
+
+body {
+  overflow: hidden;
+}
+
+h2, h3, li, p, label {
+  font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
+}
+
+h3, input {
+  font-size: 0.8em;
+  margin: 0;
+}
+
+input[type=search] {
+  width: 100px;
+}
+
+.view-header {
+  text-align: center;
+}
+
+#main {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+}
+
+#edges {
+  position: absolute;
+}
+#dataflow-edge-drawing
+{
+  position: absolute;
+  z-index: 1000; /* over other elements */
+}
+
+#dataflow-selectbox {
+  background: #e0cfc2;
+  border: 1px solid black;
+  opacity: 0.25;
+  position: absolute;
+  z-index: 1000;
+}
+
+.dataflow-edge {
+  z-index: -1;
+}
+
+.dataflow-edge-segment {
+  position: absolute;
+  width: 100px;
+  background-color: #777;
+  height: 3px;
+  transform-origin: 1.5px 50%;  /* half height to make rotated lines appear connected*/
+}
+.dataflow-edge-segment-hover {
+  box-shadow: 0px 0px 0px 5px #e0cfc2;
+  background-color: #e0cfc2;
+  z-index: -1;
+}
+.dataflow-edge-arrow {
+  position: absolute;
+  width: 18px;
+  height: 9px;
+  background: url(/visflow/imgs/edge-arrow.png) no-repeat center;
+  transform-origin: 0px 50%;
+}
+
+.dataflow-edge-clone {
+  z-index: 1000;
+  pointer-events: none;
+}
+
+
+.dataflow-node {
+  left: 300px;
+  top: 300px;
+  position: absolute;
+  border-radius: 6px;
+}
+.dataflow-node-hover,
+.dataflow-node-selected {
+  border-width: 4px;
+  margin-left: -3px;
+  margin-top: -3px;
+}
+.dataflow-node-hover {
+  border-color: #e0cfc2;
+}
+.dataflow-node-selected {
+  border-color: #C0AFA2;
+}
+.dataflow-node-shape {
+  width: 75px;
+  height: 75px;
+}
+.dataflow-node-shape-normal {
+  width: 100px;
+  height: 100px;
+}
+.dataflow-node-shape-superflat {
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  padding: 5px;
+  text-align: center;
+}
+.dataflow-node-shape-set {
+  width: 80px;
+  height: 40px;
+  background-size: 50px 25px;
+}
+.dataflow-node-shape-longflat {
+  width: 160px;
+  height: 80px;
+  padding: 5px;
+}
+.dataflow-node-shape-vis {
+  width: 300px;
+  height: 300px;
+  border-radius: 10px;
+  padding: 3px;
+}
+.dataflow-node-shape-value-extractor {
+  width: 150px;
+  height: 60px;
+  line-height: 10px;
+  text-align: center;
+}
+.dataflow-node-shape-property-editor {
+  width: 150px;
+  padding: 5px;
+}
+.dataflow-node-shape-property-mapping {
+  width: 200px;
+  padding: 5px;
+}
+.dataflow-node-shape-table {
+  width: 300px;
+  height: 300px;
+}
+
+.dataflow-options {
+  left: 100%;
+  top: 0%;
+  position: absolute;
+  padding: 5px;
+  min-width: 100px;
+  text-align: center;
+}
+
+.dataflow-options-item {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.dataflow-options-text {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.dataflow-table {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.dataflow-table-icon,
+.dataflow-scatterplot-icon,
+.dataflow-histogram-icon,
+.dataflow-parallelcoordinates-icon,
+.dataflow-intersect-icon,
+.dataflow-heatmap-icon,
+.dataflow-minus-icon,
+.dataflow-union-icon,
+.dataflow-range-icon,
+.dataflow-contain-icon,
+.dataflow-value-maker-icon,
+.dataflow-value-extractor-icon,
+.dataflow-property-editor-icon,
+.dataflow-property-mapping-icon,
+.dataflow-datasrc-icon {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.dataflow-square-icon {
+  background-size: 75px;
+}
+.dataflow-flat-icon {
+  background-size: 70px;
+}
+
+.dataflow-datasrc-icon {
+  background-image: url(/visflow/imgs/datasrc-icon.png);
+}
+.dataflow-table-icon {
+  background-image: url(/visflow/imgs/table-icon.png);
+}
+.dataflow-scatterplot-icon {
+  background-image: url(/visflow/imgs/scatterplot-icon.png);
+}
+.dataflow-parallelcoordinates-icon {
+  background-image: url(/visflow/imgs/parallelcoordinates-icon.png);
+}
+.dataflow-histogram-icon {
+  background-image: url(/visflow/imgs/histogram-icon.png);
+}
+.dataflow-heatmap-icon {
+  background-image: url(/visflow/imgs/heatmap-icon.png);
+}
+.dataflow-intersect-icon {
+  background-image: url(/visflow/imgs/intersect-icon.png);
+}
+.dataflow-minus-icon {
+  background-image: url(/visflow/imgs/minus-icon.png);
+}
+.dataflow-union-icon {
+  background-image: url(/visflow/imgs/union-icon.png);
+}
+.dataflow-value-extractor-icon {
+  background-image: url(/visflow/imgs/value-extractor-icon.png);
+}
+.dataflow-value-maker-icon {
+  background-image: url(/visflow/imgs/value-maker-icon.png);
+}
+.dataflow-range-icon {
+  background-image: url(/visflow/imgs/range-icon.png);
+}
+.dataflow-contain-icon {
+  background-image: url(/visflow/imgs/contain-icon.png);
+}
+.dataflow-property-editor-icon {
+  background-image: url(/visflow/imgs/property-editor-icon.png);
+}
+.dataflow-property-mapping-icon {
+  background-image: url(/visflow/imgs/property-mapping-icon.png);
+}
+
+
+.dataflow-port,
+.dataflow-port-icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+}
+.dataflow-port-hover,
+.dataflow-port:hover {
+  border: 2px solid #AAA;
+  margin-left: -1px;
+  margin-top: -1px;
+}
+.dataflow-port-constants {
+  background: #e2e2e2;
+}
+.dataflow-port-in {
+  left: -22px;
+}
+.dataflow-port-out {
+  left: 100%;
+}
+.dataflow-port-icon {
+  /* allow port to show text */
+  line-height: 15px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+.dataflow-port-icon-single {
+  background: url(/visflow/imgs/port-single.png);
+}
+.dataflow-port-icon-multiple {
+  background: url(/visflow/imgs/port-multiple.png);
+}
+
+.dataflow-node-select {
+  width: 90%;
+}
+
+.dataflow-input {
+  /* same as select2 */
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  line-height: 20px;
+  background-image: linear-gradient(to top, #eee 0%, #fff 50%);
+}
+.dataflow-input-node {
+  text-align: center;
+}
+
+.dataflow-text {
+  pointer-events: none;
+}
+
+.tip-mouse {
+  position: absolute;
+  z-index: 2000;
+  background: #FFF;
+}
+
+.dataflow-input-leadtext {
+  padding-right: 1em;
+}
+
+.dataflow-node-label {
+  font-size: 11px;
+  line-height: 11px;
+  font-weight: bold;
+  position: absolute;
+  text-align: center;
+  padding: 5px;
+  left: 5px;
+  top: -23px;
+  background: #f4f0ec;
+  border-radius: 5px 5px 0px 0px;
+  border: 1px solid #e0cfc2;
+  vertical-align: text-top;
+  -webkit-user-drag: none;
+}

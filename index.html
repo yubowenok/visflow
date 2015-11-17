@@ -2,109 +2,130 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Dataflow Visualization Builder</title>
+  <title>VisFlow - Visual Analytics System Builder</title>
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 
-
-  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+  <!-- bower components -->
   <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
-
-  <!-- DataTables is using library because there was a bug in ui theme integration of the bower version-->
-  <script type="text/javascript" src="libraries/DataTables/media/js/jquery.js"></script>
-  <script type="text/javascript" src="libraries/DataTables/media/js/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="libraries/DataTables/jqueryui/dataTables.jqueryui.min.js"></script>
-  <link rel="stylesheet" href="libraries/DataTables/jqueryui/dataTables.jqueryui.css" />
-
-
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/theme.css" />
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/jquery-ui.min.css" />
-  <!-- jquery.ui modified
-   * there are hacks made to the jquery-ui.js, so don't use min.js/bower_components
-   * hacks include:
-    - set menu delay to 0
-    - replace mouseleave callback by collapseAll call
-  -->
-  <script type="text/javascript" src="libraries/jquery-ui/jquery-ui.js"></script>
-  <script type="text/javascript" src="bower_components/ui-contextmenu/jquery.ui-contextmenu.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
+  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+  <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
+  <script type="text/javascript" src="bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="bower_components/datatables/media/js/dataTables.bootstrap.min.js"></script>
   <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
 
-  <script type="text/javascript" src="libraries/Automattic-Iris/dist/iris.min.js"></script>
-  <script type="text/javascript" src="libraries/selfish/selfish.js"></script>
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css"/>
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css"/>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
+  <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
+  <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
+  <link rel="stylesheet" href="bower_components/datatables/media/css/dataTables.bootstrap.min.css"/>
 
-  <script type="text/javascript" src="bower_components/select2/select2.min.js"></script>
-  <link type="text/css" rel="stylesheet" href="bower_components/select2/select2.css" />
+  <!-- visflow src -->
 
-  <!-- dataflow css -->
-  <link type="text/css" rel="stylesheet" href="css/override.css" />
-  <link type="text/css" rel="stylesheet" href="css/style.css" />
-  <link type="text/css" rel="stylesheet" href="css/panel.css" />
-  <link type="text/css" rel="stylesheet" href="css/dataflow-visualization.css" />
-  <link type="text/css" rel="stylesheet" href="css/dataflow-unit.css" />
+  <!-- global -->
+  <script type="text/javascript" src="src/visflow.js"></script>
+  <script type="text/javascript" src="src/utils.js"></script>
 
-  <!-- dataflow js -->
-  <!-- utils -->
-  <script type="text/javascript" src="js/utils.js"></script>
-  <!-- dataflow -->
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-unit.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-checkbox.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-select.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-colorscale.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-colorpicker.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-input.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-constants.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-package.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-data.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-port.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-edge.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-node.js"></script>
-  <script type="text/javascript" src="js/dataflow/datasource/dataflow-datasource.js"></script>
-  <script type="text/javascript" src="js/dataflow/filter/dataflow-filter.js"></script>
-  <script type="text/javascript" src="js/dataflow/filter/dataflow-range.js"></script>
-  <script type="text/javascript" src="js/dataflow/filter/dataflow-contain.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-visualization.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-network.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-heatmap.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-table.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-scatterplot.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-histogram.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-parallelcoordinates.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-set.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-intersect.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-union.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-minus.js"></script>
-  <script type="text/javascript" src="js/dataflow/value/dataflow-value-maker.js"></script>
-  <script type="text/javascript" src="js/dataflow/value/dataflow-value-extractor.js"></script>
-  <script type="text/javascript" src="js/dataflow/property/dataflow-property-editor.js"></script>
-  <script type="text/javascript" src="js/dataflow/property/dataflow-property-mapping.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-manager.js"></script>
-  <!-- ui -->
-  <script type="text/javascript" src="js/ui/view.js"></script>
-  <script type="text/javascript" src="js/ui/panel.js"></script>
-  <script type="text/javascript" src="js/ui/view-manager.js"></script>
-  <script type="text/javascript" src="js/ui/interaction-manager.js"></script>
-  <!-- core -->
-  <script type="text/javascript" src="js/core.js"></script>
-  <script type="text/javascript" src="js/test.js"></script>
+  <!-- visflow -->
 
+  <!-- base components -->
+  <script type="text/javascript" src="src/constants.js"></script>
+  <script type="text/javascript" src="src/package.js"></script>
+  <script type="text/javascript" src="src/data.js"></script>
+  <script type="text/javascript" src="src/port.js"></script>
+  <script type="text/javascript" src="src/edge.js"></script>
+  <script type="text/javascript" src="src/node.js"></script>
 
+  <!-- units -->
+  <script type="text/javascript" src="src/unit/unit.js"></script>
+  <script type="text/javascript" src="src/unit/checkbox.js"></script>
+  <script type="text/javascript" src="src/unit/select.js"></script>
+  <script type="text/javascript" src="src/unit/colorscale.js"></script>
+  <script type="text/javascript" src="src/unit/colorpicker.js"></script>
+  <script type="text/javascript" src="src/unit/input.js"></script>
+  <link rel="stylesheet" href="src/unit/unit.css"/>
+
+  <!-- panel -->
+  <script type="text/javascript" src="src/panel/panel.js"></script>
+  <link rel="stylesheet" href="src/panel/panel.css"/>
+
+  <!-- data sources -->
+  <script type="text/javascript" src="src/datasource/datasource.js"></script>
+
+  <!-- filters -->
+  <script type="text/javascript" src="src/filter/filter.js"></script>
+  <script type="text/javascript" src="src/filter/range-filter.js"></script>
+  <script type="text/javascript" src="src/filter/contain-filter.js"></script>
+
+  <!-- visualizations -->
+  <script type="text/javascript" src="src/visualization/visualization.js"></script>
+  <script type="text/javascript" src="src/visualization/network.js"></script>
+  <script type="text/javascript" src="src/visualization/heatmap.js"></script>
+  <script type="text/javascript" src="src/visualization/table.js"></script>
+  <script type="text/javascript" src="src/visualization/scatterplot.js"></script>
+  <script type="text/javascript" src="src/visualization/histogram.js"></script>
+  <script type="text/javascript" src="src/visualization/parallel-coordinates.js"></script>
+  <link rel="stylesheet" href="src/visualization/visualization.css"/>
+
+  <!-- set operations -->
+  <script type="text/javascript" src="src/set/set.js"></script>
+  <script type="text/javascript" src="src/set/intersect.js"></script>
+  <script type="text/javascript" src="src/set/union.js"></script>
+  <script type="text/javascript" src="src/set/minus.js"></script>
+
+  <!-- value processors -->
+  <script type="text/javascript" src="src/value/value-maker.js"></script>
+  <script type="text/javascript" src="src/value/value-extractor.js"></script>
+
+  <!-- property processors -->
+  <script type="text/javascript" src="src/property/property-editor.js"></script>
+  <script type="text/javascript" src="src/property/property-mapping.js"></script>
+
+  <!-- system program entry -->
+  <script type="text/javascript" src="src/flow-manager.js"></script>
+  <script type="text/javascript" src="src/view-manager.js"></script>
+  <script type="text/javascript" src="src/interaction-manager.js"></script>
+  <script type="text/javascript" src="src/test.js"></script>
+  <link rel="stylesheet" href="src/css/override.css"/>
+  <link rel="stylesheet" href="src/css/style.css"/>
   <script>
     $(document).ready(function () {
-        core = Core.new();
-        test();
+      visflow.init();
     });
   </script>
 </head>
 <body>
-  <div id="dataflow" oncontextmenu="return false;">
-    <div id="dataflow-hover"></div>
-    <div id="dataflow-selectbox"></div>
-    <div id="dataflow-edge-drawing" style="visibility:hidden">
-      <div id="dataflow-edge-drawing-segment" class="dataflow-edge-segment"></div>
-      <div id="dataflow-edge-drawing-arrow" class="dataflow-edge-arrow"></div>
+  <div id="main" class="visflow container-fluid" oncontextmenu="return false;">
+    <div id="hover"></div>
+    <div id="selectbox"></div>
+    <div id="edge-drawing" style="visibility:hidden">
+      <div id="edge-drawing-segment" class="edge-segment"></div>
+      <div id="edge-drawing-arrow" class="edge-arrow"></div>
     </div>
-    <div id="dataflow-edges">
+    <div id="edges">
     </div>
   </div>
 
+  <div id="alert" class="container-fluid">
+    <div class="row">
+      <div class="alert alert-success" style="display:none">
+        <button type="button" class="close">&times;</button>
+        <div id="success">Success info displayed here</div>
+      </div>
+      <div class="alert alert-warning" style="display:none">
+        <button type="button" class="close">&times;</button>
+        <div id="warning">Warning displayed here</div>
+      </div>
+      <div class="alert alert-danger" style="display:none">
+        <button type="button" class="close">&times;</button>
+        <div id="error">Error displayed here</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

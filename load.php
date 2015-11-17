@@ -30,8 +30,8 @@ if ($_POST['type'] == 'filelist') {
   if (!is_readable($filepath))
     abort('File does not exist or is not readable.');
 
-  $dataflow = json_decode(file_get_contents($filepath));
-  $response['dataflow'] = $dataflow;
+  $flow = json_decode(file_get_contents($filepath));
+  $response['flow'] = $flow;
 }
 $response['status'] = 'success';
 echo json_encode($response);
