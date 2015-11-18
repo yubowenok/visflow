@@ -13,67 +13,127 @@ visflow.Node = function(params) {
     visflow.error('null params');
     return;
   }
+
+  /**
+   * Hash tag used to serialize the diagram.
+   * @param {string}
+   */
   this.hashtag = 'h-' + visflow.utils.randomString(8); // for serialization
 
-  this.nodeId = params.nodeId;
+  /**
+   * Node ID.
+   * @param {string}
+   */
+  this.id = params.id;
+  /**
+   * Node type.
+   * @param {string}
+   */
   this.type = params.type;
 
-  this.portHeight = 20;
-  this.portGap = 4;
-
-  // no ports by default
+  /**
+   * Input ports.
+   * @protected {!Array<!visflow.Port>}
+   */
   this.inPorts = [];
+  /**
+   * Output ports.
+   * @protected {!Array<!visflow.Port>}
+   */
   this.outPorts = [];
+  /**
+   * Ports collection. Key is port id.
+   * @protected {!Object<!visflow.Port>}
+   */
   this.ports = {};
 
-  // default not showing icon
-  this.detailsOn = true;
+  /**
+   * Node options.
+   * @protected {!Object<*>}
+   */
+  this.options = {
+    // Whether to node icon instead of node details.
+    icon: false,
+    // Whether to show node label.
+    label: true,
+    // Whether the node is visible in visMode.
+    visMode: false
+  };
 
-  // default not showing label
-  this.labelOn = false;
+  /**
+   * Node label.
+   * @protected {string}
+   */
   this.label = 'node label';
 
-  this.visModeOn = false;
-
+  /**
+   * Position offset of node options panel.
+   * @protected {null}
+   */
   this.optionsOffset = null;
 
+  /**
+   * CSS state.
+   * @protected {!Object}
+   */
   this.css = {};
+  /**
+   * CSS state in visMode.
+   * @protected {!Object}
+   */
   this.visCss = {};
 
-  this.jqview = params.jqview;
+  /**
+   * Node container.
+   * @protected {!jQuery}
+   */
+  this.container = params.container
+    .addClass('node')
+    .addClass(this.hashtag);
+  this.interaction();
 };
 
-/** @const {string} */
-visflow.Node.prototype.SHAPE_NAME = 'none';
-
+/**
+ * Shape class to set when node details are shown.
+ * @protected @const {string}
+ */
+visflow.Node.prototype.DETAILS_CLASS = 'node-shape';
 /**
  * Icon class to set when node details are hidden.
- * @const {string}
+ * @protected @const {string}
  */
 visflow.Node.prototype.ICON_CLASS = '';
 
-/** @const {!Object} */
-visflow.Node.prototype.contextMenuDisabled = {};
+/**
+ * Contextmenu entries.
+ * @protected @const {!Array<{id: string, text: string, icon: string}>}
+ */
+visflow.Node.prototype.CONTEXTMENU_ITEMS = [
+  {id: 'delete', text: 'Delete'}
+];
+
+/** @const {number} */
+visflow.Node.prototype.portHeight = 20;
+/** @const {number} */
+visflow.Node.prototype.portGap = 4;
 
 /**
  * Serializes the node to be storable JSON.
  * @return {!Object}
  */
 visflow.Node.prototype.serialize = function() {
-  this.label = this.jqview.find('.node-label').text();
+  this.label = this.container.find('.node-label').text();
   this.saveCss();
   var result = {
     nodeId: this.nodeId,
     hashtag: this.hashtag,
     type: this.type,
-    detailsOn: this.detailsOn,
     optionsOn: this.optionsOn,
     optionsOffset: this.optionsOffset,
-    labelOn: this.labelOn,
     label: this.label,
     css: this.css,
-    visModeOn: this.visModeOn,
-    visCss: this.visCss
+    visCss: this.visCss,
+    options: this.options
   };
   return result;
 };
@@ -83,29 +143,30 @@ visflow.Node.prototype.serialize = function() {
  * @param {!Object} save
  */
 visflow.Node.prototype.deserialize = function(save) {
-  this.detailsOn = save.detailsOn;
-  if (this.detailsOn == null) {
-    this.detailsOn = true;
-    visflow.error('detailsOn not saved');
-  }
   this.optionsOffset = save.optionsOffset;
   this.optionsOn = save.optionsOn;
-  this.labelOn = save.labelOn;
+
+  if (save.options == null) {
+    visflow.warning('old options data');
+    save.options = {
+      label: save.labelOn,
+      icon: !save.detailsOn,
+      visMode: save.visModeOn
+    };
+  }
+  this.options = {};
+  _(this.options).extend(save.options);
+
   this.label = save.label;
-
   this.css = save.css;
-
-  this.visModeOn = save.visModeOn;
   this.visCss = save.visCss;
   if (this.visModeOn == null){
     visflow.error('visModeOn not saved');
     this.visModeOn = false;
     this.visCss = {};
   }
-
-  if (this.labelOn == null) {
-    visflow.error('labelOn not saved');
-    this.labelOn = false;
+  if (this.options.label == null) {
+    this.options.label = true;
   }
   if (this.label == null) {
     visflow.error('label not saved');
@@ -133,21 +194,12 @@ visflow.Node.prototype.preparePorts = function() {
 };
 
 /**
- * Sets the jquery view container.
- * @param {!jQuery} jqview
- */
-visflow.Node.prototype.setJqview = function(jqview) {
-  this.jqview = jqview;
-  jqview.addClass(this.hashtag);
-};
-
-/**
  * Shows the node.
  * This removes everything created, including those from inheriting classes.
  * Inheriting classes shall not remove again.
  */
 visflow.Node.prototype.show = function() {
-  this.jqview.children()
+  this.container.children()
     .not('.ui-resizable-handle')
     .remove();
 
@@ -155,31 +207,26 @@ visflow.Node.prototype.show = function() {
     // do not show if hidden in vis mode
     return;
   }
-  this.jqview.show();
+  this.container.show();
   this.showLabel();
 
-  if (this.detailsOn) {
-    this.jqview
-      .addClass('node node-shape');
-
-    if (this.SHAPE_NAME != 'none') {
-      this.jqview
-        .removeClass('node-shape')
-        .addClass('node-shape-' + this.SHAPE_NAME);
-    }
-    this.prepareNodeInteraction();
-    this.prepareContextmenu();
-    this.showDetails();
-  } else {
-    this.jqview
-      .removeClass('node-shape-' + this.SHAPE_NAME)
-      .addClass('node-shape')
+  if (this.options.showIcon) {
+    this.container
+      .removeClass(this.DETAILS_CLASS)
+      .addClass(this.ICON_CLASS)
       .css({
         width: '',
         height: ''
       })
       .resizable('disable'); // remove constraints set in details mode
     this.showIcon();
+  } else {
+    this.container
+      .removeClass(this.ICON_CLASS)
+      .addClass(this.DETAILS_CLASS);
+
+    this.contextmenu();
+    this.showDetails();
   }
 
   if (!visflow.flow.visModeOn) {
@@ -187,7 +234,7 @@ visflow.Node.prototype.show = function() {
     this.showPorts();
     this.updatePorts(); // update edges
   }
-  this.options();
+  this.showOptions();
 };
 
 /**
@@ -196,7 +243,7 @@ visflow.Node.prototype.show = function() {
 visflow.Node.prototype.showIcon = function() {
   this.jqicon = $('<div></div>')
     .addClass(this.ICON_CLASS)
-    .appendTo(this.jqview);
+    .appendTo(this.container);
 };
 
 /**
@@ -204,13 +251,13 @@ visflow.Node.prototype.showIcon = function() {
  */
 visflow.Node.prototype.showLabel = function() {
   var node = this;
-  this.jqview.find('.node-label').remove();
-  if (this.labelOn) {
+  this.container.find('.node-label').remove();
+  if (this.options.label) {
     $('<div></div>')
       .attr('contenteditable', true)
       .addClass('node-label')
       .text(this.label)
-      .prependTo(this.jqview)
+      .prependTo(this.container)
       .mousedown(function (event) {
         $(this).attr('contenteditable', true);  // re-enable when clicked
       })
@@ -225,7 +272,7 @@ visflow.Node.prototype.showLabel = function() {
  * Shows/hides options.
  * To handle options, implement showOptions().
  */
-visflow.Node.prototype.options = function() {
+visflow.Node.prototype.showOptions = function() {
   var node = this;
   if (this.optionsOn == true) {
     if (this.jqoptions) { // already shown, clear
@@ -233,7 +280,7 @@ visflow.Node.prototype.options = function() {
     }
     this.jqoptions = $('<div></div>')
       .addClass('options')
-      .appendTo(this.jqview)
+      .appendTo(this.container)
       .draggable({
         stop: function(event) {
           var offset = $(event.target).position();  // relative position
@@ -255,7 +302,7 @@ visflow.Node.prototype.options = function() {
 /**
  * Prepares the node's interactions.
  */
-visflow.Node.prototype.prepareNodeInteraction = function() {
+visflow.Node.prototype.interaction = function() {
   if (this.nodeInteractionOn) {
     // prevent making interaction twice
     return;
@@ -264,29 +311,34 @@ visflow.Node.prototype.prepareNodeInteraction = function() {
   this.nodeInteractionOn = true;
 
   var node = this,
-      jqview = this.jqview;
+      container = this.container;
 
-  this.jqview
+  this.container
     .mouseenter(function() {
-      jqview.addClass('node-hover');
+      container.addClass('hover');
     })
     .mouseleave(function() {
-      jqview.removeClass('node-hover');
+      container.removeClass('hover');
     })
     .mousedown(function(event, ui) {
-      if (event.which === 1) // left click
-        visflow.flow.activateNode(node.nodeId);
-      else if (event.which === 3)
+      visflow.contextMenu.hide();
+      if (event.which === 1) {
+        visflow.flow.activateNode(node.id);
+      }
+      /*
+      else if (event.which === 3) {
         $('.ui-contextmenu')
           .css('z-index', 1000); // over other things
-      visflow.interactionManager.mousedownHandler({
+      }
+      */
+      visflow.interaction.mousedownHandler({
         type: 'node',
         event: event,
         node: node
       });
     })
     .mouseup(function(event, ui) {
-      visflow.interactionManager.mouseupHandler({
+      visflow.interaction.mouseupHandler({
         type: 'node',
         event: event,
         node: node
@@ -305,14 +357,14 @@ visflow.Node.prototype.prepareNodeInteraction = function() {
       cancel: 'input, .node-label',
       //containment: '#dataflow',
       start: function(event, ui) {
-        visflow.interactionManager.dragstartHandler({
+        visflow.interaction.dragstartHandler({
           type: 'node',
           event: event,
           node: node
         });
       },
       drag: function(event, ui) {
-        visflow.interactionManager.dragmoveHandler({
+        visflow.interaction.dragmoveHandler({
           type: 'node',
           event: event,
           node: node
@@ -320,7 +372,7 @@ visflow.Node.prototype.prepareNodeInteraction = function() {
         node.updateEdges();
       },
       stop: function(event, ui) {
-        visflow.interactionManager.dragstopHandler({
+        visflow.interaction.dragstopHandler({
           type: 'node',
           event: event
         });
@@ -328,30 +380,34 @@ visflow.Node.prototype.prepareNodeInteraction = function() {
    })
    .droppable({
       drop: function(event, ui) {
-        visflow.interactionManager.dropHandler({
+        visflow.interaction.dropHandler({
           type: 'node',
           event: event,
           node: node
         });
       }
    });
-
-  // remove resizable handler icon at se
-  this.jqview.find('.ui-icon-gripsmall-diagonal-se')
-    .removeClass('ui-icon ui-icon-gripsmall-diagonal-se');
-  this.jqview.resizable('disable');
+  this.container.resizable('disable');
 };
 
 /**
- * Prepares the contextMenu of the node.
+ * Prepares the contextmenu of the node.
  */
-visflow.Node.prototype.prepareContextmenu = function() {
-  var node = this,
-      jqview = this.jqview;
+visflow.Node.prototype.contextmenu = function() {
+  this.contextmenu = new visflow.ContextMenu({
+    container: this.container,
+    items: this.CONTEXTMENU_ITEMS
+  });
+
+  $(this.contextmenu)
+    .on('visflow.delete', function() {
+      console.log('delete');
+    });
 
   // right-click menu
-  this.jqview.contextmenu({
-    delegate: this.jqview,
+  /*
+  this.container.contextmenu({
+    delegate: this.container,
     addClass: 'ui-contextmenu',
     menu: [
         {title: 'Toggle Details', cmd: 'details', uiIcon: 'ui-icon-document'},
@@ -373,12 +429,13 @@ visflow.Node.prototype.prepareContextmenu = function() {
   // disable some of the entries based on child class specification
   // in this.contextmenuDisabled
   for (var entry in this.contextmenuDisabled) {
-    this.jqview.contextmenu('showEntry', entry, false);
+    this.container.contextmenu('showEntry', entry, false);
   }
+  */
 };
 
 /**
- * Handles contextMenu selection.
+ * Handles contextmenu selection.
  * @param {!jQuery.event} event
  * @param {!jQuery.ui} ui
  */
@@ -403,29 +460,31 @@ visflow.Node.prototype.contextmenuSelect = function(event, ui) {
 };
 
 /**
- * Runs before contextMenu is about to open.
+ * Runs before contextmenu is about to open.
  * @param {!jQuery.event} event
  * @param {!jQuery.ui} ui
  */
 visflow.Node.prototype.contextmenuBeforeOpen = function(event, ui) {
+  /*
   if (!this.visModeOn) {
-    this.jqview.contextmenu('setEntry', 'vismode',
+    this.container.contextmenu('setEntry', 'vismode',
       {title: 'Visualization Mode'});
   } else {
-    this.jqview.contextmenu('setEntry', 'vismode',
+    this.container.contextmenu('setEntry', 'vismode',
       {title: 'Visualization Mode', uiIcon: 'ui-icon-check'});
   }
-  if (visflow.interactionManager.contextmenuLock) {
+  */
+  if (visflow.interaction.contextmenuLock) {
     return false;
   }
-  visflow.interactionManager.contextmenuLock = true;
+  visflow.interaction.contextmenuLock = true;
 };
 
 /**
- * Closes the contextMenu of the node.
+ * Closes the contextmenu of the node.
  */
 visflow.Node.prototype.contextmenuClose = function(event, ui) {
-  visflow.interactionManager.contextmenuLock = false;
+  visflow.interaction.contextmenuLock = false;
 };
 
 /**
@@ -472,27 +531,27 @@ visflow.Node.prototype.updateEdges = function() {
  * Shows all the ports.
  */
 visflow.Node.prototype.showPorts = function() {
-  this.jqview.find('.port').remove();
+  this.container.find('.port').remove();
 
-  var width = this.jqview.width(),
-      height = this.jqview.innerHeight();
+  var width = this.container.width(),
+      height = this.container.innerHeight();
 
   var portStep = this.portHeight + this.portGap;
   var inTopBase = (height - this.inPorts.length * portStep + this.portGap) / 2;
   for (var i in this.inPorts) {
     var port = this.inPorts[i];
-    var jqview = $('<div></div>')
+    var container = $('<div></div>')
       .css('top', inTopBase + i * portStep)
-      .appendTo(this.jqview);
-    port.setJqview(jqview);
+      .appendTo(this.container);
+    port.setContainer(container);
   }
   var outTopBase = (height - this.outPorts.length * portStep + this.portGap) / 2;
   for (var i in this.outPorts) {
     var port = this.outPorts[i];
-    var jqview = $('<div></div>')
+    var container = $('<div></div>')
       .css('top', outTopBase + i * portStep)
-      .appendTo(this.jqview);
-    port.setJqview(jqview);
+      .appendTo(this.container);
+    port.setContainer(container);
   }
 };
 
@@ -500,14 +559,14 @@ visflow.Node.prototype.showPorts = function() {
  * Updates port rendering based on new node sizes.
  */
 visflow.Node.prototype.updatePorts = function() {
-  var width = this.jqview.width();
-  var height = this.jqview.innerHeight();
+  var width = this.container.width();
+  var height = this.container.innerHeight();
   var portStep = this.portHeight + this.portGap;
   var inTopBase = (height - this.inPorts.length * portStep +
       this.portGap) / 2;
   for (var i in this.inPorts) {
     var port = this.inPorts[i];
-    port.jqview.css('top', inTopBase + i * portStep);
+    port.container.css('top', inTopBase + i * portStep);
     for (var j in port.connections) {
       port.connections[j].update();
     }
@@ -516,7 +575,7 @@ visflow.Node.prototype.updatePorts = function() {
       this.portGap) / 2;
   for (var i in this.outPorts) {
     var port = this.outPorts[i];
-    port.jqview.css('top', outTopBase + i * portStep);
+    port.container.css('top', outTopBase + i * portStep);
     for (var j in port.connections) {
       port.connections[j].update();
     }
@@ -527,15 +586,15 @@ visflow.Node.prototype.updatePorts = function() {
  * Removes the port.
  */
 visflow.Node.prototype.remove = function() {
-  $(this.jqview).children().remove();
-  visflow.viewManager.removeNodeView(this.jqview);
+  $(this.container).children().remove();
+  visflow.viewManager.removeNodeView(this.container);
 };
 
 /**
  * Hides the port.
  */
 visflow.Node.prototype.hide = function() {
-  $(this.jqview).hide();
+  $(this.container).hide();
 };
 
 /**
@@ -608,10 +667,10 @@ visflow.Node.prototype.process = function() {
  */
 visflow.Node.prototype.saveCss = function() {
   var css = {
-    left: this.jqview.position().left,
-    top: this.jqview.position().top,
-    width: this.jqview.width(),
-    height: this.jqview.height()
+    left: this.container.position().left,
+    top: this.container.position().top,
+    width: this.container.width(),
+    height: this.container.height()
   };
   if (!visflow.flow.visModeOn) {
     _(this.css).extend(css);
@@ -625,9 +684,9 @@ visflow.Node.prototype.saveCss = function() {
  */
 visflow.Node.prototype.loadCss = function() {
   if (!visflow.flow.visModeOn) {
-    this.jqview.css(this.css);
+    this.container.css(this.css);
   } else {
-    this.jqview.css(this.visCss);
+    this.container.css(this.visCss);
   }
 };
 
@@ -688,7 +747,7 @@ visflow.Node.prototype.toggleOptions = function() {
     return;
   }
   this.optionsOn = !this.optionsOn;
-  this.options();
+  this.showOptions();
 };
 
 /**
@@ -698,7 +757,7 @@ visflow.Node.prototype.toggleLabel = function() {
   if (this.contextmenuDisabled['label'] != null) {
     return;
   }
-  this.labelOn = !this.labelOn;
+  this.options.label = !this.options.label;
   this.showLabel();
 };
 

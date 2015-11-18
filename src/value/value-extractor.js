@@ -66,7 +66,7 @@ visflow.ValueExtractor.prototype.showDetails = function() {
   this.selectDimension = visflow.Select.new({
     id: 'dimension',
     label: 'Extract values from',
-    target: this.jqview,
+    target: this.container,
     relative: true,
     placeholder: 'Select',
     value: this.dimension,

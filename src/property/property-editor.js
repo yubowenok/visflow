@@ -77,7 +77,7 @@ visflow.PropertyEditor.prototype.showDetails = function() {
     var input = unit[1].new({
       id: id,
       label: unit[0],
-      target: this.jqview,
+      target: this.container,
       labelWidth: 60,
       accept: unit[2],
       range: unit[3],

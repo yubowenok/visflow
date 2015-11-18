@@ -130,12 +130,12 @@ visflow.Histogram.prototype.prepareInteraction = function() {
       }
     }
     mode = 'none';
-    if (visflow.interactionManager.visualizationBlocking)
+    if (visflow.interaction.visualizationBlocking)
       event.stopPropagation();
   };
   this.jqsvg
     .mousedown(function(event) {
-      if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
+      if (visflow.interaction.ctrled) // ctrl drag mode blocks
         return;
 
       startPos = visflow.utils.getOffset(event, $(this));
@@ -145,7 +145,7 @@ visflow.Histogram.prototype.prepareInteraction = function() {
         selectbox.x1 = selectbox.x2 = startPos[0];
         selectbox.y1 = selectbox.y2 = startPos[1];
       }
-      if (visflow.interactionManager.visualizationBlocking)
+      if (visflow.interaction.visualizationBlocking)
         event.stopPropagation();
     })
     .mousemove(function(event) {
@@ -172,7 +172,7 @@ visflow.Histogram.prototype.prepareInteraction = function() {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.selectItemsInBox = function(box) {
-  if (!visflow.interactionManager.shifted) {
+  if (!visflow.interaction.shifted) {
     this.selectedBars = {}; // reset selection if shift key is not down
     this.selected = {};
   }

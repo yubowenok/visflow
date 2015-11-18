@@ -1,0 +1,12 @@
+#context-menu {
+  position: absolute;
+  z-index: 1000;
+}
+
+#context-menu .dropdown-menu > li > a {
+  cursor: pointer;
+}
+
+#context-menu .dropdown-menu > li > a > i {
+  margin-right: 10px;
+}

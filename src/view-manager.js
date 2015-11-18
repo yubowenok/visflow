@@ -8,230 +8,42 @@
 visflow.viewManager = {};
 
 visflow.viewManager.init = function() {
-  this.topZindex = 0;
-  this.menuOn = true;
+  $('#main').droppable({
+    disabled: true
+  });
 
   this.loadColorScales();
   this.colorScaleQueue = [];
 };
 
 /**
- * Shows the menu panel.
- */
-visflow.viewManager.showMenuPanel = function() {
-  var manager = this;
-  var jqview = $('<div></div>')
-    .appendTo('body');
-
-
-  this.menuPanel.show();
-};
-
-/**
- * Hides the menu panel.
- */
-visflow.viewManager.hideMenuPanel = function() {
-  this.menuOn = false;
-  this.menuPanel.jqview.hide();
-};
-
-/**
- * Toggles the menu panel.
- */
-visflow.viewManager.toggleMenuPanel = function() {
-  this.menuOn = !this.menuOn;
-  if (this.menuOn) {
-    this.menuPanel.jqview.animate({
-      opacity: 1.0,
-      top: '+=50'
-    }, 1000);
-  } else {
-    this.menuPanel.jqview.animate({
-      opacity: 0.0,
-      top: '-=50'
-    }, 1000);
-  }
-};
-
-/**
- * Closes the popup panel.
- */
-visflow.viewManager.closePopupPanel = function() {
-  if (this.popupPanel) {
-    this.popupPanel.jqview.remove();
-    this.popupPanel = null;
-  }
-};
-
-/**
- * Filters the entries in the system add-node panel.
- */
-visflow.viewManager.filterAddPanel = function(key) {
-  if (this.popupPanel == null) {
-    visflow.error('filterAddPanel found no addpanel');
-    return
-  }
-  // two children(), there is a container div
-  this.popupPanel.jqview.find('.group').not('.' + key).remove();
-  this.popupPanel.jqview.find('.addpanel-button').not('.' + key).remove();
-};
-
-/**
- * Shows the system add-node panel.
- */
-visflow.viewManager.showAddPanel = function(event, compact) {
-  this.closePopupPanel();
-  var manager = this;
-  var jqview = $('<div></div>')
-    .appendTo('body');
-
-  var buttons = [];
-  [
-    // data source
-    'datasrc',
-    // filter
-    'range',
-    'contain',
-    // rendering property
-    'property-editor',
-    'property-mapping',
-    // set
-    'intersect',
-    'minus',
-    'union',
-    // value
-    'value-extractor',
-    'value-maker',
-    // visualization
-    'table',
-    'histogram',
-    'parallel-coordinates',
-    'scatterplot',
-    'heatmap',
-    'network'
-  ].map(function(id) {
-    var callback = function(event) {
-      //console.log('dataflow');
-      var node = visflow.flow.createNode(id);
-      node.jqview.css({
-        left: event.pageX - node.jqview.width() / 2,
-        top: event.pageY - node.jqview.height() / 2,
-        opacity: 0.0,
-        zoom: 2,
-      });
-      node.jqview.animate({
-        opacity: 1.0,
-        zoom: 1,
-      }, 200, function(){
-        node.jqview.css('zoom', '');
-      });
-      manager.closePopupPanel();
-      $('.dropzone-temp').remove();
-
-      if ($('#main').hasClass('ui-droppable')) {
-        $('#main').droppable('disable');
-      }
-    };
-    buttons.push({
-      id: id,
-      click: callback,
-      dragstart: function(event) {
-        var container = $('#popupPanel').find('.panel');
-
-        // create a temporary droppable under #dataflow
-        // so that we cannot drop the button to panel
-
-        // container is under #popupPanel
-        // container has size, #popupPanel has screen position offset
-        $('<div></div>')
-          .addClass('dropzone-temp')
-          .css({
-            width: container.width(),
-            height: container.height(),
-            left: container.parent().offset().left,
-            top: container.parent().offset().top
-          })
-          .appendTo('#main')
-          .droppable({
-            accept: '.addpanel-button',
-            greedy: true, // this will prevent #dataflow be dropped at the same time
-            tolerance: 'pointer'
-          });
-        $('#main').droppable({
-          disabled: false,
-          accept: '.addpanel-button',
-          drop: callback
-        });
-      }
-    });
-  });
-  this.popupPanel = new visflow.Panel({
-    id: 'popupPanel', // required by view
-    name: 'add',
-    jqview: jqview,
-    draggable: false,
-    class: !compact ? 'addpanel' : 'addpanel-compact',
-    css: {
-      left: event.pageX + 50, // always near mouse
-      top: Math.max(20,
-        Math.min(event.pageY, $(window).height() - (compact ? 260 : 800)))
-    },
-    fadeIn: 200,
-    htmlFile: !compact ? 'add-panel.html' : 'add-panel-compact.html',
-    buttons: buttons,
-    htmlLoadComplete: function() {
-      jqview.find('.addpanel-button').tooltip({
-        tooltipClass: 'addpanel-tooltip',
-        show: {
-          delay: 1000
-        }
-      });
-    }
-  });
-  this.popupPanel.show();
-};
-
-/**
  * Creates a container view for node.
- * @param params
  */
-visflow.viewManager.createNodeView = function(params) {
-  if (params == null) {
-    params = {};
-  }
-  var jqview = $('<div></div>')
-    .appendTo('#main');
-  jqview.css(params);
-  return jqview;
+visflow.viewManager.createNodeView = function() {
+  return $('<div></div>').appendTo('#main');
 };
 
 /**
  * Creates a container view for edge.
  */
-visflow.viewManager.createEdgeView = function(params) {
-  if(params == null) {
-    params = {};
-  }
-  var jqview = $('<div></div>')
-    .appendTo('#edges');
-  jqview.css(params);
-  return jqview;
+visflow.viewManager.createEdgeView = function() {
+  return $('<div></div>').appendTo('#edges');
 };
 
 /**
  * Removes the container view of a node.
- * @param {!jQuery} jqview
+ * @param {!jQuery} container
  */
-visflow.viewManager.removeNodeView = function(jqview) {
-  $(jqview).remove();
+visflow.viewManager.removeNodeView = function(container) {
+  $(container).remove();
 };
 
 /**
  * Removes the container view of an edge.
- * @param {!jQuery} jqview
+ * @param {!jQuery} container
  */
-visflow.viewManager.removeEdgeView = function(jqview) {
-  $(jqview).remove();
+visflow.viewManager.removeEdgeView = function(container) {
+  $(container).remove();
 };
 
 /**
@@ -240,7 +52,7 @@ visflow.viewManager.removeEdgeView = function(jqview) {
 visflow.viewManager.clearFlowViews = function() {
   $('.node').remove();
   $('#edges').children().remove();
-  // after this, nodes and edges cannot reuse their jqview
+  // after this, nodes and edges cannot reuse their container
 };
 
 /**
@@ -248,25 +60,25 @@ visflow.viewManager.clearFlowViews = function() {
  * @param {!visflow.Edge} edge
  */
 visflow.viewManager.addEdgeHover = function(edge) {
-  var jqview = edge.jqview;
+  var container = edge.container;
   // make a shadow
-  jqview.children('.edge-segment').clone()
+  container.children('.edge-segment').clone()
     .appendTo('#hover')
     .addClass('edge-segment-hover edge-clone');
-  jqview.children().clone()
+  container.children().clone()
     .appendTo('#main')
     .addClass('edge-clone');
   // copy port
-  edge.sourcePort.jqview
+  edge.sourcePort.container
     .clone()
     .appendTo('#main')
     .addClass('edge-clone')
-    .css(edge.sourcePort.jqview.offset());
-  edge.targetPort.jqview
+    .css(edge.sourcePort.container.offset());
+  edge.targetPort.container
     .clone()
     .appendTo('#main')
     .addClass('edge-clone')
-    .css(edge.targetPort.jqview.offset());
+    .css(edge.targetPort.container.offset());
 };
 
 /**
@@ -284,18 +96,11 @@ visflow.viewManager.hideColorpickers = function(exception) {
 };
 
 /**
- * Brings a view container to the front.
- * @param jqview
+ * Brings a jQuery container to the front.
+ * @param {!jQuery} container
  */
-visflow.viewManager.bringFrontView = function(jqview) {
-  jqview.css('z-index', ++this.topZindex);
-};
-
-/**
- * Gets the top z-index of views.
- */
-visflow.viewManager.getTopZindex = function() {
-  return this.topZindex;
+visflow.viewManager.bringToFront = function(container) {
+  $(container).appendTo('#main');
 };
 
 /**
@@ -378,8 +183,8 @@ visflow.viewManager.tip = function(text, csspara) {
   if (csspara == null)
     // by default show at mouse cursor
     csspara = {
-      left: visflow.interactionManager.currentMouseX + 5,
-      top: visflow.interactionManager.currentMouseY + 5
+      left: visflow.interaction.currentMouseX + 5,
+      top: visflow.interaction.currentMouseY + 5
     };
 
   $('<div></div>')

@@ -21,7 +21,7 @@ visflow.Visualization = function(params) {
   ];
 
   this.optionsOn = false;
-  this.labelOn = true;
+  this.showLabel = true;
   this.label = this.plotName + ' (' + this.nodeId + ')';
 
   this.visWidth = null;
@@ -140,12 +140,12 @@ visflow.Visualization.prototype.deserialize = function(save) {
   }
 };
 
-visflow.Visualization.prototype.prepareContextmenu = function() {
-  visflow.Visualization.base.prepareContextmenu.call(this);
+visflow.Visualization.prototype.contextMenu = function() {
+  visflow.Visualization.base.contextMenu.call(this);
 
   var node = this;
   // override menu entries
-  this.jqview.contextmenu('replaceMenu',
+  this.container.contextmenu('replaceMenu',
       [
         {title: 'Toggle Visualization', cmd: 'details', uiIcon: 'ui-icon-image'},
         {title: 'Toggle Options', cmd: 'options', uiIcon: 'ui-icon-note'},
@@ -216,14 +216,14 @@ visflow.Visualization.prototype.showDetails = function() {
 
   this.jqvis = $('<div></div>')
     .addClass('visualization')
-    .appendTo(this.jqview);
+    .appendTo(this.container);
 
-  this.jqview
+  this.container
     .css('width', this.visWidth)
     .css('height', this.visHeight)
     .resizable('enable');
-  this.viewWidth = this.jqview.width();
-  this.viewHeight = this.jqview.height();
+  this.viewWidth = this.container.width();
+  this.viewHeight = this.container.height();
 
   // show selection shall be in show visualization
   // so does interaction()
@@ -237,13 +237,13 @@ visflow.Visualization.prototype.showIcon = function() {
   if (this.jqvis)
     this.jqvis.remove();
     /*
-  this.jqview
+  this.container
     .css('width', '')
     .css('height', '')
     .resizable('disable');
   */
-  this.viewWidth = this.jqview.width();
-  this.viewHeight = this.jqview.height();
+  this.viewWidth = this.container.width();
+  this.viewHeight = this.container.height();
   // must be called AFTER viewWidth & viewHeight are set
 };
 
@@ -341,7 +341,7 @@ visflow.Visualization.prototype.showMessage = function(msg) {
     .text(msg)
     .addClass('visualization-message')
     .css('line-height', this.viewHeight + 'px')
-    .prependTo(this.jqview);
+    .prependTo(this.container);
 };
 
 /**
@@ -374,7 +374,7 @@ visflow.Visualization.prototype.prepareInteraction = function() {
   var node = this;
   this.jqsvg.mousedown(function(){
     // always add this view to selection
-    if (!visflow.interactionManager.shifted)
+    if (!visflow.interaction.shifted)
       visflow.flow.clearNodeSelection();
     visflow.flow.addNodeSelection(node);
   });
@@ -404,13 +404,14 @@ visflow.Visualization.prototype.prepareInteraction = function() {
       }
     }
     mode = 'none';
-    if (visflow.interactionManager.visualizationBlocking)
+    if (visflow.interaction.visualizationBlocking) {
       event.stopPropagation();
+    }
   };
 
   this.jqsvg
     .mousedown(function(event) {
-      if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
+      if (visflow.interaction.ctrled) // ctrl drag mode blocks
         return;
 
       startPos = visflow.utils.getOffset(event, $(this));
@@ -418,8 +419,9 @@ visflow.Visualization.prototype.prepareInteraction = function() {
       if (event.which == 1) { // left click triggers selectbox
         mode = 'selectbox';
       }
-      if (visflow.interactionManager.visualizationBlocking)
+      if (visflow.interaction.visualizationBlocking) {
         event.stopPropagation();
+      }
     })
     .mousemove(function(event) {
       if (mode == 'selectbox') {

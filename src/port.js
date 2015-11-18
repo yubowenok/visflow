@@ -123,24 +123,25 @@ visflow.Port.prototype.disconnect = function(edge) {
 
 /**
  * Sets the jQuery container of the port.
- * @param {!jQuery} jqview
+ * @param {!jQuery} container
  */
-visflow.Port.prototype.setJqview = function(jqview) {
-  this.jqview = jqview;
+visflow.Port.prototype.setContainer = function(container) {
+  this.container = this.container = container;
 
-  jqview
+  this.container
     .attr('id', this.id)
     .addClass('port')
     .addClass(this.isInPort ? 'port-in' : 'port-out');
 
-  if (this.isConstants)
-    jqview.addClass('port-constants');
+  if (this.isConstants) {
+    this.container.addClass('port-constants');
+  }
 
   $('<div></div>')
     .text(this.text)
     .addClass('port-icon port-icon-'
       + (this.isSingle ? 'single' : 'multiple'))
-    .appendTo(jqview);
+    .appendTo(this.container);
 
   this.prepareInteraction();
 };
@@ -151,7 +152,7 @@ visflow.Port.prototype.setJqview = function(jqview) {
 visflow.Port.prototype.prepareInteraction = function() {
   var port = this,
       node = this.node;
-  this.jqview
+  this.container
     .dblclick(function() {
       console.log(port.pack, port.pack.count()); // for debug
     })
@@ -165,7 +166,7 @@ visflow.Port.prototype.prepareInteraction = function() {
     })
     .mousedown(function(event){
       if(event.which == 3){
-        visflow.interactionManager.contextmenuLock = true;
+        visflow.interaction.contextmenuLock = true;
         var connections = port.connections.concat();
         for(var i in connections) {
           visflow.flow.deleteEdge(connections[i]);
@@ -177,21 +178,21 @@ visflow.Port.prototype.prepareInteraction = function() {
         return $('<div></div>');
       },
       start : function(event, ui) {
-        visflow.interactionManager.dragstartHandler({
+        visflow.interaction.dragstartHandler({
           type : 'port',
           port : port,
           event : event
         });
       },
       drag : function(event, ui) {
-        visflow.interactionManager.dragmoveHandler({
+        visflow.interaction.dragmoveHandler({
           type : 'port',
           port : port,
           event : event
         });
       },
       stop : function(event, ui) {
-        visflow.interactionManager.dragstopHandler({
+        visflow.interaction.dragstopHandler({
           type : 'port',
           event : event
         });
@@ -203,7 +204,7 @@ visflow.Port.prototype.prepareInteraction = function() {
       accept : port.isInPort ? '.port-out' : '.port-in',
       greedy : true,
       drop : function(event, ui) {
-        visflow.interactionManager.dropHandler({
+        visflow.interaction.dropHandler({
           type : 'port',
           port : port,
           event : event

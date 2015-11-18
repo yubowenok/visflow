@@ -104,12 +104,12 @@ visflow.PropertyMapping.prototype.showDetails = function() {
   this.selectDimension = new visflow.Select({
     id: 'dimension',
     label: 'Dimension',
-    target: this.jqview,
+    target: this.container,
     list: this.prepareDimensionList(),
     value: this.dimension,
     labelWidth: 75,
     placeholder: 'Select',
-    containerWidth: this.jqview.width() - 75,
+    containerWidth: this.container.width() - 75,
     change: function(event) {
       //console.log('change dim');
       var unitChange = event.unitChange;
@@ -122,12 +122,12 @@ visflow.PropertyMapping.prototype.showDetails = function() {
   this.selectMapping = new visflow.Select({
     id: 'mapping',
     label: 'Mapping',
-    target: this.jqview,
+    target: this.container,
     list: this.prepareMappingList(),
     value: this.mapping,
     labelWidth: 75,
     placeholder: 'Select',
-    containerWidth: this.jqview.width() - 75,
+    containerWidth: this.container.width() - 75,
     change: function(event) {
       var unitChange = event.unitChange;
       node.mapping = unitChange.value;
@@ -148,11 +148,11 @@ visflow.PropertyMapping.prototype.showDetails = function() {
     this.selectColorScale = new visflow.ColorScale({
       id: 'scale',
       label: 'Scale',
-      target: this.jqview,
+      target: this.container,
       labelWidth: 75,
       value: this.colorScale,
       placeholder: 'No Scale',
-      containerWidth: this.jqview.width() - 75,
+      containerWidth: this.container.width() - 75,
       change: function(event) {
         //console.log('scale change');
         var unitChange = event.unitChange;
@@ -176,7 +176,7 @@ visflow.PropertyMapping.prototype.showDetails = function() {
       var input = this.inputNumberScale[id] = new visflow.Input({
         id: id,
         label: unit[1],
-        target: this.jqview,
+        target: this.container,
         value: this.inputNumberScale[id],
         labelWidth: 40,
         containerWidth: 50,

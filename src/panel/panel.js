@@ -5,57 +5,75 @@
 'use strict';
 
 /**
- * @param params
+ * @param {{
+ *   container: !jQuery,
+ *   id: string,
+ *   name: string,
+ *   class: ?string,
+ *   css: Object,
+ *   htmlFile: string,
+ *   draggable: ?boolean,
+ *   fadeIn: ?number,
+ *   fadeInCssBegin: Object,
+ *   fadeInCssEnd: Object,
+ *   htmlLoadComplete: ?function(...*): *
+ * }} params
  * @constructor
  */
 visflow.Panel = function(params) {
-  this.name = params.name;
-  this.initCss = params.css != null ? params.css : {};
-  this.htmlFile = params.htmlFile;
-  this.buttons = params.buttons != null ? params.buttons : [];
-  this.draggable = params.draggable != null ? params.draggable : true;
-
-  this.fadeIn = params.fadeIn != null ? params.fadeIn : 1000;
-  this.fadeInCssBegin = params.fadeInCssBegin != null ? params.fadeInCssBegin :
-  {
-    opacity: 0.0,
-    top: -50
-  };
-  this.fadeInCssEnd = params.fadeInCssEnd != null ? params.fadeInCssEnd :
-  {
-    opacity: 1.0,
-    top: '+=50',
-  };
-  this.class = params.class != null ? params.class : '';
-  this.htmlLoadComplete = params.htmlLoadComplete != null ?
+  /** @private {!jQuery} */
+  this.container_ = params.container;
+  /** @private {string} */
+  this.id_ = params.id;
+  /** @private {string} */
+  this.name_ = params.name;
+  /** @private {string} */
+  this.class_ = params.class != null ? params.class : '';
+  /** @private {!Object} */
+  this.initCss_ = params.css != null ? params.css : {};
+  /** @private {string} */
+  this.htmlFile_ = params.htmlFile;
+  /** @private {boolean} */
+  this.draggable_ = params.draggable != null ? params.draggable : true;
+  /** @private {!Array<!Object>} */
+  this.buttons_ = params.buttons != null ? params.buttons : [];
+  /** @private {!number} */
+  this.fadeIn_ = params.fadeIn != null ? params.fadeIn : 1000;
+  /** @private {!Object} */
+  this.fadeInCssBegin_ = params.fadeInCssBegin != null ?
+      params.fadeInCssBegin : {
+        opacity: 0.0,
+        top: -50
+      };
+  /** @private {!Object} */
+  this.fadeInCssEnd_ = params.fadeInCssEnd != null ?
+      params.fadeInCssEnd : {
+        opacity: 1.0,
+        top: '+=50'
+      };
+  /** @private {function(...*): *} */
+  this.htmlLoadComplete_ = params.htmlLoadComplete != null ?
       params.htmlLoadComplete : function(){};
 
-  this.jqview = params.jqview;
-  this.id = params.id;
-  this.name = params.name;
-
-  this.jqview.attr('id', this.id);
+  this.container_.attr('id', this.id_);
 };
 
 /**
  * Displays the panel.
  */
 visflow.Panel.prototype.show = function() {
-  var panel = this;
-
   var container = $('<div></div>')
     .bind('contextmenu', function(){
       return false;
     })
-    .addClass(this.class)
-    .appendTo(this.jqview);
+    .addClass('panel')
+    .addClass(this.class_)
+    .appendTo(this.container_);
 
   container
-    .addClass('panel')
-    .appendTo(this.jqview)
-    .load('/visflow/src/panel/' + this.htmlFile, function() {
-      panel.buttons.map(function(button) {
-        var jqbutton = panel.jqview.find('#' + button.id);
+    .load('./src/panel/' + this.htmlFile, function() {
+      this.buttons_.map(function(button) {
+        var jqbutton = this.container_.find('#' + button.id);
         if (button.dragstart != null) {
           jqbutton.draggable({
             revert: 'valid',
@@ -85,21 +103,21 @@ visflow.Panel.prototype.show = function() {
           });
         }
 
-      });
+      }.bind(this));
       // prepare html, usually tooltips
-      panel.htmlLoadComplete();
-    });
+      this.htmlLoadComplete_();
+    }.bind(this));
 
-  if (this.draggable) {
+  if (this.draggable_) {
     container.draggable();
   }
 
-  if (this.fadeIn !== false) {
-    container.css(this.fadeInCssBegin);
-    container.animate(this.fadeInCssEnd, this.fadeIn, function() {});
+  if (this.fadeIn_ !== false) {
+    container.css(this.fadeInCssBegin_);
+    container.animate(this.fadeInCssEnd_, this.fadeIn_, function() {});
   }
 
-  this.jqview
+  this.container_
     .css('position', 'absolute')
-    .css(this.initCss);
+    .css(this.initCss_);
 };

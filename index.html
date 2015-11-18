@@ -5,29 +5,34 @@
   <title>VisFlow - Visual Analytics System Builder</title>
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 
-  <!-- bower components -->
-  <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
+  <!-- npm components -->
+  <!-- jquery -->
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <!-- jquery-ui -->
   <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
-  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-  <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
-  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
-  <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
-  <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
-
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css"/>
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css"/>
+  <!-- bootstrap -->
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
+  <!-- bootstrap switch -->
+  <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
   <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
+  <!-- select2 -->
+  <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
-
+  <link rel="stylesheet" href="bower_components/select2-bootstrap-css/select2-bootstrap.min.css"/>
   <!-- datatables -->
   <script type="text/javascript" src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
   <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css"/>
   <script type="text/javascript" src="bower_components/datatables.net-select/js/dataTables.select.min.js"></script>
   <link rel="stylesheet" href="bower_components/datatables.net-select-bs/css/select.bootstrap.min.css"/>
+  <!-- others -->
+  <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
+  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
 
   <!-- visflow src -->
 
@@ -44,7 +49,10 @@
   <script type="text/javascript" src="src/port.js"></script>
   <script type="text/javascript" src="src/edge.js"></script>
   <script type="text/javascript" src="src/node.js"></script>
+  <script type="text/javascript" src="src/contextmenu/contextmenu.js"></script>
+  <link rel="stylesheet" href="src/contextmenu/contextmenu.css"/>
   <script type="text/javascript" src="src/dialog/dialog.js"></script>
+  <link rel="stylesheet" href="src/dialog/dialog.css"/>
 
   <!-- units -->
   <script type="text/javascript" src="src/unit/unit.js"></script>
@@ -58,6 +66,7 @@
   <!-- panel -->
   <script type="text/javascript" src="src/panel/panel.js"></script>
   <script type="text/javascript" src="src/panel/side-panel.js"></script>
+  <script type="text/javascript" src="src/panel/popup-panel.js"></script>
   <link rel="stylesheet" href="src/panel/panel.css"/>
 
   <!-- data sources -->
@@ -97,7 +106,7 @@
   <script type="text/javascript" src="src/diagram.js"></script>
   <script type="text/javascript" src="src/flow.js"></script>
   <script type="text/javascript" src="src/view-manager.js"></script>
-  <script type="text/javascript" src="src/interaction-manager.js"></script>
+  <script type="text/javascript" src="src/interaction.js"></script>
   <script type="text/javascript" src="src/test.js"></script>
   <link rel="stylesheet" href="src/css/override.css"/>
   <link rel="stylesheet" href="src/css/style.css"/>
@@ -188,7 +197,12 @@
     </div>
   </div>
 
-  <div id="main" oncontextmenu="return false;">
+  <div id="context-menu">
+    <ul class="dropdown-menu">
+    </ul>
+  </div>
+
+  <div id="main">
     <div id="hover"></div>
     <div id="selectbox"></div>
     <div id="edge-drawing" style="visibility:hidden">

@@ -59,13 +59,13 @@ visflow.RangeFilter.prototype.showDetails = function() {
 
   $('<div>on</div>')
     .css('padding', 5)
-    .prependTo(this.jqview);
+    .prependTo(this.container);
 
   $('<div>[ <input id="v0" style="width:40%"/> , ' +
       '<input id="v1" style="width:40%"/> ]</div>')
-    .prependTo(this.jqview);
+    .prependTo(this.container);
   [0, 1].map(function(id) {
-    this.jqvalue[id] = this.jqview.find('#v' + id);
+    this.jqvalue[id] = this.container.find('#v' + id);
     this.jqvalue[id]
       .addClass('input input-node')
       .val(this.value[id] != null ? this.value[id] : this.nullValueString)
@@ -111,7 +111,7 @@ visflow.RangeFilter.prototype.process = function() {
   if (!pack[0].compatible(pack[1])) {
     return visflow.viewManager.tip(
       'incompatible constant types passed to range filter',
-      this.jqview.offset()
+      this.container.offset()
     );
   }
 
@@ -120,7 +120,7 @@ visflow.RangeFilter.prototype.process = function() {
     this.value[0] = this.value[1] = null;
     visflow.viewManager.tip(
       'value1 > value2 in range filter',
-      this.jqview.offset()
+      this.container.offset()
     );
   }
 

@@ -54,57 +54,37 @@ visflow.DataSource.prototype.deserialize = function(save) {
 visflow.DataSource.prototype.show = function() {
   visflow.DataSource.base.show.call(this); // call parent settings
 
-  var jqview = this.jqview,
+  var container = this.container,
       node = this;
 
   if (this.detailsOn) {
-    this.jqview
+    this.container
       .css('text-align', 'center');
 
     $('<div style="padding: 10px">No data loaded</div>')
       .attr('id', 'datahint')
-      .appendTo(this.jqview);
+      .appendTo(this.container);
 
     // load data buttons
     $('<button>Load Data</button>')
       .addClass('btn btn-default btn-sm')
-      .click(function(event, ui){
-        var jqdialog = $('<div></div>');
-        jqdialog
-          .dialog({
-            title: 'Select a Dataset',
-            buttons: [
-              {
-                text: 'OK',
-                click: function() {
-                  var data = $(this).find('#data :selected').val(),
-                      dataName = $(this).find('#data :selected').text();
-
-                  node.loadData(data, dataName);
-
-                  $(this).dialog('close');
-                }
-              }
-            ]
-          });
-        // hide the close button at the header bar
-        /*
-        jqdialog
-          .dialog('widget')
-          .find('.ui-dialog-titlebar-close')
-          .hide();
-        */
-        // load data dialog content is stored in html
-        jqdialog.load('./src/datasource/loaddata-dialog.html', function() {
-          if (node.dataSelected != null) {
-            $(this).find('#data').val(node.dataSelected);
+      .click(function(){
+        visflow.dialog.create({
+          template: './src/datasource/load-data.html',
+          complete: function(dialog) {
+            var select = dialog.find('select');
+            select.select2();
+            dialog.find('#confirm').click(function() {
+              var data = select.select2('data')[0];
+              node.loadData(data.id, data.text);
+            });
           }
         });
       })
-      .appendTo(this.jqview);
+      .appendTo(this.container);
 
     if (this.dataName != null) {
-      this.jqview.find('#datahint').text(this.dataName);
+      this.container.find('#datahint').text(this.dataName);
     }
   }
 };
@@ -121,7 +101,7 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
   visflow.flow.asyncDataloadStart(this);
 
   if (dataSelected == 'none') {
-    this.jqview.find('#datahint')
+    this.container.find('#datahint')
       .text('No data loaded');
     this.dataSelected = dataSelected;
     this.dataName = null;
@@ -137,27 +117,21 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
     console.log('reused');
     node.dataSelected = dataSelected;
     node.dataName = dataName;
-    node.jqview.find('#datahint').text(dataName);
+    node.container.find('#datahint').text(dataName);
     $.extend(node.ports['out'].pack, new visflow.Package(data));
     return;
   }
   */
 
-  $.ajax({
-    type: 'GET',
-    url: 'data/' + dataSelected + '.json',
-    dataType: 'json',
-    error: function(xhr, status, err){
-      visflow.error('cannot load data\n' + status + '\n' + err);
-    },
-    success: function(result){
-      if (result == null){
+  $.get('./data/' + dataSelected + '.json')
+    .done(function(result) {
+      if (result == null) {
         visflow.error('loaded data is null');
         return;
       }
       node.dataSelected = dataSelected;
       node.dataName = dataName;
-      node.jqview.find('#datahint').text(dataName);
+      node.container.find('#datahint').text(dataName);
 
       var data = new visflow.Data(result);
 
@@ -168,6 +142,8 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
 
       // decrement async count
       visflow.flow.asyncDataloadEnd(); // push changes
-    }
-  });
+    })
+    .fail(function(){
+      visflow.error('cannot get data (connection error)');
+    });
 };

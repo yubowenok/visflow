@@ -91,7 +91,7 @@ visflow.Table.prototype.showVisualization = function() {
         scrollY: '300px',
         info: false
       });
-  visflow.utils.blendTableHeader(this.jqview);
+  visflow.utils.blendTableHeader(this.container);
 
   // get thead and tbody selection
   var jqtheadr = jqtable.find('thead');
@@ -100,7 +100,7 @@ visflow.Table.prototype.showVisualization = function() {
   var jqwrapper = this.jqvis.find('.dataTables_wrapper'),
       paddedHeight = jqwrapper.height() + 10;
 
-  this.jqview
+  this.container
     .css({
       height: paddedHeight
     })
@@ -111,7 +111,7 @@ visflow.Table.prototype.showVisualization = function() {
 
   if (this.keepSize != null) {
     // use previous size regardless of how table entries changed
-    this.jqview.css(this.keepSize);
+    this.container.css(this.keepSize);
   }
 
   this.showSelection();
@@ -125,10 +125,10 @@ visflow.Table.prototype.prepareInteraction = function() {
 
   this.jqtbody
     .mousedown(function(event){
-      if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
+      if (visflow.interaction.ctrled) // ctrl drag mode blocks
         return;
       // block events from elements below
-      if(visflow.interactionManager.visualizationBlocking)
+      if(visflow.interaction.visualizationBlocking)
         event.stopPropagation();
     });
 

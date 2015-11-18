@@ -124,13 +124,13 @@ visflow.Heatmap.prototype.prepareInteraction = function() {
       }
     }
     mode = 'none';
-    if (visflow.interactionManager.visualizationBlocking)
+    if (visflow.interaction.visualizationBlocking)
       event.stopPropagation();
   };
 
   this.jqsvg
     .mousedown(function(event) {
-      if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
+      if (visflow.interaction.ctrled) // ctrl drag mode blocks
         return;
 
       startPos = visflow.utils.getOffset(event, $(this));
@@ -138,7 +138,7 @@ visflow.Heatmap.prototype.prepareInteraction = function() {
       if (event.which == 1) { // left click triggers selectbox
         mode = 'selectbox';
       }
-      if (visflow.interactionManager.visualizationBlocking)
+      if (visflow.interaction.visualizationBlocking)
         event.stopPropagation();
     })
     .mousemove(function(event) {
@@ -164,7 +164,7 @@ visflow.Heatmap.prototype.prepareInteraction = function() {
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.selectItemsInBox = function(box) {
-  if (!visflow.interactionManager.shifted) {
+  if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down
   }
 

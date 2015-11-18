@@ -1,23 +1,21 @@
 .visflow .node {
-  left: 300px;
-  top: 300px;
   position: absolute;
-  border-radius: 6px;
-  border: 1px solid #ccc;
+  border-radius: 4px;
+  border: 1px solid #aaa;
   padding: 5px;
 }
 
-.visflow .node-hover,
-.visflow .node-selected {
+.visflow .node.hover,
+.visflow .node.selected {
   border-width: 3px;
   margin-top: -2px;
 }
 
-.visflow .node-hover {
+.visflow .node.hover {
   border-color: #bbb;
 }
 
-.visflow .node-selected {
+.visflow .node.selected {
   border-color: #777;
 }
 

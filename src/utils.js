@@ -110,10 +110,10 @@ visflow.utils.compare = function(a, b) {
 
 /**
  * Removes the bumpy jquery ui style widget header for table
- * @param {!jQuery} jqview
+ * @param {!jQuery} container
  */
-visflow.utils.blendTableHeader = function(jqview) {
-  jqview.find('.ui-widget-header')
+visflow.utils.blendTableHeader = function(container) {
+  container.find('.ui-widget-header')
     .removeClass('ui-widget-header');
 };
 

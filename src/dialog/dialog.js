@@ -36,3 +36,10 @@ visflow.dialog.create = function(params) {
     params.complete(dialog);
   });
 };
+
+/**
+ * Closes the dialog.
+ */
+visflow.dialog.close = function() {
+  $('#modal').modal('hide');
+};

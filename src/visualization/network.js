@@ -152,10 +152,10 @@ visflow.Network.prototype.deserialize = function(save) {
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.prepareContextmenu = function() {
-  visflow.Network.base.prepareContextmenu.call(this);
+visflow.Network.prototype.contextMenu = function() {
+  visflow.Network.base.contextMenu.call(this);
   // override menu entries
-  this.jqview.contextmenu('replaceMenu',
+  this.container.contextmenu('replaceMenu',
       [
         {title: 'Toggle Visualization', cmd: 'details', uiIcon: 'ui-icon-image'},
         {title: 'Toggle Options', cmd: 'options', uiIcon: 'ui-icon-note'},
@@ -182,10 +182,10 @@ visflow.Network.prototype.contextmenuSelect = function(event, ui) {
 /** @inheritDoc */
 visflow.Network.prototype.contextmenuBeforeOpen = function(event, ui) {
   if (!this.panOn) {
-    this.jqview.contextmenu('setEntry', 'pan',
+    this.container.contextmenu('setEntry', 'pan',
       {title: 'Panning'});
   } else {
-    this.jqview.contextmenu('setEntry', 'pan',
+    this.container.contextmenu('setEntry', 'pan',
       {title: 'Panning', uiIcon: 'ui-icon-check'});
   }
   visflow.Network.base.contextmenuBeforeOpen.call(this, event, ui);
@@ -196,7 +196,7 @@ visflow.Network.prototype.prepareInteraction = function() {
   var node = this;
   this.jqsvg.mousedown(function(){
     // always add this view to selection
-    if (!visflow.interactionManager.shifted)
+    if (!visflow.interaction.shifted)
       visflow.flow.clearNodeSelection();
     visflow.flow.addNodeSelection(node);
   });
@@ -227,13 +227,13 @@ visflow.Network.prototype.prepareInteraction = function() {
       // nothing, already panned
     }
     mode = 'none';
-    if (visflow.interactionManager.visualizationBlocking)
+    if (visflow.interaction.visualizationBlocking)
       event.stopPropagation();
   };
 
   this.jqsvg
     .mousedown(function(event) {
-      if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
+      if (visflow.interaction.ctrled) // ctrl drag mode blocks
         return;
 
       startPos = visflow.utils.getOffset(event, $(this));
@@ -241,7 +241,7 @@ visflow.Network.prototype.prepareInteraction = function() {
       if (event.which == 1) { // left click triggers selectbox
         mode = node.panOn ? 'pan' : 'selectbox';
       }
-      if (visflow.interactionManager.visualizationBlocking)
+      if (visflow.interaction.visualizationBlocking)
         event.stopPropagation();
     })
     .mousemove(function(event) {
@@ -279,7 +279,7 @@ visflow.Network.prototype.moveNetwork = function(dx, dy) {
  * @param box
  */
 visflow.Network.prototype.selectItemsInBox = function(box) {
-  if (!visflow.interactionManager.shifted) {
+  if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down
     this.selectedEdges = {};
   }

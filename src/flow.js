@@ -112,18 +112,17 @@ visflow.flow.createNode = function(type) {
   }
 
   _(params).extend({
-    nodeId: ++this.nodeCounter,
-    type: type
+    id: ++this.nodeCounter,
+    type: type,
+    container: visflow.viewManager.createNodeView()
   });
   newnode = new nodeConstructor(params);
-  var jqview = visflow.viewManager.createNodeView();
-  newnode.setJqview(jqview);
   newnode.show();
-  this.nodes[newnode.nodeId] = newnode;
+  this.nodes[newnode.id] = newnode;
   if (type == 'datasrc' || type == 'value-maker') {
     this.dataSources.push(newnode);
   }
-  this.activateNode(newnode.nodeId);
+  this.activateNode(newnode.id);
 
   // Select newnode (exclusive) after node creation.
   this.clearNodeSelection();
@@ -149,20 +148,20 @@ visflow.flow.createEdge = function(sourcePort, targetPort) {
   }
 
   var newedge = new visflow.Edge({
-    edgeId: ++this.edgeCounter,
+    id: ++this.edgeCounter,
     sourceNode: sourceNode,
     sourcePort: sourcePort,
     targetNode: targetNode,
     targetPort: targetPort
   });
-  var jqview = visflow.viewManager.createEdgeView();
-  newedge.setJqview(jqview);
+  var container = visflow.viewManager.createEdgeView();
+  newedge.setContainer(container);
   newedge.show();
 
   sourcePort.connect(newedge);
   targetPort.connect(newedge);
 
-  this.edges[newedge.edgeId] = newedge;
+  this.edges[newedge.id] = newedge;
   return newedge;
 };
 
@@ -179,8 +178,8 @@ visflow.flow.deleteNode = function(node) {
       this.deleteEdge(connections[i]);
     }
   }
-  node.remove();  // removes the jqview
-  delete this.nodes[node.nodeId];
+  node.remove();  // removes the container
+  delete this.nodes[node.id];
 };
 
 /**
@@ -197,19 +196,19 @@ visflow.flow.deleteEdge = function(edge) {
 
   this.propagate(edge.targetNode);  // not efficient when deleting nodes?
 
-  edge.remove();  // removes the jqview
-  delete this.edges[edge.edgeId];
+  edge.remove();  // removes the container
+  delete this.edges[edge.id];
 };
 
 /**
- * Activates the node with given Id.
- * @param {string} nodeId
+ * Activates the node with given ID.
+ * @param {string} id Node ID.
  */
-visflow.flow.activateNode = function(nodeId) {
-  if (this.nodes[nodeId].jqview == null) {
-    visflow.error('node does not have jqview');
+visflow.flow.activateNode = function(id) {
+  if (this.nodes[id].container == null) {
+    visflow.error('node does not have container');
   }
-  visflow.viewManager.bringFrontView(this.nodes[nodeId].jqview);
+  visflow.viewManager.bringToFront(this.nodes[id].container);
 };
 
 /**
@@ -219,14 +218,14 @@ visflow.flow.activateNode = function(nodeId) {
  */
 visflow.flow.cycleTest = function(sourceNode, targetNode) {
   var visited = {};
-  visited[sourceNode.nodeId] = true;
+  visited[sourceNode.id] = true;
   // traverse graph to find cycle
   var traverse = function(node) {
-    if (node.nodeId == sourceNode.nodeId)
+    if (node.id == sourceNode.id)
       return true;
-    if (visited[node.nodeId])
+    if (visited[node.id])
       return false;
-    visited[node.nodeId] = true;
+    visited[node.id] = true;
     for (var i in node.outPorts) {
       var port = node.outPorts[i];
       for (var j in port.connections) {
@@ -250,9 +249,9 @@ visflow.flow.propagate = function(node) {
   var topo = [], // visited node list, in reversed topo order
       visited = {};
   var traverse = function(node) {
-    if (visited[node.nodeId])
+    if (visited[node.id])
       return;
-    visited[node.nodeId] = true;
+    visited[node.id] = true;
     for (var i in node.outPorts) {
       var port = node.outPorts[i];
       for (var j in port.connections) {
@@ -339,7 +338,7 @@ visflow.flow.deserializeFlow = function(flow) {
 
     var newnode = this.createNode(type);
     hashes[nodeSaved.hashtag] = newnode;
-    //newnode.jqview.css(nodeSaved.css);
+    //newnode.container.css(nodeSaved.css);
 
     newnode.deserialize(nodeSaved);
     newnode.loadCss();
@@ -371,22 +370,22 @@ visflow.flow.previewVisMode = function(on) {
   if (on) {
     for (var i in this.edges) {
       var edge = this.edges[i];
-      edge.jqview.css('opacity', 0.2);
+      edge.container.css('opacity', 0.2);
     }
     for (var i in this.nodes){
       var node = this.nodes[i];
       if (!node.visModeOn) {
-        node.jqview.css('opacity', 0.2);
+        node.container.css('opacity', 0.2);
       }
     }
   } else {
     for (var i in this.edges) {
       var edge = this.edges[i];
-      edge.jqview.css('opacity', '');
+      edge.container.css('opacity', '');
     }
     for (var i in this.nodes){
       var node = this.nodes[i];
-      node.jqview.css('opacity', '');
+      node.container.css('opacity', '');
       node.show();
     }
   }
@@ -456,17 +455,17 @@ visflow.flow.addNodeSelection = function(nodes) {
   var toAdd = {};
   if (nodes instanceof Array) {
     for (var i in nodes) {
-      toAdd[nodes[i].nodeId] = nodes[i];
+      toAdd[nodes[i].id] = nodes[i];
     }
   } else if (visflow.Node.prototype.isPrototypeOf(nodes)){
-    toAdd[nodes.nodeId] = nodes;
+    toAdd[nodes.id] = nodes;
   } else {
     toAdd = nodes;
   }
   for (var i in toAdd) {
     var node = toAdd[i];
-    this.nodesSelected[node.nodeId] = node;
-    node.jqview.addClass('node-selected');
+    this.nodesSelected[node.id] = node;
+    node.container.addClass('selected');
   }
 };
 
@@ -481,15 +480,15 @@ visflow.flow.clearNodeSelection = function(nodes) {
   } else if (nodes instanceof Array) {
     for (var i in nodes) {
       var node = nodes[i];
-      toClear[node.nodeId] = node;
+      toClear[node.id] = node;
     }
   } else {
-    toClear[nodes.nodeId] = nodes;
+    toClear[nodes.id] = nodes;
   }
   for (var i in toClear) {
     var node = toClear[i];
-    node.jqview.removeClass('node-selected');
-    delete this.nodesSelected[node.nodeId];
+    node.container.removeClass('selected');
+    delete this.nodesSelected[node.id];
   }
 };
 
@@ -501,17 +500,17 @@ visflow.flow.addNodeHover = function(nodes) {
   var toAdd = {};
   if (nodes instanceof Array) {
     for (var i in nodes) {
-      toAdd[nodes[i].nodeId] = nodes[i];
+      toAdd[nodes[i].id] = nodes[i];
     }
   } else if (visflow.Node.prototype.isPrototypeOf(nodes)){
-    toAdd[nodes.nodeId] = nodes;
+    toAdd[nodes.id] = nodes;
   } else {
     toAdd = nodes;
   }
   for (var i in toAdd) {
     var node = toAdd[i];
-    node.jqview.addClass('node-hover');
-    this.nodesHovered[node.nodeId] = node;
+    node.container.addClass('hover');
+    this.nodesHovered[node.id] = node;
   }
 };
 
@@ -526,15 +525,15 @@ visflow.flow.clearNodeHover = function(nodes) {
   } else if (nodes instanceof Array) {
     for (var i in nodes) {
       var node = nodes[i];
-      toClear[node.nodeId] = node;
+      toClear[node.id] = node;
     }
   } else {
-    toClear[nodes.nodeId] = nodes;
+    toClear[nodes.id] = nodes;
   }
   for (var i in toClear) {
     var node = toClear[i];
-    node.jqview.removeClass('node-hover');
-    delete this.nodesHovered[node.nodeId];
+    node.container.removeClass('hover');
+    delete this.nodesHovered[node.id];
   }
 };
 
@@ -547,12 +546,12 @@ visflow.flow.clearNodeHover = function(nodes) {
 visflow.flow.getNodesInSelectbox = function(selectbox) {
   var result = [];
   for (var i in this.nodes) {
-    var jqview = this.nodes[i].jqview;
+    var container = this.nodes[i].container;
     var box1 = {
-      width: jqview.width(),
-      height: jqview.height(),
-      left: jqview.position().left,
-      top: jqview.position().top
+      width: container.width(),
+      height: container.height(),
+      left: container.position().left,
+      top: container.position().top
     };
     if (visflow.viewManager.intersectBox(box1, selectbox)) {
       result.push(this.nodes[i]);
@@ -578,9 +577,9 @@ visflow.flow.addHoveredToSelection = function() {
 visflow.flow.moveNodes = function(dx, dy, nodes) {
   for (var i in nodes) {
     var node = nodes[i];
-    var x = node.jqview.position().left,
-        y = node.jqview.position().top;
-    node.jqview.css({
+    var x = node.container.position().left,
+        y = node.container.position().top;
+    node.container.css({
       left: x + dx,
       top: y + dy
     });
@@ -594,7 +593,7 @@ visflow.flow.moveNodes = function(dx, dy, nodes) {
  * @return {boolean}
  */
 visflow.flow.isNodeSelected = function(node) {
-  return this.nodesSelected[node.nodeId] != null;
+  return this.nodesSelected[node.id] != null;
 };
 
 /**
@@ -604,15 +603,15 @@ visflow.flow.isNodeSelected = function(node) {
  */
 visflow.flow.keyAction = function(key, event) {
   if (key == 'ctrl+S') {
-    this.saveDiagram();
+    visflow.diagram.save();
     event.preventDefault();
   } else if (key == 'ctrl+L') {
-    this.loadDiagram();
+    visflow.diagram.load();
     event.preventDefault();
   } else {
     if (this.edgeSelected == null) { // edge and node selection are exclusive
-      for (var nodeId in this.nodesSelected) {
-        var node = this.nodesSelected[nodeId];
+      for (var id in this.nodesSelected) {
+        var node = this.nodesSelected[id];
         node.keyAction(key, event);
       }
     } else {

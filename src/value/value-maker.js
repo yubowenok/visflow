@@ -58,9 +58,9 @@ visflow.ValueMaker.prototype.showDetails = function() {
   visflow.ValueMaker.base.showDetails.call(this); // call parent settings
 
   $('<div><input id="v" style="width:80%"/></div>')
-    .prependTo(this.jqview);
+    .prependTo(this.container);
 
-  this.jqinput = this.jqview.find('input')
+  this.jqinput = this.container.find('input')
     .addClass('input input-node');
 
   var node = this;

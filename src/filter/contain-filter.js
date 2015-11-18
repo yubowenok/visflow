@@ -65,12 +65,12 @@ visflow.ContainFilter.prototype.showDetails = function() {
   var node = this;
   $('<div>contains</div>')
     .css('padding-bottom', 3)
-    .appendTo(this.jqview);
+    .appendTo(this.container);
 
   $('<div><input id="v" style="width:80%"/></div>')
-    .appendTo(this.jqview);
+    .appendTo(this.container);
 
-  this.jqvalue = this.jqview.find('#v')
+  this.jqvalue = this.container.find('#v')
     .addClass('input input-node')
     .val(this.value ? this.value : this.NULL_VALUE_STRING)
     .change(function(event) {

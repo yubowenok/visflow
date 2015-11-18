@@ -44,7 +44,7 @@ visflow.Filter.prototype.deserialize = function(save) {
 visflow.Filter.prototype.showDetails = function() {
   visflow.Filter.base.showDetails.call(this);
 
-  this.jqview
+  this.container
     .css('text-align', 'center');
 
   var node = this;
@@ -62,7 +62,7 @@ visflow.Filter.prototype.showDetails = function() {
     }
   });
   this.selectDimension.jqunit
-    .appendTo(this.jqview);
+    .appendTo(this.container);
 };
 
 /**

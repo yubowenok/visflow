@@ -17,7 +17,7 @@ visflow.init = function() {
   visflow.menu.init();
   visflow.viewManager.init();
   visflow.flow.init();
-  visflow.interactionManager.init();
+  visflow.interaction.init();
 
   $('.visflow').on('click', '.system-message > .close', function(event) {
     $(this).parent().slideUp();

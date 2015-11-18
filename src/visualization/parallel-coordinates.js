@@ -94,13 +94,13 @@ visflow.ParallelCoordinates.prototype.prepareInteraction = function() {
       }
     }
     mode = 'none';
-    if (visflow.interactionManager.visualizationBlocking)
+    if (visflow.interaction.visualizationBlocking)
       event.stopPropagation();
   };
 
   this.jqsvg
     .mousedown(function(event) {
-      if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
+      if (visflow.interaction.ctrled) // ctrl drag mode blocks
         return;
 
       startPos = visflow.utils.getOffset(event, $(this));
@@ -109,7 +109,7 @@ visflow.ParallelCoordinates.prototype.prepareInteraction = function() {
         mode = 'brush';
         brush = [];
       }
-      if (visflow.interactionManager.visualizationBlocking)
+      if (visflow.interaction.visualizationBlocking)
         event.stopPropagation();
     })
     .mousemove(function(event) {
@@ -138,7 +138,7 @@ visflow.ParallelCoordinates.prototype.prepareInteraction = function() {
  * @param {!Array<!Array<number>>} brush Brush stroke polyline.
  */
 visflow.ParallelCoordinates.prototype.selectItemsBrushed = function(brush) {
-  if (!visflow.interactionManager.shifted) {
+  if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down
   }
 
