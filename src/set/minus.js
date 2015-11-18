@@ -26,7 +26,7 @@ visflow.utils.inherit(visflow.Minus, visflow.Set);
 
 /** @inheritDoc */
 visflow.Minus.prototype.ICON_CLASS =
-  'dataflow-minus-icon dataflow-flat-icon';
+  'minus-icon flat-icon';
 
 /** @inheritDoc */
 visflow.Minus.prototype.show = function() {
@@ -50,7 +50,7 @@ visflow.Minus.prototype.process = function() {
   for (var i in inpacks) {
     var inpack = inpacks[i];
     if (!outpack.data.matchDataFormat(inpack.data))
-      return console.error('cannot make intersection of two different types of datasets');
+      return visflow.error('cannot make intersection of two different types of datasets');
 
     for (var index in inpack.items) {
       if (outpack.items[index] != null) {

@@ -9,7 +9,7 @@
  * @constructor
  */
 visflow.Network = function(params) {
-  visflow.Network.base.constructor.call(this, para);
+  visflow.Network.base.constructor.call(this, params);
 
   // network has special in/out
   this.inPorts = [
@@ -48,15 +48,16 @@ visflow.Network = function(params) {
   this.translate = [0, 0];
 
   this.forceCharge = -10000;
-
-  this.plotName = 'Network';
 };
 
 visflow.utils.inherit(visflow.Network, visflow.Visualization);
 
 /** @inheritDoc */
+visflow.Network.prototype.PLOT_NAME = 'Network';
+
+/** @inheritDoc */
 visflow.Network.prototype.ICON_CLASS =
-    'dataflow-network-icon dataflow-square-icon';
+    'network-icon square-icon';
 
 /** @inheritDoc */
 visflow.Network.prototype.defaultProperties = {
@@ -141,12 +142,12 @@ visflow.Network.prototype.deserialize = function(save) {
 
   if (this.forceCharge == null) {
     this.forceCharge = -10000;
-    console.error('forceCharge not saved');
+    visflow.error('forceCharge not saved');
   }
   this.selectedEdges = save.selectedEdges;
   if (this.selectedEdges == null) {
     this.selectedEdges = {};
-    console.error('selectedEdges not saved');
+    visflow.error('selectedEdges not saved');
   }
 };
 
@@ -196,8 +197,8 @@ visflow.Network.prototype.prepareInteraction = function() {
   this.jqsvg.mousedown(function(){
     // always add this view to selection
     if (!visflow.interactionManager.shifted)
-      visflow.flowManager.clearNodeSelection();
-    visflow.flowManager.addNodeSelection(node);
+      visflow.flow.clearNodeSelection();
+    visflow.flow.addNodeSelection(node);
   });
 
   // default select box interaction
@@ -235,7 +236,7 @@ visflow.Network.prototype.prepareInteraction = function() {
       if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
         return;
 
-      startPos = Utils.getOffset(event, $(this));
+      startPos = visflow.utils.getOffset(event, $(this));
 
       if (event.which == 1) { // left click triggers selectbox
         mode = node.panOn ? 'pan' : 'selectbox';
@@ -244,7 +245,7 @@ visflow.Network.prototype.prepareInteraction = function() {
         event.stopPropagation();
     })
     .mousemove(function(event) {
-      endPos = Utils.getOffset(event, $(this));
+      endPos = visflow.utils.getOffset(event, $(this));
       if (mode == 'selectbox') {
         selectbox.x1 = Math.min(startPos[0], endPos[0]);
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
@@ -321,10 +322,10 @@ visflow.Network.prototype.selectItemsInBox = function(box) {
  */
 visflow.Network.prototype.showSelectbox = function(box) {
   var node = this;
-  this.selectbox = this.svg.select('.df-vis-selectbox');
+  this.selectbox = this.svg.select('.vis-selectbox');
   if (this.selectbox.empty())
     this.selectbox = this.svg.append('rect')
-      .attr('class', 'df-vis-selectbox');
+      .attr('class', 'vis-selectbox');
 
   this.selectbox
     .attr('x', box.x1)
@@ -370,17 +371,17 @@ visflow.Network.prototype.showVisualization = function(preventForce) {
   this.svgg = this.svg.append('g')
     .attr('transform', 'translate(' + this.translate[0] + ',' + this.translate[1] + ')');
 
-  this.svgEdges = this.svgg.selectAll('.df-network-edge')
+  this.svgEdges = this.svgg.selectAll('.network-edge')
     .data(this.edgeList).enter().append('line')
-    .attr('class', 'df-network-edge');
+    .attr('class', 'network-edge');
 
   this.svgArrows = this.svgg.append('g')
-    .attr('class', 'df-network-arrow')
-    .selectAll('.df-network-arrow')
+    .attr('class', 'network-arrow')
+    .selectAll('.network-arrow')
     .data(this.edgeList).enter().append('line');
   this.svgArrows2 = this.svgg.append('g')
-    .attr('class', 'df-network-arrow')
-    .selectAll('.df-network-arrow')
+    .attr('class', 'network-arrow')
+    .selectAll('.network-arrow')
     .data(this.edgeList).enter().append('line');
 
   this.svgNodes = this.svgg.selectAll('.circle')
@@ -393,9 +394,9 @@ visflow.Network.prototype.showVisualization = function(preventForce) {
       nodeData = inpackNodes.data;
 
   if (this.nodeLabelOn) {
-    this.svgLabels = this.svgg.selectAll('.df-network-label')
+    this.svgLabels = this.svgg.selectAll('.network-label')
       .data(this.nodeList).enter().append('text')
-      .attr('class', 'df-network-label')
+      .attr('class', 'network-label')
       .text(function(e) {
         return node.isEmptyNodes? e.label : nodeData.values[e.dfindex][node.nodeLabel];
       });
@@ -548,7 +549,7 @@ visflow.Network.prototype.showSelection = function() {
 /** @inheritDoc */
 visflow.Network.prototype.showOptions = function() {
   var node = this;
-  this.checkboxNodeLabel = DataflowCheckbox.new({
+  this.checkboxNodeLabel = new visflow.Checkbox({
     id: 'nodelabel',
     label: 'Node Labels',
     target: this.jqoptions,
@@ -563,7 +564,7 @@ visflow.Network.prototype.showOptions = function() {
     }
   });
 
-  this.selectDimension = DataflowSelect.new({
+  this.selectDimension = new visflow.Select({
     id: 'dimension',
     label: 'Using',
     target: this.jqoptions,
@@ -578,7 +579,7 @@ visflow.Network.prototype.showOptions = function() {
     }
   });
 
-  this.inputBins = DataflowInput.new({
+  this.inputBins = new visflow.Input({
     id: 'charge',
     label: 'Charge',
     target: this.jqoptions,

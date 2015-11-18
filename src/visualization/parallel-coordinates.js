@@ -26,11 +26,12 @@ visflow.ParallelCoordinates = function(params) {
   this.axisScale = null;
   // leave some space for axes
   this.plotMargins = [ { before: 30, after: 30 }, { before: 20, after: 20 } ];
-
-  this.plotName = 'ParallelCoordinates';
 };
 
 visflow.utils.inherit(visflow.ParallelCoordinates, visflow.Visualization);
+
+/** @inheritDoc */
+visflow.ParallelCoordinates.prototype.PLOT_NAME = 'ParallelCoordinates';
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.defaultProperties = {
@@ -54,7 +55,7 @@ visflow.ParallelCoordinates.prototype.propertyTranslate = {
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.ICON_CLASS =
-    'dataflow-parallelcoordinates-icon dataflow-square-icon';
+    'parallelcoordinates-icon square-icon';
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.serialize = function() {
@@ -69,7 +70,7 @@ visflow.ParallelCoordinates.prototype.deserialize = function(save) {
 
   this.dimensions = save.dimensions;
   if (this.dimensions == null) {
-    console.error('dimensions not saved for ' + this.plotName);
+    visflow.error('dimensions not saved for ' + this.plotName);
     this.dimensions = [0, 0];
   }
 };
@@ -102,7 +103,7 @@ visflow.ParallelCoordinates.prototype.prepareInteraction = function() {
       if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
         return;
 
-      startPos = Utils.getOffset(event, $(this));
+      startPos = visflow.utils.getOffset(event, $(this));
 
       if (event.which == 1) { // left click triggers brush
         mode = 'brush';
@@ -113,7 +114,7 @@ visflow.ParallelCoordinates.prototype.prepareInteraction = function() {
     })
     .mousemove(function(event) {
       if (mode == 'brush') {
-        endPos = Utils.getOffset(event, $(this));
+        endPos = visflow.utils.getOffset(event, $(this));
         brush.push(endPos);
 
         node.showBrush(brush);
@@ -163,7 +164,8 @@ visflow.ParallelCoordinates.prototype.selectItemsBrushed = function(brush) {
     var ok = 0;
     for (var d = 0; d < this.dimensions.length - 1 && !ok; d++) {
       for (var i = 0; i < brush.length - 1; i++) {
-        if (Utils.intersect(points[d], points[d + 1], brush[i], brush[i+1])) {
+        if (visflow.utils.intersect(points[d], points[d + 1],
+            brush[i], brush[i+1])) {
           this.selected[index] = true;
           break;
         }
@@ -176,7 +178,7 @@ visflow.ParallelCoordinates.prototype.selectItemsBrushed = function(brush) {
 
 /**
  * Displays the brush stroke.
- * @param {!Array<!Array<number>> points Brush stroke polyline points.
+ * @param {!Array<!Array<number>} points Brush stroke polyline points.
  */
 visflow.ParallelCoordinates.prototype.showBrush = function(points) {
   var line = d3.svg.line()
@@ -285,7 +287,7 @@ visflow.ParallelCoordinates.prototype.showSelection = function() {
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.showOptions = function() {
-  this.selectDimensions = DataflowSelect.new({
+  this.selectDimensions = new visflow.Select({
     id: 'dimensions',
     label: 'Dimensions',
     target: this.jqoptions,
@@ -334,10 +336,10 @@ visflow.ParallelCoordinates.prototype.showAxis = function(d) {
      .attr('transform', 'translate(' + transX + ',' + transY + ')');
   }
   u.call(axis);
-  var t = u.select('.df-visualization-label');
+  var t = u.select('.vis-label');
   if (t.empty()) {
     t = u.append('text')
-      .attr('class', 'df-visualization-label')
+      .attr('class', 'vis-label')
       .attr('x', labelX)
       .attr('y', labelY);
     }

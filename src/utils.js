@@ -11,18 +11,18 @@ visflow.utils = {};
  * Gets event offset corresponding to parent element.
  * @param {!jQuery.event} event jQuery event.
  * @param {!jQuery} jqthis jQuery selection of the element in question.
- * @return {{left: number, top: number}} Offset computed.
+ * @return {!Array<number>} Offset computed.
  */
 visflow.utils.getOffset = function(event, jqthis) {
   var parentOffset = jqthis.parent().offset();
   if (parentOffset == null) {
-    VisFlow.error('parentOffset is null');
+    visflow.error('parentOffset is null');
     return null;
   }
-  return {
-    left: event.pageX - parentOffset.left,
-    top: event.pageY - parentOffset.top
-  };
+  return [
+    event.pageX - parentOffset.left,
+    event.pageY - parentOffset.top
+  ];
 };
 
 /**
@@ -77,7 +77,7 @@ visflow.utils.twosides = function(p1, p2, q1, q2) {
 visflow.utils.compare = function(a, b) {
   if (a instanceof Array) {
     if (a.length != b.length)
-      return console.error('array length not match');
+      return visflow.error('array length not match');
     for (var i = 0; i < a.length; i++) {
       if (a < b) return -1;
       else if (a > b) return 1;
@@ -97,7 +97,7 @@ visflow.utils.compare = function(a, b) {
  */
   visflow.utils.hashString = function(s) {
   if (typeof s != 'string') {
-    return console.error('x is not a string to hash');
+    return visflow.error('x is not a string to hash');
   }
   var a = 3, p = 1000000007;
   var result = 0;
@@ -165,6 +165,20 @@ visflow.utils.parseToken = function(text) {
     value: text,
     grade: 3
   };
+};
+
+/**
+ * Converts an array of strings to a set with strings as keys.
+ * The values will be set to all true.
+ * @param {!Array<string>} arr
+ * @return {!Object<boolean>}
+ */
+visflow.utils.keySet = function(arr) {
+  var obj = {};
+  arr.forEach(function(element) {
+    obj[element] = true;
+  });
+  return obj;
 };
 
 /**

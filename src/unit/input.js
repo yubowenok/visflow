@@ -27,7 +27,7 @@ visflow.Input.prototype.prepare = function() {
   var unit = this;
 
   var input = this.jqinput = $('<input type="text" value=""/>')
-    .addClass('dataflow-input dataflow-unit-input')
+    .addClass('input unit-input')
     .appendTo(this.jqcontainer);
 
   input.change(function(event) {
@@ -63,11 +63,12 @@ visflow.Input.prototype.prepare = function() {
 
 /** @inheritDoc */
 visflow.Input.prototype.setValue = function(value, event, noCallback) {
-  if (event == null)
+  if (event == null) {
     event = {};
+  }
 
-  var e = Utils.parseToken(value);
-  if (e.grade > Utils.typeToGrade[this.accept]) {
+  var e = visflow.utils.parseToken(value);
+  if (e.grade > visflow.utils.typeToGrade[this.accept]) {
     // cannot accept a greater grade element
     value = '';
   } else {
@@ -75,10 +76,12 @@ visflow.Input.prototype.setValue = function(value, event, noCallback) {
   }
 
   // fix value in range
-  if (this.range[0] != null && value < this.range[0])
+  if (this.range[0] != null && value < this.range[0]) {
     value = this.range[0];
-  if (this.range[1] != null && value > this.range[1])
+  }
+  if (this.range[1] != null && value > this.range[1]) {
     value = this.range[1];
+  }
 
   this.jqinput.val(value);
   this.value = value;

@@ -79,7 +79,7 @@ visflow.Port.prototype.connectable = function(port) {
   }
   var sourceNode = this.isInPort ? port.node : this.node;
   var targetNode = this.isInPort ? this.node : port.node;
-  if (visflow.flowManager.cycleTest(sourceNode, targetNode)) {
+  if (visflow.flow.cycleTest(sourceNode, targetNode)) {
     return 'Cannot make connection that results in cycle';
   }
   return 0; // Indicates NO error
@@ -99,7 +99,7 @@ visflow.Port.prototype.connect = function(edge) {
     }
   }
   edge.sourcePort.pack.changed = true;
-  visflow.flowManager.propagate(edge.targetNode);
+  visflow.flow.propagate(edge.targetNode);
 };
 
 /**
@@ -130,15 +130,15 @@ visflow.Port.prototype.setJqview = function(jqview) {
 
   jqview
     .attr('id', this.id)
-    .addClass('ui-widget-content dataflow-port')
-    .addClass(this.isInPort ? 'dataflow-port-in' : 'dataflow-port-out');
+    .addClass('port')
+    .addClass(this.isInPort ? 'port-in' : 'port-out');
 
   if (this.isConstants)
-    jqview.addClass('dataflow-port-constants');
+    jqview.addClass('port-constants');
 
   $('<div></div>')
     .text(this.text)
-    .addClass('dataflow-port-icon dataflow-port-icon-'
+    .addClass('port-icon port-icon-'
       + (this.isSingle ? 'single' : 'multiple'))
     .appendTo(jqview);
 
@@ -168,7 +168,7 @@ visflow.Port.prototype.prepareInteraction = function() {
         visflow.interactionManager.contextmenuLock = true;
         var connections = port.connections.concat();
         for(var i in connections) {
-          visflow.flowManager.deleteEdge(connections[i]);
+          visflow.flow.deleteEdge(connections[i]);
         }
       }
     })
@@ -198,9 +198,9 @@ visflow.Port.prototype.prepareInteraction = function() {
       }
     })
     .droppable({
-      hoverClass : 'dataflow-port-hover',
+      hoverClass : 'port-hover',
       tolerance : 'pointer',
-      accept : port.isInPort ? '.dataflow-port-out' : '.dataflow-port-in',
+      accept : port.isInPort ? '.port-out' : '.port-in',
       greedy : true,
       drop : function(event, ui) {
         visflow.interactionManager.dropHandler({

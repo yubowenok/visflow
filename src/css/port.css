@@ -1,0 +1,48 @@
+.visflow .port,
+.visflow .port-icon {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+}
+
+.visflow .port {
+  background-color: white;
+}
+
+.visflow .port-hover,
+.visflow .port:hover {
+  border: 2px solid #aaa;
+  margin-top: -1px;
+}
+
+.visflow .port-constants {
+  background: #e2e2e2;
+}
+
+.visflow .port-in {
+  left: -22px;
+}
+
+.visflow .port-out {
+  left: 100%;
+}
+
+.visflow .port-icon {
+  /* allow port to show text */
+  border: 1px solid #ccc;
+  line-height: 15px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: bold;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.visflow .port-icon-single {
+  background: url(/visflow/imgs/port-single.png);
+}
+
+.visflow .port-icon-multiple {
+  background: url(/visflow/imgs/port-multiple.png);
+}

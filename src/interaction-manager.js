@@ -86,7 +86,7 @@ visflow.interactionManager.keyReleased = function(key) {
 visflow.interactionManager.prepareInteraction = function() {
   this.trackMousemove();
 
-  this.jqselectbox = $('#dataflow-selectbox');
+  this.jqselectbox = $('#selectbox');
   this.jqselectbox.hide();
   var manager = this;
   this.jqMain
@@ -115,19 +115,19 @@ visflow.interactionManager.prepareInteraction = function() {
   $(document).keydown(function(event) {
     var code = event.keyCode, index;
     // avoid interfering with input and editable
-    if ($(event.target).is('input, .dataflow-node-label'))
+    if ($(event.target).is('input, .node-label'))
       return true;
 
     if ((index = [38, 40, 37, 39].indexOf(code)) != -1){
       // move up/down/left/right
       var shift = [[0, -1], [0, 1], [-1, 0], [1, 0]],
           delta = 50;
-      visflow.flowManager.moveNodes(shift[index][0] * delta, shift[index][1] * delta,
-        visflow.flowManager.nodes);
+      visflow.flow.moveNodes(shift[index][0] * delta, shift[index][1] * delta,
+        visflow.flow.nodes);
     }
     else if (code == 16) {
       manager.shifted = true;
-      manager.jqdataflow.css('cursor', 'crosshair');
+      manager.jqMain.css('cursor', 'crosshair');
     } else if (code == 17) {
       manager.ctrled = true;
       manager.visualizationBlocking = false;
@@ -152,7 +152,7 @@ visflow.interactionManager.prepareInteraction = function() {
         visflow.viewManager.showAddPanel(event);
       }
       else if (key == 'shift+V') {
-        visflow.flowManager.toggleVisMode();
+        visflow.flow.toggleVisMode();
       }
       else if (visflow.viewManager.getPopupPanelName() == 'add') {
         // further filtering popup entries
@@ -163,7 +163,7 @@ visflow.interactionManager.prepareInteraction = function() {
       }
       else {
         // not global interaction event, pass to dataflow
-        visflow.flowManager.keyAction(key, event);
+        visflow.flow.keyAction(key, event);
       }
     }
   });
@@ -249,7 +249,7 @@ visflow.interactionManager.mousemoveHandler = function(params) {
     if (this.mouseMode == 'pan') {
       var dx = event.pageX - this.mouselastPos[0],
           dy = event.pageY - this.mouselastPos[1];
-      visflow.flowManager.moveNodes(dx, dy, visflow.flowManager.nodes);
+      visflow.flow.moveNodes(dx, dy, visflow.flow.nodes);
     }
     else if (this.mouseMode == 'selectbox') {
       this.selectbox.x2 = event.pageX;
@@ -267,9 +267,9 @@ visflow.interactionManager.mousemoveHandler = function(params) {
       this.jqselectbox
         .css(box)
         .show();
-      var hovered = visflow.flowManager.getNodesInSelectbox(box);
-      visflow.flowManager.clearNodeHover();
-      visflow.flowManager.addNodeHover(hovered);
+      var hovered = visflow.flow.getNodesInSelectbox(box);
+      visflow.flow.clearNodeHover();
+      visflow.flow.addNodeHover(hovered);
     }
   }
   this.mouselastPos = [event.pageX, event.pageY];
@@ -302,8 +302,8 @@ visflow.interactionManager.mouseupHandler = function(params) {
       this.jqselectbox.hide();
       if (this.ctrled) {  // not panning, then selecting
         if (!this.shifted)
-          visflow.flowManager.clearNodeSelection();
-        visflow.flowManager.addHoveredToSelection();
+          visflow.flow.clearNodeSelection();
+        visflow.flow.addHoveredToSelection();
 
         // also hide colorpickers
         visflow.viewManager.hideColorpickers();
@@ -312,8 +312,8 @@ visflow.interactionManager.mouseupHandler = function(params) {
   } else if (type == 'node') {
     if (!this.mouseMoved) {
       if (!this.shifted)
-        visflow.flowManager.clearNodeSelection();
-      visflow.flowManager.addNodeSelection(params.node);
+        visflow.flow.clearNodeSelection();
+      visflow.flow.addNodeSelection(params.node);
     }
   }
 
@@ -348,12 +348,12 @@ visflow.interactionManager.dragstartHandler = function(params) {
     this.mouseMode = 'node';
     this.jqMain.css('cursor', 'move');
 
-    if (visflow.flowManager.isNodeSelected(params.node)) {
+    if (visflow.flow.isNodeSelected(params.node)) {
       // already selected, then drag all selection
     } else {
       // make a new exclusive selection
-      visflow.flowManager.clearNodeSelection();
-      visflow.flowManager.addNodeSelection(params.node);
+      visflow.flow.clearNodeSelection();
+      visflow.flow.addNodeSelection(params.node);
     }
   }
   this.draglastPos = [event.pageX, event.pageY];
@@ -375,14 +375,14 @@ visflow.interactionManager.dragmoveHandler = function(params) {
     var dx = this.dragstopPos[0] - this.dragstartPos[0],
         dy = this.dragstopPos[1] - this.dragstartPos[1];
 
-    var jqsegment = $('#dataflow-edge-drawing > .dataflow-edge-segment'),
-        jqarrow = $('#dataflow-edge-drawing > .dataflow-edge-arrow');
+    var jqsegment = $('#edge-drawing > .edge-segment'),
+        jqarrow = $('#edge-drawing > .edge-arrow');
     var hseg = 3,
         harrow = 9;
 
-    var pos = para.port.isInPort ? this.dragstopPos : this.dragstartPos,
-        rpos = !para.port.isInPort ? this.dragstopPos : this.dragstartPos;
-    if (para.port.isInPort) {
+    var pos = params.port.isInPort ? this.dragstopPos : this.dragstartPos,
+        rpos = !params.port.isInPort ? this.dragstopPos : this.dragstartPos;
+    if (params.port.isInPort) {
       dx = -dx;
       dy = -dy;
       jqsegment
@@ -411,7 +411,7 @@ visflow.interactionManager.dragmoveHandler = function(params) {
         top: rpos[1] - 20 * Math.sin(angle) - harrow / 2,
       });
 
-    $('#dataflow-edge-drawing')
+    $('#edge-drawing')
       .css('visibility', 'visible');
   }
   else if (type == 'node') {
@@ -420,7 +420,7 @@ visflow.interactionManager.dragmoveHandler = function(params) {
 
     // the dragged node is moving together (with more offset)
     // the more offset will be reset immediately by jquery draggable however
-    visflow.flowManager.moveNodes(dx, dy, visflow.flowManager.nodesSelected);  // delta & nodes
+    visflow.flow.moveNodes(dx, dy, visflow.flow.nodesSelected);  // delta & nodes
     this.draglastPos = [event.pageX, event.pageY];
   }
 };
@@ -435,7 +435,7 @@ visflow.interactionManager.dragstopHandler = function(params) {
   this.dragstopPara = params;
   this.dragstopPos = [params.event.pageX, params.event.pageY];
   if (type == 'port') {
-    $('#dataflow-edge-drawing')
+    $('#edge-drawing')
       .css('visibility', 'hidden');
   }
   else if (type == 'node'){
@@ -463,7 +463,7 @@ visflow.interactionManager.dropHandler = function(params) {
         port1 = port2;
         port2 = porttmp;
       }
-      visflow.flowManager.createEdge(port1, port2);
+      visflow.flow.createEdge(port1, port2);
     } else if (type == 'node') {
       var port1 = this.dragstartPara.port,
           port2 = params.node.firstConnectable(port1);
@@ -474,7 +474,7 @@ visflow.interactionManager.dropHandler = function(params) {
           port1 = port2;
           port2 = porttmp;
         }
-        visflow.flowManager.createEdge(port1, port2);
+        visflow.flow.createEdge(port1, port2);
       } else {
         // show error message
         visflow.viewManager.tip('No connectable port available');
@@ -492,7 +492,7 @@ visflow.interactionManager.clickHandler = function(params) {
   var type = params.type,
       event = params.event;
   if (type == 'empty') {
-    visflow.flowManager.clearNodeSelection();
+    visflow.flow.clearNodeSelection();
     visflow.viewManager.hideColorpickers();
     $('input').blur();
     this.contextmenuLock = false;
@@ -503,7 +503,7 @@ visflow.interactionManager.clickHandler = function(params) {
  * Handles ESC key press.
  */
 visflow.interactionManager.escHandler = function() {
-  visflow.flowManager.clearNodeSelection();
+  visflow.flow.clearNodeSelection();
   visflow.viewManager.hideColorpickers();
   visflow.viewManager.closePopupPanel();
 };

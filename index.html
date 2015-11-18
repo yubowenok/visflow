@@ -13,8 +13,6 @@
   <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
   <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
   <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
-  <script type="text/javascript" src="bower_components/datatables/media/js/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="bower_components/datatables/media/js/dataTables.bootstrap.min.js"></script>
   <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
 
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css"/>
@@ -23,7 +21,13 @@
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
   <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
-  <link rel="stylesheet" href="bower_components/datatables/media/css/dataTables.bootstrap.min.css"/>
+
+  <!-- datatables -->
+  <script type="text/javascript" src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+  <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css"/>
+  <script type="text/javascript" src="bower_components/datatables.net-select/js/dataTables.select.min.js"></script>
+  <link rel="stylesheet" href="bower_components/datatables.net-select-bs/css/select.bootstrap.min.css"/>
 
   <!-- visflow src -->
 
@@ -40,6 +44,7 @@
   <script type="text/javascript" src="src/port.js"></script>
   <script type="text/javascript" src="src/edge.js"></script>
   <script type="text/javascript" src="src/node.js"></script>
+  <script type="text/javascript" src="src/dialog/dialog.js"></script>
 
   <!-- units -->
   <script type="text/javascript" src="src/unit/unit.js"></script>
@@ -52,6 +57,7 @@
 
   <!-- panel -->
   <script type="text/javascript" src="src/panel/panel.js"></script>
+  <script type="text/javascript" src="src/panel/side-panel.js"></script>
   <link rel="stylesheet" href="src/panel/panel.css"/>
 
   <!-- data sources -->
@@ -87,20 +93,102 @@
   <script type="text/javascript" src="src/property/property-mapping.js"></script>
 
   <!-- system program entry -->
-  <script type="text/javascript" src="src/flow-manager.js"></script>
+  <script type="text/javascript" src="src/menu.js"></script>
+  <script type="text/javascript" src="src/diagram.js"></script>
+  <script type="text/javascript" src="src/flow.js"></script>
   <script type="text/javascript" src="src/view-manager.js"></script>
   <script type="text/javascript" src="src/interaction-manager.js"></script>
   <script type="text/javascript" src="src/test.js"></script>
   <link rel="stylesheet" href="src/css/override.css"/>
   <link rel="stylesheet" href="src/css/style.css"/>
+  <link rel="stylesheet" href="src/css/menu.css"/>
+  <link rel="stylesheet" href="src/css/node.css"/>
+  <link rel="stylesheet" href="src/css/port.css"/>
+  <link rel="stylesheet" href="src/css/icon.css"/>
   <script>
     $(document).ready(function () {
       visflow.init();
     });
   </script>
 </head>
-<body>
-  <div id="main" class="visflow container-fluid" oncontextmenu="return false;">
+<body class="visflow">
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand bold" href="#">VisFlow</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li id="diagram" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown">Diagram <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a id="new"><i class="glyphicon glyphicon-file"></i>New</a></li>
+          <li><a id="save"><i class="glyphicon glyphicon-floppy-disk"></i>Save</a></li>
+          <li><a id="load"><i class="glyphicon glyphicon-folder-open"></i>Load</a></li>
+        </ul>
+      </li>
+      <li id="edit" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown">Edit <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a id="panel"><i class="glyphicon glyphicon-list-alt"></i>Call Panel</a></li>
+          <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node</a></li>
+        </ul>
+      </li>
+      <li id="options" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a id="compact-panel"><i class="glyphicon"></i>Compact Panel</a></li>
+        </ul>
+      </li>
+      <li id="help" class="dropdown">
+        <a class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
+        <ul class="dropdown-menu">
+          <li><a id="documentation"><i class="glyphicon glyphicon-book"></i>Documentation</a></li>
+          <li><a id="about"><i class="glyphicon glyphicon-info-sign"></i>About</a></li>
+        </ul>
+      </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-right">
+      <li><a id="vis-mode"><span class="icon-vismode btn btn-default"></span></a></li>
+      <li><a id="upload">Upload Data</a></li>
+    </ul>
+  </div>
+  </nav>
+
+  <div id="side-panel" class="active">
+    <button id="btn-toggle" class="btn btn-default btn-toggle">
+      <span id="icon-button" class="glyphicon glyphicon-chevron-right"></span>
+    </button>
+    <div class="content">
+      <div class="panel"></div>
+    </div>
+  </div>
+
+  <div id="modal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      </div>
+    </div>
+  </div>
+
+  <div id="alert" class="container-fluid">
+    <div class="row">
+      <div class="system-message alert alert-success" style="display:none">
+        <button type="button" class="close">&times;</button>
+        <div id="success">Success info displayed here</div>
+      </div>
+      <div class="system-message alert alert-warning" style="display:none">
+        <button type="button" class="close">&times;</button>
+        <div id="warning">Warning displayed here</div>
+      </div>
+      <div class="system-message alert alert-danger" style="display:none">
+        <button type="button" class="close">&times;</button>
+        <div id="error">Error displayed here</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main" oncontextmenu="return false;">
     <div id="hover"></div>
     <div id="selectbox"></div>
     <div id="edge-drawing" style="visibility:hidden">
@@ -108,23 +196,6 @@
       <div id="edge-drawing-arrow" class="edge-arrow"></div>
     </div>
     <div id="edges">
-    </div>
-  </div>
-
-  <div id="alert" class="container-fluid">
-    <div class="row">
-      <div class="alert alert-success" style="display:none">
-        <button type="button" class="close">&times;</button>
-        <div id="success">Success info displayed here</div>
-      </div>
-      <div class="alert alert-warning" style="display:none">
-        <button type="button" class="close">&times;</button>
-        <div id="warning">Warning displayed here</div>
-      </div>
-      <div class="alert alert-danger" style="display:none">
-        <button type="button" class="close">&times;</button>
-        <div id="error">Error displayed here</div>
-      </div>
     </div>
   </div>
 </body>

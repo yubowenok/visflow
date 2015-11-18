@@ -59,7 +59,7 @@ visflow.Package.prototype.filter = function(indexes) {
     var index = indexes[i];
     var e = this.items[index];
     if(this.items[index] == null)
-      console.error('selected element not exists');
+      visflow.error('selected element not exists');
     newItems[index] = e;
   }
   this.items = newItems;

@@ -41,7 +41,7 @@ visflow.Edge.prototype.serialize = function() {
  */
 visflow.Edge.prototype.setJqview = function(jqview) {
   this.jqview = jqview;
-  this.jqview.addClass('dataflow-edge');
+  this.jqview.addClass('edge');
 };
 
 /**
@@ -51,13 +51,13 @@ visflow.Edge.prototype.show = function() {
   // clear before drawing
   this.jqview.children().remove();
 
-  if (visflow.flowManager.visModeOn)
+  if (visflow.flow.visModeOn)
     return; // not showing edges in vis mode
 
   this.jqview.show();
 
   this.jqarrow = $('<div></div>')
-    .addClass('dataflow-edge-arrow')
+    .addClass('edge-arrow')
     .appendTo(this.jqview);
 
   // right-click menu
@@ -70,7 +70,7 @@ visflow.Edge.prototype.show = function() {
         ],
     select: function(event, ui) {
        if (ui.cmd === 'delete') {
-        visflow.flowManager.deleteEdge(edge);
+        visflow.flow.deleteEdge(edge);
       }
     },
     beforeOpen: function(event, ui) {
@@ -92,11 +92,11 @@ visflow.Edge.prototype.show = function() {
       // prevent drag interference
       if (visflow.interactionManager.mouseMode != 'none')
         return;
-      visflow.flowManager.addEdgeSelection(edge);
+      visflow.flow.addEdgeSelection(edge);
       visflow.viewManager.addEdgeHover(edge);
     })
     .mouseleave(function(event) {
-      visflow.flowManager.clearEdgeSelection();
+      visflow.flow.clearEdgeSelection();
       visflow.viewManager.clearEdgeHover();
     });
 };
@@ -116,7 +116,7 @@ visflow.Edge.prototype.update = function() {
 
   //var length = Math.sqrt(dx * dx + dy * dy);
   //var angle = Math.atan2(dy, dx);
-  this.jqview.children().not('.dataflow-edge-arrow').remove();
+  this.jqview.children().not('.edge-arrow').remove();
 
   var hseg = 3,
       hArrow = 9,
@@ -137,7 +137,7 @@ visflow.Edge.prototype.update = function() {
     var headWidth = Math.max(0, (ex - sx) / 2 - wArrow);
     var head = $('<div></div>')
       .appendTo(this.jqview)
-      .addClass('dataflow-edge-segment')
+      .addClass('edge-segment')
       .css({
         width: headWidth + hseg / 2,
         left: sx,
@@ -153,7 +153,7 @@ visflow.Edge.prototype.update = function() {
         head.css('width', headWidth);
       $('<div></div>')
         .appendTo(this.jqview)
-        .addClass('dataflow-edge-segment')
+        .addClass('edge-segment')
         .css({
           width: Math.abs(ey - sy) + hseg / 2,
           left: sx + headWidth,
@@ -169,7 +169,7 @@ visflow.Edge.prototype.update = function() {
       // go right, up, then right
       $('<div></div>')
         .appendTo(this.jqview)
-        .addClass('dataflow-edge-segment')
+        .addClass('edge-segment')
         .css({
           width: Math.abs(ey - sy) + hseg / 2,
           left: sx + headWidth,
@@ -178,7 +178,7 @@ visflow.Edge.prototype.update = function() {
         });
       $('<div></div>')
         .appendTo(this.jqview)
-        .addClass('dataflow-edge-segment')
+        .addClass('edge-segment')
         .css({
           width: ex - sx - headWidth + hseg / 2,
           left: sx + headWidth,
@@ -216,7 +216,7 @@ visflow.Edge.prototype.update = function() {
     var headWidth = Math.abs(midy - sy);
     $('<div></div>')
       .appendTo(this.jqview)
-      .addClass('dataflow-edge-segment')
+      .addClass('edge-segment')
       .css({
         width: headWidth + hseg / 2,
         left: sx,
@@ -225,7 +225,7 @@ visflow.Edge.prototype.update = function() {
       });
     $('<div></div>')
       .appendTo(this.jqview)
-      .addClass('dataflow-edge-segment')
+      .addClass('edge-segment')
       .css({
         width: Math.abs(ex - sx) + hseg / 2,
         left: sx,
@@ -235,7 +235,7 @@ visflow.Edge.prototype.update = function() {
     var tailWidth = Math.abs(ey - midy);
     $('<div></div>')
       .appendTo(this.jqview)
-      .addClass('dataflow-edge-segment')
+      .addClass('edge-segment')
       .css({
         width: tailWidth + hseg / 2,
         left: ex,
@@ -274,7 +274,7 @@ visflow.Edge.prototype.hide = function() {
  */
 visflow.Edge.prototype.keyAction = function(key) {
   if (key == '.' || key == 'ctrl+X') {
-    visflow.flowManager.deleteEdge(this);
+    visflow.flow.deleteEdge(this);
     visflow.viewManager.clearEdgeHover();
   }
 };

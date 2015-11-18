@@ -1,38 +1,37 @@
 
-.axis text {
+.visflow .visualization .axis text {
   font-size: 10px;
   font-family: sans-serif;
 }
 
-.axis line,
-.axis path {
+.visflow .visualization .axis line,
+.visflow .visualization .axis path {
   fill: none;
   stroke: #000;
   shape-rendering: crispEdges;
 }
 
-svg {
+.visflow .visualization svg {
   background: #FFF;
   width: 100%;
   height: 100%;
   pointer-events: all;
 }
 
-.dataflow-visualization {
-  margin: 5px;
-  width: calc(100% - 10px);
-  height: calc(100% - 10px);
+.visflow .visualization {
+  width: 100%;
+  height: 100%;
 }
 
-.dataflow-visualization-message {
+.visflow .visualization-message {
   position: absolute;
-  width: 100%;
+  width: calc(100% - 10px);
   text-align: center;
   pointer-events: none;
 }
 
 
-.df-vis-selectbox {
+.visflow .vis-selectbox {
   fill: #e0cfc2;
   stroke: #555;
   stroke-width: 1px;
@@ -40,33 +39,33 @@ svg {
   pointer-events: none;
 }
 
-.df-parallelcoordinates-brush {
+.visflow .parallelcoordinates-brush {
   fill: none;
-  stroke: #FF4400;
+  stroke: #199FBD;
   stroke-width: 2px;
   stroke-linecap: round;
   shape-rendering: crispEdges;
 }
 
-.df-visualization-label {
+.visflow .vis-label {
   font-size: 11px !important;
   font-weight: bold;
   text-anchor: middle;
 }
 
-.df-row-label {
+.visflow .row-label {
   font-size: 11px;
   dominant-baseline: middle;
   text-anchor: end;
   font-family: Helvetica, sans-serif, courier;
 }
 
-.df-network-edge {
+.visflow .network-edge {
   stroke-width: 1px;
   stroke: black;
 }
 
-.df-network-label {
+.visflow .network-label {
   text-anchor: middle;
   pointer-events: none;
 }

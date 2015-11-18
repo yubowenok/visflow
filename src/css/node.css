@@ -1,0 +1,81 @@
+.visflow .node {
+  left: 300px;
+  top: 300px;
+  position: absolute;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+
+.visflow .node-hover,
+.visflow .node-selected {
+  border-width: 3px;
+  margin-top: -2px;
+}
+
+.visflow .node-hover {
+  border-color: #bbb;
+}
+
+.visflow .node-selected {
+  border-color: #777;
+}
+
+.visflow .node-shape {
+  width: 75px;
+  height: 75px;
+}
+
+.visflow .node-shape-normal {
+  width: 100px;
+  height: 100px;
+}
+
+.visflow .node-shape-superflat {
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  padding: 5px;
+  text-align: center;
+}
+
+.visflow .node-shape-set {
+  width: 80px;
+  height: 40px;
+  background-size: 50px 25px;
+}
+
+.visflow .node-shape-longflat {
+  width: 160px;
+  height: 80px;
+  padding: 5px;
+}
+
+.visflow .node-shape-vis {
+  width: 300px;
+  height: 300px;
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.visflow .node-shape-value-extractor {
+  width: 150px;
+  height: 60px;
+  line-height: 10px;
+  text-align: center;
+}
+
+.visflow .node-shape-property-editor {
+  width: 150px;
+  padding: 5px;
+}
+
+.visflow .node-shape-property-mapping {
+  width: 200px;
+  padding: 5px;
+}
+
+.visflow .node-shape-table {
+  width: 300px;
+  height: 300px;
+}

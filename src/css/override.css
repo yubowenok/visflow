@@ -11,6 +11,7 @@ body {
   margin: 0;
 }
 
+/*
 .ui-corner-all,
 .ui-tooltip,
 .ui-menu-item,
@@ -22,6 +23,7 @@ body {
   font-family: Helvetica, sans-serif, arial, Lucida Grande, Lucida Sans;
   font-size: 12px;
 }
+*/
 
 .ui-menu-item {
   left: 0px;

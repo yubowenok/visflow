@@ -32,7 +32,7 @@ visflow.utils.inherit(visflow.PropertyMapping, visflow.Node);
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.ICON_CLASS =
-    'dataflow-property-mapping-icon dataflow-square-icon';
+    'property-mapping-icon square-icon';
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.SHAPE_NAME = 'property-mapping'; // dedicate shape
 

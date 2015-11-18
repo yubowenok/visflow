@@ -20,7 +20,7 @@ visflow.Checkbox.prototype.prepare = function() {
   var unit = this;
 
   var input = this.jqinput = $('<input type="checkbox" value=""/>')
-    .addClass('dataflow-input dataflow-unit-checkbox')
+    .addClass('input unit-checkbox')
     .appendTo(this.jqunit);
 
   $(this.jqlabel)

@@ -38,15 +38,16 @@ visflow.Heatmap = function(params) {
   this.allColumns = false;
   // sort criterion
   this.sortBy = null;
-
-  this.plotName = 'Heatmap';
 };
 
 visflow.utils.inherit(visflow.Heatmap, visflow.Visualization);
 
 /** @inheritDoc */
+visflow.Heatmap.prototype.PLOT_NAME = 'Heatmap';
+
+/** @inheritDoc */
 visflow.Heatmap.prototype.ICON_CLASS =
-    'dataflow-heatmap-icon dataflow-square-icon';
+    'heatmap-icon square-icon';
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.defaultProperties = {
@@ -90,7 +91,7 @@ visflow.Heatmap.prototype.deserialize = function(save) {
   this.dimensions = save.dimensions;
   this.sortBy = save.sortBy;
   if (this.dimensions == null) {
-    console.error('dimensions not saved for ' + this.plotName);
+    visflow.error('dimensions not saved for ' + this.plotName);
     this.dimensions = [];
   }
 };
@@ -132,7 +133,7 @@ visflow.Heatmap.prototype.prepareInteraction = function() {
       if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
         return;
 
-      startPos = Utils.getOffset(event, $(this));
+      startPos = visflow.utils.getOffset(event, $(this));
 
       if (event.which == 1) { // left click triggers selectbox
         mode = 'selectbox';
@@ -142,7 +143,7 @@ visflow.Heatmap.prototype.prepareInteraction = function() {
     })
     .mousemove(function(event) {
       if (mode == 'selectbox') {
-        endPos = Utils.getOffset(event, $(this));
+        endPos = visflow.utils.getOffset(event, $(this));
         selectbox.x1 = Math.min(startPos[0], endPos[0]);
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
         selectbox.y1 = Math.min(startPos[1], endPos[1]);
@@ -189,10 +190,10 @@ visflow.Heatmap.prototype.selectItemsInBox = function(box) {
  */
 visflow.Heatmap.prototype.showSelectbox = function(box) {
   var node = this;
-  this.selectbox = this.svg.select('.df-vis-selectbox');
+  this.selectbox = this.svg.select('.vis-selectbox');
   if (this.selectbox.empty())
     this.selectbox = this.svg.append('rect')
-      .attr('class', 'df-vis-selectbox');
+      .attr('class', 'vis-selectbox');
 
   this.selectbox
     .attr('x', this.plotMargins[0].before)
@@ -344,13 +345,13 @@ visflow.Heatmap.prototype.showDimensionLabels = function(useTransition) {
   var inpack = this.ports['in'].pack,
       data = inpack.data;
   var node = this;
-  var labels = this.svg.selectAll('.df-visualization-label');
+  var labels = this.svg.selectAll('.vis-label');
   if (!useTransition)
     labels = labels.data(this.dimensions).enter().append('text');
   else
     labels = labels.interrupt().transition();
   labels
-    .attr('class', 'df-visualization-label')
+    .attr('class', 'vis-label')
     .text(function(e) {
       return data.dimensions[e];
     })
@@ -364,7 +365,7 @@ visflow.Heatmap.prototype.showDimensionLabels = function(useTransition) {
 visflow.Heatmap.prototype.showOptions = function() {
   var node = this;
 
-  this.selectDimensions = DataflowSelect.new({
+  this.selectDimensions = new visflow.Select({
     id: 'dimensions',
     label: 'Dimensions',
     target: this.jqoptions,
@@ -382,7 +383,7 @@ visflow.Heatmap.prototype.showOptions = function() {
   });
 
   // a select list of color scales
-  this.selectColorScale = DataflowColorScale.new({
+  this.selectColorScale = new visflow.ColorScale({
     id: 'scale',
     label: 'Scale',
     target: this.jqoptions,
@@ -397,7 +398,7 @@ visflow.Heatmap.prototype.showOptions = function() {
     }
   });
 
-  this.checkboxAllColumns = DataflowCheckbox.new({
+  this.checkboxAllColumns = new visflow.Checkbox({
     id: 'allColumns',
     label: 'All Columns',
     target: this.jqoptions,
@@ -411,7 +412,7 @@ visflow.Heatmap.prototype.showOptions = function() {
     }
   });
 
-  this.selectRowLabels = DataflowSelect.new({
+  this.selectRowLabels = new visflow.Checkbox({
     id: 'rowLabels',
     label: 'Row Labels',
     target: this.jqoptions,
@@ -427,7 +428,7 @@ visflow.Heatmap.prototype.showOptions = function() {
     }
   });
 
-  this.selectSortBy = DataflowSelect.new({
+  this.selectSortBy = new visflow.Select({
     id: 'sortby',
     label: 'Sort By',
     target: this.jqoptions,
@@ -451,7 +452,7 @@ visflow.Heatmap.prototype.processExtra = function() {
       items = inpack.items,
       data = inpack.data;
 
-  // get a sorted list of indexes
+  // Get a sorted list of indexes.
   this.itemIndexes = [];
   for (var index in items) {
     this.itemIndexes.push(parseInt(index)); // index is string
@@ -460,12 +461,13 @@ visflow.Heatmap.prototype.processExtra = function() {
     if (node.sortBy == null) {
       return a - b; // default sort by index
     } else {
-      return Utils.compare(data.values[a][node.sortBy], data.values[b][node.sortBy],
-        data.dimensionTypes[node.sortBy]);
+      return visflow.utils.compare(data.values[a][node.sortBy],
+          data.values[b][node.sortBy],
+          data.dimensionTypes[node.sortBy]);
     }
   });
 
-  // get dataScale
+  // Get dataScale.
   var minVal = Infinity, maxVal = -Infinity;
   if (!this.allColumns)
     this.dataScale = [];

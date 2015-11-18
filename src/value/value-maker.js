@@ -31,7 +31,7 @@ visflow.utils.inherit(visflow.ValueMaker, visflow.Node);
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.ICON_CLASS =
-    'dataflow-value-maker-icon dataflow-flat-icon';
+    'value-maker-icon flat-icon';
 /** @inheritDoc */
 visflow.ValueMaker.prototype.SHAPE_NAME = 'superflat';
 
@@ -61,7 +61,7 @@ visflow.ValueMaker.prototype.showDetails = function() {
     .prependTo(this.jqview);
 
   this.jqinput = this.jqview.find('input')
-    .addClass('dataflow-input dataflow-input-node');
+    .addClass('input input-node');
 
   var node = this;
   this.jqinput
@@ -79,11 +79,11 @@ visflow.ValueMaker.prototype.setValueString = function(str) {
   }
 
   this.valueString = str;
-  this.value = DataflowConstants.new(str);
+  this.value = new visflow.Constants(str);
   this.jqinput.val(str);
 
   $.extend(this.ports['out'].pack, this.value);
 
-  visflow.flowManager.propagate(this);
+  visflow.flow.propagate(this);
 };
 

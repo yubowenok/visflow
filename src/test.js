@@ -8,29 +8,29 @@
 visflow.test = {};
 
 visflow.test.run = function() {
-  //visflow.flowManager.downloadFlow('myDataflow');
-  //visflow.flowManager.createNode('datasrc');
-  //visflow.flowManager.createNode('value_maker');
-  //visflow.flowManager.createNode('value_maker');
-  //visflow.flowManager.createNode('range');
+  //visflow.diagram.download('myDataflow');
+  //visflow.flow.createNode('datasrc');
+  //visflow.flow.createNode('value_maker');
+  //visflow.flow.createNode('value_maker');
+  //visflow.flow.createNode('range');
 
-  //visflow.flowManager.createNode('intersect');
+  visflow.flow.createNode('intersect');
 
   /*
-   visflow.flowManager.createNode('range');
-   visflow.flowManager.createNode('value_maker');
-   visflow.flowManager.createNode('value_maker');
-   visflow.flowManager.createNode('scatterplot');
-   visflow.flowManager.createNode('parallelcoordinates');
-   visflow.flowManager.createNode('property_editor');
-   visflow.flowManager.createNode('property_mapping');
+   visflow.flow.createNode('range');
+   visflow.flow.createNode('value_maker');
+   visflow.flow.createNode('value_maker');
+   visflow.flow.createNode('scatterplot');
+   visflow.flow.createNode('parallelcoordinates');
+   visflow.flow.createNode('property_editor');
+   visflow.flow.createNode('property_mapping');
 
-   visflow.flowManager.createNode('scatterplot');
-   visflow.flowManager.createNode('histogram');
-   visflow.flowManager.createNode('parallelcoordinates');
+   visflow.flow.createNode('scatterplot');
+   visflow.flow.createNode('histogram');
+   visflow.flow.createNode('parallelcoordinates');
 
-   visflow.flowManager.createNode('union');
-   visflow.flowManager.createNode('minus');
-   visflow.flowManager.createNode('value');
+   visflow.flow.createNode('union');
+   visflow.flow.createNode('minus');
+   visflow.flow.createNode('value');
    */
 };

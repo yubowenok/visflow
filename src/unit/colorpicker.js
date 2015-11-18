@@ -24,11 +24,11 @@ visflow.ColorPicker.prototype.prepare = function() {
   var unit = this;
 
   var input = this.jqinput = $('<input type="text" value="none"/>')
-    .addClass('dataflow-input dataflow-input-color')
+    .addClass('input input-color')
     .appendTo(this.jqcontainer);
 
   var colorbox = this.jqcolorbox = $('<div></div>')
-    .addClass('dataflow-colorbox')
+    .addClass('colorbox')
     .css('background-color', 'none')
     .appendTo(this.jqunit);
 

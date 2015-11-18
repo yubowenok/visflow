@@ -22,7 +22,7 @@ visflow.utils.inherit(visflow.Table, visflow.Visualization);
 /** @inheritDoc */
 visflow.Table.prototype.SHAPE_NAME = 'table';
 /** @inheritDoc */
-visflow.Table.prototype.ICON_CLASS = 'dataflow-table-icon dataflow-square-icon';
+visflow.Table.prototype.ICON_CLASS = 'table-icon square-icon';
 /** @inheritDoc */
 visflow.Table.prototype.contextmenuDisabled = {
   options: true
@@ -51,7 +51,7 @@ visflow.Table.prototype.showVisualization = function() {
       data = pack.data,
       items = pack.items;
 
-  this.jqvis.addClass('dataflow-table');
+  this.jqvis.addClass('table');
 
   this.checkDataEmpty();
   if (this.isEmpty) {
@@ -91,7 +91,7 @@ visflow.Table.prototype.showVisualization = function() {
         scrollY: '300px',
         info: false
       });
-  Utils.blendTableHeader(this.jqview);
+  visflow.utils.blendTableHeader(this.jqview);
 
   // get thead and tbody selection
   var jqtheadr = jqtable.find('thead');

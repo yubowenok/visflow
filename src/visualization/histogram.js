@@ -9,7 +9,7 @@
  * @constructor
  */
 visflow.Histogram = function(params) {
-  visflow.Histogram.base.constructor.call(this, para);
+  visflow.Histogram.base.constructor.call(this, params);
 
   this.prepare();
 
@@ -31,17 +31,17 @@ visflow.Histogram = function(params) {
 
   this.numBins = 10; // default number of bins
 
-  this.plotName = 'Histogram';
-
   this.selectedBars = {};
 };
 
 visflow.utils.inherit(visflow.Histogram, visflow.Visualization);
 
+/** @inheritDoc */
+visflow.Histogram.prototype.PLOT_NAME = 'Histogram';
 
 /** @inheritDoc */
 visflow.Histogram.prototype.ICON_CLASS =
-    'dataflow-histogram-icon dataflow-square-icon';
+    'histogram-icon square-icon';
 
 /** @inheritDoc */
 visflow.Histogram.prototype.defaultProperties = {
@@ -69,7 +69,7 @@ visflow.Histogram.prototype.propertyTranslate = {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.serialize = function() {
-  var result = DataflowHistogram.base.serialize.call(this);
+  var result = visflow.Histogram.base.serialize.call(this);
   result.dimension = this.dimension;
   result.numBins = this.numBins;
   result.selectedBars = this.selectedBars;
@@ -81,18 +81,18 @@ visflow.Histogram.prototype.deserialize = function(save) {
   visflow.Histogram.base.deserialize.call(this, save);
   this.dimension = save.dimension;
   if (this.dimension == null) {
-    console.error('dimension not saved for histogram');
+    visflow.error('dimension not saved for histogram');
     this.dimension = 0;
   }
 
   this.selectedBars = save.selectedBars;
   if (this.selectedBars == null) {
-    console.error('selectedBins not saved for histogram');
+    visflow.error('selectedBins not saved for histogram');
     this.selectedBars = {};
   }
   this.numBins = save.numBins;
   if (this.numBins == null) {
-    console.error('numBins not saved for histogram');
+    visflow.error('numBins not saved for histogram');
     this.numBins = 10;
   }
 };
@@ -138,7 +138,7 @@ visflow.Histogram.prototype.prepareInteraction = function() {
       if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
         return;
 
-      startPos = Utils.getOffset(event, $(this));
+      startPos = visflow.utils.getOffset(event, $(this));
 
       if (event.which == 1) { // left click triggers selectbox
         mode = 'selectbox';
@@ -151,7 +151,7 @@ visflow.Histogram.prototype.prepareInteraction = function() {
     .mousemove(function(event) {
 
       if (mode == 'selectbox') {
-        endPos = Utils.getOffset(event, $(this));
+        endPos = visflow.utils.getOffset(event, $(this));
         selectbox.x1 = Math.min(startPos[0], endPos[0]);
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
         selectbox.y1 = Math.min(startPos[1], endPos[1]);
@@ -218,10 +218,10 @@ visflow.Histogram.prototype.selectItemsInBox = function(box) {
  */
 visflow.Histogram.prototype.showSelectbox = function(box) {
   var node = this;
-  this.selectbox = this.svg.select('.df-vis-selectbox');
+  this.selectbox = this.svg.select('.vis-selectbox');
   if (this.selectbox.empty())
     this.selectbox = this.svg.append('rect')
-      .attr('class', 'df-vis-selectbox');
+      .attr('class', 'vis-selectbox');
 
   this.selectbox
     .attr('x', box.x1)
@@ -333,10 +333,10 @@ visflow.Histogram.prototype.groupHistogramBins = function() {
         sb = sb.concat(pb);
     }, this);
     if (a.hash == null)
-      a.hash = sa; //Utils.hashString(sa);
+      a.hash = sa; //visflow.utils.hashString(sa);
     if (b.hash == null)
-      b.hash = sb; //Utils.hashString(sb);
-    return Utils.compare(a.hash, b.hash);
+      b.hash = sb; //visflow.utils.hashString(sb);
+    return visflow.utils.compare(a.hash, b.hash);
   };
 
   for (var i = 0; i < data.length; i++) {
@@ -357,7 +357,7 @@ visflow.Histogram.prototype.groupHistogramBins = function() {
     for (var j = 0; j < bin.length; j++) {
       var k = j;
       var members = [];
-      while(k < bin.length && Utils.compare(bin[k].hash, bin[j].hash) == 0) {
+      while(k < bin.length && visflow.utils.compare(bin[k].hash, bin[j].hash) == 0) {
         members.push(bin[k].index);
         k++;  // same group
       }
@@ -502,7 +502,7 @@ visflow.Histogram.prototype.showSelection = function() {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.showOptions = function() {
-  this.selectDimension = DataflowSelect.new({
+  this.selectDimension = new visflow.Select({
     id: 'dimension',
     label: 'Dimension',
     target: this.jqoptions,
@@ -517,7 +517,7 @@ visflow.Histogram.prototype.showOptions = function() {
     }.bind(this)
   });
 
-  this.inputBins = DataflowInput.new({
+  this.inputBins = new visflow.Input({
     id: 'bins',
     label: 'Bins',
     target: this.jqoptions,
@@ -572,10 +572,10 @@ visflow.Histogram.prototype.showAxis = function(d) {
      .attr('transform', 'translate(' + transX + ',' + transY + ')');
   }
   u.call(axis);
-  var t = u.select('.df-visualization-label');
+  var t = u.select('.vis-label');
   if (t.empty()) {
     t = u.append('text')
-      .attr('class', 'df-visualization-label')
+      .attr('class', 'vis-label')
       .style('text-anchor', !d ? 'middle' : '')
       .attr('transform', !d ? '' : 'rotate(90)')
       .attr('x', labelX)

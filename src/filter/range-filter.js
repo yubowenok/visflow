@@ -31,7 +31,7 @@ visflow.utils.inherit(visflow.RangeFilter, visflow.Filter);
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.ICON_CLASS =
-    'dataflow-range-icon dataflow-square-icon';
+    'range-icon square-icon';
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.serialize = function() {
@@ -45,7 +45,7 @@ visflow.RangeFilter.prototype.deserialize = function(save) {
   visflow.RangeFilter.base.deserialize.call(this, save);
   this.embedValue = save.embedValue;
   if (this.embedValue == null) {
-    console.error('embedValue not saved');
+    visflow.error('embedValue not saved');
     this.embedValue = [];
   }
 };
@@ -67,7 +67,7 @@ visflow.RangeFilter.prototype.showDetails = function() {
   [0, 1].map(function(id) {
     this.jqvalue[id] = this.jqview.find('#v' + id);
     this.jqvalue[id]
-      .addClass('dataflow-input dataflow-input-node')
+      .addClass('input input-node')
       .val(this.value[id] != null ? this.value[id] : this.nullValueString)
       .change(function(event) {
         var value = event.target.value;

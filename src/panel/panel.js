@@ -51,7 +51,7 @@ visflow.Panel.prototype.show = function() {
     .appendTo(this.jqview);
 
   container
-    .addClass('panel ui-widget ui-widget-content')
+    .addClass('panel')
     .appendTo(this.jqview)
     .load('/visflow/src/panel/' + this.htmlFile, function() {
       panel.buttons.map(function(button) {

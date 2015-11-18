@@ -37,7 +37,7 @@ visflow.ColorScale.prototype.prepare = function() {
   }
 
   input
-    .addClass('dataflow-unit-select')
+    .addClass('unit-select')
     .appendTo(this.jqcontainer)
     .select2(select2options)
     .change(function(event){

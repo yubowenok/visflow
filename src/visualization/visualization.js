@@ -39,6 +39,11 @@ visflow.Visualization = function(params) {
 
 visflow.utils.inherit(visflow.Visualization, visflow.Node);
 
+/**
+ * Plot name used for debugging and hint message.
+ * @const {string}
+ */
+visflow.Visualization.prototype.PLOT_NAME = '';
 /** @const {string} */
 visflow.Visualization.prototype.SHAPE_NAME = 'vis';
 /** @const {!Object} */
@@ -124,13 +129,13 @@ visflow.Visualization.prototype.deserialize = function(save) {
 
   this.selected = save.selected;
   if (this.selected instanceof Array || this.selected == null) {
-    console.error('incorrect selection saved: array/null');
+    visflow.error('incorrect selection saved: array/null');
     this.selected = {};
   }
 
   this.lastDataId = save.lastDataId;
   if (this.lastDataId == null) {
-    console.error('lastDataId not saved in visualization');
+    visflow.error('lastDataId not saved in visualization');
     this.lastDataId = 0;
   }
 };
@@ -210,7 +215,7 @@ visflow.Visualization.prototype.showDetails = function() {
   var node = this;
 
   this.jqvis = $('<div></div>')
-    .addClass('dataflow-visualization')
+    .addClass('visualization')
     .appendTo(this.jqview);
 
   this.jqview
@@ -334,7 +339,7 @@ visflow.Visualization.prototype.interaction = function() {
 visflow.Visualization.prototype.showMessage = function(msg) {
   this.jqmsg = $('<div></div>')
     .text(msg)
-    .addClass('dataflow-visualization-message')
+    .addClass('visualization-message')
     .css('line-height', this.viewHeight + 'px')
     .prependTo(this.jqview);
 };
@@ -365,13 +370,13 @@ visflow.Visualization.prototype.keyAction = function(key, event) {
  */
 visflow.Visualization.prototype.prepareInteraction = function() {
   if (this.jqsvg == null)
-    return console.error('no svg for prepareInteraction');
+    return visflow.error('no svg for prepareInteraction');
   var node = this;
   this.jqsvg.mousedown(function(){
     // always add this view to selection
     if (!visflow.interactionManager.shifted)
-      visflow.flowManager.clearNodeSelection();
-    visflow.flowManager.addNodeSelection(node);
+      visflow.flow.clearNodeSelection();
+    visflow.flow.addNodeSelection(node);
   });
 
   // default select box interaction
@@ -408,7 +413,7 @@ visflow.Visualization.prototype.prepareInteraction = function() {
       if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
         return;
 
-      startPos = Utils.getOffset(event, $(this));
+      startPos = visflow.utils.getOffset(event, $(this));
 
       if (event.which == 1) { // left click triggers selectbox
         mode = 'selectbox';
@@ -418,7 +423,7 @@ visflow.Visualization.prototype.prepareInteraction = function() {
     })
     .mousemove(function(event) {
       if (mode == 'selectbox') {
-        endPos = Utils.getOffset(event, $(this));
+        endPos = visflow.utils.getOffset(event, $(this));
         selectbox.x1 = Math.min(startPos[0], endPos[0]);
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
         selectbox.y1 = Math.min(startPos[1], endPos[1]);
@@ -477,7 +482,7 @@ visflow.Visualization.prototype.applyProperties = function(u, properties, transl
 
 /** @inheritDoc */
 visflow.Visualization.prototype.resize = function(size) {
-  this.resize.call(this, size);
+  visflow.Visualization.base.resize.call(this, size);
   if (this.detailsOn) {
     this.visWidth = size.width;
     this.visHeight = size.height;

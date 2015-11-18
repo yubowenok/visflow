@@ -25,7 +25,7 @@ visflow.utils.inherit(visflow.DataSource, visflow.Node);
 
 /** @inheritDoc */
 visflow.DataSource.prototype.ICON_CLASS =
-    'dataflow-datasrc-icon dataflow-square-icon';
+    'datasrc-icon square-icon';
 /** @inheritDoc */
 visflow.DataSource.prototype.SHAPE_NAME = 'normal';
 
@@ -66,8 +66,8 @@ visflow.DataSource.prototype.show = function() {
       .appendTo(this.jqview);
 
     // load data buttons
-    $('<input type="button" id="load" value="Load Data">')
-      .button()
+    $('<button>Load Data</button>')
+      .addClass('btn btn-default btn-sm')
       .click(function(event, ui){
         var jqdialog = $('<div></div>');
         jqdialog
@@ -95,7 +95,7 @@ visflow.DataSource.prototype.show = function() {
           .hide();
         */
         // load data dialog content is stored in html
-        jqdialog.load('js/dataflow/datasource/loaddata-dialog.html', function() {
+        jqdialog.load('./src/datasource/loaddata-dialog.html', function() {
           if (node.dataSelected != null) {
             $(this).find('#data').val(node.dataSelected);
           }
@@ -118,7 +118,7 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
   var node = this;
 
   // add to async queue
-  visflow.flowManager.asyncDataloadStart(this);
+  visflow.flow.asyncDataloadStart(this);
 
   if (dataSelected == 'none') {
     this.jqview.find('#datahint')
@@ -126,14 +126,14 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
     this.dataSelected = dataSelected;
     this.dataName = null;
     $.extend(node.ports['out'].pack, new visflow.Package());
-    visflow.flowManager.asyncDataloadEnd();  // propagate null data
+    visflow.flow.asyncDataloadEnd();  // propagate null data
     return;
   }
 
   // TODO re-use loaded data
   /*
   var data;
-  if ((data = visflow.flowManager.data[dataSelected]) != null) {
+  if ((data = visflow.flow.data[dataSelected]) != null) {
     console.log('reused');
     node.dataSelected = dataSelected;
     node.dataName = dataName;
@@ -148,11 +148,11 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
     url: 'data/' + dataSelected + '.json',
     dataType: 'json',
     error: function(xhr, status, err){
-      console.error('cannot load data\n' + status + '\n' + err);
+      visflow.error('cannot load data\n' + status + '\n' + err);
     },
     success: function(result){
       if (result == null){
-        console.error('loaded data is null');
+        visflow.error('loaded data is null');
         return;
       }
       node.dataSelected = dataSelected;
@@ -161,13 +161,13 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
 
       var data = new visflow.Data(result);
 
-      visflow.flowManager.registerData(data);
+      visflow.flow.registerData(data);
 
       // overwrite data object (to keep the same reference)
       $.extend(node.ports['out'].pack, new visflow.Package(data));
 
       // decrement async count
-      visflow.flowManager.asyncDataloadEnd(); // push changes
+      visflow.flow.asyncDataloadEnd(); // push changes
     }
   });
 };

@@ -21,7 +21,7 @@ visflow.ValueExtractor = function(params) {
   ];
 
   // overwrite with constants
-  this.outPorts[0].pack = DataflowConstants.new();
+  this.outPorts[0].pack = new visflow.Constants();
 
   this.dimension = null;
 
@@ -34,7 +34,7 @@ visflow.utils.inherit(visflow.ValueExtractor, visflow.Node);
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.ICON_CLASS =
-    'dataflow-value-extractor-icon dataflow-flat-icon';
+    'value-extractor-icon flat-icon';
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.SHAPE_NAME = 'value-extractor';
 
@@ -63,7 +63,7 @@ visflow.ValueExtractor.prototype.showDetails = function() {
   visflow.ValueExtractor.base.showDetails.call(this); // call parent settings
 
   var node = this;
-  this.selectDimension = DataflowSelect.new({
+  this.selectDimension = visflow.Select.new({
     id: 'dimension',
     label: 'Extract values from',
     target: this.jqview,
@@ -84,7 +84,7 @@ visflow.ValueExtractor.prototype.process = function() {
   var inpack = this.ports['in'].pack,
       outpack = this.ports['out'].pack;
   if (inpack.type === 'constants')
-    return console.error('constants in connected to value extractor');
+    return visflow.error('constants in connected to value extractor');
 
   // overwrite to maintain reference downflow
   $.extend(outpack, DataflowConstants.new());

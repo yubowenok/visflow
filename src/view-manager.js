@@ -23,63 +23,7 @@ visflow.viewManager.showMenuPanel = function() {
   var jqview = $('<div></div>')
     .appendTo('body');
 
-  this.menuPanel = new visflow.Panel({
-    id: 'menuPanel', // required by view
-    class: 'menupanel',
-    jqview: jqview,
-    htmlFile: 'menu-panel.html',
-    buttons: [
-      {
-        id: 'add',
-        click: function(event) {
-          manager.showAddPanel(event);
-        }
-      },
-      {
-        id: 'new',
-        click: function() {
-          visflow.flowManager.lastFilename = 'myDataflow';
-          visflow.flowManager.clearFlow();
-        }
-      },
-      {
-        id: 'save',
-        click: function() {
-          visflow.flowManager.saveFlow();
-        }
-      },
-      {
-        id: 'load',
-        click: function() {
-          visflow.flowManager.loadFlow();
-        }
-      },
-      {
-        id: 'vismode',
-        click: function() {
-          visflow.flowManager.toggleVisMode();
-        },
-        mouseenter: function() {
-          visflow.flowManager.previewVisMode(true);
-        },
-        mouseleave: function() {
-          visflow.flowManager.previewVisMode(false);
-        }
-      },
-      {
-        id: 'help',
-        click: function() {
-          manager.helpVisFlow();
-        }
-      },
-      {
-        id: 'about',
-        click: function() {
-          manager.aboutVisFlow();
-        }
-      }
-    ]
-  });
+
   this.menuPanel.show();
 };
 
@@ -123,8 +67,10 @@ visflow.viewManager.closePopupPanel = function() {
  * Filters the entries in the system add-node panel.
  */
 visflow.viewManager.filterAddPanel = function(key) {
-  if (this.popupPanel == null)
-    return console.error('filterAddPanel found no addpanel');
+  if (this.popupPanel == null) {
+    visflow.error('filterAddPanel found no addpanel');
+    return
+  }
   // two children(), there is a container div
   this.popupPanel.jqview.find('.group').not('.' + key).remove();
   this.popupPanel.jqview.find('.addpanel-button').not('.' + key).remove();
@@ -147,22 +93,26 @@ visflow.viewManager.showAddPanel = function(event, compact) {
     'range',
     'contain',
     // rendering property
-    'property-editor', 'property-mapping',
+    'property-editor',
+    'property-mapping',
     // set
-    'intersect', 'minus', 'union',
+    'intersect',
+    'minus',
+    'union',
     // value
-    'value-extractor', 'value-maker',
+    'value-extractor',
+    'value-maker',
     // visualization
     'table',
     'histogram',
-    'parallelcoordinates',
+    'parallel-coordinates',
     'scatterplot',
     'heatmap',
     'network'
   ].map(function(id) {
     var callback = function(event) {
       //console.log('dataflow');
-      var node = visflow.flowManager.createNode(id);
+      var node = visflow.flow.createNode(id);
       node.jqview.css({
         left: event.pageX - node.jqview.width() / 2,
         top: event.pageY - node.jqview.height() / 2,
@@ -176,8 +126,11 @@ visflow.viewManager.showAddPanel = function(event, compact) {
         node.jqview.css('zoom', '');
       });
       manager.closePopupPanel();
-      $('.dataflow-dropzone-temp').remove();
-      $('#main').droppable('disable');
+      $('.dropzone-temp').remove();
+
+      if ($('#main').hasClass('ui-droppable')) {
+        $('#main').droppable('disable');
+      }
     };
     buttons.push({
       id: id,
@@ -191,7 +144,7 @@ visflow.viewManager.showAddPanel = function(event, compact) {
         // container is under #popupPanel
         // container has size, #popupPanel has screen position offset
         $('<div></div>')
-          .addClass('dataflow-dropzone-temp')
+          .addClass('dropzone-temp')
           .css({
             width: container.width(),
             height: container.height(),
@@ -255,13 +208,13 @@ visflow.viewManager.createNodeView = function(params) {
 /**
  * Creates a container view for edge.
  */
-visflow.viewManager.createEdgeView = function(para) {
+visflow.viewManager.createEdgeView = function(params) {
   if(params == null) {
     params = {};
   }
   var jqview = $('<div></div>')
     .appendTo('#edges');
-  jqview.css(ms);
+  jqview.css(params);
   return jqview;
 };
 
@@ -285,7 +238,7 @@ visflow.viewManager.removeEdgeView = function(jqview) {
  * Clears all the views.
  */
 visflow.viewManager.clearFlowViews = function() {
-  $('.dataflow-node').remove();
+  $('.node').remove();
   $('#edges').children().remove();
   // after this, nodes and edges cannot reuse their jqview
 };
@@ -297,22 +250,22 @@ visflow.viewManager.clearFlowViews = function() {
 visflow.viewManager.addEdgeHover = function(edge) {
   var jqview = edge.jqview;
   // make a shadow
-  jqview.children('.dataflow-edge-segment').clone()
-    .appendTo('#dataflow-hover')
-    .addClass('dataflow-edge-segment-hover dataflow-edge-clone');
+  jqview.children('.edge-segment').clone()
+    .appendTo('#hover')
+    .addClass('edge-segment-hover edge-clone');
   jqview.children().clone()
     .appendTo('#main')
-    .addClass('dataflow-edge-clone');
+    .addClass('edge-clone');
   // copy port
   edge.sourcePort.jqview
     .clone()
     .appendTo('#main')
-    .addClass('dataflow-edge-clone')
+    .addClass('edge-clone')
     .css(edge.sourcePort.jqview.offset());
   edge.targetPort.jqview
     .clone()
     .appendTo('#main')
-    .addClass('dataflow-edge-clone')
+    .addClass('edge-clone')
     .css(edge.targetPort.jqview.offset());
 };
 
@@ -320,7 +273,7 @@ visflow.viewManager.addEdgeHover = function(edge) {
  * Clears hover effect for an edge.
  */
 visflow.viewManager.clearEdgeHover = function() {
-  $('#main').find('.dataflow-edge-clone').remove();
+  $('#main').find('.edge-clone').remove();
 };
 
 /**
@@ -370,7 +323,7 @@ visflow.viewManager.loadColorScales = function() {
       manager.colorScales[scale.value] = scale;
 
       var div = $('<div></div>')
-        .addClass('dataflow-scalevis');
+        .addClass('scalevis');
       var gradient = 'linear-gradient(to right,';
       if (scale.type == 'color') {
         // NOT support uneven scales
@@ -455,31 +408,4 @@ visflow.viewManager.intersectBox = function(box1, box2) {
       y2l = box2.top,
       y2r = box2.top + box2.height;
   return x1l <= x2r && x2l <= x1r && y1l <= y2r && y2l <= y1r;
-};
-
-/**
- * Displays the 'about visflow' dialog.
- */
-visflow.viewManager.aboutVisFlow = function() {
-  var dialog = $('<div></div>')
-    .css('padding', '20px')
-    .dialog({
-      modal: true,
-      title: 'About Dataflow',
-      buttons: {
-        OK: function() {
-          $(this).dialog('close');
-        }
-      }
-    });
-  $('<p>Dataflow Visualization Builder</p>' +
-      '<p>Preliminary Version, Bowen Yu, March 2015</p>')
-    .appendTo(dialog);
-};
-
-/**
- * Opens a page for VisFlow help.
- */
-visflow.viewManager.helpVisFlow = function() {
-  window.open('help.html');
 };

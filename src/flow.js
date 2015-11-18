@@ -7,20 +7,20 @@
 'use strict';
 
 /** @const */
-visflow.flowManager = {};
+visflow.flow = {};
 
 /**
  * Initializes flow manager.
  */
-visflow.flowManager.init = function() {
+visflow.flow.init = function() {
   this.resetFlow();
-  this.lastFilename = 'myDataflow';
+  this.lastFilename = 'myDiagram';
 };
 
 /**
  * Resets the loaded flow.
  */
-visflow.flowManager.resetFlow = function() {
+visflow.flow.resetFlow = function() {
   // counters start from 1
   this.nodeCounter = 0;
   this.visCounter = 0;
@@ -54,7 +54,7 @@ visflow.flowManager.resetFlow = function() {
  * Mapping from node type to node constructor.
  * @const @private {!Object<*>}
  */
-visflow.flowManager.NODE_CONSTRUCTORS_ = {
+visflow.flow.NODE_CONSTRUCTORS_ = {
   datasrc: visflow.DataSource,
   intersect: visflow.Intersect,
   minus: visflow.Minus,
@@ -77,7 +77,7 @@ visflow.flowManager.NODE_CONSTRUCTORS_ = {
  * Visualization node types.
  * @const @private {!Object<boolean>}
  */
-visflow.flowManager.VISUALIZATION_TYPES_ = {
+visflow.flow.VISUALIZATION_TYPES_ = {
   table: true,
   scatterplot: true,
   parallelCoordinates: true,
@@ -90,7 +90,7 @@ visflow.flowManager.VISUALIZATION_TYPES_ = {
  * Creates a node of given type.
  * @param {string} type
  */
-visflow.flowManager.createNode = function(type) {
+visflow.flow.createNode = function(type) {
   // Convert to camel case. HTML use dash separated strings.
   type = $.camelCase(type);
 
@@ -137,7 +137,7 @@ visflow.flowManager.createNode = function(type) {
  * @param targetPort
  * @return {number|visflow.Edge} TODO(bowen): check this
  */
-visflow.flowManager.createEdge = function(sourcePort, targetPort) {
+visflow.flow.createEdge = function(sourcePort, targetPort) {
   var sourceNode = sourcePort.node,
       targetNode = targetPort.node;
 
@@ -170,7 +170,7 @@ visflow.flowManager.createEdge = function(sourcePort, targetPort) {
  * Deletes the given node.
  * @param {!visflow.Node} node
  */
-visflow.flowManager.deleteNode = function(node) {
+visflow.flow.deleteNode = function(node) {
   for (var key in node.ports) {
     var port = node.ports[key];
     var connections = port.connections.slice();
@@ -187,7 +187,7 @@ visflow.flowManager.deleteNode = function(node) {
  * Deletes the given edge.
  * @param {!visflow.Edge} edge
  */
-visflow.flowManager.deleteEdge = function(edge) {
+visflow.flow.deleteEdge = function(edge) {
   // remove the references in port's connection list
   var sourcePort = edge.sourcePort,
       targetPort = edge.targetPort;
@@ -205,9 +205,9 @@ visflow.flowManager.deleteEdge = function(edge) {
  * Activates the node with given Id.
  * @param {string} nodeId
  */
-visflow.flowManager.activateNode = function(nodeId) {
+visflow.flow.activateNode = function(nodeId) {
   if (this.nodes[nodeId].jqview == null) {
-    console.error('node does not have jqview');
+    visflow.error('node does not have jqview');
   }
   visflow.viewManager.bringFrontView(this.nodes[nodeId].jqview);
 };
@@ -217,7 +217,7 @@ visflow.flowManager.activateNode = function(nodeId) {
  * @param {!visflow.Node} sourceNode
  * @param {!visflow.Node} targetNode
  */
-visflow.flowManager.cycleTest = function(sourceNode, targetNode) {
+visflow.flow.cycleTest = function(sourceNode, targetNode) {
   var visited = {};
   visited[sourceNode.nodeId] = true;
   // traverse graph to find cycle
@@ -243,7 +243,7 @@ visflow.flowManager.cycleTest = function(sourceNode, targetNode) {
  * Propagates result starting from a given node.
  * @param {!visflow.Node} node
  */
-visflow.flowManager.propagate = function(node) {
+visflow.flow.propagate = function(node) {
   if (this.propagateDisabled)
     return;
 
@@ -284,47 +284,12 @@ visflow.flowManager.propagate = function(node) {
  * Registers the flow data.
  * @param {!visflow.Data} data
  */
-visflow.flowManager.registerData = function(data) {
+visflow.flow.registerData = function(data) {
   if (data == null || data.type == 'empty') {
-    return console.error('attempt register null/empty data');
+    return visflow.error('attempt register null/empty data');
   }
   this.data[data.type] = data;
   data.dataId = ++this.dataCounter;
-};
-
-/**
- * Saves the current flow.
- */
-visflow.flowManager.saveFlow = function() {
-  var jqdialog = $('<div></div>');
-
-  $('<span>Name:</span>')
-    .addClass('dataflow-input-leadtext')
-    .appendTo(jqdialog);
-
-  $('<input/>')
-    .val(this.lastFilename)
-    .attr('maxlength', 30)
-    .css('width', '80%')
-    .appendTo(jqdialog);
-
-  var manager = this;
-  jqdialog
-    .css('padding', '20px')
-    .dialog({
-      title: 'Save Dataflow',
-      modal: true,
-      buttons: [
-        {
-          text: 'OK',
-          click: function() {
-            var filename = $(this).find('input').val();
-            manager.uploadFlow(filename);
-            $(this).dialog('close');
-          }
-        }
-      ]
-    });
 };
 
 /**
@@ -333,7 +298,7 @@ visflow.flowManager.saveFlow = function() {
  * object.
  * @return {!Object}
  */
-visflow.flowManager.serializeFlow = function() {
+visflow.flow.serializeFlow = function() {
   var result = {
     timestamp: (new Date()).getTime(),
     nodes: [],
@@ -353,7 +318,7 @@ visflow.flowManager.serializeFlow = function() {
  * Deserializes a flow from a flow JSON.
  * @param {!Object} flow
  */
-visflow.flowManager.deserializeFlow = function(flow) {
+visflow.flow.deserializeFlow = function(flow) {
   this.clearFlow();
 
   this.propagateDisabled = true;  // temporarily switch off propagation
@@ -367,7 +332,7 @@ visflow.flowManager.deserializeFlow = function(flow) {
     for (var j in type) {
       if (type[j] == '_') {
         type = type.replace(/_/g, '-');
-        console.error('fix old type with underscore');
+        visflow.error('fix old type with underscore');
         break;
       }
     }
@@ -388,7 +353,7 @@ visflow.flowManager.deserializeFlow = function(flow) {
         targetPort = targetNode.ports[edgeSaved.targetPortId];
 
     if (targetPort == null) {
-      console.error('older version set nodes detected');
+      visflow.error('older version set nodes detected');
       targetPort = targetNode.ports['in'];
     }
     this.createEdge(sourcePort, targetPort);
@@ -402,7 +367,7 @@ visflow.flowManager.deserializeFlow = function(flow) {
  * Previews the VisMode on/off effect.
  * @param {boolean} on
  */
-visflow.flowManager.previewVisMode = function(on) {
+visflow.flow.previewVisMode = function(on) {
   if (on) {
     for (var i in this.edges) {
       var edge = this.edges[i];
@@ -430,7 +395,7 @@ visflow.flowManager.previewVisMode = function(on) {
 /**
  * Toggles the VisMode.
  */
-visflow.flowManager.toggleVisMode = function() {
+visflow.flow.toggleVisMode = function() {
   // first save the current configuration
   for (var i in this.nodes){
     var node = this.nodes[i];
@@ -461,171 +426,17 @@ visflow.flowManager.toggleVisMode = function() {
 /**
  * Clears the current flow.
  */
-visflow.flowManager.clearFlow = function() {
+visflow.flow.clearFlow = function() {
   // clear screen
   visflow.viewManager.clearFlowViews();
   this.resetFlow();
 };
 
 /**
- * Uploads the current flow to server and saves it as 'filename'.
- * @param {string} filename
- */
-visflow.flowManager.uploadFlow = function(filename) {
-  this.lastFilename = filename;
-  $.ajax({
-    type: 'POST',
-    url: 'save.php',
-    data: {
-      filename: filename,
-      flow: JSON.stringify(this.serializeFlow())
-    },
-    success: function(data, textStatus, jqXHR) {
-      var dialog = $('<div></div>')
-        .css('padding', '20px');
-      var ok = data.status == 'success';
-      var successMsg = 'Dataflow uploaded to the server (' + data.filename + ')',
-          errorMsg = 'Failed to save dataflow. ' + data.msg;
-      dialog
-        .text(ok ? successMsg : errorMsg)
-        .dialog({
-          modal: true,
-          title: ok ? 'Dataflow Saved' : 'Save Error',
-          buttons: {
-            OK: function() {
-              $(this).dialog('close');
-            }
-          }
-        });
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.error(jqXHR, textStatus, errorThrown);
-    }
-  });
-};
-
-/**
- * Loads a saved flow.
- */
-visflow.flowManager.loadFlow = function() {
-  var manager = this;
-  $.ajax({
-    type: 'POST',
-    url: 'load.php',
-    data: {
-      type: 'filelist'
-    },
-    success: function(data, textStatus, jqXHR) {
-      var filelist = data.filelist;
-      var jqdialog = $('<div></div>');
-      var jqtable = $('<table></table>')
-        .addClass('table table-striped table-bordered')
-        .appendTo(jqdialog);
-      $('<thead><th>Name</th><th>Last Modified</th></thead>')
-        .appendTo(jqtable);
-      var jqtbody = $('<tbody></tbody>')
-        .appendTo(jqtable);
-
-      var selectedFlow = null;
-
-      jqtbody.on('click', 'tr', function () {
-        $(this).parent().find('tr').removeClass('selected');
-        $(this).toggleClass('selected');
-        selectedFlow = $(this).find('td:first').text();
-
-        // enable OK button as one item is now selected
-        jqdialog.parent().find('button:contains("OK")')
-          .prop('disabled', false)
-          .removeClass('ui-state-disabled');
-      });
-
-      for (var i in filelist) {
-        var file = filelist[i];
-        $('<tr>' +
-          '<td>' + file.filename + '</td>' +
-          '<td>' + (new Date(file.mtime)).toLocaleString() + '</td>' +
-          '</tr>')
-          .appendTo(jqtbody);
-      }
-
-      var table = jqtable
-        .appendTo(jqdialog)
-        .DataTable();
-      visflow.utils.blendTableHeader(jqtable.parent());
-
-      jqdialog
-        .dialog({
-          title: 'Load Dataflow',
-          width: 400,
-          modal: true,
-          buttons: [
-            {
-              text: 'OK',
-              click: function() {
-                // now open a new page (for logging)
-                window.open('index.php?filename=' + selectedFlow, '_self');
-                //manager.downloadFlow(selectedDataflow);
-                table.destroy(true);
-                $(this).dialog('close');
-              }
-            }
-          ]
-        });
-      // disable OK button as no item is selected
-      jqdialog.parent().find('button:contains("OK")')
-        .prop('disabled', true)
-        .addClass('ui-state-disabled');
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.error(jqXHR, textStatus, errorThrown);
-    }
-  });
-};
-
-/**
- * Downloads a flow file from the server.
- * @param {string} filename
- */
-visflow.flowManager.downloadFlow = function(filename) {
-  this.lastFilename = filename;
-
-  var manager = this;
-  $.ajax({
-    type: 'POST',
-    url: 'load.php',
-    data: {
-      type: 'download',
-      filename: filename
-    },
-    success: function(data, textStatus, jqXHR) {
-      if (data.status != 'success') {
-        $('<div></div>')
-        .text('Failed to download dataflow. ' + data.msg)
-        .css('padding', '20px')
-        .dialog({
-          modal: true,
-          title: 'Load Error',
-          buttons: {
-            OK: function() {
-              $(this).dialog('close');
-            }
-          }
-        });
-        return;
-      }
-      manager.deserializeFlow(data.flow);
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.error(jqXHR, textStatus, errorThrown);
-    }
-  });
-};
-
-/**
  * Adds an edge to the edge selection.
  * @param {!visflow.Edge} edge
  */
-visflow.flowManager.addEdgeSelection = function(edge) {
+visflow.flow.addEdgeSelection = function(edge) {
   // can only select a single edge at a time by hovering
   this.edgeSelected = edge;
 };
@@ -633,7 +444,7 @@ visflow.flowManager.addEdgeSelection = function(edge) {
 /**
  * Clears the edge seletion.
  */
-visflow.flowManager.clearEdgeSelection = function() {
+visflow.flow.clearEdgeSelection = function() {
   this.edgeSelected = null;
 };
 
@@ -641,7 +452,7 @@ visflow.flowManager.clearEdgeSelection = function() {
  * Adds a list of nodes to the node selection.
  * @param {!Array<!visflow.Node>} nodes
  */
-visflow.flowManager.addNodeSelection = function(nodes) {
+visflow.flow.addNodeSelection = function(nodes) {
   var toAdd = {};
   if (nodes instanceof Array) {
     for (var i in nodes) {
@@ -655,7 +466,7 @@ visflow.flowManager.addNodeSelection = function(nodes) {
   for (var i in toAdd) {
     var node = toAdd[i];
     this.nodesSelected[node.nodeId] = node;
-    node.jqview.addClass('dataflow-node-selected');
+    node.jqview.addClass('node-selected');
   }
 };
 
@@ -663,7 +474,7 @@ visflow.flowManager.addNodeSelection = function(nodes) {
  * Clears the selection a set of nodes.
  * @param {!Array<!visflow.Node>} nodes
  */
-visflow.flowManager.clearNodeSelection = function(nodes) {
+visflow.flow.clearNodeSelection = function(nodes) {
   var toClear = {};
   if (nodes == null) {
     toClear = this.nodesSelected;
@@ -677,7 +488,7 @@ visflow.flowManager.clearNodeSelection = function(nodes) {
   }
   for (var i in toClear) {
     var node = toClear[i];
-    node.jqview.removeClass('dataflow-node-selected');
+    node.jqview.removeClass('node-selected');
     delete this.nodesSelected[node.nodeId];
   }
 };
@@ -686,7 +497,7 @@ visflow.flowManager.clearNodeSelection = function(nodes) {
  * Adds hovering to a set of nodes.
  * @param {!Array<!visflow.Node>} nodes
  */
-visflow.flowManager.addNodeHover = function(nodes) {
+visflow.flow.addNodeHover = function(nodes) {
   var toAdd = {};
   if (nodes instanceof Array) {
     for (var i in nodes) {
@@ -699,7 +510,7 @@ visflow.flowManager.addNodeHover = function(nodes) {
   }
   for (var i in toAdd) {
     var node = toAdd[i];
-    node.jqview.addClass('dataflow-node-hover');
+    node.jqview.addClass('node-hover');
     this.nodesHovered[node.nodeId] = node;
   }
 };
@@ -708,7 +519,7 @@ visflow.flowManager.addNodeHover = function(nodes) {
  * Clears the hovering of a set of nodes.
  * @param {!Array<!visflow.Node>} nodes
  */
-visflow.flowManager.clearNodeHover = function(nodes) {
+visflow.flow.clearNodeHover = function(nodes) {
   var toClear = {};
   if (nodes == null) {
     toClear = this.nodesHovered;
@@ -722,7 +533,7 @@ visflow.flowManager.clearNodeHover = function(nodes) {
   }
   for (var i in toClear) {
     var node = toClear[i];
-    node.jqview.removeClass('dataflow-node-hover');
+    node.jqview.removeClass('node-hover');
     delete this.nodesHovered[node.nodeId];
   }
 };
@@ -733,7 +544,7 @@ visflow.flowManager.clearNodeHover = function(nodes) {
  * @param {!Object} selectbox
  * @return {!Array<!visflow.Node>}
  */
-visflow.flowManager.getNodesInSelectbox = function(selectbox) {
+visflow.flow.getNodesInSelectbox = function(selectbox) {
   var result = [];
   for (var i in this.nodes) {
     var jqview = this.nodes[i].jqview;
@@ -753,7 +564,7 @@ visflow.flowManager.getNodesInSelectbox = function(selectbox) {
 /**
  * Adds the currently hovered nodes to selection.
  */
-visflow.flowManager.addHoveredToSelection = function() {
+visflow.flow.addHoveredToSelection = function() {
   this.addNodeSelection(this.nodesHovered);
   this.clearNodeHover();
 };
@@ -764,7 +575,7 @@ visflow.flowManager.addHoveredToSelection = function() {
  * @param {number} dy
  * @param {!Array<!visflow.Node>} nodes
  */
-visflow.flowManager.moveNodes = function(dx, dy, nodes) {
+visflow.flow.moveNodes = function(dx, dy, nodes) {
   for (var i in nodes) {
     var node = nodes[i];
     var x = node.jqview.position().left,
@@ -782,7 +593,7 @@ visflow.flowManager.moveNodes = function(dx, dy, nodes) {
  * @param {!visflow.Node} node
  * @return {boolean}
  */
-visflow.flowManager.isNodeSelected = function(node) {
+visflow.flow.isNodeSelected = function(node) {
   return this.nodesSelected[node.nodeId] != null;
 };
 
@@ -791,12 +602,12 @@ visflow.flowManager.isNodeSelected = function(node) {
  * @param {string} key
  * @param {!jQuery.event} event
  */
-visflow.flowManager.keyAction = function(key, event) {
+visflow.flow.keyAction = function(key, event) {
   if (key == 'ctrl+S') {
-    this.saveFlow();
+    this.saveDiagram();
     event.preventDefault();
   } else if (key == 'ctrl+L') {
-    this.loadFlow();
+    this.loadDiagram();
     event.preventDefault();
   } else {
     if (this.edgeSelected == null) { // edge and node selection are exclusive
@@ -815,7 +626,7 @@ visflow.flowManager.keyAction = function(key, event) {
  * Prevents rushing in async data loading.
  * @param {!visflow.Node} node
  */
-visflow.flowManager.asyncDataloadStart = function(node) {
+visflow.flow.asyncDataloadStart = function(node) {
   this.asyncDataloadCount ++;
   this.asyncDataloadQueue.push(node);
 };
@@ -823,7 +634,7 @@ visflow.flowManager.asyncDataloadStart = function(node) {
 /**
  * Handles async data loading ends event.
  */
-visflow.flowManager.asyncDataloadEnd = function() {
+visflow.flow.asyncDataloadEnd = function() {
   this.asyncDataloadCount --;
   if (this.asyncDataloadCount == 0) {
     this.propagate(this.asyncDataloadQueue);

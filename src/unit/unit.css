@@ -1,21 +1,19 @@
-
-
-
-.dataflow-unit {
+.visflow .unit {
   margin: 5px;
   line-height: 25px;
 }
-.dataflow-unit-text {
+
+.visflow .unit-text {
   display: inline-block;
 }
 
-.dataflow-input-color {
+.visflow .input-color {
   font-family: Courier !important;
   text-align: center;
   width: 60px;
 }
 
-.dataflow-colorbox {
+.visflow .colorbox {
   width: 22px;
   height: 22px;
   border: 1px solid gray;
@@ -25,29 +23,29 @@
   right: 10px;
 }
 
-.dataflow-unit-container {
+.visflow .unit-container {
   position: absolute;
   display: inline-block;
 }
 
-.dataflow-unit-input {
+.visflow .unit-input {
   width: 90%;
   font-family: Courier !important;
   text-align: center;
   line-height: 20px;
 }
-.dataflow-unit-checkbox {
+.visflow .unit-checkbox {
   top: 2px;
   position: relative;
 }
 
-.dataflow-unit-select {
+.visflow .unit-select {
   width: 100%;
   text-align: center;
   top: -3px;
 }
 
-.dataflow-scalevis {
+.visflow .scalevis {
   height: 10px;
   margin-top: 3px;
 }

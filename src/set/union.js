@@ -17,7 +17,7 @@ visflow.utils.inherit(visflow.Union, visflow.Set);
 
 /** @inheritDoc */
 visflow.Union.prototype.ICON_CLASS =
-    'dataflow-union-icon dataflow-flat-icon';
+    'union-icon flat-icon';
 
 /** @inheritDoc */
 visflow.Union.prototype.show = function() {
@@ -48,7 +48,7 @@ visflow.Union.prototype.process = function() {
     var inpack = inpacks[i];
 
     if (!outpack.data.matchDataFormat(inpack.data))
-      return console.error('cannot make intersection of two different types of datasets');
+      return visflow.error('cannot make intersection of two different types of datasets');
 
     // enumerate all in pack, overwrite rendering properties
     for (var index in inpack.items) {

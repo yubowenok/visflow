@@ -27,7 +27,7 @@ visflow.utils.inherit(visflow.PropertyEditor, visflow.Node);
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.ICON_CLASS =
-    'dataflow-property-editor-icon dataflow-square-icon';
+    'property-editor-icon square-icon';
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.SHAPE_NAME = 'property-editor';
@@ -49,12 +49,12 @@ visflow.PropertyEditor.prototype.deserialize = function(save) {
   visflow.PropertyEditor.base.deserialize.call(this, save);
   this.properties = save.properties;
   if (this.properties == null) {
-    console.error('properties not saved in property editor');
+    visflow.error('properties not saved in property editor');
     this.properties = {};
   }
   for (var key in this.properties) {
     if (this.properties[key] == '' || this.properties[key] == null) {
-      console.error('null/empty property key saved');
+      visflow.error('null/empty property key saved');
       delete this.properties[key];
     }
   }
@@ -67,11 +67,11 @@ visflow.PropertyEditor.prototype.showDetails = function() {
   var node = this;
   // color and border
   [
-    ['Color', DataflowColorpicker],
-    ['Border', DataflowColorpicker],
-    ['Width', DataflowInput, 'float', [0, 1E9], 0.1],
-    ['Size', DataflowInput, 'float', [0, 1E9], 0.5],
-    ['Opacity', DataflowInput, 'float', [0, 1], 0.05]
+    ['Color', visflow.ColorPicker],
+    ['Border', visflow.ColorPicker],
+    ['Width', visflow.Input, 'float', [0, 1E9], 0.1],
+    ['Size', visflow.Input, 'float', [0, 1E9], 0.5],
+    ['Opacity', visflow.Input, 'float', [0, 1], 0.05]
   ].map(function(unit) {
     var id = unit[0].toLowerCase();
     var input = unit[1].new({

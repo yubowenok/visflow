@@ -31,7 +31,7 @@ visflow.utils.inherit(visflow.ContainFilter, visflow.Filter);
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.ICON_CLASS =
-    'dataflow-contain-icon dataflow-square-icon';
+    'contain-icon square-icon';
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.serialize = function() {
@@ -49,11 +49,11 @@ visflow.ContainFilter.prototype.deserialize = function(save) {
   this.matchMode = save.matchMode;
   this.embedValue = save.embedValue;
   if (this.inputMode == null) {
-    console.error('contain filter inputMode not saved');
+    visflow.error('contain filter inputMode not saved');
     this.inputMode = 'text';
   }
   if (this.matchMode == null) {
-    console.error('contain filter matchMode not saved');
+    visflow.error('contain filter matchMode not saved');
     this.matchMode = 'exact';
   }
 };
@@ -71,7 +71,7 @@ visflow.ContainFilter.prototype.showDetails = function() {
     .appendTo(this.jqview);
 
   this.jqvalue = this.jqview.find('#v')
-    .addClass('dataflow-input dataflow-input-node')
+    .addClass('input input-node')
     .val(this.value ? this.value : this.NULL_VALUE_STRING)
     .change(function(event) {
       node.embedValue = event.target.value;

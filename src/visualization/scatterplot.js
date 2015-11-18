@@ -32,7 +32,7 @@ visflow.utils.inherit(visflow.Scatterplot, visflow.Visualization);
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.ICON_CLASS =
-    'dataflow-scatterplot-icon dataflow-square-icon';
+    'scatterplot-icon square-icon';
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.defaultProperties = {
@@ -104,8 +104,9 @@ visflow.Scatterplot.prototype.prepareInteraction = function() {
       }
     }
     mode = 'none';
-    if (visflow.interactionManager.visualizationBlocking)
+    if (visflow.interactionManager.visualizationBlocking) {
       event.stopPropagation();
+    }
   };
 
   this.jqsvg
@@ -113,7 +114,7 @@ visflow.Scatterplot.prototype.prepareInteraction = function() {
       if (visflow.interactionManager.ctrled) // ctrl drag mode blocks
         return;
 
-      startPos = Utils.getOffset(event, $(this));
+      startPos = visflow.utils.getOffset(event, $(this));
 
       if (event.which == 1) { // left click triggers selectbox
         mode = 'selectbox';
@@ -123,7 +124,7 @@ visflow.Scatterplot.prototype.prepareInteraction = function() {
     })
     .mousemove(function(event) {
       if (mode == 'selectbox') {
-        endPos = Utils.getOffset(event, $(this));
+        endPos = visflow.utils.getOffset(event, $(this));
         selectbox.x1 = Math.min(startPos[0], endPos[0]);
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
         selectbox.y1 = Math.min(startPos[1], endPos[1]);
@@ -179,10 +180,10 @@ visflow.Scatterplot.prototype.selectItemsInBox = function(box) {
 */
 visflow.Scatterplot.prototype.showSelectbox = function(box) {
   var node = this;
-  this.selectbox = this.svg.select('.df-vis-selectbox');
+  this.selectbox = this.svg.select('.vis-selectbox');
   if (this.selectbox.empty())
     this.selectbox = this.svg.append('rect')
-      .attr('class', 'df-vis-selectbox');
+      .attr('class', 'vis-selectbox');
 
   this.selectbox
     .attr('x', box.x1)
@@ -299,7 +300,7 @@ visflow.Scatterplot.prototype.showSelection = function() {
 visflow.Scatterplot.prototype.showOptions = function() {
   var node = this;
   [0, 1].map(function(d) {
-    this.selectDimensions[d] = DataflowSelect.new({
+    this.selectDimensions[d] = new visflow.Select({
       id: d,
       label: (!d ? 'X' : 'Y' ) + ' Axis',
       target: this.jqoptions,
@@ -346,10 +347,10 @@ visflow.Scatterplot.prototype.showAxis = function(d) {
      .attr('transform', 'translate(' + transX + ',' + transY + ')');
   }
   u.call(axis);
-  var t = u.select('.df-visualization-label');
+  var t = u.select('.vis-label');
   if (t.empty()) {
     t = u.append('text')
-      .attr('class', 'df-visualization-label')
+      .attr('class', 'vis-label')
       .style('text-anchor', !d ? 'end' : 'start')
       .attr('transform', !d ? '' : 'rotate(90)')
       .attr('x', labelX)
@@ -445,13 +446,13 @@ visflow.Scatterplot.prototype.selectAll = function() {
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.clearSelection = function() {
-  DataflowScatterplot.base.clearSelection.call(this);
+  visflow.Scatterplot.base.clearSelection.call(this);
   this.showVisualization(); // TODO　not efficient
 };
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.resize = function(size) {
-  DataflowScatterplot.base.resize.call(this, size);
+  visflow.Scatterplot.base.resize.call(this, size);
   [0, 1].map(function(d) {
     this.prepareScreenScale(d);
   }, this);

@@ -60,7 +60,7 @@ visflow.Node.prototype.contextMenuDisabled = {};
  * @return {!Object}
  */
 visflow.Node.prototype.serialize = function() {
-  this.label = this.jqview.find('.dataflow-node-label').text();
+  this.label = this.jqview.find('.node-label').text();
   this.saveCss();
   var result = {
     nodeId: this.nodeId,
@@ -86,7 +86,7 @@ visflow.Node.prototype.deserialize = function(save) {
   this.detailsOn = save.detailsOn;
   if (this.detailsOn == null) {
     this.detailsOn = true;
-    console.error('detailsOn not saved');
+    visflow.error('detailsOn not saved');
   }
   this.optionsOffset = save.optionsOffset;
   this.optionsOn = save.optionsOn;
@@ -98,17 +98,17 @@ visflow.Node.prototype.deserialize = function(save) {
   this.visModeOn = save.visModeOn;
   this.visCss = save.visCss;
   if (this.visModeOn == null){
-    console.error('visModeOn not saved');
+    visflow.error('visModeOn not saved');
     this.visModeOn = false;
     this.visCss = {};
   }
 
   if (this.labelOn == null) {
-    console.error('labelOn not saved');
+    visflow.error('labelOn not saved');
     this.labelOn = false;
   }
   if (this.label == null) {
-    console.error('label not saved');
+    visflow.error('label not saved');
     this.label = 'node label';
   }
 };
@@ -151,7 +151,7 @@ visflow.Node.prototype.show = function() {
     .not('.ui-resizable-handle')
     .remove();
 
-  if (!this.visModeOn && visflow.flowManager.visModeOn) {
+  if (!this.visModeOn && visflow.flow.visModeOn) {
     // do not show if hidden in vis mode
     return;
   }
@@ -160,20 +160,20 @@ visflow.Node.prototype.show = function() {
 
   if (this.detailsOn) {
     this.jqview
-      .addClass('dataflow-node dataflow-node-shape ui-widget-content ui-widget');
+      .addClass('node node-shape');
 
     if (this.SHAPE_NAME != 'none') {
       this.jqview
-        .removeClass('dataflow-node-shape')
-        .addClass('dataflow-node-shape-' + this.SHAPE_NAME);
+        .removeClass('node-shape')
+        .addClass('node-shape-' + this.SHAPE_NAME);
     }
     this.prepareNodeInteraction();
     this.prepareContextmenu();
     this.showDetails();
   } else {
     this.jqview
-      .removeClass('dataflow-node-shape-' + this.SHAPE_NAME)
-      .addClass('dataflow-node-shape')
+      .removeClass('node-shape-' + this.SHAPE_NAME)
+      .addClass('node-shape')
       .css({
         width: '',
         height: ''
@@ -182,7 +182,7 @@ visflow.Node.prototype.show = function() {
     this.showIcon();
   }
 
-  if (!visflow.flowManager.visModeOn) {
+  if (!visflow.flow.visModeOn) {
     // not show edges with vis mode on
     this.showPorts();
     this.updatePorts(); // update edges
@@ -195,7 +195,7 @@ visflow.Node.prototype.show = function() {
  */
 visflow.Node.prototype.showIcon = function() {
   this.jqicon = $('<div></div>')
-    .addClass(this.iconClass)
+    .addClass(this.ICON_CLASS)
     .appendTo(this.jqview);
 };
 
@@ -204,11 +204,11 @@ visflow.Node.prototype.showIcon = function() {
  */
 visflow.Node.prototype.showLabel = function() {
   var node = this;
-  this.jqview.find('.dataflow-node-label').remove();
+  this.jqview.find('.node-label').remove();
   if (this.labelOn) {
     $('<div></div>')
       .attr('contenteditable', true)
-      .addClass('dataflow-node-label')
+      .addClass('node-label')
       .text(this.label)
       .prependTo(this.jqview)
       .mousedown(function (event) {
@@ -232,8 +232,7 @@ visflow.Node.prototype.options = function() {
       this.jqoptions.remove();
     }
     this.jqoptions = $('<div></div>')
-      .addClass('dataflow-options')
-      .addClass('ui-widget-content ui-widget')
+      .addClass('options')
       .appendTo(this.jqview)
       .draggable({
         stop: function(event) {
@@ -269,14 +268,14 @@ visflow.Node.prototype.prepareNodeInteraction = function() {
 
   this.jqview
     .mouseenter(function() {
-      jqview.addClass('dataflow-node-hover');
+      jqview.addClass('node-hover');
     })
     .mouseleave(function() {
-      jqview.removeClass('dataflow-node-hover');
+      jqview.removeClass('node-hover');
     })
     .mousedown(function(event, ui) {
       if (event.which === 1) // left click
-        visflow.flowManager.activateNode(node.nodeId);
+        visflow.flow.activateNode(node.nodeId);
       else if (event.which === 3)
         $('.ui-contextmenu')
           .css('z-index', 1000); // over other things
@@ -303,7 +302,7 @@ visflow.Node.prototype.prepareNodeInteraction = function() {
       }
     })
     .draggable({
-      cancel: 'input, .dataflow-node-label',
+      cancel: 'input, .node-label',
       //containment: '#dataflow',
       start: function(event, ui) {
         visflow.interactionManager.dragstartHandler({
@@ -398,7 +397,7 @@ visflow.Node.prototype.contextmenuSelect = function(event, ui) {
       this.toggleVisMode();
       break;
     case 'delete':
-      visflow.flowManager.deleteNode(this);
+      visflow.flow.deleteNode(this);
       break;
   }
 };
@@ -473,7 +472,7 @@ visflow.Node.prototype.updateEdges = function() {
  * Shows all the ports.
  */
 visflow.Node.prototype.showPorts = function() {
-  this.jqview.find('.dataflow-port').remove();
+  this.jqview.find('.port').remove();
 
   var width = this.jqview.width(),
       height = this.jqview.innerHeight();
@@ -614,7 +613,7 @@ visflow.Node.prototype.saveCss = function() {
     width: this.jqview.width(),
     height: this.jqview.height()
   };
-  if (!visflow.flowManager.visModeOn) {
+  if (!visflow.flow.visModeOn) {
     _(this.css).extend(css);
   } else {
     _(this.visCss).extend(css);
@@ -625,7 +624,7 @@ visflow.Node.prototype.saveCss = function() {
  * Applies css specification.
  */
 visflow.Node.prototype.loadCss = function() {
-  if (!visflow.flowManager.visModeOn) {
+  if (!visflow.flow.visModeOn) {
     this.jqview.css(this.css);
   } else {
     this.jqview.css(this.visCss);
@@ -645,7 +644,7 @@ visflow.Node.prototype.keyAction = function(key, event) {
   switch(key) {
     case '.':
     case 'ctrl+X':
-      visflow.flowManager.deleteNode(this);
+      visflow.flow.deleteNode(this);
       break;
     case 'D':
       this.toggleDetails();
@@ -708,7 +707,7 @@ visflow.Node.prototype.toggleLabel = function() {
  */
 visflow.Node.prototype.pushflow = function() {
   this.process();
-  visflow.flowManager.propagate(this); // push property changes to downflow
+  visflow.flow.propagate(this); // push property changes to downflow
 };
 
 /**
@@ -716,7 +715,7 @@ visflow.Node.prototype.pushflow = function() {
  * @param size
  */
 visflow.Node.prototype.resize = function(size) {
-  if (visflow.flowManager.visModeOn == false) {
+  if (visflow.flow.visModeOn == false) {
     this.viewWidth = size.width;
     this.viewHeight = size.height;
     _(this.css).extend({

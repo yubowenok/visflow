@@ -30,17 +30,17 @@ visflow.Unit = function(params) {
 /** @inheritDoc */
 visflow.Unit.prototype.prepare = function() {
   this.jqunit = $('<div></div>')
-    .addClass('dataflow-unit');
+    .addClass('unit');
 
   var jqlabel = this.jqlabel = $('<div></div>')
-    .addClass('dataflow-unit-text')
+    .addClass('unit-text')
     .text(this.label)
     .appendTo(this.jqunit);
   if (this.labelWidth != null)
     jqlabel.css('width', this.labelWidth);
 
   this.jqcontainer = $('<div></div>')
-    .addClass('dataflow-unit-container')
+    .addClass('unit-container')
     .appendTo(this.jqunit);
   if (this.labelWidth != null)
     this.jqcontainer.css('left', this.labelWidth);
