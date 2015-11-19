@@ -11,7 +11,7 @@
 visflow.Histogram = function(params) {
   visflow.Histogram.base.constructor.call(this, params);
 
-  this.prepare();
+  this.init();
 
   // 0: X axis, 1: Y axis
   this.dimension = 0;
@@ -40,7 +40,7 @@ visflow.utils.inherit(visflow.Histogram, visflow.Visualization);
 visflow.Histogram.prototype.PLOT_NAME = 'Histogram';
 
 /** @inheritDoc */
-visflow.Histogram.prototype.ICON_CLASS =
+visflow.Histogram.prototype.MINIMIZED_CLASS =
     'histogram-icon square-icon';
 
 /** @inheritDoc */
@@ -401,7 +401,7 @@ visflow.Histogram.prototype.showVisualization = function() {
       values = inpack.data.values;
 
   this.checkDataEmpty();
-  this.prepareSvg();
+  //this.prepareSvg();
   if (this.isEmpty)
     return;
   this.prepareScales();

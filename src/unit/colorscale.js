@@ -17,7 +17,7 @@ visflow.ColorScale = function(params) {
 
   this.colorScales = visflow.viewManager.getColorScales(this.colorScalesLoaded);
 
-  this.prepare();
+  this.init()();
 };
 
 visflow.utils.inherit(visflow.ColorScale, visflow.Unit);

@@ -11,37 +11,56 @@
 visflow.Table = function(params) {
   visflow.Table.base.constructor.call(this, params);
 
-  this.prepare();
   this.keepSize = null;
   this.tableState = null; // last table state
 
   this.plotName = 'Table';
 };
+
 visflow.utils.inherit(visflow.Table, visflow.Visualization);
 
 /** @inheritDoc */
-visflow.Table.prototype.SHAPE_NAME = 'table';
+visflow.Table.prototype.NODE_CLASS = 'table';
 /** @inheritDoc */
-visflow.Table.prototype.ICON_CLASS = 'table-icon square-icon';
+visflow.Table.prototype.SHAPE_CLASS = 'shape-vis';
+/** @inheritDoc */
+visflow.Table.prototype.MINIMIZED_CLASS = 'table-icon square-icon';
 /** @inheritDoc */
 visflow.Table.prototype.contextmenuDisabled = {
   options: true
 };
 
 /** @inheritDoc */
+visflow.Table.prototype.init = function() {
+  visflow.Table.base.init.call(this);
+  this.initTable();
+};
+
+/** @inheritDoc */
 visflow.Table.prototype.serialize = function() {
   var result = visflow.Table.base.serialize.call(this);
   result.keepSize = this.keepSize;
-  result.tableState = this.table != null ? this.table.state() : null;
+  result.tableState = this.dataTable != null ? this.dataTable.state() : null;
   return result;
 };
 
 /** @inheritDoc */
 visflow.Table.prototype.deserialize = function(save) {
   visflow.Table.base.deserialize.call(this, save);
-
   this.tableState = save.tableState;
   this.keepSize = save.keepSize;
+};
+
+/**
+ * Creates a datatable inside the node.
+ */
+visflow.Table.prototype.initTable = function() {
+  this.table = $('<table></table>')
+    .addClass('table table-striped table-bordered')
+    .appendTo(this.content);
+  // get thead and tbody selection
+  this.thead = $('<thead></thead>').appendTo(this.table);
+  this.tbody = $('<tbody></tbody>').appendTo(this.table);
 };
 
 /** @inheritDoc */
@@ -50,22 +69,19 @@ visflow.Table.prototype.showVisualization = function() {
       pack = this.ports['in'].pack,
       data = pack.data,
       items = pack.items;
-
-  this.jqvis.addClass('table');
-
   this.checkDataEmpty();
   if (this.isEmpty) {
-    this.prepareSvg();
+    //this.prepareSvg();
     return;
   }
 
-  if (this.table) {
-    this.table.destroy(true);
+  if (this.dataTable) {
+    this.dataTable.destroy(true);
     this.interactionOn = false;
   }
 
-  var rows = [],
-      columns = [];
+  var rows = [];
+  var columns = [];
   columns.push({
     title: '#'
   }); // index column
@@ -78,36 +94,29 @@ visflow.Table.prototype.showVisualization = function() {
     var row = [index].concat(data.values[index]);
     rows.push(row);
   }
-  var jqtable = this.jqtable = $('<table></table>')
-    .addClass('table table-striped table-bordered')
-    .appendTo(this.jqvis);
 
-  this.table = jqtable
-      .DataTable({
-        stateSave: true,
-        data: rows,
-        columns: columns,
-        scrollX: true,
-        scrollY: '300px',
-        info: false
-      });
-  visflow.utils.blendTableHeader(this.container);
-
-  // get thead and tbody selection
-  var jqtheadr = jqtable.find('thead');
-  this.jqtbody = jqtable.find('tbody');
+  this.dataTable = this.table.DataTable({
+    stateSave: true,
+    data: rows,
+    columns: columns,
+    scrollX: true,
+    scrollY: '300px',
+    info: false
+  });
 
   var jqwrapper = this.jqvis.find('.dataTables_wrapper'),
       paddedHeight = jqwrapper.height() + 10;
 
+  /*
   this.container
     .css({
       height: paddedHeight
     })
     .resizable({
-      maxWidth: Math.max(jqtheadr.width(), 300),
+      maxWidth: Math.max(this.thead.width(), 300),
       maxHeight: paddedHeight
     });
+    */
 
   if (this.keepSize != null) {
     // use previous size regardless of how table entries changed
@@ -115,21 +124,23 @@ visflow.Table.prototype.showVisualization = function() {
   }
 
   this.showSelection();
-  this.interaction();
 };
 
 /** @inheritDoc */
-visflow.Table.prototype.prepareInteraction = function() {
-  //DataflowTable.base.prepareInteraction.call(this);
+visflow.Table.prototype.interaction = function() {
+  visflow.Table.base.interaction.call(this);
   var node = this;
 
-  this.jqtbody
+  this.tbody
     .mousedown(function(event){
-      if (visflow.interaction.ctrled) // ctrl drag mode blocks
+      if (visflow.interaction.ctrled) {
+        // ctrl drag mode blocks
         return;
+      }
       // block events from elements below
-      if(visflow.interaction.visualizationBlocking)
+      if(visflow.interaction.visualizationBlocking) {
         event.stopPropagation();
+      }
     });
 
   if (!this.ports['in'].pack.isEmpty()){  // avoid selecting 'no data' msg
@@ -155,7 +166,7 @@ visflow.Table.prototype.prepareInteraction = function() {
 /** @inheritDoc */
 visflow.Table.prototype.showSelection = function() {
   var node = this;
-  this.jqtable.find('tr')
+  this.table.find('tr')
     .filter(function() {
       var index = $(this).find('td:first').text();
       return node.selected[index] != null;
@@ -171,13 +182,13 @@ visflow.Table.prototype.dataChanged = function() {
 /** @inheritDoc */
 visflow.Table.prototype.selectAll = function() {
   visflow.Table.base.selectAll.call(this);
-  this.jqtable.find('tbody tr').addClass('selected');
+  this.table.find('tbody tr').addClass('selected');
 };
 
 /** @inheritDoc */
 visflow.Table.prototype.clearSelection = function() {
   visflow.Table.base.clearSelection.call(this);
-  this.jqtable.find('tr').removeClass('selected');
+  this.table.find('tr').removeClass('selected');
 };
 
 /** @inheritDoc */
@@ -191,6 +202,6 @@ visflow.Table.prototype.resize = function(size) {
 };
 
 /** @inheritDoc */
-visflow.Table.prototype.resizestop = function(size) {
-  visflow.Table.base.resizestop.call(this, size);
+visflow.Table.prototype.resizeStop = function(size) {
+  visflow.Table.base.resizeStop.call(this, size);
 };

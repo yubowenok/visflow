@@ -21,7 +21,7 @@ visflow.Select = function(params) {
   this.placeholder = params.placeholder;
   this.textToValue = {};
 
-  this.prepare();
+  this.init()();
 };
 
 visflow.utils.inherit(visflow.Select, visflow.Unit);

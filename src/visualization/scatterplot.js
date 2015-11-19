@@ -11,7 +11,7 @@
 visflow.Scatterplot = function(params) {
   visflow.Scatterplot.base.constructor.call(this, params);
 
-  this.prepare();
+  this.init();
 
   // 0: X axis, 1: Y axis
   this.dimensions = [0, 0];
@@ -31,7 +31,7 @@ visflow.Scatterplot = function(params) {
 visflow.utils.inherit(visflow.Scatterplot, visflow.Visualization);
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.ICON_CLASS =
+visflow.Scatterplot.prototype.MINIMIZED_CLASS =
     'scatterplot-icon square-icon';
 
 /** @inheritDoc */
@@ -200,7 +200,7 @@ visflow.Scatterplot.prototype.showVisualization = function(useTransition) {
       values = data.values;
 
   this.checkDataEmpty();
-  this.prepareSvg(useTransition);
+  //this.prepareSvg(useTransition);
   if (this.isEmpty)
     return;
   this.prepareScales();

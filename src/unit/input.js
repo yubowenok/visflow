@@ -15,7 +15,7 @@ visflow.Input = function(params) {
   this.range = params.range != null ? params.range : [null, null];
   this.scrollDelta = params.scrollDelta != null ? params.scrollDelta : false;
 
-  this.prepare();
+  this.init()();
 };
 
 visflow.utils.inherit(visflow.Input, visflow.Unit);

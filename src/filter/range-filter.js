@@ -24,13 +24,13 @@ visflow.RangeFilter = function(params) {
   this.embedValue = [];
   this.jqvalue = [];
 
-  this.prepare();
+  this.init();
 };
 
 visflow.utils.inherit(visflow.RangeFilter, visflow.Filter);
 
 /** @inheritDoc */
-visflow.RangeFilter.prototype.ICON_CLASS =
+visflow.RangeFilter.prototype.MINIMIZED_CLASS =
     'range-icon square-icon';
 
 /** @inheritDoc */

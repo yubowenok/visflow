@@ -19,13 +19,13 @@ visflow.Minus = function(params) {
     new visflow.Port(this, 'out', 'out-multiple', 'D')
   ];
 
-  this.prepare();
+  this.init();
 };
 
 visflow.utils.inherit(visflow.Minus, visflow.Set);
 
 /** @inheritDoc */
-visflow.Minus.prototype.ICON_CLASS =
+visflow.Minus.prototype.MINIMIZED_CLASS =
   'minus-icon flat-icon';
 
 /** @inheritDoc */

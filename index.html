@@ -40,15 +40,19 @@
   <script type="text/javascript" src="src/visflow.js"></script>
   <script type="text/javascript" src="src/utils.js"></script>
 
-  <!-- visflow -->
+  <!-- node -->
+  <script type="text/javascript" src="src/node/node.js"></script>
+  <link rel="stylesheet" href="src/node/node.css"/>
+
+  <!-- edge -->
+  <script type="text/javascript" src="src/edge/edge.js"></script>
+  <link rel="stylesheet" href="src/edge/edge.css"/>
 
   <!-- base components -->
   <script type="text/javascript" src="src/constants.js"></script>
   <script type="text/javascript" src="src/package.js"></script>
   <script type="text/javascript" src="src/data.js"></script>
   <script type="text/javascript" src="src/port.js"></script>
-  <script type="text/javascript" src="src/edge.js"></script>
-  <script type="text/javascript" src="src/node.js"></script>
   <script type="text/javascript" src="src/contextmenu/contextmenu.js"></script>
   <link rel="stylesheet" href="src/contextmenu/contextmenu.css"/>
   <script type="text/javascript" src="src/dialog/dialog.js"></script>
@@ -68,9 +72,12 @@
   <script type="text/javascript" src="src/panel/side-panel.js"></script>
   <script type="text/javascript" src="src/panel/popup-panel.js"></script>
   <link rel="stylesheet" href="src/panel/panel.css"/>
+  <link rel="stylesheet" href="src/panel/node-panel.css"/>
+  <link rel="stylesheet" href="src/panel/option-panel.css"/>
 
   <!-- data sources -->
   <script type="text/javascript" src="src/datasource/datasource.js"></script>
+  <link rel="stylesheet" href="src/datasource/datasource.css"/>
 
   <!-- filters -->
   <script type="text/javascript" src="src/filter/filter.js"></script>
@@ -164,7 +171,7 @@
   </div>
   </nav>
 
-  <div id="side-panel" class="active">
+  <div id="option-panel" class="active">
     <button id="btn-toggle" class="btn btn-default btn-toggle">
       <span id="icon-button" class="glyphicon glyphicon-chevron-right"></span>
     </button>
@@ -172,6 +179,8 @@
       <div class="panel"></div>
     </div>
   </div>
+
+  <div id="node-panel"></div>
 
   <div id="modal" class="modal fade">
     <div class="modal-dialog">
@@ -203,6 +212,7 @@
   </div>
 
   <div id="main">
+    <div id="nodes"></div>
     <div id="hover"></div>
     <div id="selectbox"></div>
     <div id="edge-drawing" style="visibility:hidden">

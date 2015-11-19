@@ -19,9 +19,7 @@ visflow.init = function() {
   visflow.flow.init();
   visflow.interaction.init();
 
-  $('.visflow').on('click', '.system-message > .close', function(event) {
-    $(this).parent().slideUp();
-  });
+  visflow.test.run();
 };
 
 /**
@@ -58,6 +56,16 @@ visflow.success = function() {
     .slideDown()
     .delay(visflow.MESSAGE_DURATION_)
     .slideUp();
+};
+
+/**
+ * Asserts a condition. If false then panick.
+ * @param {boolean} condition
+ */
+visflow.assert = function(condition) {
+  if (!condition) {
+    visflow.error('assert failed');
+  }
 };
 
 /**

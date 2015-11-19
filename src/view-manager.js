@@ -16,18 +16,30 @@ visflow.viewManager.init = function() {
   this.colorScaleQueue = [];
 };
 
+/** @type {number} */
+visflow.viewManager.zIndex = 0;
+
 /**
- * Creates a container view for node.
+ * Gets the current top z-index. Each time this function is called, a new
+ * z-index will be used so that it is always larger than the previous
+ * z-indices.
  */
-visflow.viewManager.createNodeView = function() {
-  return $('<div></div>').appendTo('#main');
+visflow.viewManager.topZIndex = function() {
+  return ++visflow.viewManager.zIndex;
 };
 
 /**
- * Creates a container view for edge.
+ * Creates a container for node.
  */
-visflow.viewManager.createEdgeView = function() {
-  return $('<div></div>').appendTo('#edges');
+visflow.viewManager.createNodeContainer = function() {
+  return $('<div></div>').appendTo('#main > #nodes');
+};
+
+/**
+ * Creates a container for edge.
+ */
+visflow.viewManager.createEdgeContainer = function() {
+  return $('<div></div>').appendTo('#main > #edges');
 };
 
 /**
@@ -93,14 +105,6 @@ visflow.viewManager.clearEdgeHover = function() {
  */
 visflow.viewManager.hideColorpickers = function(exception) {
   $('.iris-picker').not(exception).hide();
-};
-
-/**
- * Brings a jQuery container to the front.
- * @param {!jQuery} container
- */
-visflow.viewManager.bringToFront = function(container) {
-  $(container).appendTo('#main');
 };
 
 /**

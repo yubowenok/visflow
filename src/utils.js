@@ -26,6 +26,27 @@ visflow.utils.getOffset = function(event, jqthis) {
 };
 
 /**
+ * Gets the offset of an element 'e1' relative to another element 'e2'.
+ * @param {!jQuery} e1
+ * @param {!jQuery} e2
+ */
+visflow.utils.offset = function(e1, e2) {
+  var offset1 = e1.offset(), offset2 = e2.offset();
+  return {
+    left: offset1.left - offset2.left,
+    top: offset1.top - offset2.top
+  };
+};
+
+/**
+ * Gets the offset of an element relative to '#main'.
+ * @param {!jQuery} e
+ */
+visflow.utils.offsetMain = function(e) {
+  return visflow.utils.offset(e, $('#main'));
+};
+
+/**
  * Generates a random string of given length.
  * @param {number} len String length.
  * @return {string} A random string of length 'len'.
@@ -107,16 +128,6 @@ visflow.utils.compare = function(a, b) {
   }
   return result;
 };
-
-/**
- * Removes the bumpy jquery ui style widget header for table
- * @param {!jQuery} container
- */
-visflow.utils.blendTableHeader = function(container) {
-  container.find('.ui-widget-header')
-    .removeClass('ui-widget-header');
-};
-
 
 /** @const {!Array<string>} */
 visflow.utils.gradeToType = ['empty', 'int', 'float', 'string'];

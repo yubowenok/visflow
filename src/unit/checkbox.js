@@ -10,7 +10,7 @@
  */
 visflow.Checkbox = function(params) {
   visflow.Checkbox.base.constructor.call(this, params);
-  this.prepare();
+  this.init()();
 };
 
 /** @inheritDoc */

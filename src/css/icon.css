@@ -1,74 +1,59 @@
-.visflow .table-icon,
-.visflow .scatterplot-icon,
-.visflow .histogram-icon,
-.visflow .parallelcoordinates-icon,
-.visflow .intersect-icon,
-.visflow .heatmap-icon,
-.visflow .minus-icon,
-.visflow .union-icon,
-.visflow .range-icon,
-.visflow .contain-icon,
-.visflow .value-maker-icon,
-.visflow .value-extractor-icon,
-.visflow .property-editor-icon,
-.visflow .property-mapping-icon,
-.visflow .datasrc-icon {
+.visflow .node.icon > .icon {
   position: absolute;
   width: 100%;
   height: 100%;
   background-position: center;
   background-repeat: no-repeat;
-}
-
-.visflow .square-icon {
   background-size: 75px;
 }
+/*
 .visflow .flat-icon {
   background-size: 70px;
 }
+*/
 
-.visflow .datasrc-icon {
+.visflow .node.datasrc > .icon {
   background-image: url(/visflow/imgs/datasrc-icon.png);
 }
-.visflow .table-icon {
+.visflow .node.table > .icon {
   background-image: url(/visflow/imgs/table-icon.png);
 }
-.visflow .scatterplot-icon {
+.visflow .node.scatterplot > .icon {
   background-image: url(/visflow/imgs/scatterplot-icon.png);
 }
-.visflow .parallelcoordinates-icon {
+.visflow .node.parallelcoordinates > .icon {
   background-image: url(/visflow/imgs/parallelcoordinates-icon.png);
 }
-.visflow .histogram-icon {
+.visflow .node.histogram > .icon {
   background-image: url(/visflow/imgs/histogram-icon.png);
 }
-.visflow .heatmap-icon {
+.visflow .node.heatmap > .icon {
   background-image: url(/visflow/imgs/heatmap-icon.png);
 }
-.visflow .intersect-icon {
+.visflow .node.intersect > .icon {
   background-image: url(/visflow/imgs/intersect-icon.png);
 }
-.visflow .minus-icon {
+.visflow .node.minus > .icon {
   background-image: url(/visflow/imgs/minus-icon.png);
 }
-.visflow .union-icon {
+.visflow .node.union > .icon {
   background-image: url(/visflow/imgs/union-icon.png);
 }
-.visflow .value-extractor-icon {
+.visflow .node.value-extractor > .icon {
   background-image: url(/visflow/imgs/value-extractor-icon.png);
 }
-.visflow .value-maker-icon {
+.visflow .node.value-maker > .icon {
   background-image: url(/visflow/imgs/value-maker-icon.png);
 }
-.visflow .range-icon {
+.visflow .node.range > .icon {
   background-image: url(/visflow/imgs/range-icon.png);
 }
-.visflow .contain-icon {
+.visflow .node.contain > .icon {
   background-image: url(/visflow/imgs/contain-icon.png);
 }
-.visflow .property-editor-icon {
+.visflow .node.property-editor > .icon {
   background-image: url(/visflow/imgs/property-editor-icon.png);
 }
-.visflow .property-mapping-icon {
+.visflow .node.property-mapping > .icon {
   background-image: url(/visflow/imgs/property-mapping-icon.png);
 }

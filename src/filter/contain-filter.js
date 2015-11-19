@@ -24,13 +24,13 @@ visflow.ContainFilter = function(params) {
   this.inputMode = 'text';
   this.matchMode = 'exact';
 
-  this.prepare();
+  this.init();
 };
 
 visflow.utils.inherit(visflow.ContainFilter, visflow.Filter);
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.ICON_CLASS =
+visflow.ContainFilter.prototype.MINIMIZED_CLASS =
     'contain-icon square-icon';
 
 /** @inheritDoc */

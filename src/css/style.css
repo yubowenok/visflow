@@ -20,16 +20,6 @@ body {
   position: absolute;
 }
 
-.visflow #edges {
-  position: absolute;
-}
-
-.visflow #edge-drawing
-{
-  position: absolute;
-  z-index: 1000; /* over other elements */
-}
-
 .visflow #selectbox {
   background: #e0cfc2;
   border: 1px solid black;
@@ -37,38 +27,6 @@ body {
   position: absolute;
   z-index: 1000;
 }
-
-.visflow .edge {
-  z-index: -1;
-}
-
-.visflow .edge-segment {
-  position: absolute;
-  width: 100px;
-  background-color: #777;
-  height: 3px;
-  transform-origin: 1.5px 50%;  /* half height to make rotated lines appear connected*/
-}
-
-.visflow .edge-segment-hover {
-  box-shadow: 0px 0px 0px 5px #e0cfc2;
-  background-color: #e0cfc2;
-  z-index: -1;
-}
-
-.visflow .edge-arrow {
-  position: absolute;
-  width: 18px;
-  height: 9px;
-  background: url(/visflow/imgs/edge-arrow.png) no-repeat center;
-  transform-origin: 0px 50%;
-}
-
-.visflow .edge-clone {
-  z-index: 1000;
-  pointer-events: none;
-}
-
 
 .visflow .options {
   left: 100%;
@@ -88,13 +46,6 @@ body {
   display: block;
   margin-bottom: 5px;
 }
-
-.visflow .table {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
 
 .visflow .node-select {
   width: 90%;
@@ -125,7 +76,7 @@ body {
   padding-right: 1em;
 }
 
-.visflow .node-label {
+.visflow .node .node-label {
   font-size: 11px;
   line-height: 11px;
   font-weight: bold;
@@ -133,10 +84,11 @@ body {
   text-align: center;
   padding: 5px;
   left: 5px;
-  top: -23px;
+  top: -22px;
   background: white;
-  border-radius: 5px 5px 0px 0px;
+  border-radius: 2px 2px 0px 0px;
   border: 1px solid #ccc;
+  text-overflow: ellipsis;
   vertical-align: text-top;
   -webkit-user-drag: none;
 }

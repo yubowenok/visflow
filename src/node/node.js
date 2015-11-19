@@ -53,7 +53,7 @@ visflow.Node = function(params) {
    */
   this.options = {
     // Whether to node icon instead of node details.
-    icon: false,
+    minimized: false,
     // Whether to show node label.
     label: true,
     // Whether the node is visible in visMode.
@@ -87,35 +87,84 @@ visflow.Node = function(params) {
    * Node container.
    * @protected {!jQuery}
    */
-  this.container = params.container
-    .addClass('node')
-    .addClass(this.hashtag);
-  this.interaction();
+  this.container = params.container;
+
+  /**
+   * Wrapper for the node content.
+   * @protected {jQuery}
+   */
+  this.content;
+
+  /**
+   * Context menu.
+   * @protected {visflow.ContextMenu}
+   */
+  this.contextMenu;
+
+  this.container.load(this.TEMPLATE_, function() {
+    this.container
+      .addClass('node')
+      .addClass(this.NODE_CLASS)
+      .addClass(this.SHAPE_CLASS)
+      .addClass(this.hashtag);
+    this.content = this.container.children('.content');
+
+    // Call init to prepare node elements.
+    this.init();
+
+    // Set up interaction after initialization.
+    // This requires node elements to be created beforehand.
+    this.interaction();
+
+    // Callback for node creation.
+    if (params.ready) {
+      params.ready.call(this);
+    }
+  }.bind(this));
 };
 
 /**
- * Shape class to set when node details are shown.
- * @protected @const {string}
+ * Node template file.
+ * @private {string}
  */
-visflow.Node.prototype.DETAILS_CLASS = 'node-shape';
+visflow.Node.prototype.TEMPLATE_ = './src/node/node.html';
+
 /**
- * Icon class to set when node details are hidden.
+ * Class that defines the node type.
  * @protected @const {string}
  */
-visflow.Node.prototype.ICON_CLASS = '';
+visflow.Node.prototype.NODE_CLASS = '';
+/**
+ * Class that defines the node shape. This is only effective when the node
+ * details are shown.
+ * @protected @const {string}
+ */
+visflow.Node.prototype.SHAPE_CLASS = 'shape-medium';
 
 /**
  * Contextmenu entries.
  * @protected @const {!Array<{id: string, text: string, icon: string}>}
  */
 visflow.Node.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'delete', text: 'Delete'}
+  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
+  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
+  {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
+  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
 ];
 
 /** @const {number} */
 visflow.Node.prototype.portHeight = 20;
 /** @const {number} */
 visflow.Node.prototype.portGap = 4;
+
+/**
+ * Initializes the node. This shall be called after node elements are loaded
+ * from template.
+ */
+visflow.Node.prototype.init = function() {
+  this.preparePorts();
+  this.initContextMenu();
+};
 
 /**
  * Serializes the node to be storable JSON.
@@ -160,7 +209,7 @@ visflow.Node.prototype.deserialize = function(save) {
   this.label = save.label;
   this.css = save.css;
   this.visCss = save.visCss;
-  if (this.visModeOn == null){
+  if (this.options.visMode == null){
     visflow.error('visModeOn not saved');
     this.visModeOn = false;
     this.visCss = {};
@@ -172,14 +221,6 @@ visflow.Node.prototype.deserialize = function(save) {
     visflow.error('label not saved');
     this.label = 'node label';
   }
-};
-
-/**
- * Prepares all necessary data structures for references.
- * This is called after node initialization.
- */
-visflow.Node.prototype.prepare = function() {
-  this.preparePorts();
 };
 
 /**
@@ -199,9 +240,7 @@ visflow.Node.prototype.preparePorts = function() {
  * Inheriting classes shall not remove again.
  */
 visflow.Node.prototype.show = function() {
-  this.container.children()
-    .not('.ui-resizable-handle')
-    .remove();
+  //this.content.children().remove();
 
   if (!this.visModeOn && visflow.flow.visModeOn) {
     // do not show if hidden in vis mode
@@ -210,10 +249,10 @@ visflow.Node.prototype.show = function() {
   this.container.show();
   this.showLabel();
 
-  if (this.options.showIcon) {
+  if (this.options.minimized) {
     this.container
-      .removeClass(this.DETAILS_CLASS)
-      .addClass(this.ICON_CLASS)
+      .removeClass('details')
+      .addClass('icon')
       .css({
         width: '',
         height: ''
@@ -222,10 +261,9 @@ visflow.Node.prototype.show = function() {
     this.showIcon();
   } else {
     this.container
-      .removeClass(this.ICON_CLASS)
-      .addClass(this.DETAILS_CLASS);
+      .addClass('details')
+      .removeClass('icon');
 
-    this.contextmenu();
     this.showDetails();
   }
 
@@ -241,8 +279,8 @@ visflow.Node.prototype.show = function() {
  * Shows the node icon.
  */
 visflow.Node.prototype.showIcon = function() {
-  this.jqicon = $('<div></div>')
-    .addClass(this.ICON_CLASS)
+  $('<div></div>')
+    .addClass('icon')
     .appendTo(this.container);
 };
 
@@ -251,20 +289,12 @@ visflow.Node.prototype.showIcon = function() {
  */
 visflow.Node.prototype.showLabel = function() {
   var node = this;
-  this.container.find('.node-label').remove();
   if (this.options.label) {
-    $('<div></div>')
-      .attr('contenteditable', true)
-      .addClass('node-label')
+    this.container.children('.node-label')
       .text(this.label)
-      .prependTo(this.container)
-      .mousedown(function (event) {
-        $(this).attr('contenteditable', true);  // re-enable when clicked
-      })
-      .blur(function (event) {
-        node.label = $(this).text();  // may contain html tag, ignore
-        $(this).attr('contenteditable', false); // disable, otherwise requires 2 clicks
-      });
+      .show();
+  } else {
+    this.container.children('.node-label').hide();
   }
 };
 
@@ -300,6 +330,56 @@ visflow.Node.prototype.showOptions = function() {
 };
 
 /**
+ * Focuses the view, brings the view to front.
+ */
+visflow.Node.prototype.focus = function() {
+  $(this.container).css('z-index', visflow.viewManager.topZIndex());
+};
+
+/**
+ * Handles node lick event.
+ */
+visflow.Node.prototype.click = function() {
+};
+/**
+ * Handles mousedown event.
+ */
+visflow.Node.prototype.mousedown = function(event) {
+  if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
+    this.focus();
+    visflow.contextMenu.hide();
+  }
+  visflow.interaction.mousedownHandler({
+    type: 'node',
+    event: event,
+    node: this
+  });
+};
+/**
+ * Handles mouseup event.
+ */
+visflow.Node.prototype.mouseup = function(event) {
+  visflow.interaction.mouseupHandler({
+    type: 'node',
+    event: event,
+    node: this
+  });
+};
+/**
+ * Handles mouseenter event.
+ */
+visflow.Node.prototype.mouseenter = function(event) {
+  this.container.addClass('hover');
+};
+/**
+ * Handles mouseleave event.
+ */
+visflow.Node.prototype.mouseleave = function(event) {
+  this.container.removeClass('hover');
+};
+
+
+/**
  * Prepares the node's interactions.
  */
 visflow.Node.prototype.interaction = function() {
@@ -314,48 +394,25 @@ visflow.Node.prototype.interaction = function() {
       container = this.container;
 
   this.container
-    .mouseenter(function() {
-      container.addClass('hover');
-    })
-    .mouseleave(function() {
-      container.removeClass('hover');
-    })
-    .mousedown(function(event, ui) {
-      visflow.contextMenu.hide();
-      if (event.which === 1) {
-        visflow.flow.activateNode(node.id);
-      }
-      /*
-      else if (event.which === 3) {
-        $('.ui-contextmenu')
-          .css('z-index', 1000); // over other things
-      }
-      */
-      visflow.interaction.mousedownHandler({
-        type: 'node',
-        event: event,
-        node: node
-      });
-    })
-    .mouseup(function(event, ui) {
-      visflow.interaction.mouseupHandler({
-        type: 'node',
-        event: event,
-        node: node
-      });
-    })
+    .click(this.click.bind(this))
+    .mousedown(this.mousedown.bind(this))
+    .mouseup(this.mouseup.bind(this))
+    .mouseenter(this.mouseenter.bind(this))
+    .mouseleave(this.mouseleave.bind(this));
+
+  this.container
     .resizable({
       handles: 'all',
       resize: function(event, ui) {
-        node.resize(ui.size);
-      },
+        this.resize(ui.size);
+      }.bind(this),
       stop: function(event, ui) {
-        node.resizestop(ui.size);
-      }
+        this.resizeStop(ui.size);
+      }.bind(this)
     })
     .draggable({
       cancel: 'input, .node-label',
-      //containment: '#dataflow',
+      containment: '#main',
       start: function(event, ui) {
         visflow.interaction.dragstartHandler({
           type: 'node',
@@ -388,49 +445,53 @@ visflow.Node.prototype.interaction = function() {
       }
    });
   this.container.resizable('disable');
+
+  this.container.children('.node-label')
+    .mousedown(function () {
+      // Re-enable the contenteditable on click.
+      $(this).attr('contenteditable', true);
+    })
+    .blur(function () {
+      // may contain html tag, ignore
+      node.label = $(this).text();
+      // Disable the contenteditable. Otherwise by default it requires 2 clicks
+      // to blur.
+      $(this).attr('contenteditable', false);
+    });
 };
 
 /**
  * Prepares the contextmenu of the node.
  */
-visflow.Node.prototype.contextmenu = function() {
-  this.contextmenu = new visflow.ContextMenu({
+visflow.Node.prototype.initContextMenu = function() {
+  this.contextMenu = new visflow.ContextMenu({
     container: this.container,
     items: this.CONTEXTMENU_ITEMS
   });
 
-  $(this.contextmenu)
+  $(this.contextMenu)
     .on('visflow.delete', function() {
-      console.log('delete');
+    })
+    .on('visflow.icon', function() {
+    })
+    .on('visflow.panel', function() {
+    })
+    .on('visflow.label', function() {
+    })
+    .on('visflow.visMode', function() {
     });
 
   // right-click menu
   /*
   this.container.contextmenu({
-    delegate: this.container,
-    addClass: 'ui-contextmenu',
     menu: [
         {title: 'Toggle Details', cmd: 'details', uiIcon: 'ui-icon-document'},
         {title: 'Toggle Options', cmd: 'options', uiIcon: 'ui-icon-note'},
         {title: 'Toggle Label', cmd: 'label'},
         {title: 'Visualization Mode', cmd: 'vismode'},
         {title: 'Delete', cmd: 'delete', uiIcon: 'ui-icon-close'},
-      ],
-    select: function(event, ui) {
-      return node.contextmenuSelect(event, ui);
-    },
-    beforeOpen: function(event, ui) {
-      return node.contextmenuBeforeOpen(event, ui);
-    },
-    close: function(event, ui) {
-      return node.contextmenuClose(event, ui);
-    }
+      ]
   });
-  // disable some of the entries based on child class specification
-  // in this.contextmenuDisabled
-  for (var entry in this.contextmenuDisabled) {
-    this.container.contextmenu('showEntry', entry, false);
-  }
   */
 };
 
@@ -538,21 +599,19 @@ visflow.Node.prototype.showPorts = function() {
 
   var portStep = this.portHeight + this.portGap;
   var inTopBase = (height - this.inPorts.length * portStep + this.portGap) / 2;
-  for (var i in this.inPorts) {
-    var port = this.inPorts[i];
+  this.inPorts.forEach(function(port, index) {
     var container = $('<div></div>')
-      .css('top', inTopBase + i * portStep)
+      .css('top', inTopBase + index * portStep)
       .appendTo(this.container);
     port.setContainer(container);
-  }
+  }, this);
   var outTopBase = (height - this.outPorts.length * portStep + this.portGap) / 2;
-  for (var i in this.outPorts) {
-    var port = this.outPorts[i];
+  this.outPorts.forEach(function(port, index) {
     var container = $('<div></div>')
-      .css('top', outTopBase + i * portStep)
+      .css('top', outTopBase + index * portStep)
       .appendTo(this.container);
     port.setContainer(container);
-  }
+  }, this);
 };
 
 /**
@@ -793,10 +852,9 @@ visflow.Node.prototype.resize = function(size) {
 /**
  * Handles resize stop event.
  */
-visflow.Node.prototype.resizestop = function(size) {
+visflow.Node.prototype.resizeStop = function(size) {
   this.resize(size);
 };
-
 
 /**
  * Displays node options.

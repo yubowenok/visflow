@@ -11,7 +11,9 @@ visflow.interaction = {};
 visflow.interaction.keyCodes = {
   SHIFT: 16,
   CTRL: 17,
-  ESC: 27
+  ESC: 27,
+  LEFT_MOUSE: 1,
+  RIGHT_MOUSE: 3
 };
 
 /** @type {number} */
@@ -52,6 +54,7 @@ visflow.interaction.init = function() {
   visflow.interaction.trackMousemove();
   visflow.interaction.interaction();
   visflow.interaction.contextMenuClickOff();
+  visflow.interaction.systemMessageClickOff();
 
   this.shifted = false;
   this.ctrled = false;
@@ -75,18 +78,28 @@ visflow.interaction.contextMenuClickOff = function() {
 };
 
 /**
+ * Handles system message click off.
+ */
+visflow.interaction.systemMessageClickOff = function() {
+  $('.visflow').on('click', '.system-message > .close', function() {
+    $(this).parent().slideUp();
+  });
+};
+
+/**
  * Enables/disables up the mouse movement tracking.
  * @param {boolean=} opt_enabled
  */
 visflow.interaction.trackMousemove = function(opt_enabled) {
-  var state = opt_enabled == null ? true : opt_enabled;
-  if (state) {
-    this.mainContainer.off('mousemove');
+  var enabled = opt_enabled == null ? true : opt_enabled;
+  var main = $('#main');
+  if (enabled) {
+    main.mousemove(function(event){
+      visflow.interaction.mouseX = event.pageX;
+      visflow.interaction.mouseY = event.pageY;
+    });
   } else {
-    this.mainContainer.mousemove(function(event){
-      this.mouseX = event.pageX;
-      this.mouseY = event.pageY;
-    }.bind(this));
+    main.off('mousemove');
   }
 };
 
@@ -233,15 +246,18 @@ visflow.interaction.mousedownHandler = function(params) {
   this.mousedownPos = [event.pageX, event.pageY];
   this.mouselastPos = [event.pageX, event.pageY];
 
-  if (this.mouseMode != 'none')
+  if (this.mouseMode != 'none') {
     return true;
+  }
 
   // block mousedown for iris
+  /*
   if ($(event.target).is('.iris-picker, .iris-square-inner, '
     + '.iris-square-handle, .ui-slider-handle')) {
     type = 'iris';
     return true;
   }
+  */
 
   if (type == 'background') {
     if (!this.ctrled) {
@@ -333,8 +349,9 @@ visflow.interaction.mouseupHandler = function(params) {
     }
   } else if (type == 'node') {
     if (!this.mouseMoved) {
-      if (!this.shifted)
+      if (!this.shifted) {
         visflow.flow.clearNodeSelection();
+      }
       visflow.flow.addNodeSelection(params.node);
     }
   }
@@ -360,9 +377,9 @@ visflow.interaction.dragstartHandler = function(params) {
   if (type == 'port') {
     this.mouseMode = 'port';
     var jqtarget = $(params.event.target);
-    var x = jqtarget.offset().left + jqtarget.outerWidth() / 2,
-        y = jqtarget.offset().top + jqtarget.outerHeight() / 2;
-    //console.log(jqtarget,x,y, jqtarget.outerWidth());
+    var offset = visflow.utils.offsetMain(jqtarget);
+    var x = offset.left + jqtarget.outerWidth() / 2,
+        y = offset.top + jqtarget.outerHeight() / 2;
     this.dragstartPos = [x, y];
     this.dropPossible = true;
   }
@@ -390,8 +407,9 @@ visflow.interaction.dragmoveHandler = function(params) {
       event = params.event;
   this.dragstopPos = [params.event.pageX, params.event.pageY];
 
-  if (this.mouseMode != type)
+  if (this.mouseMode != type) {
     return;
+  }
 
   if (type == 'port') {
     var dx = this.dragstopPos[0] - this.dragstartPos[0],

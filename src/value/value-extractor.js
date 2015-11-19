@@ -27,13 +27,13 @@ visflow.ValueExtractor = function(params) {
 
   this.lastDataId = 0;  // default empty data
 
-  this.prepare();
+  this.init()();
 };
 
 visflow.utils.inherit(visflow.ValueExtractor, visflow.Node);
 
 /** @inheritDoc */
-visflow.ValueExtractor.prototype.ICON_CLASS =
+visflow.ValueExtractor.prototype.MINIMIZED_CLASS =
     'value-extractor-icon flat-icon';
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.SHAPE_NAME = 'value-extractor';

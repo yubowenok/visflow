@@ -17,7 +17,7 @@ visflow.PropertyMapping = function(params) {
   this.outPorts = [
     new visflow.Port(this, 'out', 'out-multiple', 'D')
   ];
-  this.prepare();
+  this.init();
 
   this.dimension = null;
   this.mapping = null;
@@ -31,7 +31,7 @@ visflow.PropertyMapping = function(params) {
 visflow.utils.inherit(visflow.PropertyMapping, visflow.Node);
 
 /** @inheritDoc */
-visflow.PropertyMapping.prototype.ICON_CLASS =
+visflow.PropertyMapping.prototype.MINIMIZED_CLASS =
     'property-mapping-icon square-icon';
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.SHAPE_NAME = 'property-mapping'; // dedicate shape

@@ -21,8 +21,12 @@ visflow.Visualization = function(params) {
   ];
 
   this.optionsOn = false;
-  this.showLabel = true;
-  this.label = this.plotName + ' (' + this.nodeId + ')';
+
+  _(this.options).extend({
+    label: true
+  });
+
+  this.label = this.plotName + ' (' + this.id + ')';
 
   this.visWidth = null;
   this.visHeight = null;
@@ -43,11 +47,9 @@ visflow.utils.inherit(visflow.Visualization, visflow.Node);
  * Plot name used for debugging and hint message.
  * @const {string}
  */
-visflow.Visualization.prototype.PLOT_NAME = '';
-/** @const {string} */
-visflow.Visualization.prototype.SHAPE_NAME = 'vis';
-/** @const {!Object} */
-visflow.Visualization.prototype.contextmenuDisabled = {};
+visflow.Visualization.prototype.PLOT_NAME = '';;
+/** @inheritDoc */
+visflow.Visualization.prototype.SHAPE_CLASS = 'shape-vis';
 
 /**
  * Object for specifying default rendering properties.
@@ -92,6 +94,26 @@ visflow.Visualization.prototype.isAttr = {
   y1: true,
   y2: true,
   transform: true
+};
+
+
+/** @inheritDoc */
+visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
+  {id: 'selectAll', text: 'Select All'},
+  {id: 'clearSelection', text: 'Clear Selection'},
+  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
+  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
+  {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
+  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
+];
+
+
+/** @inheritDoc */
+visflow.Visualization.prototype.init = function() {
+  visflow.Visualization.base.init.call(this);
+  this.container.addClass('visualization');
+  this.jqvis = this.content;
+  this.createSVG();
 };
 
 /**
@@ -140,36 +162,6 @@ visflow.Visualization.prototype.deserialize = function(save) {
   }
 };
 
-visflow.Visualization.prototype.contextMenu = function() {
-  visflow.Visualization.base.contextMenu.call(this);
-
-  var node = this;
-  // override menu entries
-  this.container.contextmenu('replaceMenu',
-      [
-        {title: 'Toggle Visualization', cmd: 'details', uiIcon: 'ui-icon-image'},
-        {title: 'Toggle Options', cmd: 'options', uiIcon: 'ui-icon-note'},
-        {title: 'Toggle Label', cmd: 'label'},
-        {title: 'Visualization Mode', cmd: 'vismode'},
-        {title: 'Select All', cmd: 'selall'},
-        {title: 'Clear Selection', cmd: 'selclear'},
-        {title: 'Delete', cmd: 'delete', uiIcon: 'ui-icon-close'}
-      ]
-  );
-};
-
-/** @inheritDoc */
-visflow.Visualization.prototype.contextmenuSelect = function(event, ui) {
-  if (ui.cmd == 'selall') {
-    this.selectAll();
-  } else if (ui.cmd == 'selclear') {
-    this.clearSelection();
-  } else {
-    // can be handled by base class handler
-    visflow.Visualization.base.contextmenuSelect.call(this, event, ui);
-  }
-};
-
 /**
  * Checks if the node's data is empty.
  * @return {boolean}
@@ -182,19 +174,21 @@ visflow.Visualization.prototype.checkDataEmpty = function() {
     this.isEmpty = true;
 
     if (this.svg) {
-      this.svg.remove();
+      // this.svg.remove();
+      this.svg.style('display', 'none');
       this.interactionOn = false;
     }
     return;
   }
+  this.svg.style('display', '');
   this.isEmpty = false;
 };
 
 /**
  * Prepares the svg canvas.
- * @param {boolean} keepOld
  */
-visflow.Visualization.prototype.prepareSvg = function(keepOld) {
+visflow.Visualization.prototype.createSVG = function() {
+  /*
   if (this.svg) {
     if (keepOld == true) {
       return;
@@ -202,6 +196,7 @@ visflow.Visualization.prototype.prepareSvg = function(keepOld) {
     this.svg.remove();
     this.interactionOn = false;
   }
+  */
   this.svg = d3.selectAll(this.jqvis.toArray()).append('svg');
   this.jqsvg = $(this.svg[0]);
 
@@ -213,10 +208,6 @@ visflow.Visualization.prototype.showDetails = function() {
   visflow.Visualization.base.showDetails.call(this);
 
   var node = this;
-
-  this.jqvis = $('<div></div>')
-    .addClass('visualization')
-    .appendTo(this.container);
 
   this.container
     .css('width', this.visWidth)
@@ -234,8 +225,9 @@ visflow.Visualization.prototype.showDetails = function() {
 visflow.Visualization.prototype.showIcon = function() {
   visflow.Visualization.base.showIcon.call(this);
 
-  if (this.jqvis)
-    this.jqvis.remove();
+  if (this.jqvis) {
+    this.jqvis.hide();
+  }
     /*
   this.container
     .css('width', '')
@@ -327,6 +319,7 @@ visflow.Visualization.prototype.clearSelection = function() {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.interaction = function() {
+  visflow.Visualization.base.interaction.call(this);
   if (!this.interactionOn) {
     this.prepareInteraction();
     this.interactionOn = true;
@@ -349,7 +342,7 @@ visflow.Visualization.prototype.showMessage = function(msg) {
  */
 visflow.Visualization.prototype.clearMessage = function() {
   if (this.jqmsg) {
-    this.jqmsg.remove();
+    this.jqmsg.hide();
   }
 };
 
@@ -369,8 +362,9 @@ visflow.Visualization.prototype.keyAction = function(key, event) {
  * selected.
  */
 visflow.Visualization.prototype.prepareInteraction = function() {
-  if (this.jqsvg == null)
+  if (this.jqsvg == null) {
     return visflow.error('no svg for prepareInteraction');
+  }
   var node = this;
   this.jqsvg.mousedown(function(){
     // always add this view to selection
@@ -485,15 +479,15 @@ visflow.Visualization.prototype.applyProperties = function(u, properties, transl
 /** @inheritDoc */
 visflow.Visualization.prototype.resize = function(size) {
   visflow.Visualization.base.resize.call(this, size);
-  if (this.detailsOn) {
+  if (!this.options.showIcon) {
     this.visWidth = size.width;
     this.visHeight = size.height;
   }
 };
 
 /** @inheritDOc */
-visflow.Visualization.prototype.resizestop = function(size) {
-  visflow.Visualization.base.resizestop.call(this, size);
+visflow.Visualization.prototype.resizeStop = function(size) {
+  visflow.Visualization.base.resizeStop.call(this, size);
 };
 
 /**

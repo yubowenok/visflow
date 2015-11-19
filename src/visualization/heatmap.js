@@ -11,7 +11,7 @@
 visflow.Heatmap = function(params) {
   visflow.Heatmap.base.constructor.call(this, params);
 
-  this.prepare();
+  this.init()();
 
   // shown dimensions in parallel coordinates
   this.dimensions = [];
@@ -46,7 +46,7 @@ visflow.utils.inherit(visflow.Heatmap, visflow.Visualization);
 visflow.Heatmap.prototype.PLOT_NAME = 'Heatmap';
 
 /** @inheritDoc */
-visflow.Heatmap.prototype.ICON_CLASS =
+visflow.Heatmap.prototype.MINIMIZED_CLASS =
     'heatmap-icon square-icon';
 
 /** @inheritDoc */
@@ -204,9 +204,13 @@ visflow.Heatmap.prototype.showSelectbox = function(box) {
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.showVisualization = function(useTransition) {
-  // may reach here when node is in icon mode but options are on, and colorscale callback
-  if (!this.detailsOn)
+  // TODO(bowen): check obsolete
+  // may reach here when node is in icon mode but options are on,
+  // and colorscale callback
+  if (this.options.minimized) {
+    visflow.error('show visualization called when in icon mode');
     return;
+  }
 
   var node = this;
   var inpack = this.ports['in'].pack,
@@ -214,7 +218,7 @@ visflow.Heatmap.prototype.showVisualization = function(useTransition) {
       data = inpack.data;
 
   this.checkDataEmpty();
-  this.prepareSvg(useTransition);
+  //this.prepareSvg(useTransition);
   if (this.isEmpty)
     return;
   this.prepareScales();

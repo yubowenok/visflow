@@ -39,12 +39,6 @@ visflow.Port = function(node, id, type, text, isConstants) {
 };
 
 /**
- * Initializes the port.
- */
-visflow.Port.prototype.init = function() {
-};
-
-/**
  * Checks if the port has been connected.
  * @return {boolean}
  */
@@ -134,13 +128,17 @@ visflow.Port.prototype.setContainer = function(container) {
     .addClass(this.isInPort ? 'port-in' : 'port-out');
 
   if (this.isConstants) {
-    this.container.addClass('port-constants');
+    this.container.addClass('constants');
   }
 
   $('<div></div>')
     .text(this.text)
     .addClass('port-icon port-icon-'
       + (this.isSingle ? 'single' : 'multiple'))
+    .appendTo(this.container);
+
+  $('<div></div>')
+    .addClass('background')
     .appendTo(this.container);
 
   this.prepareInteraction();
@@ -199,7 +197,7 @@ visflow.Port.prototype.prepareInteraction = function() {
       }
     })
     .droppable({
-      hoverClass : 'port-hover',
+      hoverClass : 'hover',
       tolerance : 'pointer',
       accept : port.isInPort ? '.port-out' : '.port-in',
       greedy : true,

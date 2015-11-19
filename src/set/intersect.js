@@ -10,13 +10,13 @@
  */
 visflow.Intersect = function(params) {
   visflow.Intersect.base.constructor.call(this, params);
-  this.prepare();
+  this.init();
 };
 
 visflow.utils.inherit(visflow.Intersect, visflow.Set);
 
 /** @inheritDoc */
-visflow.Intersect.prototype.ICON_CLASS =
+visflow.Intersect.prototype.MINIMIZED_CLASS =
   'intersect-icon flat-icon';
 
 /** @inheritDoc */

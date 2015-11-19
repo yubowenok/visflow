@@ -33,7 +33,7 @@ function get_client_ip() {
 }
 
 date_default_timezone_set('America/New_York');
-$fp = fopen('dataflow.log', 'a');
+$fp = fopen('visit.log', 'a');
 $ip = get_client_ip();
 $date = date('m/d/Y h:i:s A', time());
 $user = getenv('REMOTE_USER');

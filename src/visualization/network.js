@@ -23,7 +23,7 @@ visflow.Network = function(params) {
     new visflow.Port(this, 'oute', 'out-multiple', 'D')
   ];
 
-  this.prepare();
+  this.init();
 
   // re-processed from edge list table
   this.nodeList = [];
@@ -56,7 +56,7 @@ visflow.utils.inherit(visflow.Network, visflow.Visualization);
 visflow.Network.prototype.PLOT_NAME = 'Network';
 
 /** @inheritDoc */
-visflow.Network.prototype.ICON_CLASS =
+visflow.Network.prototype.MINIMIZED_CLASS =
     'network-icon square-icon';
 
 /** @inheritDoc */
@@ -357,7 +357,7 @@ visflow.Network.prototype.checkDataEmpty = function() {
 /** @inheritDoc */
 visflow.Network.prototype.showVisualization = function(preventForce) {
   this.checkDataEmpty();
-  this.prepareSvg();
+  //this.prepareSvg();
   if (this.isEmpty)
     return;
   this.interaction();

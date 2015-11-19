@@ -9,14 +9,14 @@
  * @constructor
  */
 visflow.Union = function(params) {
-  visflow.Union.base.constructor.call(this, para);
-  this.prepare();
+  visflow.Union.base.constructor.call(this, params);
+  this.init();
 };
 
 visflow.utils.inherit(visflow.Union, visflow.Set);
 
 /** @inheritDoc */
-visflow.Union.prototype.ICON_CLASS =
+visflow.Union.prototype.MINIMIZED_CLASS =
     'union-icon flat-icon';
 
 /** @inheritDoc */

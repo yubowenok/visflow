@@ -17,7 +17,7 @@ visflow.PropertyEditor = function(params) {
   this.outPorts = [
     new visflow.Port(this, 'out', 'out-multiple', 'D')
   ];
-  this.prepare();
+  this.init();
 
   // nothing is set by default
   this.properties = {};
@@ -26,7 +26,7 @@ visflow.PropertyEditor = function(params) {
 visflow.utils.inherit(visflow.PropertyEditor, visflow.Node);
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.ICON_CLASS =
+visflow.PropertyEditor.prototype.MINIMIZED_CLASS =
     'property-editor-icon square-icon';
 
 /** @inheritDoc */

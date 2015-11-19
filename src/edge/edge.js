@@ -18,6 +18,29 @@ visflow.Edge = function(params) {
   this.sourcePort = params.sourcePort;
   this.targetNode = params.targetNode;
   this.targetPort = params.targetPort;
+
+  /**
+   * Edge container.
+   * @protected {!jQuery}
+   */
+  this.container = params.container;
+
+  this.contextMenu();
+};
+
+/** @const {!Array<!visflow.contextMenu.Item>} */
+visflow.Edge.prototype.CONTEXTMENU_ITEMS = [
+  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
+];
+
+/**
+ * Prepares contextMenu for the edge.
+ */
+visflow.Edge.prototype.contextMenu = function() {
+  this.contextMenu = new visflow.ContextMenu({
+    container: this.container,
+    items: this.CONTEXTMENU_ITEMS
+  });
 };
 
 /**
@@ -36,22 +59,15 @@ visflow.Edge.prototype.serialize = function() {
 };
 
 /**
- * Sets the container of the edge.
- * @param {!jQuery} container
- */
-visflow.Edge.prototype.setContainer = function(container) {
-  this.container = container.addClass('edge');
-};
-
-/**
  * Shows the edge.
  */
 visflow.Edge.prototype.show = function() {
   // clear before drawing
   this.container.children().remove();
 
-  if (visflow.flow.visModeOn)
+  if (visflow.flow.visModeOn) {
     return; // not showing edges in vis mode
+  }
 
   this.container.show();
 
@@ -62,19 +78,6 @@ visflow.Edge.prototype.show = function() {
   // right-click menu
   var edge = this;
 
-  this.container.contextMenu({
-    selector: this.container,
-    callback: function(key, options) {
-      console.log(options);
-      switch(key) {
-        case 'delete':
-          visflow.flow.deleteEdge(edge);
-      }
-    },
-    items: {
-      delete: {name: 'delete', icon: 'delete'}
-    }
-  });
   this.update();
 
   var container = this.container;
@@ -97,17 +100,14 @@ visflow.Edge.prototype.show = function() {
  * Re-renders the edge.
  */
 visflow.Edge.prototype.update = function() {
-  var sx = this.sourcePort.container.offset().left + this.sourcePort.container.width() / 2,
-      sy = this.sourcePort.container.offset().top + this.sourcePort.container.height() / 2,
-      ex = this.targetPort.container.offset().left + this.targetPort.container.width() / 2,
-      ey = this.targetPort.container.offset().top + this.targetPort.container.height() / 2,
-      dx = ex - sx,
-      dy = ey - sy;
+  var sourceOffset = visflow.utils.offsetMain(this.sourcePort.container);
+  var targetOffset = visflow.utils.offsetMain(this.targetPort.container);
+  var sx = sourceOffset.left + this.sourcePort.container.width() / 2;
+  var sy = sourceOffset.top + this.sourcePort.container.height() / 2;
+  var ex = targetOffset.left + this.targetPort.container.width() / 2;
+  var ey = targetOffset.top + this.targetPort.container.height() / 2;
 
-  // draw edges in 2 or 3 segments, hacky...
-
-  //var length = Math.sqrt(dx * dx + dy * dy);
-  //var angle = Math.atan2(dy, dx);
+  // Draw edges in 2 or 3 segments, hacky auto-layout...
   this.container.children().not('.edge-arrow').remove();
 
   var hseg = 3,
@@ -184,16 +184,18 @@ visflow.Edge.prototype.update = function() {
     }
   } else {  // ex < ey
     var midy;
+    var sourceNodeOffset = visflow.utils.offsetMain(this.sourceNode.container);
+    var targetNodeOffset = visflow.utils.offsetMain(this.targetNode.container);
     var sourceYrange = [
-        this.sourceNode.container.offset().top,
-        this.sourceNode.container.offset().top + this.sourceNode.container.outerHeight()
-      ],
-        targetYrange = [
-        this.targetNode.container.offset().top,
-        this.targetNode.container.offset().top + this.targetNode.container.outerHeight()
-      ];
-    if ( sourceYrange[0] <= targetYrange[1] &&
-         sourceYrange[1] >= targetYrange[0] ) {
+      sourceNodeOffset.top,
+      sourceNodeOffset.top + this.sourceNode.container.outerHeight()
+    ];
+    var targetYrange = [
+      targetNodeOffset.top,
+      targetNodeOffset.top + this.targetNode.container.outerHeight()
+    ];
+    if (sourceYrange[0] <= targetYrange[1] &&
+        sourceYrange[1] >= targetYrange[0]) {
        // two nodes have intersecting y range, get around
        if (yDir == 'up') {
          midy = targetYrange[0] - 20; // up is from human view (reversed screen coordinate)
@@ -242,7 +244,6 @@ visflow.Edge.prototype.update = function() {
   }
 
   this.jqarrow.appendTo(this.container); // re-append to appear on top
-  //.css('transform', 'rotate(' + angle + 'rad)');
 };
 
 /**

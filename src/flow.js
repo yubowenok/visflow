@@ -89,8 +89,9 @@ visflow.flow.VISUALIZATION_TYPES_ = {
 /**
  * Creates a node of given type.
  * @param {string} type
+ * @param {Object} nodeSave Saved node data for de-serialization.
  */
-visflow.flow.createNode = function(type) {
+visflow.flow.createNode = function(type, save) {
   // Convert to camel case. HTML use dash separated strings.
   type = $.camelCase(type);
 
@@ -114,16 +115,25 @@ visflow.flow.createNode = function(type) {
   _(params).extend({
     id: ++this.nodeCounter,
     type: type,
-    container: visflow.viewManager.createNodeView()
+    container: visflow.viewManager.createNodeContainer(),
+    ready: function() {
+      /** @this {!visflow.Node} */
+      this.show();
+      this.focus();
+
+      // If node is created from diagram loading, then de-serialize.
+      if (save) {
+        this.deserialize(save);
+        this.loadCss();
+        this.updatePorts();
+      }
+    }
   });
   newnode = new nodeConstructor(params);
-  newnode.show();
   this.nodes[newnode.id] = newnode;
   if (type == 'datasrc' || type == 'value-maker') {
     this.dataSources.push(newnode);
   }
-  this.activateNode(newnode.id);
-
   // Select newnode (exclusive) after node creation.
   this.clearNodeSelection();
   this.addNodeSelection(newnode);
@@ -152,10 +162,9 @@ visflow.flow.createEdge = function(sourcePort, targetPort) {
     sourceNode: sourceNode,
     sourcePort: sourcePort,
     targetNode: targetNode,
-    targetPort: targetPort
+    targetPort: targetPort,
+    container: visflow.viewManager.createEdgeContainer()
   });
-  var container = visflow.viewManager.createEdgeView();
-  newedge.setContainer(container);
   newedge.show();
 
   sourcePort.connect(newedge);
@@ -198,17 +207,6 @@ visflow.flow.deleteEdge = function(edge) {
 
   edge.remove();  // removes the container
   delete this.edges[edge.id];
-};
-
-/**
- * Activates the node with given ID.
- * @param {string} id Node ID.
- */
-visflow.flow.activateNode = function(id) {
-  if (this.nodes[id].container == null) {
-    visflow.error('node does not have container');
-  }
-  visflow.viewManager.bringToFront(this.nodes[id].container);
 };
 
 /**
@@ -336,13 +334,8 @@ visflow.flow.deserializeFlow = function(flow) {
       }
     }
 
-    var newnode = this.createNode(type);
+    var newnode = this.createNode(type, nodeSaved);
     hashes[nodeSaved.hashtag] = newnode;
-    //newnode.container.css(nodeSaved.css);
-
-    newnode.deserialize(nodeSaved);
-    newnode.loadCss();
-    newnode.updatePorts();
   }
   for (var i in flow.edges) {
     var edgeSaved = flow.edges[i];

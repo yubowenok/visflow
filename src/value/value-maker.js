@@ -24,13 +24,13 @@ visflow.ValueMaker = function(params) {
   // overwrite with constants
   this.outPorts[0].pack = this.value;
 
-  this.prepare();
+  this.init()();
 };
 
 visflow.utils.inherit(visflow.ValueMaker, visflow.Node);
 
 /** @inheritDoc */
-visflow.ValueMaker.prototype.ICON_CLASS =
+visflow.ValueMaker.prototype.MINIMIZED_CLASS =
     'value-maker-icon flat-icon';
 /** @inheritDoc */
 visflow.ValueMaker.prototype.SHAPE_NAME = 'superflat';

@@ -18,16 +18,12 @@ visflow.DataSource = function(params) {
   this.outPorts = [
     new visflow.Port(this, 'out', 'out-multiple', 'D')
   ];
-  this.prepare();
 };
 
 visflow.utils.inherit(visflow.DataSource, visflow.Node);
 
 /** @inheritDoc */
-visflow.DataSource.prototype.ICON_CLASS =
-    'datasrc-icon square-icon';
-/** @inheritDoc */
-visflow.DataSource.prototype.SHAPE_NAME = 'normal';
+visflow.DataSource.prototype.NODE_CLASS = 'data-source';
 
 /** @inheritDoc */
 visflow.DataSource.prototype.contextmenuDisabled = {
@@ -57,35 +53,32 @@ visflow.DataSource.prototype.show = function() {
   var container = this.container,
       node = this;
 
-  if (this.detailsOn) {
-    this.container
-      .css('text-align', 'center');
+  visflow.assert(!this.options.minimized);
 
-    $('<div style="padding: 10px">No data loaded</div>')
-      .attr('id', 'datahint')
-      .appendTo(this.container);
+  $('<div>No data loaded</div>')
+    .attr('id', 'data-name')
+    .appendTo(this.content);
 
-    // load data buttons
-    $('<button>Load Data</button>')
-      .addClass('btn btn-default btn-sm')
-      .click(function(){
-        visflow.dialog.create({
-          template: './src/datasource/load-data.html',
-          complete: function(dialog) {
-            var select = dialog.find('select');
-            select.select2();
-            dialog.find('#confirm').click(function() {
-              var data = select.select2('data')[0];
-              node.loadData(data.id, data.text);
-            });
-          }
-        });
-      })
-      .appendTo(this.container);
+  // load data buttons
+  $('<button>Load Data</button>')
+    .addClass('btn btn-default btn-sm')
+    .click(function(){
+      visflow.dialog.create({
+        template: './src/datasource/load-data.html',
+        complete: function(dialog) {
+          var select = dialog.find('select');
+          select.select2();
+          dialog.find('#confirm').click(function() {
+            var data = select.select2('data')[0];
+            node.loadData(data.id, data.text);
+          });
+        }
+      });
+    })
+    .appendTo(this.container);
 
-    if (this.dataName != null) {
-      this.container.find('#datahint').text(this.dataName);
-    }
+  if (this.dataName != null) {
+    this.container.find('#data-name').text(this.dataName);
   }
 };
 
@@ -101,7 +94,7 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
   visflow.flow.asyncDataloadStart(this);
 
   if (dataSelected == 'none') {
-    this.container.find('#datahint')
+    this.container.find('#data-name')
       .text('No data loaded');
     this.dataSelected = dataSelected;
     this.dataName = null;
@@ -110,7 +103,7 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
     return;
   }
 
-  // TODO re-use loaded data
+  // TODO(bowen): re-use loaded data
   /*
   var data;
   if ((data = visflow.flow.data[dataSelected]) != null) {
@@ -131,7 +124,7 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
       }
       node.dataSelected = dataSelected;
       node.dataName = dataName;
-      node.container.find('#datahint').text(dataName);
+      node.container.find('#data-name').text(dataName);
 
       var data = new visflow.Data(result);
 

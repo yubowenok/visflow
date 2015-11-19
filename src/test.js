@@ -8,13 +8,16 @@
 visflow.test = {};
 
 visflow.test.run = function() {
-  //visflow.diagram.download('myDataflow');
+  visflow.diagram.download_('myDiagram');
+
   //visflow.flow.createNode('datasrc');
+  //visflow.flow.createNode('table');
+
   //visflow.flow.createNode('value_maker');
   //visflow.flow.createNode('value_maker');
   //visflow.flow.createNode('range');
 
-  visflow.flow.createNode('intersect');
+  //visflow.flow.createNode('intersect');
 
   /*
    visflow.flow.createNode('range');

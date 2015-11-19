@@ -11,7 +11,7 @@
 visflow.ParallelCoordinates = function(params) {
   visflow.ParallelCoordinates.base.constructor.call(this, params);
 
-  this.prepare();
+  this.init();
 
   // shown dimensions in parallel coordinates
   this.dimensions = [];
@@ -54,7 +54,7 @@ visflow.ParallelCoordinates.prototype.propertyTranslate = {
 };
 
 /** @inheritDoc */
-visflow.ParallelCoordinates.prototype.ICON_CLASS =
+visflow.ParallelCoordinates.prototype.MINIMIZED_CLASS =
     'parallelcoordinates-icon square-icon';
 
 /** @inheritDoc */
@@ -202,7 +202,7 @@ visflow.ParallelCoordinates.prototype.showVisualization = function() {
       values = data.values;
 
   this.checkDataEmpty();
-  this.prepareSvg();
+  //this.prepareSvg();
   if (this.isEmpty)
     return;
   this.prepareScales();
