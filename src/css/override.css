@@ -8,6 +8,10 @@
 
 /* user agent might default to 8 */
 
+th {
+  font-weight: normal;
+}
+
 /*
 body {
   margin: 0;

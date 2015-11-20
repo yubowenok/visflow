@@ -10,7 +10,6 @@
  */
 visflow.Intersect = function(params) {
   visflow.Intersect.base.constructor.call(this, params);
-  this.init();
 };
 
 visflow.utils.inherit(visflow.Intersect, visflow.Set);

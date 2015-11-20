@@ -8,20 +8,16 @@
 visflow.utils = {};
 
 /**
- * Gets event offset corresponding to parent element.
- * @param {!jQuery.event} event jQuery event.
- * @param {!jQuery} jqthis jQuery selection of the element in question.
+ * Gets event offset corresponding to a given element 'e'.
+ * @param {!jQuery.event} event
+ * @param {!jQuery} e
  * @return {!Array<number>} Offset computed.
  */
-visflow.utils.getOffset = function(event, jqthis) {
-  var parentOffset = jqthis.parent().offset();
-  if (parentOffset == null) {
-    visflow.error('parentOffset is null');
-    return null;
-  }
+visflow.utils.getOffset = function(event, e) {
+  var offset = e.offset();
   return [
-    event.pageX - parentOffset.left,
-    event.pageY - parentOffset.top
+    event.pageX - offset.left,
+    event.pageY - offset.top
   ];
 };
 

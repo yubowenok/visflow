@@ -96,18 +96,33 @@ visflow.Node = function(params) {
   this.content;
 
   /**
+   * Node icon.
+   * @protected {jQuery}
+   */
+  this.icon;
+
+  /**
+   * Mouse interaction mode.
+   * @protected {string}
+   */
+  this.mouseMode = '';
+
+  /**
    * Context menu.
    * @protected {visflow.ContextMenu}
    */
   this.contextMenu;
 
-  this.container.load(this.TEMPLATE_, function() {
+  this.container.load(this.TEMPLATE, function() {
     this.container
       .addClass('node')
       .addClass(this.NODE_CLASS)
       .addClass(this.SHAPE_CLASS)
       .addClass(this.hashtag);
+
     this.content = this.container.children('.content');
+
+    this.icon = this.container.children('.icon');
 
     // Call init to prepare node elements.
     this.init();
@@ -116,24 +131,33 @@ visflow.Node = function(params) {
     // This requires node elements to be created beforehand.
     this.interaction();
 
-    // Callback for node creation.
-    if (params.ready) {
-      params.ready.call(this);
-    }
+    // For callback.
+    $(this).trigger('visflow.ready');
   }.bind(this));
 };
 
 /**
  * Node template file.
- * @private {string}
+ * @protected {string}
  */
-visflow.Node.prototype.TEMPLATE_ = './src/node/node.html';
+visflow.Node.prototype.TEMPLATE = './src/node/node.html';
+
+// Minimum size of resizable. Default is no minimum.
+/** @protected @const {number} */
+visflow.Node.prototype.MIN_WIDTH = 0;
+/** @protected @const {number} */
+visflow.Node.prototype.MIN_HEIGHT = 0;
 
 /**
  * Class that defines the node type.
  * @protected @const {string}
  */
 visflow.Node.prototype.NODE_CLASS = '';
+/**
+ * Class added when node is minimized.
+ * @protected @const {string}
+ */
+visflow.Node.prototype.MINIMIZED_CLASS = '';
 /**
  * Class that defines the node shape. This is only effective when the node
  * details are shown.
@@ -162,7 +186,7 @@ visflow.Node.prototype.portGap = 4;
  * from template.
  */
 visflow.Node.prototype.init = function() {
-  this.preparePorts();
+  this.listInOutPorts_();
   this.initContextMenu();
 };
 
@@ -177,8 +201,6 @@ visflow.Node.prototype.serialize = function() {
     nodeId: this.nodeId,
     hashtag: this.hashtag,
     type: this.type,
-    optionsOn: this.optionsOn,
-    optionsOffset: this.optionsOffset,
     label: this.label,
     css: this.css,
     visCss: this.visCss,
@@ -209,6 +231,9 @@ visflow.Node.prototype.deserialize = function(save) {
   this.label = save.label;
   this.css = save.css;
   this.visCss = save.visCss;
+
+  this.container.css(this.css);
+
   if (this.options.visMode == null){
     visflow.error('visModeOn not saved');
     this.visModeOn = false;
@@ -224,14 +249,34 @@ visflow.Node.prototype.deserialize = function(save) {
 };
 
 /**
- * Prepares the ports of the node.
+ * Creates a list for input, output ports, respectively.
+ * @private
  */
-visflow.Node.prototype.preparePorts = function() {
-  var allports = this.inPorts.concat(this.outPorts);
-  for (var i in allports) {
-    this.ports[allports[i].id] = allports[i];
-    allports[i].pack.changed = false; // initialize change to false after creation
-  }
+visflow.Node.prototype.listInOutPorts_ = function() {
+  $.each(this.ports, function(id, port) {
+    if (port.isInPort) {
+      this.inPorts.push(port);
+    } else {
+      this.outPorts.push(port);
+    }
+  }.bind(this));
+};
+
+/**
+ * Displays a message at the center of the node.
+ * @param {string} msg
+ */
+visflow.Node.prototype.showMessage = function(msg) {
+  var popup = this.container.children('.popup');
+  popup.children('.text').text(msg);
+  popup.show();
+};
+
+/**
+ * Hides the node message.
+ */
+visflow.Node.prototype.hideMessage = function() {
+  this.container.children('.popup').hide();
 };
 
 /**
@@ -252,7 +297,8 @@ visflow.Node.prototype.show = function() {
   if (this.options.minimized) {
     this.container
       .removeClass('details')
-      .addClass('icon')
+      .addClass('minimized')
+      .addClass(this.MINIMIZED_CLASS)
       .css({
         width: '',
         height: ''
@@ -262,7 +308,7 @@ visflow.Node.prototype.show = function() {
   } else {
     this.container
       .addClass('details')
-      .removeClass('icon');
+      .removeClass('minimized');
 
     this.showDetails();
   }
@@ -272,23 +318,13 @@ visflow.Node.prototype.show = function() {
     this.showPorts();
     this.updatePorts(); // update edges
   }
-  this.showOptions();
-};
-
-/**
- * Shows the node icon.
- */
-visflow.Node.prototype.showIcon = function() {
-  $('<div></div>')
-    .addClass('icon')
-    .appendTo(this.container);
+  this.showPanel();
 };
 
 /**
  * Shows the node label.
  */
 visflow.Node.prototype.showLabel = function() {
-  var node = this;
   if (this.options.label) {
     this.container.children('.node-label')
       .text(this.label)
@@ -299,10 +335,8 @@ visflow.Node.prototype.showLabel = function() {
 };
 
 /**
- * Shows/hides options.
- * To handle options, implement showOptions().
- */
-visflow.Node.prototype.showOptions = function() {
+ * Shows/hides options panel.
+visflow.Node.prototype.showPanel = function() {
   var node = this;
   if (this.optionsOn == true) {
     if (this.jqoptions) { // already shown, clear
@@ -320,7 +354,6 @@ visflow.Node.prototype.showOptions = function() {
     if (this.optionsOffset != null) {
       this.jqoptions.css(this.optionsOffset);
     }
-    this.showOptions();
   } else {
     if (this.jqoptions) {
       this.jqoptions.remove();
@@ -328,6 +361,7 @@ visflow.Node.prototype.showOptions = function() {
     }
   }
 };
+ */
 
 /**
  * Focuses the view, brings the view to front.
@@ -336,19 +370,20 @@ visflow.Node.prototype.focus = function() {
   $(this.container).css('z-index', visflow.viewManager.topZIndex());
 };
 
+
+/*
+  Node mouse event handlers. When overriding these functions, make sure that
+  event propagation are handled properly. Otherwise multiple interaction
+  might be triggered.
+ */
 /**
  * Handles node lick event.
  */
-visflow.Node.prototype.click = function() {
-};
+visflow.Node.prototype.click = function() {};
 /**
  * Handles mousedown event.
  */
 visflow.Node.prototype.mousedown = function(event) {
-  if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
-    this.focus();
-    visflow.contextMenu.hide();
-  }
   visflow.interaction.mousedownHandler({
     type: 'node',
     event: event,
@@ -377,6 +412,11 @@ visflow.Node.prototype.mouseenter = function(event) {
 visflow.Node.prototype.mouseleave = function(event) {
   this.container.removeClass('hover');
 };
+/**
+ * Handles mousemove event.
+ */
+visflow.Node.prototype.mousemove = function(event) {
+};
 
 
 /**
@@ -390,9 +430,7 @@ visflow.Node.prototype.interaction = function() {
 
   this.nodeInteractionOn = true;
 
-  var node = this,
-      container = this.container;
-
+  // Add event handlers that can be inherited.
   this.container
     .click(this.click.bind(this))
     .mousedown(this.mousedown.bind(this))
@@ -400,9 +438,20 @@ visflow.Node.prototype.interaction = function() {
     .mouseenter(this.mouseenter.bind(this))
     .mouseleave(this.mouseleave.bind(this));
 
+  // Add event handlers that are always triggered.
+  this.container
+    .mousedown(function(event) {
+      if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
+        this.focus();
+        visflow.contextMenu.hide();
+      }
+    }.bind(this));
+
   this.container
     .resizable({
       handles: 'all',
+      minWidth: this.MIN_WIDTH,
+      minHeight: this.MIN_HEIGHT,
       resize: function(event, ui) {
         this.resize(ui.size);
       }.bind(this),
@@ -411,39 +460,42 @@ visflow.Node.prototype.interaction = function() {
       }.bind(this)
     })
     .draggable({
-      cancel: 'input, .node-label',
+      cancel: 'input, button, a, .node-label',
       containment: '#main',
-      start: function(event, ui) {
+      start: function(event) {
         visflow.interaction.dragstartHandler({
           type: 'node',
           event: event,
-          node: node
+          node: this
         });
-      },
-      drag: function(event, ui) {
+      }.bind(this),
+      drag: function(event) {
         visflow.interaction.dragmoveHandler({
           type: 'node',
           event: event,
-          node: node
+          node: this
         });
-        node.updateEdges();
-      },
-      stop: function(event, ui) {
+        this.updateEdges();
+      }.bind(this),
+      stop: function(event) {
         visflow.interaction.dragstopHandler({
           type: 'node',
           event: event
         });
-      }
+      }.bind(this)
    })
    .droppable({
-      drop: function(event, ui) {
+      drop: function(event) {
         visflow.interaction.dropHandler({
           type: 'node',
           event: event,
-          node: node
+          node: this
         });
-      }
+      }.bind(this)
    });
+
+  // For unknown reasons, 'resizable: true' has no effect if put in the above
+  // resizable({...}) call.
   this.container.resizable('disable');
 
   this.container.children('.node-label')
@@ -480,19 +532,6 @@ visflow.Node.prototype.initContextMenu = function() {
     })
     .on('visflow.visMode', function() {
     });
-
-  // right-click menu
-  /*
-  this.container.contextmenu({
-    menu: [
-        {title: 'Toggle Details', cmd: 'details', uiIcon: 'ui-icon-document'},
-        {title: 'Toggle Options', cmd: 'options', uiIcon: 'ui-icon-note'},
-        {title: 'Toggle Label', cmd: 'label'},
-        {title: 'Visualization Mode', cmd: 'vismode'},
-        {title: 'Delete', cmd: 'delete', uiIcon: 'ui-icon-close'},
-      ]
-  });
-  */
 };
 
 /**
@@ -518,34 +557,6 @@ visflow.Node.prototype.contextmenuSelect = function(event, ui) {
       visflow.flow.deleteNode(this);
       break;
   }
-};
-
-/**
- * Runs before contextmenu is about to open.
- * @param {!jQuery.event} event
- * @param {!jQuery.ui} ui
- */
-visflow.Node.prototype.contextmenuBeforeOpen = function(event, ui) {
-  /*
-  if (!this.visModeOn) {
-    this.container.contextmenu('setEntry', 'vismode',
-      {title: 'Visualization Mode'});
-  } else {
-    this.container.contextmenu('setEntry', 'vismode',
-      {title: 'Visualization Mode', uiIcon: 'ui-icon-check'});
-  }
-  */
-  if (visflow.interaction.contextmenuLock) {
-    return false;
-  }
-  visflow.interaction.contextmenuLock = true;
-};
-
-/**
- * Closes the contextmenu of the node.
- */
-visflow.Node.prototype.contextmenuClose = function(event, ui) {
-  visflow.interaction.contextmenuLock = false;
 };
 
 /**
@@ -665,7 +676,7 @@ visflow.Node.prototype.firstConnectable = function(port) {
   var ports = port.isInPort ? this.outPorts : this.inPorts;
   for (var i in ports) {
     var port2 = ports[i];
-    if (port2.connectable(port) == 0){
+    if (port2.connectable(port).connectable){
       return port2;
     }
   }
@@ -787,35 +798,18 @@ visflow.Node.prototype.toggleVisMode = function() {
 };
 
 /**
- * Toggles node details.
+ * Toggles node minimization.
  */
-visflow.Node.prototype.toggleDetails = function() {
-  if (this.contextmenuDisabled['details'] != null) {
-    return;
-  }
-  this.detailsOn = !this.detailsOn;
+visflow.Node.prototype.toggleMinimized = function() {
+  this.options.minimized = !this.options.minimized;
   this.show();
   this.updatePorts();
-};
-
-/**
- * Toggles node option.
- */
-visflow.Node.prototype.toggleOptions = function() {
-  if (this.contextmenuDisabled['options'] != null) {
-    return;
-  }
-  this.optionsOn = !this.optionsOn;
-  this.showOptions();
 };
 
 /**
  * Toggles node label.
  */
 visflow.Node.prototype.toggleLabel = function() {
-  if (this.contextmenuDisabled['label'] != null) {
-    return;
-  }
   this.options.label = !this.options.label;
   this.showLabel();
 };
@@ -859,11 +853,20 @@ visflow.Node.prototype.resizeStop = function(size) {
 /**
  * Displays node options.
  */
-visflow.Node.prototype.showOptions = function() {};
+visflow.Node.prototype.showPanel = function() {};
 
 /**
  * Displays node details.
  */
-visflow.Node.prototype.showDetails = function() {};
+visflow.Node.prototype.showDetails = function() {
+  this.content.show();
+  this.icon.hide();
+};
 
-
+/**
+ * Shows the node icon.
+ */
+visflow.Node.prototype.showIcon = function() {
+  this.content.hide();
+  this.icon.show();
+};

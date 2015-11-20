@@ -20,15 +20,13 @@ visflow.Select = function(params) {
   this.list = params.list;  // list of options
   this.placeholder = params.placeholder;
   this.textToValue = {};
-
-  this.init()();
 };
 
 visflow.utils.inherit(visflow.Select, visflow.Unit);
 
 /** @inheritDoc */
-visflow.Select.prototype.prepare = function() {
-  visflow.Select.base.prepare.call(this);
+visflow.Select.prototype.init = function() {
+  visflow.Select.base.init.call(this);
 
   var unit = this;
 

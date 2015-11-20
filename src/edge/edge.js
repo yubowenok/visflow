@@ -80,17 +80,16 @@ visflow.Edge.prototype.show = function() {
 
   this.update();
 
-  var container = this.container;
   this.container
-    .mouseenter(function(event) {
-
-      // prevent drag interference
-      if (visflow.interaction.mouseMode != 'none')
+    .mouseenter(function() {
+      // Prevent drag interference
+      if (visflow.interaction.mouseMode != '') {
         return;
+      }
       visflow.flow.addEdgeSelection(edge);
       visflow.viewManager.addEdgeHover(edge);
     })
-    .mouseleave(function(event) {
+    .mouseleave(function() {
       visflow.flow.clearEdgeSelection();
       visflow.viewManager.clearEdgeHover();
     });

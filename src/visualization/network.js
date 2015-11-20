@@ -11,19 +11,17 @@
 visflow.Network = function(params) {
   visflow.Network.base.constructor.call(this, params);
 
-  // network has special in/out
-  this.inPorts = [
-    new visflow.Port(this, 'in', 'in-single', 'D'),
-    new visflow.Port(this, 'ine', 'in-single', 'D')
-  ];
-  this.outPorts = [
-    new visflow.Port(this, 'outs', 'out-multiple', 'S'),
-    new visflow.Port(this, 'outse', 'out-multiple', 'S'),
-    new visflow.Port(this, 'out', 'out-multiple', 'D'),
-    new visflow.Port(this, 'oute', 'out-multiple', 'D')
-  ];
-
-  this.init();
+  /**
+   * Network has special in/out ports to handle nodes and edges separately.
+   */
+  this.ports = {
+    in: new visflow.Port(this, 'in', 'in-single', 'D'),
+    ine: new visflow.Port(this, 'ine', 'in-single', 'D'),
+    outs: new visflow.Port(this, 'outs', 'out-multiple', 'S'),
+    outse: new visflow.Port(this, 'outse', 'out-multiple', 'S'),
+    out: new visflow.Port(this, 'out', 'out-multiple', 'D'),
+    oute: new visflow.Port(this, 'oute', 'out-multiple', 'D')
+  };
 
   // re-processed from edge list table
   this.nodeList = [];

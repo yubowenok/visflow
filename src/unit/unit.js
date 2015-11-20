@@ -28,7 +28,7 @@ visflow.Unit = function(params) {
 };
 
 /** @inheritDoc */
-visflow.Unit.prototype.prepare = function() {
+visflow.Unit.prototype.init = function() {
   this.jqunit = $('<div></div>')
     .addClass('unit');
 

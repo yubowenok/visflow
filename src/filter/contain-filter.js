@@ -11,20 +11,17 @@
 visflow.ContainFilter = function(params) {
   visflow.ContainFilter.base.constructor.call(this, params);
 
-  this.inPorts = [
-    new visflow.Port(this, 'inv', 'in-single', 'V', true),
-    new visflow.Port(this, 'in', 'in-single', 'D')
-  ];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'D')
-  ];
+  /** @inheritDoc */
+  this.ports = {
+    inv: new visflow.Port(this, 'inv', 'in-single', 'V', true),
+    in: new visflow.Port(this, 'in', 'in-single', 'D'),
+    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+  };
 
   this.value = null;
   this.embedValue = null;
   this.inputMode = 'text';
   this.matchMode = 'exact';
-
-  this.init();
 };
 
 visflow.utils.inherit(visflow.ContainFilter, visflow.Filter);

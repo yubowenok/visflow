@@ -11,13 +11,11 @@
 visflow.PropertyEditor = function(params) {
   visflow.PropertyEditor.base.constructor.call(this, params);
 
-  this.inPorts = [
-    new visflow.Port(this, 'in', 'in-single', 'D')
-  ];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'D')
-  ];
-  this.init();
+  /** @inheritDoc */
+  this.ports = {
+    in: new visflow.Port(this, 'in', 'in-single', 'D'),
+    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+  };
 
   // nothing is set by default
   this.properties = {};
@@ -30,7 +28,7 @@ visflow.PropertyEditor.prototype.MINIMIZED_CLASS =
     'property-editor-icon square-icon';
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.SHAPE_NAME = 'property-editor';
+visflow.PropertyEditor.prototype.SHAPE_CLASS = 'property-editor';
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.contextmenuDisabled = {

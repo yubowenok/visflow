@@ -115,9 +115,12 @@ visflow.flow.createNode = function(type, save) {
   _(params).extend({
     id: ++this.nodeCounter,
     type: type,
-    container: visflow.viewManager.createNodeContainer(),
-    ready: function() {
-      /** @this {!visflow.Node} */
+    container: visflow.viewManager.createNodeContainer()
+  });
+  newnode = new nodeConstructor(params);
+  $(newnode).on('visflow.ready',
+    /** @this {!visflow.Node} */
+    function() {
       this.show();
       this.focus();
 
@@ -127,9 +130,8 @@ visflow.flow.createNode = function(type, save) {
         this.loadCss();
         this.updatePorts();
       }
-    }
-  });
-  newnode = new nodeConstructor(params);
+    }.bind(newnode))
+
   this.nodes[newnode.id] = newnode;
   if (type == 'datasrc' || type == 'value-maker') {
     this.dataSources.push(newnode);
@@ -144,7 +146,7 @@ visflow.flow.createNode = function(type, save) {
  * Creates an edge in the flow from 'sourcePort' to 'targetPort'.
  * @param {!visflow.Port} sourcePort
  * @param targetPort
- * @return {number|visflow.Edge} TODO(bowen): check this
+ * @return {visflow.Edge} TODO(bowen): check this
  */
 visflow.flow.createEdge = function(sourcePort, targetPort) {
   var sourceNode = sourcePort.node,
@@ -152,9 +154,9 @@ visflow.flow.createEdge = function(sourcePort, targetPort) {
 
   var con = sourcePort.connectable(targetPort);
 
-  if (con !== 0) {
-    // 0 means okay
-    return visflow.viewManager.tip(con), -1;
+  if (!con.connectable) {
+    visflow.viewManager.tip(con.reason);
+    return null;
   }
 
   var newedge = new visflow.Edge({
@@ -322,6 +324,9 @@ visflow.flow.deserializeFlow = function(flow) {
 
   var hashes = {};
 
+  // Count pending node loads.
+  var loadCount = 0;
+
   for (var i in flow.nodes) {
     var nodeSaved = flow.nodes[i];
     var type = nodeSaved.type;
@@ -333,27 +338,42 @@ visflow.flow.deserializeFlow = function(flow) {
         break;
       }
     }
-
+    loadCount++;
     var newnode = this.createNode(type, nodeSaved);
+    $(newnode).on('visflow.ready', function() {
+      loadCount--;
+      if (loadCount == 0) {
+        this.deserializeFlowEdges_(flow, hashes);
+      }
+    }.bind(this));
     hashes[nodeSaved.hashtag] = newnode;
   }
-  for (var i in flow.edges) {
-    var edgeSaved = flow.edges[i];
+
+};
+
+/**
+ * De-serializes the flow edges.
+ * @param {!Object} flow
+ * @param {!Object<!visflow.Node>} hashes
+ * @private
+ */
+visflow.flow.deserializeFlowEdges_ = function(flow, hashes) {
+  flow.edges.forEach(function(edgeSaved) {
     var sourceNode = hashes[edgeSaved.sourceNodeHash],
-        targetNode = hashes[edgeSaved.targetNodeHash],
-        sourcePort = sourceNode.ports[edgeSaved.sourcePortId],
-        targetPort = targetNode.ports[edgeSaved.targetPortId];
+      targetNode = hashes[edgeSaved.targetNodeHash];
+    var sourcePort = sourceNode.ports[edgeSaved.sourcePortId],
+      targetPort = targetNode.ports[edgeSaved.targetPortId];
 
     if (targetPort == null) {
-      visflow.error('older version set nodes detected');
+      visflow.error('older version nodes detected');
       targetPort = targetNode.ports['in'];
     }
     this.createEdge(sourcePort, targetPort);
-  }
-
+  }, this);
   this.propagateDisabled = false; // full propagation
   this.propagate(this.dataSources);
 };
+
 
 /**
  * Previews the VisMode on/off effect.

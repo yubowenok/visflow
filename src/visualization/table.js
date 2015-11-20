@@ -13,27 +13,32 @@ visflow.Table = function(params) {
 
   this.keepSize = null;
   this.tableState = null; // last table state
-
-  this.plotName = 'Table';
 };
 
 visflow.utils.inherit(visflow.Table, visflow.Visualization);
 
 /** @inheritDoc */
+visflow.Table.prototype.TEMPLATE = './src/visualization/table.html';
+/** @inheritDoc */
+visflow.Table.prototype.PLOT_NAME = 'Table';
+/** @inheritDoc */
 visflow.Table.prototype.NODE_CLASS = 'table';
 /** @inheritDoc */
-visflow.Table.prototype.SHAPE_CLASS = 'shape-vis';
+visflow.Table.prototype.SHAPE_CLASS = 'shape-table';
 /** @inheritDoc */
 visflow.Table.prototype.MINIMIZED_CLASS = 'table-icon square-icon';
+
 /** @inheritDoc */
-visflow.Table.prototype.contextmenuDisabled = {
-  options: true
-};
+visflow.Table.prototype.MIN_WIDTH = 500;
+/** @inheritDoc */
+visflow.Table.prototype.MIN_HEIGHT = 440;
 
 /** @inheritDoc */
 visflow.Table.prototype.init = function() {
   visflow.Table.base.init.call(this);
-  this.initTable();
+  this.table = this.content.children('table');
+  this.thead = this.table.children('thead');
+  this.tbody = this.table.children('tbody');
 };
 
 /** @inheritDoc */
@@ -51,33 +56,20 @@ visflow.Table.prototype.deserialize = function(save) {
   this.keepSize = save.keepSize;
 };
 
-/**
- * Creates a datatable inside the node.
- */
-visflow.Table.prototype.initTable = function() {
-  this.table = $('<table></table>')
-    .addClass('table table-striped table-bordered')
-    .appendTo(this.content);
-  // get thead and tbody selection
-  this.thead = $('<thead></thead>').appendTo(this.table);
-  this.tbody = $('<tbody></tbody>').appendTo(this.table);
-};
-
 /** @inheritDoc */
-visflow.Table.prototype.showVisualization = function() {
-  var node = this,
-      pack = this.ports['in'].pack,
-      data = pack.data,
-      items = pack.items;
-  this.checkDataEmpty();
-  if (this.isEmpty) {
-    //this.prepareSvg();
+visflow.Table.prototype.showDetails = function() {
+
+  if (this.checkDataEmpty()) {
     return;
   }
 
+  var pack = this.ports['in'].pack,
+      data = pack.data,
+      items = pack.items;
+
+
   if (this.dataTable) {
     this.dataTable.destroy(true);
-    this.interactionOn = false;
   }
 
   var rows = [];
@@ -101,11 +93,10 @@ visflow.Table.prototype.showVisualization = function() {
     columns: columns,
     scrollX: true,
     scrollY: '300px',
-    info: false
+    pagingType: 'full',
+    select: true
   });
 
-  var jqwrapper = this.jqvis.find('.dataTables_wrapper'),
-      paddedHeight = jqwrapper.height() + 10;
 
   /*
   this.container

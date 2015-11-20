@@ -14,15 +14,13 @@ visflow.Input = function(params) {
   this.accept = params.accept != null ? params.accept : 'string';
   this.range = params.range != null ? params.range : [null, null];
   this.scrollDelta = params.scrollDelta != null ? params.scrollDelta : false;
-
-  this.init()();
 };
 
 visflow.utils.inherit(visflow.Input, visflow.Unit);
 
 /** @inheritDoc */
-visflow.Input.prototype.prepare = function() {
-  visflow.Input.base.prepare.call(this);
+visflow.Input.prototype.init = function() {
+  visflow.Input.base.init.call(this);
 
   var unit = this;
 

@@ -11,13 +11,11 @@
 visflow.PropertyMapping = function(params) {
   visflow.PropertyMapping.base.constructor.call(this, params);
 
-  this.inPorts = [
-    new visflow.Port(this, 'in', 'in-single', 'D')
-  ];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'D')
-  ];
-  this.init();
+  /** @inheritDoc */
+  this.ports = {
+    in: new visflow.Port(this, 'in', 'in-single', 'D'),
+    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+  };
 
   this.dimension = null;
   this.mapping = null;
@@ -34,7 +32,7 @@ visflow.utils.inherit(visflow.PropertyMapping, visflow.Node);
 visflow.PropertyMapping.prototype.MINIMIZED_CLASS =
     'property-mapping-icon square-icon';
 /** @inheritDoc */
-visflow.PropertyMapping.prototype.SHAPE_NAME = 'property-mapping'; // dedicate shape
+visflow.PropertyMapping.prototype.SHAPE_CLASS = 'property-mapping'; // dedicate shape
 
 /**
  * Mapping from user visible properties to their underlying property types.

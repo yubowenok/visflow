@@ -27,14 +27,36 @@ visflow.Data = function(data) {
     return;
   }
 
-  this.type = data.type;  // data types: empty, car, etc
+  /**
+   * Type of data. Usually this is the data name, e.g. empty, car, etc.
+   */
+  this.type = data.type;
 
-  this.dimensions = data.dimensions;  // data dimensions
-  this.dimensionTypes = data.dimensionTypes;  // int, float, string
-  this.values = data.values;  // attribute values
+  /**
+   * List of dimensions.
+   * @type {!Array<string>}
+   */
+  this.dimensions = data.dimensions;
 
+  /**
+   * Dimension types: int, float, string.
+   * @type {!Array<string>}
+   */
+  this.dimensionTypes = data.dimensionTypes;
 
-  this.numItems = this.values.length;
+  /**
+   * Data attribute values.
+   * @type {!Array<!Array<number|string>>}
+   */
+  this.values = data.values;
+};
+
+/**
+ * Gets the number of data items.
+ * @return {number}
+ */
+visflow.Data.prototype.numItems = function() {
+  return this.values.length;
 };
 
 /**
@@ -43,14 +65,18 @@ visflow.Data = function(data) {
  * @return {boolean}
  */
 visflow.Data.prototype.matchDataFormat = function(data) {
-  if (this.type === 'empty' || data.type === 'empty')
-    return true;  // empty data is compatible with anything
-  if (this.dimensions.length != data.dimensions.length)
+  if (this.type == 'empty' || data.type == 'empty') {
+    // Empty data is compatible with anything.
+    return true;
+  }
+  if (this.dimensions.length != data.dimensions.length) {
     return false;
+  }
   for (var i in this.dimensions) {
-    if (this.dimensions[i] !== data.dimensions[i] ||
-        this.dimensionTypes[i] !== data.dimensionTypes[i])
+    if (this.dimensions[i] != data.dimensions[i] ||
+        this.dimensionTypes[i] != data.dimensionTypes[i]) {
       return false;
+    }
   }
   return true;
 };

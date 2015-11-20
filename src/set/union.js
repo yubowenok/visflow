@@ -10,7 +10,6 @@
  */
 visflow.Union = function(params) {
   visflow.Union.base.constructor.call(this, params);
-  this.init();
 };
 
 visflow.utils.inherit(visflow.Union, visflow.Set);

@@ -10,17 +10,36 @@
  * @constructor
  */
 visflow.Constants = function(text) {
-  this.isSet = false;  // a single item is considered non-set
-  this.type = 'constants'; // to be differentiated from data
+  /**
+   * Whether the constant is a set of elements.
+   * A single element is considered to be NOT a set.
+   * @type {boolean}
+   */
+  this.isSet = false;
 
-  this.constantType = 'empty'; // empty, int, float, string
+  /**
+   * Type of the constant.
+   * Can be one of {empty, int, float, string}.
+   * @type {string}
+   */
+  this.constantType = 'empty';
 
-  // un-initialized state
-  this.numElements = 0;
+  /**
+   * List of elements.
+   * @type {!Array<*>}
+   */
   this.elements = [];
-  this.hasElement = {}; // collection that makes unique
 
-  // change status
+  /**
+   * A collection of keys of the elements.
+   * @type {!Object<boolean>}
+   */
+  this.hasElement = {};
+
+  /**
+   * Change status. If true then we need propagation.
+   * @type {boolean}
+   */
   this.changed = true;
 
   if (text != null) {
@@ -35,6 +54,12 @@ visflow.Constants = function(text) {
     }
   }
 };
+
+/**
+  * Flag used to make constants be differentiable from data.
+  * @type {string}
+  */
+visflow.Constants.prototype.type = 'constants';
 
 /**
  * Checks if another package is compatible with the constants.
@@ -124,7 +149,6 @@ visflow.Constants.prototype.add = function(value) {
     return; // element already exists
 
   this.hasElement[value] = true;
-  this.numElements++;
   this.elements.push(value);
   this.isSet = this.numElements > 1;
 
@@ -150,7 +174,6 @@ visflow.Constants.prototype.add = function(value) {
  * Removes all elements and returns to un-initialized state.
  */
 visflow.Constants.prototype.clear = function() {
-  this.numElements = 0;
   this.elements = [];
   this.isSet = false;
   this.constantType = 'empty';
@@ -161,7 +184,7 @@ visflow.Constants.prototype.clear = function() {
  * @return {number|string}
  */
 visflow.Constants.prototype.getOne = function() {
-  if (this.numElements === 0) {
+  if (this.elements.length == 0) {
     return null;
   }
   return this.elements[0];
@@ -172,7 +195,7 @@ visflow.Constants.prototype.getOne = function() {
  * @return {Array<number|string>}
  */
 visflow.Constants.prototype.getAll = function() {
-  if (this.numElements === 0) {
+  if (this.elements.length == 0) {
     return null;
   }
   return this.elements;

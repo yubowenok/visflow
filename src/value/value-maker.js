@@ -13,18 +13,16 @@ visflow.ValueMaker = function(params) {
 
   this.viewHeight = 40; // height + padding
 
-  this.inPorts = [];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'V', true)
-  ];
+  /** @inheritDoc */
+  this.ports = {
+    out: new visflow.Port(this, 'out', 'out-multiple', 'V', true)
+  };
 
   // stored input value
   this.valueString = '';
   this.value = new visflow.Constants(this.valueString);
   // overwrite with constants
   this.outPorts[0].pack = this.value;
-
-  this.init()();
 };
 
 visflow.utils.inherit(visflow.ValueMaker, visflow.Node);
@@ -33,7 +31,7 @@ visflow.utils.inherit(visflow.ValueMaker, visflow.Node);
 visflow.ValueMaker.prototype.MINIMIZED_CLASS =
     'value-maker-icon flat-icon';
 /** @inheritDoc */
-visflow.ValueMaker.prototype.SHAPE_NAME = 'superflat';
+visflow.ValueMaker.prototype.SHAPE_CLASS = 'superflat';
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.contextmenuDisabled = {

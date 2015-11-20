@@ -14,10 +14,10 @@ visflow.DataSource = function(params) {
   this.dataSelected = 'none'; // data identifier string
   this.dataName = null; // full data name, for human read
 
-  this.inPorts = [];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'D')
-  ];
+  /** @inheritDoc */
+  this.ports = {
+    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+  };
 };
 
 visflow.utils.inherit(visflow.DataSource, visflow.Node);
@@ -75,7 +75,7 @@ visflow.DataSource.prototype.show = function() {
         }
       });
     })
-    .appendTo(this.container);
+    .appendTo(this.content);
 
   if (this.dataName != null) {
     this.container.find('#data-name').text(this.dataName);

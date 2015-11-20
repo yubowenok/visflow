@@ -132,19 +132,22 @@ visflow.popupPanel.initPanel_ = function() {
 visflow.popupPanel.initButton_ = function(button) {
   var create = function (event) {
     var node = visflow.flow.createNode(button.attr('id'));
-    node.container.css(_({
-      left: event.pageX - node.container.width() / 2,
-      top: event.pageY - node.container.height() / 2
-    }).extend(visflow.popupPanel.INIT_BUTTON_CSS_));
 
-    node.container.animate(visflow.popupPanel.FADE_IN_BUTTON_CSS_,
+    $(node).on('visflow.ready', function() {
+      node.container.css(_({
+        left: event.pageX - node.container.width() / 2,
+        top: event.pageY - node.container.height() / 2
+      }).extend(visflow.popupPanel.INIT_BUTTON_CSS_));
+
+      node.container.animate(visflow.popupPanel.FADE_IN_BUTTON_CSS_,
         visflow.popupPanel.SHORT_TRANSITION_DURATION_,
         function() {
           $(this).css(visflow.popupPanel.BUTTON_CSS_);
         });
+    });
+
     visflow.popupPanel.close();
     $('.dropzone-temp').remove();
-
     $('#main').droppable('disable');
   };
 
@@ -154,13 +157,14 @@ visflow.popupPanel.initButton_ = function(button) {
     start: function () {
       // Create a temporary droppable under #main so that we cannot drop
       // the button to panel.
+      var panelOffset = visflow.utils.offsetMain(this.panel_);
       $('<div></div>')
         .addClass('dropzone-temp')
         .css({
           width: this.panel_.width(),
           height: this.panel_.height(),
-          left: this.panel_.offset().left,
-          top: this.panel_.offset().top
+          left: panelOffset.left,
+          top: panelOffset.top
         })
         .droppable({
           accept: '.addpanel-button',

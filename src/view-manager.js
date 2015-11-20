@@ -85,12 +85,12 @@ visflow.viewManager.addEdgeHover = function(edge) {
     .clone()
     .appendTo('#main')
     .addClass('edge-clone')
-    .css(edge.sourcePort.container.offset());
+    .css(visflow.utils.offsetMain(edge.sourcePort.container));
   edge.targetPort.container
     .clone()
     .appendTo('#main')
     .addClass('edge-clone')
-    .css(edge.targetPort.container.offset());
+    .css(visflow.utils.offsetMain(edge.targetPort.container));
 };
 
 /**

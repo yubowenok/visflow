@@ -11,8 +11,6 @@
 visflow.Heatmap = function(params) {
   visflow.Heatmap.base.constructor.call(this, params);
 
-  this.init()();
-
   // shown dimensions in parallel coordinates
   this.dimensions = [];
 

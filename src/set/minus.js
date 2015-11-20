@@ -11,15 +11,14 @@
 visflow.Minus = function(params) {
   visflow.Minus.base.constructor.call(this, params);
 
-  this.inPorts = [
-    new visflow.Port(this, 'inx', 'in-single', 'D'), // to be subtract from
-    new visflow.Port(this, 'in', 'in-multiple', 'D') // to subtract
-  ];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'D')
-  ];
-
-  this.init();
+  /** @inheritDoc */
+  this.ports = {
+    // To be subtracted from
+    inx: new visflow.Port(this, 'inx', 'in-single', 'D'),
+    // To subtract
+    in: new visflow.Port(this, 'in', 'in-multiple', 'D'),
+    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+  };
 };
 
 visflow.utils.inherit(visflow.Minus, visflow.Set);

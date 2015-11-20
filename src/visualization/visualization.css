@@ -1,4 +1,9 @@
 
+.visflow .node.shape-table {
+  width: 500px;
+  height: 440px;
+}
+
 .visflow .visualization .axis text {
   font-size: 10px;
   font-family: sans-serif;

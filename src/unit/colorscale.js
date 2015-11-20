@@ -16,15 +16,13 @@ visflow.ColorScale = function(params) {
   this.placeholder = params.placeholder;
 
   this.colorScales = visflow.viewManager.getColorScales(this.colorScalesLoaded);
-
-  this.init()();
 };
 
 visflow.utils.inherit(visflow.ColorScale, visflow.Unit);
 
 /** @inheritDoc */
-visflow.ColorScale.prototype.prepare = function() {
- visflow.ColorScale.base.prepare.call(this);
+visflow.ColorScale.prototype.init = function() {
+ visflow.ColorScale.base.init.call(this);
   var unit = this;
 
   var select2options = {};

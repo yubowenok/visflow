@@ -11,8 +11,6 @@
 visflow.Scatterplot = function(params) {
   visflow.Scatterplot.base.constructor.call(this, params);
 
-  this.init();
-
   // 0: X axis, 1: Y axis
   this.dimensions = [0, 0];
   this.selectDimensions = [];
@@ -22,17 +20,25 @@ visflow.Scatterplot = function(params) {
   this.dataScales = [null, null];
   // screenScale: [0, 1] <-> screen pixel (rendering region)
   this.screenScales = [null, null];
-  // leave some space for axes
-  this.plotMargins = [ { before: 40, after: 10 }, { before: 10, after: 30 } ];
 
-  this.plotName = 'Scatterplot';
 };
 
 visflow.utils.inherit(visflow.Scatterplot, visflow.Visualization);
 
 /** @inheritDoc */
+visflow.Scatterplot.prototype.PLOT_NAME = 'Scatterplot';
+/** @inheritDoc */
 visflow.Scatterplot.prototype.MINIMIZED_CLASS =
     'scatterplot-icon square-icon';
+
+/**
+ * Margin space for axes.
+ * @const {!Array<{before:number, after:number}>}
+ */
+visflow.Scatterplot.prototype.plotMargins = [
+  {before: 40, after: 10},
+  {before: 10, after: 30}
+];
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.defaultProperties = {
@@ -179,7 +185,6 @@ visflow.Scatterplot.prototype.selectItemsInBox = function(box) {
 * Displays the range selection box.
 */
 visflow.Scatterplot.prototype.showSelectbox = function(box) {
-  var node = this;
   this.selectbox = this.svg.select('.vis-selectbox');
   if (this.selectbox.empty())
     this.selectbox = this.svg.append('rect')

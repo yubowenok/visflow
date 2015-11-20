@@ -10,12 +10,11 @@
  */
 visflow.Checkbox = function(params) {
   visflow.Checkbox.base.constructor.call(this, params);
-  this.init()();
 };
 
 /** @inheritDoc */
-visflow.Checkbox.prototype.prepare = function() {
-  visflow.Checkbox.base.prepare.call(this);
+visflow.Checkbox.prototype.init = function() {
+  visflow.Checkbox.base.init.call(this);
 
   var unit = this;
 

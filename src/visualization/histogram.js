@@ -11,8 +11,6 @@
 visflow.Histogram = function(params) {
   visflow.Histogram.base.constructor.call(this, params);
 
-  this.init();
-
   // 0: X axis, 1: Y axis
   this.dimension = 0;
 

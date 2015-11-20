@@ -13,12 +13,11 @@ visflow.ValueExtractor = function(params) {
 
   this.viewHeight = 40; // height + padding
 
-  this.inPorts = [
-    new visflow.Port(this, 'in', 'in-single', 'V')
-  ];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'V', true)
-  ];
+  /** @inheritDoc */
+  this.ports = {
+    in: new visflow.Port(this, 'in', 'in-single', 'V'),
+    out: new visflow.Port(this, 'out', 'out-multiple', 'V', true)
+  };
 
   // overwrite with constants
   this.outPorts[0].pack = new visflow.Constants();
@@ -26,8 +25,6 @@ visflow.ValueExtractor = function(params) {
   this.dimension = null;
 
   this.lastDataId = 0;  // default empty data
-
-  this.init()();
 };
 
 visflow.utils.inherit(visflow.ValueExtractor, visflow.Node);
@@ -36,7 +33,7 @@ visflow.utils.inherit(visflow.ValueExtractor, visflow.Node);
 visflow.ValueExtractor.prototype.MINIMIZED_CLASS =
     'value-extractor-icon flat-icon';
 /** @inheritDoc */
-visflow.ValueExtractor.prototype.SHAPE_NAME = 'value-extractor';
+visflow.ValueExtractor.prototype.SHAPE_CLASS = 'value-extractor';
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.contextmenuDisabled = {

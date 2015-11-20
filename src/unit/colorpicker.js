@@ -12,14 +12,13 @@
 visflow.ColorPicker = function(params) {
   visflow.ColorPicker.base.constructor.call(this, params);
   this.color = 'none';
-  this.init()();
 };
 
 visflow.utils.inherit(visflow.ColorPicker, visflow.Unit);
 
 /** @inheritDoc */
-visflow.ColorPicker.prototype.prepare = function() {
-  visflow.ColorPicker.base.prepare.call(this);
+visflow.ColorPicker.prototype.init = function() {
+  visflow.ColorPicker.base.init.call(this);
 
   var unit = this;
 

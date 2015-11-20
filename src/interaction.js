@@ -30,7 +30,7 @@ visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
  * Initializes the interaction manager.
  */
 visflow.interaction.init = function() {
-  this.mouseMode = 'none';  // node, port, selectbox
+  this.mouseMode = '';  // node, port, selectbox
 
   this.dragstartPos = [0, 0];
   this.draglastPos = [0, 0];
@@ -55,15 +55,26 @@ visflow.interaction.init = function() {
   visflow.interaction.interaction();
   visflow.interaction.contextMenuClickOff();
   visflow.interaction.systemMessageClickOff();
-
-  this.shifted = false;
-  this.ctrled = false;
-
-  this.visualizationBlocking = true;
-
-  // overlapping contextmenued items may show menu together, thus need a lock
-  this.contextmenuLock = false;
 };
+
+/**
+ * Whether SHIFT key is pressed.
+ * @type {boolean}
+ */
+visflow.interaction.shifted = true;
+
+/**
+ * Whether CTRL key is pressed.
+ * @type {boolean}
+ */
+visflow.interaction.ctrled = false;
+
+/**
+ * Blocks interaction for visualization. This is set to false when user presses
+ * CTRL so as to force node move.
+ * @type {boolean}
+ */
+visflow.interaction.visualizationBlocking = true;
 
 /**
  * Handles contextmenu click off.
@@ -246,18 +257,9 @@ visflow.interaction.mousedownHandler = function(params) {
   this.mousedownPos = [event.pageX, event.pageY];
   this.mouselastPos = [event.pageX, event.pageY];
 
-  if (this.mouseMode != 'none') {
+  if (this.mouseMode != '') {
     return true;
   }
-
-  // block mousedown for iris
-  /*
-  if ($(event.target).is('.iris-picker, .iris-square-inner, '
-    + '.iris-square-handle, .ui-slider-handle')) {
-    type = 'iris';
-    return true;
-  }
-  */
 
   if (type == 'background') {
     if (!this.ctrled) {
@@ -362,7 +364,7 @@ visflow.interaction.mouseupHandler = function(params) {
   visflow.viewManager.clearEdgeHover();
   visflow.popupPanel.close();
 
-  this.mouseMode = 'none';
+  this.mouseMode = '';
 };
 
 /**
@@ -470,10 +472,10 @@ visflow.interaction.dragmoveHandler = function(params) {
  * @param params
  */
 visflow.interaction.dragstopHandler = function(params) {
-  var type = params.type,
-      event = params.event;
+  var type = params.type;
+  var event = params.event;
   this.dragstopPara = params;
-  this.dragstopPos = [params.event.pageX, params.event.pageY];
+  this.dragstopPos = [event.pageX, event.pageY];
   if (type == 'port') {
     $('#edge-drawing')
       .css('visibility', 'hidden');
@@ -481,7 +483,7 @@ visflow.interaction.dragstopHandler = function(params) {
   else if (type == 'node'){
     this.mainContainer.css('cursor', '');
   }
-  this.mouseMode = 'none';
+  this.mouseMode = '';
 };
 
 /**
@@ -535,7 +537,6 @@ visflow.interaction.clickHandler = function(params) {
     visflow.flow.clearNodeSelection();
     visflow.viewManager.hideColorpickers();
     $('input').blur();
-    this.contextmenuLock = false;
   }
 };
 

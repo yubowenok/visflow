@@ -23,7 +23,7 @@ visflow.utils.inherit(visflow.Filter, visflow.Node);
 visflow.Filter.prototype.NULL_VALUE_STRING = '-';
 
 /** @inheritDoc */
-visflow.Filter.prototype.SHAPE_NAME = 'longflat';
+visflow.Filter.prototype.SHAPE_CLASS = 'longflat';
 
 /** @inheritDoc */
 visflow.Filter.prototype.serialize = function() {

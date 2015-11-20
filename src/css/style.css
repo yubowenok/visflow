@@ -2,9 +2,11 @@ body {
   overflow: hidden;
 }
 
-.visflow #alert {
+.visflow #message {
   margin-top: 29px;
   text-align: center;
+  position: absolute;
+  width: 100%;
   z-index: 100;
 }
 
@@ -21,7 +23,7 @@ body {
 }
 
 .visflow #selectbox {
-  background: #e0cfc2;
+  background: #6699ce;
   border: 1px solid black;
   opacity: 0.25;
   position: absolute;
@@ -49,6 +51,10 @@ body {
 
 .visflow .node-select {
   width: 90%;
+}
+
+.visflow .disabled {
+  color: #ccc;
 }
 
 .visflow .input {

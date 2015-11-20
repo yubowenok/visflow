@@ -11,8 +11,6 @@
 visflow.ParallelCoordinates = function(params) {
   visflow.ParallelCoordinates.base.constructor.call(this, params);
 
-  this.init();
-
   // shown dimensions in parallel coordinates
   this.dimensions = [];
 

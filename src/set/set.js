@@ -11,12 +11,11 @@
 visflow.Set = function(params) {
   visflow.Set.base.constructor.call(this, params);
 
-  this.inPorts = [
-    new visflow.Port(this, 'in', 'in-multiple', 'D')
-  ];
-  this.outPorts = [
-    new visflow.Port(this, 'out', 'out-multiple', 'D')
-  ];
+  /** @inheritDoc */
+  this.ports = {
+    in: new visflow.Port(this, 'in', 'in-multiple', 'D'),
+    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+  };
 
   this.lastConnectionNumber = 0;
 };
@@ -24,7 +23,7 @@ visflow.Set = function(params) {
 visflow.utils.inherit(visflow.Set, visflow.Node);
 
 /** @inheritDoc */
-visflow.Set.prototype.SHAPE_NAME = 'set';
+visflow.Set.prototype.SHAPE_CLASS = 'set';
 
 /** @inheritDoc */
 visflow.Set.prototype.contextmenuDisabled = {
