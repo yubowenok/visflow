@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Set}
  */
 visflow.Intersect = function(params) {
   visflow.Intersect.base.constructor.call(this, params);

@@ -16,6 +16,13 @@
   shape-rendering: crispEdges;
 }
 
+.visflow .scatterplot .x.axis .vis-label {
+  text-anchor: end;
+}
+.visflow .scatterplot .y.axis .vis-label {
+  text-anchor: start;
+}
+
 .visflow .visualization svg {
   background: #FFF;
   width: 100%;

@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Visualization}
  */
 visflow.Heatmap = function(params) {
   visflow.Heatmap.base.constructor.call(this, params);
@@ -178,7 +179,7 @@ visflow.Heatmap.prototype.selectItemsInBox = function(box) {
       this.selected[index] = true;
     }
   }
-  this.showVisualization();
+  this.showDetails();
   this.pushflow();
 };
 
@@ -380,7 +381,7 @@ visflow.Heatmap.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       node.dimensions = unitChange.value;
       node.pushflow();
-      node.showVisualization(); // show after process (in pushflow)
+      node.showDetails(); // show after process (in pushflow)
     }
   });
 
@@ -396,7 +397,7 @@ visflow.Heatmap.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       node.colorScale = unitChange.value;
       //node.pushflow();  // not necessary, nothing changes downflow
-      node.showVisualization(); // show after process (in pushflow)
+      node.showDetails(); // show after process (in pushflow)
     }
   });
 
@@ -410,7 +411,7 @@ visflow.Heatmap.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       node.allColumns = unitChange.value;
       node.pushflow();
-      node.showVisualization(); // show after process (in pushflow)
+      node.showDetails(); // show after process (in pushflow)
     }
   });
 
@@ -426,7 +427,7 @@ visflow.Heatmap.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       node.rowLabels = unitChange.value;
       node.pushflow();
-      node.showVisualization(); // show after process (in pushflow)
+      node.showDetails(); // show after process (in pushflow)
     }
   });
 
@@ -442,7 +443,7 @@ visflow.Heatmap.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       node.sortBy = unitChange.value;
       node.pushflow();
-      node.showVisualization(true); // show after process (in pushflow)
+      node.showDetails(); // show after process (in pushflow)
     }
   });
 };
@@ -551,13 +552,13 @@ visflow.Heatmap.prototype.dataChanged = function() {
 /** @inheritDoc */
 visflow.Heatmap.prototype.selectAll = function() {
   visflow.Heatmap.base.selectAll.call(this);
-  this.showVisualization();
+  this.showDetails();
 };
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.clearSelection = function() {
   visflow.Heatmap.base.clearSelection.call(this);
-  this.showVisualization(); // TODO　not efficient
+  this.showDetails(); // TODO　not efficient
 };
 
 /** @inheritDoc */
@@ -566,5 +567,5 @@ visflow.Heatmap.prototype.resize = function(size) {
   [0, 1].map(function(d) {
     this.prepareScreenScale(d);
   }, this);
-  this.showVisualization();
+  this.showDetails();
 };

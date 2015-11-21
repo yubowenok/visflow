@@ -5,8 +5,9 @@
 'use strict';
 
 /**
- *
+ * @param {!Object} params
  * @constructor
+ * @extends {visflow.Visualization}
  */
 visflow.ParallelCoordinates = function(params) {
   visflow.ParallelCoordinates.base.constructor.call(this, params);
@@ -170,7 +171,7 @@ visflow.ParallelCoordinates.prototype.selectItemsBrushed = function(brush) {
       }
     }
   }
-  this.showVisualization();
+  this.showDetails();
   this.pushflow();
 };
 
@@ -298,7 +299,7 @@ visflow.ParallelCoordinates.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       this.dimensions = unitChange.value;
       this.pushflow();
-      this.showVisualization();
+      this.showDetails();
     }.bind(this)
   });
 };
@@ -427,18 +428,18 @@ visflow.ParallelCoordinates.prototype.dataChanged = function() {
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.selectAll = function() {
   visflow.ParallelCoordinates.base.selectAll.call(this);
-  this.showVisualization();
+  this.showDetails();
 };
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.clearSelection = function() {
   visflow.ParallelCoordinates.base.clearSelection.call(this);
-  this.showVisualization(); // TODO(bowen):　This is not efficient.
+  this.showDetails(); // TODO(bowen):　This is not efficient.
 };
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.resize = function(size) {
   visflow.ParallelCoordinates.base.resize.call(this, size);
   // TODO update scales for dimensions
-  this.showVisualization();
+  this.showDetails();
 };

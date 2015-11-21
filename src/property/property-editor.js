@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.PropertyEditor = function(params) {
   visflow.PropertyEditor.base.constructor.call(this, params);

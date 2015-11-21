@@ -232,7 +232,10 @@ visflow.Node.prototype.deserialize = function(save) {
   this.css = save.css;
   this.visCss = save.visCss;
 
+  // Apply saved properties. As node size is saved, we need to explicitly fire
+  // a resize event.
   this.container.css(this.css);
+  this.resize();
 
   if (this.options.visMode == null){
     visflow.error('visModeOn not saved');
@@ -460,8 +463,8 @@ visflow.Node.prototype.interaction = function() {
       }.bind(this)
     })
     .draggable({
-      cancel: 'input, button, a, .node-label',
-      containment: '#main',
+      cancel: 'input, button, a, select, .node-label',
+      //containment: '#main',
       start: function(event) {
         visflow.interaction.dragstartHandler({
           type: 'node',
@@ -826,19 +829,21 @@ visflow.Node.prototype.pushflow = function() {
  * Handles node resize.
  * @param size
  */
-visflow.Node.prototype.resize = function(size) {
+visflow.Node.prototype.resize = function() {
+  var width = this.container.width();
+  var height = this.container.height();
   if (visflow.flow.visModeOn == false) {
-    this.viewWidth = size.width;
-    this.viewHeight = size.height;
+    this.viewWidth = width;
+    this.viewHeight = height;
     _(this.css).extend({
-      width: size.width,
-      height: size.height
+      width: width,
+      height: height
     });
     this.updatePorts();
   } else {
     _(this.visCss).extend({
-      width: size.width,
-      height: size.height
+      width: width,
+      height: height
     });
   }
 };

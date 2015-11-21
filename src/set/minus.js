@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Set}
  */
 visflow.Minus = function(params) {
   visflow.Minus.base.constructor.call(this, params);

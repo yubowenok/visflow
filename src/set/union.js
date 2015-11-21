@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Set}
  */
 visflow.Union = function(params) {
   visflow.Union.base.constructor.call(this, params);

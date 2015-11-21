@@ -7,20 +7,38 @@
 /**
  * @param {Object} params
  * @constructor
+ * @extends {visflow.Visualization}
  */
 visflow.Scatterplot = function(params) {
   visflow.Scatterplot.base.constructor.call(this, params);
 
+  // Dimension indices.
+  /** @type {number} */
+  this.xDim = 1;
+  /** @type {number} */
+  this.yDim = 4;
+
+  // Rendering scales.
+  /** @type {!d3.scale} */
+  this.xScale = d3.scale.linear();
+  /** @type {!d3.scale} */
+  this.yScale = d3.scale.linear();
+
+  // Scale types.
+  /** @type {string} */
+  this.xScaleType = null;
+  /** @type {string} */
+  this.yScaleType = null;
+
+  /**
+   * SVG group for points.
+   * @private {jQuery}
+   */
+  this.svgPoints_;
+
   // 0: X axis, 1: Y axis
   this.dimensions = [0, 0];
   this.selectDimensions = [];
-
-  this.scaleTypes = [null, null];
-  // dataScale : datavalue <-> [0, 1]
-  this.dataScales = [null, null];
-  // screenScale: [0, 1] <-> screen pixel (rendering region)
-  this.screenScales = [null, null];
-
 };
 
 visflow.utils.inherit(visflow.Scatterplot, visflow.Visualization);
@@ -35,10 +53,12 @@ visflow.Scatterplot.prototype.MINIMIZED_CLASS =
  * Margin space for axes.
  * @const {!Array<{before:number, after:number}>}
  */
-visflow.Scatterplot.prototype.plotMargins = [
-  {before: 40, after: 10},
-  {before: 10, after: 30}
-];
+visflow.Scatterplot.prototype.PLOT_MARGINS = {
+  left: 40,
+  right: 10,
+  top: 10,
+  bottom: 30
+};
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.defaultProperties = {
@@ -64,6 +84,14 @@ visflow.Scatterplot.prototype.propertyTranslate = {
   width: 'stroke-width'
 };
 
+
+/** @inheritDoc */
+visflow.Scatterplot.prototype.init = function() {
+  visflow.Scatterplot.base.init.call(this);
+  this.svgPoints_ = this.svg.append('g')
+    .classed('points', true);
+};
+
 /** @inheritDoc */
 visflow.Scatterplot.prototype.serialize = function() {
   var result = visflow.Scatterplot.base.serialize.call(this);
@@ -82,73 +110,6 @@ visflow.Scatterplot.prototype.deserialize = function(save) {
   }
 };
 
-/** @inheritDoc */
-visflow.Scatterplot.prototype.prepareInteraction = function() {
-  visflow.Scatterplot.base.prepareInteraction.call(this);
-
-  var node = this,
-      mode = 'none';
-  var startPos = [0, 0],
-      lastPos = [0, 0],
-      endPos = [0, 0];
-  var selectbox = {
-    x1: 0,
-    x2: 0,
-    y1: 0,
-    y2: 0
-  };
-
-  var mouseupHandler = function(event) {
-    if (mode == 'selectbox') {
-      node.selectItemsInBox([
-          [selectbox.x1, selectbox.x2],
-          [selectbox.y1, selectbox.y2]
-        ]);
-      if (node.selectbox) {
-        node.selectbox.remove();
-        node.selectbox = null;
-      }
-    }
-    mode = 'none';
-    if (visflow.interaction.visualizationBlocking) {
-      event.stopPropagation();
-    }
-  };
-
-  this.jqsvg
-    .mousedown(function(event) {
-      if (visflow.interaction.ctrled) // ctrl drag mode blocks
-        return;
-
-      startPos = visflow.utils.getOffset(event, $(this));
-
-      if (event.which == 1) { // left click triggers selectbox
-        mode = 'selectbox';
-      }
-      if (visflow.interaction.visualizationBlocking)
-        event.stopPropagation();
-    })
-    .mousemove(function(event) {
-      if (mode == 'selectbox') {
-        endPos = visflow.utils.getOffset(event, $(this));
-        selectbox.x1 = Math.min(startPos[0], endPos[0]);
-        selectbox.x2 = Math.max(startPos[0], endPos[0]);
-        selectbox.y1 = Math.min(startPos[1], endPos[1]);
-        selectbox.y2 = Math.max(startPos[1], endPos[1]);
-        node.showSelectbox(selectbox);
-      }
-      // we shall not block mousemove (otherwise dragging edge will be problematic)
-      // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
-    })
-    .mouseup(mouseupHandler)
-    .mouseleave(function(event) {
-      if ($(this).parent().length == 0) {
-        return; // during svg update, the parent of mouseout event is unstable
-      }
-      mouseupHandler(event);
-    });
-};
-
 /**
  * Selects the data items in the range selection box.
  * @param {!Array<!Array<number>>} box
@@ -162,22 +123,20 @@ visflow.Scatterplot.prototype.selectItemsInBox = function(box) {
       items = inpack.items,
       values = inpack.data.values;
   for (var index in items) {
-    var ok = 1;
-    [0, 1].map(function(d) {
-      var value = values[index][this.dimensions[d]];
-      value = this.dataScales[d](value);
-      value = this.screenScales[d](value);
-      if (value < box[d][0] || value > box[d][1]) {
-        ok = 0;
-      }
-    }, this);
 
-    if (ok) {
+    var xDim = this.dimensions[0];
+    var yDim = this.dimensions[1];
+    var point = {
+      x: this.xScale(values[index][xDim]),
+      y: this.yScale(values[index][yDim])
+    };
+
+    if (visflow.utils.pointInBox(point, box)) {
       this.selected[index] = true;
-    }
+    };
   }
 
-  this.showVisualization();
+  this.showDetails();
   this.pushflow();
 };
 
@@ -198,58 +157,48 @@ visflow.Scatterplot.prototype.showSelectbox = function(box) {
 };
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.showVisualization = function(useTransition) {
+visflow.Scatterplot.prototype.showDetails = function() {
+  if (this.checkDataEmpty()) {
+    return;
+  }
+
   var inpack = this.ports['in'].pack,
       items = inpack.items,
       data = inpack.data,
       values = data.values;
 
-  this.checkDataEmpty();
   //this.prepareSvg(useTransition);
-  if (this.isEmpty)
-    return;
-  this.prepareScales();
-  this.interaction();
-
-  var node = this;
-
+  /*
   if (!useTransition) {
     this.svgPoints = this.svg.append('g');
   }
+  */
 
-  var ritems = []; // data to be rendered
+  // Data to be rendered.
+  var itemProps = [];
   for (var index in items) {
-    var c = [];
-    [0, 1].map(function(d) {
-      var value = values[index][node.dimensions[d]];
-      value = node.dataScales[d](value);
-      value = node.screenScales[d](value);
-      c[d] = value;
-    }, this);
-
-    var properties = _.extend(
+    var prop = _.extend(
       {},
       this.defaultProperties,
       items[index].properties,
       {
-        id: 'i' + index,
-        cx: c[0],
-        cy: c[1]
+        index: index,
+        cx: this.xScale(values[index][this.xDim]),
+        cy: this.yScale(values[index][this.yDim])
       }
     );
     if (this.selected[index]) {
-      _(properties).extend(this.selectedProperties);
+      _(prop).extend(this.selectedProperties);
       for (var p in this.selectedMultiplier) {
-        var v = properties[p];
-        if (v != null) {
-          properties[p] = v * this.selectedMultiplier[p];
+        if (p in prop) {
+          prop[p] *= this.selectedMultiplier[p];
         }
       }
     }
-    ritems.push(properties);
+    itemProps.push(prop);
   }
 
-  var points;
+  /*
   if (!useTransition) {
     points = this.svgPoints.selectAll('circle').data(ritems, function(e) {
       return e.id;
@@ -257,11 +206,18 @@ visflow.Scatterplot.prototype.showVisualization = function(useTransition) {
       .append('circle')[0];
   }
   else {
-    points = this.svgPoints.selectAll('circle').data(ritems, function(e) {
-      return e.id;
-    })[0];
-  }
-
+  */
+  var points = this.svgPoints_.selectAll('circle')
+    .data(itemProps, function(e) {
+      return e.index;
+    });
+  points.enter().append('circle');
+  points.exit().remove();
+  points
+    .attr('cx', _.getValue('cx'))
+    .attr('cy', _.getValue('cy'))
+    .attr('r', _.getValue('size'));
+  /*
   for (var i = 0; i < points.length; i++) {
     var properties = points[i].__data__;
     var u = d3.select(points[i]);
@@ -280,13 +236,12 @@ visflow.Scatterplot.prototype.showVisualization = function(useTransition) {
         u.style(key, value);
     }
   }
+  */
 
   this.showSelection();
 
   // axis appears on top
-  [0, 1].map(function(d) {
-    this.showAxis(d);
-  }, this);
+  //this.drawAxes_();
 };
 
 /** @inheritDoc */
@@ -302,7 +257,8 @@ visflow.Scatterplot.prototype.showSelection = function() {
 };
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.showOptions = function() {
+visflow.Scatterplot.prototype.showPanel = function() {
+  /*
   var node = this;
   [0, 1].map(function(d) {
     this.selectDimensions[d] = new visflow.Select({
@@ -316,103 +272,98 @@ visflow.Scatterplot.prototype.showOptions = function() {
         var unitChange = event.unitChange;
         node.dimensions[unitChange.id] = unitChange.value;
         node.pushflow();
-        node.showVisualization(true);
+        node.showDetails(true);
       }
     });
   }, this);
+  */
 };
 
 /**
- * Displays the scatterplot axis.
+ * Renders the scatterplot axes.
+ * @private
  */
-visflow.Scatterplot.prototype.showAxis = function(d) {
-  var dt = !d? 'x' : 'y';
-  var margins = this.plotMargins;
-  var axis = d3.svg.axis()
-    .orient(!d ? 'bottom' : 'left')
-    .ticks(5);
-  if (this.scaleTypes[d] == 'ordinal'){
-    axis.scale(this.dataScales[d].copy()
-        .rangePoints(this.screenScales[d].range(), 1.0));
-  } else {
-    axis.scale(this.dataScales[d].copy()
-        .range(this.screenScales[d].range()));
+visflow.Scatterplot.prototype.drawAxes_ = function() {
+  var svgSize = this.getSVGSize();
+  var xAxis = d3.svg.axis().orient('bottom').ticks(5);
+  xAxis.scale(this.xScale.copy());
+  var yAxis = d3.svg.axis().orient('left').ticks(5);
+  yAxis.scale(this.yScale.copy());
+
+  var x = this.svg.select('.x.axis');
+  if (x.empty()) {
+    x = this.svg.append('g')
+      .classed('x axis', true)
+      .attr('transform', visflow.utils.getTransform([
+        0,
+        svgSize[0] - this.PLOT_MARGINS.bottom
+      ]));
   }
-  var transX = !d ? 0 : margins[0].before,
-      transY = !d ? this.svgSize[1] - margins[1].after : 0;
-  var labelX = !d ? this.svgSize[0] - margins[0].after : margins[1].before,
-      labelY = -5;
+  x.call(xAxis);
+
+  var y = this.svg.select('.y.axis');
+  if (y.empty()) {
+    y = this.svg.append('g')
+      .classed('y axis', true)
+      .attr('transform', visflow.utils.getTransform([
+        this.PLOT_MARGINS.before,
+        0
+      ]));
+  }
+  y.call(yAxis);
+
+  var xLabelTranslate = [
+    svgSize.width - this.PLOT_MARGINS.right,
+    -5
+  ];
+  var yLabelTranslate = [
+    this.PLOT_MARGINS.top,
+    -5
+  ];
 
   var data = this.ports['in'].pack.data;
 
-  var u = this.svg.select('.' + dt +'.axis');
-  if (u.empty()) {
-    u = this.svg.append('g')
-     .attr('class', dt + ' axis')
-     .attr('transform', 'translate(' + transX + ',' + transY + ')');
+  var xLabel = x.select('.vis-label');
+  if (xLabel.empty()) {
+    xLabel = x.append('text')
+      .classed('vis-label', true)
+      .attr('transform', visflow.utils.getTransform(xLabelTranslate));
   }
-  u.call(axis);
-  var t = u.select('.vis-label');
-  if (t.empty()) {
-    t = u.append('text')
-      .attr('class', 'vis-label')
-      .style('text-anchor', !d ? 'end' : 'start')
-      .attr('transform', !d ? '' : 'rotate(90)')
-      .attr('x', labelX)
-      .attr('y', labelY);
-    }
-  t.text(data.dimensions[this.dimensions[d]]);
+  xLabel.text(data.dimensions[this.xDim]);
+
+  var yLabel = y.select('.vis-label');
+  if (yLabel.empty()) {
+    yLabel = y.append('text')
+      .classed('vis-label', true)
+      .attr('transform', visflow.utils.getTransform(yLabelTranslate));
+  }
+  yLabel.text(data.dimensions[this.yDim]);
 };
 
-/** @inheritDoc */
+/**
+ * Prepares the scales for scatterplot.
+ */
 visflow.Scatterplot.prototype.prepareScales = function() {
-  [0, 1].map(function(d) {
-    this.prepareDataScale(d);
-    this.prepareScreenScale(d);
-  }, this);
-};
-
-/** @inheritDoc */
-visflow.Scatterplot.prototype.prepareDataScale = function(d) {
   var inpack = this.ports['in'].pack;
   var items = inpack.items,
       data = inpack.data;
 
-  var dim = this.dimensions[d],
-      dimType = data.dimensionTypes[dim];
+  var svgSize = this.getSVGSize();
+  var xRange = [
+    this.PLOT_MARGINS.left,
+    svgSize.width - this.PLOT_MARGINS.right
+  ];
+  var xScaleInfo = visflow.utils.getScale(data, this.xDim, items, xRange);
+  this.xScale = xScaleInfo.scale;
+  this.xScaleType = xScaleInfo.type;
 
-  var scaleType = dimType == 'string' ? 'ordinal' : 'numerical';
-  this.scaleTypes[d] = scaleType;
-  var scale;
-  if (scaleType == 'numerical') {
-    scale = this.dataScales[d] = d3.scale.linear().range([0,1]);
-
-    var minVal = Infinity, maxVal = -Infinity;
-    // compute min max
-    for (var index in items) {
-      var value = data.values[index][dim];
-      minVal = Math.min(minVal, value);
-      maxVal = Math.max(maxVal, value);
-    }
-    var span = maxVal - minVal;
-
-    // leave some spaces on the margin
-    scale.domain([minVal - span * .15, maxVal + span * .15]);
-
-  } else if (scaleType == 'ordinal') {
-    scale = this.dataScales[d] = d3.scale.ordinal().rangePoints([0,1], 1.0);  // TODO check padding
-    // find unique values
-    var has = {};
-    for (var index in items) {
-      var value = data.values[index][dim];
-      has[value] = true;
-    }
-    var values = [];
-    for (var value in has) {
-      values.push(value);
-    }
-    scale.domain(values);
-  }
+  var yRange = [
+    svgSize.height - this.PLOT_MARGINS.bottom,
+    this.PLOT_MARGINS.top
+  ];
+  var yScaleInfo = visflow.utils.getScale(data, this.yDim, items, yRange);
+  this.yScale = yScaleInfo.scale;
+  this.yScaleType = yScaleInfo.type;
 };
 
 /** @inheritDoc */
@@ -431,14 +382,16 @@ visflow.Scatterplot.prototype.prepareScreenScale = function(d) {
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.dataChanged = function() {
+  visflow.Scatterplot.base.dataChanged.call(this);
   var data = this.ports['in'].pack.data;
   var chosen = [];
   for (var i in data.dimensionTypes) {
     if (data.dimensionTypes[i] != 'string') {
       chosen.push(i);
     }
-    if (chosen.length == 2)
+    if (chosen.length == 2) {
       break;
+    }
   }
   this.dimensions = [chosen[0], chosen[1 % chosen.length]];
 };
@@ -446,20 +399,18 @@ visflow.Scatterplot.prototype.dataChanged = function() {
 /** @inheritDoc */
 visflow.Scatterplot.prototype.selectAll = function() {
   visflow.Scatterplot.base.selectAll.call(this);
-  this.showVisualization();
+  this.showDetails();
 };
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.clearSelection = function() {
   visflow.Scatterplot.base.clearSelection.call(this);
-  this.showVisualization(); // TODO　not efficient
+  this.showDetails(); // TODO　not efficient
 };
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.resize = function(size) {
   visflow.Scatterplot.base.resize.call(this, size);
-  [0, 1].map(function(d) {
-    this.prepareScreenScale(d);
-  }, this);
-  this.showVisualization();
+  this.prepareScales();
+  this.showDetails();
 };

@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.Set = function(params) {
   visflow.Set.base.constructor.call(this, params);

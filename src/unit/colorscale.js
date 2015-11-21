@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Unit}
  */
 visflow.ColorScale = function(params) {
  visflow.ColorScale.base.constructor.call(this, params);

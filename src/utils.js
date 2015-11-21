@@ -7,6 +7,23 @@
 /** @const */
 visflow.utils = {};
 
+/** @typedef {{x: number, y: number}} */
+visflow.Point;
+
+/** @typedef {{x1: number, y1: number, x2: number, y2: number}} */
+visflow.Box;
+
+/**
+ * Initializes the utils. Creates underscore mixins.
+ */
+visflow.utils.init = function() {
+  _.mixin({
+    keySet: visflow.utils.keySet_,
+    getValue: visflow.utils.getValue_
+  });
+};
+
+
 /**
  * Gets event offset corresponding to a given element 'e'.
  * @param {!jQuery.event} event
@@ -40,6 +57,16 @@ visflow.utils.offset = function(e1, e2) {
  */
 visflow.utils.offsetMain = function(e) {
   return visflow.utils.offset(e, $('#main'));
+};
+
+/**
+ * Checks whether a point is inside a box, 2D.
+ * @param {!visflow.Point} point
+ * @param {!visflow.Box} box
+ */
+visflow.utils.pointInBox = function(point, box) {
+  return box.x1 <= point.x && point.x <= box.x2 &&
+      box.y1 <= point.y && point.y <= box.y2;
 };
 
 /**
@@ -175,17 +202,95 @@ visflow.utils.parseToken = function(text) {
 };
 
 /**
+ * Combines translate and scale into a CSS transform string.
+ * @param {!Array<number>} opt_translate Zoom translate.
+ * @param {number=} opt_scale Zoom scale.
+ * @param {number=} opt_rotate Rotation degree.
+ * @return {string} CSS string of the transform.
+ */
+visflow.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
+  var result = '';
+  if (opt_translate != null) {
+    result += 'translate(' + opt_translate + ')';
+  }
+  if (opt_scale != null) {
+    result += 'scale(' + opt_scale + ')';
+  }
+  if (opt_rotate != null) {
+    result += 'rotate(' + opt_rotate + ')';
+  }
+  return result;
+};
+
+/**
+ * Gets a scale with domain set based on value types.
+ * @param {!visflow.Data} data Data the scale is for.
+ * @param {number} dim Dimension index of the data to process.
+ * @param {!Object} items Collection of items the scale is for.
+ * @param {!Array<number>} range Range of the scale.
+ * @param {number=} opt_margin Margin left for data span.
+ * @return {!{scale: d3.scale, type: string}}
+ */
+visflow.utils.getScale = function(data, dim, items, range, opt_margin) {
+  var dimType = data.dimensionTypes[dim];
+  var margin = opt_margin == null ? .15 : opt_margin;
+
+  var scaleType = dimType == 'string' ? 'ordinal' : 'numerical';
+  var scale;
+  switch(scaleType) {
+    case 'numerical':
+      var minVal = Infinity, maxVal = -Infinity;
+      // Compute min max of a data column.
+      for (var index in items) {
+        var value = data.values[index][dim];
+        minVal = Math.min(minVal, value);
+        maxVal = Math.max(maxVal, value);
+      }
+      var span = maxVal - minVal;
+      scale = d3.scale.linear()
+        .domain([minVal - span * margin, maxVal + span * margin])
+        .range(range);
+      break;
+    case 'ordinal':
+      var values = data.values.map(function(row) {
+        return row[dim];
+      });
+      scale = d3.scale.ordinal()
+        .domain(_.uniq(values))
+        .range(range, 1.0);
+      break;
+  }
+  return {
+    scale: scale,
+    type: scaleType
+  };
+};
+
+/**
  * Converts an array of strings to a set with strings as keys.
  * The values will be set to all true.
  * @param {!Array<string>} arr
  * @return {!Object<boolean>}
+ * @private
  */
-visflow.utils.keySet = function(arr) {
+visflow.utils.keySet_ = function(arr) {
   var obj = {};
   arr.forEach(function(element) {
     obj[element] = true;
   });
   return obj;
+};
+
+/**
+ * Provides a function that gets the value of a given key, from a given object.
+ * @param {string} key
+ * @return {function(!Object): *}
+ * @private
+ */
+visflow.utils.getValue_ = function(key) {
+  return function(obj) {
+    return obj[this];
+  }.bind(key);
 };
 
 /**

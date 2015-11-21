@@ -25,7 +25,7 @@ visflow.diagram.save = function() {
     type: 'filelist'
   }).done(function(data) {
     var fileList = data.filelist;
-    var fileNames = visflow.utils.keySet(fileList.map(function(file) {
+    var fileNames = _.keySet(fileList.map(function(file) {
       return file.filename;
     }));
 

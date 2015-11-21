@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Visualization}
  */
 visflow.Histogram = function(params) {
   visflow.Histogram.base.constructor.call(this, params);
@@ -206,7 +207,7 @@ visflow.Histogram.prototype.selectItemsInBox = function(box) {
     }
   }
 
-  this.showVisualization();
+  this.showDetails();
   this.pushflow();
 };
 
@@ -511,7 +512,7 @@ visflow.Histogram.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       this.dimension = unitChange.value;
       this.pushflow();
-      this.showVisualization();
+      this.showDetails();
     }.bind(this)
   });
 
@@ -532,7 +533,7 @@ visflow.Histogram.prototype.showOptions = function() {
       node.selectedBars = {};
       node.selected = {};
 
-      node.showVisualization();
+      node.showDetails();
     }
   });
 };
@@ -671,18 +672,18 @@ visflow.Histogram.prototype.selectAll = function() {
       this.selectedBars[i+ ',' + j] = true;
     }
   }
-  this.showVisualization();
+  this.showDetails();
 };
 
 /** @inheritDoc */
 visflow.Histogram.prototype.clearSelection = function() {
   visflow.Histogram.base.clearSelection.call(this);
   this.selectedBars = {};
-  this.showVisualization();
+  this.showDetails();
 };
 
 /** @inheritDoc */
 visflow.Histogram.prototype.resize = function(size) {
   visflow.Histogram.base.resize.call(this, size);
-  this.showVisualization();
+  this.showDetails();
 };

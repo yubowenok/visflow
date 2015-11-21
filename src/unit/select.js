@@ -9,6 +9,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Unit}
  */
 visflow.Select = function(params) {
   visflow.Select.base.constructor.call(this, params);

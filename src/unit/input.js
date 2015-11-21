@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Unit}
  */
 visflow.Input = function(params) {
   visflow.Input.base.constructor.call(this, params);

@@ -15,16 +15,23 @@ visflow.Package = function(data) {
     data = new visflow.Data();
   }
 
-  // maintain a reference to the original data object
+  /**
+   * A reference to the original data object.
+   * @type {!visflow.Data}
+   */
   this.data = data;
 
-  // list of references
+  /**
+   * Item Ids.
+   * @type {!Object<*>}
+   */
   this.items = {};
-  for (var i in data.values) {
-    var e = {
-      properties: {}  // create a rendering property object
+
+  for (var index in data.values) {
+    // Create a rendering property object.
+    this.items[index] = {
+      properties: {}
     };
-    this.items[i] = e;
   }
 
   // change status

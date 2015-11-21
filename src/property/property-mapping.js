@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.PropertyMapping = function(params) {
   visflow.PropertyMapping.base.constructor.call(this, params);

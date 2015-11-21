@@ -14,9 +14,13 @@ var visflow = {};
  * Initializes all visflow components.
  */
 visflow.init = function() {
+  visflow.utils.init();
+
   visflow.menu.init();
   visflow.viewManager.init();
   visflow.flow.init();
+  visflow.optionPanel.init();
+  visflow.nodePanel.init();
   visflow.interaction.init();
 
   visflow.test.run();

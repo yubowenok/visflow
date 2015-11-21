@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.Filter = function(params) {
   visflow.Filter.base.constructor.call(this, params);

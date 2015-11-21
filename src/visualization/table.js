@@ -7,12 +7,21 @@
 /**
  * @param {Object} params
  * @constructor
+ * @extends {visflow.Visualization}
  */
 visflow.Table = function(params) {
   visflow.Table.base.constructor.call(this, params);
 
   this.keepSize = null;
   this.tableState = null; // last table state
+
+  /**
+   * Table template. We store a copy of the table structure when the node HTML
+   * template is loaded. Because we have to destroy table HTML when input data
+   * is updated.
+   * @private {jQuery}
+   */
+  this.tableTemplate_;
 };
 
 visflow.utils.inherit(visflow.Table, visflow.Visualization);
@@ -28,17 +37,34 @@ visflow.Table.prototype.SHAPE_CLASS = 'shape-table';
 /** @inheritDoc */
 visflow.Table.prototype.MINIMIZED_CLASS = 'table-icon square-icon';
 
+
 /** @inheritDoc */
 visflow.Table.prototype.MIN_WIDTH = 500;
 /** @inheritDoc */
 visflow.Table.prototype.MIN_HEIGHT = 440;
+/**
+ * The height sum of the DataTable wrapping elements, including
+ * - the search box row (35px)
+ * - table margin-top + border (7px)
+ * - the table header row (45px)
+ * - the info row (43px).
+ * - horizontal scrollBar (~12px)
+ * @private {number}
+ */
+visflow.Table.prototype.WRAPPER_HEIGHT_ = 35 + 7 + 45 + 43 + 12;
+
+/**
+ * ScrollY value for DataTable.
+ * @private {number}
+ */
+visflow.Table.prototype.SCROLL_Y_ = 300;
 
 /** @inheritDoc */
 visflow.Table.prototype.init = function() {
   visflow.Table.base.init.call(this);
-  this.table = this.content.children('table');
-  this.thead = this.table.children('thead');
-  this.tbody = this.table.children('tbody');
+
+  // Store a cloned copy of table structure.
+  this.tableTemplate_ = this.content.children('table').clone();
 };
 
 /** @inheritDoc */
@@ -58,7 +84,6 @@ visflow.Table.prototype.deserialize = function(save) {
 
 /** @inheritDoc */
 visflow.Table.prototype.showDetails = function() {
-
   if (this.checkDataEmpty()) {
     return;
   }
@@ -67,47 +92,53 @@ visflow.Table.prototype.showDetails = function() {
       data = pack.data,
       items = pack.items;
 
-
   if (this.dataTable) {
+    // destroy(true) will remove all table elements, including those from
+    // template.
     this.dataTable.destroy(true);
+    this.tableTemplate_.clone().appendTo(this.content);
   }
 
   var rows = [];
-  var columns = [];
-  columns.push({
-    title: '#'
-  }); // index column
-  for (var i in data.dimensions) { // dimensions
-    columns.push({
-      title: data.dimensions[i]
-    });
-  }
+  var columns = [
+    // Data item index column.
+    {title: '#'}
+  ].concat(data.dimensions.map(function(dim) {
+    return {title: dim};
+  }));
+
   for (var index in items) {
     var row = [index].concat(data.values[index]);
     rows.push(row);
   }
 
-  this.dataTable = this.table.DataTable({
-    stateSave: true,
-    data: rows,
-    columns: columns,
-    scrollX: true,
-    scrollY: '300px',
-    pagingType: 'full',
-    select: true
-  });
-
-
-  /*
-  this.container
-    .css({
-      height: paddedHeight
-    })
-    .resizable({
-      maxWidth: Math.max(this.thead.width(), 300),
-      maxHeight: paddedHeight
+  this.dataTable = this.content.children('table')
+    .DataTable({
+      stateSave: true,
+      data: rows,
+      columns: columns,
+      scrollX: true,
+      pagingType: 'full',
+      select: true
     });
-    */
+
+  this.updateScrollBodyHeight_();
+
+  this.dataTable
+    .on('select.dt', function(event, dt, type, tableIndices) {
+      tableIndices.forEach(function(tableIndex) {
+        var itemId = rows[tableIndex][0];
+        this.selected[itemId] = true;
+      }, this);
+      this.pushflow();
+    }.bind(this))
+    .on('deselect.dt', function(event, dt, type, tableIndices) {
+      tableIndices.forEach(function(tableIndex) {
+        var itemId = rows[tableIndex][0];
+        delete this.selected[itemId];
+      }, this);
+      this.pushflow();
+    }.bind(this));
 
   if (this.keepSize != null) {
     // use previous size regardless of how table entries changed
@@ -117,45 +148,22 @@ visflow.Table.prototype.showDetails = function() {
   this.showSelection();
 };
 
-/** @inheritDoc */
-visflow.Table.prototype.interaction = function() {
-  visflow.Table.base.interaction.call(this);
-  var node = this;
-
-  this.tbody
-    .mousedown(function(event){
-      if (visflow.interaction.ctrled) {
-        // ctrl drag mode blocks
-        return;
-      }
-      // block events from elements below
-      if(visflow.interaction.visualizationBlocking) {
-        event.stopPropagation();
-      }
-    });
-
-  if (!this.ports['in'].pack.isEmpty()){  // avoid selecting 'no data' msg
-    this.jqtbody.on('click', 'tr', function () {
-      $(this).toggleClass('selected');
-      var jqfirstcol = $(this).find('td:first');
-      var index = jqfirstcol.text();
-
-      if (node.selected[index])
-        delete node.selected[index];
-      else
-        node.selected[index] = true;
-
-      node.pushflow();
-    });
-  }
-
-  this.table.on('draw.dt', function() {
-    node.showSelection();
-  });
+/**
+ * Computes and updates the table scroll body height.
+ * @return {number}
+ */
+visflow.Table.prototype.updateScrollBodyHeight_ = function() {
+  var height = this.container.height() - this.WRAPPER_HEIGHT_;
+  this.content.find('.dataTables_scrollBody')
+    .css('max-height', height)
+    .css('height', height);
 };
 
 /** @inheritDoc */
 visflow.Table.prototype.showSelection = function() {
+  // TODO(bowen): Selection is now shown by DataTable select plugin.
+  // Check whether this works correctly on data update.
+  /*
   var node = this;
   this.table.find('tr')
     .filter(function() {
@@ -163,6 +171,7 @@ visflow.Table.prototype.showSelection = function() {
       return node.selected[index] != null;
     })
     .addClass('selected');
+    */
 };
 
 /** @inheritDoc */
@@ -185,11 +194,12 @@ visflow.Table.prototype.clearSelection = function() {
 /** @inheritDoc */
 visflow.Table.prototype.resize = function(size) {
   visflow.Table.base.resize.call(this, size);
+
   this.keepSize = {
     width: this.viewWidth,
     height: this.viewHeight
   };
-  //this.showVisualization();
+  this.updateScrollBodyHeight_();
 };
 
 /** @inheritDoc */

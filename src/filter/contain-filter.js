@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Filter}
  */
 visflow.ContainFilter = function(params) {
   visflow.ContainFilter.base.constructor.call(this, params);

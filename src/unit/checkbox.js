@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Unit}
  */
 visflow.Checkbox = function(params) {
   visflow.Checkbox.base.constructor.call(this, params);

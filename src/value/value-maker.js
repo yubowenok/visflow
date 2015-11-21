@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.ValueMaker = function(params) {
   visflow.ValueMaker.base.constructor.call(this, params);

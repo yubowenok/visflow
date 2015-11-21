@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Visualization}
  */
 visflow.Network = function(params) {
   visflow.Network.base.constructor.call(this, params);
@@ -311,7 +312,7 @@ visflow.Network.prototype.selectItemsInBox = function(box) {
     }
   }
   this.pushflow();
-  this.showVisualization(false);
+  this.showDetails(false);
 };
 
 /**
@@ -558,7 +559,7 @@ visflow.Network.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       node.nodeLabelOn = unitChange.value;
       node.pushflow();
-      node.showVisualization();
+      node.showDetails();
     }
   });
 
@@ -573,7 +574,7 @@ visflow.Network.prototype.showOptions = function() {
       var unitChange = event.unitChange;
       node.nodeLabel = unitChange.value;
       node.pushflow();
-      node.showVisualization();
+      node.showDetails();
     }
   });
 
@@ -589,7 +590,7 @@ visflow.Network.prototype.showOptions = function() {
     change: function(event) {
       var unitChange = event.unitChange;
       node.forceCharge = parseInt(unitChange.value);
-      node.showVisualization();
+      node.showDetails();
     }
   });
 };
@@ -830,18 +831,18 @@ visflow.Network.prototype.keyAction = function(key, event) {
 /** @inheritDoc */
 visflow.Network.prototype.selectAll = function() {
   visflow.Network.base.selectAll.call(this);
-  this.showVisualization();
+  this.showDetails();
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.clearSelection = function() {
   this.selectedEdges = {};
   visflow.Network.base.clearSelection.call(this);
-  this.showVisualization(); // TODO　not efficient
+  this.showDetails(); // TODO　not efficient
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.resize = function(size) {
   visflow.Network.base.resize.call(this, size);
-  this.showVisualization();
+  this.showDetails();
 };

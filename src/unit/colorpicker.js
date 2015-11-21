@@ -8,6 +8,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Unit}
  */
 visflow.ColorPicker = function(params) {
   visflow.ColorPicker.base.constructor.call(this, params);

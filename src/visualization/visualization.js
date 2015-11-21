@@ -7,6 +7,7 @@
 /**
  * @param {!Object} params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.Visualization = function(params) {
   visflow.Visualization.base.constructor.call(this, params);
@@ -35,7 +36,7 @@ visflow.Visualization = function(params) {
 
   /**
    * Interactive selectbox (rectangle).
-   * @protected {{x1: number, y1: number, x2: number, y2: number}}
+   * @protected {!visflow.Box}
    */
   this.selectbox = {x1: 0, y1: 0, x2: 0, y2: 0};
 
@@ -132,6 +133,7 @@ visflow.Visualization.prototype.init = function() {
   visflow.Visualization.base.init.call(this);
   this.container.addClass('visualization');
   this.svg = d3.select(this.content.children('svg')[0]);
+  this.updateSVGSize();
 };
 
 /**
@@ -173,11 +175,13 @@ visflow.Visualization.prototype.deserialize = function(save) {
     this.selected = {};
   }
 
+  /*
   this.lastDataId = save.lastDataId;
   if (this.lastDataId == null) {
     visflow.error('lastDataId not saved in visualization');
     this.lastDataId = 0;
   }
+  */
 };
 
 /**
@@ -196,9 +200,11 @@ visflow.Visualization.prototype.checkDataEmpty = function() {
   if (this.isDataEmpty()) {
     // otherwise scales may be undefined
     this.showMessage('empty data in ' + this.PLOT_NAME);
+    this.content.hide();
     return true;
   } else {
     this.hideMessage();
+    this.content.show();
     return false;
   }
 };
@@ -240,8 +246,8 @@ visflow.Visualization.prototype.process = function() {
   this.validateSelection();
 
   if (this.lastDataId != inpack.data.dataId) {
-    // data has changed, fire change event
-    // visualization can update selected dimension in this function
+    // Data has changed, fire change event
+    // visualization can update selected dimension in this function.
     this.dataChanged();
 
     this.lastDataId = inpack.data.dataId;
@@ -296,6 +302,28 @@ visflow.Visualization.prototype.selectAll = function() {
 visflow.Visualization.prototype.clearSelection = function() {
   this.selected = {};
   this.pushflow();
+};
+
+/**
+ * Gets the SVG size.
+ * @return {{width: number, height: number}}
+ */
+visflow.Visualization.prototype.getSVGSize = function() {
+  var svg = $(this.svg.node());
+  return {
+    width: svg.width(),
+    height: svg.height()
+  };
+};
+
+/**
+ * Updates the SVG size.
+ */
+visflow.Visualization.prototype.updateSVGSize = function() {
+  $(this.svg.node()).css({
+    width: this.content.width(),
+    height: this.content.height()
+  });
 };
 
 /** @inheritDoc */
@@ -418,11 +446,14 @@ visflow.Visualization.prototype.applyProperties = function(u, properties, transl
 
 
 /** @inheritDoc */
-visflow.Visualization.prototype.resize = function(size) {
-  visflow.Visualization.base.resize.call(this, size);
-  if (!this.options.showIcon) {
-    this.visWidth = size.width;
-    this.visHeight = size.height;
+visflow.Visualization.prototype.resize = function() {
+  visflow.Visualization.base.resize.call(this);
+  var width = this.container.width();
+  var height = this.container.height();
+  if (!this.options.minimized) {
+    this.visWidth = width;
+    this.visHeight = height;
+    this.updateSVGSize();
   }
 };
 
@@ -433,17 +464,22 @@ visflow.Visualization.prototype.resizeStop = function(size) {
 
 /**
  * Displays the selectbox.
- * @param {{x1: number, y1: number, x2: number, y2: number}} selectbox
+ * @param {!visflow.Box} selectbox
  */
 visflow.Visualization.prototype.showSelectbox = function(selectbox) {
 };
 
 /**
  * Selects the items within the selectbox.
- * @param {{x1: number, y1: number, x2: number, y2: number}} selectbox
+ * @param {!visflow.Box} selectbox
  */
 visflow.Visualization.prototype.selectItemsInBox = function(selectbox) {
 };
+
+/**
+ * Prepares the scales for rendering.
+ */
+visflow.Visualization.prototype.prepareScales = function() {};
 
 /**
  * Does extra processing required by the visualization.
@@ -459,5 +495,7 @@ visflow.Visualization.prototype.showSelection = function() {};
 visflow.Visualization.prototype.showOptions = function() {};
 
 /** @inheritDoc */
-visflow.Visualization.prototype.dataChanged = function() {};
+visflow.Visualization.prototype.dataChanged = function() {
+  this.prepareScales();
+};
 

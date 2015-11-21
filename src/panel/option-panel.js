@@ -1,53 +1,53 @@
 /**
- * @fileoverview VisFlow right side panel.
+ * @fileoverview VisFlow right option panel.
  */
 
 /** @const */
-visflow.sidePanel = {};
+visflow.optionPanel = {};
 
 /** @const {number} */
-visflow.sidePanel.COLLAPSED_WIDTH = 32;
+visflow.optionPanel.COLLAPSED_WIDTH = 32;
 /** @const {number} */
-visflow.sidePanel.TRANSITION_TIME = 250;
+visflow.optionPanel.TRANSITION_TIME = 250;
 
 /**
  * Whether the panel is toggled on.
  * @private {boolean}
  */
-visflow.sidePanel.showPanel_ = true;
+visflow.optionPanel.showPanel_ = true;
 
 /**
- * Side panel container.
+ * Option panel container.
  * @private {jQuery}
  */
-visflow.sidePanel.container_ = null;
+visflow.optionPanel.container_ = null;
 
 /**
- * Initializes the side panel.
+ * Initializes the option panel.
  */
-visflow.sidePanel.init = function(e) {
-  this.container_ = $('#side-panel');
+visflow.optionPanel.init = function() {
+  this.container_ = $('#option-panel');
   this.container_.children('#btn-toggle').click(function() {
     this.togglePanel_();
   }.bind(this));
 };
 
 /**
- * Gets the current width of the side panel. This is used to set the
+ * Gets the current width of the option panel. This is used to set the
  * horizontal panel offset (right parameter).
  * @return {number} Current width of the panel.
  * @private
  */
-visflow.sidePanel.getWidth_ = function() {
+visflow.optionPanel.getWidth_ = function() {
   return this.container_.find('.tab-content').outerWidth() +
     this.COLLAPSED_WIDTH;
 };
 
 /**
- * Toggles the side panel.
+ * Toggles the option panel.
  * @private
  */
-visflow.sidePanel.togglePanel_ = function() {
+visflow.optionPanel.togglePanel_ = function() {
   this.container_.toggleClass('active');
   this.showPanel_ = !this.showPanel_;
   var rightValue = this.showPanel_ ?
@@ -67,12 +67,12 @@ visflow.sidePanel.togglePanel_ = function() {
  * Creates a panel for a newly create node.
  * @param {!visflow.Node} node
  */
-visflow.sidePanel.addPanel = function(node) {
+visflow.optionPanel.addPanel = function(node) {
 };
 
 /**
  * Removes the panel associated with a node.
  * @param {!visflow.Node} node
  */
-visflow.sidePanel.removePanel = function(node) {
+visflow.optionPanel.removePanel = function(node) {
 };

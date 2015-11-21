@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.ValueExtractor = function(params) {
   visflow.ValueExtractor.base.constructor.call(this, params);

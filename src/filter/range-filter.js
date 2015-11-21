@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Filter}
  */
 visflow.RangeFilter = function(params) {
   visflow.RangeFilter.base.constructor.call(this, params);
