@@ -23,9 +23,9 @@ body {
 }
 
 .visflow #selectbox {
-  background: #6699ce;
-  border: 1px solid black;
-  opacity: 0.25;
+  background-color: rgba(102, 153, 238, 0.25);
+  border: 1px solid #333;
+  shape-rendering: crispEdges;
   position: absolute;
   z-index: 1000;
 }

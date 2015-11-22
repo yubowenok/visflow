@@ -1,3 +1,83 @@
+.visflow .node {
+  position: absolute;
+}
+
+.visflow .node > .content {
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.visflow .node > .background {
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: -1;
+}
+
+.visflow .node.hover > .background,
+.visflow .node.selected > .background {
+  border-width: 3px;
+}
+
+.visflow .node.hover > .background {
+  border-color: #bbb;
+}
+
+.visflow .node.selected > .background {
+  border-color: #777;
+}
+
+.visflow .node.details.shape-small {
+  width: 75px;
+  height: 75px;
+}
+
+.visflow .node.details.shape-medium {
+  width: 100px;
+  height: 100px;
+}
+
+.visflow .node.details.shape-superflat {
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+  padding: 5px;
+  text-align: center;
+}
+
+.visflow .node.details.shape-set {
+  width: 80px;
+  height: 40px;
+  background-size: 50px 25px;
+}
+
+.visflow .node.details.shape-longflat {
+  width: 160px;
+  height: 80px;
+  padding: 5px;
+}
+
+.visflow .node.details.shape-value-extractor {
+  width: 150px;
+  height: 60px;
+  line-height: 10px;
+  text-align: center;
+}
+
+.visflow .node.property-editor {
+  width: 150px;
+  padding: 5px;
+}
+
+.visflow .node.property-mapping {
+  width: 200px;
+  padding: 5px;
+}
+
 .node .popup {
   width: 100%;
   height: 100%;

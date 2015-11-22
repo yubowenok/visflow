@@ -13,13 +13,19 @@ visflow.interaction.keyCodes = {
   CTRL: 17,
   ESC: 27,
   LEFT_MOUSE: 1,
-  RIGHT_MOUSE: 3
+  RIGHT_MOUSE: 3,
+  UP: 38,
+  DOWN: 40,
+  LEFT: 37,
+  RIGHT: 39
 };
 
 /** @type {number} */
 visflow.interaction.mouseX = 0;
 /** @type {number} */
 visflow.interaction.mouseY = 0;
+/** @private @const {number} */
+visflow.interaction.MOVE_DELTA_ = 50;
 
 /** @private {!Array<!visflow.contextMenu.Item>} */
 visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
@@ -61,7 +67,7 @@ visflow.interaction.init = function() {
  * Whether SHIFT key is pressed.
  * @type {boolean}
  */
-visflow.interaction.shifted = true;
+visflow.interaction.shifted = false;
 
 /**
  * Whether CTRL key is pressed.
@@ -119,7 +125,7 @@ visflow.interaction.trackMousemove = function(opt_enabled) {
  * node drag). If not called, browser might fail to capture shift/ctrl release
  * and the two keys would be considered pressed forever.
  */
-visflow.interaction.keyReleased = function(key) {
+visflow.interaction.keyRelease = function(key) {
   if (!(key instanceof Array)) {
     key = [key];
   }
@@ -142,98 +148,118 @@ visflow.interaction.keyReleased = function(key) {
 visflow.interaction.interaction = function() {
   this.jqselectbox = $('#selectbox');
   this.jqselectbox.hide();
-  var manager = this;
   this.mainContainer
-    .mousedown(function(event, ui) {
+    .mousedown(function(event) {
       if ($(event.target).is('#main')) {
-        manager.mousedownHandler({
+        this.mousedownHandler({
           type: 'background',
           event: event
         });
       }
-    })
+    }.bind(this))
     .mousemove(function(event, ui) {
-      manager.mousemoveHandler({
+      this.mousemoveHandler({
         type: 'background',
         event: event
       });
-    })
+    }.bind(this))
     .mouseup(function(event, ui) {
-      manager.mouseupHandler({
+      this.mouseupHandler({
         type: 'background',
         event: event
       });
-    });
+    }.bind(this));
 
   // track keyboard: shift key
-  $(document).keydown(function(event) {
-    var code = event.keyCode, index;
-    // avoid interfering with input and editable
-    if ($(event.target).is('input, .node-label')) {
-      return true;
-    }
-
-    if ((index = [38, 40, 37, 39].indexOf(code)) != -1){
-      // move up/down/left/right
-      var shift = [[0, -1], [0, 1], [-1, 0], [1, 0]],
-          delta = 50;
-      visflow.flow.moveNodes(shift[index][0] * delta, shift[index][1] * delta,
-        visflow.flow.nodes);
-    }
-    else if (code == visflow.interaction.keyCodes.SHIFT) {
-      manager.shifted = true;
-      manager.mainContainer.css('cursor', 'crosshair');
-    } else if (code == visflow.interaction.keyCodes.CTRL) {
-      manager.ctrled = true;
-      manager.visualizationBlocking = false;
-    } else if (code == visflow.interaction.keyCodes.ESC) {   // esc
-      manager.escHandler();
-    } else {
-      var c = String.fromCharCode(code);
-      var key = c;
-      if (manager.shifted)
-        key = 'shift+' + key;
-      if (manager.ctrled)
-        key = 'ctrl+' + key;
-
-      if (key == 'A') {
-        event.pageX = manager.mouseX;
-        event.pageY = manager.mouseY;
-        visflow.popupPanel.show(event, true); // compact mode
-      }
-      else if (key == 'shift+A') {
-        event.pageX = manager.mouseX;
-        event.pageY = manager.mouseY;
-        visflow.popupPanel.show(event);
-      }
-      else if (key == 'shift+V') {
-        visflow.flow.toggleVisMode();
-      }
-      else if (visflow.viewManager.getPopupPanelName() == 'add') {
-        // further filtering popup entries
-        visflow.viewManager.filterAddPanel(key);
-      }
-      else if (key == 'M'){
-        visflow.viewManager.toggleMenuPanel();
-      }
-      else {
-        // not global interaction event, pass to dataflow
-        visflow.flow.keyAction(key, event);
-      }
-    }
-  });
+  $(document).keydown(this.keyPress);
 
   $(document).keyup(function(event) {
     if (event.keyCode == visflow.interaction.keyCodes.SHIFT) {
-      manager.keyReleased('shift');
+      visflow.interaction.keyRelease('shift');
     } else if (event.keyCode == visflow.interaction.keyCodes.CTRL) {
-      manager.keyReleased('ctrl');
+      visflow.interaction.keyRelease('ctrl');
     }
   });
 
   $(document).mousewheel(function(event) {
     // TODO : zoom in view ?
   });
+};
+
+/**
+ * Handles global key press event.
+ * @private
+ */
+visflow.interaction.keyPress = function(event) {
+  var code = event.keyCode;
+
+  // Avoid interfering with input and editable.
+  if ($(event.target).is('input, .node-label')) {
+    return true;
+  }
+
+  var keyCodes = visflow.interaction.keyCodes;
+  switch(code) {
+    case keyCodes.UP:
+    case keyCodes.DOWN:
+    case keyCodes.LEFT:
+    case keyCodes.RIGHT:
+      var index = [keyCodes.UP, keyCodes.DOWN, keyCodes.LEFT, keyCodes.RIGHT]
+        .indexOf(code);
+      var shift = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+      visflow.flow.moveNodes(
+        shift[index][0] * visflow.interaction.MOVE_DELTA_,
+        shift[index][1] * visflow.interaction.MOVE_DELTA_,
+        visflow.flow.nodes
+      );
+      break;
+    case keyCodes.SHIFT:
+      visflow.interaction.shifted = true;
+      visflow.interaction.mainContainer.css('cursor', 'crosshair');
+      break;
+    case keyCodes.CTRL:
+      visflow.interaction.ctrled = true;
+      visflow.interaction.visualizationBlocking = false;
+      break;
+    case keyCodes.ESC:
+      visflow.interaction.escHandler();
+      break;
+    default:
+      var c = String.fromCharCode(code);
+      var key = c;
+      if (visflow.interaction.shifted) {
+        key = 'shift+' + key;
+      }
+      if (visflow.interaction.ctrled) {
+        key = 'ctrl+' + key;
+      }
+      switch(key) {
+        case 'A':
+          event.pageX = visflow.interaction.mouseX;
+          event.pageY = visflow.interaction.mouseY;
+          visflow.popupPanel.show(event, true); // compact mode
+          break;
+        case 'shift+A':
+          event.pageX = visflow.interaction.mouseX;
+          event.pageY = visflow.interaction.mouseY;
+          visflow.popupPanel.show(event);
+          break;
+        case 'shift+V':
+          visflow.flow.toggleVisMode();
+          break;
+        case 'M':
+          visflow.viewManager.toggleMenuPanel();
+          break;
+        default:
+          if (visflow.viewManager.getPopupPanelName() == 'add') {
+            // Further filtering popup entries
+            visflow.viewManager.filterAddPanel(key);
+          } else {
+            // Not global interaction event, pass to flow.
+            visflow.flow.keyAction(key, event);
+          }
+      }
+  }
 };
 
 /**
@@ -360,7 +386,7 @@ visflow.interaction.mouseupHandler = function(params) {
 
   // forcefully end all interactions
   // to prevent inconsistent interaction states resulting from an uncaptured event
-  this.keyReleased(['shift', 'ctrl']);
+  this.keyRelease(['shift', 'ctrl']);
   visflow.viewManager.clearEdgeHover();
   visflow.popupPanel.close();
 

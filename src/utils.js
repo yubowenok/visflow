@@ -28,14 +28,14 @@ visflow.utils.init = function() {
  * Gets event offset corresponding to a given element 'e'.
  * @param {!jQuery.event} event
  * @param {!jQuery} e
- * @return {!Array<number>} Offset computed.
+ * @return {{left: number, top: number}} Offset computed.
  */
 visflow.utils.getOffset = function(event, e) {
   var offset = e.offset();
-  return [
-    event.pageX - offset.left,
-    event.pageY - offset.top
-  ];
+  return {
+    left: event.pageX - offset.left,
+    top: event.pageY - offset.top
+  };
 };
 
 /**

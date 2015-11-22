@@ -115,7 +115,7 @@ visflow.Node = function(params) {
 
   this.container.load(this.TEMPLATE, function() {
     this.container
-      .addClass('node')
+      .addClass('node details')
       .addClass(this.NODE_CLASS)
       .addClass(this.SHAPE_CLASS)
       .addClass(this.hashtag);
@@ -141,6 +141,11 @@ visflow.Node = function(params) {
  * @protected {string}
  */
 visflow.Node.prototype.TEMPLATE = './src/node/node.html';
+/**
+ * Node control panel template file.
+ * @protected {string}
+ */
+visflow.Node.prototype.PANEL_TEMPLATE = '';
 
 // Minimum size of resizable. Default is no minimum.
 /** @protected @const {number} */
@@ -290,7 +295,7 @@ visflow.Node.prototype.hideMessage = function() {
 visflow.Node.prototype.show = function() {
   //this.content.children().remove();
 
-  if (!this.visModeOn && visflow.flow.visModeOn) {
+  if (!this.options.visMode && visflow.flow.visModeOn) {
     // do not show if hidden in vis mode
     return;
   }
@@ -321,7 +326,6 @@ visflow.Node.prototype.show = function() {
     this.showPorts();
     this.updatePorts(); // update edges
   }
-  this.showPanel();
 };
 
 /**
@@ -337,40 +341,15 @@ visflow.Node.prototype.showLabel = function() {
   }
 };
 
-/**
- * Shows/hides options panel.
-visflow.Node.prototype.showPanel = function() {
-  var node = this;
-  if (this.optionsOn == true) {
-    if (this.jqoptions) { // already shown, clear
-      this.jqoptions.remove();
-    }
-    this.jqoptions = $('<div></div>')
-      .addClass('options')
-      .appendTo(this.container)
-      .draggable({
-        stop: function(event) {
-          var offset = $(event.target).position();  // relative position
-          node.optionsOffset = offset;
-        }
-      });
-    if (this.optionsOffset != null) {
-      this.jqoptions.css(this.optionsOffset);
-    }
-  } else {
-    if (this.jqoptions) {
-      this.jqoptions.remove();
-      this.jqoptions = null;
-    }
-  }
-};
- */
 
 /**
  * Focuses the view, brings the view to front.
  */
 visflow.Node.prototype.focus = function() {
   $(this.container).css('z-index', visflow.viewManager.topZIndex());
+  if (visflow.optionPanel.isOpen) {
+    this.panel();
+  }
 };
 
 
@@ -438,6 +417,7 @@ visflow.Node.prototype.interaction = function() {
     .click(this.click.bind(this))
     .mousedown(this.mousedown.bind(this))
     .mouseup(this.mouseup.bind(this))
+    .mousemove(this.mousemove.bind(this))
     .mouseenter(this.mouseenter.bind(this))
     .mouseleave(this.mouseleave.bind(this));
 
@@ -516,7 +496,7 @@ visflow.Node.prototype.interaction = function() {
 };
 
 /**
- * Prepares the contextmenu of the node.
+ * Prepares the contextMenu of the node.
  */
 visflow.Node.prototype.initContextMenu = function() {
   this.contextMenu = new visflow.ContextMenu({
@@ -526,40 +506,12 @@ visflow.Node.prototype.initContextMenu = function() {
 
   $(this.contextMenu)
     .on('visflow.delete', function() {
-    })
-    .on('visflow.icon', function() {
-    })
-    .on('visflow.panel', function() {
-    })
-    .on('visflow.label', function() {
-    })
-    .on('visflow.visMode', function() {
-    });
-};
-
-/**
- * Handles contextmenu selection.
- * @param {!jQuery.event} event
- * @param {!jQuery.ui} ui
- */
-visflow.Node.prototype.contextmenuSelect = function(event, ui) {
-  switch(ui.cmd) {
-    case 'details':
-      this.toggleDetails();
-      break;
-    case 'options':
-      this.toggleOptions();
-      break;
-    case 'label':
-      this.toggleLabel();
-      break;
-    case 'vismode':
-      this.toggleVisMode();
-      break;
-    case 'delete':
       visflow.flow.deleteNode(this);
-      break;
-  }
+    }.bind(this))
+    .on('visflow.minimize', this.toggleMinimized.bind(this))
+    .on('visflow.panel', this.panel.bind(this))
+    .on('visflow.label', this.toggleLabel.bind(this))
+    .on('visflow.visMode', this.toggleVisMode.bind(this));
 };
 
 /**
@@ -856,9 +808,19 @@ visflow.Node.prototype.resizeStop = function(size) {
 };
 
 /**
- * Displays node options.
+ * Displays node options from the node control panel template.
  */
-visflow.Node.prototype.showPanel = function() {};
+visflow.Node.prototype.panel = function() {
+  if (this.PANEL_TEMPLATE == '') {
+    return;
+  }
+  visflow.optionPanel.load(this.PANEL_TEMPLATE, this.initPanel.bind(this));
+};
+
+/**
+ * Initializes control panel elements when the panel is loaded.
+ */
+visflow.Node.prototype.initPanel = function() {};
 
 /**
  * Displays node details.

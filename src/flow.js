@@ -205,10 +205,10 @@ visflow.flow.deleteEdge = function(edge) {
   sourcePort.disconnect(edge);
   targetPort.disconnect(edge);
 
-  this.propagate(edge.targetNode);  // not efficient when deleting nodes?
+  visflow.flow.propagate(edge.targetNode);  // not efficient when deleting nodes?
 
   edge.remove();  // removes the container
-  delete this.edges[edge.id];
+  delete visflow.flow.edges[edge.id];
 };
 
 /**
@@ -243,14 +243,16 @@ visflow.flow.cycleTest = function(sourceNode, targetNode) {
  * @param {!visflow.Node} node
  */
 visflow.flow.propagate = function(node) {
-  if (this.propagateDisabled)
+  if (this.propagateDisabled) {
     return;
+  }
 
   var topo = [], // visited node list, in reversed topo order
       visited = {};
   var traverse = function(node) {
-    if (visited[node.id])
+    if (visited[node.id]) {
       return;
+    }
     visited[node.id] = true;
     for (var i in node.outPorts) {
       var port = node.outPorts[i];

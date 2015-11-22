@@ -1,48 +1,64 @@
-
 /*
- * override some of the library settings, including
- * user agent
- * jquery-ui
- * context-menu
+ * Override library and user agent settings.
  */
 
-/* user agent might default to 8 */
+/*** Make select2 look like bootstrap select. ***/
+.select2-container .select2-selection--single .select2-selection__rendered {
+  padding: 6px 12px;
+  line-height: 1.42857143;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
 
+.select2-container .select2-selection--single {
+  height: inherit;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 100%;
+  right: 7px;
+  color: black;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #333 transparent transparent transparent;
+  border-width: 4px 4px 0 4px;
+}
+
+.select2-selection.select2-selection--single {
+  border-color: #ccc;
+}
+
+.select2-container--default .select2-selection--multiple {
+  border-color: #ccc;
+}
+
+.select2-container--default .select2-selection--multiple {
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+  border-color: #aaa;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: white;
+}
+
+/*** jQuery-UI ***/
+/* Hides grip-se */
+.ui-icon-gripsmall-diagonal-se {
+  opacity: 0;
+}
+
+/*** User agent ***/
 th {
+  /* user agent may default to bold */
   font-weight: normal;
 }
 
 /*
-body {
-  margin: 0;
-}
-*/
-
-/*
- * Otherwise, the submenu will leave empty spaces for icons
- */
-/*
-.ui-menu-icons .ui-menu-item .ui-menu-item {
-  padding-left: 0.4em;
-}
-
-.ui-state-active,
-.ui-state-focus,
-.ui-state-default {
-  font-weight: normal !important;
-}
-
-.ui-contextmenu {
-  z-index: 1000;
-}
-.ui-widget-overlay {
-  z-index: 10000;
-}
-
-.iris-picker {
-  z-index: 1000;
-}
-
 div {
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -50,15 +66,14 @@ div {
 }
 */
 
-/* prevent weird yellow/white box appear */
 /*
-.iris-square-value {
-  border: 0px !important;
-  background: transparent !important;
+.ui-state-active,
+.ui-state-focus,
+.ui-state-default {
+  font-weight: normal !important;
+}
+.ui-widget-overlay {
+  z-index: 10000;
 }
 */
 
-/* Hides grip-se */
-.ui-icon-gripsmall-diagonal-se {
-  opacity: 0;
-}

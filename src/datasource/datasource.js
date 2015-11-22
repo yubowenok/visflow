@@ -11,8 +11,17 @@
 visflow.DataSource = function(params) {
   visflow.DataSource.base.constructor.call(this, params);
 
-  this.dataSelected = 'none'; // data identifier string
-  this.dataName = null; // full data name, for human read
+  /**
+   * Data identifier.
+   * @type {string}
+   */
+  this.dataSelected = 'none';
+
+  /**
+   * Human readable data name.
+   * @type {string}
+   */
+  this.dataName = 'No data loaded';
 
   /** @inheritDoc */
   this.ports = {
@@ -24,11 +33,9 @@ visflow.utils.inherit(visflow.DataSource, visflow.Node);
 
 /** @inheritDoc */
 visflow.DataSource.prototype.NODE_CLASS = 'data-source';
-
 /** @inheritDoc */
-visflow.DataSource.prototype.contextmenuDisabled = {
-  options: true
-};
+visflow.DataSource.prototype.TEMPLATE = './src/datasource/datasource.html';
+
 
 /** @inheritDoc */
 visflow.DataSource.prototype.serialize = function() {
@@ -49,37 +56,30 @@ visflow.DataSource.prototype.deserialize = function(save) {
 /** @inheritDoc */
 visflow.DataSource.prototype.show = function() {
   visflow.DataSource.base.show.call(this); // call parent settings
-
-  var container = this.container,
-      node = this;
-
   visflow.assert(!this.options.minimized);
 
-  $('<div>No data loaded</div>')
-    .attr('id', 'data-name')
-    .appendTo(this.content);
-
-  // load data buttons
-  $('<button>Load Data</button>')
-    .addClass('btn btn-default btn-sm')
-    .click(function(){
-      visflow.dialog.create({
-        template: './src/datasource/load-data.html',
-        complete: function(dialog) {
-          var select = dialog.find('select');
-          select.select2();
-          dialog.find('#confirm').click(function() {
-            var data = select.select2('data')[0];
-            node.loadData(data.id, data.text);
-          });
-        }
-      });
-    })
-    .appendTo(this.content);
-
   if (this.dataName != null) {
-    this.container.find('#data-name').text(this.dataName);
+    this.content.children('#data-name').text(this.dataName);
   }
+};
+
+/** @inheritDoc */
+visflow.DataSource.prototype.interaction = function() {
+  visflow.DataSource.base.interaction.call(this);
+
+  this.content.children('button').click(function(){
+    visflow.dialog.create({
+      template: './src/datasource/load-data.html',
+      complete: function(dialog) {
+        var select = dialog.find('select');
+        select.select2();
+        dialog.find('#confirm').click(function() {
+          var data = select.select2('data')[0];
+          this.loadData(data.id, data.text);
+        }.bind(this));
+      }.bind(this)
+    });
+  }.bind(this));
 };
 
 /**
@@ -88,9 +88,7 @@ visflow.DataSource.prototype.show = function() {
  * @param dataName
  */
 visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
-  var node = this;
-
-  // add to async queue
+  // Add to async queue
   visflow.flow.asyncDataloadStart(this);
 
   if (dataSelected == 'none') {
@@ -98,7 +96,7 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
       .text('No data loaded');
     this.dataSelected = dataSelected;
     this.dataName = null;
-    $.extend(node.ports['out'].pack, new visflow.Package());
+    $.extend(this.ports['out'].pack, new visflow.Package());
     visflow.flow.asyncDataloadEnd();  // propagate null data
     return;
   }
@@ -122,20 +120,20 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
         visflow.error('loaded data is null');
         return;
       }
-      node.dataSelected = dataSelected;
-      node.dataName = dataName;
-      node.container.find('#data-name').text(dataName);
+      this.dataSelected = dataSelected;
+      this.dataName = dataName;
+      this.container.find('#data-name').text(dataName);
 
       var data = new visflow.Data(result);
 
       visflow.flow.registerData(data);
 
       // overwrite data object (to keep the same reference)
-      $.extend(node.ports['out'].pack, new visflow.Package(data));
+      $.extend(this.ports['out'].pack, new visflow.Package(data));
 
-      // decrement async count
+      // decrement async cthisount
       visflow.flow.asyncDataloadEnd(); // push changes
-    })
+    }.bind(this))
     .fail(function(){
       visflow.error('cannot get data (connection error)');
     });

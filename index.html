@@ -22,7 +22,10 @@
   <!-- select2 -->
   <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
+  <!-- doesn't seem to work perfectly...
   <link rel="stylesheet" href="bower_components/select2-bootstrap-css/select2-bootstrap.min.css"/>
+  -->
+
   <!-- datatables -->
   <script type="text/javascript" src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
@@ -49,10 +52,10 @@
   <link rel="stylesheet" href="src/edge/edge.css"/>
 
   <!-- base components -->
-  <script type="text/javascript" src="src/constants.js"></script>
-  <script type="text/javascript" src="src/package.js"></script>
-  <script type="text/javascript" src="src/data.js"></script>
-  <script type="text/javascript" src="src/port.js"></script>
+  <script type="text/javascript" src="src/data/constants.js"></script>
+  <script type="text/javascript" src="src/data/package.js"></script>
+  <script type="text/javascript" src="src/data/data.js"></script>
+  <script type="text/javascript" src="src/port/port.js"></script>
   <script type="text/javascript" src="src/contextmenu/contextmenu.js"></script>
   <link rel="stylesheet" href="src/contextmenu/contextmenu.css"/>
   <script type="text/javascript" src="src/dialog/dialog.js"></script>
@@ -118,8 +121,7 @@
   <link rel="stylesheet" href="src/css/override.css"/>
   <link rel="stylesheet" href="src/css/style.css"/>
   <link rel="stylesheet" href="src/css/menu.css"/>
-  <link rel="stylesheet" href="src/css/node.css"/>
-  <link rel="stylesheet" href="src/css/port.css"/>
+  <link rel="stylesheet" href="src/port/port.css"/>
   <link rel="stylesheet" href="src/css/icon.css"/>
   <script>
     $(document).ready(function () {
@@ -173,10 +175,9 @@
 
   <div id="option-panel" class="active">
     <button id="btn-toggle" class="btn btn-default btn-toggle">
-      <span id="icon-button" class="glyphicon glyphicon-chevron-right"></span>
+      <span class="glyphicon glyphicon-chevron-left"></span>
     </button>
     <div class="content">
-      <div class="panel"></div>
     </div>
   </div>
 

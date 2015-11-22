@@ -34,8 +34,9 @@ visflow.Checkbox.prototype.init = function() {
     unit.setValue(value, event);
   });
 
-  if (this.value != null)
+  if (this.value != null) {
     this.setValue(this.value, null, true);
+  }
 };
 
 /** @inheritDoc */

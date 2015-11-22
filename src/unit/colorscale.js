@@ -12,7 +12,7 @@
 visflow.ColorScale = function(params) {
  visflow.ColorScale.base.constructor.call(this, params);
 
-  this.options = params.options != null ? params.optinos : [];
+  this.options = params.options != null ? params.options : [];
   this.valueToItem = {};
   this.placeholder = params.placeholder;
 

@@ -5,11 +5,12 @@
   bottom: 30px;
   position: fixed;
   z-index: 1;
-  right: 0px;
+  right: -200px;
 }
 
 #option-panel .section {
   margin-top: 20px;
+  width: 100%;
 }
 
 #option-panel .input-with-update {
@@ -21,7 +22,7 @@
   float: right;
 }
 
-#option-panel .btn-update {
+#side-panel .btn-update {
   border-radius: 0px 4px 4px 0px;
   float: right;
   top: -0.5px;
@@ -37,12 +38,16 @@
 }
 
 #option-panel > #btn-toggle {
-  border-radius: 4px 0px 0px 0px;
+  border-radius: 4px 0px 0px 4px;
   position: absolute;
-  left: -1px;
-  width: 32px;
-  height: 50px;
+  left: -25px;
+  width: 26px;
+  height: 120px;
   z-index: 1;
+}
+
+#option-panel > #btn-toggle > span {
+  margin-left: -5px;
 }
 
 #option-panel .content {
@@ -52,23 +57,11 @@
   height: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 10px;
+  padding: 15px;
+  min-width: 200px;
 }
 
-#option-panel #tabs {
-  height: 100%;
-  width: 30px;
-  padding-left: 0px;
-  padding-right: 0px;
-  float: left;
-}
-
-#option-panel .sideways {
-  border-right: solid 1px #ccc;
-}
-
-#option-panel .sideways.tabs-left {
-  left: 0px;
-  margin-left: -51px;
-  margin-right: -1px;
+#option-panel .section {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }

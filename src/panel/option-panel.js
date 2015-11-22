@@ -12,9 +12,9 @@ visflow.optionPanel.TRANSITION_TIME = 250;
 
 /**
  * Whether the panel is toggled on.
- * @private {boolean}
+ * @type {boolean}
  */
-visflow.optionPanel.showPanel_ = true;
+visflow.optionPanel.isOpen = false;
 
 /**
  * Option panel container.
@@ -39,40 +39,61 @@ visflow.optionPanel.init = function() {
  * @private
  */
 visflow.optionPanel.getWidth_ = function() {
-  return this.container_.find('.tab-content').outerWidth() +
-    this.COLLAPSED_WIDTH;
+  return visflow.optionPanel.container_.find('.content').outerWidth() +
+    visflow.optionPanel.COLLAPSED_WIDTH;
 };
 
 /**
  * Toggles the option panel.
+ * @param {boolean} opt_state Whether the panel shall be open.
  * @private
  */
-visflow.optionPanel.togglePanel_ = function() {
+visflow.optionPanel.togglePanel_ = function(opt_state) {
   this.container_.toggleClass('active');
-  this.showPanel_ = !this.showPanel_;
-  var rightValue = this.showPanel_ ?
-    0 : -(this.getWidth_() - this.COLLAPSED_WIDTH);
+  if (opt_state == null) {
+    visflow.optionPanel.isOpen = !visflow.optionPanel.isOpen;
+  } else {
+    visflow.optionPanel.isOpen = opt_state;
+  }
+  var rightValue = visflow.optionPanel.isOpen ? 0 :
+      -(visflow.optionPanel.getWidth_() - visflow.optionPanel.COLLAPSED_WIDTH);
   this.container_.animate({
     right: rightValue + 'px'
   }, {
     duration: this.TRANSITION_TIME,
     complete: function() {
-      $('#icon-button')
-        .toggleClass('glyphicon-chevron-right glyphicon-chevron-left');
+      if (visflow.optionPanel.isOpen) {
+        $('#btn-toggle')
+          .children('span')
+          .addClass('glyphicon-chevron-right')
+          .removeClass('glyphicon-chevron-left');
+      } else {
+        $('#btn-toggle')
+          .children('span')
+          .removeClass('glyphicon-chevron-right')
+          .addClass('glyphicon-chevron-left');
+      }
     }.bind(this)
   });
 };
 
 /**
- * Creates a panel for a newly create node.
- * @param {!visflow.Node} node
+ * Loads a panel from given template. On complete it calls callback function
+ * with panel container.
+ * @param {string} template
+ * @param {function} complete
  */
-visflow.optionPanel.addPanel = function(node) {
+visflow.optionPanel.load = function(template, complete) {
+  var container = visflow.optionPanel.container_;
+  visflow.optionPanel.togglePanel_(true);
+  var content = container.children('.content');
+  content.load(template, function() {
+    complete($(this));
+  });
 };
 
 /**
- * Removes the panel associated with a node.
- * @param {!visflow.Node} node
+ * Closes the option panel.
  */
-visflow.optionPanel.removePanel = function(node) {
+visflow.optionPanel.close = function() {
 };

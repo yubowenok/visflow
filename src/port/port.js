@@ -36,7 +36,7 @@ visflow.Port = function(node, id, type, text, isConstants) {
 
   /** @type {boolean} */
   this.isInPort = this.type.substr(0, 2) == 'in';
-  /** @type {boolean}
+  /** @type {boolean} */
   this.isSingle = this.type.match('single') != null;
    /** @type {boolean} */
   this.isConstants = isConstants == true;
@@ -154,7 +154,7 @@ visflow.Port.prototype.disconnect = function(edge) {
     }
   }
   if (this.isInPort && this.connections.length == 0) {
-    this.pack = this.packClass.new();
+    this.pack = new this.packClass();
   }
 };
 

@@ -100,23 +100,6 @@ visflow.Visualization.prototype.selectedMultiplier = {
   width: 1.2
 };
 
-/**
- * Mapping to let d3 know to use attr or style for each key.
- * @const {!Object<boolean>}
- */
-visflow.Visualization.prototype.isAttr = {
-  id: true,
-  r: true,
-  cx: true,
-  cy: true,
-  x1: true,
-  x2: true,
-  y1: true,
-  y2: true,
-  transform: true
-};
-
-
 /** @inheritDoc */
 visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
   {id: 'selectAll', text: 'Select All'},
@@ -235,9 +218,9 @@ visflow.Visualization.prototype.process = function() {
 
   outpack.copy(inpack, true); // always pass through
 
-  // during async data load, selection is first deserialized to vis nodes
-  // however the data have not passed in
-  // thus the selection might be erronesouly cleared if continue processing
+  // During async data load, selection is first de-serialized to vis nodes
+  // However the data have not reached this point.
+  // Thus the selection might be erroneously cleared if continue processing.
   if (inpack.isEmpty()) {
     outspack.copy(inpack, true);
     outspack.items = {};
@@ -252,6 +235,10 @@ visflow.Visualization.prototype.process = function() {
 
     this.lastDataId = inpack.data.dataId;
   }
+
+  // Each time process() is called, input must have changed. Scales depend on
+  // input and should be updated.
+  this.prepareScales();
 
   // Inheriting visualization classes may implement this to change routine that
   // sends selection to output S.
@@ -309,10 +296,9 @@ visflow.Visualization.prototype.clearSelection = function() {
  * @return {{width: number, height: number}}
  */
 visflow.Visualization.prototype.getSVGSize = function() {
-  var svg = $(this.svg.node());
   return {
-    width: svg.width(),
-    height: svg.height()
+    width: this.content.width(),
+    height: this.content.height()
   };
 };
 
@@ -349,26 +335,39 @@ visflow.Visualization.prototype.mousedown = function(event) {
   visflow.flow.addNodeSelection(this);
 
   if (visflow.interaction.ctrled) {
-    // Ctrl drag mode blocks
+    // Ctrl drag mode blocks.
     return false;
   }
-  this.startPos_ = visflow.utils.getOffset(event, this.content);
+
   if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
+    if ($(event.target).closest('.content').length == 0) {
+      // If mouse event does not happen in content, then pass it on to other
+      // handlers.
+      return true;
+    }
+
+    if (!visflow.interaction.visualizationBlocking) {
+      visflow.Visualization.base.mousedown.call(this, event);
+      return;
+    }
     // Left click triggers selectbox.
     this.mouseMode = 'selectbox';
+    this.startPos_ = visflow.utils.getOffset(event, this.content);
+    event.stopPropagation();
+  } else {
+    event.stopPropagation();
   }
-  if (!visflow.interaction.visualizationBlocking) {
-    visflow.Visualization.base.mousedown.call(this, event);
-    return;
-  }
-  event.stopPropagation();
 };
 
 /** @inheritDoc */
 visflow.Visualization.prototype.mouseup = function(event) {
   if (this.mouseMode == 'selectbox') {
-    this.selectItemsInBox(this.selectbox);
-    this.svg.selectAll('.selectbox').remove();
+    if (this.endPos_.left != this.startPos_.left &&
+        this.endPos_.top != this.startPos_.top) {
+      // Only select when mouse moved.
+      this.selectItemsInBox(this.selectbox);
+    }
+    this.svg.selectAll('.vis-selectbox').remove();
   }
   this.mouseMode = '';
   // Do not block mouseup, otherwise dragging may hang.
@@ -392,14 +391,15 @@ visflow.Visualization.prototype.mouseleave = function(event) {
 /** @inheritDoc */
 visflow.Visualization.prototype.mousemove = function(event) {
   if (this.mouseMode == 'selectbox') {
-    this.endPos_ = visflow.utils.getOffset(event, $(this));
+    this.endPos_ = visflow.utils.getOffset(event, this.content);
     _(this.selectbox).extend({
-      x1: Math.min(this.startPos_[0], this.endPos_[0]),
-      x2: Math.max(this.startPos_[0], this.endPos_[0]),
-      y1: Math.min(this.startPos_[1], this.endPos_[1]),
-      y2: Math.max(this.startPos_[1], this.endPos_[1])
+      x1: Math.min(this.startPos_.left, this.endPos_.left),
+      x2: Math.max(this.startPos_.left, this.endPos_.left),
+      y1: Math.min(this.startPos_.top, this.endPos_.top),
+      y2: Math.max(this.startPos_.top, this.endPos_.top)
     });
-    this.showSelectbox();
+    this.showSelectbox(this.selectbox);
+    event.stopPropagation();
   }
   // Do not block mousemove, otherwise dragging may hang.
   // e.g. start dragging on an edge, and mouse enters visualization...
@@ -455,6 +455,9 @@ visflow.Visualization.prototype.resize = function() {
     this.visHeight = height;
     this.updateSVGSize();
   }
+  this.prepareScales();
+  this.showDetails();
+  this.showSelection();
 };
 
 /** @inheritDOc */
@@ -463,18 +466,26 @@ visflow.Visualization.prototype.resizeStop = function(size) {
 };
 
 /**
+ * Adds selectAll and clearAll entries for contextMenu.
+ */
+visflow.Visualization.prototype.initContextMenu = function() {
+  visflow.Visualization.base.initContextMenu.call(this);
+  $(this.contextMenu)
+    .on('visflow.selectAll', this.selectAll.bind(this))
+    .on('visflow.clearSelection', this.clearSelection.bind(this));
+};
+
+/**
  * Displays the selectbox.
  * @param {!visflow.Box} selectbox
  */
-visflow.Visualization.prototype.showSelectbox = function(selectbox) {
-};
+visflow.Visualization.prototype.showSelectbox = function(selectbox) {};
 
 /**
  * Selects the items within the selectbox.
  * @param {!visflow.Box} selectbox
  */
-visflow.Visualization.prototype.selectItemsInBox = function(selectbox) {
-};
+visflow.Visualization.prototype.selectItemsInBox = function(selectbox) {};
 
 /**
  * Prepares the scales for rendering.
@@ -495,7 +506,5 @@ visflow.Visualization.prototype.showSelection = function() {};
 visflow.Visualization.prototype.showOptions = function() {};
 
 /** @inheritDoc */
-visflow.Visualization.prototype.dataChanged = function() {
-  this.prepareScales();
-};
+visflow.Visualization.prototype.dataChanged = function() {};
 

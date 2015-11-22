@@ -4,8 +4,13 @@
   height: 440px;
 }
 
+.visflow .node.details.shape-vis {
+  width: 300px;
+  height: 300px;
+}
+
 .visflow .visualization .axis text {
-  font-size: 10px;
+  font-size: 11px;
   font-family: sans-serif;
 }
 
@@ -16,10 +21,10 @@
   shape-rendering: crispEdges;
 }
 
-.visflow .scatterplot .x.axis .vis-label {
+.visflow .scatterplot g.x.axis .vis-label {
   text-anchor: end;
 }
-.visflow .scatterplot .y.axis .vis-label {
+.visflow .scatterplot g.y.axis .vis-label {
   text-anchor: start;
 }
 
@@ -28,11 +33,6 @@
   width: 100%;
   height: 100%;
   pointer-events: all;
-}
-
-.visflow .visualization {
-  width: 100%;
-  height: 100%;
 }
 
 .visflow .visualization-message {
@@ -44,9 +44,10 @@
 
 
 .visflow .vis-selectbox {
-  fill: #e0cfc2;
-  stroke: #555;
+  fill: #6699ee;
+  stroke: #333;
   stroke-width: 1px;
+  shape-rendering: crispEdges;
   fill-opacity: 0.5;
   pointer-events: none;
 }

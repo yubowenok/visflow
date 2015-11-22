@@ -12,7 +12,10 @@
 visflow.ParallelCoordinates = function(params) {
   visflow.ParallelCoordinates.base.constructor.call(this, params);
 
-  // shown dimensions in parallel coordinates
+  /**
+   * Dimensions of parallel coordinates.
+   * @protected {!Array<number>}
+   */
   this.dimensions = [];
 
   this.scaleTypes = [];
