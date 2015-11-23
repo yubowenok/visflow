@@ -12,7 +12,6 @@
 visflow.Table = function(params) {
   visflow.Table.base.constructor.call(this, params);
 
-  this.keepSize = null;
   this.tableState = null; // last table state
 
   /**
@@ -27,7 +26,7 @@ visflow.Table = function(params) {
 visflow.utils.inherit(visflow.Table, visflow.Visualization);
 
 /** @inheritDoc */
-visflow.Table.prototype.TEMPLATE = './src/visualization/table.html';
+visflow.Table.prototype.TEMPLATE = './src/visualization/table/table.html';
 /** @inheritDoc */
 visflow.Table.prototype.PLOT_NAME = 'Table';
 /** @inheritDoc */
@@ -45,13 +44,13 @@ visflow.Table.prototype.MIN_HEIGHT = 440;
 /**
  * The height sum of the DataTable wrapping elements, including
  * - the search box row (35px)
- * - table margin-top + border (7px)
+ * - table scroll head (43px)
  * - the table header row (45px)
- * - the info row (43px).
+ * - the info row (41px).
  * - horizontal scrollBar (~12px)
  * @private {number}
  */
-visflow.Table.prototype.WRAPPER_HEIGHT_ = 35 + 7 + 45 + 43 + 12;
+visflow.Table.prototype.WRAPPER_HEIGHT_ = 35 + 43 + 41 + 12;
 
 /**
  * ScrollY value for DataTable.
@@ -70,7 +69,6 @@ visflow.Table.prototype.init = function() {
 /** @inheritDoc */
 visflow.Table.prototype.serialize = function() {
   var result = visflow.Table.base.serialize.call(this);
-  result.keepSize = this.keepSize;
   result.tableState = this.dataTable != null ? this.dataTable.state() : null;
   return result;
 };
@@ -79,7 +77,6 @@ visflow.Table.prototype.serialize = function() {
 visflow.Table.prototype.deserialize = function(save) {
   visflow.Table.base.deserialize.call(this, save);
   this.tableState = save.tableState;
-  this.keepSize = save.keepSize;
 };
 
 /** @inheritDoc */
@@ -119,8 +116,14 @@ visflow.Table.prototype.showDetails = function() {
       columns: columns,
       scrollX: true,
       pagingType: 'full',
-      select: true
+      select: true,
+      createdRow: function (row, data, index) {
+        if (data[0] in this.selected) {
+          $(row).addClass('sel');
+        }
+      }.bind(this)
     });
+  this.dataTable.rows('.sel').select();
 
   this.updateScrollBodyHeight_();
 
@@ -139,13 +142,6 @@ visflow.Table.prototype.showDetails = function() {
       }, this);
       this.pushflow();
     }.bind(this));
-
-  if (this.keepSize != null) {
-    // use previous size regardless of how table entries changed
-    this.container.css(this.keepSize);
-  }
-
-  this.showSelection();
 };
 
 /**
@@ -163,42 +159,21 @@ visflow.Table.prototype.updateScrollBodyHeight_ = function() {
 visflow.Table.prototype.showSelection = function() {
   // TODO(bowen): Selection is now shown by DataTable select plugin.
   // Check whether this works correctly on data update.
-  /*
-  var node = this;
-  this.table.find('tr')
-    .filter(function() {
-      var index = $(this).find('td:first').text();
-      return node.selected[index] != null;
-    })
-    .addClass('selected');
-    */
-};
-
-/** @inheritDoc */
-visflow.Table.prototype.dataChanged = function() {
-  // nothing
 };
 
 /** @inheritDoc */
 visflow.Table.prototype.selectAll = function() {
   visflow.Table.base.selectAll.call(this);
-  this.table.find('tbody tr').addClass('selected');
 };
 
 /** @inheritDoc */
 visflow.Table.prototype.clearSelection = function() {
   visflow.Table.base.clearSelection.call(this);
-  this.table.find('tr').removeClass('selected');
 };
 
 /** @inheritDoc */
 visflow.Table.prototype.resize = function(size) {
   visflow.Table.base.resize.call(this, size);
-
-  this.keepSize = {
-    width: this.viewWidth,
-    height: this.viewHeight
-  };
   this.updateScrollBodyHeight_();
 };
 

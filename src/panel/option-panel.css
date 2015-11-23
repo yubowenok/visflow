@@ -4,8 +4,8 @@
   top: 35px;
   bottom: 30px;
   position: fixed;
+  right: -32px;
   z-index: 1;
-  right: -200px;
 }
 
 #option-panel .section {
@@ -58,7 +58,6 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding: 15px;
-  min-width: 200px;
 }
 
 #option-panel .section {

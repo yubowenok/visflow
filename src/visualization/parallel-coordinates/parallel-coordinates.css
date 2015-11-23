@@ -1,0 +1,9 @@
+.visflow .parallel-coordinates path {
+  fill: none;
+  shape-rendering: optimizeSpeed;
+}
+
+.visflow .node.details.parallel-coordinates {
+  width: 600px;
+  height: 200px;
+}

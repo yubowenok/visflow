@@ -22,9 +22,6 @@
   <!-- select2 -->
   <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
-  <!-- doesn't seem to work perfectly...
-  <link rel="stylesheet" href="bower_components/select2-bootstrap-css/select2-bootstrap.min.css"/>
-  -->
 
   <!-- datatables -->
   <script type="text/javascript" src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
@@ -68,6 +65,8 @@
   <script type="text/javascript" src="src/unit/colorscale.js"></script>
   <script type="text/javascript" src="src/unit/colorpicker.js"></script>
   <script type="text/javascript" src="src/unit/input.js"></script>
+  <script type="text/javascript" src="src/unit/editable-list.js"></script>
+  <link rel="stylesheet" href="src/unit/editable-list.css"/>
   <link rel="stylesheet" href="src/unit/unit.css"/>
 
   <!-- panel -->
@@ -89,13 +88,16 @@
 
   <!-- visualizations -->
   <script type="text/javascript" src="src/visualization/visualization.js"></script>
+  <link rel="stylesheet" href="src/visualization/visualization.css"/>
   <script type="text/javascript" src="src/visualization/network.js"></script>
   <script type="text/javascript" src="src/visualization/heatmap.js"></script>
-  <script type="text/javascript" src="src/visualization/table.js"></script>
-  <script type="text/javascript" src="src/visualization/scatterplot.js"></script>
   <script type="text/javascript" src="src/visualization/histogram.js"></script>
-  <script type="text/javascript" src="src/visualization/parallel-coordinates.js"></script>
-  <link rel="stylesheet" href="src/visualization/visualization.css"/>
+  <script type="text/javascript" src="src/visualization/table/table.js"></script>
+  <link rel="stylesheet" href="src/visualization/table/table.css"/>
+  <script type="text/javascript" src="src/visualization/scatterplot/scatterplot.js"></script>
+  <link rel="stylesheet" href="src/visualization/scatterplot/scatterplot.css"/>
+  <script type="text/javascript" src="src/visualization/parallel-coordinates/parallel-coordinates.js"></script>
+  <link rel="stylesheet" href="src/visualization/parallel-coordinates/parallel-coordinates.css"/>
 
   <!-- set operations -->
   <script type="text/javascript" src="src/set/set.js"></script>
@@ -173,16 +175,6 @@
   </div>
   </nav>
 
-  <div id="option-panel" class="active">
-    <button id="btn-toggle" class="btn btn-default btn-toggle">
-      <span class="glyphicon glyphicon-chevron-left"></span>
-    </button>
-    <div class="content">
-    </div>
-  </div>
-
-  <div id="node-panel"></div>
-
   <div id="modal" class="modal fade">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -193,15 +185,15 @@
   <div id="message" class="container-fluid">
     <div class="row">
       <div class="system-message alert alert-success" style="display:none">
-        <button type="button" class="close">&times;</button>
+        <button class="close">&times;</button>
         <div id="success">Success info displayed here</div>
       </div>
       <div class="system-message alert alert-warning" style="display:none">
-        <button type="button" class="close">&times;</button>
+        <button class="close">&times;</button>
         <div id="warning">Warning displayed here</div>
       </div>
       <div class="system-message alert alert-danger" style="display:none">
-        <button type="button" class="close">&times;</button>
+        <button class="close">&times;</button>
         <div id="error">Error displayed here</div>
       </div>
     </div>
@@ -223,5 +215,15 @@
     <div id="edges">
     </div>
   </div>
+
+  <div id="option-panel" class="active">
+    <button id="btn-toggle" class="btn btn-default btn-toggle">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+    </button>
+    <div class="content">
+    </div>
+  </div>
+
+  <div id="node-panel"></div>
 </body>
 </html>

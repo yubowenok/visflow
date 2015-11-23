@@ -25,6 +25,12 @@
   border-width: 4px 4px 0 4px;
 }
 
+.select2-container--default .select2-selection--single .select2-selection__clear {
+  margin-right: 15px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
 .select2-selection.select2-selection--single {
   border-color: #ccc;
 }

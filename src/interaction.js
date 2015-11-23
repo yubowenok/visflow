@@ -247,6 +247,17 @@ visflow.interaction.keyPress = function(event) {
         case 'shift+V':
           visflow.flow.toggleVisMode();
           break;
+        case 'P':
+          if (visflow.optionPanel.isOpen) {
+            visflow.optionPanel.toggle(false);
+          } else {
+            if (visflow.flow.lastSelectedNode) {
+              visflow.flow.lastSelectedNode.panel();
+            } else {
+              visflow.optionPanel.toggle(true);
+            }
+          }
+          break;
         case 'M':
           visflow.viewManager.toggleMenuPanel();
           break;

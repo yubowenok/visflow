@@ -360,10 +360,12 @@ visflow.Node.prototype.focus = function() {
  */
 /**
  * Handles node lick event.
+ * @param {!jQuery.event} event
  */
 visflow.Node.prototype.click = function() {};
 /**
  * Handles mousedown event.
+ * @param {!jQuery.event} event
  */
 visflow.Node.prototype.mousedown = function(event) {
   visflow.interaction.mousedownHandler({
@@ -374,6 +376,7 @@ visflow.Node.prototype.mousedown = function(event) {
 };
 /**
  * Handles mouseup event.
+ * @param {!jQuery.event} event
  */
 visflow.Node.prototype.mouseup = function(event) {
   visflow.interaction.mouseupHandler({
@@ -384,18 +387,19 @@ visflow.Node.prototype.mouseup = function(event) {
 };
 /**
  * Handles mouseenter event.
+ * @param {!jQuery.event} event
  */
 visflow.Node.prototype.mouseenter = function(event) {
-  this.container.addClass('hover');
 };
 /**
  * Handles mouseleave event.
+ * @param {!jQuery.event} event
  */
 visflow.Node.prototype.mouseleave = function(event) {
-  this.container.removeClass('hover');
 };
 /**
  * Handles mousemove event.
+ * @param {!jQuery.event} event
  */
 visflow.Node.prototype.mousemove = function(event) {
 };
@@ -428,6 +432,12 @@ visflow.Node.prototype.interaction = function() {
         this.focus();
         visflow.contextMenu.hide();
       }
+    }.bind(this))
+    .mouseenter(function() {
+      this.container.addClass('hover');
+    }.bind(this))
+    .mouseleave(function() {
+      this.container.removeClass('hover');
     }.bind(this));
 
   this.container
@@ -671,7 +681,7 @@ visflow.Node.prototype.update = function() {
   this.show();
 
   /*
-  // TODO(bowen): Double check here, process shall already handles it
+  // TODO(bowen): Double check here, process shall have already handled it.
   for (var i in this.outPorts) {
     this.outPorts[i].pack.changed = true; // mark changes
   }
@@ -819,8 +829,9 @@ visflow.Node.prototype.panel = function() {
 
 /**
  * Initializes control panel elements when the panel is loaded.
+ * @param {!jQuery} container Panel container.
  */
-visflow.Node.prototype.initPanel = function() {};
+visflow.Node.prototype.initPanel = function(container) {};
 
 /**
  * Displays node details.

@@ -23,7 +23,6 @@ visflow.utils.init = function() {
   });
 };
 
-
 /**
  * Gets event offset corresponding to a given element 'e'.
  * @param {!jQuery.event} event
@@ -32,9 +31,11 @@ visflow.utils.init = function() {
  */
 visflow.utils.getOffset = function(event, e) {
   var offset = e.offset();
+  var paddingLeft = parseInt(e.css('padding-left'));
+  var paddingTop = parseInt(e.css('padding-top'));
   return {
-    left: event.pageX - offset.left,
-    top: event.pageY - offset.top
+    left: event.pageX - offset.left - paddingLeft,
+    top: event.pageY - offset.top - paddingTop
   };
 };
 
@@ -257,7 +258,7 @@ visflow.utils.getScale = function(data, dim, items, range, opt_margin) {
       });
       scale = d3.scale.ordinal()
         .domain(_.uniq(values))
-        .range(range, 1.0);
+        .rangePoints(range, 1.0);
       break;
   }
   return {
@@ -267,17 +268,23 @@ visflow.utils.getScale = function(data, dim, items, range, opt_margin) {
 };
 
 /**
- * Converts an array of strings to a set with strings as keys.
- * The values will be set to all true.
- * @param {!Array<string>} arr
+ * Converts an array of string or object with string keys to a set with strings
+ * as keys. The values will be set to all true.
+ * @param {!Array<string>|!Object<*>} collection
  * @return {!Object<boolean>}
  * @private
  */
-visflow.utils.keySet_ = function(arr) {
+visflow.utils.keySet_ = function(collection) {
   var obj = {};
-  arr.forEach(function(element) {
-    obj[element] = true;
-  });
+  if (collection instanceof Array) {
+    collection.forEach(function (element) {
+      obj[element] = true;
+    });
+  } else {
+    for (var key in collection) {
+      obj[key] = true;
+    }
+  }
   return obj;
 };
 

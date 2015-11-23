@@ -20,6 +20,7 @@ body {
   overflow: hidden;
   padding: 0;
   position: absolute;
+  z-index: 0;
 }
 
 .visflow #selectbox {
@@ -28,25 +29,6 @@ body {
   shape-rendering: crispEdges;
   position: absolute;
   z-index: 1000;
-}
-
-.visflow .options {
-  left: 100%;
-  top: 0%;
-  position: absolute;
-  padding: 5px;
-  min-width: 100px;
-  text-align: center;
-}
-
-.visflow .options-item {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-
-.visflow .options-text {
-  display: block;
-  margin-bottom: 5px;
 }
 
 .visflow .node-select {

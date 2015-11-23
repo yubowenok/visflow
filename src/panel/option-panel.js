@@ -28,7 +28,7 @@ visflow.optionPanel.container_ = null;
 visflow.optionPanel.init = function() {
   this.container_ = $('#option-panel');
   this.container_.children('#btn-toggle').click(function() {
-    this.togglePanel_();
+    this.toggle();
   }.bind(this));
 };
 
@@ -46,9 +46,8 @@ visflow.optionPanel.getWidth_ = function() {
 /**
  * Toggles the option panel.
  * @param {boolean} opt_state Whether the panel shall be open.
- * @private
  */
-visflow.optionPanel.togglePanel_ = function(opt_state) {
+visflow.optionPanel.toggle = function(opt_state) {
   this.container_.toggleClass('active');
   if (opt_state == null) {
     visflow.optionPanel.isOpen = !visflow.optionPanel.isOpen;
@@ -85,7 +84,7 @@ visflow.optionPanel.togglePanel_ = function(opt_state) {
  */
 visflow.optionPanel.load = function(template, complete) {
   var container = visflow.optionPanel.container_;
-  visflow.optionPanel.togglePanel_(true);
+  visflow.optionPanel.toggle(true);
   var content = container.children('.content');
   content.load(template, function() {
     complete($(this));

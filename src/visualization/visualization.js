@@ -34,29 +34,27 @@ visflow.Visualization = function(params) {
    */
   this.selected = {};
 
-  /**
-   * Interactive selectbox (rectangle).
-   * @protected {!visflow.Box}
-   */
-  this.selectbox = {x1: 0, y1: 0, x2: 0, y2: 0};
-
-  // Range used for selectbox.
-  /** @private {!Array<number} */
-  this.startPos_ = [0, 0];
-  /** @private {!Array<number} */
-  this.endPos_ = [0, 0];
+  // Points of user brush.
+  /** @private {!Array<{x: number, y: number}>} */
+  this.brushPoints_ = [];
 
   /**
    * Last used dataset ID.
    * @protected {number}
    */
-  this.lastDataId = 0;  // default: empty data
+  this.lastDataId = 0;  // Default: empty data
+
+  /**
+   * Whether rendering should be using transition. When the view is resized,
+   * the view shall be re-rendered without transition.
+   * @private {boolean}
+   */
+  this.allowTransition_ = true;
 
   _(this.options).extend({
     label: true,
     visMode: true
   });
-
 };
 
 visflow.utils.inherit(visflow.Visualization, visflow.Node);
@@ -70,6 +68,16 @@ visflow.Visualization.prototype.PLOT_NAME = 'visualization';
 visflow.Visualization.prototype.SHAPE_CLASS = 'shape-vis';
 /** @inheritDoc */
 visflow.Visualization.prototype.TEMPLATE = './src/visualization/visualization.html';
+
+/**
+ * @const {!Array<{left: number, right: number, top: number, bottom: number}>}
+ */
+visflow.Visualization.prototype.PLOT_MARGINS = {
+  left: 0,
+  right: 0,
+  top: 0,
+  bottom: 0
+};
 
 /**
  * Object for specifying default rendering properties.
@@ -167,6 +175,15 @@ visflow.Visualization.prototype.deserialize = function(save) {
   */
 };
 
+/** @inheritDoc */
+visflow.Visualization.prototype.show = function() {
+  visflow.Visualization.base.show.call(this);
+
+  if (!this.options.minimized) {
+    this.showSelection();
+  }
+};
+
 /**
  * Checks whether the input data is empty.
  * @return {boolean}
@@ -216,7 +233,7 @@ visflow.Visualization.prototype.process = function() {
       outpack = this.ports['out'].pack,
       outspack = this.ports['outs'].pack;
 
-  outpack.copy(inpack, true); // always pass through
+  outpack.copy(inpack, true); // always pass data through
 
   // During async data load, selection is first de-serialized to vis nodes
   // However the data have not reached this point.
@@ -228,6 +245,10 @@ visflow.Visualization.prototype.process = function() {
   }
   this.validateSelection();
 
+  // Inheriting visualization classes may implement this to change routine
+  // that sends selection to output S.
+  this.processSelection();
+
   if (this.lastDataId != inpack.data.dataId) {
     // Data has changed, fire change event
     // visualization can update selected dimension in this function.
@@ -236,16 +257,14 @@ visflow.Visualization.prototype.process = function() {
     this.lastDataId = inpack.data.dataId;
   }
 
-  // Each time process() is called, input must have changed. Scales depend on
-  // input and should be updated.
-  this.prepareScales();
+  if (this.inPortsChanged()) {
+    // Each time process() is called, input must have changed. Scales depend on
+    // input and should be updated.
+    this.prepareScales();
 
-  // Inheriting visualization classes may implement this to change routine that
-  // sends selection to output S.
-  this.processSelection();
-
-  // Do extra processing, such as sorting the item indexes in heatmap.
-  this.processExtra();
+    // Do extra processing, such as sorting the item indexes in heatmap.
+    this.processExtra();
+  }
 };
 
 /**
@@ -270,6 +289,10 @@ visflow.Visualization.prototype.validateSelection = function() {
     }
   }
 };
+
+/**
+ * Provides an extra flag to
+ */
 
 /**
  * Selects all elements.
@@ -350,9 +373,10 @@ visflow.Visualization.prototype.mousedown = function(event) {
       visflow.Visualization.base.mousedown.call(this, event);
       return;
     }
-    // Left click triggers selectbox.
-    this.mouseMode = 'selectbox';
-    this.startPos_ = visflow.utils.getOffset(event, this.content);
+    // Left click triggers item selection.
+    this.mouseMode = 'brush';
+    var pos = visflow.utils.getOffset(event, this.content);
+    this.brushPoints_ = [{x: pos.left, y: pos.top}];
     event.stopPropagation();
   } else {
     event.stopPropagation();
@@ -360,14 +384,23 @@ visflow.Visualization.prototype.mousedown = function(event) {
 };
 
 /** @inheritDoc */
+visflow.Visualization.prototype.mousemove = function(event) {
+  if (this.mouseMode == 'brush') {
+    var pos = visflow.utils.getOffset(event, this.content);
+    this.brushPoints_.push({x: pos.left, y: pos.top});
+    this.drawBrush();
+    event.stopPropagation();
+  }
+  // Do not block mousemove, otherwise dragging may hang.
+  // e.g. start dragging on an edge, and mouse enters visualization...
+};
+
+
+/** @inheritDoc */
 visflow.Visualization.prototype.mouseup = function(event) {
-  if (this.mouseMode == 'selectbox') {
-    if (this.endPos_.left != this.startPos_.left &&
-        this.endPos_.top != this.startPos_.top) {
-      // Only select when mouse moved.
-      this.selectItemsInBox(this.selectbox);
-    }
-    this.svg.selectAll('.vis-selectbox').remove();
+  if (this.mouseMode == 'brush') {
+    this.selectItems();
+    this.clearBrush();
   }
   this.mouseMode = '';
   // Do not block mouseup, otherwise dragging may hang.
@@ -380,29 +413,15 @@ visflow.Visualization.prototype.mouseleave = function(event) {
     // During svg update, the parent of mouseout event is unstable
     return;
   }
+
+  // Leaving the node triggers mouse up too to release potential select.
   this.mouseup(event);
+
   if (!visflow.interaction.visualizationBlocking) {
     visflow.Visualization.base.mouseleave.call(this, event);
     return;
   }
   event.stopPropagation();
-};
-
-/** @inheritDoc */
-visflow.Visualization.prototype.mousemove = function(event) {
-  if (this.mouseMode == 'selectbox') {
-    this.endPos_ = visflow.utils.getOffset(event, this.content);
-    _(this.selectbox).extend({
-      x1: Math.min(this.startPos_.left, this.endPos_.left),
-      x2: Math.max(this.startPos_.left, this.endPos_.left),
-      y1: Math.min(this.startPos_.top, this.endPos_.top),
-      y2: Math.max(this.startPos_.top, this.endPos_.top)
-    });
-    this.showSelectbox(this.selectbox);
-    event.stopPropagation();
-  }
-  // Do not block mousemove, otherwise dragging may hang.
-  // e.g. start dragging on an edge, and mouse enters visualization...
 };
 
 /**
@@ -443,28 +462,6 @@ visflow.Visualization.prototype.applyProperties = function(u, properties, transl
   }
 };
 
-
-
-/** @inheritDoc */
-visflow.Visualization.prototype.resize = function() {
-  visflow.Visualization.base.resize.call(this);
-  var width = this.container.width();
-  var height = this.container.height();
-  if (!this.options.minimized) {
-    this.visWidth = width;
-    this.visHeight = height;
-    this.updateSVGSize();
-  }
-  this.prepareScales();
-  this.showDetails();
-  this.showSelection();
-};
-
-/** @inheritDOc */
-visflow.Visualization.prototype.resizeStop = function(size) {
-  visflow.Visualization.base.resizeStop.call(this, size);
-};
-
 /**
  * Adds selectAll and clearAll entries for contextMenu.
  */
@@ -476,16 +473,105 @@ visflow.Visualization.prototype.initContextMenu = function() {
 };
 
 /**
- * Displays the selectbox.
- * @param {!visflow.Box} selectbox
+ * Handles user changing dimension(s) to be visualized.
  */
-visflow.Visualization.prototype.showSelectbox = function(selectbox) {};
+visflow.Visualization.prototype.dimensionChanged = function() {
+  this.prepareScales();
+  this.show();
+};
 
 /**
- * Selects the items within the selectbox.
- * @param {!visflow.Box} selectbox
+ * Displays the brush based on selection type, e.g. range box or lasso stroke.
  */
-visflow.Visualization.prototype.selectItemsInBox = function(selectbox) {};
+visflow.Visualization.prototype.drawBrush = function() {
+  visflow.error('drawBrush not implemented');
+};
+
+/**
+ * Clears the brush shown.
+ */
+visflow.Visualization.prototype.clearBrush = function() {
+  this.svg.selectAll('.lasso, .selectbox').remove();
+};
+
+/**
+ * Selects within data the user chosen items. Inheriting classes implement this
+ * based on different selection mechanism, e.g. scatterplot uses range box while
+ * parallelCoordinates uses lasso stroke.
+ */
+visflow.Visualization.prototype.selectItems = function() {
+};
+
+/**
+ * Renders the selection range as lasso stroke.
+ */
+visflow.Visualization.prototype.drawLasso = function() {
+  var line = d3.svg.line()
+    .x(_.getValue('x'))
+    .y(_.getValue('y'))
+    .interpolate('linear');
+  this.svg.append('path')
+    .classed('lasso', true)
+    .attr('d', line(this.brushPoints_));
+};
+
+/**
+ * Renders the selection range as range box.
+ */
+visflow.Visualization.prototype.drawSelectbox = function() {
+  var box = this.svg.select('.selectbox');
+  if (box.empty()) {
+    box = this.svg.append('rect')
+      .classed('selectbox', true);
+  }
+  var startPos = _(this.brushPoints_).first();
+  var endPos = _(this.brushPoints_).last();
+
+  var x1 = Math.min(startPos.x, endPos.x);
+  var x2 = Math.max(startPos.x, endPos.x);
+  var y1 = Math.min(startPos.y, endPos.y);
+  var y2 = Math.max(startPos.y, endPos.y);
+  box
+    .attr('x', x1)
+    .attr('y', y1)
+    .attr('width', x2 - x1)
+    .attr('height', y2 - y1);
+};
+
+/**
+ * Selects all data items.
+ */
+visflow.Visualization.prototype.selectAll = function() {
+  var items = this.ports['in'].pack.items;
+  this.selected = _.keySet(items);
+  this.showDetails();
+};
+
+/**
+ * Clears all item selection
+ */
+visflow.Visualization.prototype.clearSelection = function() {
+  this.selected = {};
+  this.showDetails();
+};
+
+/** @inheritDoc */
+visflow.Visualization.prototype.resize = function() {
+  visflow.Visualization.base.resize.call(this);
+  if (!this.options.minimized) {
+    this.updateSVGSize();
+    this.prepareScales();
+    this.allowTransition_ = false;
+    this.show();
+    this.showSelection();
+    this.allowTransition_ = true;
+  }
+};
+
+/** @inheritDOc */
+visflow.Visualization.prototype.resizeStop = function(size) {
+  visflow.Visualization.base.resizeStop.call(this, size);
+};
 
 /**
  * Prepares the scales for rendering.
@@ -508,3 +594,8 @@ visflow.Visualization.prototype.showOptions = function() {};
 /** @inheritDoc */
 visflow.Visualization.prototype.dataChanged = function() {};
 
+/**
+ * Finds reasonable dimensions to show.
+ * @return {*}
+ */
+visflow.Visualization.prototype.findPlotDimensions = function() {};

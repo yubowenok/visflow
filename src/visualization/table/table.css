@@ -1,0 +1,9 @@
+.visflow .node.table {
+  font-size: .9em;
+  word-wrap: break-word;
+}
+
+.visflow .node.shape-table {
+  width: 500px;
+  height: 440px;
+}

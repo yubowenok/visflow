@@ -147,7 +147,7 @@ visflow.Heatmap.prototype.prepareInteraction = function() {
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
         selectbox.y1 = Math.min(startPos[1], endPos[1]);
         selectbox.y2 = Math.max(startPos[1], endPos[1]);
-        node.showSelectbox(selectbox);
+        node.drawSelectbox(selectbox);
       }
       // we shall not block mousemove (otherwise dragging edge will be problematic)
       // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
@@ -181,24 +181,6 @@ visflow.Heatmap.prototype.selectItemsInBox = function(box) {
   }
   this.showDetails();
   this.pushflow();
-};
-
-/**
- * Displays the select range box.
- * @param box
- */
-visflow.Heatmap.prototype.showSelectbox = function(box) {
-  var node = this;
-  this.selectbox = this.svg.select('.vis-selectbox');
-  if (this.selectbox.empty())
-    this.selectbox = this.svg.append('rect')
-      .attr('class', 'vis-selectbox');
-
-  this.selectbox
-    .attr('x', this.plotMargins[0].before)
-    .attr('y', box.y1)
-    .attr('width', this.svgSize[0] - this.plotMargins[0].before - this.plotMargins[0].after)
-    .attr('height', box.y2 - box.y1);
 };
 
 /** @inheritDoc */
@@ -547,25 +529,4 @@ visflow.Heatmap.prototype.dataChanged = function() {
       this.dimensions.push(i);
     }
   }
-};
-
-/** @inheritDoc */
-visflow.Heatmap.prototype.selectAll = function() {
-  visflow.Heatmap.base.selectAll.call(this);
-  this.showDetails();
-};
-
-/** @inheritDoc */
-visflow.Heatmap.prototype.clearSelection = function() {
-  visflow.Heatmap.base.clearSelection.call(this);
-  this.showDetails(); // TODO　not efficient
-};
-
-/** @inheritDoc */
-visflow.Heatmap.prototype.resize = function(size) {
-  visflow.Heatmap.base.resize.call(this, size);
-  [0, 1].map(function(d) {
-    this.prepareScreenScale(d);
-  }, this);
-  this.showDetails();
 };

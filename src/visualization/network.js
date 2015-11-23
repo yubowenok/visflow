@@ -250,7 +250,7 @@ visflow.Network.prototype.prepareInteraction = function() {
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
         selectbox.y1 = Math.min(startPos[1], endPos[1]);
         selectbox.y2 = Math.max(startPos[1], endPos[1]);
-        node.showSelectbox(selectbox);
+        node.drawSelectbox(selectbox);
       } else if (mode == 'pan'){
         var dx = endPos[0] - lastPos[0],
             dy = endPos[1] - lastPos[1];
@@ -315,24 +315,6 @@ visflow.Network.prototype.selectItemsInBox = function(box) {
   this.showDetails(false);
 };
 
-/**
- * Displays the range selection box.
- * @param box
- */
-visflow.Network.prototype.showSelectbox = function(box) {
-  var node = this;
-  this.selectbox = this.svg.select('.vis-selectbox');
-  if (this.selectbox.empty())
-    this.selectbox = this.svg.append('rect')
-      .attr('class', 'vis-selectbox');
-
-  this.selectbox
-    .attr('x', box.x1)
-    .attr('y', box.y1)
-    .attr('width', box.x2 - box.x1)
-    .attr('height', box.y2 - box.y1);
-};
-
 /** @inheritDoc */
 visflow.Network.prototype.checkDataEmpty = function() {
   var inpackNodes = this.ports['in'].pack,
@@ -354,7 +336,7 @@ visflow.Network.prototype.checkDataEmpty = function() {
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.showVisualization = function(preventForce) {
+visflow.Network.prototype.showDetails = function(preventForce) {
   this.checkDataEmpty();
   //this.prepareSvg();
   if (this.isEmpty)
@@ -829,20 +811,7 @@ visflow.Network.prototype.keyAction = function(key, event) {
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.selectAll = function() {
-  visflow.Network.base.selectAll.call(this);
-  this.showDetails();
-};
-
-/** @inheritDoc */
 visflow.Network.prototype.clearSelection = function() {
   this.selectedEdges = {};
   visflow.Network.base.clearSelection.call(this);
-  this.showDetails(); // TODO　not efficient
-};
-
-/** @inheritDoc */
-visflow.Network.prototype.resize = function(size) {
-  visflow.Network.base.resize.call(this, size);
-  this.showDetails();
 };

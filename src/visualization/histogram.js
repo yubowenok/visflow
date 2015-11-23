@@ -155,7 +155,7 @@ visflow.Histogram.prototype.prepareInteraction = function() {
         selectbox.x2 = Math.max(startPos[0], endPos[0]);
         selectbox.y1 = Math.min(startPos[1], endPos[1]);
         selectbox.y2 = Math.max(startPos[1], endPos[1]);
-        node.showSelectbox(selectbox);
+        node.drawSelectbox(selectbox);
       }
       // we shall not block mousemove (otherwise dragging edge will be problematic)
       // as we can start a drag on edge, but when mouse enters the visualization, drag will hang there
@@ -209,24 +209,6 @@ visflow.Histogram.prototype.selectItemsInBox = function(box) {
 
   this.showDetails();
   this.pushflow();
-};
-
-/**
- * Displays the selection box.
- * @param box
- */
-visflow.Histogram.prototype.showSelectbox = function(box) {
-  var node = this;
-  this.selectbox = this.svg.select('.vis-selectbox');
-  if (this.selectbox.empty())
-    this.selectbox = this.svg.append('rect')
-      .attr('class', 'vis-selectbox');
-
-  this.selectbox
-    .attr('x', box.x1)
-    .attr('y', this.plotMargins[1].before)
-    .attr('width', box.x2 - box.x1)
-    .attr('height', this.svgSize[1] - this.plotMargins[1].before - this.plotMargins[1].after);
 };
 
 /**
@@ -661,9 +643,11 @@ visflow.Histogram.prototype.dataChanged = function() {
   }
 };
 
-/** @inheritDoc */
+/**
+ * This overrides the default as data items are different in terms of histogram.
+ * @inheritDoc
+ */
 visflow.Histogram.prototype.selectAll = function() {
-  visflow.Histogram.base.selectAll.call(this);
   // parent class already selects all elements
   // here we only select bars
   var data = this.histogramData;
@@ -677,13 +661,6 @@ visflow.Histogram.prototype.selectAll = function() {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.clearSelection = function() {
-  visflow.Histogram.base.clearSelection.call(this);
   this.selectedBars = {};
-  this.showDetails();
-};
-
-/** @inheritDoc */
-visflow.Histogram.prototype.resize = function(size) {
-  visflow.Histogram.base.resize.call(this, size);
-  this.showDetails();
+  visflow.Histogram.base.clearSelection.call(this);
 };

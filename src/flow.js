@@ -38,6 +38,7 @@ visflow.flow.resetFlow = function() {
 
   this.nodesSelected = {};
   this.nodesHovered = {};
+  this.lastSelectedNode = null;
 
   this.edgeSelected = null;
 
@@ -146,7 +147,7 @@ visflow.flow.createNode = function(type, save) {
  * Creates an edge in the flow from 'sourcePort' to 'targetPort'.
  * @param {!visflow.Port} sourcePort
  * @param targetPort
- * @return {visflow.Edge} TODO(bowen): check this
+ * @return {visflow.Edge}
  */
 visflow.flow.createEdge = function(sourcePort, targetPort) {
   var sourceNode = sourcePort.node,
@@ -205,7 +206,11 @@ visflow.flow.deleteEdge = function(edge) {
   sourcePort.disconnect(edge);
   targetPort.disconnect(edge);
 
-  visflow.flow.propagate(edge.targetNode);  // not efficient when deleting nodes?
+  // Propagation does not include processing the node being propagated.
+  // Update is required on the downflow node so that it becomes aware of the
+  // upflow changes.
+  edge.targetNode.update();
+  visflow.flow.propagate(edge.targetNode);
 
   edge.remove();  // removes the container
   delete visflow.flow.edges[edge.id];
@@ -269,14 +274,15 @@ visflow.flow.propagate = function(node) {
       traverse(node[i]);
     }
   }
-  // iterate in reverse order to obtain topo order
-  // skip the first one (the node itself)
-  for (var i = topo.length - 1; i >= 0; i--) {
+  // Iterate in reverse order to obtain topo order.
+  // Skip the first one, i.e. the node itself.
+  for (var i = topo.length - 2; i >= 0; i--) {
     topo[i].update();
   }
   for (var i in topo) {
-    for (var j in topo[i].ports) {  // include both in and out
-      topo[i].ports[j].pack.changed = false;  // unmark changes
+    for (var j in topo[i].ports) {
+      // Clear change flags for all in/out ports.
+      topo[i].ports[j].pack.changed = false;
     }
   }
 };
@@ -481,6 +487,7 @@ visflow.flow.addNodeSelection = function(nodes) {
     var node = toAdd[i];
     this.nodesSelected[node.id] = node;
     node.container.addClass('selected');
+    this.lastSelectedNode = node;
   }
 };
 
@@ -503,6 +510,9 @@ visflow.flow.clearNodeSelection = function(nodes) {
   for (var i in toClear) {
     var node = toClear[i];
     node.container.removeClass('selected');
+    if (node == this.lastSelectedNode) {
+      this.lastSelectedNode = null;
+    }
     delete this.nodesSelected[node.id];
   }
 };

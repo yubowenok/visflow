@@ -65,10 +65,11 @@ visflow.success = function() {
 /**
  * Asserts a condition. If false then panick.
  * @param {boolean} condition
+ * @param {string} opt_msg
  */
-visflow.assert = function(condition) {
+visflow.assert = function(condition, opt_msg) {
   if (!condition) {
-    visflow.error('assert failed');
+    visflow.error('assert failed' + (opt_msg != null ? ':' : ''), opt_msg);
   }
 };
 
