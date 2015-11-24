@@ -144,6 +144,11 @@ visflow.Table.prototype.showDetails = function() {
     }.bind(this));
 };
 
+/** @inheritDoc */
+visflow.Table.prototype.drawBrush = function() {
+  // Nothing
+};
+
 /**
  * Computes and updates the table scroll body height.
  * @return {number}

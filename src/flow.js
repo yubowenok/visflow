@@ -212,7 +212,9 @@ visflow.flow.deleteEdge = function(edge) {
   edge.targetNode.update();
   visflow.flow.propagate(edge.targetNode);
 
-  edge.remove();  // removes the container
+  // Remove the container
+  edge.remove();
+  
   delete visflow.flow.edges[edge.id];
 };
 

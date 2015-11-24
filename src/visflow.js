@@ -15,6 +15,7 @@ var visflow = {};
  */
 visflow.init = function() {
   visflow.utils.init();
+  visflow.scales.init();
 
   visflow.menu.init();
   visflow.viewManager.init();

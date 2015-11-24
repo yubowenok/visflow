@@ -133,19 +133,14 @@ visflow.Visualization.prototype.init = function() {
  */
 visflow.Visualization.prototype.serialize = function() {
   var result = visflow.Visualization.base.serialize.call(this);
-
-  // view sizes
-  result.viewWidth = this.viewWidth;
-  result.viewHeight = this.viewHeight;
-  result.visWidth = this.visWidth;
-  result.visHeight = this.visHeight;
-
+  _(result).extend({
+    selected: this.selected,
+    lastDataId: this.lastDataId
+  });
   // selection
   result.selected = this.selected;
-
   // last data
   result.lastDataId = this.lastDataId;
-
   return result;
 };
 
@@ -155,18 +150,14 @@ visflow.Visualization.prototype.serialize = function() {
  */
 visflow.Visualization.prototype.deserialize = function(save) {
   visflow.Visualization.base.deserialize.call(this, save);
-  this.visWidth = save.visWidth;
-  this.visHeight = save.visHeight;
-  this.viewWidth = save.viewWidth;
-  this.viewHeight = save.viewHeight;
 
   this.selected = save.selected;
   if (this.selected instanceof Array || this.selected == null) {
     visflow.error('incorrect selection saved: array/null');
     this.selected = {};
   }
-
   /*
+  // TODO(bowen): check how this is used.
   this.lastDataId = save.lastDataId;
   if (this.lastDataId == null) {
     visflow.error('lastDataId not saved in visualization');
@@ -258,12 +249,12 @@ visflow.Visualization.prototype.process = function() {
   }
 
   if (this.inPortsChanged()) {
+    // Do extra processing, such as sorting the item indexes in heatmap.
+    this.inputChanged();
+
     // Each time process() is called, input must have changed. Scales depend on
     // input and should be updated.
     this.prepareScales();
-
-    // Do extra processing, such as sorting the item indexes in heatmap.
-    this.processExtra();
   }
 };
 
@@ -284,7 +275,7 @@ visflow.Visualization.prototype.processSelection = function() {
 visflow.Visualization.prototype.validateSelection = function() {
   var inpack = this.ports['in'].pack;
   for (var index in this.selected) {
-    if (inpack.items[index] == null){
+    if (inpack.items[index] == null) {
       delete this.selected[index];
     }
   }
@@ -579,9 +570,9 @@ visflow.Visualization.prototype.resizeStop = function(size) {
 visflow.Visualization.prototype.prepareScales = function() {};
 
 /**
- * Does extra processing required by the visualization.
+ * Does extra processing required by the visualization on input changes.
  */
-visflow.Visualization.prototype.processExtra = function() {};
+visflow.Visualization.prototype.inputChanged = function() {};
 
 /**
  * Highlights the selected data items.

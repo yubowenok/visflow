@@ -8,12 +8,6 @@
 visflow.viewManager = {};
 
 visflow.viewManager.init = function() {
-  $('#main').droppable({
-    disabled: true
-  });
-
-  this.loadColorScales();
-  this.colorScaleQueue = [];
 };
 
 /** @type {number} */
@@ -101,13 +95,6 @@ visflow.viewManager.clearEdgeHover = function() {
 };
 
 /**
- * Clears colorpicker.
- */
-visflow.viewManager.hideColorpickers = function(exception) {
-  $('.iris-picker').not(exception).hide();
-};
-
-/**
  * Gets the popup panel name,
  * @return {string|null}
  */
@@ -116,67 +103,6 @@ visflow.viewManager.getPopupPanelName = function() {
     return null;
   }
   return this.popupPanel.name;
-};
-
-/**
- * Loads the color scale file.
- */
-visflow.viewManager.loadColorScales = function() {
-  var manager = this;
-  $.get('src/unit/colorScales.json', function(scales) {
-    var list = [];
-    manager.colorScales = {};
-    for (var i in scales) {
-      var scale = scales[i];
-      // save to node, map from value to scale object
-      manager.colorScales[scale.value] = scale;
-
-      var div = $('<div></div>')
-        .addClass('scalevis');
-      var gradient = 'linear-gradient(to right,';
-      if (scale.type == 'color') {
-        // NOT support uneven scales
-        for (var j in scale.range) {
-          gradient += scale.range[j];
-          gradient += j == scale.range.length - 1 ? ')' : ',';
-        }
-        div.css('background', gradient);
-      } else if (scale.type == 'color-category10') {
-        scale.domain = d3.range(10);
-        scale.range = d3.scale.category10().range();
-        var n = scale.range.length;
-        for (var j = 0; j < n; j++) {
-          gradient += scale.range[j] + ' ' + (j * 100 / n) + '%,';
-          gradient += scale.range[j] + ' ' + ((j + 1) * 100 / n) + '%';
-          gradient += j == scale.range.length - 1 ? ')' : ',';
-        }
-        div.css('background', gradient);
-      }
-      list.push({
-        value: scale.value,
-        text: scale.text,
-        div: div
-      });
-    }
-    manager.colorScaleList = list;
-
-    for (var i in manager.colorScalesQueue) {
-      var callback = manager.colorScalesQueue[i];
-      callback();
-    }
-  });
-};
-
-/**
- * Gets the color scales.
- */
-visflow.viewManager.getColorScales = function(unitCallback){
-  if (this.colorScales == null) {
-    this.colorScalesQueue.push(unitCallback);
-    console.log('q');
-    return null;
-  }
-  return this.colorScales;
 };
 
 /**

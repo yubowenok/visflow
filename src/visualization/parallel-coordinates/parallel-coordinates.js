@@ -19,12 +19,6 @@ visflow.ParallelCoordinates = function(params) {
   this.dimensions = [];
 
   /**
-   * Brush stroke points.
-   * @private {!Array<{x: number, y:number}>}
-   */
-  this.brushPoints_ = [];
-
-  /**
    * Mapping from axes indexes to x coordinates.
    * @protected {!d3.scale}
    */
@@ -38,7 +32,7 @@ visflow.ParallelCoordinates = function(params) {
 
   /**
    * yScale types.
-   * @protected {!Array<string>}
+   * @protected {!Array<visflow.ScaleType>}
    */
   this.yScaleTypes = [];
 
@@ -122,7 +116,7 @@ visflow.ParallelCoordinates.prototype.selectedProperties = {
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.init = function() {
-  visflow.Scatterplot.base.init.call(this);
+  visflow.ParallelCoordinates.base.init.call(this);
   this.svgPolylines_ = this.svg.append('g')
     .classed('polylines', true);
   this.svgAxes_ = this.svg.append('g')
@@ -158,15 +152,15 @@ visflow.ParallelCoordinates.prototype.selectItems = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.selectItemsIntersectLasso_ = function() {
-  if (!visflow.interaction.shifted) {
-    this.selected = {};
-  }
-
   var brush = this.brushPoints_;
   var startPos = _(brush).first();
   var endPos = _(brush).last();
   if (startPos.x == endPos.x && startPos.y == endPos.y) {
     return;
+  }
+
+  if (!visflow.interaction.shifted) {
+    this.selected = {};
   }
 
   var inpack = this.ports['in'].pack,

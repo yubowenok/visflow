@@ -230,11 +230,11 @@ visflow.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
  * @param {!Object} items Collection of items the scale is for.
  * @param {!Array<number>} range Range of the scale.
  * @param {number=} opt_margin Margin left for data span.
- * @return {!{scale: d3.scale, type: string}}
+ * @return {!{scale: !d3.scale, type: visflow.ScaleType}}
  */
 visflow.utils.getScale = function(data, dim, items, range, opt_margin) {
   var dimType = data.dimensionTypes[dim];
-  var margin = opt_margin == null ? .15 : opt_margin;
+  var margin = opt_margin == null ? 0 : opt_margin;
 
   var scaleType = dimType == 'string' ? 'ordinal' : 'numerical';
   var scale;

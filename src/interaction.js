@@ -56,11 +56,13 @@ visflow.interaction.init = function() {
     y1: 0,
     y2: 0
   };
+
   visflow.interaction.mainContextMenu_();
   visflow.interaction.trackMousemove();
   visflow.interaction.interaction();
   visflow.interaction.contextMenuClickOff();
   visflow.interaction.systemMessageClickOff();
+
 };
 
 /**
@@ -183,6 +185,10 @@ visflow.interaction.interaction = function() {
 
   $(document).mousewheel(function(event) {
     // TODO : zoom in view ?
+  });
+
+  $('#main').droppable({
+    disabled: true
   });
 };
 
@@ -572,7 +578,6 @@ visflow.interaction.clickHandler = function(params) {
       event = params.event;
   if (type == 'empty') {
     visflow.flow.clearNodeSelection();
-    visflow.viewManager.hideColorpickers();
     $('input').blur();
   }
 };
@@ -582,16 +587,6 @@ visflow.interaction.clickHandler = function(params) {
  */
 visflow.interaction.escHandler = function() {
   visflow.flow.clearNodeSelection();
-  visflow.viewManager.hideColorpickers();
   visflow.popupPanel.close();
   visflow.dialog.close();
 };
-
-/*
-getDragstartPara: function() {
-  return this.dragstartPara;
-},
-getDragstopPara: function() {
-  return this.dragstopPara;
-}
-*/

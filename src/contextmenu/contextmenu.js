@@ -11,6 +11,11 @@
 visflow.contextMenu = {};
 
 /**
+ * @typedef {{id: string, text: string, icon: string}}
+ */
+visflow.contextMenu.Entry;
+
+/**
  * Hides the contextmenu.
  */
 visflow.contextMenu.hide = function() {

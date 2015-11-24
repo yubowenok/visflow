@@ -417,7 +417,7 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     svgSize.height - this.PLOT_MARGINS.bottom,
     this.PLOT_MARGINS.top
   ];
-  var yScaleInfo = visflow.utils.getScale(data, this.yDim, items, yRange);
+  var yScaleInfo = visflow.utils.getScale(data, this.yDim, items, yRange, .1);
   this.yScale = yScaleInfo.scale;
   this.yScaleType = yScaleInfo.type;
 
@@ -430,7 +430,7 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     this.leftMargin_,
     svgSize.width - this.PLOT_MARGINS.right
   ];
-  var xScaleInfo = visflow.utils.getScale(data, this.xDim, items, xRange);
+  var xScaleInfo = visflow.utils.getScale(data, this.xDim, items, xRange, .1);
   this.xScale = xScaleInfo.scale;
   this.xScaleType = xScaleInfo.type;
 };

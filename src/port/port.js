@@ -59,12 +59,26 @@ visflow.Port = function(node, id, type, text, isConstants) {
    */
   this.pack = new this.packClass(); // stored data / constants
 
+  /**
+   * Port ContextMenu.
+   * @private {visflow.ContextMenu}
+   */
+  this.contextMenu_;
+
   if (this.isInPort && !this.isSingle) {
     // For in-multiple, use array to store packs.
     // this.pack will be referencing the last connected pack.
     this.packs = [];
   }
 };
+
+/**
+ * ContextMenu entries.
+ * @protected @const {!Array<!visflow.contextMenu.Entry>}
+ */
+visflow.Port.prototype.CONTEXTMENU_ITEMS = [
+  {id: 'disconnect', text: 'Disconnect', icon: 'glyphicon glyphicon-minus-sign'}
+];
 
 /**
  * Checks if the port has been connected.
@@ -136,6 +150,11 @@ visflow.Port.prototype.connect = function(edge) {
     }
   }
   edge.sourcePort.pack.changed = true;
+
+  // Propagation does not include processing the node being propagated.
+  // Update is required on the downflow node so that it becomes aware of the
+  // upflow changes.
+  edge.targetNode.update();
   visflow.flow.propagate(edge.targetNode);
 };
 
@@ -184,7 +203,25 @@ visflow.Port.prototype.setContainer = function(container) {
     .addClass('background')
     .appendTo(this.container);
 
+  this.initContextMenu();
   this.interaction();
+};
+
+/**
+ * Prepares the contextMenu for the port.
+ */
+visflow.Port.prototype.initContextMenu = function() {
+  this.contextMenu = new visflow.ContextMenu({
+    container: this.container,
+    items: this.CONTEXTMENU_ITEMS
+  });
+
+  $(this.contextMenu)
+    .on('visflow.disconnect', function() {
+      this.connections.concat().forEach(function(connection) {
+        visflow.flow.deleteEdge(connection);
+      });
+    }.bind(this));
 };
 
 /**
@@ -197,19 +234,17 @@ visflow.Port.prototype.interaction = function() {
     .dblclick(function() {
       console.log(port.pack, port.pack.count()); // for debug
     })
-    .mouseenter(function(event){
+    .mouseenter(function(){
       for (var i in port.connections) {
         visflow.viewManager.addEdgeHover(port.connections[i]);
       }
     })
-    .mouseleave(function(event){
+    .mouseleave(function(){
       visflow.viewManager.clearEdgeHover();
     })
     .mousedown(function(event){
       if(event.which == visflow.interaction.keyCodes.RIGHT_MOUSE){
-        port.connections.concat().forEach(function(connection) {
-          visflow.flow.deleteEdge(connection);
-        });
+
       }
     })
     .draggable({

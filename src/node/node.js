@@ -171,8 +171,8 @@ visflow.Node.prototype.MINIMIZED_CLASS = '';
 visflow.Node.prototype.SHAPE_CLASS = 'shape-medium';
 
 /**
- * Contextmenu entries.
- * @protected @const {!Array<{id: string, text: string, icon: string}>}
+ * ContextMenu entries.
+ * @protected @const {!Array<!visflow.contextMenu.Entry>}
  */
 visflow.Node.prototype.CONTEXTMENU_ITEMS = [
   {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
@@ -230,10 +230,11 @@ visflow.Node.prototype.deserialize = function(save) {
       visMode: save.visModeOn
     };
   }
-  this.options = {};
   _(this.options).extend(save.options);
 
   this.label = save.label;
+  this.showLabel();
+
   this.css = save.css;
   this.visCss = save.visCss;
 
@@ -670,7 +671,8 @@ visflow.Node.prototype.inPortsChanged = function() {
 };
 
 /**
- * Updates the node.
+ * Updates the node. It checks if the upflow data has changed. If so it
+ * processes the node and calls rendering.
  */
 visflow.Node.prototype.update = function() {
   if (!this.inPortsChanged()) {
@@ -679,13 +681,6 @@ visflow.Node.prototype.update = function() {
 
   this.process();
   this.show();
-
-  /*
-  // TODO(bowen): Double check here, process shall have already handled it.
-  for (var i in this.outPorts) {
-    this.outPorts[i].pack.changed = true; // mark changes
-  }
-  */
 };
 
 /**
@@ -740,11 +735,8 @@ visflow.Node.prototype.keyAction = function(key, event) {
     case 'ctrl+X':
       visflow.flow.deleteNode(this);
       break;
-    case 'D':
-      this.toggleDetails();
-      break;
-    case 'T':
-      this.toggleOptions();
+    case 'M':
+      this.toggleMinimized();
       break;
     case 'L':
       this.toggleLabel();

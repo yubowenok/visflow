@@ -1,0 +1,13 @@
+.visflow .heatmap path {
+  fill: none;
+  shape-rendering: optimizeSpeed;
+}
+
+.visflow .node.details.heatmap {
+  width: 300px;
+  height: 400px;
+}
+
+.visflow .row-label {
+  stroke-width: 1px;
+}
