@@ -27,7 +27,7 @@
 }
 
 .select2-container--default .select2-selection--single .select2-selection__clear {
-  margin-right: 15px;
+  margin-right: 10px;
   font-size: 20px;
   line-height: 20px;
 }
@@ -65,13 +65,11 @@ th {
   font-weight: normal;
 }
 
-/*
 div {
   -moz-user-select: none;
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
-*/
 
 /*
 .ui-state-active,

@@ -1,156 +1,92 @@
 /**
- * @fileoverview VisFlow select list unit.
- * Input unit that provides interface for selection list change will be fired in
- * {id:..., value:...}.
+ * @fileoverview VisFlow single select user interface.
  */
 
 'use strict';
 
 /**
- * @param params
+ * @param {{
+ *   container: !jQuery,
+ *       Container of the select
+ *   list: !Array<{id: string|number, text: string}>,
+ *       Items for selection
+ *   selected: string|number
+ *       Currently selected items
+ *   listTitle: string,
+ *       Text title for the list
+ *   allowClear: boolean=,
+ *       Whether no selection is allowed, if false, then selected must be given
+ *   selectTitle: string,
+ *       Text to show for add item select2
+ *       This will be used as placeholder
+ * }} params
  * @constructor
- * @extends {visflow.Unit}
  */
 visflow.Select = function(params) {
-  visflow.Select.base.constructor.call(this, params);
+  /** @private {!jQuery} */
+  this.container_ = params.container;
 
-  this.options = params.options != null ? params.optinos : [];
+  /** @private {!Array<{id: string|number, text:string}> */
+  this.list_ = params.list.concat();
 
-  this.multiple = params.multiple;
-  this.sortable = params.sortable;  // allow reordering of multiple
-  this.list = params.list;  // list of options
-  this.placeholder = params.placeholder;
-  this.textToValue = {};
+  /** @private {boolean} */
+  this.allowClear_ = params.allowClear != null ? params.allowClear : false;
+
+  if (!this.allowClear_ && params.selected == null) {
+    visflow.error('allowClear is false but selected item is not given');
+    return;
+  }
+
+  /** @private {!Array<string|number>} */
+  this.selected_ = params.selected != null ? params.selected : '';
+
+  /** @private {string} */
+  this.listTitle_ = params.listTitle ? params.listTitle : '';
+
+  /** @private {string} */
+  this.selectTitle_ = params.selectTitle ? params.selectTitle: 'Select';
+
+  /** @private {select2} */
+  this.select2_;
+
+  this.container_.load(this.TEMPLATE_, function() {
+    this.init_();
+  }.bind(this));
 };
 
-visflow.utils.inherit(visflow.Select, visflow.Unit);
+/** @private @const {string} */
+visflow.Select.prototype.TEMPLATE_ = './src/unit/select.html';
 
-/** @inheritDoc */
-visflow.Select.prototype.init = function() {
-  visflow.Select.base.init.call(this);
+/**
+ * Initializes the list title and add item select2.
+ * @private
+ */
+visflow.Select.prototype.init_ = function() {
+  this.container_.find('#title')
+    .text(this.listTitle_);
 
-  var unit = this;
+  this.select2_ = this.container_.find('select')
+    .select2({
+      data: this.list_,
+      allowClear: this.allowClear_,
+      placeholder: this.selectTitle_
+    });
+  this.select2_.val(this.selected_).trigger('change');
 
-  var select2options = {};
-  var input = this.input = $('<select></select>');
+  this.container_.find('.select2-container').css('width', '');
 
-  if (this.multiple) {
-    input.attr('multiple', 'multiple');
-  }
-
-  if (this.placeholder != null) {
-    select2options.placeholder = this.placeholder;
-    select2options.allowClear = true;
-    $('<option/>')
-      .appendTo(input);
-  }
-
-  input
-    .addClass('unit-select')
-    .appendTo(this.jqcontainer)
-    .select2(select2options);
-
-  if (!this.multiple) {
-    input
-      .change(function(event){
-        var value = event.target.value;
-        if (value == '') {
-          value = null;
-        }
-        unit.setValue(value, event);
-      });
-  } else {
-    input
-      .change(function(event){
-        if (event.added != null) {
-          unit.value.push(event.added.id);
-        }
-        if (event.removed != null) {
-          unit.value.splice(unit.value.indexOf(event.removed.id), 1);
-        }
-        unit.setValue(unit.value);
-      });
-
-    if (this.sortable) {
-      input.parent().find('.select2-choices')
-        .sortable({
-          update: function(event, ui) {
-            unit.value = [];
-            input.parent().find('.select2-search-choice')
-              .each(function() {
-                // get text inside tags
-                var text = $(this).children('div').text();
-                var value = unit.textToValue[text]; // convert to value
-                unit.value.push(value);
-              });
-            unit.setValue(unit.value);
-          }
-        });
-    }
-  }
-  input.select2('val', this.value);
-
-  if (this.list != null) {
-    this.setList(this.list);
-    if (this.value != null) {
-      this.setValue(this.value, null, true);  // initial value, do not callback
-    }
-  }
+  this.select2_.on('change', function() {
+    var id = this.select2_.val();
+    this.selected_ = id;
+    this.signal_('change');
+  }.bind(this));
 };
 
 /**
- * Sets the selection list.
- * @param {!Array<{value: *, text: string}>} list
+ * Fires an event.
+ * @param {string} type
+ * @private
  */
-visflow.Select.prototype.setList = function(list) {
-  var options = this.input.find('option');
-  // there is a placeholder!
-  if (this.placeholder != null)
-    options = options.next();
-  options.remove(); // clear previous list
-
-  this.textToValue = {};
-  for (var i in list) {
-    this.textToValue[list[i].text] = list[i].value;
-
-    var option = $('<option value="' + list[i].value + '">' +
-        list[i].text + '</option>')
-      .appendTo(this.input);
-  }
-};
-
-/** @inheritDoc */
-visflow.Select.prototype.setValue = function(value, event, noCallback) {
-  if (event == null)
-    event = {};
-
-  var unit = this;
-
-  this.value = value;
-  this.input.select2('val', value);
-
-  if (this.multiple) {
-    // reorder the elements
-    var choices = [];
-    this.input.parent().find('.select2-search-choice')
-      .each(function() {
-        var text = $(this).children('div').text(),
-            value = unit.textToValue[text];
-        var index = unit.value.indexOf(value);
-        choices[index] = $(this);
-      });
-    // search field shall appear last
-    var searchField = this.input.parent().find('.select2-search-field');
-    for (var i in choices) {
-      choices[i].insertBefore(searchField);
-    }
-  }
-
-  if (!noCallback) {
-    event.unitChange = {
-      value: value,
-      id: this.id
-    };
-    this.changeCallback(event);
-  }
+visflow.Select.prototype.signal_ = function(type) {
+  $(this).trigger('visflow.' + type, [this.selected_]);
 };

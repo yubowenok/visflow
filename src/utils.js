@@ -229,12 +229,29 @@ visflow.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
  * @param {number} dim Dimension index of the data to process.
  * @param {!Object} items Collection of items the scale is for.
  * @param {!Array<number>} range Range of the scale.
- * @param {number=} opt_margin Margin left for data span.
+ * @param {{
+ *   domainMargin: number=,
+ *       Margin percentage, this has no effect if domain span is zero
+ *   rangeMargin: number=,
+ *       Margin percentage, this has no effect if range span is zero
+ *   ordinalRangeType: string=
+ *       rangePoints, rangeBands,  rangeRoundBands
+ * }=} opt_params
  * @return {!{scale: !d3.scale, type: visflow.ScaleType}}
  */
-visflow.utils.getScale = function(data, dim, items, range, opt_margin) {
+visflow.utils.getScale = function(data, dim, items, range, opt_params) {
   var dimType = data.dimensionTypes[dim];
-  var margin = opt_margin == null ? 0 : opt_margin;
+  var params = opt_params == null ? {} : opt_params;
+
+  var domainMargin = params.domainMargin == null ? 0 : params.domainMargin;
+  var rangeMargin = params.rangeMargin;
+  if (rangeMargin != null) {
+    // Make a copy.
+    range = [range[0], range[1]];
+    var span = range[1] - range[0];
+    range[0] -= span * rangeMargin;
+    range[1] += span * rangeMargin;
+  }
 
   var scaleType = dimType == 'string' ? 'ordinal' : 'numerical';
   var scale;
@@ -249,22 +266,72 @@ visflow.utils.getScale = function(data, dim, items, range, opt_margin) {
       }
       var span = maxVal - minVal;
       scale = d3.scale.linear()
-        .domain([minVal - span * margin, maxVal + span * margin])
+        .domain([minVal - span * params.domainMargin,
+            maxVal + span * params.domainMargin])
         .range(range);
       break;
     case 'ordinal':
-      var values = data.values.map(function(row) {
-        return row[dim];
-      });
+      var values = [];
+      for (var index in items) {
+        values.push(data.values[index][dim]);
+      }
       scale = d3.scale.ordinal()
-        .domain(_.uniq(values))
-        .rangePoints(range, 1.0);
+        .domain(_.uniq(values));
+
+      switch(params.orginalRangeType) {
+        case 'rangeBands':
+          scale.rangeBands(range);
+          break;
+        case 'rangeRoundBands':
+          scale.rangeRoundBands(range);
+          break;
+        default:
+          scale.rangePoints(range, 1.0);
+      }
       break;
   }
   return {
     scale: scale,
     type: scaleType
   };
+};
+
+/**
+ * Gets an array as the compare key of rendering properties.
+ * @param {!Object} properties
+ */
+visflow.utils.propertiesCompareKey = function(properties) {
+  var result = [];
+  ['color', 'border', 'width', 'opacity'].forEach(function(key) {
+    var p = key in properties ? properties[key] : '';
+    if (key == 'color') {
+      p = d3.rgb(p).hsl();
+      p = [isNaN(p.h) ? 0 : p.h, isNaN(p.s) ? 0 : p.s, p.l];
+      result = result.concat(p);
+    } else {
+      result.push(p);
+    }
+  }, this);
+};
+
+/**
+ * Compares two rendering property objects.
+ * @param {!{
+ *   properties: !Object
+ * }} a
+ * @param {!{
+ *   properties: !Object
+ * }} b
+ * @returns {number}
+ */
+visflow.utils.propertiesCompare = function(a, b) {
+  if (!('propertiesKey' in a)) {
+    a.propertiesKey = visflow.utils.propertiesCompareKey(a.properties);
+  }
+  if (!('propertiesKey' in b)) {
+    b.propertiesKey = visflow.utils.propertiesCompareKey(b.properties);
+  }
+  return visflow.utils.compare(a.propertiesKey, b.propertiesKey);
 };
 
 /**

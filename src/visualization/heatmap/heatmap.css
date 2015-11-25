@@ -8,6 +8,10 @@
   height: 400px;
 }
 
-.visflow .row-label {
+.visflow .heatmap .row-label {
   stroke-width: 1px;
+  font-size: 11px;
+  dominant-baseline: middle;
+  text-anchor: end;
+  font-family: Helvetica, sans-serif, courier;
 }

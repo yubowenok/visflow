@@ -137,9 +137,9 @@ visflow.Visualization.prototype.serialize = function() {
     selected: this.selected,
     lastDataId: this.lastDataId
   });
-  // selection
+  // Data item selection.
   result.selected = this.selected;
-  // last data
+  // Last data Id.
   result.lastDataId = this.lastDataId;
   return result;
 };
@@ -150,20 +150,16 @@ visflow.Visualization.prototype.serialize = function() {
  */
 visflow.Visualization.prototype.deserialize = function(save) {
   visflow.Visualization.base.deserialize.call(this, save);
-
   this.selected = save.selected;
   if (this.selected instanceof Array || this.selected == null) {
     visflow.error('incorrect selection saved: array/null');
     this.selected = {};
   }
-  /*
-  // TODO(bowen): check how this is used.
   this.lastDataId = save.lastDataId;
   if (this.lastDataId == null) {
     visflow.error('lastDataId not saved in visualization');
     this.lastDataId = 0;
   }
-  */
 };
 
 /** @inheritDoc */
@@ -241,8 +237,9 @@ visflow.Visualization.prototype.process = function() {
   this.processSelection();
 
   if (this.lastDataId != inpack.data.dataId) {
-    // Data has changed, fire change event
-    // visualization can update selected dimension in this function.
+    // Data has changed. Visualization can update selected dimension here.
+    // If the node is de-serialized, it would have received its last used
+    // dataId so that dataChanged is not fired.
     this.dataChanged();
 
     this.lastDataId = inpack.data.dataId;
@@ -472,6 +469,26 @@ visflow.Visualization.prototype.dimensionChanged = function() {
 };
 
 /**
+ * Creates a unique dimension array for potentially duplicated dimensions.
+ * @param {!Array<number>} dimensions
+ * @return {!Array<{dim: number, uniqueDim: string}>}
+ */
+visflow.Visualization.prototype.uniqueDimensions = function(dimensions) {
+  var result = [];
+  var counter = {};
+  dimensions.forEach(function(dim) {
+    if (!(dim in counter)) {
+      counter[dim] = 0;
+    }
+    result.push({
+      uniqId: dim + '-' + (++counter[dim]),
+      dim: dim
+    });
+  });
+  return result;
+};
+
+/**
  * Displays the brush based on selection type, e.g. range box or lasso stroke.
  */
 visflow.Visualization.prototype.drawBrush = function() {
@@ -530,6 +547,20 @@ visflow.Visualization.prototype.drawSelectbox = function() {
 };
 
 /**
+ * Gets the list of dimensions used for select2.
+ * @return {!Array<{id: number, text: string}>}
+ */
+visflow.Visualization.prototype.getDimensionList = function() {
+  var data = this.ports['in'].pack.data;
+  return data.dimensions.map(function(dimName, index) {
+    return {
+      id: index,
+      text: dimName
+    }
+  });
+};
+
+/**
  * Selects all data items.
  */
 visflow.Visualization.prototype.selectAll = function() {
@@ -575,7 +606,8 @@ visflow.Visualization.prototype.prepareScales = function() {};
 visflow.Visualization.prototype.inputChanged = function() {};
 
 /**
- * Highlights the selected data items.
+ * Highlights the selected data items. Usually this brings all selected items
+ * to front. Selected items rendering properties are handled in render routines.
  */
 visflow.Visualization.prototype.showSelection = function() {};
 

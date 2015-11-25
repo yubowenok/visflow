@@ -374,6 +374,9 @@ visflow.flow.deserializeFlowEdges_ = function(flow, hashes) {
     var sourcePort = sourceNode.ports[edgeSaved.sourcePortId],
       targetPort = targetNode.ports[edgeSaved.targetPortId];
 
+    visflow.assert(sourceNode != null);
+    visflow.assert(targetNode != null);
+
     if (targetPort == null) {
       visflow.error('older version nodes detected');
       targetPort = targetNode.ports['in'];

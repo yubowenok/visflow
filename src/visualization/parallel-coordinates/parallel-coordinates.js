@@ -286,13 +286,7 @@ visflow.ParallelCoordinates.prototype.showSelection = function() {
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.initPanel = function(container) {
   visflow.ParallelCoordinates.base.initPanel.call(this, container);
-  var data = this.ports['in'].pack.data;
-  var dimensionList = data.dimensions.map(function(dim, index) {
-    return {
-      id: index,
-      text: dim
-    };
-  });
+  var dimensionList = this.getDimensionList();
 
   var list = new visflow.EditableList({
     container: container.find('#dims'),
@@ -308,32 +302,12 @@ visflow.ParallelCoordinates.prototype.initPanel = function(container) {
 };
 
 /**
- * Creates a unique dimension array for potentially duplicated dimensions.
- * @private
- * @return {!Array<{dim: number, uniqueDim: string}>}
- */
-visflow.ParallelCoordinates.prototype.uniqueDimensions_ = function() {
-  var result = [];
-  var counter = {};
-  this.dimensions.forEach(function(dim) {
-    if (!(dim in counter)) {
-      counter[dim] = 0;
-    }
-    result.push({
-      uniqId: dim + '-' + (++counter[dim]),
-      dim: dim
-    });
-  });
-  return result;
-};
-
-/**
  * Renders the parallel coordinates axes.
  * @private
  */
 visflow.ParallelCoordinates.prototype.drawAxes_ = function() {
   // Clear extra axes when dimension changes.
-  var dimInfos = this.uniqueDimensions_();
+  var dimInfos = this.uniqueDimensions(this.dimensions);
   var uniqIds = dimInfos.map(function(dimInfo) {
     return dimInfo.uniqId;
   });

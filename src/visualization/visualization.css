@@ -53,13 +53,6 @@
   text-anchor: middle;
 }
 
-.visflow .visualization .row-label {
-  font-size: 11px;
-  dominant-baseline: middle;
-  text-anchor: end;
-  font-family: Helvetica, sans-serif, courier;
-}
-
 .visflow .visualization .network-edge {
   stroke-width: 1px;
   stroke: black;

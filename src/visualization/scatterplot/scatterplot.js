@@ -218,32 +218,26 @@ visflow.Scatterplot.prototype.updateLeftMargin_ = function() {
 /** @inheritDoc */
 visflow.Scatterplot.prototype.initPanel = function(container) {
   visflow.Scatterplot.base.initPanel.call(this, container);
-  var inpack = this.ports['in'].pack;
-  var data = inpack.data;
-  var dimensionList = data.dimensions.map(function(dimName, index) {
-    return {
-      id: index,
-      text: dimName
-    }
-  });
-  var xSelect = container.find('#x-dim').children('select');
-  var xSelect2 = xSelect.select2({
-    data: dimensionList
-  });
-  var ySelect = container.find('#y-dim').children('select');
-  var ySelect2 = ySelect.select2({
-    data: dimensionList
-  });
+  var dimensionList = this.getDimensionList();
 
-  xSelect2.val(this.xDim).trigger('change');
-  ySelect2.val(this.yDim).trigger('change');
-
-  xSelect2.on('change', function() {
-    this.xDim = xSelect2.val();
+  var xSelect = new visflow.Select({
+    container: container.find('#x-dim'),
+    list: dimensionList,
+    selected: this.xDim,
+    listTitle: 'X Dimension'
+  });
+  $(xSelect).on('visflow.change', function(event, dim) {
+    this.xDim = dim;
     this.dimensionChanged();
   }.bind(this));
-  ySelect2.on('change', function() {
-    this.yDim = ySelect2.val();
+  var ySelect = new visflow.Select({
+    container: container.find('#y-dim'),
+    list: dimensionList,
+    selected: this.yDim,
+    listTitle: 'Sort By'
+  });
+  $(ySelect).on('visflow.change', function(event, dim) {
+    this.yDim = dim;
     this.dimensionChanged();
   }.bind(this));
 };
@@ -417,7 +411,9 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     svgSize.height - this.PLOT_MARGINS.bottom,
     this.PLOT_MARGINS.top
   ];
-  var yScaleInfo = visflow.utils.getScale(data, this.yDim, items, yRange, .1);
+  var yScaleInfo = visflow.utils.getScale(data, this.yDim, items, yRange, {
+    domainMargin: 0.1
+  });
   this.yScale = yScaleInfo.scale;
   this.yScaleType = yScaleInfo.type;
 
@@ -430,7 +426,9 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     this.leftMargin_,
     svgSize.width - this.PLOT_MARGINS.right
   ];
-  var xScaleInfo = visflow.utils.getScale(data, this.xDim, items, xRange, .1);
+  var xScaleInfo = visflow.utils.getScale(data, this.xDim, items, xRange, {
+    domainMargin: 0.1
+  });
   this.xScale = xScaleInfo.scale;
   this.xScaleType = xScaleInfo.type;
 };

@@ -493,17 +493,17 @@ visflow.Node.prototype.interaction = function() {
   this.container.resizable('disable');
 
   this.container.children('.node-label')
-    .mousedown(function () {
+    .mousedown(function() {
       // Re-enable the contenteditable on click.
       $(this).attr('contenteditable', true);
-    })
+    }.bind(this))
     .blur(function () {
       // may contain html tag, ignore
-      node.label = $(this).text();
+      this.label = $(this).text();
       // Disable the contenteditable. Otherwise by default it requires 2 clicks
       // to blur.
       $(this).attr('contenteditable', false);
-    });
+    }.bind(this));
 };
 
 /**

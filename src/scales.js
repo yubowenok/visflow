@@ -16,7 +16,8 @@ visflow.ScaleType;
  *   scale: !d3.scale,
  *   id: string,
  *   text: string,
- *   contrastColor: string
+ *   contrastColor: string,
+ *   gradientDiv: !jQuery
  * }}
  */
 visflow.Scale;
@@ -79,13 +80,25 @@ visflow.scales.SPECS_ = {
 };
 
 /**
+ * Gets an array list of color scales.
+ * @return {!Array<visflow.Scale>}
+ */
+visflow.scales.getColorScales = function() {
+  var list = [];
+  for (var id in visflow.scales.SPECS_) {
+    list.push(visflow.scales[id]);
+  }
+  return list;
+};
+
+/**
  * Initializes the scales.
  */
 visflow.scales.init = function() {
   for (var id in visflow.scales.SPECS_) {
     var spec = visflow.scales.SPECS_[id];
     var gradientDiv = $('<div></div>')
-      .addClass('scale-div');
+      .addClass('gradient-div');
     var gradient = 'linear-gradient(to right,';
 
     var domain = spec.domain;
@@ -115,14 +128,15 @@ visflow.scales.init = function() {
         scale = d3.scale.category10();
         break;
     }
-
     gradient += ')';
     gradientDiv.css('background', gradient);
+
     visflow.scales[id] = {
       id: id,
       text: spec.text,
       scale: scale,
-      contrastColor: spec.contrastColor
+      contrastColor: spec.contrastColor,
+      gradientDiv: gradientDiv
     };
   }
 };

@@ -68,6 +68,8 @@ visflow.EditableList.prototype.init_ = function() {
       placeholder: this.addTitle_
     });
 
+  this.container_.find('.select2-container').css('width', '');
+
   select2.on('change', function() {
     var id = select2.val();
     if (id != '') {

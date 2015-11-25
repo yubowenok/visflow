@@ -2,7 +2,7 @@
 #option-panel {
   height: auto;
   top: 35px;
-  bottom: 30px;
+  bottom: 10px;
   position: fixed;
   right: -32px;
   z-index: 1;

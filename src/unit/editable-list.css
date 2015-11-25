@@ -21,7 +21,11 @@
 }
 
 .editable-list .item {
-  cursor: pointer;
+  cursor: all-scroll;
+}
+
+.editable-list .item:hover {
+  background: #eee;
 }
 
 .editable-list ul {
@@ -30,7 +34,7 @@
 }
 
 .editable-list .select2-container {
-  width: 100% !important;
+  width: 100%;
 }
 
 .editable-list .select2-container--default .select2-selection--single .select2-selection__placeholder {
