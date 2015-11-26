@@ -258,6 +258,7 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function() {
       return prop.id;
     });
   lines.enter().append('path')
+    .style('opacity', 0)
     .attr('id', _.getValue('id'));
   lines.exit().transition()
     .style('opacity', 0)

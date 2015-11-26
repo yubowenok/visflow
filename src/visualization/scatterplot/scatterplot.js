@@ -60,12 +60,9 @@ visflow.Scatterplot.prototype.MINIMIZED_CLASS = 'scatterplot-icon square-icon';
 visflow.Scatterplot.prototype.PANEL_TEMPLATE =
     './src/visualization/scatterplot/scatterplot-panel.html';
 
-/** @private @const {number} */
-visflow.Scatterplot.prototype.LABEL_OFFSET_ = 5;
+
 /** @private @const {number} */
 visflow.Scatterplot.prototype.LABEL_FONT_SIZE_ = 5;
-/** @private @const {number} */
-visflow.Scatterplot.prototype.DEFAULT_TICKS_ = 5;
 
 /**
  * Margin space for axes.
@@ -83,13 +80,14 @@ visflow.Scatterplot.prototype.defaultProperties = {
   color: '#333',
   border: 'black',
   width: 1,
-  size: 3
+  size: 3,
+  opacity: 1
 };
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.selectedProperties = {
   color: 'white',
-  border: '#FF4400'
+  border: '#6699ee'
 };
 
 /** @inheritDoc */
@@ -234,7 +232,7 @@ visflow.Scatterplot.prototype.initPanel = function(container) {
     container: container.find('#y-dim'),
     list: dimensionList,
     selected: this.yDim,
-    listTitle: 'Sort By'
+    listTitle: 'Y Dimension'
   });
   $(ySelect).on('visflow.change', function(event, dim) {
     this.yDim = dim;
@@ -279,7 +277,8 @@ visflow.Scatterplot.prototype.drawPoints_ = function() {
   var points = this.svgPoints_.selectAll('circle')
     .data(itemProps, _.getValue('id'));
   points.enter().append('circle')
-    .attr('id', _.getValue('id'));
+    .attr('id', _.getValue('id'))
+    .style('opacity', 0);
   points.exit().transition()
     .style('opacity', 0)
     .remove();
@@ -293,47 +292,6 @@ visflow.Scatterplot.prototype.drawPoints_ = function() {
     .style('stroke', _.getValue('border'))
     .style('stroke-width', _.getValue('width'))
     .style('opacity', _.getValue('opacity'));
-};
-
-/**
- * Renders an axis label.
- * @param {{
- *   svg: !d3.selection,
- *   scale: !d3.scale,
- *   classes: string,
- *   orient: string,
- *   ticks: number,
- *   transform: string,
- *   label: {
- *     text: string,
- *     transform: string
- *   }
- * }} params
- * @private
- */
-visflow.Scatterplot.prototype.drawAxis_ = function(params) {
-  var svg = params.svg;
-  var axis = d3.svg.axis()
-    .orient(params.orient)
-    .ticks(params.ticks);
-  axis.scale(params.scale.copy());
-
-  if(svg.empty()) {
-    svg = this.svgAxes_.append('g')
-      .classed(params.classes, true);
-  }
-  svg
-    .attr('transform', params.transform)
-    .call(axis);
-
-  var label = svg.select('.vis-label');
-  if (label.empty()) {
-    label = svg.append('text')
-      .classed('vis-label', true);
-  }
-  label
-    .text(params.label.text)
-    .attr('transform', params.label.transform);
 };
 
 /**
@@ -357,7 +315,7 @@ visflow.Scatterplot.prototype.drawXAxis_ = function() {
       text: data.dimensions[this.xDim],
       transform: visflow.utils.getTransform([
         svgSize.width - this.PLOT_MARGINS.right,
-        -5
+        -this.LABEL_OFFSET_
       ])
     }
   });

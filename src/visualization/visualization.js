@@ -96,7 +96,7 @@ visflow.Visualization.prototype.defaultProperties = {
  */
 visflow.Visualization.prototype.selectedProperties = {
   color: 'white',
-  border: '#FF4400'
+  border: '#6699ee'
 };
 
 /**
@@ -117,6 +117,11 @@ visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
 ];
+
+/** @private @const {number} */
+visflow.Visualization.prototype.LABEL_OFFSET_ = 5;
+/** @private @const {number} */
+visflow.Visualization.prototype.DEFAULT_TICKS_ = 5;
 
 
 /** @inheritDoc */
@@ -575,6 +580,47 @@ visflow.Visualization.prototype.selectAll = function() {
 visflow.Visualization.prototype.clearSelection = function() {
   this.selected = {};
   this.showDetails();
+};
+
+/**
+ * Renders an axis label.
+ * @param {{
+ *   svg: !d3.selection,
+ *   scale: !d3.scale,
+ *   classes: string,
+ *   orient: string,
+ *   ticks: number,
+ *   transform: string,
+ *   label: {
+ *     text: string,
+ *     transform: string
+ *   }
+ * }} params
+ * @private
+ */
+visflow.Visualization.prototype.drawAxis_ = function(params) {
+  var svg = params.svg;
+  var axis = d3.svg.axis()
+    .orient(params.orient)
+    .ticks(params.ticks);
+  axis.scale(params.scale.copy());
+
+  if(svg.empty()) {
+    svg = this.svgAxes_.append('g')
+      .classed(params.classes, true);
+  }
+  svg
+    .attr('transform', params.transform)
+    .call(axis);
+
+  var label = svg.select('.vis-label');
+  if (label.empty()) {
+    label = svg.append('text')
+      .classed('vis-label', true);
+  }
+  label
+    .text(params.label.text)
+    .attr('transform', params.label.transform);
 };
 
 /** @inheritDoc */

@@ -266,8 +266,7 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
       }
       var span = maxVal - minVal;
       scale = d3.scale.linear()
-        .domain([minVal - span * params.domainMargin,
-            maxVal + span * params.domainMargin])
+        .domain([minVal - span * domainMargin, maxVal + span * domainMargin])
         .range(range);
       break;
     case 'ordinal':
@@ -278,7 +277,7 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
       scale = d3.scale.ordinal()
         .domain(_.uniq(values));
 
-      switch(params.orginalRangeType) {
+      switch(params.ordinalRangeType) {
         case 'rangeBands':
           scale.rangeBands(range);
           break;

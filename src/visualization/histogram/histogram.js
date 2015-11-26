@@ -19,32 +19,31 @@ visflow.Histogram = function(params) {
   this.dim = 0;
 
   /**
-   * Distribution dimension type.
-   * @protected {visflow.ScaleType}
-   */
-  this.xScaleType;
-
-  /**
    * Histogram data, created by assignign each item a bin.
-   * @protected {!Object}
+   * @private {!Array}
    */
-  this.histogramData = {};
+  this.histogramData_ = [];
 
   /** @private {d3.selection} */
   this.svgHistogram_;
   /** @private {d3.selection} */
   this.svgAxes_;
 
-  /**
-   * Histogram scale.
-   * @protected {!d3.scale}
-   */
+  /** @protected {!d3.scale} */
   this.xScale = d3.scale.linear();
   /** @protected {!d3.scale} */
   this.yScale = d3.scale.linear();
 
-  // ticks to be shown on axis
-  this.axisTicks = [[], []];
+  /**
+   * Distribution dimension type.
+   * @protected {visflow.ScaleType}
+   */
+  this.xScaleType;
+  /**
+   * Mapping from [0, 1] to x screen coordinates.
+   * @protected {!d3.scale}
+   */
+  this.histogramScale;
 
   /**
    * Selected histogram bars.
@@ -64,31 +63,36 @@ visflow.utils.inherit(visflow.Histogram, visflow.Visualization);
 visflow.Histogram.prototype.NODE_CLASS = 'histogram';
 /** @inheritDoc */
 visflow.Histogram.prototype.PLOT_NAME = 'Histogram';
-
+/** @inheritDoc */
+visflow.Histogram.prototype.PANEL_TEMPLATE =
+    './src/visualization/histogram/histogram-panel.html';
 
 /** @inheritDoc */
 visflow.Histogram.prototype.MINIMIZED_CLASS =
     'histogram-icon square-icon';
 /** @inheritDoc */
 visflow.Histogram.prototype.PLOT_MARGINS = {
-  left: 30,
-  right: 20,
-  top: 20,
-  bottom: 40
+  left: 25,
+  right: 10,
+  top: 10,
+  bottom: 20
 };
 
+/** @private @const {number} */
+visflow.Histogram.prototype.Y_MARGIN_ = 0.1;
 /** @private @const {number} */
 visflow.Histogram.prototype.BAR_INTERVAL_ = 1;
 
 /** @inheritDoc */
 visflow.Histogram.prototype.defaultProperties = {
-  color: '#AAA'
+  color: '#555',
+  opacity: 1
 };
 
 /** @inheritDoc */
 visflow.Histogram.prototype.selectedProperties = {
   color: 'white',
-  border: '#FF4400'
+  border: '#6699ee'
 };
 
 /** @inheritDoc */
@@ -163,32 +167,28 @@ visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
     this.selectedBars = {};
   }
 
-  var inpack = this.ports['in'].pack,
-      items = inpack.items,
-      values = inpack.data.values;
-
   // Check bins and get items
-  var data = this.histogramData;
-  for (var i = 0; i < data.length; i++) {
-    var xl = this.xScale(data[i].x),
-        xr = this.xScale(data[i].x + data[i].dx);
-    if (xr < box[0][0] || xl > box[0][1]) {
-      continue;
+  this.histogramData_.forEach(function(bin) {
+    var xl = this.histogramScale(bin.x);
+    var xr = this.histogramScale(bin.x + bin.dx);
+    if (xl > box.x2 || xr < box.x1) {
+      return;
     }
-    for (var j = 0; j < data[i].length; j++) {
-      var yl = this.yScale(data[i][j].y + data[i][j].dy),  // y axis is reversed!
-          yr = this.yScale(data[i][j].y);
-      if (yr < box[1][0] || yl > box[1][1]) {
-        continue;
+    bin.forEach(function(group) {
+      // y axis is reversed
+      var yl = this.yScale(group.y + group.dy);
+      var yr = this.yScale(group.y);
+      if (yl > box.y2 || yr < box.y1) {
+        return;
       }
       // The bar is selected
-      this.selectedBars[i+ ',' + j] = true;
-      for (var k in data[i][j].m) {
-        this.selected[data[i][j].m[k]] = true;  // add items to selection
-      }
-    }
-  }
-
+      this.selectedBars[bin.id+ ',' + group.id] = true;
+      group.members.forEach(function(itemIndex) {
+        // Add items to selection
+        this.selected[itemIndex] = true;
+      }, this);
+    }, this);
+  }, this);
   this.showDetails();
   this.pushflow();
 };
@@ -198,9 +198,9 @@ visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
  * @private
  */
 visflow.Histogram.prototype.prepareHistogram_ = function() {
+  this.createHistogramScale_();
   this.createHistogramData_();
   this.assignItemsIntoBins_();
-  this.applyProperties_();
 };
 
 /**
@@ -213,48 +213,61 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
   var data = inpack.data;
   var values = [];
 
-  // D3 histogram layout will return zero bins when xScale domain has only
-  // a single value when xScale is numerical.
-  var domain = this.xScale.domain();
-  if (this.xScaleType == 'numerical' && domain[1] == domain[0]) {
-    domain[1] = domain[0] + 1;
+  // Histogram range.
+  var range;
+  // Bins value for histogram layout.
+  var bins;
+  // Remap every string to [0, count - 1].
+  var ordinalMapping;
+
+  if (this.xScaleType == 'numerical') {
+    range = this.xScale.domain();
+
+    // If xScale domain has only a single value, the ticks will return empty
+    // array. That is bins = [].
+    bins = this.xScale.ticks(this.options.numBins);
+    if (bins.length <= 1) {
+      // D3 Histogram cannot handle 1 bin.
+      bins = 1;
+    }
+  } else if (this.xScaleType == 'ordinal') {
+    range = [0, this.xScale.domain().length - 1];
+    ordinalMapping = this.xScale.copy()
+      .range(d3.range(this.xScale.domain().length));
+    // Ordinal data does not use ticks. It uses distinct string counts.
+    bins = this.xScale.domain().length;
+  }
+
+  for (var index in items) {
+    var value = data.values[index][this.dim];
+    values.push({
+      value: this.xScaleType == 'numerical' ? value : ordinalMapping(value),
+      index: index
+    });
   }
 
   var histogram = d3.layout.histogram()
     .value(_.getValue('value'))
-    .range(domain);
+    .bins(bins)
+    .range(range);
+  this.histogramData_ = histogram(values);
+};
 
-  if (this.xScaleType == 'ordinal') {
-    // Remap every string to [0, count - 1].
-    var ordinalMap = {}, count = 0;
-    for (var index in items) {
-      var value = data.values[index][this.dim];
-      if (ordinalMap[value] == null) {
-        ordinalMap[value] = count++;
-      }
-    }
-    for (var index in items) {
-      var value = data.values[index][this.dim];
-      value = ordinalMap[value];
-      values.push({
-        value: value,
-        index: index
-      });
-    }
-    // Ordinal data does not use ticks.
-    // Override with distinct string counts.
-    histogram.bins(this.xScale.domain().length);
-  } else if (this.xScaleType == 'numerical') {
-    for (var index in items) {
-      var value = data.values[index][this.dim];
-      values.push({
-        value: value,
-        index: index
-      });
-    }
-    histogram.bins(this.xScale.ticks(this.options.numBins));
-  }
-  this.histogramData = histogram(values);
+/**
+ * Creates a histogram scale. The scale's range is horizontal screen space.
+ * When xScaleType is numerical, the scale's domain is the value domain.
+ * Otherwise, the scale's domain is ordinal mapping length (# of strings).
+ */
+visflow.Histogram.prototype.createHistogramScale_ = function() {
+  var svgSize = this.getSVGSize();
+  var range = [
+    this.PLOT_MARGINS.left,
+    svgSize.width - this.PLOT_MARGINS.right
+  ];
+  this.histogramScale = d3.scale.linear()
+    .domain(this.xScaleType == 'numerical' ? this.xScale.domain() :
+        [0, this.xScale.domain().length - 1])
+    .range(range);
 };
 
 /**
@@ -266,7 +279,7 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
   var inpack = this.ports['in'].pack,
       items = inpack.items;
 
-  this.histogramData.forEach(function(bin, index) {
+  this.histogramData_.forEach(function(bin, index) {
     // Copy d3 histogram coordinates.
     var barProp = _(bin).pick('x', 'y', 'dx');
 
@@ -314,7 +327,7 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
  * @private
  */
 visflow.Histogram.prototype.applyProperties_ = function() {
-  this.histogramData.forEach(function(bin) {
+  this.histogramData_.forEach(function(bin) {
     bin.forEach(function(group) {
       var prop = _.extend(
         {},
@@ -330,7 +343,7 @@ visflow.Histogram.prototype.applyProperties_ = function() {
           }
         }
       }
-      bin.properties = prop;
+      group.properties = prop;
     }, this);
   }, this);
 };
@@ -340,6 +353,7 @@ visflow.Histogram.prototype.showDetails = function() {
   if (this.checkDataEmpty()) {
     return;
   }
+  this.applyProperties_();
   this.drawHistogram_();
   this.drawAxes_();
 };
@@ -350,16 +364,14 @@ visflow.Histogram.prototype.showDetails = function() {
  */
 visflow.Histogram.prototype.drawHistogram_ = function() {
   var bins = this.svgHistogram_.selectAll('g')
-    .data(this.histogramData);
+    .data(this.histogramData_);
 
   var binTransform = function(bin) {
-    return visflow.utils.getTransform([
-      this.xScale(bin.x),
-      this.PLOT_MARGINS.top
-    ])
+    return visflow.utils.getTransform([this.histogramScale(bin.x), 0]);
   }.bind(this);
   bins.enter().append('g')
     .attr('id', _.getValue('id'))
+    .style('opacity', 0)
     .attr('transform', binTransform);
   bins.exit()
     .transition()
@@ -367,12 +379,14 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     .remove();
 
   var updatedBins = this.allowTransition_ ? bins.transition() : bins;
-  updatedBins.attr('transform', binTransform);
+  updatedBins
+    .attr('transform', binTransform)
+    .style('opacity', 1);
 
-  var barWidth = this.xScale(this.histogramData[0].dx) -
-    this.xScale(0) - this.BAR_INTERVAL_;
+  var barWidth = this.histogramScale(this.histogramData_[0].dx) -
+      this.histogramScale(0) - this.BAR_INTERVAL_;
   if (barWidth < 0) {
-    var range = this.xScale.range();
+    var range = this.histogramScale.range();
     barWidth = range[1] - range[0];
   }
   var bars = bins.selectAll('rect').data(_.identity); // use the bar group array
@@ -383,17 +397,29 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     ]);
   }.bind(this);
   bars.enter().append('rect')
-    .attr('id', _.getValue('id'));
+    .style('opacity', 0)
+    .attr('id', _.getValue('id'))
+    .attr('transform', groupTransform);
   bars.exit()
     .transition()
     .style('opacity', 0)
     .remove();
-  bars
+  var getPropertiesValue = function(key) {
+    return function (obj) {
+      return obj.properties[this];
+    }.bind(key);
+  };
+  var updatedBars = this.allowTransition_ ? bars.transition() : bars;
+  updatedBars
     .attr('transform', groupTransform)
     .attr('width', barWidth)
     .attr('height', function(group) {
       return this.yScale(0) - this.yScale(group.dy);
-    }.bind(this));
+    }.bind(this))
+    .style('fill', getPropertiesValue('color'))
+    .style('stroke', getPropertiesValue('border'))
+    .style('stroke-width', getPropertiesValue('width'))
+    .style('opacity', getPropertiesValue('opacity'));
 };
 
 /** @inheritDoc */
@@ -409,53 +435,62 @@ visflow.Histogram.prototype.showSelection = function() {
  * Renders the axes.
  */
 visflow.Histogram.prototype.drawAxes_ = function() {
-
+  this.drawXAxis_();
+  this.drawYAxis_();
 };
 
 /**
- * Displays histogram axis.
- * @param {number} d Axis index. 0 or 1.
+ * Renders the x-axis to show distribution value.
+ * @private
  */
-visflow.Histogram.prototype.showAxis = function(d) {
-  var dt = !d? 'x' : 'y';
-  var margins = this.plotMargins;
-  var axis = d3.svg.axis()
-    .orient(!d ? 'bottom' : 'left')
-    .tickValues(this.axisTicks[d]);
-    //.tickFormat(d3.format('s'));
-
-  if (this.scaleTypes[d] == 'ordinal'){
-    axis.scale(this.dataScales[d].copy()
-        .rangeBands(this.screenScales[d].range()));
-  } else {
-    axis.scale(this.dataScales[d].copy()
-        .range(this.screenScales[d].range()));
-  }
-  var transX = !d ? 0 : margins[0].before,
-      transY = !d ? this.svgSize[1] - margins[1].after : margins[1].before;
-  var labelX = !d ? this.svgSize[0]/2: margins[1].before,
-      labelY = 30;
-
+visflow.Histogram.prototype.drawXAxis_ = function() {
+  var svgSize = this.getSVGSize();
   var data = this.ports['in'].pack.data;
-
-  var u = this.svg.select('.' + dt +'.axis');
-  if (u.empty()) {
-    u = this.svg.append('g')
-     .attr('class', dt + ' axis')
-     .attr('transform', 'translate(' + transX + ',' + transY + ')');
-  }
-  u.call(axis);
-  var t = u.select('.vis-label');
-  if (t.empty()) {
-    t = u.append('text')
-      .attr('class', 'vis-label')
-      .style('text-anchor', !d ? 'middle' : '')
-      .attr('transform', !d ? '' : 'rotate(90)')
-      .attr('x', labelX)
-      .attr('y', labelY);
+  this.drawAxis_({
+    svg: this.svgAxes_.select('.x.axis'),
+    scale: this.xScale,
+    classes: 'x axis',
+    orient: 'bottom',
+    ticks: this.xScaleType == 'ordinal' ? this.xScale.domain() :
+        this.options.numBins,
+    transform: visflow.utils.getTransform([
+      0,
+      svgSize.height - this.PLOT_MARGINS.bottom
+    ]),
+    label: {
+      text: data.dimensions[this.dim],
+      transform: visflow.utils.getTransform([
+        svgSize.width - this.PLOT_MARGINS.right,
+        -svgSize.height + this.PLOT_MARGINS.top + this.PLOT_MARGINS.bottom +
+            this.LABEL_OFFSET_
+      ])
     }
-  if (!d)
-    t.text(data.dimensions[this.dimension]);
+  });
+};
+
+/**
+ * Renders the y-axis to show distribution counts.
+ * @private
+ */
+visflow.Histogram.prototype.drawYAxis_ = function() {
+  this.drawAxis_({
+    svg: this.svgAxes_.select('.y.axis'),
+    scale: this.yScale,
+    classes: 'y axis',
+    orient: 'left',
+    ticks: this.DEFAULT_TICKS_,
+    transform: visflow.utils.getTransform([
+      this.PLOT_MARGINS.left,
+      0
+    ]),
+    label: {
+      text: '',
+      transform: visflow.utils.getTransform([
+        this.LABEL_OFFSET_,
+        this.PLOT_MARGINS.top
+      ], 1, 90)
+    }
+  });
 };
 
 /** @inheritDoc */
@@ -464,41 +499,36 @@ visflow.Histogram.prototype.drawBrush = function() {
 };
 
 /** @inheritDoc */
-visflow.Histogram.prototype.initPanel = function() {
+visflow.Histogram.prototype.initPanel = function(container) {
   var dimensionList = this.getDimensionList();
   var dimSelect = new visflow.Select({
-    container: container.find('#x-dim'),
+    container: container.find('#dim'),
     list: dimensionList,
     selected: this.dim,
     listTitle: 'Distribution Dimension'
   });
   $(dimSelect).on('visflow.change', function(event, dim) {
-    this.xDim = dim;
+    this.dim = dim;
     this.dimensionChanged();
   }.bind(this));
 
-  /*
-   this.inputBins = new visflow.Input({
-   id: 'bins',
-   label: 'Bins',
-   target: this.jqoptions,
-   relative: true,
-   accept: 'int',
-   range: [1, 100],
-   scrollDelta: 1,
-   value: this.numBins,
-   change: function(event) {
-   var unitChange = event.unitChange;
+  var inputBins = new visflow.Input({
+    container: container.find('#bins'),
+    value: this.options.numBins,
+    accept: 'int',
+    range: [1, 1000],
+    scrollDelta: 1,
+    title: 'Number of Bins'
+  });
+  $(inputBins).on('visflow.change', function(event, value) {
+    this.options.numBins = value;
+    this.prepareScales();
+    this.show();
 
-   node.numBins = parseInt(unitChange.value);
-   // clear selection, bins have changed
-   node.selectedBars = {};
-   node.selected = {};
-
-   node.showDetails();
-   }
-   });
-   */
+    // Bins have changed, and previous selection do not apply.
+    this.selectedBars = {};
+    this.selected = {};
+  }.bind(this));
 };
 
 
@@ -508,20 +538,22 @@ visflow.Histogram.prototype.prepareScales = function() {
   var inpack = this.ports['in'].pack;
   var data = inpack.data;
   var items = inpack.items;
-  var scaleInfo = visflow.utils.getScale(data, this.dim, items,
-    [
+  var scaleInfo = visflow.utils.getScale(data, this.dim, items, [
       this.PLOT_MARGINS.left,
       svgSize.width - this.PLOT_MARGINS.right
     ], {
-      domainMargin: 0.1,
-      ordinalRangeType: 'rangeRoundBands'
+      domainMargin: 0.15
     });
   this.xScale = scaleInfo.scale;
   this.xScaleType = scaleInfo.type;
 
   this.prepareHistogram_();
+
   this.yScale = d3.scale.linear()
-    .domain([0, d3.max(this.histogramData, _.getValue('y'))])
+    .domain([
+      0,
+      d3.max(this.histogramData_, _.getValue('y')) * (1 + this.Y_MARGIN_)
+    ])
     .range([svgSize.height - this.PLOT_MARGINS.bottom, this.PLOT_MARGINS.top]);
 };
 
@@ -550,7 +582,7 @@ visflow.Histogram.prototype.findPlotDimension = function() {
  */
 visflow.Histogram.prototype.selectAll = function() {
   // Here we only select bars.
-  var data = this.histogramData;
+  var data = this.histogramData_;
   for (var i = 0; i < data.length; i++) {
     for (var j = 0; j < data[i].length; j++) {
       this.selectedBars[i+ ',' + j] = true;

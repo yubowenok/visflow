@@ -39,13 +39,6 @@ body {
   color: #ccc;
 }
 
-.visflow .input {
-  /* same as select2 */
-  border: 1px solid #aaa;
-  border-radius: 4px;
-  line-height: 20px;
-  background-image: linear-gradient(to top, #eee 0%, #fff 50%);
-}
 .visflow .input-node {
   text-align: center;
 }

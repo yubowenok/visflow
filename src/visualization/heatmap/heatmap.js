@@ -89,7 +89,7 @@ visflow.Heatmap.prototype.defaultProperties = {
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.selectedProperties = {
-  border: '#FF4400',
+  border: '#6699ee',
   width: 1.5
 };
 
@@ -274,6 +274,7 @@ visflow.Heatmap.prototype.showDetails = function() {
 visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
   var rows = this.svgHeatmap_.selectAll('g').data(itemProps, _.getValue('id'));
   rows.enter().append('g')
+    .style('opacity', 0)
     .attr('id', _.getValue('id'));
   rows.exit()
     .transition()
@@ -286,7 +287,8 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
     .style('stroke-width', _.getValue('width'))
     .attr('transform', function(row, index) {
       return visflow.utils.getTransform([0, this.yScale(index + 1)]);
-    }.bind(this));
+    }.bind(this))
+    .style('opacity', 1);
 
   var cellWidth = Math.ceil(this.xScale(1) - this.xScale(0));
   var cellHeight = Math.ceil(this.yScale(0) - this.yScale(1));
@@ -298,6 +300,7 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
   var cells = rows.selectAll('rect')
     .data(_.getValue('cells'), _.getValue('dimId'));
   cells.enter().append('rect')
+    .style('opacity', 0)
     .attr('id', _.getValue('dimId'))
     .attr('transform', cellTransform);
   cells.exit()
@@ -310,7 +313,8 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
     .attr('fill', _.getValue('color'))
     .attr('transform', cellTransform)
     .attr('width', cellWidth)
-    .attr('height', cellHeight);
+    .attr('height', cellHeight)
+    .style('opacity', 1);
 };
 
 /**

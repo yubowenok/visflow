@@ -78,12 +78,12 @@ visflow.Network.prototype.defaultPropertiesEdge = {
 /** @inheritDoc */
 visflow.Network.prototype.selectedProperties = {
   color: 'white',
-  border: '#FF4400'
+  border: '#6699ee'
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.selectedPropertiesEdge = {
-  color: '#FF4400'
+  color: '#6699ee'
 };
 
 /** @inheritDoc */

@@ -1,95 +1,131 @@
 /**
- * @fileoverview VisFlow text input unit.
+ * @fileoverview VisFlow text input interface.
  */
 
 'use strict';
 
 /**
- * @param params
+ * @param {{
+ *   container: !jQuery,
+ *       Container of the select
+ *   accept: string,
+ *       Accepted value type, int float or string
+ *   range: Array<number>,
+ *       Numerical value range
+ *   scrollDelta: number,
+ *       Delta value to change on mousewheel
+ *   value: string|number,
+ *       Initial value
+ *   title: string
+ * }} params
  * @constructor
- * @extends {visflow.Unit}
  */
 visflow.Input = function(params) {
-  visflow.Input.base.constructor.call(this, params);
+  /** @private {!jQuery} */
+  this.container_ = params.container;
 
-  this.accept = params.accept != null ? params.accept : 'string';
-  this.range = params.range != null ? params.range : [null, null];
-  this.scrollDelta = params.scrollDelta != null ? params.scrollDelta : false;
+  /** @private {string} */
+  this.title_ = params.title;
+
+  /** @private {string} */
+  this.accept_ = params.accept != null ? params.accept : 'string';
+
+  /** @private {!Array<number>} */
+  this.range_ = params.range != null ? params.range : [null, null];
+
+  /** @private {number} */
+  this.scrollDelta_ = params.scrollDelta != null ? params.scrollDelta : null;
+
+  /** @private {string|number} */
+  this.value_ = params.value != null ? params.value : '';
+
+  /**
+   * Only float or int can be scrolled.
+   * @private {boolean}
+   */
+  this.scrollable_ = this.scrollDelta_ != null &&
+      visflow.utils.typeToGrade[this.accept_] <=
+      visflow.utils.typeToGrade['float'];
+
+  this.container_.load(this.TEMPLATE_, function() {
+    this.init_();
+  }.bind(this));
 };
 
-visflow.utils.inherit(visflow.Input, visflow.Unit);
+/** @private @const {string} */
+visflow.Input.prototype.TEMPLATE_ = './src/unit/input.html';
 
 /** @inheritDoc */
-visflow.Input.prototype.init = function() {
-  visflow.Input.base.init.call(this);
+visflow.Input.prototype.init_ = function() {
+  var title = this.container_.find('#title');
+  if (this.title_) {
+    title.text(this.title_);
+  } else {
+    title.hide();
+  }
 
-  var unit = this;
-
-  var input = this.jqinput = $('<input type="text" value=""/>')
-    .addClass('input unit-input')
-    .appendTo(this.jqcontainer);
-
+  var input = this.container_.find('input');
   input.change(function(event) {
-    var value = event.target.value;
-    unit.setValue(value, event);
-  });
+    this.setValue_(event.target.value);
+  }.bind(this));
 
-  if (this.scrollDelta != false && visflow.utils.typeToGrade[this.accept] <=
-      visflow.utils.typeToGrade['float']
-      // only float or int can be scrolled
-    ) {
+  if (this.scrollable_) {
     input.mousewheel(function(event) {
-      // send scroll event to callback
+      // Send scroll event to callback
       var delta = event.deltaY * event.deltaFactor;
       var sign = delta > 0 ? 1 : -1;
-      if (unit.value == '')
-        unit.value = 0; // prevent NaN
+
+      if (this.value_ == '') {
+        this.value_ = 0;
+      }
 
       var newValue;
-      if (unit.accept == 'int') {
-        newValue = parseInt(unit.value + sign * unit.scrollDelta);
+      if (this.accept_ == 'int') {
+        newValue = parseInt(this.value_ + sign * this.scrollDelta_);
       } else {
-        newValue = (parseFloat(unit.value) + sign * unit.scrollDelta)
-            .toPrecision(3);
+        newValue = (parseFloat(this.value_) + sign * this.scrollDelta_)
+          .toPrecision(3);
       }
-      unit.setValue(newValue);
-    });
+      this.setValue_(newValue);
+    }.bind(this));
   }
 
-  if (this.value != null)
-    this.setValue(this.value, null, true);
+  if (this.value_ != '') {
+    input.val(this.value_);
+  }
 };
 
-/** @inheritDoc */
-visflow.Input.prototype.setValue = function(value, event, noCallback) {
-  if (event == null) {
-    event = {};
-  }
-
-  var e = visflow.utils.parseToken(value);
-  if (e.grade > visflow.utils.typeToGrade[this.accept]) {
-    // cannot accept a greater grade element
-    value = '';
+/**
+ * Sets the value of the input.
+ * @private
+ */
+visflow.Input.prototype.setValue_ = function(value) {
+  var input = this.container_.find('input');
+  var parsed = visflow.utils.parseToken(value);
+  if (parsed.grade > visflow.utils.typeToGrade[this.accept_]) {
+    // Cannot accept a greater grade value type.
+    input.val(this.value_);
+    return;
   } else {
-    value = e.value;
+    value = parsed.value;
   }
+  // Fix numerical value range
+  if (this.range_[0] != null && value < this.range_[0]) {
+    value = this.range_[0];
+  }
+  if (this.range_[1] != null && value > this.range_[1]) {
+    value = this.range_[1];
+  }
+  this.value_ = value;
+  input.val(value);
+  this.signal_('change', [value]);
+};
 
-  // fix value in range
-  if (this.range[0] != null && value < this.range[0]) {
-    value = this.range[0];
-  }
-  if (this.range[1] != null && value > this.range[1]) {
-    value = this.range[1];
-  }
-
-  this.jqinput.val(value);
-  this.value = value;
-
-  if (!noCallback) {
-    event.unitChange = {
-      value: value,
-      id: this.id
-    };
-    this.changeCallback(event);
-  }
+/**
+ * Fires an event.
+ * @param {string} type
+ * @private
+ */
+visflow.Input.prototype.signal_ = function(type) {
+  $(this).trigger('visflow.' + type, [this.value_]);
 };
