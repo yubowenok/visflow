@@ -69,10 +69,7 @@ visflow.ParallelCoordinates.prototype.PANEL_TEMPLATE =
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.NODE_CLASS = 'parallel-coordinates';
 /** @inheritDoc */
-visflow.ParallelCoordinates.prototype.MINIMIZED_CLASS =
-  'parallelcoordinates-icon square-icon';
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.PLOT_NAME = 'ParallelCoordinates';
+visflow.ParallelCoordinates.prototype.NODE_NAME = 'ParallelCoordinates';
 
 /**
  * Axis label size.
@@ -137,7 +134,7 @@ visflow.ParallelCoordinates.prototype.deserialize = function(save) {
 
   this.dimensions = save.dimensions;
   if (this.dimensions == null) {
-    visflow.error('dimensions not saved for ' + this.PLOT_NAME);
+    visflow.error('dimensions not saved for ' + this.NODE_NAME);
     this.dimensions = [0, 0];
   }
 };
@@ -345,21 +342,22 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
 
   var data = this.ports['in'].pack.data;
 
-  var g = this.svgAxes_.select('#axis' + id).datum(id);
+  var g = this.svgAxes_.select('#axis' + id);
   var gTransform = visflow.utils.getTransform([
     this.xScale(dimIndex),
     0
   ]);
   if (g.empty()) {
-    g = this.svgAxes_.append('g')
+    g = this.svgAxes_.append('g').datum(id)
       .attr('id', 'axis' + id)
       .classed('axis', true)
       .attr('transform', gTransform);
   }
   g.call(axis);
   var updatedG = this.allowTransition_ ? g.transition() : g;
-  updatedG.attr('transform', gTransform);
-
+  updatedG
+    .style('opacity', 1)
+    .attr('transform', gTransform);
 
   var label = g.select('.vis-label');
   var labelTransform = visflow.utils.getTransform([
@@ -373,6 +371,7 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
   }
   var updatedLabel = this.allowTransition_ ? label.transition() : label;
   updatedLabel
+    .style('opacity', 1)
     .attr('transform', labelTransform)
     .text(data.dimensions[dim]);
 };

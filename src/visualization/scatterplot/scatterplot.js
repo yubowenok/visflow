@@ -53,9 +53,7 @@ visflow.utils.inherit(visflow.Scatterplot, visflow.Visualization);
 /** @inheritDoc */
 visflow.Scatterplot.prototype.NODE_CLASS = 'scatterplot';
 /** @inheritDoc */
-visflow.Scatterplot.prototype.PLOT_NAME = 'Scatterplot';
-/** @inheritDoc */
-visflow.Scatterplot.prototype.MINIMIZED_CLASS = 'scatterplot-icon square-icon';
+visflow.Scatterplot.prototype.NODE_NAME = 'Scatterplot';
 /** @inheritDoc */
 visflow.Scatterplot.prototype.PANEL_TEMPLATE =
     './src/visualization/scatterplot/scatterplot-panel.html';
@@ -114,7 +112,7 @@ visflow.Scatterplot.prototype.deserialize = function(save) {
   this.xDim = save.xDim;
   this.yDim = save.yDim;
   if (this.xDim == null || this.yDim == null) {
-    visflow.error('dimensions not saved for ' + this.PLOT_NAME);
+    visflow.error('dimensions not saved for ' + this.NODE_NAME);
     var dims = this.findPlotDimensions();
     this.xDim = dims.x;
     this.yDim = dims.y;
@@ -131,6 +129,7 @@ visflow.Scatterplot.prototype.drawBrush = function() {
 /** @inheritDoc */
 visflow.Scatterplot.prototype.selectItems = function() {
   this.selectItemsInBox_();
+  visflow.Scatterplot.base.selectItems.call(this);
 };
 
 
@@ -170,8 +169,6 @@ visflow.Scatterplot.prototype.selectItemsInBox_ = function() {
       this.selected[index] = true;
     }
   }
-  this.showDetails();
-  this.pushflow();
 };
 
 /** @inheritDoc */
@@ -301,7 +298,7 @@ visflow.Scatterplot.prototype.drawPoints_ = function() {
 visflow.Scatterplot.prototype.drawXAxis_ = function() {
   var svgSize = this.getSVGSize();
   var data = this.ports['in'].pack.data;
-  this.drawAxis_({
+  this.drawAxis({
     svg: this.svgAxes_.select('.x.axis'),
     scale: this.xScale,
     classes: 'x axis',
@@ -327,7 +324,7 @@ visflow.Scatterplot.prototype.drawXAxis_ = function() {
  */
 visflow.Scatterplot.prototype.drawYAxis_ = function() {
   var data = this.ports['in'].pack.data;
-  this.drawAxis_({
+  this.drawAxis({
     svg: this.svgAxes_.select('.y.axis'),
     scale: this.yScale,
     classes: 'y axis',

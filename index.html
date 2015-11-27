@@ -61,41 +61,42 @@
 
   <!-- units -->
   <script type="text/javascript" src="src/unit/unit.js"></script>
-  <script type="text/javascript" src="src/unit/editable-list.js"></script>
-  <link rel="stylesheet" href="src/unit/editable-list.css"/>
-  <script type="text/javascript" src="src/unit/select.js"></script>
-  <link rel="stylesheet" href="src/unit/select.css"/>
-  <script type="text/javascript" src="src/unit/colorscale-select.js"></script>
-  <link rel="stylesheet" href="src/unit/colorscale-select.css"/>
+  <script type="text/javascript" src="src/unit/editable-list/editable-list.js"></script>
+  <link rel="stylesheet" href="src/unit/editable-list/editable-list.css"/>
+  <script type="text/javascript" src="src/unit/select/select.js"></script>
+  <link rel="stylesheet" href="src/unit/select/select.css"/>
+  <script type="text/javascript" src="src/unit/colorscale-select/colorscale-select.js"></script>
+  <link rel="stylesheet" href="src/unit/colorscale-select/colorscale-select.css"/>
   <script type="text/javascript" src="src/unit/colorpicker.js"></script>
-  <script type="text/javascript" src="src/unit/input.js"></script>
+  <script type="text/javascript" src="src/unit/input/input.js"></script>
   <script type="text/javascript" src="src/unit/checkbox.js"></script>
   <link rel="stylesheet" href="src/unit/unit.css"/>
 
 
   <!-- panel -->
-  <script type="text/javascript" src="src/panel/popup-panel.js"></script>
-  <link rel="stylesheet" href="src/panel/popup-panel.css"/>
-  <script type="text/javascript" src="src/panel/node-panel.js"></script>
-  <link rel="stylesheet" href="src/panel/node-panel.css"/>
-  <script type="text/javascript" src="src/panel/option-panel.js"></script>
-  <link rel="stylesheet" href="src/panel/option-panel.css"/>
+  <script type="text/javascript" src="src/panel/popup-panel/popup-panel.js"></script>
+  <link rel="stylesheet" href="src/panel/popup-panel/popup-panel.css"/>
+  <script type="text/javascript" src="src/panel/node-panel/node-panel.js"></script>
+  <link rel="stylesheet" href="src/panel/node-panel/node-panel.css"/>
+  <script type="text/javascript" src="src/panel/option-panel/option-panel.js"></script>
+  <link rel="stylesheet" href="src/panel/option-panel/option-panel.css"/>
 
   <!-- data sources -->
-  <script type="text/javascript" src="src/datasource/datasource.js"></script>
-  <link rel="stylesheet" href="src/datasource/datasource.css"/>
+  <script type="text/javascript" src="src/data-source/data-source.js"></script>
+  <link rel="stylesheet" href="src/data-source/data-source.css"/>
 
   <!-- filters -->
   <script type="text/javascript" src="src/filter/filter.js"></script>
-  <script type="text/javascript" src="src/filter/range-filter.js"></script>
-  <script type="text/javascript" src="src/filter/contain-filter.js"></script>
+  <script type="text/javascript" src="src/filter/range-filter/range-filter.js"></script>
+  <link rel="stylesheet" href="src/filter/range-filter/range-filter.css"/>
+  <script type="text/javascript" src="src/filter/contain-filter/contain-filter.js"></script>
+  <link rel="stylesheet" href="src/filter/contain-filter/contain-filter.css"/>
 
   <!-- visualizations -->
-  <script type="text/javascript" src="src/visualization/visualization.js"></script>
-  <link rel="stylesheet" href="src/visualization/visualization.css"/>
-
+  <script type="text/javascript" src="src/visualization/visualization/visualization.js"></script>
+  <link rel="stylesheet" href="src/visualization/visualization/visualization.css"/>
   <!-- network -->
-  <script type="text/javascript" src="src/visualization/network.js"></script>
+  <script type="text/javascript" src="src/visualization/network/network.js"></script>
   <!-- heatmap -->
   <script type="text/javascript" src="src/visualization/heatmap/heatmap.js"></script>
   <link rel="stylesheet" href="src/visualization/heatmap/heatmap.css"/>
@@ -113,18 +114,22 @@
   <link rel="stylesheet" href="src/visualization/parallel-coordinates/parallel-coordinates.css"/>
 
   <!-- set operations -->
-  <script type="text/javascript" src="src/set/set.js"></script>
-  <script type="text/javascript" src="src/set/intersect.js"></script>
-  <script type="text/javascript" src="src/set/union.js"></script>
-  <script type="text/javascript" src="src/set/minus.js"></script>
+  <script type="text/javascript" src="src/set/set/set.js"></script>
+  <link rel="stylesheet" href="src/set/set/set.css"/>
+  <script type="text/javascript" src="src/set/intersect/intersect.js"></script>
+  <link rel="stylesheet" href="src/set/intersect/intersect.css"/>
+  <script type="text/javascript" src="src/set/union/union.js"></script>
+  <link rel="stylesheet" href="src/set/union/union.css"/>
+  <script type="text/javascript" src="src/set/minus/minus.js"></script>
+  <link rel="stylesheet" href="src/set/minus/minus.css"/>
 
   <!-- value processors -->
-  <script type="text/javascript" src="src/value/value-maker.js"></script>
-  <script type="text/javascript" src="src/value/value-extractor.js"></script>
+  <script type="text/javascript" src="src/value/value-maker/value-maker.js"></script>
+  <script type="text/javascript" src="src/value/value-extractor/value-extractor.js"></script>
 
   <!-- property processors -->
-  <script type="text/javascript" src="src/property/property-editor.js"></script>
-  <script type="text/javascript" src="src/property/property-mapping.js"></script>
+  <script type="text/javascript" src="src/property/property-editor/property-editor.js"></script>
+  <script type="text/javascript" src="src/property/property-mapping/property-mapping.js"></script>
 
   <!-- system program entry -->
   <script type="text/javascript" src="src/menu.js"></script>
@@ -137,7 +142,6 @@
   <link rel="stylesheet" href="src/css/style.css"/>
   <link rel="stylesheet" href="src/css/menu.css"/>
   <link rel="stylesheet" href="src/port/port.css"/>
-  <link rel="stylesheet" href="src/css/icon.css"/>
   <script>
     $(document).ready(function () {
       visflow.init();
@@ -230,8 +234,11 @@
   </div>
 
   <div id="option-panel" class="active">
-    <button id="btn-toggle" class="btn btn-default btn-toggle">
+    <button id="btn-toggle" class="btn btn-default to-tooltip" title="toggle the control panel">
       <span class="glyphicon glyphicon-chevron-left"></span>
+    </button>
+    <button id="btn-pin" class="btn btn-default to-tooltip" title="pin the control panel">
+      <span class="glyphicon glyphicon-pushpin"></span>
     </button>
     <div class="content">
     </div>

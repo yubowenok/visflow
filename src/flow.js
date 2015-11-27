@@ -14,7 +14,6 @@ visflow.flow = {};
  */
 visflow.flow.init = function() {
   this.resetFlow();
-  this.lastFilename = 'myDiagram';
 };
 
 /**
@@ -42,13 +41,18 @@ visflow.flow.resetFlow = function() {
 
   this.edgeSelected = null;
 
-  this.propagateDisabled = false;
 
   this.asyncDataloadCount = 0;
   this.asyncDataloadQueue = [];
 
   this.visModeOn = false;
 };
+
+/**
+ * Disable change propagation, used in de-serialization.
+ * @type {boolean}
+ */
+visflow.flow.propagateDisabled = false;
 
 
 /**
@@ -122,16 +126,19 @@ visflow.flow.createNode = function(type, save) {
   $(newnode).on('visflow.ready',
     /** @this {!visflow.Node} */
     function() {
-      this.show();
-      this.focus();
-
-      // If node is created from diagram loading, then de-serialize.
       if (save) {
+        // If node is created from diagram loading, then de-serialize.
         this.deserialize(save);
         this.loadCss();
-        this.updatePorts();
       }
-    }.bind(newnode))
+      this.show();
+      this.focus();
+      if (save) {
+        // Node size might be de-serialized from save and a resize event must be
+        // explicitly fired in order to re-draw correctly.
+        this.resize();
+      }
+    }.bind(newnode));
 
   this.nodes[newnode.id] = newnode;
   if (type == 'datasrc' || type == 'value-maker') {
@@ -209,7 +216,9 @@ visflow.flow.deleteEdge = function(edge) {
   // Propagation does not include processing the node being propagated.
   // Update is required on the downflow node so that it becomes aware of the
   // upflow changes.
-  edge.targetNode.update();
+  if (!visflow.flow.propagateDisabled) {
+    edge.targetNode.update();
+  }
   visflow.flow.propagate(edge.targetNode);
 
   // Remove the container
@@ -250,7 +259,7 @@ visflow.flow.cycleTest = function(sourceNode, targetNode) {
  * @param {!visflow.Node} node
  */
 visflow.flow.propagate = function(node) {
-  if (this.propagateDisabled) {
+  if (visflow.flow.propagateDisabled) {
     return;
   }
 
@@ -330,7 +339,7 @@ visflow.flow.serializeFlow = function() {
 visflow.flow.deserializeFlow = function(flow) {
   this.clearFlow();
 
-  this.propagateDisabled = true;  // temporarily switch off propagation
+  visflow.flow.propagateDisabled = true;  // temporarily switch off propagation
 
   var hashes = {};
 
@@ -383,7 +392,7 @@ visflow.flow.deserializeFlowEdges_ = function(flow, hashes) {
     }
     this.createEdge(sourcePort, targetPort);
   }, this);
-  this.propagateDisabled = false; // full propagation
+  visflow.flow.propagateDisabled = false; // full propagation
   this.propagate(this.dataSources);
 };
 
@@ -400,7 +409,7 @@ visflow.flow.previewVisMode = function(on) {
     }
     for (var i in this.nodes){
       var node = this.nodes[i];
-      if (!node.visModeOn) {
+      if (!node.options.visMode) {
         node.container.css('opacity', 0.2);
       }
     }
@@ -494,6 +503,7 @@ visflow.flow.addNodeSelection = function(nodes) {
     node.container.addClass('selected');
     this.lastSelectedNode = node;
   }
+  visflow.optionPanel.toggle(true);
 };
 
 /**
@@ -520,6 +530,7 @@ visflow.flow.clearNodeSelection = function(nodes) {
     }
     delete this.nodesSelected[node.id];
   }
+  visflow.optionPanel.toggle(false);
 };
 
 /**
@@ -639,7 +650,8 @@ visflow.flow.keyAction = function(key, event) {
     visflow.diagram.load();
     event.preventDefault();
   } else {
-    if (this.edgeSelected == null) { // edge and node selection are exclusive
+    // Edge and node selection are exclusive.
+    if (this.edgeSelected == null) {
       for (var id in this.nodesSelected) {
         var node = this.nodesSelected[id];
         node.keyAction(key, event);
@@ -656,7 +668,7 @@ visflow.flow.keyAction = function(key, event) {
  * @param {!visflow.Node} node
  */
 visflow.flow.asyncDataloadStart = function(node) {
-  this.asyncDataloadCount ++;
+  this.asyncDataloadCount++;
   this.asyncDataloadQueue.push(node);
 };
 

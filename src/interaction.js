@@ -9,15 +9,16 @@ visflow.interaction = {};
 
 /** @enum {number} */
 visflow.interaction.keyCodes = {
+  ENTER: 13,
   SHIFT: 16,
   CTRL: 17,
   ESC: 27,
-  LEFT_MOUSE: 1,
-  RIGHT_MOUSE: 3,
   UP: 38,
   DOWN: 40,
   LEFT: 37,
-  RIGHT: 39
+  RIGHT: 39,
+  LEFT_MOUSE: 1,
+  RIGHT_MOUSE: 3
 };
 
 /** @type {number} */
@@ -32,25 +33,35 @@ visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
   {id: 'add-node', text: 'Add Node', icon: 'glyphicon glyphicon-plus'}
 ];
 
+/** @private {!jQuery} */
+visflow.interaction.mainContainer_;
+
+/** @type {visflow.ContextMenu} */
+visflow.interaction.contextMenu;
+
+/** @type {string} */
+visflow.interaction.mouseMode = '';
+
 /**
  * Initializes the interaction manager.
  */
 visflow.interaction.init = function() {
-  this.mouseMode = '';  // node, port, selectbox
+  visflow.interaction.mouseMode = '';  // node, port, selectbox
 
-  this.dragstartPos = [0, 0];
-  this.draglastPos = [0, 0];
-  this.dragstopPos = [0, 0];
-  this.dragstartPara = {};
-  this.dragstopPara = {};
-  this.dropPossible = false;
+  visflow.interaction.dragstartPos = [0, 0];
+  visflow.interaction.draglastPos = [0, 0];
+  visflow.interaction.dragstopPos = [0, 0];
+  visflow.interaction.dragstartPara = {};
+  visflow.interaction.dragstopPara = {};
+  visflow.interaction.dropPossible = false;
 
-  this.mousedownPos = [0, 0];
-  this.mouseupPos = [0, 0];
-  this.mouselastPos = [0, 0];
+  visflow.interaction.mousedownPos = [0, 0];
+  visflow.interaction.mouseupPos = [0, 0];
+  visflow.interaction.mouselastPos = [0, 0];
 
-  this.mainContainer = $('#main');
-  this.selectbox = {
+  visflow.interaction.mainContainer_ =  $('#main');
+
+  visflow.interaction.selectbox = {
     x1: 0,
     x2: 0,
     y1: 0,
@@ -134,11 +145,11 @@ visflow.interaction.keyRelease = function(key) {
   key.map(function(key){
     if (key == 'shift') {
       this.shifted = false;
-      this.mainContainer.css('cursor', '');
+      visflow.interaction.mainContainer_.css('cursor', '');
     }
     else if (key == 'ctrl') {
       this.ctrled = false;
-      this.mainContainer.css('cursor', '');
+      visflow.interaction.mainContainer_.css('cursor', '');
       this.visualizationBlocking = true;
     }
   }, this);
@@ -150,7 +161,7 @@ visflow.interaction.keyRelease = function(key) {
 visflow.interaction.interaction = function() {
   this.jqselectbox = $('#selectbox');
   this.jqselectbox.hide();
-  this.mainContainer
+  visflow.interaction.mainContainer_
     .mousedown(function(event) {
       if ($(event.target).is('#main')) {
         this.mousedownHandler({
@@ -221,7 +232,7 @@ visflow.interaction.keyPress = function(event) {
       break;
     case keyCodes.SHIFT:
       visflow.interaction.shifted = true;
-      visflow.interaction.mainContainer.css('cursor', 'crosshair');
+      visflow.interaction.mainContainer_.css('cursor', 'crosshair');
       break;
     case keyCodes.CTRL:
       visflow.interaction.ctrled = true;
@@ -264,9 +275,6 @@ visflow.interaction.keyPress = function(event) {
             }
           }
           break;
-        case 'M':
-          visflow.viewManager.toggleMenuPanel();
-          break;
         default:
           if (visflow.viewManager.getPopupPanelName() == 'add') {
             // Further filtering popup entries
@@ -285,7 +293,7 @@ visflow.interaction.keyPress = function(event) {
  */
 visflow.interaction.mainContextMenu_ = function() {
   visflow.interaction.contextMenu = new visflow.ContextMenu({
-    container: visflow.interaction.mainContainer,
+    container: visflow.interaction.mainContainer_,
     items: visflow.interaction.MAIN_CONTEXTMENU_ITEMS_
   });
 };
@@ -307,7 +315,7 @@ visflow.interaction.mousedownHandler = function(params) {
   if (type == 'background') {
     if (!this.ctrled) {
       this.mouseMode = 'pan';
-      this.mainContainer.css('cursor', 'move');
+      visflow.interaction.mainContainer_.css('cursor', 'move');
     } else {
       this.selectbox.x1 = event.pageX;
       this.selectbox.y1 = event.pageY;
@@ -380,16 +388,14 @@ visflow.interaction.mouseupHandler = function(params) {
           event: event
         });
       }
-      this.mainContainer.css('cursor', '');
+      visflow.interaction.mainContainer_.css('cursor', '');
     } else if (this.mouseMode == 'selectbox') {
       this.jqselectbox.hide();
       if (this.ctrled) {  // not panning, then selecting
-        if (!this.shifted)
+        if (!this.shifted) {
           visflow.flow.clearNodeSelection();
+        }
         visflow.flow.addHoveredToSelection();
-
-        // also hide colorpickers
-        visflow.viewManager.hideColorpickers();
       }
     }
   } else if (type == 'node') {
@@ -430,7 +436,7 @@ visflow.interaction.dragstartHandler = function(params) {
   }
   else if (type == 'node') {
     this.mouseMode = 'node';
-    this.mainContainer.css('cursor', 'move');
+    visflow.interaction.mainContainer_.css('cursor', 'move');
 
     if (visflow.flow.isNodeSelected(params.node)) {
       // already selected, then drag all selection
@@ -524,7 +530,7 @@ visflow.interaction.dragstopHandler = function(params) {
       .css('visibility', 'hidden');
   }
   else if (type == 'node'){
-    this.mainContainer.css('cursor', '');
+    visflow.interaction.mainContainer_.css('cursor', '');
   }
   this.mouseMode = '';
 };

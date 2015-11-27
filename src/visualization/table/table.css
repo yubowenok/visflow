@@ -3,7 +3,19 @@
   word-wrap: break-word;
 }
 
-.visflow .node.shape-table {
-  width: 500px;
-  height: 440px;
+.visflow .node.table.details {
+  width: 400px;
+  height: 300px;
+}
+
+.visflow .node.table.minimized > .icon {
+  background-image: url(/visflow/imgs/table-icon.png);
+}
+
+.visflow .node.table.details .pagination > li > a {
+  padding: 6px 8px;
+}
+
+.visflow .node.table .dataTables_filter input {
+  width: 100px;
 }

@@ -6,3 +6,11 @@
 .visflow .histogram g.x.axis .vis-label {
   text-anchor: end;
 }
+
+#option-panel .histogram input {
+  max-width: 150px;
+}
+
+.visflow .node.histogram.minimized > .icon {
+  background-image: url(/visflow/imgs/histogram-icon.png);
+}

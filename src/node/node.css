@@ -18,6 +18,25 @@
   z-index: -1;
 }
 
+.visflow .node.details {
+  width: 100px;
+  height: 100px;
+}
+
+.visflow .node.minimized {
+  width: 50px;
+  height: 50px;
+}
+
+.visflow .node > .icon {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 45px;
+}
+
 .visflow .node.hover > .background,
 .visflow .node.selected > .background {
   border-width: 3px;
@@ -36,10 +55,7 @@
   height: 75px;
 }
 
-.visflow .node.details.shape-medium {
-  width: 100px;
-  height: 100px;
-}
+
 
 .visflow .node.details.shape-superflat {
   width: 100px;
@@ -119,4 +135,22 @@
 .node .popup .image-failure {
   left: calc(50% - 50px/2);
   top: calc(55% - 50px);
+}
+
+#option-panel .panel-header #node-label {
+  margin-bottom: -10px;
+  font-weight: bold;
+}
+
+#option-panel .node-panel.panel-header {
+  margin-bottom: 20px;
+}
+
+#option-panel .node-panel.panel-header > span > button {
+  margin-right: 5px;
+  width: 45px;
+}
+
+#option-panel .node-panel.panel-header > span > button.active {
+  border: 1px solid #aaa;
 }

@@ -8,3 +8,7 @@
 .visflow .scatterplot .select2-container {
   width: 100%;
 }
+
+.visflow .node.scatterplot.minimized > .icon {
+  background-image: url(/visflow/imgs/scatterplot-icon.png);
+}

@@ -15,3 +15,7 @@
   text-anchor: end;
   font-family: Helvetica, sans-serif, courier;
 }
+
+.visflow .node.heatmap.minimized > .icon {
+  background-image: url(/visflow/imgs/heatmap-icon.png);
+}

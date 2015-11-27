@@ -51,6 +51,14 @@ visflow.Histogram = function(params) {
    */
   this.selectedBars = {};
 
+  /**
+   * On deserialization, we do not clear the selection on the first input change
+   * call. Therefore we need a flag to identify whether it is the first input
+   * change call after deserialization.
+   * @private {boolean}
+   */
+  this.deserialized_ = false;
+
   _(this.options).extend({
     // Number of histogram bins.
     numBins: 10
@@ -62,14 +70,11 @@ visflow.utils.inherit(visflow.Histogram, visflow.Visualization);
 /** @inheritDoc */
 visflow.Histogram.prototype.NODE_CLASS = 'histogram';
 /** @inheritDoc */
-visflow.Histogram.prototype.PLOT_NAME = 'Histogram';
+visflow.Histogram.prototype.NODE_NAME = 'Histogram';
 /** @inheritDoc */
 visflow.Histogram.prototype.PANEL_TEMPLATE =
     './src/visualization/histogram/histogram-panel.html';
 
-/** @inheritDoc */
-visflow.Histogram.prototype.MINIMIZED_CLASS =
-    'histogram-icon square-icon';
 /** @inheritDoc */
 visflow.Histogram.prototype.PLOT_MARGINS = {
   left: 25,
@@ -92,7 +97,8 @@ visflow.Histogram.prototype.defaultProperties = {
 /** @inheritDoc */
 visflow.Histogram.prototype.selectedProperties = {
   color: 'white',
-  border: '#6699ee'
+  border: '#6699ee',
+  width: 1.5
 };
 
 /** @inheritDoc */
@@ -136,6 +142,9 @@ visflow.Histogram.prototype.deserialize = function(save) {
     this.options.numBins = save.numBins;
     visflow.warning('found older version histogram saving numBins');
   }
+
+  // Mark de-serialization.
+  this.deserialized_ = true;
 };
 
 /** @inheritDoc */
@@ -446,7 +455,7 @@ visflow.Histogram.prototype.drawAxes_ = function() {
 visflow.Histogram.prototype.drawXAxis_ = function() {
   var svgSize = this.getSVGSize();
   var data = this.ports['in'].pack.data;
-  this.drawAxis_({
+  this.drawAxis({
     svg: this.svgAxes_.select('.x.axis'),
     scale: this.xScale,
     classes: 'x axis',
@@ -473,7 +482,7 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
  * @private
  */
 visflow.Histogram.prototype.drawYAxis_ = function() {
-  this.drawAxis_({
+  this.drawAxis({
     svg: this.svgAxes_.select('.y.axis'),
     scale: this.yScale,
     classes: 'y axis',
@@ -560,6 +569,18 @@ visflow.Histogram.prototype.prepareScales = function() {
 /** @inheritDoc */
 visflow.Histogram.prototype.dataChanged = function() {
   this.dim = this.findPlotDimension();
+  this.selected = {};
+  this.selectedBars = {};
+};
+
+/** @inheritDoc */
+visflow.Histogram.prototype.inputChanged = function() {
+  if (this.deserialized_) {
+    this.deserialized_ = false;
+  } else {
+    this.selected = {};
+    this.selectedBars = {};
+  }
 };
 
 /**

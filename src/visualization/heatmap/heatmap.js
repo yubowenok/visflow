@@ -69,11 +69,9 @@ visflow.Heatmap = function(params) {
 visflow.utils.inherit(visflow.Heatmap, visflow.Visualization);
 
 /** @inheritDoc */
-visflow.Heatmap.prototype.PLOT_NAME = 'Heatmap';
+visflow.Heatmap.prototype.NODE_NAME = 'Heatmap';
 /** @inheritDoc */
 visflow.Heatmap.prototype.NODE_CLASS = 'heatmap';
-/** @inheritDoc */
-visflow.Heatmap.prototype.MINIMIZED_CLASS = 'heatmap-icon square-icon';
 /** @private @const {number} */
 visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;
 /** @private @const {number} */
@@ -129,7 +127,7 @@ visflow.Heatmap.prototype.deserialize = function(save) {
 
   this.dimensions = save.dimensions;
   if (this.dimensions == null) {
-    visflow.error('dimensions not saved for ' + this.PLOT_NAME);
+    visflow.error('dimensions not saved for ' + this.NODE_NAME);
     this.dimensions = [];
   }
 };

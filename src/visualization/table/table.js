@@ -15,6 +15,12 @@ visflow.Table = function(params) {
   this.tableState = null; // last table state
 
   /**
+   * Selected dimensions to show in table.
+   * @protected {!Array<number>}
+   */
+  this.dimensions = [];
+
+  /**
    * Table template. We store a copy of the table structure when the node HTML
    * template is loaded. Because we have to destroy table HTML when input data
    * is updated.
@@ -28,19 +34,17 @@ visflow.utils.inherit(visflow.Table, visflow.Visualization);
 /** @inheritDoc */
 visflow.Table.prototype.TEMPLATE = './src/visualization/table/table.html';
 /** @inheritDoc */
-visflow.Table.prototype.PLOT_NAME = 'Table';
+visflow.Table.prototype.PANEL_TEMPLATE =
+    './src/visualization/table/table-panel.html';
+/** @inheritDoc */
+visflow.Table.prototype.NODE_NAME = 'Table';
 /** @inheritDoc */
 visflow.Table.prototype.NODE_CLASS = 'table';
-/** @inheritDoc */
-visflow.Table.prototype.SHAPE_CLASS = 'shape-table';
-/** @inheritDoc */
-visflow.Table.prototype.MINIMIZED_CLASS = 'table-icon square-icon';
-
 
 /** @inheritDoc */
-visflow.Table.prototype.MIN_WIDTH = 500;
+visflow.Table.prototype.MIN_WIDTH = 400;
 /** @inheritDoc */
-visflow.Table.prototype.MIN_HEIGHT = 440;
+visflow.Table.prototype.MIN_HEIGHT = 150;
 /**
  * The height sum of the DataTable wrapping elements, including
  * - the search box row (35px)
@@ -53,10 +57,13 @@ visflow.Table.prototype.MIN_HEIGHT = 440;
 visflow.Table.prototype.WRAPPER_HEIGHT_ = 35 + 43 + 41 + 12;
 
 /**
- * ScrollY value for DataTable.
- * @private {number}
+ * After DataTable is initialized, wait for this amount of time and then resize
+ * the table columns. This is to give the columns enough time to recognize the
+ * potentially existing vertical scroll bar, so that the columns can get correct
+ * widths.
+ * @private @const {number}
  */
-visflow.Table.prototype.SCROLL_Y_ = 300;
+visflow.Table.prototype.COL_RESIZE_DELAY_ = 10;
 
 /** @inheritDoc */
 visflow.Table.prototype.init = function() {
@@ -69,6 +76,7 @@ visflow.Table.prototype.init = function() {
 /** @inheritDoc */
 visflow.Table.prototype.serialize = function() {
   var result = visflow.Table.base.serialize.call(this);
+  result.dimensions = this.dimensions;
   result.tableState = this.dataTable != null ? this.dataTable.state() : null;
   return result;
 };
@@ -77,6 +85,12 @@ visflow.Table.prototype.serialize = function() {
 visflow.Table.prototype.deserialize = function(save) {
   visflow.Table.base.deserialize.call(this, save);
   this.tableState = save.tableState;
+  this.dimensions = save.dimensions;
+  if (this.dimensions == null) {
+    var data = this.ports['in'].pack.data;
+    this.dimensions = data.dimensions.concat();
+    visflow.warning('table w/o dimensions saved');
+  }
 };
 
 /** @inheritDoc */
@@ -100,12 +114,15 @@ visflow.Table.prototype.showDetails = function() {
   var columns = [
     // Data item index column.
     {title: '#'}
-  ].concat(data.dimensions.map(function(dim) {
-    return {title: dim};
+  ].concat(this.dimensions.map(function(dim) {
+    return {title: data.dimensions[dim]};
   }));
 
   for (var index in items) {
-    var row = [index].concat(data.values[index]);
+    var row = [index];
+    this.dimensions.forEach(function(dim) {
+      row.push(data.values[index][dim]);
+    }, this);
     rows.push(row);
   }
 
@@ -117,11 +134,24 @@ visflow.Table.prototype.showDetails = function() {
       scrollX: true,
       pagingType: 'full',
       select: true,
-      createdRow: function (row, data, index) {
+      lengthMenu: [5, 10, 20, 50],
+      createdRow: function (row, data) {
         if (data[0] in this.selected) {
           $(row).addClass('sel');
         }
-      }.bind(this)
+      }.bind(this),
+      initComplete: function() {
+        setTimeout(function() {
+          var search = this.content.find('.dataTables_filter input');
+          search.val('a').trigger('keyup');
+          search.val('').trigger('keyup');
+        }.bind(this), this.COL_RESIZE_DELAY_);
+      }.bind(this),
+      infoCallback: function(settings, start, end, max, total, pre) {
+        var api = this.api();
+        var pageInfo = api.page.info();
+        return 'Page '+ (pageInfo.page + 1) + '/'+ pageInfo.pages;
+      }
     });
   this.dataTable.rows('.sel').select();
 
@@ -147,6 +177,24 @@ visflow.Table.prototype.showDetails = function() {
 /** @inheritDoc */
 visflow.Table.prototype.drawBrush = function() {
   // Nothing
+};
+
+/** @inheritDoc */
+visflow.Table.prototype.initPanel = function(container) {
+  visflow.Table.base.initPanel.call(this, container);
+  var dimensionList = this.getDimensionList();
+
+  var list = new visflow.EditableList({
+    container: container.find('#dims'),
+    list: dimensionList,
+    selected: this.dimensions,
+    listTitle: 'Dimensions',
+    addTitle: 'Add Dimension'
+  });
+  $(list).on('visflow.change', function(event, items) {
+    this.dimensions = items;
+    this.dimensionChanged();
+  }.bind(this));
 };
 
 /**
@@ -177,6 +225,20 @@ visflow.Table.prototype.clearSelection = function() {
 };
 
 /** @inheritDoc */
+visflow.Table.prototype.dataChanged = function() {
+  visflow.Table.base.dataChanged.call(this);
+  // When data set changes, select all dimensions to show in table.
+  var data = this.ports['in'].pack.data;
+  this.dimensions = d3.range(data.dimensions.length);
+};
+
+/** @inheritDoc */
+visflow.Table.prototype.dimensionChanged = function() {
+  // No scale preparation.
+  this.show();
+};
+
+/** @inheritDoc */
 visflow.Table.prototype.resize = function(size) {
   visflow.Table.base.resize.call(this, size);
   this.updateScrollBodyHeight_();
@@ -185,4 +247,10 @@ visflow.Table.prototype.resize = function(size) {
 /** @inheritDoc */
 visflow.Table.prototype.resizeStop = function(size) {
   visflow.Table.base.resizeStop.call(this, size);
+};
+
+/** @inheritDoc */
+visflow.Table.prototype.selectItems = function() {
+  // Nothing. Do not pass to parent class. Otherwise show and pushflow will
+  // be called and table would have to incorrectly refresh.
 };

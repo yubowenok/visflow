@@ -20,7 +20,6 @@ visflow.diagram.lastFilename = 'myDiagram';
  * Saves the current flow.
  */
 visflow.diagram.save = function() {
-  var manager = this;
   $.post('./server/load.php', {
     type: 'filelist'
   }).done(function(data) {
@@ -32,7 +31,7 @@ visflow.diagram.save = function() {
     visflow.dialog.create({
       template: './src/dialog/save-diagram.html',
       complete: function (dialog) {
-        var input = dialog.find('input').val(visflow.flow.lastFilename);
+        var input = dialog.find('input').val(visflow.diagram.lastFilename);
         var confirm = dialog.find('#confirm');
 
         input.on('keyup', function() {
@@ -77,7 +76,7 @@ visflow.diagram.load = function() {
     visflow.dialog.create({
       template: './src/dialog/load-diagram.html',
       complete: function (dialog) {
-        var fileName = visflow.flow.lastFilename;
+        var fileName = visflow.diagram.lastFilename;
 
         var confirm = dialog.find('#confirm').prop('disabled', true)
           .click(function() {
@@ -105,7 +104,7 @@ visflow.diagram.new = function() {
     template: './src/dialog/new-diagram.html',
     complete: function(dialog) {
       dialog.find('#confirm').click(function() {
-        visflow.flow.lastFilename = 'myDiagram';
+        visflow.diagram.lastFilename = 'myDiagram';
         visflow.flow.clearFlow();
       });
     }
@@ -184,6 +183,9 @@ visflow.diagram.listTable_ = function(table, fileList) {
     data: fileList,
     select: 'single',
     pagingType: 'full',
+    order: [
+      [1, 'desc']
+    ],
     columns: [
       {title: 'File Name', data: 'filename'},
       {title: 'Last Modified', data: 'mtime'}

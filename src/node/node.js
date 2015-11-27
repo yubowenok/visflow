@@ -64,7 +64,7 @@ visflow.Node = function(params) {
    * Node label.
    * @protected {string}
    */
-  this.label = 'node label';
+  this.label = this.NODE_NAME + ' (' + this.id + ')';
 
   /**
    * Position offset of node options panel.
@@ -117,7 +117,6 @@ visflow.Node = function(params) {
     this.container
       .addClass('node details')
       .addClass(this.NODE_CLASS)
-      .addClass(this.SHAPE_CLASS)
       .addClass(this.hashtag);
 
     this.content = this.container.children('.content');
@@ -142,6 +141,11 @@ visflow.Node = function(params) {
  */
 visflow.Node.prototype.TEMPLATE = './src/node/node.html';
 /**
+ * Node control panel common template file.
+ * @private {string}
+ */
+visflow.Node.prototype.COMMON_PANEL_TEMPLATE_ = './src/node/node-panel.html';
+/**
  * Node control panel template file.
  * @protected {string}
  */
@@ -154,21 +158,28 @@ visflow.Node.prototype.MIN_WIDTH = 0;
 visflow.Node.prototype.MIN_HEIGHT = 0;
 
 /**
+ * Whether the node is resizable.
+ */
+visflow.Node.prototype.RESIZABLE = true;
+
+/** @private @const {number} */
+visflow.Node.prototype.TOOLTIP_DELAY_ = 500;
+
+/**
  * Class that defines the node type.
  * @protected @const {string}
  */
 visflow.Node.prototype.NODE_CLASS = '';
 /**
- * Class added when node is minimized.
+ * Node name used for label.
  * @protected @const {string}
  */
-visflow.Node.prototype.MINIMIZED_CLASS = '';
-/**
- * Class that defines the node shape. This is only effective when the node
- * details are shown.
- * @protected @const {string}
- */
-visflow.Node.prototype.SHAPE_CLASS = 'shape-medium';
+visflow.Node.prototype.NODE_NAME = 'node';
+
+/** @const {number} */
+visflow.Node.prototype.PORT_HEIGHT = 20;
+/** @const {number} */
+visflow.Node.prototype.PORT_GAP = 1;
 
 /**
  * ContextMenu entries.
@@ -180,11 +191,6 @@ visflow.Node.prototype.CONTEXTMENU_ITEMS = [
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
 ];
-
-/** @const {number} */
-visflow.Node.prototype.portHeight = 20;
-/** @const {number} */
-visflow.Node.prototype.portGap = 4;
 
 /**
  * Initializes the node. This shall be called after node elements are loaded
@@ -233,15 +239,11 @@ visflow.Node.prototype.deserialize = function(save) {
   _(this.options).extend(save.options);
 
   this.label = save.label;
-  this.showLabel();
 
   this.css = save.css;
   this.visCss = save.visCss;
 
-  // Apply saved properties. As node size is saved, we need to explicitly fire
-  // a resize event.
   this.container.css(this.css);
-  this.resize();
 
   if (this.options.visMode == null){
     visflow.error('visModeOn not saved');
@@ -301,23 +303,38 @@ visflow.Node.prototype.show = function() {
     return;
   }
   this.container.show();
-  this.showLabel();
 
   if (this.options.minimized) {
     this.container
       .removeClass('details')
       .addClass('minimized')
-      .addClass(this.MINIMIZED_CLASS)
       .css({
         width: '',
         height: ''
       })
       .resizable('disable'); // remove constraints set in details mode
+
+    // Hide label when node is minimized.
+    this.hideLabel();
+    // Hide message when node is minimized.
+    this.hideMessage();
+
     this.showIcon();
   } else {
     this.container
       .addClass('details')
-      .removeClass('minimized');
+      .removeClass('minimized')
+      .css({
+        width: this.css.width,
+        height: this.css.height
+      });
+
+    if (this.RESIZABLE) {
+      this.container.resizable('enable');
+    }
+
+    // Show label. This has no effect when options.label is false.
+    this.showLabel();
 
     this.showDetails();
   }
@@ -326,6 +343,8 @@ visflow.Node.prototype.show = function() {
     // not show edges with vis mode on
     this.showPorts();
     this.updatePorts(); // update edges
+  } else {
+    this.hidePorts();
   }
 };
 
@@ -342,6 +361,25 @@ visflow.Node.prototype.showLabel = function() {
   }
 };
 
+/**
+ * Sets the node label.
+ * @param {string} label
+ */
+visflow.Node.prototype.setLabel = function(label) {
+  this.label = label;
+  this.showLabel();
+  if (visflow.optionPanel.isOpen) {
+    $('#option-panel').find('#node-label').text(label);
+  }
+};
+
+/**
+ * Hides the label even when options.label is true.
+ * Called when node is minimized.
+ */
+visflow.Node.prototype.hideLabel = function() {
+  this.container.children('.node-label').hide();
+};
 
 /**
  * Focuses the view, brings the view to front.
@@ -493,16 +531,15 @@ visflow.Node.prototype.interaction = function() {
   this.container.resizable('disable');
 
   this.container.children('.node-label')
-    .mousedown(function() {
+    .mousedown(function(event) {
       // Re-enable the contenteditable on click.
-      $(this).attr('contenteditable', true);
+      $(event.target).attr('contenteditable', true);
     }.bind(this))
-    .blur(function () {
-      // may contain html tag, ignore
-      this.label = $(this).text();
+    .blur(function (event) {
+      this.setLabel($(event.target).text());
       // Disable the contenteditable. Otherwise by default it requires 2 clicks
       // to blur.
-      $(this).attr('contenteditable', false);
+      $(event.target).attr('contenteditable', false);
     }.bind(this));
 };
 
@@ -516,9 +553,7 @@ visflow.Node.prototype.initContextMenu = function() {
   });
 
   $(this.contextMenu)
-    .on('visflow.delete', function() {
-      visflow.flow.deleteNode(this);
-    }.bind(this))
+    .on('visflow.delete', this.delete.bind(this))
     .on('visflow.minimize', this.toggleMinimized.bind(this))
     .on('visflow.panel', this.panel.bind(this))
     .on('visflow.label', this.toggleLabel.bind(this))
@@ -571,10 +606,9 @@ visflow.Node.prototype.updateEdges = function() {
 visflow.Node.prototype.showPorts = function() {
   this.container.find('.port').remove();
 
-  var width = this.container.width(),
-      height = this.container.innerHeight();
+  var height = this.container.innerHeight();
 
-  var portStep = this.portHeight + this.portGap;
+  var portStep = this.PORT_HEIGHT + this.portGap;
   var inTopBase = (height - this.inPorts.length * portStep + this.portGap) / 2;
   this.inPorts.forEach(function(port, index) {
     var container = $('<div></div>')
@@ -595,11 +629,10 @@ visflow.Node.prototype.showPorts = function() {
  * Updates port rendering based on new node sizes.
  */
 visflow.Node.prototype.updatePorts = function() {
-  var width = this.container.width();
   var height = this.container.innerHeight();
-  var portStep = this.portHeight + this.portGap;
+  var portStep = this.PORT_HEIGHT + this.PORT_GAP;
   var inTopBase = (height - this.inPorts.length * portStep +
-      this.portGap) / 2;
+      this.PORT_GAP) / 2;
   for (var i in this.inPorts) {
     var port = this.inPorts[i];
     port.container.css('top', inTopBase + i * portStep);
@@ -608,7 +641,7 @@ visflow.Node.prototype.updatePorts = function() {
     }
   }
   var outTopBase = (height - this.outPorts.length * portStep +
-      this.portGap) / 2;
+      this.PORT_GAP) / 2;
   for (var i in this.outPorts) {
     var port = this.outPorts[i];
     port.container.css('top', outTopBase + i * portStep);
@@ -616,6 +649,13 @@ visflow.Node.prototype.updatePorts = function() {
       port.connections[j].update();
     }
   }
+};
+
+/**
+ * Hides the shown ports.
+ */
+visflow.Node.prototype.hidePorts = function() {
+  this.container.find('.port').hide();
 };
 
 /**
@@ -698,10 +738,16 @@ visflow.Node.prototype.process = function() {
 visflow.Node.prototype.saveCss = function() {
   var css = {
     left: this.container.position().left,
-    top: this.container.position().top,
-    width: this.container.width(),
-    height: this.container.height()
+    top: this.container.position().top
   };
+  if (!this.options.minimized) {
+    // Do not save css size when node is minimized.
+    // Minimized nodes have fixed css.
+    _(css).extend({
+      width: this.container.width(),
+      height: this.container.height()
+    });
+  }
   if (!visflow.flow.visModeOn) {
     _(this.css).extend(css);
   } else {
@@ -727,7 +773,7 @@ visflow.Node.prototype.loadCss = function() {
  */
 visflow.Node.prototype.keyAction = function(key, event) {
   if ($(event.target).is('input')) {
-    // avoid interfering with user typing input
+    // Avoid interfering with user typing input.
     return;
   }
   switch(key) {
@@ -751,16 +797,39 @@ visflow.Node.prototype.keyAction = function(key, event) {
  * Toggles node visualization mode.
  */
 visflow.Node.prototype.toggleVisMode = function() {
-  this.visModeOn = !this.visModeOn;
+  this.options.visMode = !this.options.visMode;
+
+  if (visflow.optionPanel.isOpen) {
+    var btnVisMode = $('#option-panel').find('#vis-mode');
+    if (this.options.visMode) {
+      btnVisMode.addClass('active');
+    } else {
+      btnVisMode.removeClass('active');
+    }
+  }
 };
 
 /**
  * Toggles node minimization.
  */
 visflow.Node.prototype.toggleMinimized = function() {
+  // Before changing minimized value, we must first save the current css state.
+  // If the currently minimized is true, node size will NOT be saved.
+  this.saveCss();
+
   this.options.minimized = !this.options.minimized;
   this.show();
   this.updatePorts();
+
+  if (visflow.optionPanel.isOpen) {
+    var btnMinimized = $('#option-panel').find('#minimized');
+    if (this.options.minimized) {
+      btnMinimized.addClass('active');
+    } else {
+      btnMinimized.removeClass('active');
+      this.resize();
+    }
+  }
 };
 
 /**
@@ -784,21 +853,9 @@ visflow.Node.prototype.pushflow = function() {
  * @param size
  */
 visflow.Node.prototype.resize = function() {
-  var width = this.container.width();
-  var height = this.container.height();
+  this.saveCss();
   if (visflow.flow.visModeOn == false) {
-    this.viewWidth = width;
-    this.viewHeight = height;
-    _(this.css).extend({
-      width: width,
-      height: height
-    });
     this.updatePorts();
-  } else {
-    _(this.visCss).extend({
-      width: width,
-      height: height
-    });
   }
 };
 
@@ -813,10 +870,76 @@ visflow.Node.prototype.resizeStop = function(size) {
  * Displays node options from the node control panel template.
  */
 visflow.Node.prototype.panel = function() {
-  if (this.PANEL_TEMPLATE == '') {
-    return;
+  visflow.optionPanel.load(this.COMMON_PANEL_TEMPLATE_, function(container) {
+
+    this.initPanelHeader(container);
+
+    // Load type specific node panel.
+    if (this.PANEL_TEMPLATE != '') {
+      container.find('.panel-content').load(this.PANEL_TEMPLATE,
+        this.initPanel.bind(this, container));
+    }
+  }.bind(this));
+};
+
+/**
+ * Initializes the panel header.
+ * @param {!jQuery} container
+ */
+visflow.Node.prototype.initPanelHeader = function(container) {
+  var header = container.find('.panel-header');
+  header.find('.to-tooltip').tooltip({
+    delay: this.TOOLTIP_DELAY_
+  });
+
+  // Set label.
+  var labelEdit = function(event) {
+    // May contain html tag, ignore.
+    this.setLabel($(event.target).text());
+    // Disable the contenteditable. Otherwise by default it requires 2 clicks
+    // to blur.
+    $(event.target).attr('contenteditable', false);
+  }.bind(this);
+
+  header.find('#node-label')
+    .text(this.label)
+    .mousedown(function(event) {
+      // Re-enable the contenteditable on click.
+      $(event.target).attr('contenteditable', true);
+    }.bind(this))
+    .keyup(function(event) {
+      if (event.which == visflow.interaction.keyCodes.ENTER) {
+        labelEdit(event);
+      }
+    }.bind(this))
+    .blur(function (event) {
+      labelEdit(event);
+    }.bind(this));
+
+  // Handle header button clicks.
+  if (!visflow.flow.visModeOn) {
+    var btnDelete = header.find('#delete').show();
+    btnDelete.click(function() {
+      this.delete();
+      visflow.optionPanel.toggle(false);
+    }.bind(this));
+
+    var btnVisMode = header.find('#vis-mode').show();
+    btnVisMode.click(function() {
+      this.toggleVisMode();
+    }.bind(this));
+    if (this.options.visMode) {
+      btnVisMode.addClass('active');
+    }
+
+    var btnMinimized = header.find('#minimized').show();
+    btnMinimized.click(function() {
+      this.toggleMinimized();
+    }.bind(this));
+    if (this.options.minimized) {
+      btnMinimized.addClass('active');
+    }
   }
-  visflow.optionPanel.load(this.PANEL_TEMPLATE, this.initPanel.bind(this));
 };
 
 /**
@@ -839,4 +962,11 @@ visflow.Node.prototype.showDetails = function() {
 visflow.Node.prototype.showIcon = function() {
   this.content.hide();
   this.icon.show();
+};
+
+/**
+ * Deletes the node.
+ */
+visflow.Node.prototype.delete = function() {
+  visflow.flow.deleteNode(this);
 };
