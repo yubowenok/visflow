@@ -19,11 +19,11 @@ visflow.Set = function(params) {
   };
 
   /**
-   * Stores the last connection index.
-   * @type {number}
+   * Stores the number of connections seen last time. If this has changed,
+   * then in ports must have changed. So we can skip an inPortsChanged scan.
+   * @private {number}
    */
-  // TODO(bowen): check what this is for.
-  this.lastConnectionNumber = 0;
+  this.numConnections_ = 0;
 };
 
 visflow.utils.inherit(visflow.Set, visflow.Node);
@@ -56,8 +56,8 @@ visflow.Set.prototype.initPanelHeader = function(container) {
  * Handles in port change event. This may be because of removed connections.
  */
 visflow.Set.prototype.inPortsChanged = function() {
-  if (this.lastConnectionNumber != this.ports['in'].connections.length) {
-    this.lastConnectionNumber = this.ports['in'].connections.length;
+  if (this.numConnections_ != this.ports['in'].connections.length) {
+    this.numConnections_ = this.ports['in'].connections.length;
     return true;
   }
   return visflow.Set.base.inPortsChanged.call(this);

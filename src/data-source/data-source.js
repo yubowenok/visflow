@@ -34,6 +34,8 @@ visflow.utils.inherit(visflow.DataSource, visflow.Node);
 /** @inheritDoc */
 visflow.DataSource.prototype.NODE_CLASS = 'data-source';
 /** @inheritDoc */
+visflow.DataSource.prototype.NODE_NAME = 'Data Source';
+/** @inheritDoc */
 visflow.DataSource.prototype.TEMPLATE = './src/data-source/data-source.html';
 /** @inheritDoc */
 visflow.DataSource.prototype.PANEL_TEMPLATE =
@@ -69,24 +71,31 @@ visflow.DataSource.prototype.showDetails = function() {
 visflow.DataSource.prototype.interaction = function() {
   visflow.DataSource.base.interaction.call(this);
 
-  this.content.children('button').click(function(){
-    visflow.dialog.create({
-      template: './src/data-source/load-data.html',
-      complete: function(dialog) {
-        var select = dialog.find('select');
-        select.select2();
-        dialog.find('#confirm').click(function() {
-          var data = select.select2('data')[0];
-          this.loadData(data.id, data.text);
-        }.bind(this));
-      }.bind(this)
-    });
-  }.bind(this));
+  this.content.children('button').click(this.loadDataDialog_.bind(this));
 };
 
 /** @inheritDoc */
 visflow.DataSource.prototype.initPanel = function(container) {
+  container.find('#data-name').text(this.dataName);
+  container.find('#load-data').click(this.loadDataDialog_.bind(this));
+};
 
+/**
+ * Creates the load data dialog.
+ * @private
+ */
+visflow.DataSource.prototype.loadDataDialog_ = function() {
+  visflow.dialog.create({
+    template: './src/data-source/load-data.html',
+    complete: function(dialog) {
+      var select = dialog.find('select');
+      select.select2();
+      dialog.find('#confirm').click(function() {
+        var data = select.select2('data')[0];
+        this.loadData(data.id, data.text);
+      }.bind(this));
+    }.bind(this)
+  });
 };
 
 /**
@@ -127,21 +136,35 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
         visflow.error('loaded data is null');
         return;
       }
-      this.dataSelected = dataSelected;
-      this.dataName = dataName;
-      this.content.find('#data-name').text(dataName);
-
-      var data = new visflow.Data(result);
-
-      visflow.flow.registerData(data);
-
-      // overwrite data object (to keep the same reference)
-      $.extend(this.ports['out'].pack, new visflow.Package(data));
-
-      // decrement async cthisount
-      visflow.flow.asyncDataloadEnd(); // push changes
+      this.setData_(dataSelected, dataName, result);
+      // Decrement async loading count.
+      visflow.flow.asyncDataloadEnd(); // Push changes
     }.bind(this))
     .fail(function(){
       visflow.error('cannot get data (connection error)');
     });
+};
+
+/**
+ * Sets the data source data.
+ * @param {string} dataSelected
+ * @param {string} dataName
+ * @param {!visflow.TabularData} fetchedData
+ */
+visflow.DataSource.prototype.setData_ = function(dataSelected, dataName,
+                                                 fetchedData) {
+  this.dataSelected = dataSelected;
+  this.dataName = dataName;
+  this.content.find('#data-name').text(dataName);
+
+  if (visflow.optionPanel.isOpen) {
+    $('#option-panel').find('#data-name').text(dataName);
+  }
+
+  var data = new visflow.Data(fetchedData);
+
+  visflow.flow.registerData(data);
+
+  // overwrite data object (to keep the same reference)
+  $.extend(this.ports['out'].pack, new visflow.Package(data));
 };

@@ -17,6 +17,8 @@ visflow.utils.inherit(visflow.Intersect, visflow.Set);
 
 /** @inheritDoc */
 visflow.Intersect.prototype.NODE_CLASS = 'intersect';
+/** @inheritDoc */
+visflow.Intersect.prototype.NODE_NAME = 'Intersect';
 
 /** @inheritDoc */
 visflow.Intersect.prototype.process = function() {

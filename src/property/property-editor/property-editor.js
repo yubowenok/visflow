@@ -25,9 +25,9 @@ visflow.PropertyEditor = function(params) {
 visflow.utils.inherit(visflow.PropertyEditor, visflow.Node);
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.contextmenuDisabled = {
-  options: true
-};
+visflow.PropertyEditor.prototype.NODE_CLASS = 'property-editor';
+/** @inheritDoc */
+visflow.PropertyEditor.prototype.NODE_NAME = 'Property Editor';
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.serialize = function() {
@@ -94,8 +94,8 @@ visflow.PropertyEditor.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.process = function() {
-  var inpack = this.ports['in'].pack,
-      outpack = this.ports['out'].pack;
+  var inpack = this.ports['in'].pack;
+  var outpack = this.ports['out'].pack;
   outpack.copy(inpack);
   var newitems = {};
   for (var index in inpack.items) {

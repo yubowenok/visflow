@@ -70,9 +70,16 @@ visflow.optionPanel.getWidth_ = function() {
  */
 visflow.optionPanel.togglePin_ = function() {
   visflow.optionPanel.pinned = !visflow.optionPanel.pinned;
-  this.container_.children('#btn-pin').toggleClass('active');
-  this.container_.children('#btn-toggle')
+  visflow.optionPanel.container_.children('#btn-pin').toggleClass('active');
+  visflow.optionPanel.container_.children('#btn-toggle')
     .prop('disabled', visflow.optionPanel.pinned);
+};
+
+/**
+ * Clears the panel content.
+ */
+visflow.optionPanel.clear = function() {
+  visflow.optionPanel.container_.find('.content').html('');
 };
 
 /**
@@ -80,11 +87,11 @@ visflow.optionPanel.togglePin_ = function() {
  * @param {boolean=} opt_state Whether the panel shall be open.
  */
 visflow.optionPanel.toggle = function(opt_state) {
-  if (this.pinned) {
+  if (visflow.optionPanel.pinned) {
     return;
   }
 
-  this.container_.toggleClass('active');
+  visflow.optionPanel.container_.toggleClass('active');
   if (opt_state == null) {
     visflow.optionPanel.isOpen = !visflow.optionPanel.isOpen;
   } else {
@@ -92,11 +99,11 @@ visflow.optionPanel.toggle = function(opt_state) {
   }
   var rightValue = visflow.optionPanel.isOpen ? 0 :
       -(visflow.optionPanel.getWidth_() - visflow.optionPanel.COLLAPSED_WIDTH);
-  this.container_.stop()
+  visflow.optionPanel.container_.stop()
     .animate({
       right: rightValue + 'px'
     }, {
-    duration: this.TRANSITION_TIME,
+    duration: visflow.optionPanel.TRANSITION_TIME,
     complete: function() {
       if (visflow.optionPanel.isOpen) {
         $('#btn-toggle')
@@ -109,7 +116,7 @@ visflow.optionPanel.toggle = function(opt_state) {
           .removeClass('glyphicon-chevron-right')
           .addClass('glyphicon-chevron-left');
       }
-    }.bind(this)
+    }
   });
 };
 
@@ -132,4 +139,5 @@ visflow.optionPanel.load = function(template, complete) {
  * Closes the option panel.
  */
 visflow.optionPanel.close = function() {
+  visflow.error('close not implemented');
 };

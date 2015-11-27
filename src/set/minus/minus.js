@@ -26,6 +26,8 @@ visflow.utils.inherit(visflow.Minus, visflow.Set);
 
 /** @inheritDoc */
 visflow.Minus.prototype.NODE_CLASS = 'minus';
+/** @inheritDoc */
+visflow.Minus.prototype.NODE_NAME = 'Minus';
 
 /** @inheritDoc */
 visflow.Minus.prototype.process = function() {

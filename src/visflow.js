@@ -22,6 +22,7 @@ visflow.init = function() {
   visflow.flow.init();
   visflow.optionPanel.init();
   visflow.nodePanel.init();
+  visflow.popupPanel.init();
   visflow.interaction.init();
 
   visflow.test.run();

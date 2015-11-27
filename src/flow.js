@@ -197,6 +197,13 @@ visflow.flow.deleteNode = function(node) {
       this.deleteEdge(connections[i]);
     }
   }
+  if (this.lastSelectedNode == node) {
+    this.lastSelectedNode = null;
+  }
+  // Must first clear then toggle false. Otherwise the panel will not get
+  // correct left offset (as its width changes).
+  visflow.optionPanel.clear();
+  visflow.optionPanel.toggle(false);
   node.remove();  // removes the container
   delete this.nodes[node.id];
 };

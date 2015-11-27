@@ -17,6 +17,8 @@ visflow.utils.inherit(visflow.Union, visflow.Set);
 
 /** @inheritDoc */
 visflow.Union.prototype.NODE_CLASS = 'union';
+/** @inheritDoc */
+visflow.Union.prototype.NODE_NAME = 'Union';
 
 /** @inheritDoc */
 visflow.Union.prototype.process = function() {

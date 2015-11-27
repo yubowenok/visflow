@@ -157,6 +157,9 @@ visflow.Node.prototype.MIN_WIDTH = 0;
 /** @protected @const {number} */
 visflow.Node.prototype.MIN_HEIGHT = 0;
 
+/** @protected @const {number} */
+visflow.Node.prototype.MAX_LABEL_LENGTH = 11;
+
 /**
  * Whether the node is resizable.
  */
@@ -206,7 +209,6 @@ visflow.Node.prototype.init = function() {
  * @return {!Object}
  */
 visflow.Node.prototype.serialize = function() {
-  this.label = this.container.find('.node-label').text();
   this.saveCss();
   var result = {
     nodeId: this.nodeId,
@@ -353,11 +355,13 @@ visflow.Node.prototype.show = function() {
  */
 visflow.Node.prototype.showLabel = function() {
   if (this.options.label) {
-    this.container.children('.node-label')
-      .text(this.label)
+    var label = this.label.length > this.MAX_LABEL_LENGTH ?
+        this.label.substr(0, this.MAX_LABEL_LENGTH - 3) + '...' : this.label;
+    this.container.children('#node-label')
+      .text(label)
       .show();
   } else {
-    this.container.children('.node-label').hide();
+    this.container.children('#node-label').hide();
   }
 };
 
@@ -378,7 +382,7 @@ visflow.Node.prototype.setLabel = function(label) {
  * Called when node is minimized.
  */
 visflow.Node.prototype.hideLabel = function() {
-  this.container.children('.node-label').hide();
+  this.container.children('#node-label').hide();
 };
 
 /**
@@ -386,9 +390,7 @@ visflow.Node.prototype.hideLabel = function() {
  */
 visflow.Node.prototype.focus = function() {
   $(this.container).css('z-index', visflow.viewManager.topZIndex());
-  if (visflow.optionPanel.isOpen) {
-    this.panel();
-  }
+  this.panel();
 };
 
 
@@ -492,7 +494,7 @@ visflow.Node.prototype.interaction = function() {
       }.bind(this)
     })
     .draggable({
-      cancel: 'input, button, a, select, .node-label',
+      cancel: 'input, button, a, select, #node-label',
       //containment: '#main',
       start: function(event) {
         visflow.interaction.dragstartHandler({
@@ -530,16 +532,31 @@ visflow.Node.prototype.interaction = function() {
   // resizable({...}) call.
   this.container.resizable('disable');
 
-  this.container.children('.node-label')
+  var editDone = function(event) {
+    if ($(event.target).attr('contenteditable') == 'false') {
+      // When ENTER is pressed, blur will also be fired. In this case we ignore
+      // blur.
+      return;
+    }
+    this.setLabel($(event.target).text());
+    // Disable the contenteditable.
+    $(event.target).attr('contenteditable', false);
+  }.bind(this);
+
+  this.container.children('#node-label')
     .mousedown(function(event) {
       // Re-enable the contenteditable on click.
-      $(event.target).attr('contenteditable', true);
+      $(event.target)
+        .attr('contenteditable', true)
+        .text(this.label);
+    }.bind(this))
+    .keydown(function(event) {
+      if (event.which == visflow.interaction.keyCodes.ENTER) {
+        editDone(event);
+      }
     }.bind(this))
     .blur(function (event) {
-      this.setLabel($(event.target).text());
-      // Disable the contenteditable. Otherwise by default it requires 2 clicks
-      // to blur.
-      $(event.target).attr('contenteditable', false);
+      editDone(event);
     }.bind(this));
 };
 
@@ -893,7 +910,12 @@ visflow.Node.prototype.initPanelHeader = function(container) {
   });
 
   // Set label.
-  var labelEdit = function(event) {
+  var editDone = function(event) {
+    if ($(event.target).attr('contenteditable') == 'false') {
+      // When ENTER is pressed, blur will also be fired. In this case we ignore
+      // blur.
+      return;
+    }
     // May contain html tag, ignore.
     this.setLabel($(event.target).text());
     // Disable the contenteditable. Otherwise by default it requires 2 clicks
@@ -909,11 +931,11 @@ visflow.Node.prototype.initPanelHeader = function(container) {
     }.bind(this))
     .keyup(function(event) {
       if (event.which == visflow.interaction.keyCodes.ENTER) {
-        labelEdit(event);
+        editDone(event);
       }
     }.bind(this))
     .blur(function (event) {
-      labelEdit(event);
+      editDone(event);
     }.bind(this));
 
   // Handle header button clicks.

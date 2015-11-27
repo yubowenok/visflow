@@ -6,7 +6,17 @@
 'use strict';
 
 /**
- * @param {Object} data
+ * @typedef {{
+ *   type: string
+ *   dimensions: !Array<string>,
+ *   dimensionTypes: !Array<string>,
+ *   values: !Array<!Array<string|number>>
+ * }}
+ */
+visflow.TabularData;
+
+/**
+ * @param {visflow.TabularData} data
  * @constructor
  */
 visflow.Data = function(data) {

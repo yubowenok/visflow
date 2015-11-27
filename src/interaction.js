@@ -13,6 +13,7 @@ visflow.interaction.keyCodes = {
   SHIFT: 16,
   CTRL: 17,
   ESC: 27,
+  HOME: 36,
   UP: 38,
   DOWN: 40,
   LEFT: 37,
@@ -211,7 +212,7 @@ visflow.interaction.keyPress = function(event) {
   var code = event.keyCode;
 
   // Avoid interfering with input and editable.
-  if ($(event.target).is('input, .node-label')) {
+  if ($(event.target).is('input, #node-label')) {
     return true;
   }
 
@@ -411,7 +412,7 @@ visflow.interaction.mouseupHandler = function(params) {
   // to prevent inconsistent interaction states resulting from an uncaptured event
   this.keyRelease(['shift', 'ctrl']);
   visflow.viewManager.clearEdgeHover();
-  visflow.popupPanel.close();
+  visflow.popupPanel.hide();
 
   this.mouseMode = '';
 };

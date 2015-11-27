@@ -50,12 +50,27 @@
   border-color: #777;
 }
 
+.visflow .node #node-label {
+  font-size: 11px;
+  line-height: 11px;
+  font-weight: bold;
+  position: absolute;
+  padding: 5px;
+  left: 5px;
+  top: -22px;
+  background: white;
+  border-radius: 2px 2px 0px 0px;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 75px;
+}
+
+/*
 .visflow .node.details.shape-small {
   width: 75px;
   height: 75px;
 }
-
-
 
 .visflow .node.details.shape-superflat {
   width: 100px;
@@ -93,6 +108,7 @@
   width: 200px;
   padding: 5px;
 }
+*/
 
 .node .popup {
   width: 100%;

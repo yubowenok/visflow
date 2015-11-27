@@ -29,6 +29,11 @@ visflow.PropertyMapping = function(params) {
 
 visflow.utils.inherit(visflow.PropertyMapping, visflow.Node);
 
+/** @inheritDoc */
+visflow.PropertyMapping.prototype.NODE_CLASS = 'property-mapping';
+/** @inheritDoc */
+visflow.PropertyMapping.prototype.NODE_NAME = 'Property Mapping';
+
 /**
  * Mapping from user visible properties to their underlying property types.
  * @protected {!Object<string>}
@@ -59,11 +64,6 @@ visflow.PropertyMapping.prototype.mappingScrollDelta = {
   size: 0.5,
   width: 0.1,
   opacity: 0.05
-};
-
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.contextmenuDisabled = {
-  options: true
 };
 
 /** @inheritDoc */

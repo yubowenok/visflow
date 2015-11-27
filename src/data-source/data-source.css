@@ -1,6 +1,14 @@
+.visflow .node.data-source.details {
+  width: 120px;
+  height: 40px;
+}
+
 .visflow .node.data-source.details #data-name {
-  margin-top: 5px;
-  margin-bottom: 5px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
 }
 
 .visflow .node.data-source.minimized > .icon {

@@ -1,108 +1,63 @@
-.panel {
+.popup-panel {
   border-radius: 10px;
-  z-index: 2000;
-  padding: 3px;
-  border: 3px solid #ccc;
+  z-index: 103;
+  padding: 5px;
+  border: 1px solid #ccc;
   background: rgba(224, 224, 224, 0.5);
   display: inline-block;
   position: absolute;
+  width: 540px;
 }
 
-.menupanel {
-  width: 56px;
-  padding: 20px 3px;
+.popup-panel hr {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-color: #ccc;
 }
 
-.panel-button {
-  width: 50px;
-  height: 50px;
+.popup-panel.compact {
+  width: 210px;
 }
 
-.addpanel-button,
-.panel-button {
-  margin: 5px 0px;
-  margin-right: 5px;
+.popup-panel .panel-button {
+  width: 45px;
+  padding: 3px;
   display: inline-block;
   vertical-align: top;
 }
 
-.panel-button:hover {
-  position: relative;
+.popup-panel .panel-button:hover > img {
   cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
 }
 
-.panel-button:hover > img {
-  width: 55px;
-  height: 55px;
-}
-
-.addpanel-button {
-  padding: 2px;
-}
-.addpanel-button:hover {
-  position: relative;
-  cursor: pointer;
-  padding: 0px;
-  border: 2px solid #444;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 1.0);
-}
-
-.addpanel-button-text {
+.popup-panel .text {
   width: 100%;
   text-align: center;
 }
 
-.panel-button > img {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-.menupanel-square-icon {
-  border: #444 solid 2px;
-  border-radius: 10px;
-}
-
-.addpanel {
-  position: absolute;
-  background: rgba(224, 224, 224, 0.5);
-  width: 540px;
-}
-
-.addpanel.compact {
-  width: 230px;
-}
-
-.addpanel * > p {
+.popup-panel * > p {
   font-weight: bold;
   font-size: 1em;
-  margin: 5px;
-  margin-left: 1em;
+  margin: 10px 0px 5px 0px;
   background: linear-gradient(to right, rgba(255, 255, 255, 0.75), rgba(200, 200, 200, 0.0) 10%);
   padding: 5px;
   border-radius: 5px;
 }
 
-.addpanel * > .addpanel-button {
-  width: 80px;
-  margin: 0px 10px;
-}
-.addpanel-square-icon,
-.addpanel-flat-icon {
-  width: 60px;
-  margin-left: 10px;
+.popup-panel .square-icon {
+  width: 45px;
+  height: 45px;
 }
 
-.addpanel.compact * > .addpanel-button,
-.addpanel.compact * > .addpanel-square-icon,
-.addpanel.compact * > .addpanel-flat-icon
-{
-  width: 50px;
-  margin: 0;
+.popup-panel .flat-icon {
+  width: 45px;
+  height: 22.5px;
 }
 
-.panel-button-disabled {
+.popup-panel .panel-button:disabled {
   opacity: 0.5;
 }
 
