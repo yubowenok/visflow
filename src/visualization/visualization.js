@@ -63,7 +63,7 @@ visflow.utils.inherit(visflow.Visualization, visflow.Node);
 visflow.Visualization.prototype.NODE_NAME = 'visualization';
 /** @inheritDoc */
 visflow.Visualization.prototype.TEMPLATE =
-    './src/visualization/visualization/visualization.html';
+    './src/visualization/visualization.html';
 
 /**
  * @const {!Array<{left: number, right: number, top: number, bottom: number}>}
@@ -519,20 +519,6 @@ visflow.Visualization.prototype.drawSelectbox = function() {
     .attr('y', y1)
     .attr('width', x2 - x1)
     .attr('height', y2 - y1);
-};
-
-/**
- * Gets the list of dimensions used for select2.
- * @return {!Array<{id: number, text: string}>}
- */
-visflow.Visualization.prototype.getDimensionList = function() {
-  var data = this.ports['in'].pack.data;
-  return data.dimensions.map(function(dimName, index) {
-    return {
-      id: index,
-      text: dimName
-    }
-  });
 };
 
 /**

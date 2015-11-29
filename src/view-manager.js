@@ -106,31 +106,6 @@ visflow.viewManager.getPopupPanelName = function() {
 };
 
 /**
- * Creates a tooltip.
- */
-visflow.viewManager.tip = function(text, csspara) {
-  // csspara is the css object to define the tip's position, style, etc
-  if (csspara == null)
-    // by default show at mouse cursor
-    csspara = {
-      left: visflow.interaction.currentMouseX + 5,
-      top: visflow.interaction.currentMouseY + 5
-    };
-
-  $('<div></div>')
-    .addClass('tip-mouse ui-tooltip ui-tooltip-content')
-    .text(text)
-    .css(csspara)
-    .appendTo('body')
-    .delay(1000)
-    .animate({
-      opacity: 0
-    }, 500, function() {
-      $(this).remove();
-    });
-};
-
-/**
  * Checks if two rectangular boxes intersect.
  */
 visflow.viewManager.intersectBox = function(box1, box2) {

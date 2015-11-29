@@ -113,7 +113,7 @@ visflow.Node = function(params) {
    */
   this.contextMenu;
 
-  this.container.load(this.TEMPLATE, function() {
+  this.container.load(this.COMMON_TEMPLATE_, function() {
     this.container
       .addClass('node details')
       .addClass(this.NODE_CLASS)
@@ -123,25 +123,38 @@ visflow.Node = function(params) {
 
     this.icon = this.container.children('.icon');
 
-    // Call init to prepare node elements.
-    this.init();
+    var ready = function() {
+      // Call init to prepare node elements.
+      this.init();
 
-    // Set up interaction after initialization.
-    // This requires node elements to be created beforehand.
-    this.interaction();
+      // Set up interaction after initialization.
+      // This requires node elements to be created beforehand.
+      this.interaction();
 
-    // For callback.
-    $(this).trigger('visflow.ready');
+      // For callback.
+      $(this).trigger('visflow.ready');
+    }.bind(this);
+
+    if (!this.TEMPLATE) {
+      ready();
+    } else {
+      this.content.load(this.TEMPLATE, ready);
+    }
   }.bind(this));
 };
 
 /**
- * Node template file.
+ * Node template common template file, containing the popup, background, etc.
+ * @private {string}
+ */
+visflow.Node.prototype.COMMON_TEMPLATE_ = './src/node/node.html';
+/**
+ * Node content template file.
  * @protected {string}
  */
-visflow.Node.prototype.TEMPLATE = './src/node/node.html';
+visflow.Node.prototype.TEMPLATE = '';
 /**
- * Node control panel common template file.
+ * Node control panel common template file, containing the panel header.
  * @private {string}
  */
 visflow.Node.prototype.COMMON_PANEL_TEMPLATE_ = './src/node/node-panel.html';
@@ -862,7 +875,8 @@ visflow.Node.prototype.toggleLabel = function() {
  */
 visflow.Node.prototype.pushflow = function() {
   this.process();
-  visflow.flow.propagate(this); // push property changes to downflow
+  // Push property changes to downflow.
+  visflow.flow.propagate(this);
 };
 
 /**
@@ -893,8 +907,9 @@ visflow.Node.prototype.panel = function() {
 
     // Load type specific node panel.
     if (this.PANEL_TEMPLATE != '') {
-      container.find('.panel-content').load(this.PANEL_TEMPLATE,
-        this.initPanel.bind(this, container));
+      container.find('.panel-content').load(this.PANEL_TEMPLATE, function() {
+        this.initPanel(container);
+      }.bind(this));
     }
   }.bind(this));
 };
@@ -943,7 +958,6 @@ visflow.Node.prototype.initPanelHeader = function(container) {
     var btnDelete = header.find('#delete').show();
     btnDelete.click(function() {
       this.delete();
-      visflow.optionPanel.toggle(false);
     }.bind(this));
 
     var btnVisMode = header.find('#vis-mode').show();
@@ -991,4 +1005,18 @@ visflow.Node.prototype.showIcon = function() {
  */
 visflow.Node.prototype.delete = function() {
   visflow.flow.deleteNode(this);
+};
+
+/**
+ * Gets the list of dimensions used for select2.
+ * @return {!Array<{id: number, text: string}>}
+ */
+visflow.Node.prototype.getDimensionList = function() {
+  var data = this.ports['in'].pack.data;
+  return data.dimensions.map(function(dimName, index) {
+    return {
+      id: index,
+      text: dimName
+    }
+  });
 };

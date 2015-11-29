@@ -47,12 +47,6 @@ body {
   pointer-events: none;
 }
 
-.tip-mouse {
-  position: absolute;
-  z-index: 2000;
-  background: #FFF;
-}
-
 .visflow .input-leadtext {
   padding-right: 1em;
 }

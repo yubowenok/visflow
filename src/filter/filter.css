@@ -1,0 +1,23 @@
+.visflow .node.filter.details {
+  width: 180px;
+  height: 60px;
+}
+
+.visflow .node.filter.minimized {
+  width: 50px;
+  height: 30px;
+}
+
+.visflow .node.filter.minimized > .icon {
+  width: 50px;
+  height: 30px;
+}
+
+.visflow .node.filter.details #dim {
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

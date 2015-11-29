@@ -145,8 +145,8 @@ visflow.flow.createNode = function(type, save) {
     this.dataSources.push(newnode);
   }
   // Select newnode (exclusive) after node creation.
-  this.clearNodeSelection();
-  this.addNodeSelection(newnode);
+  visflow.flow.clearNodeSelection();
+  visflow.flow.addNodeSelection(newnode);
   return newnode;
 };
 
@@ -202,7 +202,6 @@ visflow.flow.deleteNode = function(node) {
   }
   // Must first clear then toggle false. Otherwise the panel will not get
   // correct left offset (as its width changes).
-  visflow.optionPanel.clear();
   visflow.optionPanel.toggle(false);
   node.remove();  // removes the container
   delete this.nodes[node.id];
@@ -510,7 +509,6 @@ visflow.flow.addNodeSelection = function(nodes) {
     node.container.addClass('selected');
     this.lastSelectedNode = node;
   }
-  visflow.optionPanel.toggle(true);
 };
 
 /**
@@ -537,7 +535,6 @@ visflow.flow.clearNodeSelection = function(nodes) {
     }
     delete this.nodesSelected[node.id];
   }
-  visflow.optionPanel.toggle(false);
 };
 
 /**

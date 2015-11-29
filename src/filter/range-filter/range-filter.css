@@ -1,3 +1,25 @@
-.visflow .node.range.minimized > .icon {
+.visflow .node.range-filter.details #range > span {
+  display: inline-block;
+}
+
+/* Fix unknown vertical offset */
+.visflow .node.range-filter.details #range .offset {
+  position: relative;
+  top: -7px;
+}
+
+.visflow .node.range-filter.details #min,
+.visflow .node.range-filter.details #max {
+  width: calc((100% - 30px) / 2);
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.visflow .node.range-filter.minimized > .icon {
   background-image: url(/visflow/imgs/range-icon.png);
 }

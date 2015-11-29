@@ -191,7 +191,7 @@ visflow.utils.parseToken = function(text) {
   if (text === '') {  // empty constants are ignored
     return {
       type: 'empty',
-      value: null,
+      value: '',
       grade: 0
     };
   }

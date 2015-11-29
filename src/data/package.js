@@ -58,17 +58,17 @@ visflow.Package.prototype.copy = function(pack, shallow) {
 
 /**
  * Accepts a list of indexes to be the new items, and update items and hasItem.
- * @param indexes
+ * @param {!Array<number>} indices
  */
-visflow.Package.prototype.filter = function(indexes) {
+visflow.Package.prototype.filter = function(indices) {
   var newItems = {};
-  for (var i in indexes) {
-    var index = indexes[i];
+  indices.forEach(function(index) {
     var e = this.items[index];
-    if(this.items[index] == null)
+    if(this.items[index] == null) {
       visflow.error('selected element not exists');
+    }
     newItems[index] = e;
-  }
+  }, this);
   this.items = newItems;
 };
 

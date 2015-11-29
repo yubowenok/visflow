@@ -12,24 +12,37 @@
 visflow.Filter = function(params) {
   visflow.Filter.base.constructor.call(this, params);
 
-  this.viewHeight = 90; // height + padding
-  this.dimension = null;
+  /**
+   * Dimension chosen to be filtered on.
+   * @protected {number}
+   */
+  this.dim = 0;
 
-  this.lastDataId = 0;  // default empty data
+  /**
+   * Last processed data id. By default it is empty data.
+   * @protected {number}
+   */
+  this.lastDataId = 0;
 };
 
 visflow.utils.inherit(visflow.Filter, visflow.Node);
+
+/** @inheritDoc */
+visflow.Filter.prototype.RESIZABLE = false;
 
 /** @protected @const {string} */
 visflow.Filter.prototype.NULL_VALUE_STRING = '-';
 
 /** @inheritDoc */
-visflow.Filter.prototype.SHAPE_CLASS = 'longflat';
+visflow.Filter.prototype.init = function() {
+  visflow.Filter.base.init.call(this);
+  this.container.addClass('filter');
+};
 
 /** @inheritDoc */
 visflow.Filter.prototype.serialize = function() {
   var result = visflow.Filter.base.serialize.call(this);
-  result.dimension = this.dimension;
+  result.dim = this.dim;
   result.lastDataId = this.lastDataId;
   return result;
 };
@@ -37,33 +50,33 @@ visflow.Filter.prototype.serialize = function() {
 /** @inheritDoc */
 visflow.Filter.prototype.deserialize = function(save) {
   visflow.Filter.base.deserialize.call(this, save);
-  this.dimension = save.dimension;
+  this.dim = save.dim;
   this.lastDataId = save.lastDataId;
+  if (this.dim == null) {
+    this.dim = 0;
+    visflow.warning('filter dim not saved');
+  }
+  if (this.lastDataId == null) {
+    this.lastDataId = 0;
+    visflow.warning('filter lastDataId not saved');
+  }
 };
 
-/** @inheritDoc */
-visflow.Filter.prototype.showDetails = function() {
-  visflow.Filter.base.showDetails.call(this);
+/**
+ * Handles data change event.
+ */
+visflow.Filter.prototype.dataChanged = function() {
+  this.dim = 0;
+  this.show();
+};
 
-  this.container
-    .css('text-align', 'center');
-
-  var node = this;
-  this.selectDimension = new visflow.Select({
-    id: 'dimension',
-    list: this.prepareDimensionList(),
-    value: this.dimension,
-    relative: true,
-    placeholder: 'Select',
-    change: function(event){
-      node.dimension = event.target.value;
-      if (node.dimension == '')
-        node.dimension = null;
-      node.pushflow();
-    }
-  });
-  this.selectDimension.jqunit
-    .appendTo(this.container);
+/**
+ * Handles input changes, e.g. dimension changed, filtering values changed.
+ */
+visflow.Filter.prototype.inputChanged = function() {
+  this.process();
+  this.pushflow();
+  this.show();
 };
 
 /**

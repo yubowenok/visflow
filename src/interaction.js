@@ -312,6 +312,9 @@ visflow.interaction.mousedownHandler = function(params) {
   if (this.mouseMode != '') {
     return true;
   }
+  if (event.which == visflow.interaction.keyCodes.RIGHT_MOUSE) {
+    return true;
+  }
 
   if (type == 'background') {
     if (!this.ctrled) {

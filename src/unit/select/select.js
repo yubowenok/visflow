@@ -62,8 +62,12 @@ visflow.Select.prototype.TEMPLATE_ = './src/unit/select/select.html';
  * @private
  */
 visflow.Select.prototype.init_ = function() {
-  this.container_.find('#title')
-    .text(this.listTitle_);
+  var title = this.container_.find('#title');
+  if (this.listTitle_) {
+    title.text(this.listTitle_);
+  } else {
+    title.hide();
+  }
 
   this.select2_ = this.container_.find('select')
     .select2({

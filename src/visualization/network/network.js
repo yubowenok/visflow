@@ -24,35 +24,61 @@ visflow.Network = function(params) {
     oute: new visflow.Port(this, 'oute', 'out-multiple', 'D')
   };
 
-  // re-processed from edge list table
+  /**
+   * Processed nodes from node list table.
+   * @protected {!Array}
+   */
   this.nodeList = [];
+  /**
+   * Processed edges from edge list table.
+   * @protected {!Array}
+   */
   this.edgeList = [];
-  this.nodes = null;  // refer to node objects
-  this.edges = null;  // refer to edge objects
+  /**
+   * References to node objects.
+   * @protected {!Object}
+   */
+  this.nodes = {};
+  /**
+   * References to edge objects.
+   * @protected {!Object}
+   */
+  this.edges = {};  // refer to edge objects
 
-  // leave some space? TODO
-  this.plotMargins = [ { before: 0, after: 0 }, { before: 0, after: 0 } ];
-
+  /** @protected {!Object<boolean>} */
   this.selectedEdges = {};
 
-  // whether to show label, and which dimension is used as label
-  this.nodeLabelOn = true;
-  this.nodeLabel = null;
+  $(this.options).extend({
+    // Whether to show label.
+    nodeLabel: true,
+    // Which dimension is used as label.
+    labelBy: 0,
+    // D3 force-directed layout force charge.
+    charge: -10000
+  });
 
-  this.panOn = false;
+  /**
+   * Interactive panning state.
+   * @private {boolean}
+   */
+  this.panning_ = false;
+
+  /**
+   * Interactive translation.
+   * @private {!Array<number>}
+   */
+  this.translate_ = [0, 0];
+
 
   this.lastDataIdEdges = 0;
-
-  // network translate (transform)
-  this.translate = [0, 0];
-
-  this.forceCharge = -10000;
 };
 
 visflow.utils.inherit(visflow.Network, visflow.Visualization);
 
 /** @inheritDoc */
 visflow.Network.prototype.NODE_NAME = 'Network';
+/** @inheritDoc */
+visflow.Network.prototype.NODE_CLASS = 'network';
 
 /** @inheritDoc */
 visflow.Network.prototype.defaultProperties = {
@@ -102,15 +128,17 @@ visflow.Network.prototype.propertyTranslate = {
   width: 'stroke-width'
 };
 
-/**
- * Translate for edges are different from nodes.
- */
-visflow.Network.prototype.propertyTranslateEdge = {
-  size: 'r',
-  color: 'stroke',
-  width: 'stroke-width',
-  border: 'ignore'
-};
+/** @inheritDoc */
+visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
+  {id: 'selectAll', text: 'Select All'},
+  {id: 'clearSelection', text: 'Clear Selection'},
+  {id: 'nodeLabel', text: 'Node Label'},
+  {id: 'pan', text: 'Panning'},
+  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
+  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
+  {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
+  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
+];
 
 /** @inheritDoc */
 visflow.Network.prototype.serialize = function() {
@@ -147,137 +175,71 @@ visflow.Network.prototype.deserialize = function(save) {
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.contextMenu = function() {
-  visflow.Network.base.contextMenu.call(this);
-  // override menu entries
-  this.container.contextmenu('replaceMenu',
-      [
-        {title: 'Toggle Visualization', cmd: 'details', uiIcon: 'ui-icon-image'},
-        {title: 'Toggle Options', cmd: 'options', uiIcon: 'ui-icon-note'},
-        {title: 'Toggle Label', cmd: 'label'},
-        {title: 'Visualization Mode', cmd: 'vismode'},
-        {title: 'Panning', cmd: 'pan'},
-        {title: 'Select All', cmd: 'selall'},
-        {title: 'Clear Selection', cmd: 'selclear'},
-        {title: 'Delete', cmd: 'delete', uiIcon: 'ui-icon-close'}
-      ]
-  );
+visflow.Network.prototype.initContextMenu = function() {
+  visflow.Network.base.initContextMenu.call(this);
+
+  $(this.contextMenu)
+    .on('visflow.pan', this.togglePanning_.bind(this))
+    .on('visflow.nodeLabel', this.toggleNodeLabel_.bind(this));
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.contextmenuSelect = function(event, ui) {
-  if (ui.cmd == 'pan'){
-    this.togglePan();
-  } else {
-    // can be handled by base class handler
-    visflow.Network.base.contextmenuSelect.call(this, event, ui);
-  }
-};
-
-/** @inheritDoc */
-visflow.Network.prototype.contextmenuBeforeOpen = function(event, ui) {
-  if (!this.panOn) {
-    this.container.contextmenu('setEntry', 'pan',
-      {title: 'Panning'});
-  } else {
-    this.container.contextmenu('setEntry', 'pan',
-      {title: 'Panning', uiIcon: 'ui-icon-check'});
-  }
-  visflow.Network.base.contextmenuBeforeOpen.call(this, event, ui);
-};
-
-/** @inheritDoc */
-visflow.Network.prototype.prepareInteraction = function() {
-  var node = this;
-  this.jqsvg.mousedown(function(){
-    // always add this view to selection
-    if (!visflow.interaction.shifted)
-      visflow.flow.clearNodeSelection();
-    visflow.flow.addNodeSelection(node);
-  });
-
-  // default select box interaction
-  var mode = 'none';
-  var startPos = [0, 0],
-      lastPos = [0, 0],
-      endPos = [0, 0];
-  var selectbox = {
-    x1: 0,
-    x2: 0,
-    y1: 0,
-    y2: 0
-  };
-
-  var mouseupHandler = function(event) {
-    if (mode == 'selectbox') {
-      node.selectItemsInBox([
-          [selectbox.x1, selectbox.x2],
-          [selectbox.y1, selectbox.y2]
-        ]);
-      if (node.selectbox) {
-        node.selectbox.remove();
-        node.selectbox = null;
-      }
-    } else if (mode == 'pan') {
-      // nothing, already panned
-    }
-    mode = 'none';
-    if (visflow.interaction.visualizationBlocking)
-      event.stopPropagation();
-  };
-
-  this.jqsvg
-    .mousedown(function(event) {
-      if (visflow.interaction.ctrled) // ctrl drag mode blocks
-        return;
-
-      startPos = visflow.utils.getOffset(event, $(this));
-
-      if (event.which == 1) { // left click triggers selectbox
-        mode = node.panOn ? 'pan' : 'selectbox';
-      }
-      if (visflow.interaction.visualizationBlocking)
+visflow.Network.prototype.mousedown = function(event) {
+  if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
+    // Left click potentially triggers panning.
+    if (this.panning_) {
+      this.mouseMode = 'pan';
+      if (visflow.interaction.visualizationBlocking) {
         event.stopPropagation();
-    })
-    .mousemove(function(event) {
-      endPos = visflow.utils.getOffset(event, $(this));
-      if (mode == 'selectbox') {
-        selectbox.x1 = Math.min(startPos[0], endPos[0]);
-        selectbox.x2 = Math.max(startPos[0], endPos[0]);
-        selectbox.y1 = Math.min(startPos[1], endPos[1]);
-        selectbox.y2 = Math.max(startPos[1], endPos[1]);
-        node.drawSelectbox(selectbox);
-      } else if (mode == 'pan'){
-        var dx = endPos[0] - lastPos[0],
-            dy = endPos[1] - lastPos[1];
-        node.moveNetwork(dx, dy);
       }
-      lastPos = endPos;
-    })
-    .mouseup(mouseupHandler)
-    .mouseleave(function(event) {
-      mouseupHandler(event);
-    });
+    } else {
+      // Let base class handle it.
+      visflow.Network.base.mousedown.call(this, event);
+    }
+  }
 };
+
+/** @inheritDoc */
+visflow.Network.prototype.mousemove = function(event) {
+  if (this.mouseMode == 'pan') {
+    event.stopPropagation();
+    if (this.brushPoints_.length < 2) {
+      return;
+    }
+    var pos2 = _(this.brushPoints_).last();
+    var pos1 = this.brushPoints_[this.brushPoints_.length - 2];
+    var dx = pos2.x - pos1.x;
+    var dy = pos2.y - pos1.y;
+    this.moveNetwork_(dx, dy);
+  }
+}
 
 /**
  * Translates the network.
+ * @private
  */
-visflow.Network.prototype.moveNetwork = function(dx, dy) {
-  this.translate[0] += dx;
-  this.translate[1] += dy;
-  this.updateVisualization();
+visflow.Network.prototype.moveNetwork_ = function(dx, dy) {
+  this.translate_[0] += dx;
+  this.translate_[1] += dy;
+  this.drawNetwork_();
+};
+
+/** @inheritDoc */
+visflow.Network.prototype.selectItems = function() {
+  this.selectNodesInBox_();
 };
 
 /**
- * Selects the item in the range selection box.
- * @param box
+ * Selects the nodes and edges in the range selection box.
  */
-visflow.Network.prototype.selectItemsInBox = function(box) {
+visflow.Network.prototype.selectNodesInBox_ = function() {
   if (!visflow.interaction.shifted) {
-    this.selected = {}; // reset selection if shift key is not down
+    this.selected = {};
     this.selectedEdges = {};
   }
+
+  // TODO(bowen): implement below
+  return;
 
   var inpack = this.ports['in'].pack,
       items = inpack.items,
@@ -312,32 +274,17 @@ visflow.Network.prototype.selectItemsInBox = function(box) {
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.checkDataEmpty = function() {
+visflow.Network.prototype.isDataEmpty = function() {
   var inpackNodes = this.ports['in'].pack,
       inpackEdges = this.ports['ine'].pack;
-  this.clearMessage();
-  this.isEmptyNodes = inpackNodes.isEmpty();
-  if (inpackNodes.isEmpty() || inpackEdges.isEmpty()) {
-    // otherwise scales may be undefined
-    this.showMessage('empty data in ' + this.plotName);
-    this.isEmpty = true;
-
-    if (this.svg) {
-      this.svg.remove();
-      this.interactionOn = false;
-    }
-    return;
-  }
-  this.isEmpty = false;
+  return inpackNodes.isEmpty() || inpackEdges.isEmpty();
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.showDetails = function(preventForce) {
-  this.checkDataEmpty();
-  //this.prepareSvg();
-  if (this.isEmpty)
+  if (this.checkDataEmpty()) {
     return;
-  this.interaction();
+  }
 
   if (this.nodes == null) {
     this.processNetwork();
@@ -509,22 +456,45 @@ visflow.Network.prototype.updateVisualization = function() {
 
 /** @inheritDoc */
 visflow.Network.prototype.showSelection = function() {
-  // otherwise no item data can be used
-  if (this.isEmpty)
-    return;
-  // change position of tag to make them appear on top
+  var svgNodes = $(this.svgNodes_.node());
   for (var index in this.selected) {
-    var jqu = this.jqsvg.find('#n' + index)
-      .appendTo($(this.svg[0]));
+    svgNodes.find('#n' + index).appendTo(svgNodes);
   }
+  var svgEdges = $(this.svgEdges_.node());
   for (var index in this.selectedEdges) {
-    var jqu = this.jqsvg.find('#e' + index)
-      .appendTo($(this.svg[0]));
+    svgEdges.find('#e' + index).appendTo(svgEdges);
   }
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.showOptions = function() {
+visflow.Network.prototype.initPanel = function(container) {
+  visflow.Network.base.initPanel.call(this, container);
+  var dimensionList = this.getDimensionList();
+
+  var labelBySelect = new visflow.Select({
+    container: container.find('#label-by'),
+    list: dimensionList,
+    allowClear: true,
+    selected: this.options.labelBy,
+    listTitle: 'Label By'
+  });
+  $(labelBySelect).on('visflow.change', function(event, dim) {
+    this.options.labelBy = dim;
+  }.bind(this));
+
+  var inputCharge = new visflow.Input({
+    container: container.find('#charge'),
+    value: this.options.charge,
+    accept: 'int',
+    range: [-200000, 0],
+    scrollDelta: 500,
+    title: 'Force Charge'
+  });
+  $(inputCharge).on('visflow.change', function(event, value) {
+    this.options.charge = value;
+    // TODO(bowen)
+  }.bind(this));
+  /*
   var node = this;
   this.checkboxNodeLabel = new visflow.Checkbox({
     id: 'nodelabel',
@@ -540,43 +510,35 @@ visflow.Network.prototype.showOptions = function() {
       node.showDetails();
     }
   });
+  */
+};
 
-  this.selectDimension = new visflow.Select({
-    id: 'dimension',
-    label: 'Using',
-    target: this.jqoptions,
-    value: this.nodeLabel,
-    list: this.prepareDimensionList(),
-    relative: true,
-    change: function(event) {
-      var unitChange = event.unitChange;
-      node.nodeLabel = unitChange.value;
-      node.pushflow();
-      node.showDetails();
-    }
-  });
 
-  this.inputBins = new visflow.Input({
-    id: 'charge',
-    label: 'Charge',
-    target: this.jqoptions,
-    relative: true,
-    accept: 'int',
-    range: [-200000, 0],
-    scrollDelta: 500,
-    value: this.forceCharge,
-    change: function(event) {
-      var unitChange = event.unitChange;
-      node.forceCharge = parseInt(unitChange.value);
-      node.showDetails();
-    }
-  });
+/**
+ * Processes the network data.
+ */
+visflow.Network.prototype.processNetwork = function() {
+  var inpackNodes = this.ports['in'].pack,
+    inpackEdges = this.ports['ine'].pack;
+
+  if (inpackEdges.isEmpty() || inpackNodes.isEmpty())
+    return;
+
+  if (this.nodes == null) { // never processed
+    this.nodes = {};
+    this.edges = {};
+  }
+
+  this.validateNetwork();
+  this.processNodes_();
+  this.processEdges_();
 };
 
 /**
  * Processes the nodes data.
+ * @private
  */
-visflow.Network.prototype.processNodes = function() {
+visflow.Network.prototype.processNodes_ = function() {
   var inpackNodes = this.ports['in'].pack,
       items = inpackNodes.items,
       data = inpackNodes.data;
@@ -613,8 +575,9 @@ visflow.Network.prototype.processNodes = function() {
 
 /**
  * Processes the edges data.
+ * @private
  */
-visflow.Network.prototype.processEdges = function() {
+visflow.Network.prototype.processEdges_ = function() {
   var inpack = this.ports['ine'].pack,
       items = inpack.items,
       data = inpack.data;
@@ -676,25 +639,6 @@ visflow.Network.prototype.validateNetwork = function() {
   }
 };
 
-/**
- * Processes the network data.
- */
-visflow.Network.prototype.processNetwork = function() {
-  var inpackNodes = this.ports['in'].pack,
-      inpackEdges = this.ports['ine'].pack;
-
-  if (inpackEdges.isEmpty() || inpackNodes.isEmpty())
-    return;
-
-  if (this.nodes == null) { // never processed
-    this.nodes = {};
-    this.edges = {};
-  }
-
-  this.validateNetwork();
-  this.processNodes();
-  this.processEdges();
-};
 
 /** @inheritDoc */
 visflow.Network.prototype.processSelection = function() {
@@ -792,18 +736,27 @@ visflow.Network.prototype.dataChanged = function() {
 
 /**
  * Toggles panning/selection mode.
+ * @private
  */
-visflow.Network.prototype.togglePan = function() {
-  this.panOn = !this.panOn;
+visflow.Network.prototype.togglePanning_ = function() {
+  this.panning_ = !this.panning_;
+};
+
+/**
+ * Toggles node label visibility.
+ * @private
+ */
+visflow.Network.prototype.toggelNodeLabel_ = function() {
+  this.options.nodeLabel = !this.options.nodeLabel;
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.keyAction = function(key, event) {
-  visflow.Network.base.keyAction.call(this, key, event);
-
   if (key == 'H') {
-    this.togglePan();
+    this.togglePanning_();
+    event.stopPropagation();
   }
+  visflow.Network.base.keyAction.call(this, key, event);
 };
 
 /** @inheritDoc */

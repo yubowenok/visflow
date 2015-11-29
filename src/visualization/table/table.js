@@ -27,6 +27,10 @@ visflow.Table = function(params) {
    * @private {jQuery}
    */
   this.tableTemplate_;
+
+  _(this.options).extend({
+    pageLength: 5
+  });
 };
 
 visflow.utils.inherit(visflow.Table, visflow.Visualization);
@@ -134,6 +138,7 @@ visflow.Table.prototype.showDetails = function() {
       scrollX: true,
       pagingType: 'full',
       select: true,
+      pageLength: this.options.pageLength,
       lengthMenu: [5, 10, 20, 50],
       createdRow: function (row, data) {
         if (data[0] in this.selected) {
@@ -158,6 +163,9 @@ visflow.Table.prototype.showDetails = function() {
   this.updateScrollBodyHeight_();
 
   this.dataTable
+    .on('length.dt', function(event, settings, length) {
+      this.options.pageLength = length;
+    }.bind(this))
     .on('select.dt', function(event, dt, type, tableIndices) {
       tableIndices.forEach(function(tableIndex) {
         var itemId = rows[tableIndex][0];
@@ -240,13 +248,34 @@ visflow.Table.prototype.dimensionChanged = function() {
 
 /** @inheritDoc */
 visflow.Table.prototype.resize = function(size) {
-  visflow.Table.base.resize.call(this, size);
+  // Do not call Visualization's resize because it will re-render the scene.
+  // For table re-rendering is unnecessary and slow.
+  // However we still need to call Visualization.base's (Node) resize because
+  // it will save css states and update ports.
+  visflow.Visualization.base.resize.call(this, size);
+
   this.updateScrollBodyHeight_();
 };
 
 /** @inheritDoc */
-visflow.Table.prototype.resizeStop = function(size) {
-  visflow.Table.base.resizeStop.call(this, size);
+visflow.Table.prototype.mousedown = function(event) {
+  if (!visflow.interaction.shifted) {
+    visflow.flow.clearNodeSelection();
+  }
+  visflow.flow.addNodeSelection(this);
+
+  if (visflow.interaction.ctrled) {
+    // Ctrl drag mode blocks.
+    return false;
+  }
+
+  if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
+    if ($(event.target).closest('.dataTables_scroll').length == 0) {
+      // Dragging is allowed on search header and bottom info.
+      return true;
+    }
+    visflow.Table.base.mousedown.call(this, event);
+  }
 };
 
 /** @inheritDoc */

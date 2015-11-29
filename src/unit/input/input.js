@@ -16,7 +16,8 @@
  *       Delta value to change on mousewheel
  *   value: string|number,
  *       Initial value
- *   title: string
+ *   title: string,
+ *   disabled: boolean
  * }} params
  * @constructor
  */
@@ -38,6 +39,9 @@ visflow.Input = function(params) {
 
   /** @private {string|number} */
   this.value_ = params.value != null ? params.value : '';
+
+  /** @private {boolean} */
+  this.disabled_ = params.disabled;
 
   /**
    * Only float or int can be scrolled.
@@ -93,6 +97,9 @@ visflow.Input.prototype.init_ = function() {
   if (this.value_ != '') {
     input.val(this.value_);
   }
+  if (this.disabled_) {
+    this.disable();
+  }
 };
 
 /**
@@ -120,6 +127,25 @@ visflow.Input.prototype.setValue_ = function(value) {
   input.val(value);
   this.signal_('change', [value]);
 };
+
+/**
+ * Disables the input.
+ */
+visflow.Input.prototype.disable = function() {
+  var input = this.container_.find('input');
+  input.prop('disabled', true);
+  this.disabled_ = true;
+};
+
+/**
+ * Enables the input.
+ */
+visflow.Input.prototype.disable = function() {
+  var input = this.container_.find('input');
+  input.prop('disabled', false);
+  this.disabled_ = false;
+};
+
 
 /**
  * Fires an event.

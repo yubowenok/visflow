@@ -87,37 +87,75 @@ visflow.optionPanel.clear = function() {
  * @param {boolean=} opt_state Whether the panel shall be open.
  */
 visflow.optionPanel.toggle = function(opt_state) {
-  if (visflow.optionPanel.pinned) {
-    return;
+  var newState;
+  if (opt_state == null) {
+    newState = !visflow.optionPanel.isOpen;
+  } else {
+    newState = opt_state;
   }
 
-  visflow.optionPanel.container_.toggleClass('active');
-  if (opt_state == null) {
-    visflow.optionPanel.isOpen = !visflow.optionPanel.isOpen;
-  } else {
-    visflow.optionPanel.isOpen = opt_state;
+  if (!visflow.optionPanel.pinned && newState != visflow.optionPanel.isOpen) {
+    visflow.optionPanel.isOpen = newState;
+    visflow.optionPanel.container_.toggleClass('active');
+    visflow.optionPanel.update_();
   }
-  var rightValue = visflow.optionPanel.isOpen ? 0 :
-      -(visflow.optionPanel.getWidth_() - visflow.optionPanel.COLLAPSED_WIDTH);
-  visflow.optionPanel.container_.stop()
+};
+
+/**
+ * Updates the button icons.
+ * @private
+ */
+visflow.optionPanel.updateButtons_ = function() {
+  var container = visflow.optionPanel.container_;
+  if (visflow.optionPanel.isOpen) {
+    container.find('#btn-toggle')
+      .children('span')
+      .addClass('glyphicon-chevron-right')
+      .removeClass('glyphicon-chevron-left');
+  } else {
+    container.find('#btn-toggle')
+      .children('span')
+      .removeClass('glyphicon-chevron-right')
+      .addClass('glyphicon-chevron-left');
+  }
+};
+
+/**
+ * Updates the panel right offset and button style according to isOpen state
+ * and content width, using animation.
+ * @private
+ */
+visflow.optionPanel.update_ = function() {
+  var container = visflow.optionPanel.container_;
+  var content = container.find('.content');
+
+  if (visflow.optionPanel.isOpen) {
+    content.show();
+  }
+
+  var width = visflow.optionPanel.getWidth_();
+  var openRight = -(width - visflow.optionPanel.COLLAPSED_WIDTH);
+  var closeRight = 0;
+  var rightStart = visflow.optionPanel.isOpen ? openRight : closeRight;
+  var rightEnd = visflow.optionPanel.isOpen ? closeRight : openRight;
+  container.stop()
+    .css({
+      right: rightStart + 'px'
+    })
     .animate({
-      right: rightValue + 'px'
+      right: rightEnd + 'px'
     }, {
-    duration: visflow.optionPanel.TRANSITION_TIME,
-    complete: function() {
-      if (visflow.optionPanel.isOpen) {
-        $('#btn-toggle')
-          .children('span')
-          .addClass('glyphicon-chevron-right')
-          .removeClass('glyphicon-chevron-left');
-      } else {
-        $('#btn-toggle')
-          .children('span')
-          .removeClass('glyphicon-chevron-right')
-          .addClass('glyphicon-chevron-left');
+      duration: visflow.optionPanel.TRANSITION_TIME,
+      complete: function() {
+        visflow.optionPanel.updateButtons_();
+        if (!visflow.optionPanel.isOpen) {
+          content.hide();
+          container.css({
+            right: 0
+          });
+        }
       }
-    }
-  });
+    });
 };
 
 /**
@@ -128,10 +166,10 @@ visflow.optionPanel.toggle = function(opt_state) {
  */
 visflow.optionPanel.load = function(template, complete) {
   var container = visflow.optionPanel.container_;
-  visflow.optionPanel.toggle(true);
   var content = container.children('.content');
   content.load(template, function() {
     complete($(this));
+    visflow.optionPanel.toggle(true);
   });
 };
 
