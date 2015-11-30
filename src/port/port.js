@@ -154,7 +154,7 @@ visflow.Port.prototype.connect = function(edge) {
   // Propagation does not include processing the node being propagated.
   // Update is required on the downflow node so that it becomes aware of the
   // upflow changes.
-  if (!visflow.flow.propagateDisabled) {
+  if (!visflow.flow.deserializing) {
     edge.targetNode.update();
   }
   visflow.flow.propagate(edge.targetNode);

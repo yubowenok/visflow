@@ -28,10 +28,12 @@ visflow.Filter = function(params) {
 visflow.utils.inherit(visflow.Filter, visflow.Node);
 
 /** @inheritDoc */
-visflow.Filter.prototype.RESIZABLE = false;
+visflow.Filter.prototype.MIN_HEIGHT = 93;
+/** @inheritDoc */
+visflow.Filter.prototype.MAX_HEIGHT = 93;
 
 /** @protected @const {string} */
-visflow.Filter.prototype.NULL_VALUE_STRING = '-';
+visflow.Filter.prototype.NO_DATA_STRING = 'No Data';
 
 /** @inheritDoc */
 visflow.Filter.prototype.init = function() {

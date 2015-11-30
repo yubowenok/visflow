@@ -60,7 +60,7 @@ visflow.Scatterplot.prototype.PANEL_TEMPLATE =
 
 
 /** @private @const {number} */
-visflow.Scatterplot.prototype.LABEL_FONT_SIZE_ = 5;
+visflow.Scatterplot.prototype.LABEL_FONT_SIZE_ = 5.5;
 
 /**
  * Margin space for axes.
@@ -367,7 +367,8 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     this.PLOT_MARGINS.top
   ];
   var yScaleInfo = visflow.utils.getScale(data, this.yDim, items, yRange, {
-    domainMargin: 0.1
+    domainMargin: 0.1,
+    ordinalPadding: 1.0
   });
   this.yScale = yScaleInfo.scale;
   this.yScaleType = yScaleInfo.type;
@@ -382,7 +383,8 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     svgSize.width - this.PLOT_MARGINS.right
   ];
   var xScaleInfo = visflow.utils.getScale(data, this.xDim, items, xRange, {
-    domainMargin: 0.1
+    domainMargin: 0.1,
+    ordinalPadding: 1.0
   });
   this.xScale = xScaleInfo.scale;
   this.xScaleType = xScaleInfo.type;

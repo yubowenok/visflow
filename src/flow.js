@@ -49,10 +49,11 @@ visflow.flow.resetFlow = function() {
 };
 
 /**
- * Disable change propagation, used in de-serialization.
+ * De-serialization flag. Propagation and panel show are disabled during
+ * de-serialization.
  * @type {boolean}
  */
-visflow.flow.propagateDisabled = false;
+visflow.flow.deserializing = false;
 
 
 /**
@@ -60,7 +61,7 @@ visflow.flow.propagateDisabled = false;
  * @const @private {!Object<*>}
  */
 visflow.flow.NODE_CONSTRUCTORS_ = {
-  datasrc: visflow.DataSource,
+  dataSource: visflow.DataSource,
   intersect: visflow.Intersect,
   minus: visflow.Minus,
   union: visflow.Union,
@@ -141,7 +142,7 @@ visflow.flow.createNode = function(type, save) {
     }.bind(newnode));
 
   this.nodes[newnode.id] = newnode;
-  if (type == 'datasrc' || type == 'value-maker') {
+  if (type == 'dataSource' || type == 'valueMaker') {
     this.dataSources.push(newnode);
   }
   // Select newnode (exclusive) after node creation.
@@ -202,7 +203,7 @@ visflow.flow.deleteNode = function(node) {
   }
   // Must first clear then toggle false. Otherwise the panel will not get
   // correct left offset (as its width changes).
-  visflow.optionPanel.toggle(false);
+  visflow.optionPanel.close();
   node.remove();  // removes the container
   delete this.nodes[node.id];
 };
@@ -222,7 +223,7 @@ visflow.flow.deleteEdge = function(edge) {
   // Propagation does not include processing the node being propagated.
   // Update is required on the downflow node so that it becomes aware of the
   // upflow changes.
-  if (!visflow.flow.propagateDisabled) {
+  if (!visflow.flow.deserializing) {
     edge.targetNode.update();
   }
   visflow.flow.propagate(edge.targetNode);
@@ -265,7 +266,7 @@ visflow.flow.cycleTest = function(sourceNode, targetNode) {
  * @param {!visflow.Node} node
  */
 visflow.flow.propagate = function(node) {
-  if (visflow.flow.propagateDisabled) {
+  if (visflow.flow.deserializing) {
     return;
   }
 
@@ -345,7 +346,7 @@ visflow.flow.serializeFlow = function() {
 visflow.flow.deserializeFlow = function(flow) {
   this.clearFlow();
 
-  visflow.flow.propagateDisabled = true;  // temporarily switch off propagation
+  visflow.flow.deserializing = true;  // temporarily switch off propagation
 
   var hashes = {};
 
@@ -359,9 +360,13 @@ visflow.flow.deserializeFlow = function(flow) {
     for (var j in type) {
       if (type[j] == '_') {
         type = type.replace(/_/g, '-');
-        visflow.error('fix old type with underscore');
+        visflow.warning('fix old type with underscore');
         break;
       }
+    }
+    if (type == 'datasrc') {
+      type = 'dataSource';
+      visflow.warning('fix old type datasrc');
     }
     loadCount++;
     var newnode = this.createNode(type, nodeSaved);
@@ -373,7 +378,6 @@ visflow.flow.deserializeFlow = function(flow) {
     }.bind(this));
     hashes[nodeSaved.hashtag] = newnode;
   }
-
 };
 
 /**
@@ -398,7 +402,7 @@ visflow.flow.deserializeFlowEdges_ = function(flow, hashes) {
     }
     this.createEdge(sourcePort, targetPort);
   }, this);
-  visflow.flow.propagateDisabled = false; // full propagation
+  visflow.flow.deserializing = false; // full propagation
   this.propagate(this.dataSources);
 };
 
@@ -535,6 +539,14 @@ visflow.flow.clearNodeSelection = function(nodes) {
     }
     delete this.nodesSelected[node.id];
   }
+};
+
+/**
+ * Clears the selection because of background click.
+ */
+visflow.flow.backgroundClearSelection = function() {
+  visflow.flow.clearNodeSelection();
+  visflow.optionPanel.close();
 };
 
 /**

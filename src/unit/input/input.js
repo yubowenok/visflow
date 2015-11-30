@@ -7,18 +7,18 @@
 /**
  * @param {{
  *   container: !jQuery,
- *       Container of the select
- *   accept: string,
- *       Accepted value type, int float or string
- *   range: Array<number>,
- *       Numerical value range
- *   scrollDelta: number,
- *       Delta value to change on mousewheel
- *   value: string|number,
- *       Initial value
- *   title: string,
- *   disabled: boolean
+ *   accept: string=,
+ *   range: Array<number>=,
+ *   scrollDelta: number=,
+ *   value: (string|number)=,
+ *   title: string=,
+ *   disabled: boolean=
  * }} params
+ *     container: Container of the select.
+ *     accept: Accepted value type, int float or string.
+ *     range: Numerical value range.
+ *     scrollDelta: Delta value to change on mousewheel.
+ *     value: Initial value.
  * @constructor
  */
 visflow.Input = function(params) {
@@ -56,10 +56,16 @@ visflow.Input = function(params) {
   }.bind(this));
 };
 
-/** @private @const {string} */
+/**
+ * Input HTML template.
+ * @private @const {string}
+ */
 visflow.Input.prototype.TEMPLATE_ = './src/unit/input/input.html';
 
-/** @inheritDoc */
+/**
+ * Initializes the Input.
+ * @private
+ */
 visflow.Input.prototype.init_ = function() {
   var title = this.container_.find('#title');
   if (this.title_) {
@@ -79,7 +85,7 @@ visflow.Input.prototype.init_ = function() {
       var delta = event.deltaY * event.deltaFactor;
       var sign = delta > 0 ? 1 : -1;
 
-      if (this.value_ == '') {
+      if (this.value_ === '') {
         this.value_ = 0;
       }
 
@@ -94,8 +100,12 @@ visflow.Input.prototype.init_ = function() {
     }.bind(this));
   }
 
-  if (this.value_ != '') {
-    input.val(this.value_);
+  if (this.value_ !== '') {
+    var valueString = this.value_;
+    if (this.value_ instanceof Array) {
+      valueString = this.value_.join(', ');
+    }
+    input.val(valueString);
   }
   if (this.disabled_) {
     this.disable();
@@ -140,7 +150,7 @@ visflow.Input.prototype.disable = function() {
 /**
  * Enables the input.
  */
-visflow.Input.prototype.disable = function() {
+visflow.Input.prototype.enable = function() {
   var input = this.container_.find('input');
   input.prop('disabled', false);
   this.disabled_ = false;

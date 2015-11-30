@@ -7,16 +7,16 @@
 /**
  * @param {{
  *   container: !jQuery,
- *       Container of the list
  *   list: !Array<{id: string|number, text: string}>,
- *       Items for selection
  *   selected: Array<string|number>
- *       Currently selected items
  *   listTitle: string,
- *       Text title for the list
- *   addTitle: string,
- *       Text to show for add item select2
+ *   addTitle: string
  * }} params
+ *     container: Container of the list.
+ *     list: Items for selection.
+ *     selected: Currently selected item(s).
+ *     listTitle: Text title for the list.
+ *     addTitle: Text to show for add item select2.
  * @constructor
  */
 visflow.EditableList = function(params) {

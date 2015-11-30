@@ -62,6 +62,14 @@ visflow.Data = function(data) {
 };
 
 /**
+ * Checks if the data is empty data.
+ * @return {boolean}
+ */
+visflow.Data.prototype.isEmpty = function() {
+  return this.type == 'empty';
+};
+
+/**
  * Gets the number of data items.
  * @return {number}
  */

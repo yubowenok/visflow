@@ -587,7 +587,7 @@ visflow.interaction.clickHandler = function(params) {
   var type = params.type,
       event = params.event;
   if (type == 'empty') {
-    visflow.flow.clearNodeSelection();
+    visflow.flow.backgroundClearSelection();
     $('input').blur();
   }
 };

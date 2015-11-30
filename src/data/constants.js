@@ -81,12 +81,7 @@ visflow.Constants.prototype.compatible = function(pack) {
  * @return {string}
  */
 visflow.Constants.prototype.stringify = function() {
-  var result = '';
-  for (var i in this.elements) {
-    result += this.elements[i];
-    result += i == this.elements.length - 1 ? '' : ', ';
-  }
-  return result;
+  return this.elements.join(', ');
 };
 
 /**

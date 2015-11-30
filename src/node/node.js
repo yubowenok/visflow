@@ -164,14 +164,18 @@ visflow.Node.prototype.COMMON_PANEL_TEMPLATE_ = './src/node/node-panel.html';
  */
 visflow.Node.prototype.PANEL_TEMPLATE = '';
 
-// Minimum size of resizable. Default is no minimum.
+// Minimum/maximum size of resizable.
 /** @protected @const {number} */
-visflow.Node.prototype.MIN_WIDTH = 0;
+visflow.Node.prototype.MIN_WIDTH = 120;
 /** @protected @const {number} */
-visflow.Node.prototype.MIN_HEIGHT = 0;
+visflow.Node.prototype.MIN_HEIGHT = 60;
+/** @protected @const {number} */
+visflow.Node.prototype.MAX_WIDTH = Infinity;
+/** @protected @const {number} */
+visflow.Node.prototype.MAX_HEIGHT = Infinity;
 
 /** @protected @const {number} */
-visflow.Node.prototype.MAX_LABEL_LENGTH = 11;
+visflow.Node.prototype.MAX_LABEL_LENGTH = 15;
 
 /**
  * Whether the node is resizable.
@@ -499,6 +503,8 @@ visflow.Node.prototype.interaction = function() {
       handles: 'all',
       minWidth: this.MIN_WIDTH,
       minHeight: this.MIN_HEIGHT,
+      maxWidth: this.MAX_WIDTH,
+      maxHeight: this.MAX_HEIGHT,
       resize: function(event, ui) {
         this.resize(ui.size);
       }.bind(this),
@@ -901,10 +907,13 @@ visflow.Node.prototype.resizeStop = function(size) {
  * Displays node options from the node control panel template.
  */
 visflow.Node.prototype.panel = function() {
+  if (visflow.flow.deserializing) {
+    // Not popping up panels during de-serialization.
+    return;
+  }
+
   visflow.optionPanel.load(this.COMMON_PANEL_TEMPLATE_, function(container) {
-
     this.initPanelHeader(container);
-
     // Load type specific node panel.
     if (this.PANEL_TEMPLATE != '') {
       container.find('.panel-content').load(this.PANEL_TEMPLATE, function() {
@@ -983,6 +992,19 @@ visflow.Node.prototype.initPanelHeader = function(container) {
  * @param {!jQuery} container Panel container.
  */
 visflow.Node.prototype.initPanel = function(container) {};
+
+/**
+ * Updates the panel when option values changes in the node.
+ * @param {!jQuery} container Panel container.
+ */
+visflow.Node.prototype.updatePanel = function(container) {
+  if (!visflow.optionPanel.isOpen) {
+    // Do nothing if panel is not open.
+    return;
+  }
+  // Naive simplest update is to redraw.
+  this.initPanel(container);
+};
 
 /**
  * Displays node details.

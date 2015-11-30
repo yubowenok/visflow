@@ -5,7 +5,9 @@
 'use strict';
 
 /**
- * @param params
+ * @param {{
+ *   container: !jQuery
+ * }} params
  * @constructor
  * @extends {visflow.Select}
  */

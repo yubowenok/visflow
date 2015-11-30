@@ -37,10 +37,13 @@ visflow.Edge.prototype.CONTEXTMENU_ITEMS = [
  * Prepares contextMenu for the edge.
  */
 visflow.Edge.prototype.contextMenu = function() {
-  this.contextMenu = new visflow.ContextMenu({
+  var contextMenu = new visflow.ContextMenu({
     container: this.container,
     items: this.CONTEXTMENU_ITEMS
   });
+
+  $(contextMenu)
+    .on('visflow.delete', this.delete.bind(this));
 };
 
 /**
@@ -258,6 +261,14 @@ visflow.Edge.prototype.remove = function() {
  */
 visflow.Edge.prototype.hide = function() {
   this.container.hide();
+};
+
+
+/**
+ * Deletes the edge.
+ */
+visflow.Edge.prototype.delete = function() {
+  visflow.flow.deleteEdge(this);
 };
 
 /**

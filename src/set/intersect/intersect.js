@@ -48,7 +48,7 @@ visflow.Intersect.prototype.process = function() {
     for (var index in outpack.items) {
       var item = inpack.items[index];
       if (item != null) {
-        // merge rendering property
+        // Merge rendering properties.
         _(outpack.items[index].properties).extend(item.properties);
       } else {
         delete outpack.items[index];

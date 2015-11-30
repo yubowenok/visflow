@@ -12,7 +12,7 @@
 }
 
 .visflow .node.data-source.minimized > .icon {
-  background-image: url(/visflow/imgs/datasrc-icon.png);
+  background-image: url(/visflow/imgs/datasource-icon.png);
 }
 
 .visflow .node.data-source {

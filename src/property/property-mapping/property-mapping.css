@@ -1,3 +1,38 @@
+.visflow .node.property-mapping.details {
+  width: 150px;
+  height: 142px;
+}
+
+.visflow .node.property-mapping.details .content > div {
+  margin-top: 3px;
+  margin-bottom: 3px;
+}
+
 .visflow .node.property-mapping.minimized > .icon {
   background-image: url(/visflow/imgs/property-mapping-icon.png);
+}
+
+.visflow .node.property-mapping.details #number {
+  margin-top: 10px;
+}
+
+.visflow .node.property-mapping.details #min > div,
+.visflow .node.property-mapping.details #max > div {
+  display: inline-block;
+}
+
+.visflow .node.property-mapping.details #min input,
+.visflow .node.property-mapping.details #max input {
+  width: 50px;
+  font-size: 0.95em;
+  padding: 3px 6px;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#option-panel .property-mapping .select2-container,
+#option-panel .property-mapping .form-control {
+  width: 150px;
 }

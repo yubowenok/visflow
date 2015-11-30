@@ -22,13 +22,16 @@
   <!-- select2 -->
   <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
-
   <!-- datatables -->
   <script type="text/javascript" src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
   <script type="text/javascript" src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
   <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css"/>
   <script type="text/javascript" src="bower_components/datatables.net-select/js/dataTables.select.min.js"></script>
   <link rel="stylesheet" href="bower_components/datatables.net-select-bs/css/select.bootstrap.min.css"/>
+  <!-- bootstrap-colorpicker -->
+  <script type="text/javascript" src="bower_components/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+  <link rel="stylesheet" href="bower_components/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css"/>
+
   <!-- others -->
   <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
@@ -71,7 +74,9 @@
   <link rel="stylesheet" href="src/unit/input/input.css"/>
   <script type="text/javascript" src="src/unit/colorscale-select/colorscale-select.js"></script>
   <link rel="stylesheet" href="src/unit/colorscale-select/colorscale-select.css"/>
-  <script type="text/javascript" src="src/unit/colorpicker.js"></script>
+  <script type="text/javascript" src="src/unit/colorpicker/colorpicker.js"></script>
+  <link rel="stylesheet" href="src/unit/colorpicker/colorpicker.css"/>
+
   <script type="text/javascript" src="src/unit/checkbox.js"></script>
   <link rel="stylesheet" href="src/unit/unit.css"/>
 
@@ -129,11 +134,16 @@
 
   <!-- value processors -->
   <script type="text/javascript" src="src/value/value-maker/value-maker.js"></script>
+  <link rel="stylesheet" href="src/value/value-maker/value-maker.css"/>
   <script type="text/javascript" src="src/value/value-extractor/value-extractor.js"></script>
+  <link rel="stylesheet" href="src/value/value-extractor/value-extractor.css"/>
 
   <!-- property processors -->
+  <script type="text/javascript" src="src/property/property.js"></script>
   <script type="text/javascript" src="src/property/property-editor/property-editor.js"></script>
+  <link rel="stylesheet" href="src/property/property-editor/property-editor.css"/>
   <script type="text/javascript" src="src/property/property-mapping/property-mapping.js"></script>
+  <link rel="stylesheet" href="src/property/property-mapping/property-mapping.css"/>
 
   <!-- system program entry -->
   <script type="text/javascript" src="src/menu.js"></script>
@@ -156,7 +166,7 @@
   <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand bold" href="#">VisFlow</a>
+      <a class="navbar-brand bold">VisFlow</a>
     </div>
     <ul class="nav navbar-nav">
       <li id="diagram" class="dropdown">

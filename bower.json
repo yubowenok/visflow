@@ -26,6 +26,7 @@
     "jquery": "~2.1.4",
     "jquery-mousewheel": "~3.1.12",
     "jquery-ui": "~1.11.4",
+    "mjolnic-bootstrap-colorpicker": "~2.3.0",
     "select2": "~4.0.0",
     "select2-bootstrap-css": "~1.4.6",
     "underscore": "~1.8.2"

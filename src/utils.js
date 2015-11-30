@@ -114,6 +114,19 @@ visflow.utils.twosides = function(p1, p2, q1, q2) {
 };
 
 /**
+ * Checks if a string is a valid hex color.
+ * @param {string} color
+ * @return {boolean}
+ */
+visflow.utils.isColor = function(color) {
+  if (color == 'none') {
+    return true;
+  }
+  var m = color.match(/#?[a-f0-9]{6}/);
+  return m != null && m[0] == color;
+};
+
+/**
  * Compares array or number lexicographically.
  * @param {number|!Array<number>} a
  * @param {number|!Array<number>} b
@@ -231,12 +244,14 @@ visflow.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
  * @param {!Array<number>} range Range of the scale.
  * @param {{
  *   domainMargin: number=,
- *       Margin percentage, this has no effect if domain span is zero
  *   rangeMargin: number=,
- *       Margin percentage, this has no effect if range span is zero
- *   ordinalRangeType: string=
- *       rangePoints, rangeBands,  rangeRoundBands
+ *   ordinalRangeType: string=,
+ *   ordinalPadding: number=
  * }=} opt_params
+ *   domainMargin: Margin percentage, this has no effect if domain span is zero.
+ *   rangeMargin: Margin percentage, this has no effect if range span is zero.
+ *   ordinalRangeType: rangePoints, rangeBands, rangeRoundBands.
+ *   ordinalPadding: Padding used for ordinal range.
  * @return {!{scale: !d3.scale, type: visflow.ScaleType}}
  */
 visflow.utils.getScale = function(data, dim, items, range, opt_params) {
@@ -274,18 +289,21 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
       for (var index in items) {
         values.push(data.values[index][dim]);
       }
+      var uniqValues = _.uniq(values);
       scale = d3.scale.ordinal()
-        .domain(_.uniq(values));
+        .domain(uniqValues);
 
+      var ordinalPadding = params.ordinalPadding != null ?
+          params.ordinalPadding : 0;
       switch(params.ordinalRangeType) {
         case 'rangeBands':
-          scale.rangeBands(range);
+          scale.rangeBands(range, ordinalPadding);
           break;
         case 'rangeRoundBands':
-          scale.rangeRoundBands(range);
+          scale.rangeRoundBands(range, ordinalPadding);
           break;
         default:
-          scale.rangePoints(range, 1.0);
+          scale.rangePoints(range, ordinalPadding);
       }
       break;
   }
@@ -298,6 +316,7 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
 /**
  * Gets an array as the compare key of rendering properties.
  * @param {!Object} properties
+ * @return {!Array<number|string>}
  */
 visflow.utils.propertiesCompareKey = function(properties) {
   var result = [];
@@ -311,17 +330,20 @@ visflow.utils.propertiesCompareKey = function(properties) {
       result.push(p);
     }
   }, this);
+  return result;
 };
 
 /**
  * Compares two rendering property objects.
  * @param {!{
  *   properties: !Object
+ *   propertiesKey: !Array<string|number>
  * }} a
  * @param {!{
  *   properties: !Object
+ *   propertiesKey: !Array<string|number>
  * }} b
- * @returns {number}
+ * @return {number} -1, 0, 1 for a < b, a = b, a > b
  */
 visflow.utils.propertiesCompare = function(a, b) {
   if (!('propertiesKey' in a)) {

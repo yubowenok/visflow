@@ -50,7 +50,7 @@ visflow.Union.prototype.process = function() {
       var itemout = outpack.items[index];
       var item = inpack.items[index];
       if (itemout != null) {
-        // merge rendering property
+        // Merge rendering properties.
         _(itemout.properties).extend(item.properties);
       } else {
         outpack.items[index] = {

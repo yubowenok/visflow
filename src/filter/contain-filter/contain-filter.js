@@ -38,6 +38,13 @@ visflow.ContainFilter = function(params) {
    * @protected {string}
    */
   this.mode = 'text';
+
+  /**
+   * Matching target.
+   * 'full' or 'substring'
+   * @protected {string}
+   */
+  this.target = 'full';
 };
 
 visflow.utils.inherit(visflow.ContainFilter, visflow.Filter);
@@ -74,12 +81,13 @@ visflow.ContainFilter.prototype.deserialize = function(save) {
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.initPanel = function(container) {
-  var dimensionList = this.getDimensionList();
   var dimSelect = new visflow.Select({
     container: container.find('#dim'),
-    list: dimensionList,
+    list: this.getDimensionList(),
     selected: this.dim,
-    listTitle: 'Filtering Dimension'
+    listTitle: 'Filtering Dimension',
+    selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        this.NO_DATA_STRING : null
   });
   $(dimSelect).on('visflow.change', function(event, dim) {
     this.dim = dim;
@@ -87,7 +95,7 @@ visflow.ContainFilter.prototype.initPanel = function(container) {
   }.bind(this));
 
   var inputVal = new visflow.Input({
-    container: container.find('#val'),
+    container: container.find('#value'),
     value: this.value,
     title: 'Value(s)',
     disabled: this.ports['inVal'].connected()
@@ -103,7 +111,7 @@ visflow.ContainFilter.prototype.initPanel = function(container) {
     {id: 'regex', text: 'Regex'}
   ];
   var modeSelect = new visflow.Select({
-    container: container.find('#input-mode'),
+    container: container.find('#mode'),
     list: modes,
     selected: this.mode,
     listTitle: 'Matching Mode'
@@ -113,32 +121,52 @@ visflow.ContainFilter.prototype.initPanel = function(container) {
     this.inputChanged();
   }.bind(this));
 
+  var targets = [
+    {id: 'full', text: 'Full String'},
+    {id: 'substring', text: 'Substring'}
+  ];
+  var targetSelect = new visflow.Select({
+    container: container.find('#target'),
+    list: targets,
+    selected: this.target,
+    listTitle: 'Matching Target'
+  });
+  $(targetSelect).on('visflow.change', function(event, target) {
+    this.target = target;
+    this.inputChanged();
+  }.bind(this));
 };
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.showDetails = function() {
-  visflow.ContainFilter.base.showDetails.call(this); // call parent settings
+  visflow.ContainFilter.base.showDetails.call(this);
 
-  var data = this.ports['in'].pack.data;
+  var dimSelect = new visflow.Select({
+    container: this.content.find('#dim'),
+    list: this.getDimensionList(),
+    selected: this.dim,
+    selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        this.NO_DATA_STRING : null
+  });
+  $(dimSelect).on('visflow.change', function(event, dim) {
+    this.dim = dim;
+    this.inputChanged();
+  }.bind(this));
 
-  var dim = this.content.find('#dim');
-  var dimText = data.dimensions[this.dim] != null ? data.dimensions[this.dim] :
-    'N/A';
-  dim.text(dimText);
-
-  var value = this.content.find('#val');
-  value.text(this.value != null ? this.value : this.NULL_VALUE_STRING);
+  var inputVal = new visflow.Input({
+    container: this.content.find('#value'),
+    value: this.value,
+    disabled: this.ports['inVal'].connected()
+  });
+  $(inputVal).on('visflow.change', function(event, value) {
+    console.log(value);
+    this.typeInValue = '' + value;
+    this.inputChanged();
+  }.bind(this));
 };
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.process = function() {
-  var inpack = this.ports['in'].pack;
-  var outpack = this.ports['out'].pack;
-  if (inpack.isEmpty()) {
-    outpack.copy(inpack);
-    return;
-  }
-
   var port = this.ports['inVal'];
   var pack;
   if (port.connected()) {
@@ -149,8 +177,14 @@ visflow.ContainFilter.prototype.process = function() {
     // Empty constants
     pack = port.pack;
   }
-
   this.value = pack.getAll();
+
+  var inpack = this.ports['in'].pack;
+  var outpack = this.ports['out'].pack;
+  if (inpack.isEmpty()) {
+    outpack.copy(inpack);
+    return;
+  }
 
   if (this.lastDataId != inpack.data.dataId) {
     this.lastDataId = inpack.data.dataId;
@@ -178,9 +212,9 @@ visflow.ContainFilter.prototype.filter = function() {
         pattern = RegExp(pattern);
       }
       var m = value.match(pattern);
-      if (m != null) {
-         result.push(index);
-         break;
+      if (m != null && (this.target == 'substring' || m[0] == value)) {
+        result.push(index);
+        break;
       }
     }
   }

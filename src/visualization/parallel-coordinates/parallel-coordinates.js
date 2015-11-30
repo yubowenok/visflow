@@ -332,13 +332,8 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
   var yScale = this.yScales[dimIndex];
   var axis = d3.svg.axis()
     .orient('left')
-    .tickValues(yScale.domain());
-
-  if (this.yScaleTypes[dimIndex] == 'ordinal'){
-    axis.scale(yScale.copy().rangePoints(yScale.range()));
-  } else {
-    axis.scale(yScale.copy());
-  }
+    .tickValues(yScale.domain())
+    .scale(yScale);
 
   var data = this.ports['in'].pack.data;
 

@@ -12,26 +12,45 @@
 visflow.ValueMaker = function(params) {
   visflow.ValueMaker.base.constructor.call(this, params);
 
-  this.viewHeight = 40; // height + padding
-
   /** @inheritDoc */
   this.ports = {
     out: new visflow.Port(this, 'out', 'out-multiple', 'V', true)
   };
 
-  // stored input value
+  /**
+   * User typed in value string.
+   * @protected {string}
+   */
   this.valueString = '';
-  this.value = new visflow.Constants(this.valueString);
-  // overwrite with constants
-  this.outPorts[0].pack = this.value;
+
+  /**
+   * Parsed value as constants.
+   * @protected {visflow.Constants}
+   */
+  this.value = new visflow.Constants('' + this.valueString);
+
+
+  this.ports['out'].pack = this.value;
 };
 
 visflow.utils.inherit(visflow.ValueMaker, visflow.Node);
 
 /** @inheritDoc */
-visflow.ValueMaker.prototype.contextmenuDisabled = {
-  options: true
-};
+visflow.ValueMaker.prototype.NODE_NAME = 'Value Maker';
+/** @inheritDoc */
+visflow.ValueMaker.prototype.NODE_CLASS = 'value-maker';
+/** @inheritDoc */
+visflow.ValueMaker.prototype.TEMPLATE =
+    './src/value/value-maker/value-maker.html';
+/** @inheritDoc */
+visflow.ValueMaker.prototype.PANEL_TEMPLATE =
+    './src/value/value-maker/value-maker-panel.html';
+/** @inheritDoc */
+visflow.ValueMaker.prototype.MIN_WIDTH = 120;
+/** @inheritDoc */
+visflow.ValueMaker.prototype.MIN_HEIGHT = 53;
+/** @inheritDoc */
+visflow.ValueMaker.prototype.MAX_HEIGHT = 53;
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.serialize = function() {
@@ -47,24 +66,47 @@ visflow.ValueMaker.prototype.deserialize = function(save) {
 };
 
 /** @inheritDoc */
+visflow.ValueMaker.prototype.initPanel = function(container) {
+  visflow.ValueMaker.base.initPanel.call(this, container);
+
+  var input = new visflow.Input({
+    container: container.find('#value'),
+    value: this.valueString,
+    title: 'Value'
+  });
+  $(input).on('visflow.change', function(event, valueString) {
+    this.setValueString(valueString);
+    this.inputChanged();
+  }.bind(this));
+};
+
+/** @inheritDoc */
 visflow.ValueMaker.prototype.showDetails = function() {
-  visflow.ValueMaker.base.showDetails.call(this); // call parent settings
+  visflow.ValueMaker.base.showDetails.call(this);
 
-  $('<div><input id="v" style="width:80%"/></div>')
-    .prependTo(this.container);
+  var input = new visflow.Input({
+    container: this.content.find('#value'),
+    value: this.valueString
+  });
+  $(input).on('visflow.change', function(event, valueString) {
+    this.setValueString(valueString);
+    this.inputChanged();
+  }.bind(this));
+};
 
-  this.jqinput = this.container.find('input')
-    .addClass('input input-node');
-
-  var node = this;
-  this.jqinput
-    .change(function(event) {
-      node.setValueString(event.target.value);
-    });
+/**
+ * Handles input changes.
+ */
+visflow.ValueMaker.prototype.inputChanged = function() {
+  this.process();
+  this.show();
+  this.updatePanel(visflow.optionPanel.contentContainer());
+  this.pushflow();
 };
 
 /**
  * Sets the value string.
+ * @param {string} str
  */
 visflow.ValueMaker.prototype.setValueString = function(str) {
   if (str == this.valueString) {
@@ -72,11 +114,7 @@ visflow.ValueMaker.prototype.setValueString = function(str) {
   }
 
   this.valueString = str;
-  this.value = new visflow.Constants(str);
-  this.jqinput.val(str);
+  this.value = new visflow.Constants('' + str);
 
   $.extend(this.ports['out'].pack, this.value);
-
-  visflow.flow.propagate(this);
 };
-

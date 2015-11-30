@@ -54,6 +54,14 @@ visflow.optionPanel.init = function() {
 };
 
 /**
+ * Gets the option panel content contianer.
+ * @return {!jQuery}
+ */
+visflow.optionPanel.contentContainer = function() {
+  return this.container_.find('.content');
+};
+
+/**
  * Gets the current width of the option panel. This is used to set the
  * horizontal panel offset (right parameter).
  * @return {number} Current width of the panel.
@@ -177,5 +185,5 @@ visflow.optionPanel.load = function(template, complete) {
  * Closes the option panel.
  */
 visflow.optionPanel.close = function() {
-  visflow.error('close not implemented');
+  visflow.optionPanel.toggle(false);
 };

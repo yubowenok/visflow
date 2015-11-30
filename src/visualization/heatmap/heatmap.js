@@ -434,7 +434,6 @@ visflow.Heatmap.prototype.initPanel = function(container) {
 
   var colorScaleSelect = new visflow.ColorScaleSelect({
     container: container.find('#color-scale'),
-    allowClear: true,
     selected: this.options.colorScaleId,
     listTitle: 'Color Scale'
   });

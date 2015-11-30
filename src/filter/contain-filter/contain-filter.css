@@ -1,18 +1,18 @@
-.visflow .node.filter.contain-filter.details {
-  width: 120px;
-  height: 60px;
-}
-
-.visflow .node.contain-filter.details #val {
-  text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  pointer-events: none;
-}
-
-.visflow .node.contain.minimized > .icon {
+.visflow .node.contain-filter.minimized > .icon {
   background-image: url(/visflow/imgs/contain-icon.png);
+}
+
+.visflow .node.contain-filter.details {
+  width: 150px;
+}
+
+.visflow .node.contain-filter.details #value input {
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+#option-panel .contain-filter #value input {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }

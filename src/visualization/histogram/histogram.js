@@ -19,7 +19,7 @@ visflow.Histogram = function(params) {
   this.dim = 0;
 
   /**
-   * Histogram data, created by assignign each item a bin.
+   * Histogram data, created by assigning each item a bin.
    * @private {!Array}
    */
   this.histogramData_ = [];
@@ -198,7 +198,8 @@ visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
       }, this);
     }, this);
   }, this);
-  this.showDetails();
+  this.applyProperties_();
+  this.show();
   this.pushflow();
 };
 
@@ -321,6 +322,9 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
         y: y,
         dy: k - j,
         dx: barProp.dx,
+        // Original properties are kept intact during rendering.
+        originalProperties: sorted[j].properties,
+        // Properties can be modified based on whether bars are selected.
         properties: sorted[j].properties,
         members: members
       };
@@ -341,7 +345,7 @@ visflow.Histogram.prototype.applyProperties_ = function() {
       var prop = _.extend(
         {},
         this.defaultProperties,
-        bin.prop
+        group.originalProperties
       );
       var barId = bin.id + ',' + group.id;
       if (barId in this.selectedBars) {
@@ -402,7 +406,7 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
   var groupTransform = function(group) {
     return visflow.utils.getTransform([
       this.BAR_INTERVAL_,
-      this.yScale(group.y + group.dy)
+      Math.floor(this.yScale(group.y + group.dy))
     ]);
   }.bind(this);
   bars.enter().append('rect')
@@ -423,7 +427,7 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     .attr('transform', groupTransform)
     .attr('width', barWidth)
     .attr('height', function(group) {
-      return this.yScale(0) - this.yScale(group.dy);
+      return Math.ceil(this.yScale(0) - this.yScale(group.dy));
     }.bind(this))
     .style('fill', getPropertiesValue('color'))
     .style('stroke', getPropertiesValue('border'))

@@ -1,3 +1,7 @@
+.visflow .node.range-filter.details {
+  width: 190px;
+}
+
 .visflow .node.range-filter.details #range > span {
   display: inline-block;
 }
@@ -8,16 +12,21 @@
   top: -7px;
 }
 
-.visflow .node.range-filter.details #min,
-.visflow .node.range-filter.details #max {
+.visflow .node.range-filter.details #min > div,
+.visflow .node.range-filter.details #max > div {
+  display: inline-block;
+}
+
+.visflow .node.range-filter.details #min > .input,
+.visflow .node.range-filter.details #max > .input {
   width: calc((100% - 30px) / 2);
+}
+
+.visflow .node.range-filter.details #min input,
+.visflow .node.range-filter.details #max input {
   text-align: center;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  pointer-events: none;
+  font-size: 0.95em;
+  padding: 6px 6px;
 }
 
 .visflow .node.range-filter.minimized > .icon {

@@ -7,19 +7,20 @@
 /**
  * @param {{
  *   container: !jQuery,
- *       Container of the select
  *   list: !Array<{id: string|number, text: string}>,
- *       Items for selection
- *   selected: string|number
- *       Currently selected items
- *   listTitle: string,
- *       Text title for the list
+ *   selected: (string|number)=
+ *   listTitle: string=,
  *   allowClear: boolean=,
- *       Whether no selection is allowed, if false, then selected must be given
- *   selectTitle: string,
- *       Text to show for add item select2
- *       This will be used as placeholder
+ *   selectTitle: string=
  * }} params
+ *     container: Container of the select.
+ *     list: Items for selection.
+ *     selected: Currently selected items.
+ *     listTitle: Text title for the list.
+ *     allowClear: Whether no selection is allowed, if false, then selected must
+ *         be given.
+ *     selectTitle: Text to show for add item select2. This will be used as
+ *         placeholder.
  * @constructor
  */
 visflow.Select = function(params) {
@@ -79,11 +80,31 @@ visflow.Select.prototype.init_ = function() {
 
   this.container_.find('.select2-container').css('width', '');
 
-  this.select2_.on('change', function() {
-    var id = this.select2_.val();
+  this.select2_.on('change', this.change_.bind(this));
+};
+
+/**
+ * Handles select2 change.
+ * @private
+ */
+visflow.Select.prototype.change_ = function() {
+  var id = this.select2_.val();
+  if (this.selected_ != id) {
     this.selected_ = id;
     this.signal_('change');
-  }.bind(this));
+  }
+};
+
+/**
+ * Selects a given element.
+ * @param {string} id
+ */
+visflow.Select.prototype.select = function(id) {
+  this.selected_ = id;
+  // Disable change_ callback to avoid event looping.
+  this.select2_.off('change', this.change_.bind(this));
+  this.select2_.val(id).trigger('change');
+  this.select2_.on('change', this.change_.bind(this));
 };
 
 /**
