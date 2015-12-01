@@ -353,12 +353,11 @@ visflow.flow.deserializeFlow = function(flow) {
   // Count pending node loads.
   var loadCount = 0;
 
-  for (var i in flow.nodes) {
-    var nodeSaved = flow.nodes[i];
+  flow.nodes.forEach(function(nodeSaved) {
     var type = nodeSaved.type;
 
-    for (var j in type) {
-      if (type[j] == '_') {
+    for (var i = 0; i < type.length; i++) {
+      if (type[i] == '_') {
         type = type.replace(/_/g, '-');
         visflow.warning('fix old type with underscore');
         break;
@@ -369,14 +368,20 @@ visflow.flow.deserializeFlow = function(flow) {
       visflow.warning('fix old type datasrc');
     }
     loadCount++;
-    var newnode = this.createNode(type, nodeSaved);
+    var newnode = visflow.flow.createNode(type, nodeSaved);
     $(newnode).on('visflow.ready', function() {
       loadCount--;
       if (loadCount == 0) {
-        this.deserializeFlowEdges_(flow, hashes);
+        visflow.flow.deserializeFlowEdges_(flow, hashes);
       }
-    }.bind(this));
+    });
     hashes[nodeSaved.hashtag] = newnode;
+  });
+
+  // Corner case: saved diagram is empty. In this case no edge de-serialization
+  // is called and we have to turn deserializing flag off here.
+  if (flow.nodes.length == 0) {
+    visflow.flow.deserializing = false;
   }
 };
 
