@@ -463,10 +463,12 @@ visflow.Heatmap.prototype.sortItems_ = function() {
   }
   this.itemIndices_.sort(function(a, b){
     var sortBy = this.options.sortBy;
+    // Sorting is in reversed order, as rendering starts from bottom.
     if (sortBy === '') {
-      return a - b; // default sort by index
+      // Default sort by index.
+      return b - a;
     } else {
-      return visflow.utils.compare(data.values[a][sortBy],
+      return -visflow.utils.compare(data.values[a][sortBy],
           data.values[b][sortBy], data.dimensionTypes[sortBy]);
     }
   }.bind(this));

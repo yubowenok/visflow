@@ -197,7 +197,7 @@ visflow.Node.prototype.NODE_CLASS = '';
 visflow.Node.prototype.NODE_NAME = 'node';
 
 /** @const {number} */
-visflow.Node.prototype.PORT_HEIGHT = 20;
+visflow.Node.prototype.PORT_HEIGHT = 15;
 /** @const {number} */
 visflow.Node.prototype.PORT_GAP = 1;
 

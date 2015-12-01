@@ -38,6 +38,8 @@ visflow.Port = function(node, id, type, text, isConstants) {
   this.isInPort = this.type.substr(0, 2) == 'in';
   /** @type {boolean} */
   this.isSingle = this.type.match('single') != null;
+  /** @type {boolean} */
+  this.isSelection = text == 'S';
    /** @type {boolean} */
   this.isConstants = isConstants == true;
 
@@ -189,16 +191,17 @@ visflow.Port.prototype.setContainer = function(container) {
   this.container
     .attr('id', this.id)
     .addClass('port')
-    .addClass(this.isInPort ? 'port-in' : 'port-out');
+    .addClass(this.isInPort ? 'left' : 'right');
 
   if (this.isConstants) {
     this.container.addClass('constants');
   }
 
   $('<div></div>')
-    .text(this.text)
-    .addClass('port-icon port-icon-'
-      + (this.isSingle ? 'single' : 'multiple'))
+    //.text(this.text)
+    .addClass('port-icon')
+    .addClass(this.isSingle ? 'single' : 'multiple')
+    .addClass(this.isSelection ? 'selection' : '')
     .appendTo(this.container);
 
   $('<div></div>')
@@ -236,19 +239,14 @@ visflow.Port.prototype.interaction = function() {
     .dblclick(function() {
       console.log(port.pack, port.pack.count()); // for debug
     })
-    .mouseenter(function(){
-      for (var i in port.connections) {
-        visflow.viewManager.addEdgeHover(port.connections[i]);
-      }
-    })
+    .mouseenter(function() {
+      this.connections.forEach(function(connection) {
+        visflow.viewManager.addEdgeHover(connection);
+      });
+    }.bind(this))
     .mouseleave(function(){
       visflow.viewManager.clearEdgeHover();
-    })
-    .mousedown(function(event){
-      if(event.which == visflow.interaction.keyCodes.RIGHT_MOUSE){
-
-      }
-    })
+    }.bind(this))
     .draggable({
       helper : function() {
         return $('<div></div>');

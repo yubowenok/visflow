@@ -28,10 +28,7 @@ visflow.menu.init = function() {
   // Edit dropdown
   var edit = navbar.find('#edit');
   edit.find('#add-node').click(function() {
-    visflow.viewManager.showAddPanel();
-  });
-  edit.find('#panel').click(function() {
-    visflow.viewManager.showAddPanel();
+    visflow.nodePanel.toggle(true);
   });
 
   // VisMode button

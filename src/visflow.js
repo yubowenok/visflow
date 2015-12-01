@@ -24,8 +24,6 @@ visflow.init = function() {
   visflow.nodePanel.init();
   visflow.popupPanel.init();
   visflow.interaction.init();
-
-  visflow.test.run();
 };
 
 /**

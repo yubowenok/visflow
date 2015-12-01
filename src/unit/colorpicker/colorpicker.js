@@ -85,7 +85,7 @@ visflow.ColorPicker.prototype.change_ = function(event) {
     // Allow no color set.
     newColor = null;
   }
-  if (newColor != this.color_) {
+  if (newColor !== this.color_) {
     this.color_ = newColor;
     if (this.color_ == null) {
       this.container_.find('.input-group-addon').children('i')

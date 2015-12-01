@@ -164,7 +164,7 @@ visflow.flow.createEdge = function(sourcePort, targetPort) {
   var con = sourcePort.connectable(targetPort);
 
   if (!con.connectable) {
-    visflow.viewManager.tip(con.reason);
+    visflow.tooltip.create(con.reason);
     return null;
   }
 
@@ -474,6 +474,7 @@ visflow.flow.clearFlow = function() {
   // clear screen
   visflow.viewManager.clearFlowViews();
   this.resetFlow();
+  visflow.optionPanel.close();
 };
 
 /**

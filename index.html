@@ -106,6 +106,7 @@
   <link rel="stylesheet" href="src/visualization/visualization.css"/>
   <!-- network -->
   <script type="text/javascript" src="src/visualization/network/network.js"></script>
+  <link rel="stylesheet" href="src/network/network.css"/>
   <!-- heatmap -->
   <script type="text/javascript" src="src/visualization/heatmap/heatmap.js"></script>
   <link rel="stylesheet" href="src/visualization/heatmap/heatmap.css"/>
@@ -159,6 +160,7 @@
   <script>
     $(document).ready(function () {
       visflow.init();
+      visflow.test.run();
     });
   </script>
 </head>
@@ -180,16 +182,17 @@
       <li id="edit" class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown">Edit <span class="caret"></span></a>
         <ul class="dropdown-menu">
-          <li><a id="panel"><i class="glyphicon glyphicon-list-alt"></i>Call Panel</a></li>
           <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node</a></li>
         </ul>
       </li>
+      <!--
       <li id="options" class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
         <ul class="dropdown-menu">
           <li><a id="compact-panel"><i class="glyphicon"></i>Compact Panel</a></li>
         </ul>
       </li>
+      -->
       <li id="help" class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
         <ul class="dropdown-menu">
@@ -239,7 +242,7 @@
     <div id="nodes"></div>
     <div id="hover"></div>
     <div id="selectbox"></div>
-    <div id="edge-drawing" style="visibility:hidden">
+    <div id="edge-drawing" style="display: none;">
       <div id="edge-drawing-segment" class="edge-segment"></div>
       <div id="edge-drawing-arrow" class="edge-arrow"></div>
     </div>
@@ -258,7 +261,15 @@
     </div>
   </div>
 
-  <div id="node-panel"></div>
+  <div id="node-panel">
+    <button id="btn-toggle">
+      <span class="glyphicon glyphicon-plus"></span>
+    </button>
+    <div class="hover-area">
+    </div>
+    <div class="content">
+    </div>
+  </div>
 
   <div id="popup-panel" class="popup-panel" style="display: none;"></div>
 </body>

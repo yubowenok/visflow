@@ -48,14 +48,11 @@ visflow.Network = function(params) {
   /** @protected {!Object<boolean>} */
   this.selectedEdges = {};
 
-  $(this.options).extend({
-    // Whether to show label.
-    nodeLabel: true,
-    // Which dimension is used as label.
-    labelBy: 0,
-    // D3 force-directed layout force charge.
-    charge: -10000
-  });
+  /**
+   * Last data id for edges.
+   * @protected {number}
+   */
+  this.lastEdgeDataId = 0;
 
   /**
    * Interactive panning state.
@@ -69,8 +66,14 @@ visflow.Network = function(params) {
    */
   this.translate_ = [0, 0];
 
-
-  this.lastDataIdEdges = 0;
+  $(this.options).extend({
+    // Whether to show label.
+    nodeLabel: true,
+    // Which dimension is used as label.
+    labelBy: 0,
+    // D3 force-directed layout force charge.
+    charge: -10000
+  });
 };
 
 visflow.utils.inherit(visflow.Network, visflow.Visualization);
@@ -121,14 +124,6 @@ visflow.Network.prototype.selectedMultiplierEdge = {
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.propertyTranslate = {
-  size: 'r',
-  color: 'fill',
-  border: 'stroke',
-  width: 'stroke-width'
-};
-
-/** @inheritDoc */
 visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
   {id: 'selectAll', text: 'Select All'},
   {id: 'clearSelection', text: 'Clear Selection'},
@@ -144,12 +139,7 @@ visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
 visflow.Network.prototype.serialize = function() {
   var result = visflow.Network.base.serialize.call(this);
   result.selectedEdges = this.selectedEdges;
-  result.lastDataIdEdges = this.lastDataIdEdges;
-  result.nodeLabel = this.nodeLabel;
-  result.nodeLabelOn = this.nodeLabelOn;
-  result.panOn = this.panOn;
-  result.forceCharge = this.forceCharge;
-
+  result.lastEdgeDataId = this.lastEdgeDataId;
   return result;
 };
 
@@ -157,20 +147,15 @@ visflow.Network.prototype.serialize = function() {
 visflow.Network.prototype.deserialize = function(save) {
   visflow.Network.base.deserialize.call(this, save);
 
-  this.lastDataIdEdges = save.lastDataIdEdges;
-  this.nodeLabel = save.nodeLabel;
-  this.nodeLabelOn = save.nodeLabelOn;
-  this.panOn = save.panOn;
-  this.forceCharge = save.forceCharge;
-
-  if (this.forceCharge == null) {
-    this.forceCharge = -10000;
-    visflow.error('forceCharge not saved');
+  this.lastEdgeDataId = save.lastEdgeDataId;
+  if (this.options.forceCharge == null) {
+    this.options.forceCharge = -10000;
+    visflow.warning('forceCharge not saved in', this.label);
   }
   this.selectedEdges = save.selectedEdges;
   if (this.selectedEdges == null) {
     this.selectedEdges = {};
-    visflow.error('selectedEdges not saved');
+    visflow.warning('selectedEdges not saved in', this.label);
   }
 };
 
@@ -688,14 +673,14 @@ visflow.Network.prototype.process = function() {
 
   this.validateSelection();
   if (this.lastDataId != inpackNodes.data.dataId
-    || this.lastDataIdEdges != inpackEdges.data.dataId) {
+    || this.lastEdgeDataId != inpackEdges.data.dataId) {
 
     this.dataChanged();
 
     //console.log(inpackNodes);
 
     this.lastDataId = inpackNodes.data.dataId;
-    this.lastDataIdEdges = inpackEdges.data.dataId;
+    this.lastEdgeDataId = inpackEdges.data.dataId;
   }
   this.processNetwork();
   this.processSelection();
@@ -746,7 +731,7 @@ visflow.Network.prototype.togglePanning_ = function() {
  * Toggles node label visibility.
  * @private
  */
-visflow.Network.prototype.toggelNodeLabel_ = function() {
+visflow.Network.prototype.toggleNodeLabel_ = function() {
   this.options.nodeLabel = !this.options.nodeLabel;
 };
 

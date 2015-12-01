@@ -113,8 +113,8 @@ visflow.Edge.prototype.update = function() {
   this.container.children().not('.edge-arrow').remove();
 
   var hseg = 3,
-      hArrow = 9,
-      wArrow = 25;
+      hArrow = 7.5,
+      wArrow = 20;
   var topOffset = {
     up: wArrow,
     down: -wArrow - 5

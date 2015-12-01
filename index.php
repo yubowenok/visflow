@@ -3,12 +3,12 @@
 //header('Content-Type: text/html; charset=utf-8');
 
 $index = file_get_contents("index.html");
-if (!isset($_GET['filename'])) {
+if (!isset($_GET['diagram'])) {
   echo $index;
 } else {
   echo str_replace(
-    "test()",
-    "core.dataflowManager.downloadDataflow(\"".$_GET['filename']."\")",
+    "visflow.test.run()",
+    "visflow.diagram.download_(\"".$_GET['diagram']."\")",
     $index
   );
 }
@@ -38,9 +38,9 @@ $ip = get_client_ip();
 $date = date('m/d/Y h:i:s A', time());
 $user = getenv('REMOTE_USER');
 fwrite($fp, "[$user $ip $date ts=".time()."]");
-if(isset($_GET["filename"])) {
-  $x = $_GET["filename"];
-  fwrite($fp, " filename=$x");
+if(isset($_GET["diagram"])) {
+  $x = $_GET["diagram"];
+  fwrite($fp, " diagram=$x");
 }
 fwrite($fp, "\n");
 

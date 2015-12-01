@@ -89,7 +89,7 @@ visflow.Select.prototype.init_ = function() {
  */
 visflow.Select.prototype.change_ = function() {
   var id = this.select2_.val();
-  if (this.selected_ != id) {
+  if (this.selected_ !== id) {
     this.selected_ = id;
     this.signal_('change');
   }

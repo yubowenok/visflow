@@ -1,10 +1,10 @@
 .visflow .node.set.details {
-  width: 80px;
+  width: 120px;
   height: 48px;
 }
 
 .visflow .node.set.details > .icon {
-  width: 80px;
+  width: 120px;
   height: 48px;
   background-size: 80px;
 }

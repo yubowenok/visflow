@@ -31,7 +31,7 @@ visflow.interaction.MOVE_DELTA_ = 50;
 
 /** @private {!Array<!visflow.contextMenu.Item>} */
 visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
-  {id: 'add-node', text: 'Add Node', icon: 'glyphicon glyphicon-plus'}
+  {id: 'addNode', text: 'Add Node', icon: 'glyphicon glyphicon-plus'}
 ];
 
 /** @private {!jQuery} */
@@ -293,10 +293,14 @@ visflow.interaction.keyPress = function(event) {
  * @private
  */
 visflow.interaction.mainContextMenu_ = function() {
-  visflow.interaction.contextMenu = new visflow.ContextMenu({
+  var contextMenu = new visflow.ContextMenu({
     container: visflow.interaction.mainContainer_,
     items: visflow.interaction.MAIN_CONTEXTMENU_ITEMS_
   });
+  $(contextMenu)
+    .on('visflow.addNode', function() {
+      visflow.popupPanel.show();
+    });
 };
 
 /**
@@ -506,8 +510,7 @@ visflow.interaction.dragmoveHandler = function(params) {
         top: rpos[1] - 20 * Math.sin(angle) - harrow / 2,
       });
 
-    $('#edge-drawing')
-      .css('visibility', 'visible');
+    $('#edge-drawing').show();
   }
   else if (type == 'node') {
     var dx = event.pageX - this.draglastPos[0],
@@ -530,8 +533,7 @@ visflow.interaction.dragstopHandler = function(params) {
   this.dragstopPara = params;
   this.dragstopPos = [event.pageX, event.pageY];
   if (type == 'port') {
-    $('#edge-drawing')
-      .css('visibility', 'hidden');
+    $('#edge-drawing').hide();
   }
   else if (type == 'node'){
     visflow.interaction.mainContainer_.css('cursor', '');
@@ -571,8 +573,8 @@ visflow.interaction.dropHandler = function(params) {
         }
         visflow.flow.createEdge(port1, port2);
       } else {
-        // show error message
-        visflow.viewManager.tip('No connectable port available');
+        // Show error message.
+        visflow.tooltip.create('No connectable port available');
       }
     }
     this.dropPossible = false; // prevent dropped on overlapping droppable
@@ -588,6 +590,7 @@ visflow.interaction.clickHandler = function(params) {
       event = params.event;
   if (type == 'empty') {
     visflow.flow.backgroundClearSelection();
+    visflow.nodePanel.toggle(false);
     $('input').blur();
   }
 };

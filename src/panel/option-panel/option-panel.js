@@ -148,10 +148,10 @@ visflow.optionPanel.update_ = function() {
   var rightEnd = visflow.optionPanel.isOpen ? closeRight : openRight;
   container.stop()
     .css({
-      right: rightStart + 'px'
+      right: rightStart
     })
     .animate({
-      right: rightEnd + 'px'
+      right: rightEnd
     }, {
       duration: visflow.optionPanel.TRANSITION_TIME,
       complete: function() {
@@ -161,6 +161,11 @@ visflow.optionPanel.update_ = function() {
           container.css({
             right: 0
           });
+        }
+        if (visflow.optionPanel.isOpen) {
+          visflow.optionPanel.signal_('opened');
+        } else {
+          visflow.optionPanel.signal_('closed');
         }
       }
     });
@@ -186,4 +191,25 @@ visflow.optionPanel.load = function(template, complete) {
  */
 visflow.optionPanel.close = function() {
   visflow.optionPanel.toggle(false);
+  var clear = function() {
+    visflow.optionPanel.clear();
+    $(visflow.optionPanel).off('visflow.closed', clear);
+  };
+  $(visflow.optionPanel).on('visflow.closed', clear);
+};
+
+/**
+ * Clears the option panel content.
+ */
+visflow.optionPanel.clear = function() {
+  visflow.optionPanel.container_.find('.content').children('*').remove();
+};
+
+/**
+ * Signals a visflow event.
+ * @param {string} eventType
+ * @private
+ */
+visflow.optionPanel.signal_ = function(eventType) {
+  $(visflow.optionPanel).trigger('visflow.' + eventType);
 };
