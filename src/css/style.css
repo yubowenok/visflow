@@ -28,7 +28,7 @@ body {
   border: 1px solid #333;
   shape-rendering: crispEdges;
   position: absolute;
-  z-index: 1000;
+  z-index: 100;
 }
 
 .visflow .node-select {

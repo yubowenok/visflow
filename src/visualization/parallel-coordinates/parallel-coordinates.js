@@ -75,7 +75,7 @@ visflow.ParallelCoordinates.prototype.NODE_NAME = 'ParallelCoordinates';
  * Axis label size.
  * @private @const {number}
  */
-visflow.ParallelCoordinates.prototype.LABEL_FONT_SIZE_ = 6;
+visflow.ParallelCoordinates.prototype.LABEL_FONT_SIZE_ = 5.5;
 
 /**
  * Offset from the leftmost axis to the tick text.
@@ -432,9 +432,8 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
     return;
   }
 
-  this.drawAxis_(0);
-  // Remove axis0 to avoid transition different from other axes.
-  this.svgAxes_.select('#axis' + this.dimensions[0]).remove();
+  // Apply Id '0'.
+  this.drawAxis_(0, '0');
 
   var maxLength = Math.max.apply(this,
     $(this.svgAxes_.node())
@@ -443,6 +442,9 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
         return $(this).text().length;
       })
   );
+  // Remove axis0 to avoid transition different from other axes.
+  this.svgAxes_.select('#axis0').remove();
+
   var data = this.ports['in'].pack.data;
   var axisLabelMargin = data.dimensions[_(this.dimensions).first()].length / 2 *
       this.LABEL_FONT_SIZE_;

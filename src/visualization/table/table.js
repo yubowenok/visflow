@@ -148,6 +148,8 @@ visflow.Table.prototype.showDetails = function() {
       initComplete: function() {
         setTimeout(function() {
           var search = this.content.find('.dataTables_filter input');
+          // Enter something in the search box to trigger table column resize.
+          // Otherwise the width may not be correct due to vertical scroll bar.
           search.val('a').trigger('keyup');
           search.val('').trigger('keyup');
         }.bind(this), this.COL_RESIZE_DELAY_);
@@ -264,8 +266,8 @@ visflow.Table.prototype.mousedown = function(event) {
   }
   visflow.flow.addNodeSelection(this);
 
-  if (visflow.interaction.ctrled) {
-    // Ctrl drag mode blocks.
+  if (visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT)) {
+    // Alt drag mode blocks.
     return false;
   }
 

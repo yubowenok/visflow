@@ -2,8 +2,7 @@
   position: absolute;
 }
 
-.visflow #edge-drawing
-{
+.visflow #edge-drawing {
   position: absolute;
   z-index: 1000; /* over other elements */
 }

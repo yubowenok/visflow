@@ -147,7 +147,7 @@
   <link rel="stylesheet" href="src/property/property-mapping/property-mapping.css"/>
 
   <!-- system program entry -->
-  <script type="text/javascript" src="src/menu.js"></script>
+  <script type="text/javascript" src="src/menu/menu.js"></script>
   <script type="text/javascript" src="src/diagram.js"></script>
   <script type="text/javascript" src="src/flow.js"></script>
   <script type="text/javascript" src="src/view-manager.js"></script>
@@ -155,7 +155,7 @@
   <script type="text/javascript" src="src/test.js"></script>
   <link rel="stylesheet" href="src/css/override.css"/>
   <link rel="stylesheet" href="src/css/style.css"/>
-  <link rel="stylesheet" href="src/css/menu.css"/>
+  <link rel="stylesheet" href="src/menu/menu.css"/>
   <link rel="stylesheet" href="src/port/port.css"/>
   <script>
     $(document).ready(function () {
@@ -192,6 +192,7 @@
             <li><a id="compact-panel"><i class="glyphicon"></i>Compact Panel</a></li>
           </ul>
         </li>
+        <i class=""></i>
         -->
         <li id="help" class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
@@ -203,8 +204,13 @@
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
-        <li><a id="vis-mode"><span class="icon-vismode btn btn-default"></span></a></li>
-        <li><a id="upload">Upload Data</a></li>
+        <li><a id="alted" class="to-tooltip" data-placement="bottom" title="dragging mode">
+          <span class="btn btn-default"><i class="glyphicon glyphicon-move"></i></span>
+        </a></li>
+        <li><a id="vis-mode" class="to-tooltip" data-placement="bottom"  title="visualization mode">
+          <span class="btn btn-default"><i class="glyphicon glyphicon glyphicon-facetime-video"></i></span>
+        </a></li>
+        <!--<li><a id="upload">Upload Data</a></li>-->
       </ul>
     </div>
   </nav>
@@ -251,10 +257,10 @@
   </div>
 
   <div id="option-panel">
-    <button id="btn-toggle" class="btn btn-default to-tooltip" title="toggle the control panel">
+    <button id="btn-toggle" class="btn btn-default">
       <span class="glyphicon glyphicon-chevron-left"></span>
     </button>
-    <button id="btn-pin" class="btn btn-default to-tooltip" title="pin the control panel">
+    <button id="btn-pin" class="btn btn-default to-tooltip" data-placement="left" title="pin the control panel">
       <span class="glyphicon glyphicon-pushpin"></span>
     </button>
     <div class="content">

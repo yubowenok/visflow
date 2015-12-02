@@ -7,6 +7,9 @@
 /** @const */
 visflow.menu = {};
 
+/** @private @const {number} */
+visflow.menu.TOOLTIP_DELAY_ = 1000;
+
 /**
  * Initializes the menu.
  */
@@ -31,10 +34,19 @@ visflow.menu.init = function() {
     visflow.nodePanel.toggle(true);
   });
 
+  // Alt hold
+  var alted = navbar.find('#alted');
+  alted.click(function() {
+    visflow.interaction.toggleAltHold();
+    visflow.menu.toggleAlt();
+  });
+
   // VisMode button
-  navbar.find('#vis-mode')
+  var visMode = navbar.find('#vis-mode');
+  visMode
     .click(function() {
       visflow.flow.toggleVisMode();
+      visMode.children('.btn').toggleClass('active');
     })
     .on('mouseenter', function() {
       visflow.flow.previewVisMode(true);
@@ -50,4 +62,22 @@ visflow.menu.init = function() {
   help.find('#about').click(function() {
     visflow.about();
   });
+
+  navbar.find('.to-tooltip').tooltip({
+    delay: visflow.menu.TOOLTIP_DELAY_
+  });
+};
+
+/**
+ * Toggles the active state of the alt button.
+ * @param {boolean=} opt_state
+ */
+visflow.menu.toggleAlt = function(opt_state) {
+  var alted = $('.visflow > .navbar-fixed-top #alted > .btn');
+  var state = opt_state != null ? opt_state : !alted.hasClass('active');
+  if (state) {
+    alted.addClass('active');
+  } else {
+    alted.removeClass('active');
+  }
 };

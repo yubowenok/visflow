@@ -1,0 +1,41 @@
+.visflow #vis-mode .icon-vismode {
+  background-image: url(/visflow/imgs/vismode-icon.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  left: calc(50% - 10px);
+  top: calc(50% - 9px);
+}
+
+.visflow .navbar-right li {
+  width: 80px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.visflow .navbar-right a {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.visflow .navbar-right a > span {
+  height: 20px;
+  width: 100%;
+}
+
+.visflow .navbar-right a .glyphicon {
+  position: absolute;
+  top: calc(50% - 6px);
+  left: calc(50% - 7px);
+}
+
+.visflow .navbar-right .btn {
+  color: #888;
+}
+.visflow .navbar-right .btn.active {
+  color: black;
+}

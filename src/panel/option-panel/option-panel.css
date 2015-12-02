@@ -82,3 +82,10 @@
   margin-top: 10px;
   margin-bottom: 10px;
 }
+
+#option-panel .panel-header .btn {
+  color: #888;
+}
+#option-panel .panel-header .btn.active {
+  color: black;
+}

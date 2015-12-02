@@ -16,7 +16,7 @@
 }
 
 .visflow .navbar-fixed-top {
-  z-index: 101;
+  z-index: 103;
 }
 
 .visflow .navbar-fixed-top a:hover {
@@ -100,15 +100,3 @@ div {
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
-
-/*
-.ui-state-active,
-.ui-state-focus,
-.ui-state-default {
-  font-weight: normal !important;
-}
-.ui-widget-overlay {
-  z-index: 10000;
-}
-*/
-

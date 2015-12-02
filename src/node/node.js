@@ -207,7 +207,7 @@ visflow.Node.prototype.PORT_GAP = 1;
  */
 visflow.Node.prototype.CONTEXTMENU_ITEMS = [
   {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
-  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
+  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-facetime-video'},
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
 ];
@@ -513,7 +513,8 @@ visflow.Node.prototype.interaction = function() {
       }.bind(this)
     })
     .draggable({
-      cancel: 'input, button, a, select, #node-label',
+      cancel: 'input, button, a, select, #node-label, ' +
+          '.select2-selection__rendered',
       //containment: '#main',
       start: function(event) {
         visflow.interaction.dragstartHandler({

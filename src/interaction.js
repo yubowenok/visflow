@@ -44,6 +44,9 @@ visflow.interaction.contextMenu;
 /** @type {string} */
 visflow.interaction.mouseMode = '';
 
+/** @private {boolean} */
+visflow.interaction.altHold_ = false;
+
 /**
  * Initializes the interaction manager.
  */
@@ -136,6 +139,33 @@ visflow.interaction.trackMousemove = function(opt_enabled) {
 };
 
 /**
+ * Toggles the alt hold state.
+ */
+visflow.interaction.toggleAltHold = function() {
+  visflow.interaction.altHold_ = !visflow.interaction.altHold_;
+};
+
+/**
+ * Checks if a given key is pressed.
+ * @param {visflow.interaction.keyCodes}
+ * @return {boolean}
+ */
+visflow.interaction.isPressed = function(key) {
+  var keyCodes = visflow.interaction.keyCodes;
+  switch(key) {
+    case keyCodes.ALT:
+      return visflow.interaction.altHold_ || visflow.interaction.alted;
+    case keyCodes.SHIFT:
+      return visflow.interaction.shifted;
+    case keyCodes.CTRL:
+      return visflow.interaction.ctrled;
+    default:
+      visflow.error('unknown key code', key);
+  }
+  return false;
+};
+
+/**
  * Handles key release event, called after a shift/ctrl terminating event (e.g.
  * node drag). If not called, browser might fail to capture shift/ctrl release
  * and the two keys would be considered pressed forever.
@@ -144,15 +174,22 @@ visflow.interaction.keyRelease = function(key) {
   if (!(key instanceof Array)) {
     key = [key];
   }
-  key.map(function(key){
-    if (key == 'shift') {
-      this.shifted = false;
-      visflow.interaction.mainContainer_.css('cursor', '');
-    }
-    else if (key == 'ctrl') {
-      this.ctrled = false;
-      visflow.interaction.mainContainer_.css('cursor', '');
-      this.visualizationBlocking = true;
+  key.forEach(function(key){
+    var keyCodes = visflow.interaction.keyCodes;
+    switch(key) {
+      case keyCodes.SHIFT:
+        visflow.interaction.shifted = false;
+        visflow.interaction.mainContainer_.css('cursor', '');
+        break;
+      case keyCodes.ALT:
+        visflow.interaction.alted = false;
+        visflow.menu.toggleAlt(false);
+        visflow.interaction.visualizationBlocking = true;
+        visflow.interaction.mainContainer_.css('cursor', '');
+        break;
+      case keyCodes.CTRL:
+        visflow.interaction.ctrled = false;
+        break;
     }
   }, this);
 };
@@ -185,19 +222,15 @@ visflow.interaction.interaction = function() {
       });
     }.bind(this));
 
-  // track keyboard: shift key
-  $(document).keydown(this.keyPress);
-
+  $(document).keydown(function(event) {
+    visflow.interaction.keyPress(event);
+  });
   $(document).keyup(function(event) {
-    if (event.keyCode == visflow.interaction.keyCodes.SHIFT) {
-      visflow.interaction.keyRelease('shift');
-    } else if (event.keyCode == visflow.interaction.keyCodes.CTRL) {
-      visflow.interaction.keyRelease('ctrl');
-    }
+    visflow.interaction.keyRelease(event.keyCode);
   });
 
   $(document).mousewheel(function(event) {
-    // TODO : zoom in view ?
+    // TODO(bowen): zoom in view ?
   });
 
   $('#main').droppable({
@@ -236,9 +269,13 @@ visflow.interaction.keyPress = function(event) {
       visflow.interaction.shifted = true;
       visflow.interaction.mainContainer_.css('cursor', 'crosshair');
       break;
+    case keyCodes.ALT:
+      visflow.interaction.alted = true;
+      visflow.menu.toggleAlt(true);
+      visflow.interaction.visualizationBlocking = false;
+      break;
     case keyCodes.CTRL:
       visflow.interaction.ctrled = true;
-      visflow.interaction.visualizationBlocking = false;
       break;
     case keyCodes.ESC:
       visflow.interaction.escHandler();
@@ -251,6 +288,9 @@ visflow.interaction.keyPress = function(event) {
       }
       if (visflow.interaction.ctrled) {
         key = 'ctrl+' + key;
+      }
+      if (visflow.interaction.alted) {
+        key = 'alt+' + key;
       }
       switch(key) {
         case 'A':
@@ -322,7 +362,7 @@ visflow.interaction.mousedownHandler = function(params) {
   }
 
   if (type == 'background') {
-    if (!this.ctrled) {
+    if (!visflow.interaction.alted) {
       this.mouseMode = 'pan';
       visflow.interaction.mainContainer_.css('cursor', 'move');
     } else {
@@ -400,7 +440,7 @@ visflow.interaction.mouseupHandler = function(params) {
       visflow.interaction.mainContainer_.css('cursor', '');
     } else if (this.mouseMode == 'selectbox') {
       this.jqselectbox.hide();
-      if (this.ctrled) {  // not panning, then selecting
+      if (visflow.interaction.alted) {  // not panning, then selecting
         if (!this.shifted) {
           visflow.flow.clearNodeSelection();
         }
@@ -416,9 +456,15 @@ visflow.interaction.mouseupHandler = function(params) {
     }
   }
 
-  // forcefully end all interactions
-  // to prevent inconsistent interaction states resulting from an uncaptured event
-  this.keyRelease(['shift', 'ctrl']);
+  // Forcefully end all interactions to prevent inconsistent interaction states
+  // resulting from an un-captured key release event.
+  if (visflow.interaction.alted) {
+    visflow.interaction.keyRelease(visflow.interaction.keyCodes.ALT);
+  }
+  if (visflow.interaction.shifted) {
+    visflow.interaction.keyRelease(visflow.interaction.keyCodes.SHIFT);
+  }
+
   visflow.viewManager.clearEdgeHover();
   visflow.popupPanel.hide();
 

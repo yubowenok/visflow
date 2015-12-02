@@ -127,7 +127,7 @@ visflow.Network.prototype.CONTEXTMENU_ITEMS = [
   {id: 'nodeLabel', text: 'Node Label'},
   {id: 'pan', text: 'Panning'},
   {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
-  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
+  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-facetime-video'},
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
 ];
