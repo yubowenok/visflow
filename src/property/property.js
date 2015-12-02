@@ -62,6 +62,8 @@ visflow.utils.inherit(visflow.Property, visflow.Node);
 
 /** @inheritDoc */
 visflow.Property.prototype.RESIZABLE = false;
+/** @protected @const */
+visflow.Property.prototype.NO_DATA_STRING = 'No Data';
 
 /**
  * Adjusts the numbers when mapping type has changed.

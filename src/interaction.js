@@ -12,6 +12,7 @@ visflow.interaction.keyCodes = {
   ENTER: 13,
   SHIFT: 16,
   CTRL: 17,
+  ALT: 18,
   ESC: 27,
   HOME: 36,
   UP: 38,

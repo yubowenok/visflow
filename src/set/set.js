@@ -31,11 +31,14 @@ visflow.utils.inherit(visflow.Set, visflow.Node);
 /** @inheritDoc */
 visflow.Set.prototype.RESIZABLE = false;
 /** @inheritDoc */
-visflow.Set.prototype.PANEL_TEMPLATE = './src/set/set/set-panel.html';
+visflow.Set.prototype.PANEL_TEMPLATE = './src/set/set-panel.html';
+
+/** @protected @const {number} */
+visflow.Set.prototype.MAX_LABEL_LENGTH = 9;
 
 /** @inheritDoc */
 visflow.Set.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
+  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
 ];

@@ -117,19 +117,16 @@ visflow.Network.prototype.selectedMultiplier = {
   width: 1.2
 };
 
-/**
- * Property multiplier for edges.
- */
-visflow.Network.prototype.selectedMultiplierEdge = {
-};
+/** @private @const {number} */
+visflow.Network.prototype.DEFAULT_FORCE_CHARGE_ = -10000;
 
 /** @inheritDoc */
-visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
+visflow.Network.prototype.CONTEXTMENU_ITEMS = [
   {id: 'selectAll', text: 'Select All'},
   {id: 'clearSelection', text: 'Clear Selection'},
   {id: 'nodeLabel', text: 'Node Label'},
   {id: 'pan', text: 'Panning'},
-  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
+  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
   {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
@@ -149,7 +146,7 @@ visflow.Network.prototype.deserialize = function(save) {
 
   this.lastEdgeDataId = save.lastEdgeDataId;
   if (this.options.forceCharge == null) {
-    this.options.forceCharge = -10000;
+    this.options.forceCharge = this.DEFAULT_FORCE_CHARGE_;
     visflow.warning('forceCharge not saved in', this.label);
   }
   this.selectedEdges = save.selectedEdges;

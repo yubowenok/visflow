@@ -206,7 +206,7 @@ visflow.Node.prototype.PORT_GAP = 1;
  * @protected @const {!Array<!visflow.contextMenu.Entry>}
  */
 visflow.Node.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
+  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
   {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
@@ -593,7 +593,17 @@ visflow.Node.prototype.initContextMenu = function() {
     .on('visflow.minimize', this.toggleMinimized.bind(this))
     .on('visflow.panel', this.panel.bind(this))
     .on('visflow.label', this.toggleLabel.bind(this))
-    .on('visflow.visMode', this.toggleVisMode.bind(this));
+    .on('visflow.visMode', this.toggleVisMode.bind(this))
+    .on('visflow.beforeOpen', function(event, menuContainer) {
+      var minimize = menuContainer.find('#minimize');
+      if (this.options.minimized) {
+        minimize.children('.glyphicon')
+          .addClass('glyphicon-resize-full')
+          .removeClass('glyphicon-resize-small');
+        minimize.children('span')
+          .text('Maximize');
+      }
+    }.bind(this));
 };
 
 /**

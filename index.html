@@ -124,8 +124,8 @@
   <link rel="stylesheet" href="src/visualization/parallel-coordinates/parallel-coordinates.css"/>
 
   <!-- set operations -->
-  <script type="text/javascript" src="src/set/set/set.js"></script>
-  <link rel="stylesheet" href="src/set/set/set.css"/>
+  <script type="text/javascript" src="src/set/set.js"></script>
+  <link rel="stylesheet" href="src/set/set.css"/>
   <script type="text/javascript" src="src/set/intersect/intersect.js"></script>
   <link rel="stylesheet" href="src/set/intersect/intersect.css"/>
   <script type="text/javascript" src="src/set/union/union.js"></script>
@@ -166,47 +166,47 @@
 </head>
 <body class="visflow">
   <nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <a class="navbar-brand bold">VisFlow</a>
-    </div>
-    <ul class="nav navbar-nav">
-      <li id="diagram" class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown">Diagram <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a id="new"><i class="glyphicon glyphicon-file"></i>New</a></li>
-          <li><a id="save"><i class="glyphicon glyphicon-floppy-disk"></i>Save</a></li>
-          <li><a id="load"><i class="glyphicon glyphicon-folder-open"></i>Load</a></li>
-        </ul>
-      </li>
-      <li id="edit" class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown">Edit <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node</a></li>
-        </ul>
-      </li>
-      <!--
-      <li id="options" class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a id="compact-panel"><i class="glyphicon"></i>Compact Panel</a></li>
-        </ul>
-      </li>
-      -->
-      <li id="help" class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
-        <ul class="dropdown-menu">
-          <li><a id="documentation"><i class="glyphicon glyphicon-book"></i>Documentation</a></li>
-          <li><a id="about"><i class="glyphicon glyphicon-info-sign"></i>About</a></li>
-        </ul>
-      </li>
-    </ul>
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand bold">VisFlow</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li id="diagram" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Diagram <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="new"><i class="glyphicon glyphicon-file"></i>New</a></li>
+            <li><a id="save"><i class="glyphicon glyphicon-floppy-disk"></i>Save</a></li>
+            <li><a id="load"><i class="glyphicon glyphicon-folder-open"></i>Load</a></li>
+          </ul>
+        </li>
+        <li id="edit" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Edit <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node</a></li>
+          </ul>
+        </li>
+        <!--
+        <li id="options" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="compact-panel"><i class="glyphicon"></i>Compact Panel</a></li>
+          </ul>
+        </li>
+        -->
+        <li id="help" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="documentation"><i class="glyphicon glyphicon-book"></i>Documentation</a></li>
+            <li><a id="about"><i class="glyphicon glyphicon-info-sign"></i>About</a></li>
+          </ul>
+        </li>
+      </ul>
 
-    <ul class="nav navbar-nav navbar-right">
-      <li><a id="vis-mode"><span class="icon-vismode btn btn-default"></span></a></li>
-      <li><a id="upload">Upload Data</a></li>
-    </ul>
-  </div>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a id="vis-mode"><span class="icon-vismode btn btn-default"></span></a></li>
+        <li><a id="upload">Upload Data</a></li>
+      </ul>
+    </div>
   </nav>
 
   <div id="modal" class="modal fade">

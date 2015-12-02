@@ -49,19 +49,17 @@
   pointer-events: none;
   background-repeat: no-repeat;
   background-position: center;
+  background-size: 15px;
 }
 
 .visflow .port-icon.single {
-  background: url(/visflow/imgs/port-single.png);
-  background-size: 15px;
+  background-image: url(/visflow/imgs/port-single.png);
 }
 
 .visflow .port-icon.multiple {
-  background: url(/visflow/imgs/port-multiple.png);
-  background-size: 15px;
+  background-image: url(/visflow/imgs/port-multiple.png);
 }
 
 .visflow .port-icon.multiple.selection {
-  background: url(/visflow/imgs/port-selection.png);
-  background-size: 15px;
+  background-image: url(/visflow/imgs/port-selection.png);
 }

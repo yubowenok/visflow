@@ -151,8 +151,8 @@ visflow.nodePanel.initButton_ = function(button) {
 
     $(node).on('visflow.ready', function() {
       node.container.css(_({
-        left: event.pageX - node.container.width() / 2,
-        top: event.pageY - node.container.height() / 2
+        left: visflow.interaction.mouseX - node.container.width() / 2,
+        top: visflow.interaction.mouseY - node.container.height() / 2
       }).extend(visflow.popupPanel.INIT_BUTTON_CSS_));
 
       node.container.animate(visflow.popupPanel.FADE_IN_BUTTON_CSS_,

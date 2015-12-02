@@ -2,6 +2,36 @@
  * Override library and user agent settings.
  */
 
+/*** Bootstrap navbar ***/
+.visflow .navbar-nav > li > a, .navbar-brand {
+  padding-top: 4px !important;
+  padding-bottom: 0 !important;
+  height: 28px;
+  font-size: 1em;
+}
+
+.visflow .navbar {
+  min-height: 28px !important;
+  z-index: 0;
+}
+
+.visflow .navbar-fixed-top {
+  z-index: 101;
+}
+
+.visflow .navbar-fixed-top a:hover {
+  cursor: pointer;
+}
+
+.visflow .navbar .dropdown-menu > li > a > i {
+  margin-right: 10px;
+}
+
+.visflow .bold {
+  font-weight: bold;
+}
+
+
 /*** Make select2 look like bootstrap select. ***/
 .select2-container .select2-selection--single .select2-selection__rendered {
   padding-top: 6px;

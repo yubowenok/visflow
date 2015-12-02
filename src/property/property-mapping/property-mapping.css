@@ -1,6 +1,6 @@
 .visflow .node.property-mapping.details {
   width: 150px;
-  height: 142px;
+  height: 145px;
 }
 
 .visflow .node.property-mapping.details .content > div {
@@ -14,6 +14,10 @@
 
 .visflow .node.property-mapping.details #number {
   margin-top: 10px;
+}
+
+.visflow .node.property-mapping.details #number > .offset {
+  top: 10px;
 }
 
 .visflow .node.property-mapping.details #min > div,

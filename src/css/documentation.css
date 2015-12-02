@@ -1,0 +1,83 @@
+.visflow .navbar-nav > li > a, .navbar-brand {
+  padding-top: 4px !important;
+  padding-bottom: 0 !important;
+  height: 28px;
+  font-size: 1em;
+}
+
+.visflow .navbar {
+  min-height: 28px !important;
+  z-index: 0;
+}
+
+.visflow .navbar-fixed-top {
+  z-index: 101;
+}
+
+.visflow .navbar-fixed-top a:hover {
+  cursor: pointer;
+}
+
+.visflow .navbar .dropdown-menu > li > a > i {
+  margin-right: 10px;
+}
+
+.visflow .bold {
+  font-weight: bold;
+}
+
+.visflow #main {
+  margin-top: 40px;
+  margin-bottom: 40px;
+}
+
+.visflow .section {
+  margin-top: 15px;
+}
+
+.visflow .port {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  background-size: 15px 15px;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-left: 2px;
+  margin-right: 2px;
+  margin-bottom: -2px;
+}
+
+.visflow .port.data {
+  background-color: white;
+}
+.visflow .port.constant {
+  background-color: #e2e2e2;
+}
+
+.visflow .port.single {
+  background-image: url(/visflow/imgs/port-single.png);
+}
+
+.visflow .port.multiple {
+  background-image: url(/visflow/imgs/port-multiple.png);
+}
+
+.visflow .port.selection {
+  background-image: url(/visflow/imgs/port-selection.png);
+}
+
+.visflow key {
+  padding: 3px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0px 1px 0px #ccc;
+  -webkit-box-shadow: 0px 1px 0px #ccc;
+}
+
+.visflow key.hold {
+  background-color: #eee;
+  box-shadow: 0px -2px 0px #ccc;
+  -webkit-box-shadow: 0px -2px 0px #ccc;
+}

@@ -108,7 +108,7 @@ visflow.Visualization.prototype.selectedMultiplier = {
 visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
   {id: 'selectAll', text: 'Select All'},
   {id: 'clearSelection', text: 'Clear Selection'},
-  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-minus'},
+  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
   {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-picture'},
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}

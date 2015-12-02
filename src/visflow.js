@@ -77,7 +77,7 @@ visflow.assert = function(condition, opt_msg) {
  * Opens a documentation page.
  */
 visflow.documentation = function() {
-  window.open('help.html');
+  window.open('documentation.html');
 };
 
 /**

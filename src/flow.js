@@ -387,7 +387,7 @@ visflow.flow.deserializeFlow = function(flow) {
 
 /**
  * De-serializes the flow edges.
- * @param {!Object} flow
+ * @param {!Object} flows
  * @param {!Object<!visflow.Node>} hashes
  * @private
  */

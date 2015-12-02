@@ -8,7 +8,7 @@
 }
 
 #option-panel .histogram input {
-  max-width: 150px;
+  width: 160px;
 }
 
 .visflow .node.histogram.minimized > .icon {

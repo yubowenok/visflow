@@ -101,7 +101,7 @@ visflow.PropertyMapping.prototype.showEditableScale_ = function(scaleDiv,
     var colorScaleSelect = new visflow.ColorScaleSelect({
       container: colorDiv,
       selected: this.options.colorScaleId,
-      listTitle: scaleDiv.hasClass('panel') ? 'Color Scale' : null
+      listTitle: scaleDiv.hasClass('source-panel') ? 'Color Scale' : null
     });
     $(colorScaleSelect).on('visflow.change', function(event, scaleId) {
       this.options.colorScaleId = scaleId;
@@ -138,7 +138,8 @@ visflow.PropertyMapping.prototype.initPanel = function(container) {
     list: this.getDimensionList(),
     selected: this.dim,
     listTitle: 'Dimension',
-    selectTitle: 'N/A'
+    selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        this.NO_DATA_STRING : null
   });
   $(this.panelDimSelect_).on('visflow.change', function(event, dim) {
     this.dim = dim;
@@ -168,7 +169,8 @@ visflow.PropertyMapping.prototype.showDetails = function() {
     container: this.content.find('#dim'),
     list: this.getDimensionList(),
     selected: this.dim,
-    selectTitle: 'N/A'
+    selectTitle: this.ports['in'].pack.data.isEmpty() ?
+      this.NO_DATA_STRING : null
   });
   $(this.dimSelect_).on('visflow.change', function(event, dim) {
     this.dim = dim;

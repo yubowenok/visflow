@@ -41,7 +41,9 @@ visflow.DataSource.prototype.TEMPLATE = './src/data-source/data-source.html';
 visflow.DataSource.prototype.PANEL_TEMPLATE =
     './src/data-source/data-source-panel.html';
 /** @inheritDoc */
-visflow.DataSource.prototype.RESIZABLE = false;
+visflow.DataSource.prototype.MIN_HEIGHT = 40;
+/** @inheritDoc */
+visflow.DataSource.prototype.MAX_HEIGHT = 40;
 
 /** @inheritDoc */
 visflow.DataSource.prototype.serialize = function() {

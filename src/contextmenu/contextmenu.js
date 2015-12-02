@@ -60,16 +60,18 @@ visflow.ContextMenu = function(params) {
    */
   this.items_ = params.items;
 
-  /**
-   * Function called before menu is open.
-   * @private
-   */
-  this.beforeOpen_ = params.beforeOpen ? params.beforeOpen : function() {};
-
   this.container_.on('contextmenu', function(event) {
     this.openMenu_(event);
     return false;
   }.bind(this));
+};
+
+/**
+ * Returns the contextMenu DOM element.
+ * @return {!jQuery}
+ */
+visflow.ContextMenu.prototype.menuContainer = function() {
+  return this.contextMenu_;
 };
 
 /**
@@ -78,7 +80,6 @@ visflow.ContextMenu = function(params) {
  * @private
  */
 visflow.ContextMenu.prototype.openMenu_ = function(event) {
-  this.beforeOpen_();
   this.contextMenu_
     .addClass('open')
     .css({
@@ -86,6 +87,7 @@ visflow.ContextMenu.prototype.openMenu_ = function(event) {
       top: event.pageY
     });
   this.listItems_();
+  this.signal_('beforeOpen', this.contextMenu_);
 };
 
 /**
@@ -101,7 +103,6 @@ visflow.ContextMenu.prototype.listItems_ = function() {
 
     var a = $('<a></a>')
       .attr('id', item.id)
-      .text(item.text)
       .appendTo(li)
       .click(function(event) {
         event.stopPropagation();
@@ -114,13 +115,19 @@ visflow.ContextMenu.prototype.listItems_ = function() {
         .addClass(item.icon)
         .prependTo(a);
     }
+
+    $('<span></span>')
+      .text(item.text)
+      .appendTo(a);
   }, this);
 };
 
 /**
  * Signals a menu click event for the selected entry id.
+ * @param {string} eventType
+ * @param {*} data
  */
-visflow.ContextMenu.prototype.signal_ = function(id) {
-  $(this).trigger('visflow.' + id);
+visflow.ContextMenu.prototype.signal_ = function(eventType, data) {
+  $(this).trigger('visflow.' + eventType, [data]);
 };
 
