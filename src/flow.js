@@ -402,7 +402,7 @@ visflow.flow.deserializeFlowEdges_ = function(flow, hashes) {
     visflow.assert(targetNode != null);
 
     if (targetPort == null) {
-      visflow.error('older version nodes detected');
+      visflow.error('old version found, port id may have changed');
       targetPort = targetNode.ports['in'];
     }
     this.createEdge(sourcePort, targetPort);

@@ -16,12 +16,38 @@ visflow.Network = function(params) {
    * Network has special in/out ports to handle nodes and edges separately.
    */
   this.ports = {
-    in: new visflow.Port(this, 'in', 'in-single', 'D'),
-    inEdges: new visflow.Port(this, 'inEdges', 'in-single', 'D'),
-    outs: new visflow.Port(this, 'outs', 'out-multiple', 'S'),
-    outsEdges: new visflow.Port(this, 'outsEdges', 'out-multiple', 'S'),
-    out: new visflow.Port(this, 'out', 'out-multiple', 'D'),
-    outEdges: new visflow.Port(this, 'outEdges', 'out-multiple', 'D')
+    in: new visflow.Port({
+      node: this,
+      id: 'in',
+      isInput: true,
+      isConstants: false
+    }),
+    inEdges: new visflow.Port({
+      node: this,
+      id: 'inEdges',
+      isInput: true,
+      isConstants: false
+    }),
+    outs: new visflow.SelectionPort({
+      node: this,
+      id: 'outs'
+    }),
+    outsEdges: new visflow.SelectionPort({
+      node: this,
+      id: 'outsEdges'
+    }),
+    out: new visflow.MultiplePort({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: false
+    }),
+    outEdges: new visflow.MultiplePort({
+      node: this,
+      id: 'outEdges',
+      isInput: false,
+      isConstants: false
+    })
   };
 
   /**

@@ -526,9 +526,9 @@ visflow.interaction.dragmoveHandler = function(params) {
     var hseg = 3,
         harrow = 9;
 
-    var pos = params.port.isInPort ? this.dragstopPos : this.dragstartPos,
-        rpos = !params.port.isInPort ? this.dragstopPos : this.dragstartPos;
-    if (params.port.isInPort) {
+    var pos = params.port.isInput ? this.dragstopPos : this.dragstartPos,
+        rpos = !params.port.isInput ? this.dragstopPos : this.dragstartPos;
+    if (params.port.isInput) {
       dx = -dx;
       dy = -dy;
       jqsegment
@@ -601,7 +601,7 @@ visflow.interaction.dropHandler = function(params) {
       // connect ports
       var port1 = this.dragstartPara.port,
           port2 = params.port;
-      if (port1.isInPort) {
+      if (port1.isInput) {
         // always connect from out to in, swap
         var porttmp = port1;
         port1 = port2;
@@ -612,7 +612,7 @@ visflow.interaction.dropHandler = function(params) {
       var port1 = this.dragstartPara.port,
           port2 = params.node.firstConnectable(port1);
       if (port2 != null) {
-        if (port1.isInPort) {
+        if (port1.isInput) {
           // always connect from out to in, swap
           var porttmp = port1;
           port1 = port2;

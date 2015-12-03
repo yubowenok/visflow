@@ -14,9 +14,22 @@ visflow.Visualization = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.Port(this, 'in', 'in-single', 'D'),
-    outs: new visflow.Port(this, 'outs', 'out-multiple', 'S'),
-    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+    in: new visflow.Port({
+      node: this,
+      id: 'in',
+      isInput: true,
+      isConstants: false
+    }),
+    outs: new visflow.SelectionPort({
+      node: this,
+      id: 'outs'
+    }),
+    out: new visflow.Port({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: false
+    })
   };
 
   /**

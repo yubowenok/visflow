@@ -14,8 +14,18 @@ visflow.ValueExtractor = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.Port(this, 'in', 'in-single', 'D'),
-    out: new visflow.Port(this, 'out', 'out-multiple', 'V', true)
+    in: new visflow.Port({
+      node: this,
+      id: 'in',
+      isInput: true,
+      isConstants: false
+    }),
+    out: new visflow.MultiplePort({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: true
+    })
   };
 
   /**

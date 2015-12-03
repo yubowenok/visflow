@@ -14,9 +14,25 @@ visflow.ContainFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    inVal: new visflow.Port(this, 'inVal', 'in-single', 'V', true),
-    in: new visflow.Port(this, 'in', 'in-single', 'D'),
-    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+    inVal: new visflow.Port({
+      node: this,
+      id: 'inVal',
+      text: 'containing value',
+      isInput: true,
+      isConstants: true
+    }),
+    in: new visflow.MultiplePort({
+      node: this,
+      id: 'in',
+      isInput: true,
+      isConstants: false
+    }),
+    out: new visflow.MultiplePort({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: false
+    })
   };
 
   /**
@@ -218,11 +234,21 @@ visflow.ContainFilter.prototype.filter = function() {
       if (this.options.ignoreCases) {
         pattern = pattern.toLowerCase();
       }
+      var matched = false;
       if (this.options.mode == 'regex') {
         pattern = RegExp(pattern);
+        var m = value.match(pattern);
+        matched = m != null &&
+            (this.options.target == 'substring' || m[0] == value);
+      } else {
+        // text matching
+        if (this.options.target == 'full') {
+          matched = value === pattern;
+        } else {
+          matched = value.indexOf(pattern) != -1;
+        }
       }
-      var m = value.match(pattern);
-      if (m != null && (this.options.target == 'substring' || m[0] == value)) {
+      if (matched) {
         result.push(index);
         break;
       }

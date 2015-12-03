@@ -14,7 +14,12 @@ visflow.ValueMaker = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    out: new visflow.Port(this, 'out', 'out-multiple', 'V', true)
+    out: new visflow.MultiplePort({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: true
+    })
   };
 
   /**

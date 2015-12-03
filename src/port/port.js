@@ -6,42 +6,43 @@
 
 /**
  * Port constructor.
- * @param {!visflow.Node} node Node the port belongs to.
- * @param {string} id Id of the port w.r.t. the node.
- * @param {string} text Text to be displayed on the port.
- * @param {boolean} isConstants Whether the port tranmits data constants.
+ * @param {{
+ *   node: !visflow.Node,
+ *   id: string,
+ *   text: string=,
+ *   isInput: boolean,
+ *   isConstants: boolean
+ * }} params
+ *     node: Node the port belongs to.
+ *     id: Id of the port w.r.t the node.
+ *     text: Text to be displayed for the port as tooltip.
+ *     isInput: Whether the port is input port.
+ *     isConstants: Whether the port accepts constants.
  * @constructor
  */
-visflow.Port = function(node, id, type, text, isConstants) {
+visflow.Port = function(params) {
   /**
    * Parent node of the port.
    * @type {!visflow.Node}
    */
-  this.node = node; // parent node
+  this.node = params.node;
 
   /**
    * Port ID, corresponding to the parent node.
    * @type {string}
    */
-  this.id = id;
+  this.id = params.id;
 
   /**
-   * Port type.
-   * {in-single, in-multiple, out-single, out-multiple}
-   * @param {string}
+   * Descriptive text used as tooltip.
+   * @rivate {string}
    */
-  this.type = type;
-
-  this.text = text == null ? '' : text;
+  this.text_ = params.text;
 
   /** @type {boolean} */
-  this.isInPort = this.type.substr(0, 2) == 'in';
-  /** @type {boolean} */
-  this.isSingle = this.type.match('single') != null;
-  /** @type {boolean} */
-  this.isSelection = text == 'S';
+  this.isInput = params.isInput;
    /** @type {boolean} */
-  this.isConstants = isConstants == true;
+  this.isConstants = params.isConstants;
 
   /**
    * List of ports this port is connected to (edges).
@@ -57,22 +58,14 @@ visflow.Port = function(node, id, type, text, isConstants) {
 
   /**
    * Package the port currently possesses.
+   * This stores either data items or constants.
    * @type {visflow.Constants|visflow.Package}
    */
-  this.pack = new this.packClass(); // stored data / constants
-
-  /**
-   * Port ContextMenu.
-   * @private {visflow.ContextMenu}
-   */
-  this.contextMenu_;
-
-  if (this.isInPort && !this.isSingle) {
-    // For in-multiple, use array to store packs.
-    // this.pack will be referencing the last connected pack.
-    this.packs = [];
-  }
+  this.pack = new this.packClass();
 };
+
+/** @protected @const {number} */
+visflow.Port.prototype.TOOLTIP_DELAY = 1000;
 
 /**
  * ContextMenu entries.
@@ -81,6 +74,14 @@ visflow.Port = function(node, id, type, text, isConstants) {
 visflow.Port.prototype.CONTEXTMENU_ITEMS = [
   {id: 'disconnect', text: 'Disconnect', icon: 'glyphicon glyphicon-minus-sign'}
 ];
+
+/**
+ * Checks if more connections can be made on this port.
+ * @return {boolean}
+ */
+visflow.Port.prototype.hasMoreConnections = function() {
+  return !this.connections.length;
+};
 
 /**
  * Checks if the port has been connected.
@@ -106,8 +107,7 @@ visflow.Port.prototype.connectable = function(port) {
       reason: 'cannot connect ports of the same node'
     });
   }
-  if (this.isSingle && this.connections.length ||
-      port.isSingle && port.connections.length) {
+  if (!this.hasMoreConnections() || !port.hasMoreConnections()) {
     return _(result).extend({
       reason: 'single port has already been connected'
     });
@@ -119,15 +119,15 @@ visflow.Port.prototype.connectable = function(port) {
   }
   for (var i in this.connections) {
     var edge = this.connections[i];
-    if (this.isInPort && edge.sourcePort === port ||
-        !this.isInPort && edge.targetPort === port) {
+    if (this.isInput && edge.sourcePort === port ||
+        !this.isInput && edge.targetPort === port) {
       return _(result).extend({
         reason: 'connection already exists'
       });
     }
   }
-  var sourceNode = this.isInPort ? port.node : this.node;
-  var targetNode = this.isInPort ? this.node : port.node;
+  var sourceNode = this.isInput ? port.node : this.node;
+  var targetNode = this.isInput ? this.node : port.node;
   if (visflow.flow.cycleTest(sourceNode, targetNode)) {
     return _(result).extend({
       reason: 'Cannot make connection that results in cycle'
@@ -144,12 +144,9 @@ visflow.Port.prototype.connectable = function(port) {
  */
 visflow.Port.prototype.connect = function(edge) {
   this.connections.push(edge);
-  if (this.isInPort) {
-    // make data reference, for in-multiple this references the last connected pack
+  if (this.isInput) {
+    // Make data reference.
     this.pack = edge.sourcePort.pack;
-    if (!this.isSingle) { // in-multiple
-      this.packs.push(edge.sourcePort.pack);
-    }
   }
   edge.sourcePort.pack.changed = true;
 
@@ -167,16 +164,13 @@ visflow.Port.prototype.connect = function(edge) {
  * @param {!visflow.Edge} edge
  */
 visflow.Port.prototype.disconnect = function(edge) {
-  for (var i in this.connections) {
+  for (var i = 0; i < this.connections.length; i++) {
     if (this.connections[i] === edge) {
       this.connections.splice(i, 1);
-      if (this.isInPort && !this.isSingle) {
-        this.packs.splice(i, 1);  // also remove from packs for in-multiple
-      }
       break;
     }
   }
-  if (this.isInPort && this.connections.length == 0) {
+  if (this.isInput && this.connections.length == 0) {
     this.pack = new this.packClass();
   }
 };
@@ -191,17 +185,22 @@ visflow.Port.prototype.setContainer = function(container) {
   this.container
     .attr('id', this.id)
     .addClass('port')
-    .addClass(this.isInPort ? 'left' : 'right');
+    .addClass(this.isInput ? 'left' : 'right');
+
+  if (this.container.text) {
+    this.container
+      .attr('title', this.text_)
+      .tooltip({
+        delay: this.TOOLTIP_DELAY
+      });
+  }
 
   if (this.isConstants) {
     this.container.addClass('constants');
   }
 
   $('<div></div>')
-    //.text(this.text)
     .addClass('port-icon')
-    .addClass(this.isSingle ? 'single' : 'multiple')
-    .addClass(this.isSelection ? 'selection' : '')
     .appendTo(this.container);
 
   $('<div></div>')
@@ -216,12 +215,12 @@ visflow.Port.prototype.setContainer = function(container) {
  * Prepares the contextMenu for the port.
  */
 visflow.Port.prototype.initContextMenu = function() {
-  this.contextMenu = new visflow.ContextMenu({
+  var contextMenu = new visflow.ContextMenu({
     container: this.container,
     items: this.CONTEXTMENU_ITEMS
   });
 
-  $(this.contextMenu)
+  $(contextMenu)
     .on('visflow.disconnect', function() {
       this.connections.concat().forEach(function(connection) {
         visflow.flow.deleteEdge(connection);
@@ -275,7 +274,7 @@ visflow.Port.prototype.interaction = function() {
     .droppable({
       hoverClass : 'hover',
       tolerance : 'pointer',
-      accept : port.isInPort ? '.port-out' : '.port-in',
+      accept : port.isInput ? '.port-out' : '.port-in',
       greedy : true,
       drop : function(event, ui) {
         visflow.interaction.dropHandler({
@@ -285,4 +284,12 @@ visflow.Port.prototype.interaction = function() {
         });
       }
     });
+};
+
+/**
+ * Checks whether the port's data/value has changed.
+ * @return {boolean}
+ */
+visflow.Port.prototype.changed = function() {
+  return this.pack.changed;
 };

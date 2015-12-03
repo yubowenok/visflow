@@ -14,10 +14,32 @@ visflow.RangeFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    inMin: new visflow.Port(this, 'inMin', 'in-single', 'V', true),
-    inMax: new visflow.Port(this, 'inMax', 'in-single', 'V', true),
-    in: new visflow.Port(this, 'in', 'in-single', 'D'),
-    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+    inMin: new visflow.Port({
+      node: this,
+      id: 'inMin',
+      text: 'range min',
+      isInput: true,
+      isConstants: true
+    }),
+    inMax: new visflow.Port({
+      node: this,
+      id: 'inMax',
+      text: 'range max',
+      isInput: true,
+      isConstants: true
+    }),
+    in: new visflow.Port({
+      node: this,
+      id: 'in',
+      isInput: true,
+      isConstants: false
+    }),
+    out: new visflow.MultiplePort({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: false
+    })
   };
 
   /**

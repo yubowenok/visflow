@@ -15,10 +15,25 @@ visflow.Minus = function(params) {
   /** @inheritDoc */
   this.ports = {
     // To be subtracted from
-    inx: new visflow.Port(this, 'inx', 'in-single', 'D'),
+    inx: new visflow.Port({
+      node: this,
+      id: 'inx',
+      isInput: true,
+      isConstants: false
+    }),
     // To subtract
-    in: new visflow.Port(this, 'in', 'in-multiple', 'D'),
-    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+    in: new visflow.MultiplePort({
+      node: this,
+      id: 'in',
+      isInput: true,
+      isConstants: false
+    }),
+    out: new visflow.MultiplePort({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: false
+    })
   };
 };
 

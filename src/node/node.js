@@ -298,7 +298,7 @@ visflow.Node.prototype.deserialize = function(save) {
  */
 visflow.Node.prototype.listInOutPorts_ = function() {
   $.each(this.ports, function(id, port) {
-    if (port.isInPort) {
+    if (port.isInput) {
       this.inPorts.push(port);
     } else {
       this.outPorts.push(port);
@@ -740,7 +740,7 @@ visflow.Node.prototype.hide = function() {
  * @return {visflow.Port} 'null' if no port is connectable.
  */
 visflow.Node.prototype.firstConnectable = function(port) {
-  var ports = port.isInPort ? this.outPorts : this.inPorts;
+  var ports = port.isInput ? this.outPorts : this.inPorts;
   for (var i in ports) {
     var port2 = ports[i];
     if (port2.connectable(port).connectable){
@@ -755,17 +755,9 @@ visflow.Node.prototype.firstConnectable = function(port) {
  * @return {boolean}
  */
 visflow.Node.prototype.inPortsChanged = function() {
-  for (var i in this.inPorts) {
-    if (this.inPorts[i].isSingle) {
-      if (this.inPorts[i].pack.changed) {
-        return true;
-      }
-    } else {  // in-multiple
-      for (var j in this.inPorts[i].packs) {
-        if (this.inPorts[i].packs[j].changed) {
-          return true;
-        }
-      }
+  for (var i = 0; i < this.inPorts.length; i++) {
+    if (this.inPorts[i].changed()) {
+      return true;
     }
   }
   return false;

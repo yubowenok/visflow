@@ -14,8 +14,18 @@ visflow.Set = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.Port(this, 'in', 'in-multiple', 'D'),
-    out: new visflow.Port(this, 'out', 'out-multiple', 'D')
+    in: new visflow.MultiplePort({
+      node: this,
+      id: 'in',
+      isInput: true,
+      isConstants: false
+    }),
+    out: new visflow.MultiplePort({
+      node: this,
+      id: 'out',
+      isInput: false,
+      isConstants: false
+    })
   };
 
   /**
