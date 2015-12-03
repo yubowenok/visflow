@@ -163,15 +163,6 @@ visflow.Visualization.prototype.deserialize = function(save) {
   }
 };
 
-/** @inheritDoc */
-visflow.Visualization.prototype.show = function() {
-  visflow.Visualization.base.show.call(this);
-
-  if (!this.options.minimized) {
-    this.showSelection();
-  }
-};
-
 /**
  * Checks whether the input data is empty.
  * @return {boolean}
@@ -332,15 +323,14 @@ visflow.Visualization.prototype.mousedown = function(event) {
 
     if (!visflow.interaction.visualizationBlocking) {
       visflow.Visualization.base.mousedown.call(this, event);
-      return;
+      return true;
     }
     // Left click triggers item selection.
     this.mouseMode = 'brush';
     var pos = visflow.utils.getOffset(event, this.content);
     this.brushPoints_ = [{x: pos.left, y: pos.top}];
-    event.stopPropagation();
-  } else {
-    event.stopPropagation();
+
+    this.container.draggable('disable');
   }
 };
 
@@ -350,7 +340,6 @@ visflow.Visualization.prototype.mousemove = function(event) {
     var pos = visflow.utils.getOffset(event, this.content);
     this.brushPoints_.push({x: pos.left, y: pos.top});
     this.drawBrush();
-    event.stopPropagation();
   }
   // Do not block mousemove, otherwise dragging may hang.
   // e.g. start dragging on an edge, and mouse enters visualization...
@@ -366,6 +355,7 @@ visflow.Visualization.prototype.mouseup = function(event) {
   this.mouseMode = '';
   // Do not block mouseup, otherwise dragging may hang.
   // e.g. mouse released on node.
+  this.container.draggable('enable');
 };
 
 /** @inheritDoc */
@@ -390,35 +380,11 @@ visflow.Visualization.prototype.mouseleave = function(event) {
  * @param {!Object} properties
  * @param {!Object} multiplier
  */
-visflow.Visualization.prototype.multiplyProperties = function(properties, multiplier) {
+visflow.Visualization.prototype.multiplyProperties = function(properties,
+                                                              multiplier) {
   for (var p in multiplier) {
-    var v = properties[p];
-    if (v != null) {
-      properties[p] = v * multiplier[p];
-    }
-  }
-};
-
-/**
- * Applies the rendering properties to the elements.
- * @param u
- * @param properties
- * @param translate
- */
-visflow.Visualization.prototype.applyProperties = function(u, properties, translate) {
-  // u is a d3 selection
-  for (var key in properties) {
-    var value = properties[key];
-    if (translate[key] != null) {
-      key = translate[key];
-    }
-    if (key == 'ignore') {
-      continue;
-    }
-    if (this.isAttr[key] == true) {
-      u.attr(key, value);
-    } else {
-      u.style(key, value);
+    if (p in properties) {
+      properties[p] *= multiplier[p];
     }
   }
 };
@@ -501,7 +467,7 @@ visflow.Visualization.prototype.drawLasso = function() {
 /**
  * Renders the selection range as range box.
  */
-visflow.Visualization.prototype.drawSelectbox = function() {
+visflow.Visualization.prototype.drawSelectBox = function() {
   var box = this.svg.select('.selectbox');
   if (box.empty()) {
     box = this.svg.append('rect')
@@ -519,6 +485,29 @@ visflow.Visualization.prototype.drawSelectbox = function() {
     .attr('y', y1)
     .attr('width', x2 - x1)
     .attr('height', y2 - y1);
+};
+
+/**
+ * Computes the select range box.
+ * @param {boolean=} opt_ignoreEmpty
+ */
+visflow.Visualization.prototype.getSelectBox = function(opt_ignoreEmpty) {
+  var startPos = _(this.brushPoints_).first();
+  var endPos = _(this.brushPoints_).last();
+
+  if (opt_ignoreEmpty) {
+    if (startPos.x == endPos.x && startPos.y == endPos.y) {
+      // Only select when mouse moved.
+      return null;
+    }
+  }
+
+  return {
+    x1: Math.min(startPos.x, endPos.x),
+    x2: Math.max(startPos.x, endPos.x),
+    y1: Math.min(startPos.y, endPos.y),
+    y2: Math.max(startPos.y, endPos.y)
+  };
 };
 
 /**

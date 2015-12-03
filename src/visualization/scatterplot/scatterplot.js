@@ -122,7 +122,7 @@ visflow.Scatterplot.prototype.deserialize = function(save) {
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.drawBrush = function() {
-  this.drawSelectbox();
+  this.drawSelectBox();
 };
 
 
@@ -138,19 +138,10 @@ visflow.Scatterplot.prototype.selectItems = function() {
  * @private
  */
 visflow.Scatterplot.prototype.selectItemsInBox_ = function() {
-  var startPos = _(this.brushPoints_).first();
-  var endPos = _(this.brushPoints_).last();
-
-  if (startPos.x == endPos.x && startPos.y == endPos.y) {
-    // Only select when mouse moved.
+  var box = this.getSelectBox(true);
+  if (box == null) {
     return;
   }
-  var box = {
-    x1: Math.min(startPos.x, endPos.x),
-    x2: Math.max(startPos.x, endPos.x),
-    y1: Math.min(startPos.y, endPos.y),
-    y2: Math.max(startPos.y, endPos.y)
-  };
 
   if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down

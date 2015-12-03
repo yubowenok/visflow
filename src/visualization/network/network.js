@@ -17,23 +17,13 @@ visflow.Network = function(params) {
    */
   this.ports = {
     in: new visflow.Port(this, 'in', 'in-single', 'D'),
-    ine: new visflow.Port(this, 'ine', 'in-single', 'D'),
+    inEdges: new visflow.Port(this, 'inEdges', 'in-single', 'D'),
     outs: new visflow.Port(this, 'outs', 'out-multiple', 'S'),
-    outse: new visflow.Port(this, 'outse', 'out-multiple', 'S'),
+    outsEdges: new visflow.Port(this, 'outsEdges', 'out-multiple', 'S'),
     out: new visflow.Port(this, 'out', 'out-multiple', 'D'),
-    oute: new visflow.Port(this, 'oute', 'out-multiple', 'D')
+    outEdges: new visflow.Port(this, 'outEdges', 'out-multiple', 'D')
   };
 
-  /**
-   * Processed nodes from node list table.
-   * @protected {!Array}
-   */
-  this.nodeList = [];
-  /**
-   * Processed edges from edge list table.
-   * @protected {!Array}
-   */
-  this.edgeList = [];
   /**
    * References to node objects.
    * @protected {!Object}
@@ -43,7 +33,18 @@ visflow.Network = function(params) {
    * References to edge objects.
    * @protected {!Object}
    */
-  this.edges = {};  // refer to edge objects
+  this.edges = {};
+
+  /**
+   * Node rendering properties.
+   * @private {!Array<!Object>}
+   */
+  this.nodeProps_ = [];
+  /**
+   * Edge rendering properties.
+   * @private {!Array<!Object>}
+   */
+  this.edgeProps_ = [];
 
   /** @protected {!Object<boolean>} */
   this.selectedEdges = {};
@@ -54,26 +55,37 @@ visflow.Network = function(params) {
    */
   this.lastEdgeDataId = 0;
 
-  /**
-   * Interactive panning state.
-   * @private {boolean}
-   */
-  this.panning_ = false;
+  // Navigation state.
+  /** @private {!Array<number>} */
+  this.zoomTranslate_ = [0, 0];
+  /** @private {number} */
+  this.zoomScale_ = 1.0;
+  /** @private {d3.zoom} */
+  this.zoom_;
 
   /**
-   * Interactive translation.
-   * @private {!Array<number>}
+   * D3 force for graph layout.
+   * @private {!d3.force}
    */
-  this.translate_ = [0, 0];
+  this.force_ = d3.layout.force();
 
-  $(this.options).extend({
-    // Whether to show label.
-    nodeLabel: true,
-    // Which dimension is used as label.
-    labelBy: 0,
-    // D3 force-directed layout force charge.
-    charge: -10000
-  });
+  /**
+   * SVG group for nodes.
+   * @private {d3.selection}
+   */
+  this.svgNodes_;
+  /**
+   * SVG group for edges.
+   * @private {d3.selection}
+   */
+  this.svgEdges_;
+  /**
+   * SVG group for node labels.
+   * @private {d3.selection}
+   */
+  this.svgNodeLabels_;
+
+  _(this.options).extend(this.DEFAULT_OPTIONS);
 };
 
 visflow.utils.inherit(visflow.Network, visflow.Visualization);
@@ -82,6 +94,9 @@ visflow.utils.inherit(visflow.Network, visflow.Visualization);
 visflow.Network.prototype.NODE_NAME = 'Network';
 /** @inheritDoc */
 visflow.Network.prototype.NODE_CLASS = 'network';
+/** @inheritDoc */
+visflow.Network.prototype.PANEL_TEMPLATE =
+    './src/visualization/network/network-panel.html';
 
 /** @inheritDoc */
 visflow.Network.prototype.defaultProperties = {
@@ -92,11 +107,32 @@ visflow.Network.prototype.defaultProperties = {
 };
 
 /**
+ * Default network related options.
+ * @const {!Object}
+ */
+visflow.Network.prototype.DEFAULT_OPTIONS = {
+  // Whether to show label.
+  nodeLabel: true,
+  // Which dimension is used as label.
+  labelBy: 0,
+  // D3 force-directed layout force charge.
+  charge: -10000,
+  // Node identifier corresponding to edges,
+  nodeIdBy: 0,
+  // Edge dimension used as source (node id).
+  sourceBy: 0,
+  // Edge dimension used as target (node id).
+  targetBy: 1,
+  // Whether navigation is enabled.
+  navigation: false
+};
+
+/**
  * Default properties for edges.
  * @protected {!Object<number|string>}
  */
-visflow.Network.prototype.defaultPropertiesEdge = {
-  width: 3,
+visflow.Network.prototype.defaultEdgeProperties = {
+  width: 1.5,
   color: '#333'
 };
 
@@ -107,7 +143,7 @@ visflow.Network.prototype.selectedProperties = {
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.selectedPropertiesEdge = {
+visflow.Network.prototype.selectedEdgeProperties = {
   color: '#6699ee'
 };
 
@@ -117,20 +153,53 @@ visflow.Network.prototype.selectedMultiplier = {
   width: 1.2
 };
 
+/** @private @const {!Array<number>} */
+visflow.Network.prototype.ZOOM_EXTENT_ = [.01, 8];
 /** @private @const {number} */
-visflow.Network.prototype.DEFAULT_FORCE_CHARGE_ = -10000;
+visflow.Network.prototype.NODE_LABEL_SIZE_ = 14;
+/** @private @const {number} */
+visflow.Network.prototype.NODE_LABEL_OFFSET_X_ = 10;
+/** @private @const {number} */
+visflow.Network.prototype.NODE_LABEL_OFFSET_Y_ =
+  visflow.Network.prototype.NODE_LABEL_SIZE_ / 2;
+/** @private @const {number} */
+visflow.Network.prototype.NODE_SIZE_ = 6;
+/** @private @const {number} */
+visflow.Network.prototype.EDGE_ARROW_LENGTH_ = 10;
+/**
+ * Shifting percentage of curved edge.
+ * @private @const {number}
+ */
+visflow.Network.prototype.EDGE_CURVE_SHIFT_ = 0.1;
+
 
 /** @inheritDoc */
 visflow.Network.prototype.CONTEXTMENU_ITEMS = [
   {id: 'selectAll', text: 'Select All'},
   {id: 'clearSelection', text: 'Clear Selection'},
   {id: 'nodeLabel', text: 'Node Label'},
-  {id: 'pan', text: 'Panning'},
+  {id: 'navigation', text: 'Navigation'},
   {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
   {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-facetime-video'},
   {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
   {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
 ];
+
+/** @inheritDoc */
+visflow.Network.prototype.init = function() {
+  visflow.Network.base.init.call(this);
+  this.svgEdges_ = this.svg.append('g')
+    .classed('edges render-group', true);
+  this.svgNodes_ = this.svg.append('g')
+    .classed('nodes render-group', true);
+  this.svgNodeLabels_ = this.svg.append('g')
+    .classed('labels render-group', true);
+
+  this.zoom_ = d3.behavior.zoom()
+    .scaleExtent(this.ZOOM_EXTENT_)
+    .on('zoom', this.zoom.bind(this));
+  this.svg.call(this.zoom_);
+};
 
 /** @inheritDoc */
 visflow.Network.prototype.serialize = function() {
@@ -145,10 +214,7 @@ visflow.Network.prototype.deserialize = function(save) {
   visflow.Network.base.deserialize.call(this, save);
 
   this.lastEdgeDataId = save.lastEdgeDataId;
-  if (this.options.forceCharge == null) {
-    this.options.forceCharge = this.DEFAULT_FORCE_CHARGE_;
-    visflow.warning('forceCharge not saved in', this.label);
-  }
+
   this.selectedEdges = save.selectedEdges;
   if (this.selectedEdges == null) {
     this.selectedEdges = {};
@@ -161,19 +227,31 @@ visflow.Network.prototype.initContextMenu = function() {
   visflow.Network.base.initContextMenu.call(this);
 
   $(this.contextMenu)
-    .on('visflow.pan', this.togglePanning_.bind(this))
-    .on('visflow.nodeLabel', this.toggleNodeLabel_.bind(this));
+    .on('visflow.navigation', this.toggleNavigation_.bind(this, null))
+    .on('visflow.nodeLabel', this.toggleNodeLabel_.bind(this))
+    .on('visflow.beforeOpen', function(event, menuContainer) {
+      var nodeLabelIcon = menuContainer.find('#nodeLabel > i');
+      if (this.options.nodeLabel) {
+        nodeLabelIcon.addClass('glyphicon-ok');
+      } else {
+        nodeLabelIcon.removeClass('glyphicon-ok');
+      }
+      var navigationIcon = menuContainer.find('#navigation > i');
+      if (this.options.navigation) {
+        navigationIcon.addClass('glyphicon-ok');
+      } else {
+        navigationIcon.removeClass('glyphicon-ok');
+      }
+    }.bind(this));
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.mousedown = function(event) {
   if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
-    // Left click potentially triggers panning.
-    if (this.panning_) {
-      this.mouseMode = 'pan';
-      if (visflow.interaction.visualizationBlocking) {
-        event.stopPropagation();
-      }
+    // Left click potentially triggers navigation.
+    if (this.options.navigation) {
+      this.mouseMode = 'navigation';
+      this.container.draggable('disable');
     } else {
       // Let base class handle it.
       visflow.Network.base.mousedown.call(this, event);
@@ -181,258 +259,319 @@ visflow.Network.prototype.mousedown = function(event) {
   }
 };
 
-/** @inheritDoc */
-visflow.Network.prototype.mousemove = function(event) {
-  if (this.mouseMode == 'pan') {
-    event.stopPropagation();
-    if (this.brushPoints_.length < 2) {
-      return;
-    }
-    var pos2 = _(this.brushPoints_).last();
-    var pos1 = this.brushPoints_[this.brushPoints_.length - 2];
-    var dx = pos2.x - pos1.x;
-    var dy = pos2.y - pos1.y;
-    this.moveNetwork_(dx, dy);
-  }
-}
-
 /**
- * Translates the network.
- * @private
+ * Handles zoom event.
  */
-visflow.Network.prototype.moveNetwork_ = function(dx, dy) {
-  this.translate_[0] += dx;
-  this.translate_[1] += dy;
-  this.drawNetwork_();
+visflow.Network.prototype.zoom = function() {
+  if (!this.options.navigation) {
+    this.zoom_
+      .translate(this.zoomTranslate_)
+      .scale(this.zoomScale_);
+    return;
+  }
+  var translate = d3.event.translate;
+  var scale = d3.event.scale;
+
+  this.svg.selectAll('.render-group')
+    .attr('transform', visflow.utils.getTransform(translate, scale));
+
+  this.zoomTranslate_ = translate;
+  this.zoomScale_ = scale;
+
+  this.updateNetwork_();
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.selectItems = function() {
-  this.selectNodesInBox_();
+  this.selectItemsInBox_();
+};
+
+/**
+ * Applies the current transform to a node.
+ * @param {number} x
+ * @param {number} y
+ * @return {{x: number, y: number}}
+ * @private
+ */
+visflow.Network.prototype.applyTransform_ = function(x, y) {
+  return {
+    x: (x * this.zoomScale_) + this.zoomTranslate_[0],
+    y: (y * this.zoomScale_) + this.zoomTranslate_[1]
+  };
 };
 
 /**
  * Selects the nodes and edges in the range selection box.
+ * @private
  */
-visflow.Network.prototype.selectNodesInBox_ = function() {
+visflow.Network.prototype.selectItemsInBox_ = function() {
+  var box = this.getSelectBox(true);
+  if (box == null) {
+    return;
+  }
+
   if (!visflow.interaction.shifted) {
     this.selected = {};
     this.selectedEdges = {};
   }
 
-  // TODO(bowen): implement below
-  return;
-
-  var inpack = this.ports['in'].pack,
-      items = inpack.items,
-      values = inpack.data.values;
-
-  for (var i in this.nodes) {
-    var x = this.nodes[i].x,
-        y = this.nodes[i].y; // get current node coordinates
-    x += this.translate[0];
-    y += this.translate[1];
-    if (x >= box[0][0] && x <= box[0][1]
-      && y >= box[1][0] && y <= box[1][1]) {
-      this.selected[this.nodes[i].dfindex] = true;
+  for (var index in this.nodes) {
+    var node = this.nodes[index];
+    var x = node.x;
+    var y = node.y;
+    var point = this.applyTransform_(x, y);
+    if (visflow.utils.pointInBox(point, box)) {
+      this.selected[index] = true;
     }
   }
-  for (var i in this.edges) {
-    var x1 = this.edges[i].source.x,
-        y1 = this.edges[i].source.y,
-        x2 = this.edges[i].target.x,
-        y2 = this.edges[i].target.y;
-    x1 += this.translate[0];
-    y1 += this.translate[1];
-    x2 += this.translate[0];
-    y2 += this.translate[1];
-    if ( (x1 >= box[0][0] && x1 <= box[0][1] && y1 >= box[1][0] && y1 <= box[1][1])
-    && (x2 >= box[0][0] && x2 <= box[0][1] && y2 >= box[1][0] && y2 <= box[1][1]) ) {
-      this.selectedEdges[this.edges[i].dfindex] = true;
+  for (var index in this.edges) {
+    var edge = this.edges[index];
+    var x1 = edge.source.x;
+    var y1 = edge.source.y;
+    var x2 = edge.target.x;
+    var y2 = edge.target.y;
+    var point1 = this.applyTransform_(x1, y1);
+    var point2 = this.applyTransform_(x2, y2);
+    if (visflow.utils.pointInBox(point1, box) &&
+        visflow.utils.pointInBox(point2, box)) {
+      this.selectedEdges[index] = true;
     }
   }
+  this.show();
   this.pushflow();
-  this.showDetails(false);
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.isDataEmpty = function() {
-  var inpackNodes = this.ports['in'].pack,
-      inpackEdges = this.ports['ine'].pack;
+  var inpackNodes = this.ports['in'].pack;
+  var inpackEdges = this.ports['inEdges'].pack;
   return inpackNodes.isEmpty() || inpackEdges.isEmpty();
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.showDetails = function(preventForce) {
+visflow.Network.prototype.showDetails = function() {
   if (this.checkDataEmpty()) {
     return;
   }
 
-  if (this.nodes == null) {
-    this.processNetwork();
-  }
+  this.applyProperties_();
 
-  var node = this;
+  this.drawNetwork_();
+  // Ensure at least one pass of update, e.g. to update selection. Otherwise
+  // no update is made when force is already over.
+  this.updateNetwork_();
+  // Start force is the entry of rendering updates.
+  this.startForce_();
 
-  this.svgg = this.svg.append('g')
-    .attr('transform', 'translate(' + this.translate[0] + ',' + this.translate[1] + ')');
-
-  this.svgEdges = this.svgg.selectAll('.network-edge')
-    .data(this.edgeList).enter().append('line')
-    .attr('class', 'network-edge');
-
-  this.svgArrows = this.svgg.append('g')
-    .attr('class', 'network-arrow')
-    .selectAll('.network-arrow')
-    .data(this.edgeList).enter().append('line');
-  this.svgArrows2 = this.svgg.append('g')
-    .attr('class', 'network-arrow')
-    .selectAll('.network-arrow')
-    .data(this.edgeList).enter().append('line');
-
-  this.svgNodes = this.svgg.selectAll('.circle')
-    .data(this.nodeList, function(e) { return e.dfindex; }).enter().append('circle')
-    .on('dblclick', function(e) {
-      d3.select(this).classed('fixed', d.fixed = false);
-    });
-
-  var inpackNodes = this.ports['in'].pack,
-      nodeData = inpackNodes.data;
-
-  if (this.nodeLabelOn) {
-    this.svgLabels = this.svgg.selectAll('.network-label')
-      .data(this.nodeList).enter().append('text')
-      .attr('class', 'network-label')
-      .text(function(e) {
-        return node.isEmptyNodes? e.label : nodeData.values[e.dfindex][node.nodeLabel];
-      });
-  }
-
-  if (!preventForce) {
-    this.prepareForce();
-    this.force.start();
-  }
   this.showSelection();
 };
 
-/** @inheritDoc */
-visflow.Network.prototype.updateVisualization = function() {
-  // pan
-  this.svgg
-    .attr('transform', 'translate(' + this.translate[0] + ',' + this.translate[1] + ')');
-  // must use dfindex to avoid conflict with d3 force layout index
-  // first update edges
-  var items = this.ports['ine'].pack.items,
-      ritems = [];
-  for (var i in this.edges) {
-    var edge = this.edges[i],
-        index = edge.dfindex;
+/**
+ * Renders the network onto the canvas.
+ * @private
+ */
+visflow.Network.prototype.drawNetwork_ = function() {
+  this.drawNodes_();
+  this.drawEdges_();
+  this.drawNodeLabels_();
+};
 
-    var x1 = edge.source.x, y1 = edge.source.y,
-        x2 = edge.target.x, y2 = edge.target.y;
-    var dx = x2 - x1, dy = y2 - y1, len = Math.sqrt(dx*dx+dy*dy);
-    dx /= len; dy /= len;
-    var shift = 3;
-    var properties = _.extend(
-      {},
-      this.defaultPropertiesEdge,
-      items[index].properties,
-      {
-        id: 'e' + index,
-        dfindex: index,
-        x1: x1 - dy * shift,
-        y1: y1 + dx * shift,
-        x2: x2 - dy * shift,
-        y2: y2 + dx * shift
-      }
-    );
-    if (this.selectedEdges[index]) {
-      _(properties).extend(this.selectedPropertiesEdge);
-      this.multiplyProperties(properties, this.selectedMultiplierEdge);
-    }
-    ritems.push(properties);
-  }
+/**
+ * Updates the network. This does not deal with entering and exiting.
+ * @private
+ */
+visflow.Network.prototype.updateNetwork_ = function() {
+  this.updateNodes_();
+  this.updateEdges_();
+  this.updateNodeLabels_();
+};
 
-  var edges = this.svgEdges.data(ritems, function(e) { return e.dfindex; })[0];
-  for (var i = 0; i < edges.length; i++) {
-    if (edges[i] == null) {
-      console.log(edges);
-    }
-    var properties = edges[i].__data__;
-    var u = d3.select(edges[i]);
-    this.applyProperties(u, properties, this.propertyTranslateEdge);
-  }
+/**
+ * Renders the network nodes.
+ * @private
+ */
+visflow.Network.prototype.drawNodes_ = function() {
+  var nodes = this.svgNodes_.selectAll('circle')
+    .data(this.nodeProps_, _.getValue('id'));
+  nodes.enter().append('circle');
+  nodes.exit()
+    .transition()
+    .style('opacity', 0)
+    .remove();
+};
 
-  // change arrow direction
-  for (var i = 0; i < ritems.length; i++) {
-    var properties = ritems[i];
-    var x1 = properties.x1, y1 = properties.y1,
-        x2 = properties.x2, y2 = properties.y2;
-    var dx = x1 - x2, dy = y1 - y2;
-    var len = Math.sqrt(dx * dx + dy * dy);
-    dx /= len; dy /= len;
-    var size = 18;
-    _(properties).extend({
-      x1: x2,
-      y1: y2,
-      x2: x2 + dx * size,
-      y2: y2 + dy * size,
-      transform: 'rotate(10,' + x2 + ',' + y2 + ')'
+/**
+ * Renders the node labels.
+ * @private
+ */
+visflow.Network.prototype.drawNodeLabels_ = function() {
+  var labels = this.svgNodeLabels_.selectAll('text')
+    .data(this.nodeProps_, _.getValue('id'));
+  labels.enter().append('text');
+  labels.exit()
+    .transition()
+    .style('opacity', 0)
+    .remove();
+};
+
+/**
+ * Renders the network edges.
+ * @private
+ */
+visflow.Network.prototype.drawEdges_ = function() {
+  var edges = this.svgEdges_.selectAll('g')
+    .data(this.edgeProps_, _.getValue('id'));
+  var edgesEntered = edges.enter().append('g');
+  edgesEntered.append('path')
+    .classed('edge', true);
+  edgesEntered.append('path')
+    .classed('arrow', true);
+  edges.exit()
+    .transition()
+    .style('opacity', 0)
+    .remove();
+};
+
+/**
+ * Updates the network nodes. This does not deal with entering and exiting.
+ * @private
+ */
+visflow.Network.prototype.updateNodes_ = function() {
+  var nodes = this.svgNodes_.selectAll('circle');
+  nodes
+    .attr('transform', function(prop) {
+      return visflow.utils.getTransform([
+        prop.node.x,
+        prop.node.y
+      ]);
+    })
+    .attr('r', _.getValue('size'))
+    .style('stroke', _.getValue('border'))
+    .style('stroke-width', _.getValue('width'))
+    .style('fill', _.getValue('color'))
+    .style('opacity', _.getValue('opacity'));
+};
+
+/**
+ * Updates the ndoe labels. This does not deal with entering and exiting.
+ * @private
+ */
+visflow.Network.prototype.updateNodeLabels_ = function() {
+  var labels = this.svgNodeLabels_.selectAll('text');
+  labels
+    .text(this.options.nodeLabel ? function(prop) {
+      return prop.node.label;
+    } : '')
+    .attr('transform', function(prop) {
+      return visflow.utils.getTransform([
+        prop.node.x + this.NODE_LABEL_OFFSET_X_,
+        prop.node.y + this.NODE_LABEL_OFFSET_Y_
+      ]);
+    }.bind(this));
+};
+
+/**
+ * Updates the network edges. This does not deal with entering and exiting.
+ * @private
+ */
+visflow.Network.prototype.updateEdges_ = function() {
+  var edges = this.svgEdges_.selectAll('g');
+  // Create a shifted point around the middle of the edge to be the control
+  // point of the edge's curve.
+  var getShiftPoint = function(ps, pt) {
+    var m = visflow.vectors.middlePoint(ps, pt);
+    var d = visflow.vectors.subtractVector(ps, pt);
+    d = visflow.vectors.perpendicularVector(d);
+    d = visflow.vectors.normalizeVector(d);
+    d = visflow.vectors.multiplyVector(d,
+      visflow.vectors.vectorDistance(ps, pt) * this.EDGE_CURVE_SHIFT_);
+    return visflow.vectors.addVector(m, d);
+  }.bind(this);
+
+  var curve = d3.svg.line().interpolate('basis');
+  edges.select('path.edge')
+    .style('stroke', _.getValue('color'))
+    .style('stroke-width', _.getValue('width'))
+    .style('opacity', _.getValue('opacity'))
+    .attr('d', function(edge) {
+      var ps = [edge.source.x, edge.source.y];
+      var pt = [edge.target.x, edge.target.y];
+      var pm = getShiftPoint(ps, pt);
+      return curve([ps, pm, pt]);
     });
-  }
-  var arrows = this.svgArrows.data(ritems, function(e) { return e.dfindex; })[0];
-  for (var i = 0; i < arrows.length; i++) {
-    var properties = arrows[i].__data__;
-    var u = d3.select(arrows[i]);
-    this.applyProperties(u, properties, this.propertyTranslateEdge);
-  }
-  for (var i = 0; i < ritems.length; i++) {
-    var properties = ritems[i];
-    _(properties).extend({
-      transform: 'rotate(-10,' + properties.x1 + ',' + properties.y1 + ')'
-    });
-  }
-  var arrows2 = this.svgArrows2.data(ritems, function(e) { return e.dfindex; })[0];
-  for (var i = 0; i < arrows2.length; i++) {
-    var properties = arrows2[i].__data__;
-    var u = d3.select(arrows2[i]);
-    this.applyProperties(u, properties, this.propertyTranslateEdge);
-  }
 
-  var ritems = [];
+  // Create a stroke that looks like an arrow.
+  var getArrowPoints = function(ps, pt) {
+    var pm = getShiftPoint(ps, pt);
+    var ds = visflow.vectors.normalizeVector(
+      visflow.vectors.subtractVector(ps, pt));
+    var dm = visflow.vectors.normalizeVector(
+      visflow.vectors.subtractVector(pm, pt));
+    var p1 = visflow.vectors.addVector(pt,
+      visflow.vectors.multiplyVector(dm, this.NODE_SIZE_));
+    var p2 = visflow.vectors.addVector(p1,
+      visflow.vectors.multiplyVector(ds, this.EDGE_ARROW_LENGTH_));
+    var p3 = visflow.vectors.mirrorPoint(p2, p1, pm, 1);
+    return [p1, p2, p3];
+  }.bind(this);
+
+  var line = d3.svg.line().interpolate('linear-closed');
+  edges.select('path.arrow')
+    .style('stroke', _.getValue('color'))
+    .style('stroke-width', _.getValue('width'))
+    .style('opacity', _.getValue('opacity'))
+    .style('fill', _.getValue('color'))
+    .attr('d', function(edge) {
+      var ps = [edge.source.x, edge.source.y];
+      var pt = [edge.target.x, edge.target.y];
+      var points = getArrowPoints(ps, pt);
+      return line(points);
+    });
+};
+
+/**
+ * Applies the rendering properties to the nodes and edges.
+ * @private
+ */
+visflow.Network.prototype.applyProperties_ = function() {
   var items = this.ports['in'].pack.items;
-  for (var i in this.nodes) {
-    var node = this.nodes[i],
-        index = node.dfindex;
-    var properties = _.extend(
+  this.nodeProps_ = [];
+  for (var index in this.nodes) {
+    var node = this.nodes[index];
+    var prop = _.extend(
       {},
       this.defaultProperties,
       items[index].properties,
       {
         id: 'n' + index,
-        dfindex: index,
-        cx: node.x,
-        cy: node.y
+        node: node
       }
     );
     if (this.selected[index]) {
-      _(properties).extend(this.selectedProperties);
-      this.multiplyProperties(properties, this.selectedMultiplier);
+      _(prop).extend(this.selectedProperties);
+      this.multiplyProperties(prop, this.selectedMultiplier);
     }
-    ritems.push(properties);
+    this.nodeProps_.push(prop);
   }
-  var nodes = this.svgNodes.data(ritems, function(e) { return e.dfindex; })[0];
-  for (var i = 0; i < nodes.length; i++) {
-    var properties = nodes[i].__data__;
-    var u = d3.select(nodes[i]);
-    this.applyProperties(u, properties, this.propertyTranslate);
-  }
-
-  if (this.nodeLabelOn) {
-    // update label positions
-    this.svgLabels
-      .attr('x', function(e) { return e.x; })
-      .attr('y', function(e) { return e.y - 12; });
+  var edgeItems = this.ports['inEdges'].pack.items;
+  this.edgeProps_ = [];
+  for (var index in this.edges) {
+    var edge = this.edges[index];
+    var prop = _.extend(
+      {},
+      this.defaultEdgeProperties,
+      edgeItems[index].properties,
+      {
+        id: 'e' + index,
+        source: edge.source,
+        target: edge.target
+      }
+    );
+    if (this.selectedEdges[index]) {
+      _(prop).extend(this.selectedEdgeProperties);
+      this.multiplyProperties(prop, this.selectedMultiplier);
+    }
+    this.edgeProps_.push(prop);
   }
 };
 
@@ -451,17 +590,55 @@ visflow.Network.prototype.showSelection = function() {
 /** @inheritDoc */
 visflow.Network.prototype.initPanel = function(container) {
   visflow.Network.base.initPanel.call(this, container);
-  var dimensionList = this.getDimensionList();
+  var nodeDimensionList = this.getDimensionList();
+  var edgeDimensionList = this.getDimensionList(
+    this.ports['inEdges'].pack.data);
+
+  var nodeIdSelect = new visflow.Select({
+    container: container.find('#node-id-by'),
+    list: nodeDimensionList,
+    allowClear: false,
+    selected: this.options.nodeIdBy,
+    listTitle: 'Node Id'
+  });
+  $(nodeIdSelect).on('visflow.change', function(event, dim) {
+    this.options.nodeIdBy = dim;
+    this.inputChanged();
+  }.bind(this));
+
+  var sourceSelect = new visflow.Select({
+    container: container.find('#source-by'),
+    list: edgeDimensionList,
+    allowClear: false,
+    selected: this.options.sourceBy,
+    listTitle: 'Edge Source'
+  });
+  $(sourceSelect).on('visflow.change', function(event, dim) {
+    this.options.sourceBy = dim;
+    this.inputChanged();
+  }.bind(this));
+  var targetSelect = new visflow.Select({
+    container: container.find('#target-by'),
+    list: edgeDimensionList,
+    allowClear: false,
+    selected: this.options.targetBy,
+    listTitle: 'Edge Target'
+  });
+  $(targetSelect).on('visflow.change', function(event, dim) {
+    this.options.targetBy = dim;
+    this.inputChanged();
+  }.bind(this));
 
   var labelBySelect = new visflow.Select({
     container: container.find('#label-by'),
-    list: dimensionList,
+    list: nodeDimensionList,
     allowClear: true,
     selected: this.options.labelBy,
     listTitle: 'Label By'
   });
   $(labelBySelect).on('visflow.change', function(event, dim) {
     this.options.labelBy = dim;
+    this.inputChanged();
   }.bind(this));
 
   var inputCharge = new visflow.Input({
@@ -474,43 +651,50 @@ visflow.Network.prototype.initPanel = function(container) {
   });
   $(inputCharge).on('visflow.change', function(event, value) {
     this.options.charge = value;
-    // TODO(bowen)
+    this.inputChanged();
   }.bind(this));
-  /*
-  var node = this;
-  this.checkboxNodeLabel = new visflow.Checkbox({
-    id: 'nodelabel',
-    label: 'Node Labels',
-    target: this.jqoptions,
-    value: this.nodeLabelOn,
-    relative: true,
-    change: function(event) {
-      console.log(event.unitChange);
-      var unitChange = event.unitChange;
-      node.nodeLabelOn = unitChange.value;
-      node.pushflow();
-      node.showDetails();
-    }
+
+  // Toggles
+  var nodeLabelToggle = new visflow.Checkbox({
+    container: container.find('#label-node'),
+    value: this.options.nodeLabel,
+    title: 'Node Label'
   });
-  */
+  $(nodeLabelToggle).on('visflow.change', function(event, value) {
+    this.options.nodeLabel = value;
+    this.show();
+  }.bind(this));
+  var navigationToggle = new visflow.Checkbox({
+    container: container.find('#navigation'),
+    value: this.options.navigation,
+    title: 'Navigation'
+  });
+  $(navigationToggle).on('visflow.change', function(event, value) {
+    this.options.navigation = value;
+  }.bind(this));
 };
 
+/** @inheritDoc */
+visflow.Network.prototype.drawBrush = function() {
+  this.drawSelectBox();
+};
+
+/** @inheritDoc */
+visflow.Network.prototype.inputChanged = function() {
+  this.processNetwork();
+  this.show();
+};
 
 /**
  * Processes the network data.
  */
 visflow.Network.prototype.processNetwork = function() {
-  var inpackNodes = this.ports['in'].pack,
-    inpackEdges = this.ports['ine'].pack;
+  var inpackNodes = this.ports['in'].pack;
+  var inpackEdges = this.ports['inEdges'].pack;
 
-  if (inpackEdges.isEmpty() || inpackNodes.isEmpty())
+  if (inpackEdges.isEmpty() || inpackNodes.isEmpty()) {
     return;
-
-  if (this.nodes == null) { // never processed
-    this.nodes = {};
-    this.edges = {};
   }
-
   this.validateNetwork();
   this.processNodes_();
   this.processEdges_();
@@ -521,13 +705,11 @@ visflow.Network.prototype.processNetwork = function() {
  * @private
  */
 visflow.Network.prototype.processNodes_ = function() {
-  var inpackNodes = this.ports['in'].pack,
-      items = inpackNodes.items,
-      data = inpackNodes.data;
+  var inpack = this.ports['in'].pack;
+  var items = inpack.items;
+  var data = inpack.data;
 
-  this.nodeList = [];
-
-  // eliminate randomness in initial layout
+  // Eliminate randomness in initial layout.
   var randValue = 3;
   var rand = function() {
     randValue = randValue * 997 + 317;
@@ -536,22 +718,21 @@ visflow.Network.prototype.processNodes_ = function() {
   };
 
   for (var index in items) {
-   var values = data.values[index];
-    // TODO, temporarily assuming name is first column
-    var name = values[0];
-    var node = this.nodes[name];
-    if (node == null) {
-      // create an empty object for new node
-      node = this.nodes[name] = {};
+    if (!(index in this.nodes)) {
+      // Create an empty object for new node.
+      this.nodes[index] = {};
     }
+    var node = this.nodes[index];
     _(node).extend({
-      dfindex: index
+      index: index,
+      label: data.values[index][this.options.labelBy]
     });
-    if (node.x == null)
+    if (node.x == null) {
       node.x = rand();
-    if (node.y == null)
+    }
+    if (node.y == null) {
       node.y = rand();
-    this.nodeList.push(node);
+    }
   }
 };
 
@@ -560,63 +741,71 @@ visflow.Network.prototype.processNodes_ = function() {
  * @private
  */
 visflow.Network.prototype.processEdges_ = function() {
-  var inpack = this.ports['ine'].pack,
-      items = inpack.items,
-      data = inpack.data;
-
-  this.edgeList = [];
-
-  var skipped = 0;
-  for (var index in items) {
-    var values = data.values[index];
-    var source = this.nodes[values[0]],
-        target = this.nodes[values[1]];
-
-    if (source == null || target == null) {
-      skipped ++;
-      continue; // skip edges without corresponding nodes
-    }
-    var edge = this.edges[index];
-    if (edge == null) {
-      // create an empty object for new edge
-      edge = this.edges[index] = {};
-    }
-    _(edge).extend({
-      dfindex: index,
-      source: source,
-      target: target,
-      dfweight: values[2] // TODO, hacky
-    });
-    this.edgeList.push(edge);
+  var inpackNodes = this.ports['in'].pack;
+  var nodeItems = inpackNodes.items;
+  var nodeData = inpackNodes.data;
+  var nodeIdToIndex = {};
+  for (var index in nodeItems) {
+    var id = nodeData.values[index][this.options.nodeIdBy];
+    nodeIdToIndex[id] = index;
   }
-  //console.log(skipped, 'edges skipped');
+
+  var inpack = this.ports['inEdges'].pack;
+  var items = inpack.items;
+  var data = inpack.data;
+
+  for (var index in items) {
+    var sourceId = data.values[index][this.options.sourceBy];
+    var targetId = data.values[index][this.options.targetBy];
+    var sourceIndex = nodeIdToIndex[sourceId];
+    var targetIndex = nodeIdToIndex[targetId];
+    if (!(index in this.edges)) {
+      // Create an empty object for new edge.
+      this.edges[index] = {};
+    }
+
+    if (sourceIndex == null || targetIndex == null) {
+      // Ignore edges without corresponding nodes.
+      delete this.edges[index];
+      continue;
+    }
+    if (sourceIndex == targetIndex) {
+      // Ignore self loop edges.
+      delete this.edges[index];
+      continue;
+    }
+
+    var edge = this.edges[index];
+    _(edge).extend({
+      index: index,
+      source: this.nodes[sourceIndex],
+      target: this.nodes[targetIndex]
+    });
+  }
 };
 
 /**
  * Validates the network.
  */
 visflow.Network.prototype.validateNetwork = function() {
-  var inpackNodes = this.ports['in'].pack,
-      inpackEdges = this.ports['ine'].pack;
-
+  var inpackNodes = this.ports['in'].pack;
+  var nodeItems = inpackNodes.items;
   var deletedNodes = {};
-  var items = inpackNodes.items;
-  for (var i in this.nodes) {
-    var node = this.nodes[i],
-        index = node.dfindex;
-    if (items[index] == null) {
-      delete this.nodes[i];
+  for (var index in this.nodes) {
+    if (!(index in nodeItems)) {
+      delete this.nodes[index];
       deletedNodes[index] = true;
     }
   }
-  var items = inpackEdges.items;
-  for (var i in this.edges) {
-    var edge = this.edges[i],
-        index = edge.dfindex;
-    if (items[index] == null
-      || deletedNodes[edge.source.dfindex] != null
-      || deletedNodes[edge.target.dfindex] != null) {
-      delete this.edges[i];
+
+  var inpackEdges = this.ports['inEdges'].pack;
+  var edgeItems = inpackEdges.items;
+  for (var index in this.edges) {
+    var edge = this.edges[index];
+    if (!(index in edgeItems) ||
+        deletedNodes[edge.source.index] != null ||
+        deletedNodes[edge.target.index] != null) {
+      delete this.edges[index];
     }
   }
 };
@@ -625,8 +814,8 @@ visflow.Network.prototype.validateNetwork = function() {
 /** @inheritDoc */
 visflow.Network.prototype.processSelection = function() {
   visflow.Network.base.processSelection.call(this); // process node selection
-  var inpack = this.ports['ine'].pack,
-      outspack = this.ports['outse'].pack;
+  var inpack = this.ports['inEdges'].pack;
+  var outspack = this.ports['outsEdges'].pack;
   outspack.copy(inpack);
   outspack.filter(_.allKeys(this.selectedEdges));
 };
@@ -636,7 +825,7 @@ visflow.Network.prototype.processSelection = function() {
  */
 visflow.Network.prototype.validateSelection = function() {
   visflow.Network.base.validateSelection.call(this); // clear selection of nodes
-  var inpackEdges = this.ports['ine'].pack;
+  var inpackEdges = this.ports['inEdges'].pack;
   for (var index in this.selectedEdges) { // clear selection of edges
     if (inpackEdges.items[index] == null){
       delete this.selectedEdges[index];
@@ -646,15 +835,15 @@ visflow.Network.prototype.validateSelection = function() {
 
 /** @inheritDoc */
 visflow.Network.prototype.process = function() {
-  var inpackNodes = this.ports['in'].pack,
-      inpackEdges = this.ports['ine'].pack,
-      outpackNodes = this.ports['out'].pack,
-      outpackEdges = this.ports['oute'].pack,
-      outspackNodes = this.ports['outs'].pack,
-      outspackEdges = this.ports['outse'].pack;
+  var inpackNodes = this.ports['in'].pack;
+  var inpackEdges = this.ports['inEdges'].pack;
+  var outpackNodes = this.ports['out'].pack;
+  var outpackEdges = this.ports['outEdges'].pack;
+  var outspackNodes = this.ports['outs'].pack;
+  var outspackEdges = this.ports['outsEdges'].pack;
 
-  if (this.force != null) {
-    this.force.stop();  // prevent further update
+  if (this.force_ != null) {
+    this.force_.stop();  // Prevent further update
   }
 
   outpackNodes.copy(inpackNodes, true);
@@ -674,8 +863,6 @@ visflow.Network.prototype.process = function() {
 
     this.dataChanged();
 
-    //console.log(inpackNodes);
-
     this.lastDataId = inpackNodes.data.dataId;
     this.lastEdgeDataId = inpackEdges.data.dataId;
   }
@@ -683,45 +870,115 @@ visflow.Network.prototype.process = function() {
   this.processSelection();
 };
 
+/** @private @const {number} */
+visflow.Network.prototype.FORCE_GRAVITY_ = 0.5;
+/** @private @const {number} */
+visflow.Network.prototype.FORCE_FRICTION_ = 0.25;
+/** @private @const {number} */
+visflow.Network.prototype.FORCE_LINK_DISTANCE_ = 30;
+
+
 /**
- * Prepares the force layout.
+ * Prepares and starts the force layout.
+ * @private
  */
-visflow.Network.prototype.prepareForce = function() {
-  var node = this;
-  if (this.force != null)
-    this.force.stop();
-  this.force = d3.layout.force()
-    .nodes(this.nodeList)
-    .links(this.edgeList)
-    .size([this.svgSize[0], this.svgSize[1]])
-    .charge(this.forceCharge)
-    .linkDistance(30)
-    .gravity(0.5)
-    .friction(0.25)
-    .on('tick', function() {
-      node.updateVisualization();
+visflow.Network.prototype.startForce_ = function() {
+  var svgSize = this.getSVGSize();
+  this.force_.stop();
+
+  this.force_ = d3.layout.force()
+    .nodes(_.toArray(this.nodes))
+    .links(_.toArray(this.edges))
+    .size([svgSize.width, svgSize.height])
+    .charge(this.options.charge)
+    .linkDistance(this.FORCE_LINK_DISTANCE_)
+    .gravity(this.FORCE_GRAVITY_)
+    .friction(this.FORCE_FRICTION_)
+    .on('tick', this.updateNetwork_.bind(this));
+
+  this.force_.drag()
+    .on('dragstart', function(node) {
+      d3.select(this).classed('fixed', node.fixed = true);
     });
-  this.force.drag()
-    .on('dragstart', function(e) {
-      console.log('dd');
-      d3.select(this).classed('fixed', d.fixed = true);
-    });
+
+  this.force_.start();
+};
+
+/** @inheritDoc */
+visflow.Network.prototype.resize = function() {
+  visflow.Network.base.resize.call(this);
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.dataChanged = function() {
-  this.nodes = {}; // cached positions shall be discarded
+  this.nodes = {}; // Cached positions shall be discarded
   this.edges = {};
-  this.nodeLabel = 0;
+  var idDim = this.findLabelByDimension_();
+  var edgeDims = this.findEdgeDimensions_();
+  _(this.options).extend({
+    labelBy: idDim,
+    nodeIdBy: idDim,
+    sourceBy: edgeDims.sourceBy,
+    targetBy: edgeDims.targetBy
+  });
   this.processNetwork();
 };
 
 /**
- * Toggles panning/selection mode.
+ * Finds a dimension that can be used for label.
+ * @return {number}
  * @private
  */
-visflow.Network.prototype.togglePanning_ = function() {
-  this.panning_ = !this.panning_;
+visflow.Network.prototype.findLabelByDimension_ = function() {
+  var labelBy = null;
+  this.ports['in'].pack.data.dimensionTypes.forEach(function(type, index) {
+    if (labelBy == null && type == 'string') {
+      labelBy = index;
+    }
+  });
+  return labelBy == null ? 0 : labelBy;
+};
+
+/**
+ * Finds the edge dimensions for sources and targets.
+ * @return {{sourceBy: number, targetBy: number}}
+ * @private
+ */
+visflow.Network.prototype.findEdgeDimensions_ = function() {
+  var dimTypes = this.ports['inEdges'].pack.data.dimensionTypes;
+  var sourceBy = null;
+  var targetBy = null;
+  dimTypes.forEach(function(type, index) {
+    if (type == 'string') {
+      if (sourceBy == null) {
+        sourceBy = index;
+      } else if (targetBy == null) {
+        targetBy = index;
+      }
+    }
+  });
+  sourceBy = sourceBy == null ?
+      0 : sourceBy;
+  targetBy = targetBy == null ?
+      Math.min(sourceBy + 1, dimTypes.length - 1) : targetBy;
+  return {
+    sourceBy: sourceBy,
+    targetBy: targetBy
+  };
+};
+
+
+/**
+ * Toggles navigation (zooming/panning) mode.
+ * @param {boolean=} opt_value
+ * @private
+ */
+visflow.Network.prototype.toggleNavigation_ = function(opt_value) {
+  this.options.navigation = opt_value != null ? opt_value :
+      !this.options.navigation;
+  if (visflow.optionPanel.isOpen) {
+    this.updatePanel(visflow.optionPanel.contentContainer());
+  }
 };
 
 /**
@@ -730,13 +987,15 @@ visflow.Network.prototype.togglePanning_ = function() {
  */
 visflow.Network.prototype.toggleNodeLabel_ = function() {
   this.options.nodeLabel = !this.options.nodeLabel;
+  if (visflow.optionPanel.isOpen) {
+    this.updatePanel(visflow.optionPanel.contentContainer());
+  }
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.keyAction = function(key, event) {
-  if (key == 'H') {
-    this.togglePanning_();
-    event.stopPropagation();
+  if (key == 'N') {
+    this.toggleNavigation_();
   }
   visflow.Network.base.keyAction.call(this, key, event);
 };

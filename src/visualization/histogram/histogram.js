@@ -157,18 +157,10 @@ visflow.Histogram.prototype.selectItems = function() {
  * @private
  */
 visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
-  var startPos = _(this.brushPoints_).first();
-  var endPos = _(this.brushPoints_).last();
-
-  if (startPos.x == endPos.x && startPos.y == endPos.y) {
-    // Nothing. Histogram allows clicking select.
+  var box = this.getSelectBox(true);
+  if (box == null) {
+    return;
   }
-  var box = {
-    x1: Math.min(startPos.x, endPos.x),
-    x2: Math.max(startPos.x, endPos.x),
-    y1: Math.min(startPos.y, endPos.y),
-    y2: Math.max(startPos.y, endPos.y)
-  };
 
   if (!visflow.interaction.shifted) {
     // Reset both selected items and bars if shift key is not down.
@@ -508,7 +500,7 @@ visflow.Histogram.prototype.drawYAxis_ = function() {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.drawBrush = function() {
-  this.drawSelectbox();
+  this.drawSelectBox();
 };
 
 /** @inheritDoc */

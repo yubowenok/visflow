@@ -178,6 +178,12 @@ visflow.Node.prototype.MAX_HEIGHT = Infinity;
 visflow.Node.prototype.MAX_LABEL_LENGTH = 15;
 
 /**
+ * Default options that shall be set by the node, node type specific.
+ * @protected {!Object}
+ */
+visflow.Node.prototype.DEFAULT_OPTIONS = {};
+
+/**
  * Whether the node is resizable.
  */
 visflow.Node.prototype.RESIZABLE = true;
@@ -255,7 +261,15 @@ visflow.Node.prototype.deserialize = function(save) {
       visMode: save.visModeOn
     };
   }
+
   _(this.options).extend(save.options);
+  for (var key in this.DEFAULT_OPTIONS) {
+    if (this.options[key] == null) {
+      visflow.warning(key, 'options not saved in', this.label);
+      this.options[key] = this.DEFAULT_OPTIONS[key];
+    }
+  }
+
 
   this.label = save.label;
 
@@ -923,6 +937,12 @@ visflow.Node.prototype.panel = function() {
     return;
   }
 
+  if (visflow.optionPanel.loadedNode() == this) {
+    this.updatePanel(visflow.optionPanel.contentContainer());
+    return;
+  };
+
+  visflow.optionPanel.setLoadedNode(this);
   visflow.optionPanel.load(this.COMMON_PANEL_TEMPLATE_, function(container) {
     this.initPanelHeader(container);
     // Load type specific node panel.
@@ -1042,10 +1062,11 @@ visflow.Node.prototype.delete = function() {
 
 /**
  * Gets the list of dimensions used for select2.
+ * @param {visflow.Data=} opt_data
  * @return {!Array<{id: number, text: string}>}
  */
-visflow.Node.prototype.getDimensionList = function() {
-  var data = this.ports['in'].pack.data;
+visflow.Node.prototype.getDimensionList = function(opt_data) {
+  var data = opt_data == null ? this.ports['in'].pack.data : opt_data;
   return data.dimensions.map(function(dimName, index) {
     return {
       id: index,

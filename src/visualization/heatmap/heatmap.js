@@ -142,22 +142,18 @@ visflow.Heatmap.prototype.selectItems = function() {
  * @private
  */
 visflow.Heatmap.prototype.selectItemsInBox_ = function() {
-  var brush = this.brushPoints_;
-  var startPos = _(brush).first();
-  var endPos = _(brush).last();
-  if (startPos.x == endPos.x && startPos.y == endPos.y) {
+  var box = this.getSelectBox(true);
+  if (box == null) {
     return;
   }
 
   if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down
   }
-  var yMin = Math.min(startPos.y, endPos.y);
-  var yMax = Math.max(startPos.y, endPos.y);
   this.itemIndices_.forEach(function(itemIndex, rowIndex) {
     var y1 = this.yScale(rowIndex + 1);
     var y2 = this.yScale(rowIndex);
-    if (y2 >= yMin && y1 <= yMax) {
+    if (y2 >= box.y1 && y1 <= box.y2) {
       this.selected[itemIndex] = true;
     }
   }, this);

@@ -138,15 +138,26 @@ visflow.PropertyEditor.prototype.process = function() {
   var inpack = this.ports['in'].pack;
   var outpack = this.ports['out'].pack;
   outpack.copy(inpack);
-  var newitems = {};
+  var newItems = {};
+  var setProps = {};
+  for (var p in this.options.properties) {
+    var value = this.options.properties[p];
+    if (value != null) {
+      setProps[p] = value;
+    }
+  }
   for (var index in inpack.items) {
-    newitems[index] = {
-      properties: _.extend({}, inpack.items[index].properties,
-          this.options.properties)
+    var prop = _.extend(
+      {},
+      inpack.items[index].properties,
+      setProps
+    );
+    newItems[index] = {
+      properties: prop
     };
   }
-  // cannot reuse old items
-  outpack.items = newitems;
+  // Cannot reuse old items.
+  outpack.items = newItems;
 };
 
 /** @inheritDoc */

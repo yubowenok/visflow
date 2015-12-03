@@ -1,3 +1,12 @@
+/*
+  Z-index list:
+  node panel - 102
+  option panel - 103
+  message - 105
+  main selectbox - 100
+  main - 0
+*/
+
 body {
   overflow: hidden;
 }
@@ -7,7 +16,7 @@ body {
   text-align: center;
   position: absolute;
   width: 100%;
-  z-index: 100;
+  z-index: 105;
 }
 
 .visflow .system-message {

@@ -11,7 +11,7 @@
 }
 
 .visflow .navbar-fixed-top {
-  z-index: 101;
+  z-index: 100;
 }
 
 .visflow .navbar-fixed-top a:hover {

@@ -11,13 +11,6 @@
  */
 visflow.Constants = function(text) {
   /**
-   * Whether the constant is a set of elements.
-   * A single element is considered to be NOT a set.
-   * @type {boolean}
-   */
-  this.isSet = false;
-
-  /**
    * Type of the constant.
    * Can be one of {empty, int, float, string}.
    * @type {string}
@@ -48,10 +41,11 @@ visflow.Constants = function(text) {
       return;
     }
 
-    var eles = text.split(/[,;]+/);
-    for (var i in eles) {
-      this.add(eles[i]);
-    }
+    var elements = text.split(/[,;]+/);
+    elements.forEach(function(element) {
+      element = element.replace(/\s+/g, '');
+      this.add(element);
+    }, this);
   }
 };
 
@@ -136,23 +130,24 @@ visflow.Constants.prototype.add = function(value) {
   var grade = this.TYPE_GRADES_[this.constantType];
   var e = this.parse(value);
 
-  if (e.type === 'empty')
+  if (e.type === 'empty') {
     return; //  ignore empty element
+  }
   value = e.value;
 
-  if (this.hasElement[value])
+  if (this.hasElement[value]) {
     return; // element already exists
+  }
 
   this.hasElement[value] = true;
   this.elements.push(value);
-  this.isSet = this.numElements > 1;
 
-  var newgrade = Math.max(grade, this.TYPE_GRADES_[e.type]);
-  this.constantType = this.GRADE_TYPES_[newgrade];
+  var newGrade = Math.max(grade, this.TYPE_GRADES_[e.type]);
+  this.constantType = this.GRADE_TYPES_[newGrade];
 
   // force conversion to higher types
   // i.e. int -> float -> string
-  if (newgrade > grade) {
+  if (newGrade > grade) {
     for (var i in this.elements) {
       var e = this.elements[i];
       if (grade === 1) {
@@ -170,7 +165,6 @@ visflow.Constants.prototype.add = function(value) {
  */
 visflow.Constants.prototype.clear = function() {
   this.elements = [];
-  this.isSet = false;
   this.constantType = 'empty';
 };
 

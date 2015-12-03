@@ -190,7 +190,7 @@ visflow.ParallelCoordinates.prototype.selectItemsIntersectLasso_ = function() {
       }
     }
   }
-  this.showDetails();
+  this.show();
   this.pushflow();
 };
 
@@ -268,7 +268,7 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function() {
       return line(prop.points);
     })
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('size'))
+    .style('stroke-width', _.getValue('width'))
     .style('opacity', _.getValue('opacity'));
 };
 

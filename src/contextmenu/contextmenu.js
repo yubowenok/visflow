@@ -110,11 +110,9 @@ visflow.ContextMenu.prototype.listItems_ = function() {
         this.signal_(item.id);
       }.bind(this));
 
-    if (item.icon) {
-      $('<i></i>')
-        .addClass(item.icon)
-        .prependTo(a);
-    }
+    $('<i></i>')
+      .addClass(item.icon == null ? 'glyphicon' : item.icon)
+      .prependTo(a);
 
     $('<span></span>')
       .text(item.text)

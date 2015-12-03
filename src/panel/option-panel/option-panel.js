@@ -23,6 +23,12 @@ visflow.optionPanel.isOpen = false;
 visflow.optionPanel.pinned = false;
 
 /**
+ * Last loaded node.
+ * @private {visflow.Node}
+ */
+visflow.optionPanel.loadedNode_ = null;
+
+/**
  * Option panel container.
  * @private {jQuery}
  */
@@ -172,6 +178,23 @@ visflow.optionPanel.update_ = function() {
 };
 
 /**
+ * Sets the last loaded node of the option panel, so as to avoid loading the
+ * same template again.
+ * @param {visflow.Node} node
+ */
+visflow.optionPanel.setLoadedNode = function(node) {
+  this.loadedNode_ = node;
+};
+
+/**
+ * Gets the last loaded node of the option panel.
+ * @return {visflow.Node}
+ */
+visflow.optionPanel.loadedNode = function(node) {
+  return this.loadedNode_;
+};
+
+/**
  * Loads a panel from given template. On complete it calls callback function
  * with panel container.
  * @param {string} template
@@ -191,8 +214,9 @@ visflow.optionPanel.load = function(template, complete) {
  */
 visflow.optionPanel.close = function() {
   visflow.optionPanel.toggle(false);
+  visflow.optionPanel.loadedNode_ = null;
   var clear = function() {
-    visflow.optionPanel.clear();
+    visflow.optionPanel.clear_();
     $(visflow.optionPanel).off('visflow.closed', clear);
   };
   $(visflow.optionPanel).on('visflow.closed', clear);
@@ -200,8 +224,9 @@ visflow.optionPanel.close = function() {
 
 /**
  * Clears the option panel content.
+ * @private
  */
-visflow.optionPanel.clear = function() {
+visflow.optionPanel.clear_ = function() {
   visflow.optionPanel.container_.find('.content').children('*').remove();
 };
 
