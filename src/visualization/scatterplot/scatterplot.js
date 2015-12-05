@@ -24,26 +24,24 @@ visflow.Scatterplot = function(params) {
   /** @type {!d3.scale} */
   this.yScale = d3.scale.linear();
 
-  // Scale types.
   /** @type {string} */
   this.xScaleType = null;
-  /** @type {string} */
-  this.yScaleType = null;
 
   /**
    * SVG group for points.
-   * @private {jQuery}
+   * @private {d3.selection}
    */
   this.svgPoints_;
 
   /**
-   * SVG grouop for axes.
-   * @private {jQuery}
+   * SVG group for axes.
+   * @private {d3.selection}
    */
   this.svgAxes_;
 
   /**
-   * @protected {number}
+   * Left margin computed based on the y Axis labels.
+   * @private {number}
    */
   this.leftMargin_ = 0;
 };
@@ -267,9 +265,7 @@ visflow.Scatterplot.prototype.drawPoints_ = function() {
   points.enter().append('circle')
     .attr('id', _.getValue('id'))
     .style('opacity', 0);
-  points.exit().transition()
-    .style('opacity', 0)
-    .remove();
+  _(points.exit()).fadeOut();
 
   var updatedPoints = this.allowTransition_ ? points.transition() : points;
   updatedPoints
@@ -362,7 +358,6 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     ordinalPadding: 1.0
   });
   this.yScale = yScaleInfo.scale;
-  this.yScaleType = yScaleInfo.type;
 
   // Compute new left margin based on selected y dimension.
   // xScale has to be created after yScale because the left margin depends on

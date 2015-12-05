@@ -1,11 +1,11 @@
-.visflow .scatterplot g.x.axis .vis-label {
+.visflow .node.scatterplot g.x.axis .vis-label {
   text-anchor: end;
 }
-.visflow .scatterplot g.y.axis .vis-label {
+.visflow .node.scatterplot g.y.axis .vis-label {
   text-anchor: start;
 }
 
-.visflow .scatterplot .select2-container {
+.visflow .node.scatterplot .select2-container {
   width: 100%;
 }
 

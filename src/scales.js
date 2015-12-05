@@ -125,7 +125,8 @@ visflow.scales.init = function() {
           .range(range);
         break;
       case 'color-category10':
-        scale = d3.scale.category10();
+        scale = d3.scale.category10()
+          .domain(spec.domain);
         break;
     }
     gradient += ')';

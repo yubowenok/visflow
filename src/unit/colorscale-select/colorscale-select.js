@@ -34,6 +34,9 @@ visflow.ColorScaleSelect = function(params) {
 
 visflow.utils.inherit(visflow.ColorScaleSelect, visflow.Select);
 
+/** @private @const {number} */
+visflow.ColorScaleSelect.prototype.SEARCH_DELAY_ = 20;
+
 /** @inheritDoc */
 visflow.ColorScaleSelect.prototype.init_ = function() {
   visflow.ColorScaleSelect.base.init_.call(this);
@@ -41,19 +44,39 @@ visflow.ColorScaleSelect.prototype.init_ = function() {
   this.select2_.on('select2:open', function() {
     var listId = this.container_.find('.select2-selection')
       .attr('aria-owns');
-    $('#' + listId + ' > li').not('.loading-results')
-      .each(function(index, li) {
-        var text = $(li).text();
-        var scale = this.textToScale_[text];
-        $(scale.gradientDiv).clone().appendTo(li);
-      }.bind(this));
+    var list = $('#' + listId);
+    this.addGradients_(list);
+    $('.select2-search__field').keydown(function() {
+      // The list item may not be immediately refreshed, and keydown handler
+      // needs to wait a bit. Ideally we should wait for select2:search event
+      // but it seems that select2 4.0 doesn't have such event.
+      setTimeout(function() {
+        this.addGradients_(list);
+      }.bind(this), this.SEARCH_DELAY_);
+    }.bind(this));
   }.bind(this));
-
   this.showSelected_();
-
   this.select2_.on('change', function() {
     this.showSelected_();
   }.bind(this));
+};
+
+/**
+ * Adds gradient divs to the select2 color scale list.
+ * @param {!jQuery} list
+ * @private
+ */
+visflow.ColorScaleSelect.prototype.addGradients_ = function(list) {
+  list.children('li').not('.loading-results')
+    .each(function(index, li) {
+      var text = $(li).text();
+      var scale = this.textToScale_[text];
+      if (scale != null) {
+        if ($(li).children('.gradient-div').length == 0) {
+          $(scale.gradientDiv).clone().appendTo(li);
+        }
+      }
+    }.bind(this));
 };
 
 /**

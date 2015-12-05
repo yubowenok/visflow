@@ -76,6 +76,12 @@ visflow.Heatmap.prototype.NODE_CLASS = 'heatmap';
 visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;
 /** @private @const {number} */
 visflow.Heatmap.prototype.COL_LABEL_OFFSET_ = 10;
+/**
+ * Default number of dimensions the heatmap would show.
+ * @private
+ */
+visflow.Heatmap.prototype.DEFAULT_NUM_DIMENSION_ = 5;
+
 /** @inheritDoc */
 visflow.Heatmap.prototype.PANEL_TEMPLATE =
     './src/visualization/heatmap/heatmap-panel.html';
@@ -270,10 +276,7 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
   rows.enter().append('g')
     .style('opacity', 0)
     .attr('id', _.getValue('id'));
-  rows.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(rows.exit()).fadeOut();
 
   var updatedRows = this.allowTransition_ ? rows.transition() : rows;
   updatedRows
@@ -297,10 +300,7 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
     .style('opacity', 0)
     .attr('id', _.getValue('dimId'))
     .attr('transform', cellTransform);
-  cells.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(cells.exit()).fadeOut();
 
   var updatedCells = this.allowTransition_ ? cells.transition() : cells;
   updatedCells
@@ -336,10 +336,7 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
     .attr('id', _.getValue('id'))
     .attr('transform', labelTransform)
     .classed('row-label', true);
-  labels.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(labels.exit()).fadeOut();
 
   var updatedLabels = this.allowTransition_ ? labels.transition(): labels;
   updatedLabels
@@ -361,10 +358,7 @@ visflow.Heatmap.prototype.drawColLabels_ = function() {
   labels.enter().append('text')
     .attr('id', _.getValue('uniqId'))
     .classed('vis-label', true);
-  labels.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(labels.exit()).fadeOut();
   var updatedLabels = this.allowTransition_ ? labels.transition() : labels;
   updatedLabels
     .text(function(dimInfo) {
@@ -543,11 +537,13 @@ visflow.Heatmap.prototype.findPlotDimensions = function() {
   var labelBy = null;
   data.dimensionTypes.forEach(function(type, index) {
     if (type != 'string') {
-      dimensions.push(index);
+      if (dimensions.length < this.DEFAULT_NUM_DIMENSION_) {
+        dimensions.push(index);
+      }
     } else if (labelBy == null) {
       labelBy = index;
     }
-  });
+  }, this);
   return {
     dimensions: dimensions,
     labelBy: labelBy == null ? 0 : labelBy

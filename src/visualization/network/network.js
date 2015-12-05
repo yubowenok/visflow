@@ -20,33 +20,39 @@ visflow.Network = function(params) {
       node: this,
       id: 'in',
       isInput: true,
-      isConstants: false
+      isConstants: false,
+      text: 'input nodes'
     }),
     inEdges: new visflow.Port({
       node: this,
       id: 'inEdges',
       isInput: true,
-      isConstants: false
+      isConstants: false,
+      text: 'input edges'
     }),
     outs: new visflow.SelectionPort({
       node: this,
-      id: 'outs'
+      id: 'outs',
+      text: 'selected nodes'
     }),
     outsEdges: new visflow.SelectionPort({
       node: this,
-      id: 'outsEdges'
+      id: 'outsEdges',
+      text: 'selected edges'
     }),
     out: new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
-      isConstants: false
+      isConstants: false,
+      text: 'output nodes'
     }),
     outEdges: new visflow.MultiplePort({
       node: this,
       id: 'outEdges',
       isInput: false,
-      isConstants: false
+      isConstants: false,
+      text: 'output edges'
     })
   };
 
@@ -420,10 +426,7 @@ visflow.Network.prototype.drawNodes_ = function() {
   var nodes = this.svgNodes_.selectAll('circle')
     .data(this.nodeProps_, _.getValue('id'));
   nodes.enter().append('circle');
-  nodes.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(nodes.exit()).exit();
 };
 
 /**
@@ -434,10 +437,7 @@ visflow.Network.prototype.drawNodeLabels_ = function() {
   var labels = this.svgNodeLabels_.selectAll('text')
     .data(this.nodeProps_, _.getValue('id'));
   labels.enter().append('text');
-  labels.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(labels.exit()).fadeOut();
 };
 
 /**
@@ -452,10 +452,7 @@ visflow.Network.prototype.drawEdges_ = function() {
     .classed('edge', true);
   edgesEntered.append('path')
     .classed('arrow', true);
-  edges.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(edges.exit()).fadeOut();
 };
 
 /**

@@ -34,8 +34,6 @@ visflow.ColorPicker = function(params) {
   }.bind(this));
 };
 
-visflow.utils.inherit(visflow.ColorPicker, visflow.Unit);
-
 /**
  * ColorPicker HTML template.
  * @private @const {string}

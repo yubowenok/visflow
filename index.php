@@ -5,6 +5,13 @@
 $index = file_get_contents("index.html");
 if (!isset($_GET['diagram'])) {
   echo $index;
+  /*
+  echo str_replace(
+    "visflow.test.run();",
+    "",
+    $index
+  );
+  */
 } else {
   echo str_replace(
     "visflow.test.run()",

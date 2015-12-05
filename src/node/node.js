@@ -264,12 +264,11 @@ visflow.Node.prototype.deserialize = function(save) {
 
   _(this.options).extend(save.options);
   for (var key in this.DEFAULT_OPTIONS) {
-    if (this.options[key] == null) {
+    if (!(key in this.options)) {
       visflow.warning(key, 'options not saved in', this.label);
       this.options[key] = this.DEFAULT_OPTIONS[key];
     }
   }
-
 
   this.label = save.label;
 

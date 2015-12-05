@@ -378,10 +378,7 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     .attr('id', _.getValue('id'))
     .style('opacity', 0)
     .attr('transform', binTransform);
-  bins.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(bins.exit()).fadeOut();
 
   var updatedBins = this.allowTransition_ ? bins.transition() : bins;
   updatedBins
@@ -405,10 +402,7 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     .style('opacity', 0)
     .attr('id', _.getValue('id'))
     .attr('transform', groupTransform);
-  bars.exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  _(bars.exit()).fadeOut();
   var getPropertiesValue = function(key) {
     return function (obj) {
       return obj.properties[this];

@@ -19,7 +19,8 @@ visflow.Box;
 visflow.utils.init = function() {
   _.mixin({
     keySet: visflow.utils.keySet_,
-    getValue: visflow.utils.getValue_
+    getValue: visflow.utils.getValue_,
+    fadeOut: visflow.utils.fadeOut_
   });
 };
 
@@ -246,17 +247,19 @@ visflow.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
  *   domainMargin: number=,
  *   rangeMargin: number=,
  *   ordinalRangeType: string=,
- *   ordinalPadding: number=
+ *   ordinalPadding: number=,
+ *   ordinalRange: boolean=
  * }=} opt_params
  *   domainMargin: Margin percentage, this has no effect if domain span is zero.
  *   rangeMargin: Margin percentage, this has no effect if range span is zero.
  *   ordinalRangeType: rangePoints, rangeBands, rangeRoundBands.
  *   ordinalPadding: Padding used for ordinal range.
+ *   ordinalRange: Whether to use d3.range(length) for ordinal scale's range.
  * @return {!{scale: !d3.scale, type: visflow.ScaleType}}
  */
 visflow.utils.getScale = function(data, dim, items, range, opt_params) {
-  var dimType = data.dimensionTypes[dim];
   var params = opt_params == null ? {} : opt_params;
+  var dimType = dim === '' ? 'int' : data.dimensionTypes[dim];
 
   var domainMargin = params.domainMargin == null ? 0 : params.domainMargin;
   var rangeMargin = params.rangeMargin;
@@ -275,7 +278,7 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
       var minVal = Infinity, maxVal = -Infinity;
       // Compute min max of a data column.
       for (var index in items) {
-        var value = data.values[index][dim];
+        var value = dim === '' ? index : data.values[index][dim];
         minVal = Math.min(minVal, value);
         maxVal = Math.max(maxVal, value);
       }
@@ -293,17 +296,21 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
       scale = d3.scale.ordinal()
         .domain(uniqValues);
 
-      var ordinalPadding = params.ordinalPadding != null ?
+      if (params.ordinalRange) {
+        scale.range(d3.range(uniqValues.length));
+      } else {
+        var ordinalPadding = params.ordinalPadding != null ?
           params.ordinalPadding : 0;
-      switch(params.ordinalRangeType) {
-        case 'rangeBands':
-          scale.rangeBands(range, ordinalPadding);
-          break;
-        case 'rangeRoundBands':
-          scale.rangeRoundBands(range, ordinalPadding);
-          break;
-        default:
-          scale.rangePoints(range, ordinalPadding);
+        switch(params.ordinalRangeType) {
+          case 'rangeBands':
+            scale.rangeBands(range, ordinalPadding);
+            break;
+          case 'rangeRoundBands':
+            scale.rangeRoundBands(range, ordinalPadding);
+            break;
+          default:
+            scale.rangePoints(range, ordinalPadding);
+        }
       }
       break;
   }
@@ -386,6 +393,17 @@ visflow.utils.getValue_ = function(key) {
   return function(obj) {
     return obj[this];
   }.bind(key);
+};
+
+/**
+ * Fades out a D3 selection by opacity change.
+ * @param {!d3.selection} obj
+ * @private
+ */
+visflow.utils.fadeOut_ = function(obj) {
+  obj.transition()
+    .style('opacity', 0)
+    .remove();
 };
 
 /**

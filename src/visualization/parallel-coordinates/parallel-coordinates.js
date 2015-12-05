@@ -72,6 +72,12 @@ visflow.ParallelCoordinates.prototype.NODE_CLASS = 'parallel-coordinates';
 visflow.ParallelCoordinates.prototype.NODE_NAME = 'ParallelCoordinates';
 
 /**
+ * Default number of dimension shown.
+ * @private @const {number}
+ */
+visflow.ParallelCoordinates.prototype.DEFAULT_NUM_DIMENSIONS_ = 7;
+
+/**
  * Axis label size.
  * @private @const {number}
  */
@@ -257,9 +263,7 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function() {
   lines.enter().append('path')
     .style('opacity', 0)
     .attr('id', _.getValue('id'));
-  lines.exit().transition()
-    .style('opacity', 0)
-    .remove();
+  _(lines.exit()).fadeOut();
 
   var line = d3.svg.line().interpolate('linear');
   var updatedLines = this.allowTransition_ ? lines.transition() : lines;
@@ -309,10 +313,8 @@ visflow.ParallelCoordinates.prototype.drawAxes_ = function() {
   var uniqIds = dimInfos.map(function(dimInfo) {
     return dimInfo.uniqId;
   });
-  this.svgAxes_.selectAll('g.axis').data(uniqIds, _.identity).exit()
-    .transition()
-    .style('opacity', 0)
-    .remove();
+  var exitAxes = this.svgAxes_.selectAll('g.axis').data(uniqIds, _.identity);
+  _(exitAxes).fadeOut();
   dimInfos.forEach(function(dimInfo, dimIndex) {
     this.drawAxis_(dimIndex, dimInfo.uniqId);
   }, this);
@@ -412,8 +414,10 @@ visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
     if (type == 'string') {
       return;
     }
-    dimensions.push(index);
-  });
+    if (dimensions.length < this.DEFAULT_NUM_DIMENSIONS_) {
+      dimensions.push(index);
+    }
+  }, this);
   return dimensions;
 };
 

@@ -211,7 +211,9 @@ visflow.PropertyMapping.prototype.process = function() {
 
   var mappingType = visflow.property.MAPPING_TYPES[this.options.mapping];
 
-  var dataScale = visflow.utils.getScale(data, this.dim, items, [0, 1]).scale;
+  var dataScale = visflow.utils.getScale(data, this.dim, items, [0, 1], {
+    ordinalRange: true
+  }).scale;
   var propScale;
   if (mappingType == 'color') {
     propScale = visflow.scales[this.options.colorScaleId].scale;
@@ -221,17 +223,17 @@ visflow.PropertyMapping.prototype.process = function() {
       .range(this.options.numberRange);
   }
 
-  var newitems = {};
+  var newItems = {};
   for (var index in inpack.items) {
     var value = data.values[index][this.dim];
     var prop = {};
     prop[this.options.mapping] = propScale(dataScale(value));
-    newitems[index] = {
+    newItems[index] = {
       properties: _.extend({}, inpack.items[index].properties, prop)
     };
   }
   // Cannot reuse old items.
-  outpack.items = newitems;
+  outpack.items = newItems;
 };
 
 /** @inheritDoc */

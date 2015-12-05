@@ -24,7 +24,7 @@ visflow.Visualization = function(params) {
       node: this,
       id: 'outs'
     }),
-    out: new visflow.Port({
+    out: new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -624,6 +624,12 @@ visflow.Visualization.prototype.showOptions = function() {};
 /** @inheritDoc */
 visflow.Visualization.prototype.dataChanged = function() {};
 
+/**
+ * Validates the selected dimensions against the current data.
+ * @return {boolean}
+ */
+visflow.Visualization.prototype.validDimensions = function() {
+};
 /**
  * Finds reasonable dimensions to show.
  * @return {*}

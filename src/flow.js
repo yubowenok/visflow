@@ -75,6 +75,7 @@ visflow.flow.NODE_CONSTRUCTORS_ = {
   scatterplot: visflow.Scatterplot,
   parallelCoordinates: visflow.ParallelCoordinates,
   histogram: visflow.Histogram,
+  lineChart: visflow.LineChart,
   heatmap: visflow.Heatmap,
   network: visflow.Network
 };
@@ -89,6 +90,7 @@ visflow.flow.VISUALIZATION_TYPES_ = {
   parallelCoordinates: true,
   histogram: true,
   heatmap: true,
+  lineChart: true,
   network: true
 };
 
@@ -445,30 +447,32 @@ visflow.flow.previewVisMode = function(on) {
  * Toggles the VisMode.
  */
 visflow.flow.toggleVisMode = function() {
-  // first save the current configuration
-  for (var i in this.nodes){
-    var node = this.nodes[i];
+  // First save the current configuration.
+  this.nodes.forEach(function(node) {
     node.saveCss();
-  }
-  // then toggle the mode, otherwise saveCss will overwrite wrong settings
+  });
+  // Then toggle the mode, otherwise saveCss will overwrite wrong settings.
   this.visModeOn = !this.visModeOn;
 
   if (this.visModeOn) {
-    for (var i in this.edges)
-      this.edges[i].hide();
-    for (var i in this.nodes)
-      this.nodes[i].hide();
-    for (var i in this.nodes){
-      this.nodes[i].loadCss();
-      this.nodes[i].show();
-    }
+    this.edges.forEach(function(edge) {
+      edge.hide();
+    });
+    this.nodes.forEach(function(node) {
+      node.hide();
+    });
+    this.nodes.forEach(function(node) {
+      node.loadCss();
+      node.show();
+    });
   } else {
-    for (var i in this.nodes) {
-      this.nodes[i].loadCss();
-      this.nodes[i].show();
-    }
-    for (var i in this.edges)
-      this.edges[i].show();
+    this.nodes.forEach(function(node) {
+      node.loadCss();
+      node.show();
+    });
+    this.edges.forEach(function(edge) {
+      edge.show();
+    });
   }
 };
 
