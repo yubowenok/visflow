@@ -2,7 +2,8 @@
   <button type="button" class="close" data-dismiss="modal">&times;</button>
   <h4 class="modal-title">Select a Dataset</h4>
 </div>
-<div class="modal-body">
+<div class="modal-body data-source">
+  <button id="btn-server" class="btn btn-default btn-xs btn-right glyphicon glyphicon-pencil"></button>
   <div class="server">
     <div>
       <label>Server Dataset</label>
@@ -13,15 +14,22 @@
     </table>
   </div>
   <hr>
+  <button id="btn-online" class="btn btn-default btn-xs btn-right glyphicon glyphicon-pencil"></button>
   <div class="online disabled">
     <label>Online Dataset</label>
     <div>
-      <p>Enter URL: </p>
-      <input class="form-control" disabled/>
+      <div class="section">
+        <div>Data Name</div>
+        <input id="data-name" class="form-control"/>
+      </div>
+      <div class="section">
+        <div>URL <span class="hint">(Resource must support CORS)</span></div>
+        <input id="url" class="form-control"/>
+      </div>
     </div>
   </div>
 </div>
 <div class="modal-footer">
   <button class="btn btn-default" data-dismiss="modal">Cancel</button>
-  <button id="confirm" class="btn btn-primary" data-dismiss="modal">Select</button>
+  <button id="confirm" class="btn btn-primary" data-dismiss="modal" disabled>Select</button>
 </div>

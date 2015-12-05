@@ -26,3 +26,8 @@
   width: calc(100% - 101px);
   white-space: nowrap;
 }
+
+#modal .section {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}

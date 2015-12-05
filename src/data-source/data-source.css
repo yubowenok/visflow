@@ -22,3 +22,23 @@
 #option-panel .data-source button {
   width: 100%;
 }
+
+#modal .data-source .server.disabled,
+#modal .data-source .online.disabled,
+#modal .data-source .server.disabled select,
+#modal .data-source .server.disabled .paginate_button > a {
+  color: #ccc;
+  pointer-events: none;
+}
+
+#modal .data-source .server.disabled tr.selected {
+  background-color: #ccc;
+}
+
+#modal .data-source .btn-right {
+  float: right;
+}
+
+#modal .data-source .hint {
+  font-size: 0.85em;
+}
