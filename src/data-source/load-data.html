@@ -7,14 +7,10 @@
     <div>
       <label>Server Dataset</label>
     </div>
-    <select id="data" style="width: 100%;">
-      <option value='none'>None</option>
-      <option value='car'>Auto MPG (StatLib)</option>
-      <option value='carmds'>Auto MPG MDS</option>
-      <option value='network-nodes'>Regulatory Network (nodes)</option>
-      <option value='network-edges'>Regulatory Network (edges)</option>
-      <option value='table'>Evaluation Table</option>
-    </select>
+    <table class="table table-striped table-bordered" width="100%">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
   </div>
   <hr>
   <div class="online disabled">
@@ -22,17 +18,6 @@
     <div>
       <p>Enter URL: </p>
       <input class="form-control" disabled/>
-    </div>
-  </div>
-  <hr>
-  <div class="local disabled">
-    <label>Local Dataset</label>
-    <div class="file-section">
-      <button id="btn-file" class="btn btn-default" disabled>Choose File</button>
-      <span id="file-display" class="form-control"></span>
-      <form id="file-form" method="post">
-        <input id="file" type="file" name="file" class="form-control"/>
-      </form>
     </div>
   </div>
 </div>

@@ -36,6 +36,8 @@
   <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
   <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
+  <script type="text/javascript" src="bower_components/crypto-js/crypto-js.js"></script>
+  <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
 
   <!-- visflow src -->
 
@@ -43,9 +45,13 @@
   <script type="text/javascript" src="src/visflow.js"></script>
   <script type="text/javascript" src="src/tooltip/tooltip.js"></script>
   <link rel="stylesheet" href="src/tooltip/tooltip.css"/>
+  <script type="text/javascript" src="src/parser.js"></script>
   <script type="text/javascript" src="src/utils.js"></script>
   <script type="text/javascript" src="src/scales.js"></script>
   <script type="text/javascript" src="src/vectors.js"></script>
+
+  <!-- file upload -->
+  <script type="text/javascript" src="src/upload/upload.js"></script>
 
   <!-- node -->
   <script type="text/javascript" src="src/node/node.js"></script>
@@ -216,7 +222,7 @@
         <li><a id="vis-mode" class="to-tooltip" data-placement="bottom"  title="visualization mode">
           <span class="btn btn-default"><i class="glyphicon glyphicon glyphicon-facetime-video"></i></span>
         </a></li>
-        <!--<li><a id="upload">Upload Data</a></li>-->
+        <li class="upload"><a id="upload">Upload Data</a></li>
       </ul>
     </div>
   </nav>

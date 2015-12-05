@@ -131,7 +131,8 @@ visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
 visflow.Visualization.prototype.LABEL_OFFSET_ = 5;
 /** @private @const {number} */
 visflow.Visualization.prototype.DEFAULT_TICKS_ = 5;
-
+/** @private @const {number} */
+visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
 
 /** @inheritDoc */
 visflow.Visualization.prototype.init = function() {
@@ -547,6 +548,7 @@ visflow.Visualization.prototype.clearSelection = function() {
  * @param {{
  *   svg: !d3.selection,
  *   scale: !d3.scale,
+ *   scaleType: visflow.ScaleType,
  *   classes: string,
  *   orient: string,
  *   ticks: number,
@@ -561,7 +563,14 @@ visflow.Visualization.prototype.drawAxis = function(params) {
   var svg = params.svg;
   var axis = d3.svg.axis()
     .orient(params.orient)
-    .ticks(params.ticks);
+    .ticks(params.ticks)
+    .tickFormat(function(value) {
+      if (params.scaleType == 'time') {
+        return moment(new Date(value)).format(this.TIME_FORMAT);
+      } else {
+        return value;
+      }
+    }.bind(this));
   axis.scale(params.scale.copy());
 
   if(svg.empty()) {

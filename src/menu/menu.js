@@ -38,7 +38,7 @@ visflow.menu.init = function() {
   var alted = navbar.find('#alted');
   alted.click(function() {
     visflow.interaction.toggleAltHold();
-    visflow.menu.toggleAlt();
+    visflow.menu.updateAlt();
   });
 
   // VisMode button
@@ -63,21 +63,25 @@ visflow.menu.init = function() {
     visflow.about();
   });
 
+  var upload = navbar.find('#upload');
+  upload.click(function() {
+    visflow.upload.dialog();
+  });
+
   navbar.find('.to-tooltip').tooltip({
     delay: visflow.menu.TOOLTIP_DELAY_
   });
 };
 
 /**
- * Toggles the active state of the alt button.
- * @param {boolean=} opt_state
+ * Updates the alt button's active class to reflect the system's alted state.
  */
-visflow.menu.toggleAlt = function(opt_state) {
-  var alted = $('.visflow > .navbar-fixed-top #alted > .btn');
-  var state = opt_state != null ? opt_state : !alted.hasClass('active');
-  if (state) {
-    alted.addClass('active');
+visflow.menu.updateAlt = function() {
+  var alted = visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT);
+  var btnAlt = $('.visflow > .navbar-fixed-top #alted > .btn');
+  if (alted) {
+    btnAlt.addClass('active');
   } else {
-    alted.removeClass('active');
+    btnAlt.removeClass('active');
   }
 };

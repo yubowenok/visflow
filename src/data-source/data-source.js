@@ -12,10 +12,10 @@ visflow.DataSource = function(params) {
   visflow.DataSource.base.constructor.call(this, params);
 
   /**
-   * Data identifier.
+   * Data file name.
    * @type {string}
    */
-  this.dataSelected = 'none';
+  this.dataFile = 'none';
 
   /**
    * Human readable data name.
@@ -53,7 +53,7 @@ visflow.DataSource.prototype.MAX_HEIGHT = 40;
 /** @inheritDoc */
 visflow.DataSource.prototype.serialize = function() {
   var result = visflow.DataSource.base.serialize.call(this);
-  result.dataSelected = this.dataSelected;
+  result.dataFile = this.dataFile;
   result.dataName = this.dataName;
   return result;
 };
@@ -61,8 +61,12 @@ visflow.DataSource.prototype.serialize = function() {
 /** @inheritDoc */
 visflow.DataSource.prototype.deserialize = function(save) {
   visflow.DataSource.base.deserialize.call(this, save);
-  if (save.dataSelected != 'none') {
-    this.loadData(save.dataSelected, save.dataName);
+  if (save.dataSelected != null) {
+    visflow.warning('older version data storage found, auto fixed');
+    save.dataFile = save.dataSelected;
+  }
+  if (save.dataFile != 'none') {
+    this.loadData(save.dataFile, save.dataName);
   }
 };
 
@@ -96,54 +100,63 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
     template: './src/data-source/load-data.html',
     complete: function(dialog) {
       var select = dialog.find('select');
-      select.select2();
-      dialog.find('#confirm').click(function() {
-        var data = select.select2('data')[0];
-        this.loadData(data.id, data.text);
+
+      var dataFile = null;
+      var dataName = null;
+      var confirm = dialog.find('#confirm').prop('disabled', true);
+      confirm.click(function() {
+        this.loadData(dataFile, dataName);
       }.bind(this));
+
+      $.get('./server/list-data.php')
+        .done(function(res) {
+          if (!res.success) {
+            visflow.error('cannot list server data:', res.msg);
+            return;
+          }
+          var table = dialog.find('table');
+          this.listDataTable_(table, res.filelist);
+          table.on('select.dt', function() {
+            dataName = table.find('tr.selected').children()
+              .first().text();
+            dataFile = table.find('tr.selected').children()
+              .first().next().text();
+            confirm.prop('disabled', false);
+          });
+        }.bind(this))
+        .fail(function() {
+          visflow.error('cannot list server data');
+        });
     }.bind(this)
   });
 };
 
 /**
  * Loads the data with given name.
- * @param dataSelected
- * @param dataName
+ * @param {string} dataFile
+ * @param {string} dataName
  */
-visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
+visflow.DataSource.prototype.loadData = function(dataFile, dataName) {
   // Add to async queue
   visflow.flow.asyncDataloadStart(this);
 
-  if (dataSelected == 'none') {
+  if (dataFile == 'none') {
     this.container.find('#data-name')
       .text('No data loaded');
-    this.dataSelected = dataSelected;
+    this.dataFile = dataFile;
     this.dataName = null;
     $.extend(this.ports['out'].pack, new visflow.Package());
     visflow.flow.asyncDataloadEnd();  // propagate null data
     return;
   }
 
-  // TODO(bowen): re-use loaded data
-  /*
-  var data;
-  if ((data = visflow.flow.data[dataSelected]) != null) {
-    console.log('reused');
-    node.dataSelected = dataSelected;
-    node.dataName = dataName;
-    node.container.find('#datahint').text(dataName);
-    $.extend(node.ports['out'].pack, new visflow.Package(data));
-    return;
-  }
-  */
-
-  $.get('./data/' + dataSelected + '.json')
+  $.get('./server/data/' + dataFile) //
     .done(function(result) {
-      if (result == null) {
-        visflow.error('loaded data is null');
-        return;
-      }
-      this.setData_(dataSelected, dataName, result);
+      visflow.assert(result != null);
+      // CSV parser will report error itself.
+      result = visflow.parser.csv(result);
+
+      this.setData_(dataFile, dataName, result);
       // Decrement async loading count.
       visflow.flow.asyncDataloadEnd(); // Push changes
     }.bind(this))
@@ -154,13 +167,13 @@ visflow.DataSource.prototype.loadData = function(dataSelected, dataName) {
 
 /**
  * Sets the data source data.
- * @param {string} dataSelected
+ * @param {string} dataFile
  * @param {string} dataName
  * @param {!visflow.TabularData} fetchedData
  */
-visflow.DataSource.prototype.setData_ = function(dataSelected, dataName,
+visflow.DataSource.prototype.setData_ = function(dataFile, dataName,
                                                  fetchedData) {
-  this.dataSelected = dataSelected;
+  this.dataFile = dataFile;
   this.dataName = dataName;
   this.content.find('#data-name').text(dataName);
 
@@ -174,4 +187,36 @@ visflow.DataSource.prototype.setData_ = function(dataSelected, dataName,
 
   // overwrite data object (to keep the same reference)
   $.extend(this.ports['out'].pack, new visflow.Package(data));
+};
+
+/**
+ * Shows a table with list of data sets stored on the server.
+ * @param {!jQuery} table
+ * @param {!Array<{filename: string, mtime: number}>} fileList
+ * @private
+ */
+visflow.DataSource.prototype.listDataTable_ = function(table, fileList) {
+  table.DataTable({
+    data: fileList,
+    select: 'single',
+    pagingType: 'full',
+    pageLength: 5,
+    lengthMenu: [5, 10, 20],
+    order: [
+      [2, 'desc']
+    ],
+    columns: [
+      {title: 'Data Name', data: 'dataname'},
+      {title: 'File Name', data: 'filename'},
+      {title: 'Last Modified', data: 'mtime'}
+    ],
+    columnDefs: [
+      {
+        render: function (lastModified) {
+          return (new Date(lastModified)).toLocaleString();
+        },
+        targets: 2
+      }
+    ]
+  });
 };

@@ -6,7 +6,7 @@
 visflow.scales = {};
 
 /**
- * 'numerical', 'ordinal'
+ * 'numerical', 'ordinal', 'time'
  * @typedef {string}
  */
 visflow.ScaleType;

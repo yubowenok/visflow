@@ -48,8 +48,8 @@ visflow.Input = function(params) {
    * @private {boolean}
    */
   this.scrollable_ = this.scrollDelta_ != null &&
-      visflow.utils.typeToGrade[this.accept_] <=
-      visflow.utils.typeToGrade['float'];
+      visflow.parser.TYPE_TO_GRADE[this.accept_] <=
+      visflow.parser.TYPE_TO_GRADE['float'];
 
   this.container_.load(this.TEMPLATE_, function() {
     this.init_();
@@ -118,13 +118,13 @@ visflow.Input.prototype.init_ = function() {
  */
 visflow.Input.prototype.setValue_ = function(value) {
   var input = this.container_.find('input');
-  var parsed = visflow.utils.parseToken(value);
-  if (parsed.grade > visflow.utils.typeToGrade[this.accept_]) {
+  var parsedToken = visflow.parser.checkToken(value);
+  if (parsedToken.grade > visflow.parser.TYPE_TO_GRADE[this.accept_]) {
     // Cannot accept a greater grade value type.
     input.val(this.value_);
     return;
   } else {
-    value = parsed.value;
+    value = parsedToken.value;
   }
   // Fix numerical value range
   if (this.range_[0] != null && value < this.range_[0]) {

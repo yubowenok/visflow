@@ -9,8 +9,8 @@ if (!isset($_POST['filename']) || !isset($_POST['flow'])){
   $paraok = 0;
 }
 
-if (!file_exists('save')) {
-    mkdir('save', 0777, true);
+if (!file_exists('diagrams')) {
+    mkdir('diagrams', 0777, true);
 }
 
 if ($paraok) {
@@ -18,7 +18,7 @@ if ($paraok) {
   $flow = $_POST['flow'];
 
   if (json_decode($flow) != null) {
-    $file = fopen('save/'.$filename.'.json','w');
+    $file = fopen('diagrams/'.$filename.'.json','w');
     $ok = fwrite($file, $flow);
     fclose($file);
     if ($ok == false) {

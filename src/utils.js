@@ -167,55 +167,6 @@ visflow.utils.compare = function(a, b) {
   return result;
 };
 
-/** @const {!Array<string>} */
-visflow.utils.gradeToType = ['empty', 'int', 'float', 'string'];
-
-/** @const {!Object<number>} */
-visflow.utils.typeToGrade = {
-  empty: 0,
-  int: 1,
-  float: 2,
-  stirng: 3
-};
-
-/**
- * Parses a token and returns its value and type.
- * @param {string} text
- */
-visflow.utils.parseToken = function(text) {
-  // grades: [empty, int, float, string]
-  text += ''; // convert to string
-  var res;
-  res = text.match(/^-?[0-9]+/);
-  if (res && res[0] === text) {
-    return {
-      type: 'int',
-      value: parseInt(text),
-      grade: 1
-    };
-  }
-  res = text.match(/^-?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)/);
-  if (res && res[0] === text) {
-    return {
-      type: 'float',
-      value: parseFloat(text),
-      grade: 2
-    };
-  }
-  if (text === '') {  // empty constants are ignored
-    return {
-      type: 'empty',
-      value: '',
-      grade: 0
-    };
-  }
-  return {
-    type: 'string',
-    value: text,
-    grade: 3
-  };
-};
-
 /**
  * Combines translate and scale into a CSS transform string.
  * @param {!Array<number>} opt_translate Zoom translate.
@@ -271,17 +222,29 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
     range[1] += span * rangeMargin;
   }
 
-  var scaleType = dimType == 'string' ? 'ordinal' : 'numerical';
+  var scaleType;
+  switch(dimType) {
+    case 'int':
+    case 'float':
+      scaleType = 'numerical';
+      break;
+    case 'time':
+      scaleType = 'time';
+      break;
+    default:
+      scaleType = 'ordinal';
+  }
+
+  var values = _.allKeys(items).map(function(index) {
+    return dim === '' ? +index : data.values[index][dim];
+  });
+
   var scale;
   switch(scaleType) {
+    case 'time':
     case 'numerical':
-      var minVal = Infinity, maxVal = -Infinity;
-      // Compute min max of a data column.
-      for (var index in items) {
-        var value = dim === '' ? index : data.values[index][dim];
-        minVal = Math.min(minVal, value);
-        maxVal = Math.max(maxVal, value);
-      }
+      var minVal = d3.min(values);
+      var maxVal = d3.max(values);
       var span = maxVal - minVal;
       scale = d3.scale.linear()
         .domain([minVal - span * domainMargin, maxVal + span * domainMargin])

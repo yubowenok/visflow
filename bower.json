@@ -20,6 +20,7 @@
   "dependencies": {
     "bootstrap": "~3.3.5",
     "bootstrap-switch": "~3.3.2",
+    "crypto-js": "~3.1.5",
     "d3": "~3.5.5",
     "datatables": "DataTables#~1.10.10",
     "datatables.net-select-bs": "~1.1.0",
@@ -27,6 +28,7 @@
     "jquery-mousewheel": "~3.1.12",
     "jquery-ui": "~1.11.4",
     "mjolnic-bootstrap-colorpicker": "~2.3.0",
+    "moment": "~2.10.6",
     "select2": "~4.0.0",
     "select2-bootstrap-css": "~1.4.6",
     "underscore": "~1.8.2"

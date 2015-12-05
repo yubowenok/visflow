@@ -15,10 +15,6 @@
   z-index: 0;
 }
 
-.visflow .navbar-fixed-top {
-  z-index: 103;
-}
-
 .visflow .navbar-fixed-top a:hover {
   cursor: pointer;
 }

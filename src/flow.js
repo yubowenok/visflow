@@ -337,7 +337,6 @@ visflow.flow.serializeFlow = function() {
   for (var i in this.edges) {
     result.edges.push(this.edges[i].serialize());
   }
-  console.log(result);
   return result;
 };
 
@@ -455,24 +454,24 @@ visflow.flow.toggleVisMode = function() {
   this.visModeOn = !this.visModeOn;
 
   if (this.visModeOn) {
-    this.edges.forEach(function(edge) {
-      edge.hide();
-    });
-    this.nodes.forEach(function(node) {
-      node.hide();
-    });
-    this.nodes.forEach(function(node) {
-      node.loadCss();
-      node.show();
-    });
+    for (var id in this.edges) {
+      this.edges[id].hide();
+    }
+    for (var id in this.nodes) {
+      this.nodes[id].hide();
+    }
+    for (var id in this.nodes) {
+      this.nodes[id].loadCss();
+      this.nodes[id].show();
+    }
   } else {
-    this.nodes.forEach(function(node) {
-      node.loadCss();
-      node.show();
-    });
-    this.edges.forEach(function(edge) {
-      edge.show();
-    });
+    for (var id in this.nodes) {
+      this.nodes[id].loadCss();
+      this.nodes[id].show();
+    }
+    for (var id in this.edges) {
+      this.edges[id].show();
+    }
   }
 };
 

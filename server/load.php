@@ -9,14 +9,17 @@ function abort($msg='') {
 }
 
 if (!isset($_POST['type']))
-  abort('Post type not set for load.php.');
+  abort('POST type not set for load.php');
 
 if ($_POST['type'] == 'filelist') {
-  $filelist = glob('save/*.json');
+  $filelist = glob('diagrams/*.json');
 
   $result = array();
   for($i = 0; $i < count($filelist); $i++) {
-    $filename = substr($filelist[$i], 5, strlen($filelist[$i]) - 10); // remove "save/" and ".json"
+
+    // remove "diagrams/" prefix and ".json" suffix
+    $filename = substr($filelist[$i], 9, strlen($filelist[$i]) - 14);
+
     array_push($result, array(
       'filename' => $filename,
       'mtime' => filemtime($filelist[$i]) * 1000
@@ -26,9 +29,9 @@ if ($_POST['type'] == 'filelist') {
   $response['filelist'] = $result;
 
 } elseif ($_POST['type'] == 'download') {
-  $filepath = 'save/'.$_POST['filename'].'.json';
+  $filepath = 'diagrams/'.$_POST['filename'].'.json';
   if (!is_readable($filepath))
-    abort('File does not exist or is not readable.');
+    abort('file does not exist or is not readable');
 
   $diagram = json_decode(file_get_contents($filepath));
   $response['diagram'] = $diagram;

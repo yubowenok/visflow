@@ -1,8 +1,9 @@
 /*
   Z-index list:
+  navbar (menu) - 106
+  message - 105
   node panel - 102
   option panel - 103
-  message - 105
   main selectbox - 100
   main - 0
 */
@@ -21,6 +22,7 @@ body {
 
 .visflow .system-message {
   padding: 5px 15px;
+  margin-bottom: 0px;
 }
 
 .visflow #main {
@@ -58,4 +60,8 @@ body {
 
 .visflow .input-leadtext {
   padding-right: 1em;
+}
+
+.visflow .navbar-fixed-top {
+  z-index: 106;
 }

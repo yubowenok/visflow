@@ -19,7 +19,9 @@ visflow.LineChart = function(params) {
   this.yScale = d3.scale.linear();
 
   /** @type {string} */
-  this.xScaleType = null;
+  this.xScaleType;
+  /** @type {string} */
+  this.yScaleType;
 
   /**
    * Grouped item indices for lines.
@@ -166,7 +168,7 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
   for (var index in items) {
     var point = {
       x: this.xScale(this.options.xDim === '' ?
-          index : values[index][this.options.xDim]),
+          +index : values[index][this.options.xDim]),
       y: this.yScale(values[index][this.options.yDim])
     };
 
@@ -305,7 +307,7 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
       _(prop).extend(items[index].properties);
       prop.points.push([
         this.xScale(this.options.xDim === '' ?
-            index : values[index][this.options.xDim]),
+            +index : values[index][this.options.xDim]),
         this.yScale(values[index][this.options.yDim])
       ]);
     }, this);
@@ -333,7 +335,7 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
       {
         id: 'p' + index,
         x: this.xScale(this.options.xDim === '' ?
-          index : values[index][this.options.xDim]),
+          +index : values[index][this.options.xDim]),
         y: this.yScale(values[index][this.options.yDim])
       }
     );
@@ -464,7 +466,7 @@ visflow.LineChart.prototype.sortItems_ = function() {
 
   var xCollided = false;
   this.itemGroups_.forEach(function(itemIndices) {
-    var sortBy = this.options.xDim
+    var sortBy = this.options.xDim;
     itemIndices.sort(function (a, b) {
       if (sortBy === '') {
         // Empty string is to sort by item index.
@@ -502,6 +504,7 @@ visflow.LineChart.prototype.drawXAxis_ = function() {
   this.drawAxis({
     svg: this.svgAxes_.select('.x.axis'),
     scale: this.xScale,
+    scaleType: this.xScaleType,
     classes: 'x axis',
     orient: 'bottom',
     ticks: this.DEFAULT_TICKS_,
@@ -528,6 +531,7 @@ visflow.LineChart.prototype.drawYAxis_ = function() {
   this.drawAxis({
     svg: this.svgAxes_.select('.y.axis'),
     scale: this.yScale,
+    scaleType: this.yScaleType,
     classes: 'y axis',
     orient: 'left',
     ticks: this.DEFAULT_TICKS_,
@@ -573,6 +577,7 @@ visflow.LineChart.prototype.prepareScales = function() {
       ordinalPadding: 1.0
     });
   this.yScale = yScaleInfo.scale;
+  this.yScaleType = yScaleInfo.type;
 
   // Compute new left margin based on selected y dimension.
   // xScale has to be created after yScale because the left margin depends on

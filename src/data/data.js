@@ -1,5 +1,5 @@
 /**
- * @fileoverview VisFlow data object.
+ * @fileoverview VisFlow data object, and data definitions.
  * The original data in table format is immutable within the system.
  */
 

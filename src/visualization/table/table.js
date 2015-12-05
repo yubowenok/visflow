@@ -103,9 +103,9 @@ visflow.Table.prototype.showDetails = function() {
     return;
   }
 
-  var pack = this.ports['in'].pack,
-      data = pack.data,
-      items = pack.items;
+  var pack = this.ports['in'].pack;
+  var data = pack.data;
+  var items = pack.items;
 
   if (this.dataTable) {
     // destroy(true) will remove all table elements, including those from
@@ -130,16 +130,30 @@ visflow.Table.prototype.showDetails = function() {
     rows.push(row);
   }
 
+  var columnDefs = [];
+  this.dimensions.forEach(function(dim, dimIndex) {
+    if (data.dimensionTypes[dim] == 'time') {
+      columnDefs.push({
+        render: function(value) {
+          return moment(new Date(value)).format(this.TIME_FORMAT);
+        }.bind(this),
+        // +1 for the index column!
+        targets: dimIndex + 1
+      })
+    }
+  }, this);
+
   this.dataTable = this.content.children('table')
     .DataTable({
-      stateSave: true,
       data: rows,
+      columnDefs: columnDefs,
+      stateSave: true,
       columns: columns,
       scrollX: true,
       pagingType: 'full',
       select: true,
       pageLength: this.options.pageLength,
-      lengthMenu: [5, 10, 20, 50],
+      lengthMenu: [5, 10, 20, 50, 100],
       createdRow: function (row, data) {
         if (data[0] in this.selected) {
           $(row).addClass('sel');

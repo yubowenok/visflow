@@ -183,7 +183,7 @@ visflow.interaction.keyRelease = function(key) {
         break;
       case keyCodes.ALT:
         visflow.interaction.alted = false;
-        visflow.menu.toggleAlt(false);
+        visflow.menu.updateAlt();
         visflow.interaction.visualizationBlocking = true;
         visflow.interaction.mainContainer_.css('cursor', '');
         break;
@@ -209,13 +209,13 @@ visflow.interaction.interaction = function() {
         });
       }
     }.bind(this))
-    .mousemove(function(event, ui) {
+    .mousemove(function(event) {
       this.mousemoveHandler({
         type: 'background',
         event: event
       });
     }.bind(this))
-    .mouseup(function(event, ui) {
+    .mouseup(function(event) {
       this.mouseupHandler({
         type: 'background',
         event: event
@@ -271,7 +271,7 @@ visflow.interaction.keyPress = function(event) {
       break;
     case keyCodes.ALT:
       visflow.interaction.alted = true;
-      visflow.menu.toggleAlt(true);
+      visflow.menu.updateAlt();
       visflow.interaction.visualizationBlocking = false;
       break;
     case keyCodes.CTRL:

@@ -39,3 +39,7 @@
 .visflow .navbar-right .btn.active {
   color: black;
 }
+
+.visflow .navbar-right .upload {
+  width: 100px;
+}

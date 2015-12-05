@@ -172,6 +172,7 @@ visflow.diagram.uploadOverwrite_ = function(fileName) {
   });
 };
 
+
 /**
  * Shows a table with list of diagrams saved on server.
  * @param {!jQuery} table
@@ -183,6 +184,8 @@ visflow.diagram.listTable_ = function(table, fileList) {
     data: fileList,
     select: 'single',
     pagingType: 'full',
+    pageLength: 5,
+    lengthMenu: [5, 10, 20],
     order: [
       [1, 'desc']
     ],

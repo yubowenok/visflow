@@ -112,7 +112,6 @@ visflow.ContainFilter.prototype.initPanel = function(container) {
     disabled: this.ports['inVal'].connected()
   });
   $(inputVal).on('visflow.change', function(event, value) {
-    console.log(value);
     this.typeInValue = '' + value;
     this.inputChanged();
   }.bind(this));
