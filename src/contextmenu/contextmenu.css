@@ -11,3 +11,9 @@
   margin-right: 10px;
   width: 14px;
 }
+
+#context-menu .hotkey {
+  font-size: 0.7em;
+  margin-left: 10px;
+  top: 4px;
+}

@@ -43,3 +43,9 @@
 .visflow .navbar-right .upload {
   width: 100px;
 }
+
+
+.visflow .navbar-nav .dropdown-menu .hotkey {
+  font-size: 0.7em;
+  margin-left: 10px;
+}

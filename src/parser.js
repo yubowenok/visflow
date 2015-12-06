@@ -128,3 +128,15 @@ visflow.parser.csv = function(csv, opt_params) {
     dimensionTypes: dimensionTypes
   };
 };
+
+/**
+ * Converts visflow tabular data to csv.
+ * @param data
+ */
+visflow.parser.tabularToCSV = function(data) {
+  var lines = [data.dimensions.join(',')];
+  data.values.forEach(function(row) {
+    lines.push(row.join(','));
+  });
+  return lines.join('\n');
+};

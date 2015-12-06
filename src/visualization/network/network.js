@@ -426,7 +426,7 @@ visflow.Network.prototype.drawNodes_ = function() {
   var nodes = this.svgNodes_.selectAll('circle')
     .data(this.nodeProps_, _.getValue('id'));
   nodes.enter().append('circle');
-  _(nodes.exit()).exit();
+  _(nodes.exit()).fadeOut();
 };
 
 /**

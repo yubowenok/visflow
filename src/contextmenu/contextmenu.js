@@ -36,6 +36,21 @@ visflow.contextMenu.hide = function() {
 visflow.contextMenu.Item;
 
 /**
+ * Global hotkey settings for contextMenu items.
+ * @const {!Object<string>}
+ */
+visflow.contextMenu.HOT_KEYS = {
+  addNode: 'A',
+  delete: 'CTRL + X',
+  visMode: 'V',
+  panel: 'P',
+  minimize: 'M',
+  selectAll: 'CTRL + A',
+  clearSelection: 'CTRL + SHIFT + A'
+};
+
+
+/**
  * @param {{
  *   container: !jQuery,
  *   items: !Array<!visflow.contextMenu.Item>
@@ -116,6 +131,15 @@ visflow.ContextMenu.prototype.listItems_ = function() {
 
     $('<span></span>')
       .text(item.text)
+      .appendTo(a);
+
+    var hotKey = item.hotKey;
+    if (hotKey == null) {
+      hotKey = visflow.contextMenu.HOT_KEYS[item.id];
+    }
+    $('<span></span>')
+      .addClass('hotkey')
+      .text(hotKey == null ? '' : '( ' + hotKey + ' )')
       .appendTo(a);
   }, this);
 };

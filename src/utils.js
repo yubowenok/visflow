@@ -255,7 +255,7 @@ visflow.utils.getScale = function(data, dim, items, range, opt_params) {
       for (var index in items) {
         values.push(data.values[index][dim]);
       }
-      var uniqValues = _.uniq(values);
+      var uniqValues = _.uniq(values).sort();
       scale = d3.scale.ordinal()
         .domain(uniqValues);
 

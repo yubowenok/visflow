@@ -32,7 +32,7 @@ visflow.interaction.MOVE_DELTA_ = 50;
 
 /** @private {!Array<!visflow.contextMenu.Item>} */
 visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
-  {id: 'addNode', text: 'Add Node', icon: 'glyphicon glyphicon-plus'}
+  {id: 'addNode', text: 'Add Node', icon: 'glyphicon glyphicon-plus', hotKey: 'A'}
 ];
 
 /** @private {!jQuery} */

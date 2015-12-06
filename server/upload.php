@@ -30,7 +30,6 @@ if (!$name_written)
 
 if (move_uploaded_file($_FILES['file']['tmp_name'], $saved_file)) {
   $response['success'] = true;
-  chmod($saved_file, 0777);
 } else {
   abort('failed to save file');
 }

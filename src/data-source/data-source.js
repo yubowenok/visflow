@@ -68,6 +68,9 @@ visflow.DataSource.prototype.MIN_HEIGHT = 40;
 /** @inheritDoc */
 visflow.DataSource.prototype.MAX_HEIGHT = 40;
 
+/** @private @const {number} */
+visflow.DataSource.prototype.ERROR_LIMIT_ = 100;
+
 /** @inheritDoc */
 visflow.DataSource.prototype.serialize = function() {
   var result = visflow.DataSource.base.serialize.call(this);
@@ -295,9 +298,10 @@ visflow.DataSource.prototype.loadData = function(params) {
       // Decrement async loading count.
       visflow.flow.asyncDataLoadEnd(); // Push changes
     }.bind(this))
-    .fail(function(){
-      visflow.error('cannot get data (connection error)');
-    });
+    .fail(function(res, msg, error){
+      visflow.error('cannot get data', msg,
+          error.toString().substr(0, this.ERROR_LIMIT_));
+    }.bind(this));
 };
 
 /**
