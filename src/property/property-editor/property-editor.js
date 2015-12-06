@@ -27,17 +27,6 @@ visflow.PropertyEditor = function(params) {
       isConstants: false
     })
   };
-
-  // Save edited rendering properties in options.
-  _(this.options).extend({
-    properties: {
-      color: null,
-      border: null,
-      width: null,
-      size: null,
-      opacity: null
-    }
-  });
 };
 
 visflow.utils.inherit(visflow.PropertyEditor, visflow.Property);
@@ -52,6 +41,17 @@ visflow.PropertyEditor.prototype.TEMPLATE =
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.PANEL_TEMPLATE =
   './src/property/property-editor/property-editor-panel.html';
+
+/** @inheritDoc */
+visflow.PropertyEditor.prototype.DEFAULT_OPTIONS = {
+  properties: {
+    color: null,
+    border: null,
+    width: null,
+    size: null,
+    opacity: null
+  }
+};
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.serialize = function() {

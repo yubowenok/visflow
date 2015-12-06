@@ -81,7 +81,7 @@ visflow.ParallelCoordinates.prototype.DEFAULT_NUM_DIMENSIONS_ = 7;
  * Axis label size.
  * @private @const {number}
  */
-visflow.ParallelCoordinates.prototype.LABEL_FONT_SIZE_ = 5.5;
+visflow.ParallelCoordinates.prototype.LABEL_FONT_SIZE_ = 6.5;
 
 /**
  * Offset from the leftmost axis to the tick text.

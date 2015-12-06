@@ -72,7 +72,8 @@ visflow.Port.prototype.TOOLTIP_DELAY = 1000;
  * @protected @const {!Array<!visflow.contextMenu.Entry>}
  */
 visflow.Port.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'disconnect', text: 'Disconnect', icon: 'glyphicon glyphicon-minus-sign'}
+  {id: 'disconnect', text: 'Disconnect', icon: 'glyphicon glyphicon-minus-sign'},
+  {id: 'export', text:'Export Data', icon: 'glyphicon glyphicon-open'}
 ];
 
 /**
@@ -225,6 +226,13 @@ visflow.Port.prototype.initContextMenu = function() {
       this.connections.concat().forEach(function(connection) {
         visflow.flow.deleteEdge(connection);
       });
+    }.bind(this))
+    .on('visflow.export', function() {
+    })
+    .on('visflow.beforeOpen', function(event, menuContainer) {
+      if (this.isConstants) {
+        menuContainer.find('#export').hide();
+      }
     }.bind(this));
 };
 

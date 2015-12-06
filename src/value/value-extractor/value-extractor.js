@@ -99,7 +99,7 @@ visflow.ValueExtractor.prototype.initPanel = function(container) {
   $(dimSelect).on('visflow.change', function(event, dim) {
     this.dim = dim;
     this.inputChanged();
-  });
+  }.bind(this));
 };
 
 /** @inheritDoc */
@@ -116,7 +116,7 @@ visflow.ValueExtractor.prototype.showDetails = function() {
   $(dimSelect).on('visflow.change', function(event, dim) {
     this.dim = dim;
     this.inputChanged();
-  });
+  }.bind(this));
 };
 
 /** @inheritDoc */

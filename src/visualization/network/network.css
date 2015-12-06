@@ -5,3 +5,7 @@
 .visflow .node.network.details .edges path {
   fill: none;
 }
+
+.visflow .node.network.details .labels text {
+  font-size: 0.9em;
+}

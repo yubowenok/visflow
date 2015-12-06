@@ -11,7 +11,7 @@ visflow.dialog = {};
  * Creates a dialog with the given parameters.
  * @param {{
  *   template: string,
- *   complete: function(dialog: !jQuery, ...): *
+ *   complete: ?function(dialog: !jQuery, ...): *
  * }} params
  *   template: HTML of the dialog.
  *   complete: callback function called after the modal dialog is loaded
@@ -26,8 +26,8 @@ visflow.dialog.create = function(params) {
     visflow.error('missing template');
     return;
   }
-  if (!params.loadComplete) {
-    params.loadComplete = function(dialog) {};
+  if (!params.complete) {
+    params.complete = function(dialog) {};
   }
 
   var dialog = $('#modal');

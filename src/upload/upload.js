@@ -101,8 +101,8 @@ visflow.upload.initDialog_ = function(dialog) {
         }
         visflow.upload.complete_ = null;
       })
-      .fail(function() {
-        visflow.error('failed to upload data');
+      .fail(function(res, msg, error) {
+        visflow.error('failed to upload data', msg, error);
         visflow.upload.complete_ = null;
       });
   });

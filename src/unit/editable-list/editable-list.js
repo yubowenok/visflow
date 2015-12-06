@@ -71,6 +71,19 @@ visflow.EditableList.prototype.init_ = function() {
 
   this.container_.find('.select2-container').css('width', '');
 
+  this.container_.find('#all').click(function() {
+    this.selected_ = this.list_.map(function(item) {
+      return item.id;
+    });
+    this.createItems_();
+    this.signal_('change');
+  }.bind(this));
+  this.container_.find('#clear').click(function() {
+    this.selected_ = [];
+    this.createItems_();
+    this.signal_('change');
+  }.bind(this));
+
   select2.on('change', function() {
     var id = select2.val();
     if (id != '') {

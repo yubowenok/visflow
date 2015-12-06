@@ -42,15 +42,6 @@ visflow.PropertyMapping = function(params) {
   this.panelDimSelect_;
   /** @private {visflow.Select} */
   this.panelMappingSelect_;
-
-  _(this.options).extend({
-    // Property to be mapped.
-    mapping: 'color',
-    // Selected color scale.
-    colorScaleId: 'redGreen',
-    // Mapping range for number type values.
-    numberRange: [0, 1]
-  });
 };
 
 visflow.utils.inherit(visflow.PropertyMapping, visflow.Property);
@@ -65,6 +56,16 @@ visflow.PropertyMapping.prototype.TEMPLATE =
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.PANEL_TEMPLATE =
   './src/property/property-mapping/property-mapping-panel.html';
+
+/** @inheritDoc */
+visflow.PropertyMapping.prototype.DEFAULT_OPTIONS = {
+  // Property to be mapped.
+  mapping: 'color',
+  // Selected color scale.
+  colorScaleId: 'redGreen',
+  // Mapping range for number type values.
+  numberRange: [0, 1]
+};
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.serialize = function() {

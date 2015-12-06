@@ -46,7 +46,8 @@ visflow.contextMenu.HOT_KEYS = {
   panel: 'P',
   minimize: 'M',
   selectAll: 'CTRL + A',
-  clearSelection: 'CTRL + SHIFT + A'
+  clearSelection: 'CTRL + SHIFT + A',
+  navigation: 'N'
 };
 
 

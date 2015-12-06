@@ -61,10 +61,7 @@ visflow.Visualization = function(params) {
    */
   this.allowTransition_ = true;
 
-  _(this.options).extend({
-    label: true,
-    visMode: true
-  });
+  _(this.options).extend(this.VISUALIZATION_OPTIONS);
 };
 
 visflow.utils.inherit(visflow.Visualization, visflow.Node);
@@ -77,6 +74,14 @@ visflow.Visualization.prototype.NODE_NAME = 'visualization';
 /** @inheritDoc */
 visflow.Visualization.prototype.TEMPLATE =
     './src/visualization/visualization.html';
+
+/**
+ * Visualization nodes specific options.
+ */
+visflow.Visualization.prototype.VISUALIZATION_OPTIONS = {
+  label: true,
+  visMode: true
+};
 
 /**
  * @const {!Array<{left: number, right: number, top: number, bottom: number}>}
@@ -175,6 +180,7 @@ visflow.Visualization.prototype.deserialize = function(save) {
     visflow.error('lastDataId not saved in visualization');
     this.lastDataId = 0;
   }
+  this.fillOptions(this.options, this.VISUALIZATION_OPTIONS);
 };
 
 /**

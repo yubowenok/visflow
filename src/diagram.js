@@ -124,9 +124,10 @@ visflow.diagram.download_ = function(filename) {
   }).done(function(data) {
       if (data.status != 'success') {
         visflow.error('failed to download diagram', data.msg);
-      } else {
-        visflow.flow.deserializeFlow(data.diagram);
+        return;
       }
+      visflow.flow.deserializeFlow(data.diagram);
+      visflow.diagram.updateURL(filename);
     })
     .fail(function() {
       visflow.error('failed to download diagram (connection error)');
@@ -144,15 +145,29 @@ visflow.diagram.upload_ = function(filename) {
     filename: filename,
     flow: JSON.stringify(visflow.flow.serializeFlow())
   }).done(function(data) {
-      if (data.status == 'success') {
-        visflow.success('diagram upload successful:', data.filename);
-      } else {
+      if (data.status != 'success') {
         visflow.error('failed to save diagram', data.msg);
+        return;
       }
+      visflow.success('diagram upload successful:', data.filename);
+      visflow.diagram.updateURL(filename);
     })
     .fail(function() {
       visflow.error('failed to save diagram (connection error)');
     });
+};
+
+/**
+ * Updates the window URL without refreshing the page to reflect the new diagram
+ * name.
+ * @param {string} name
+ */
+visflow.diagram.updateURL = function(name) {
+  if (history.pushState) {
+    var url = window.location.protocol + "//" + window.location.host +
+      window.location.pathname + '?diagram=' + name;
+    window.history.pushState({path: url}, '', url);
+  }
 };
 
 /**

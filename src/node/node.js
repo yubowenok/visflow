@@ -113,6 +113,10 @@ visflow.Node = function(params) {
    */
   this.contextMenu;
 
+  // Extend the options. Default options maybe overwritten by inheriting
+  // classes.
+  _(this.options).extend(this.DEFAULT_OPTIONS);
+
   this.container.load(this.COMMON_TEMPLATE_, function() {
     this.container
       .addClass('node details')
@@ -178,7 +182,12 @@ visflow.Node.prototype.MAX_HEIGHT = Infinity;
 visflow.Node.prototype.MAX_LABEL_LENGTH = 15;
 
 /**
- * Default options that shall be set by the node, node type specific.
+ * Default options that shall be set by the node.
+ * This is specific to a node type that is a leaf in the inheriting tree.
+ * The options written here will be checked and filled during de-serialization.
+ * If a class is a inner node of an inheriting tree (e.g. Visualization), it
+ * needs to define separate options object and fill it during its inheriting
+ * de-serialize function.
  * @protected {!Object}
  */
 visflow.Node.prototype.DEFAULT_OPTIONS = {};
@@ -263,12 +272,7 @@ visflow.Node.prototype.deserialize = function(save) {
   }
 
   _(this.options).extend(save.options);
-  for (var key in this.DEFAULT_OPTIONS) {
-    if (!(key in this.options)) {
-      visflow.warning(key, 'options not saved in', this.label);
-      this.options[key] = this.DEFAULT_OPTIONS[key];
-    }
-  }
+  this.fillOptions(this.options, this.DEFAULT_OPTIONS);
 
   this.label = save.label;
 
@@ -288,6 +292,23 @@ visflow.Node.prototype.deserialize = function(save) {
   if (this.label == null) {
     visflow.error('label not saved');
     this.label = 'node label';
+  }
+};
+
+/**
+ * Fills the object options by entries from defaultOptions. If an entry from
+ * defaultOptions does not exist in options, trigger a warning. This is used
+ * in de-serialization.
+ * @param {!Object} options
+ * @param {!Object} defaultOptions
+ */
+
+visflow.Node.prototype.fillOptions = function(options, defaultOptions) {
+  for (var key in defaultOptions) {
+    if (!(key in options)) {
+      visflow.warning(key, 'options not saved in', this.label);
+     options[key] = defaultOptions[key];
+    }
   }
 };
 

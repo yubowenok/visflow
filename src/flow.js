@@ -744,22 +744,29 @@ visflow.flow.isNodeSelected = function(node) {
  * @param {!jQuery.event} event
  */
 visflow.flow.keyAction = function(key, event) {
-  if (key == 'ctrl+S') {
-    visflow.diagram.save();
-    event.preventDefault();
-  } else if (key == 'ctrl+L') {
-    visflow.diagram.load();
-    event.preventDefault();
-  } else {
-    // Edge and node selection are exclusive.
-    if (this.edgeSelected == null) {
-      for (var id in this.nodesSelected) {
-        var node = this.nodesSelected[id];
-        node.keyAction(key, event);
+  switch(key) {
+    case 'ctrl+E':
+      visflow.diagram.new();
+      event.preventDefault();
+      break;
+    case 'ctrl+S':
+      visflow.diagram.save();
+      event.preventDefault();
+      break;
+    case 'ctrl+L':
+      visflow.diagram.load();
+      event.preventDefault();
+      break;
+    default:
+      // Edge and node selection are exclusive.
+      if (this.edgeSelected == null) {
+        for (var id in this.nodesSelected) {
+          var node = this.nodesSelected[id];
+          node.keyAction(key, event);
+        }
+      } else {
+        this.edgeSelected.keyAction(key, event);
       }
-    } else {
-      this.edgeSelected.keyAction(key, event);
-    }
   }
 };
 

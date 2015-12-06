@@ -116,8 +116,6 @@ visflow.Network = function(params) {
    * @private {d3.selection}
    */
   this.svgNodeLabels_;
-
-  _(this.options).extend(this.DEFAULT_OPTIONS);
 };
 
 visflow.utils.inherit(visflow.Network, visflow.Visualization);

@@ -38,6 +38,13 @@ visflow.parser.TYPE_TO_GRADE = {
 visflow.parser.checkToken = function(text) {
   // grades: [empty, int, float, string]
   text += ''; // convert to string
+  if (text === '') {  // empty constants are ignored
+    return {
+      type: 'empty',
+      value: ''
+    };
+  }
+
   var res;
   res = text.match(/^-?[0-9]+/);
   if (res && res[0] === text) {
@@ -46,17 +53,11 @@ visflow.parser.checkToken = function(text) {
       value: parseInt(text)
     };
   }
-  res = text.match(/^-?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)/);
-  if (res && res[0] === text) {
+  //res = text.match(/^-?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)/);
+  if (Number(text) == text) {
     return {
       type: 'float',
       value: parseFloat(text)
-    };
-  }
-  if (text === '') {  // empty constants are ignored
-    return {
-      type: 'empty',
-      value: ''
     };
   }
   var date = new Date(text);
@@ -81,6 +82,8 @@ visflow.parser.tokenize = function(value, opt_type) {
   var type = opt_type == null ?
       visflow.parser.checkToken(value).type : opt_type;
   switch(type) {
+    case 'empty':
+      return '';
     case 'int':
       return parseInt(value);
     case 'float':
@@ -89,8 +92,6 @@ visflow.parser.tokenize = function(value, opt_type) {
       return new Date(value).getTime();
     case 'string':
       return '' + value;
-    case 'empty':
-      return '';
   }
 };
 

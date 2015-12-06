@@ -27,10 +27,6 @@ visflow.Table = function(params) {
    * @private {jQuery}
    */
   this.tableTemplate_;
-
-  _(this.options).extend({
-    pageLength: 5
-  });
 };
 
 visflow.utils.inherit(visflow.Table, visflow.Visualization);
@@ -44,6 +40,11 @@ visflow.Table.prototype.PANEL_TEMPLATE =
 visflow.Table.prototype.NODE_NAME = 'Table';
 /** @inheritDoc */
 visflow.Table.prototype.NODE_CLASS = 'table';
+
+/** @inheritDoc */
+visflow.Table.prototype.DEFAULT_OPTIONS = {
+  pageLength: 5
+};
 
 /** @inheritDoc */
 visflow.Table.prototype.MIN_WIDTH = 400;
@@ -68,6 +69,12 @@ visflow.Table.prototype.WRAPPER_HEIGHT_ = 35 + 43 + 41 + 12;
  * @private @const {number}
  */
 visflow.Table.prototype.COL_RESIZE_DELAY_ = 10;
+
+/**
+ * Maximum number of dimensions by default shown.
+ * @private
+ */
+visflow.Table.prototype.DEFAULT_NUM_DIMENSIONS_ = 20;
 
 /** @inheritDoc */
 visflow.Table.prototype.init = function() {
@@ -252,8 +259,13 @@ visflow.Table.prototype.clearSelection = function() {
 visflow.Table.prototype.dataChanged = function() {
   visflow.Table.base.dataChanged.call(this);
   // When data set changes, select all dimensions to show in table.
-  var data = this.ports['in'].pack.data;
-  this.dimensions = d3.range(data.dimensions.length);
+  this.dimensions = this.findPlotDimensions();
+};
+
+/** @inheritDoc */
+visflow.Table.prototype.findPlotDimensions = function() {
+  return d3.range(this.ports['in'].pack.data.dimensions.length)
+    .slice(0, this.DEFAULT_NUM_DIMENSIONS_);
 };
 
 /** @inheritDoc */

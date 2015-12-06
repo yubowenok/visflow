@@ -37,10 +37,29 @@ visflow.Heatmap = function(params) {
   this.normalizeScales = [];
 
   /**
-   * Left margin computed based on label width.
+   * Left margin computed based on row label width.
    * @private {number}
    */
   this.leftMargin_ = 0;
+
+  /**
+   * Top margin computed based on the column label height.
+   * @private {number}
+   */
+  this.topMargin_ = 0;
+
+  /**
+   * Whether to render column label vertically. Updated by updateTopMargin().
+   * @private {boolean}
+   */
+  this.colLabelVertical_ = false;
+
+  /**
+   * Whether the column labels have switched from horizontal to vertical or vice
+   * versa.
+   * @private {boolean}
+   */
+  this.colLabelVerticalChanged_ = false;
 
   /**
    * Sorted item indexes.
@@ -54,16 +73,6 @@ visflow.Heatmap = function(params) {
   this.svgRowLabels_;
   /** @private {d3.selection} */
   this.svgColLabels_;
-
-  _(this.options).extend({
-    // Id corresponding to the id of visflow.scales.
-    colorScaleId: 'redGreen',
-    // By which column value shall the rows be sorted.
-    sortBy: 0,
-    // By which column value shall the rows be labeled. If this is empty string,
-    // then show no row label.
-    labelBy: 0
-  });
 };
 
 visflow.utils.inherit(visflow.Heatmap, visflow.Visualization);
@@ -76,6 +85,20 @@ visflow.Heatmap.prototype.NODE_CLASS = 'heatmap';
 visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;
 /** @private @const {number} */
 visflow.Heatmap.prototype.COL_LABEL_OFFSET_ = 10;
+
+/** @inheritDoc */
+visflow.Heatmap.prototype.DEFAULT_OPTIONS = {
+  // Id corresponding to the id of visflow.scales.
+  colorScaleId: 'redGreen',
+  // By which column value shall the rows be sorted.
+  sortBy: 0,
+  // By which column value shall the rows be labeled. If this is empty string,
+  // then show no row label.
+  labelBy: 0,
+  // Whether to show column label.
+  colLabel: true
+};
+
 /**
  * Default number of dimensions the heatmap would show.
  * @private
@@ -101,12 +124,14 @@ visflow.Heatmap.prototype.selectedProperties = {
 visflow.Heatmap.prototype.PLOT_MARGINS = {
   left: 10,
   right: 10,
-  top: 20,
+  top: 0,
   bottom: 10
 };
 
 /** @private @const {number} */
-visflow.Heatmap.prototype.LABEL_FONT_SIZE_ = 6;
+visflow.Heatmap.prototype.LABEL_FONT_SIZE_X_ = 6.5;
+/** @private @const {number} */
+visflow.Heatmap.prototype.LABEL_FONT_SIZE_Y_ = 11;
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.init = function() {
@@ -350,25 +375,58 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
  * @private
  */
 visflow.Heatmap.prototype.drawColLabels_ = function() {
-  var inpack = this.ports['in'].pack,
-    data = inpack.data;
+  if (!this.options.colLabel || this.dimensions.length == 0) {
+    _(this.svgColLabels_.selectAll('*')).fadeOut();
+    return;
+  }
+
+  var labelTransform;
+  if (this.colLabelVertical_) {
+    this.svgColLabels_.classed('vertical', true);
+    labelTransform = function (dimInfo, dimIndex) {
+      return visflow.utils.getTransform([
+        this.xScale(dimIndex + 0.5) + this.LABEL_FONT_SIZE_Y_ / 2,
+        this.topMargin_ - this.COL_LABEL_OFFSET_
+      ], 1, -90);
+    }.bind(this);
+  } else {
+    this.svgColLabels_.classed('vertical', false);
+    labelTransform = function (dimInfo, dimIndex) {
+      return visflow.utils.getTransform([
+        this.xScale(dimIndex + 0.5),
+        this.topMargin_ - this.COL_LABEL_OFFSET_
+      ]);
+    }.bind(this);
+  }
+  var inpack = this.ports['in'].pack;
+  var data = inpack.data;
   var dimInfos = this.uniqueDimensions(this.dimensions);
   var labels = this.svgColLabels_.selectAll('.vis-label')
     .data(dimInfos, _.getValue('uniqId'));
   labels.enter().append('text')
     .attr('id', _.getValue('uniqId'))
-    .classed('vis-label', true);
+    .classed('vis-label', true)
+    .attr('transform', labelTransform);
   _(labels.exit()).fadeOut();
   var updatedLabels = this.allowTransition_ ? labels.transition() : labels;
+  if (this.colLabelVerticalChanged_) {
+    this.colLabelVerticalChanged_ = false;
+    var counter = updatedLabels[0].length;
+    updatedLabels = labels.transition()
+      .each('end', function () {
+        if ((--counter) == 0) {
+          // Redraw after transition to keep up-to-date with resize.
+          this.drawColLabels_();
+        }
+      }.bind(this));
+  }
   updatedLabels
-    .text(function(dimInfo) {
+    .text(function (dimInfo) {
       return data.dimensions[dimInfo.dim];
     })
-    .attr('x', function(dimInfo, dimIndex) {
-      return this.xScale(dimIndex + 0.5);
-    }.bind(this))
-    .attr('y', this.PLOT_MARGINS.top - this.COL_LABEL_OFFSET_);
+    .attr('transform', labelTransform);
 };
+
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.showSelection = function() {
@@ -395,6 +453,16 @@ visflow.Heatmap.prototype.initPanel = function(container) {
     this.dimensionChanged();
   }.bind(this));
 
+  var colorScaleSelect = new visflow.ColorScaleSelect({
+    container: container.find('#color-scale'),
+    selected: this.options.colorScaleId,
+    listTitle: 'Color Scale'
+  });
+  $(colorScaleSelect).on('visflow.change', function(event, scaleId) {
+    this.options.colorScaleId = scaleId;
+    this.show();
+  }.bind(this));
+
   var sortBySelect = new visflow.Select({
     container: container.find('#sort-by'),
     list: dimensionList,
@@ -413,7 +481,7 @@ visflow.Heatmap.prototype.initPanel = function(container) {
     list: dimensionList,
     allowClear: true,
     selected: this.options.labelBy,
-    listTitle: 'Label By'
+    listTitle: 'Row Labels'
   });
   $(labelBySelect).on('visflow.change', function(event, dim) {
     this.options.labelBy = dim;
@@ -422,13 +490,14 @@ visflow.Heatmap.prototype.initPanel = function(container) {
     this.show();
   }.bind(this));
 
-  var colorScaleSelect = new visflow.ColorScaleSelect({
-    container: container.find('#color-scale'),
-    selected: this.options.colorScaleId,
-    listTitle: 'Color Scale'
+  var colLabelToggle = new visflow.Checkbox({
+    container: container.find('#col-label'),
+    value: this.options.colLabel,
+    title: 'Column Labels'
   });
-  $(colorScaleSelect).on('visflow.change', function(event, scaleId) {
-    this.options.colorScaleId = scaleId;
+  $(colLabelToggle).on('visflow.change', function(event, value) {
+    this.options.colLabel = value;
+    this.prepareScales();
     this.show();
   }.bind(this));
 };
@@ -475,7 +544,7 @@ visflow.Heatmap.prototype.prepareXYScales_ = function() {
     .range([this.leftMargin_, svgSize.width - this.PLOT_MARGINS.right]);
   this.yScale = d3.scale.linear()
     .domain([0, this.itemIndices_.length])
-    .range([svgSize.height - this.PLOT_MARGINS.bottom, this.PLOT_MARGINS.top]);
+    .range([svgSize.height - this.PLOT_MARGINS.bottom, this.topMargin_]);
 };
 
 /**
@@ -498,9 +567,9 @@ visflow.Heatmap.prototype.prepareNormalizeScales_ = function() {
  * @private
  */
 visflow.Heatmap.prototype.updateLeftMargin_ = function() {
-  var inpack = this.ports['in'].pack,
-    items = inpack.items,
-    data = inpack.data;
+  var inpack = this.ports['in'].pack;
+  var items = inpack.items;
+  var data = inpack.data;
   if (this.options.labelBy === '') {
     this.leftMargin_ = this.PLOT_MARGINS.left;
   } else {
@@ -510,13 +579,60 @@ visflow.Heatmap.prototype.updateLeftMargin_ = function() {
       maxLength = Math.max(maxLength, value.length);
     }
     this.leftMargin_ = this.PLOT_MARGINS.left + maxLength *
-        this.LABEL_FONT_SIZE_;
+        this.LABEL_FONT_SIZE_X_ + this.ROW_LABEL_OFFSET_;
   }
+};
+
+/**
+ * Updates the top margin based on the column label spans.
+ * @private
+ */
+visflow.Heatmap.prototype.updateTopMargin_ = function() {
+  var inpack = this.ports['in'].pack;
+  var items = inpack.items;
+  var data = inpack.data;
+  if (this.options.colLabel) {
+    var maxLength = d3.max(this.dimensions.map(function(dim) {
+      return data.dimensions[dim].length;
+    }));
+    if (maxLength == null) {
+      maxLength = 0;
+    }
+    var svgSize = this.getSVGSize();
+    var colWidth = (svgSize.width - this.leftMargin_ -
+        this.PLOT_MARGINS.right) / this.dimensions.length;
+
+    var oldVertical = this.colLabelVertical_;
+    if (colWidth < maxLength * this.LABEL_FONT_SIZE_X_) {
+      this.colLabelVertical_ = true;
+      this.topMargin_ = this.LABEL_FONT_SIZE_X_ * maxLength +
+          this.PLOT_MARGINS.top;
+    } else {
+      this.colLabelVertical_ = false;
+      this.topMargin_ = this.PLOT_MARGINS.top + this.LABEL_FONT_SIZE_Y_ +
+        this.COL_LABEL_OFFSET_;
+    }
+    if (this.colLabelVertical_ != oldVertical) {
+      this.colLabelVerticalChanged_ = true;
+    }
+  } else {
+    this.topMargin_ = this.PLOT_MARGINS.top;
+  }
+};
+
+/**
+ * Updates the left and top margins of the rectangles.
+ * @private
+ */
+visflow.Heatmap.prototype.updateMargins_ = function() {
+  this.updateLeftMargin_();
+  // Top margin depends on left margin.
+  this.updateTopMargin_();
 };
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.prepareScales = function() {
-  this.updateLeftMargin_();
+  this.updateMargins_();
   // xScale depends on leftMargin.
   this.prepareXYScales_();
   this.prepareNormalizeScales_();
@@ -559,6 +675,6 @@ visflow.Heatmap.prototype.dataChanged = function() {
   // We choose to sort by nothing by default.
   this.options.sortBy = '';
 
-  this.updateLeftMargin_();
+  this.updateMargins_();
   this.sortItems_();
 };

@@ -60,7 +60,7 @@ visflow.Scatterplot.prototype.PANEL_TEMPLATE =
 
 
 /** @private @const {number} */
-visflow.Scatterplot.prototype.LABEL_FONT_SIZE_ = 5.5;
+visflow.Scatterplot.prototype.LABEL_FONT_SIZE_ = 6.5;
 
 /**
  * Margin space for axes.

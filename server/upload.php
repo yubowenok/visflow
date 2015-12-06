@@ -11,8 +11,8 @@ if (!isset($_POST['name']))
   abort('data name not set');
 if (!isset($_FILES['file']))
   abort('file not set');
-if ($_FILES['file']['size'] > 500000)
-  abort('file size should be < 500,000');
+if ($_FILES['file']['size'] > 20 * 1024 * 1024)
+  abort('file size should be no larger than 20M');
 
 if (!file_exists('data'))
   mkdir('data', 0777, true);

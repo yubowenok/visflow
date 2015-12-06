@@ -40,3 +40,11 @@
 .editable-list .select2-container--default .select2-selection--single .select2-selection__placeholder {
   padding-right: 15px;
 }
+
+.editable-list #auxiliary {
+  margin-top: 5px;
+}
+
+.editable-list #auxiliary button {
+  width: 100px;
+}

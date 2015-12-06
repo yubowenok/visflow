@@ -51,8 +51,6 @@ visflow.LineChart = function(params) {
    * @private {number}
    */
   this.leftMargin_ = 0;
-
-  _(this.options).extend(this.DEFAULT_OPTIONS);
 };
 
 visflow.utils.inherit(visflow.LineChart, visflow.Visualization);
@@ -75,7 +73,7 @@ visflow.LineChart.prototype.DEFAULT_OPTIONS = {
 };
 
 /** @private @const {number} */
-visflow.LineChart.prototype.LABEL_FONT_SIZE_ = 5.5;
+visflow.LineChart.prototype.LABEL_FONT_SIZE_ = 6.5;
 /** @private @const {number} */
 visflow.LineChart.prototype.LEGEND_OFFSET_X_ = 20;
 /** @private @const {number} */

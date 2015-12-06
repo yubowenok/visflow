@@ -58,11 +58,6 @@ visflow.Histogram = function(params) {
    * @private {boolean}
    */
   this.deserialized_ = false;
-
-  _(this.options).extend({
-    // Number of histogram bins.
-    numBins: 10
-  });
 };
 
 visflow.utils.inherit(visflow.Histogram, visflow.Visualization);
@@ -74,6 +69,12 @@ visflow.Histogram.prototype.NODE_NAME = 'Histogram';
 /** @inheritDoc */
 visflow.Histogram.prototype.PANEL_TEMPLATE =
     './src/visualization/histogram/histogram-panel.html';
+
+/** @inheritDoc */
+visflow.Histogram.prototype.DEFAULT_OPTIONS = {
+  // Number of histogram bins.
+  numBins: 10
+};
 
 /** @inheritDoc */
 visflow.Histogram.prototype.PLOT_MARGINS = {

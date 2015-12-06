@@ -47,8 +47,6 @@ visflow.ContainFilter = function(params) {
    * @protected {!Array<string>}
    */
   this.typeInValue = null;
-
-  _(this.options).extend(this.DEFAULT_OPTIONS);
 };
 
 visflow.utils.inherit(visflow.ContainFilter, visflow.Filter);
