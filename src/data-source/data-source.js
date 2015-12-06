@@ -7,6 +7,7 @@
 /**
  * @param params
  * @constructor
+ * @extends {visflow.Node}
  */
 visflow.DataSource = function(params) {
   visflow.DataSource.base.constructor.call(this, params);
@@ -41,6 +42,12 @@ visflow.DataSource = function(params) {
    */
   this.onlineDataURL = '';
 
+  /**
+   * Copy of parsed data, used for switching between non-crossing and crossing.
+   * @private {!visflow.TabularData}
+   */
+  this.data_ = new visflow.Data();
+
   /** @inheritDoc */
   this.ports = {
     out: new visflow.MultiplePort({
@@ -70,6 +77,16 @@ visflow.DataSource.prototype.MAX_HEIGHT = 40;
 
 /** @private @const {number} */
 visflow.DataSource.prototype.ERROR_LIMIT_ = 100;
+
+/** @inheritDoc */
+visflow.DataSource.prototype.DEFAULT_OPTIONS = {
+  // Whether to use data crossing.
+  crossing: false,
+  // Dimensions used for crossing. -1 is index.
+  crossingDims: [-1],
+  // Name for the attribute column in crossing.
+  crossingName: 'attributes'
+};
 
 /** @inheritDoc */
 visflow.DataSource.prototype.serialize = function() {
@@ -139,6 +156,90 @@ visflow.DataSource.prototype.initPanel = function(container) {
   container.find('#data-name').text(this.dataName);
   container.find('#load-data').click(this.loadDataDialog_.bind(this));
   container.find('#clear-data').click(this.clearData_.bind(this));
+
+  this.createDataList_(container);
+
+  var crossingToggle = new visflow.Checkbox({
+    container: container.find('#crossing'),
+    value: this.options.crossing,
+    title: 'Crossing'
+  });
+  $(crossingToggle).on('visflow.change', function(event, value) {
+    this.options.crossing = value;
+    this.updateCrossing_();
+  }.bind(this));
+
+  var crossingDimsSelect = new visflow.EditableList({
+    container: container.find('#crossing-dims'),
+    list: [{id: -1, text: 'index'}].concat(this.getDimensionList(this.data_)),
+    listTitle: 'Key(s)',
+    addTitle: 'Add Dimension',
+    selected: this.options.crossingDims,
+    allowClear: false
+  });
+  $(crossingDimsSelect).on('visflow.change', function(event, dims) {
+    this.options.crossingDims = dims;
+    if (this.options.crossing) {
+      this.updateCrossing_();
+    }
+  }.bind(this));
+
+  var crossingNameInput = new visflow.Input({
+    container: container.find('#crossing-name'),
+    value: this.options.crossingName,
+    title: 'Column Name'
+  });
+  $(crossingNameInput).on('visflow.change', function(event, value) {
+    this.options.crossingName = value;
+    if (this.options.crossing) {
+      this.updateCrossing_();
+    }
+  }.bind(this));
+
+  if (!this.options.crossing) {
+    container.find('#crossing-section').hide();
+  }
+};
+
+/**
+ * Creates a data list according to the currently loaded data.
+ * @param {!jQuery} container
+ */
+visflow.DataSource.prototype.createDataList_ = function(container) {
+
+};
+
+/**
+ * Updates the data crossing option.
+ * @private
+ */
+visflow.DataSource.prototype.updateCrossing_ = function() {
+  if (visflow.optionPanel.isOpen) {
+    var panelContainer = visflow.optionPanel.contentContainer();
+    if (!this.options.crossing) {
+      panelContainer.find("#crossing-section").hide();
+      $.extend(this.ports['out'].pack, new visflow.Package(this.data_));
+      visflow.flow.propagate(this);
+      return;
+    }
+    panelContainer.find("#crossing-section").show();
+  }
+
+  var result = visflow.parser.cross(this.data_, this.options.crossingDims,
+    this.options.crossingName);
+  if (!result.success) {
+    visflow.error('failed to cross data:', result.msg);
+    $.extend(this.ports['out'].pack, new visflow.Package());
+    visflow.flow.propagate(this);
+    return;
+  }
+
+  var data = new visflow.Data(result.data);
+  if (data.type != 'empty') {
+    visflow.flow.registerData(data);
+  }
+  $.extend(this.ports['out'].pack, new visflow.Package(data));
+  visflow.flow.propagate(this);
 };
 
 /**
@@ -270,12 +371,12 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
  * @private
  */
 visflow.DataSource.prototype.clearData_ = function() {
+  // setData_ will propagate.
   this.setData_({
     name: 'No data loaded',
     url: '',
     file: ''
   });
-  visflow.flow.propagate(this);
 };
 
 /**
@@ -289,9 +390,6 @@ visflow.DataSource.prototype.clearData_ = function() {
  *   url: Must be set when loading from online sources.
  */
 visflow.DataSource.prototype.loadData = function(params) {
-  // Add to async queue
-  visflow.flow.asyncDataLoadStart(this);
-
   if (!this.useServerData && params.url.substr(0, 4) != 'http') {
     params.url = 'http://' + params.url;
   }
@@ -302,11 +400,17 @@ visflow.DataSource.prototype.loadData = function(params) {
       // CSV parser will report error itself.
       result = visflow.parser.csv(result);
 
-      this.setData_(_(params).extend({
-        data: result
-      }));
-      // Decrement async loading count.
-      visflow.flow.asyncDataLoadEnd(); // Push changes
+      // Store a copy of parsed data, so that we can switch between crossing
+      // and non-crossing.
+      this.data_ = result;
+
+      if (this.options.crossing) {
+        this.updateCrossing_();
+      } else {
+        this.setData_(_(params).extend({
+          data: result
+        }));
+      }
     }.bind(this))
     .fail(function(res, msg, error){
       visflow.error('cannot get data', msg,
@@ -336,12 +440,19 @@ visflow.DataSource.prototype.setData_ = function(params) {
     $('#option-panel').find('#data-name').text(this.dataName);
   }
 
+  // Add data name and file info to the params object.
+  _(params.data).extend({
+    name: this.dataName,
+    file: this.useServerData ? this.dataFile : 'online'
+  });
+
   var data = new visflow.Data(params.data);
   if (data.type != 'empty') {
     visflow.flow.registerData(data);
   }
-  // overwrite data object (to keep the same reference)
+  // Overwrite data object (to keep the same reference).
   $.extend(this.ports['out'].pack, new visflow.Package(data));
+  visflow.flow.propagate(this);
 };
 
 /**

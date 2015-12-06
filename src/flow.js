@@ -40,10 +40,6 @@ visflow.flow.resetFlow = function() {
   this.lastSelectedNode = null;
 
   this.edgeSelected = null;
-
-
-  this.asyncDataLoadCount = 0;
-  this.asyncDataLoadQueue = [];
 };
 
 /**
@@ -769,25 +765,3 @@ visflow.flow.keyAction = function(key, event) {
       }
   }
 };
-
-/**
- * Handles async data loading starts event.
- * Prevents rushing in async data loading.
- * @param {!visflow.Node} node
- */
-visflow.flow.asyncDataLoadStart = function(node) {
-  this.asyncDataLoadCount++;
-  this.asyncDataLoadQueue.push(node);
-};
-
-/**
- * Handles async data loading ends event.
- */
-visflow.flow.asyncDataLoadEnd = function() {
-  this.asyncDataLoadCount --;
-  if (this.asyncDataLoadCount == 0) {
-    this.propagate(this.asyncDataLoadQueue);
-    this.asyncDataLoadQueue = [];
-  }
-};
-

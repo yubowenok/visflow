@@ -43,7 +43,7 @@ visflow.Union.prototype.process = function() {
     var inpack = inpacks[i];
 
     if (!outpack.data.matchDataFormat(inpack.data))
-      return visflow.error('cannot make intersection of two different types of datasets');
+      return visflow.error('cannot make union two different types of datasets');
 
     // enumerate all in pack, overwrite rendering properties
     for (var index in inpack.items) {

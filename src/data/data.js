@@ -38,9 +38,23 @@ visflow.Data = function(data) {
   }
 
   /**
-   * Type of data. Usually this is the data name, e.g. empty, car, etc.
+   * Type of data. It will be a hash value of the data's dimensions and
+   * dimension types.
    */
   this.type = data.type;
+
+  /**
+   * Name of the data.
+   * @type {string}
+   */
+  this.name = data.name;
+
+  /**
+   * File information, usually the file name.
+   * If the data is from online sources, then the value is 'online'.
+   * @type {string}
+   */
+  this.file = data.file;
 
   /**
    * List of dimensions.
@@ -87,14 +101,5 @@ visflow.Data.prototype.matchDataFormat = function(data) {
     // Empty data is compatible with anything.
     return true;
   }
-  if (this.dimensions.length != data.dimensions.length) {
-    return false;
-  }
-  for (var i in this.dimensions) {
-    if (this.dimensions[i] != data.dimensions[i] ||
-        this.dimensionTypes[i] != data.dimensionTypes[i]) {
-      return false;
-    }
-  }
-  return true;
+  return this.type == data.type;
 };

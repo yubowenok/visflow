@@ -33,26 +33,28 @@ visflow.Network = function(params) {
     outs: new visflow.SelectionPort({
       node: this,
       id: 'outs',
-      text: 'selected nodes'
+      text: 'selected nodes',
     }),
     outsEdges: new visflow.SelectionPort({
       node: this,
       id: 'outsEdges',
-      text: 'selected edges'
+      text: 'selected edges',
+      fromPort: 'inEdges'
     }),
     out: new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
       isConstants: false,
-      text: 'output nodes'
+      text: 'output nodes',
     }),
     outEdges: new visflow.MultiplePort({
       node: this,
       id: 'outEdges',
       isInput: false,
       isConstants: false,
-      text: 'output edges'
+      text: 'output edges',
+      fromPort: 'inEdges'
     })
   };
 

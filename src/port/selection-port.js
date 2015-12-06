@@ -14,7 +14,7 @@ visflow.SelectionPort = function(params) {
     {
       isInput: false,
       isConstants: false,
-      text: 'selected items'
+      text: 'selected'
     },
     params
   );

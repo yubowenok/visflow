@@ -19,9 +19,40 @@
   text-align: center;
 }
 
-#option-panel .data-source button {
-  width: 100%;
+#option-panel .data-source #load-data,
+#option-panel .data-source #clear-data {
+  width: calc(50% - 2px);
 }
+
+#option-panel .data-source #data-list .item {
+  margin-top: 3px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  background-color: white;
+}
+
+#option-panel .data-source #data-list .item > button {
+  border: none;
+  float: right;
+  background-image: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+#option-panel .data-source #data-list ul {
+  list-style: none;
+  padding-left: 0px;
+}
+
+#option-panel .data-source #data-list .editable-list .item {
+  cursor: all-scroll;
+}
+
+#option-panel .data-source #data-list .editable-list .item:hover {
+  background: #eee;
+}
+
 
 #modal .data-source .server.disabled,
 #modal .data-source .online.disabled,

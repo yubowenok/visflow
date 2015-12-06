@@ -130,8 +130,7 @@ visflow.parser.csv = function(csv, opt_params) {
     dimensionTypes.push(type);
   }.bind(this));
 
-  var typeString = dimensions.concat(dimensionTypes).join(',');
-  var hashType = CryptoJS.SHA256(typeString).toString();
+  var hashType = CryptoJS.SHA256(dimensions.join(',')).toString();
   return {
     type: hashType,
     values: values,
@@ -142,12 +141,98 @@ visflow.parser.csv = function(csv, opt_params) {
 
 /**
  * Converts visflow tabular data to csv.
- * @param data
+ * @param {!visflow.TabularData} data
+ * @param {Object} opt_items
  */
-visflow.parser.tabularToCSV = function(data) {
+visflow.parser.tabularToCSV = function(data, opt_items) {
   var lines = [data.dimensions.join(',')];
-  data.values.forEach(function(row) {
-    lines.push(row.join(','));
+  data.values.forEach(function(row, index) {
+    if (opt_items == null || index in opt_items) {
+      lines.push(row.join(','));
+    }
   });
   return lines.join('\n');
+};
+
+/**
+ * Crosses the data on the given key dimensions.
+ * @param {!visflow.TabularData} data
+ * @param {!Array<number>} dims
+ * @param {string} name Column name for the attributes.
+ * @return {!{
+ *   success: boolean,
+ *   msg: string,
+ *   data: visflow.TabularData
+ * }}
+ */
+visflow.parser.cross = function(data, dims, name) {
+  var keysSorted = [];
+  var keys = [];
+  data.values.forEach(function(row, index) {
+    var vals = [];
+    dims.forEach(function(dim) {
+      if (dim == -1) {
+        vals.push(index);
+      } else {
+        vals.push(row[dim]);
+      }
+    }, this);
+    keys.push(vals);
+    keysSorted.push(vals);
+  }, this);
+
+  // Check duplicates
+  keysSorted.sort(visflow.utils.compare);
+  for (var i = 1; i < keysSorted.length; i++) {
+    if (visflow.utils.compare(keysSorted[i], keysSorted[i - 1]) == 0) {
+      return {
+        success: false,
+        msg: 'duplicated keys not allowed for data crossing'
+      };
+    }
+  }
+
+  var keyDims = _.keySet(dims);
+
+  var dimensions = [];
+  var dimensionTypes = [];
+  dims.forEach(function(dim) {
+    if (dim == -1) {
+      dimensions.push('index');
+      dimensionTypes.push('int');
+    } else {
+      dimensions.push(data.dimensions[dim]);
+      dimensionTypes.push(data.dimensionTypes[dim]);
+    }
+  });
+  // Attribute column.
+  dimensions.push(name);
+  dimensionTypes.push('string');
+  // Value column.
+  dimensions.push('value');
+  dimensionTypes.push('string');
+
+  var values = [];
+  keys.forEach(function(key, index) {
+    for (var dim = 0; dim < data.dimensions.length; dim++) {
+      if (dim in keyDims) {
+        continue;
+      }
+      values.push(key.concat([
+        data.dimensions[dim],
+        data.values[index][dim]
+      ]));
+    }
+  }, this);
+
+  var hashType = CryptoJS.SHA256(dimensions.join(',')).toString();
+  return {
+    success: true,
+    data: {
+      type: hashType,
+      dimensions: dimensions,
+      dimensionTypes: dimensionTypes,
+      values: values
+    }
+  };
 };

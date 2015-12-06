@@ -17,7 +17,8 @@ for($i = 0; $i < count($filelist); $i++) {
   array_push($result, array(
     'dataname' => $dataName,
     'filename' => $fileName,
-    'mtime' => filemtime($filelist[$i]) * 1000
+    'mtime' => filemtime($filelist[$i]) * 1000,
+    'isDir' => is_dir($filelist[$i])
   ));
 }
 $response = array();

@@ -69,7 +69,8 @@ visflow.LineChart.prototype.DEFAULT_OPTIONS = {
   yDim: 0,
   groupBy: '',
   points: false,
-  legends: true
+  legends: true,
+  curve: false
 };
 
 /** @private @const {number} */
@@ -123,22 +124,9 @@ visflow.LineChart.prototype.init = function() {
 };
 
 /** @inheritDoc */
-visflow.LineChart.prototype.serialize = function() {
-  var result = visflow.LineChart.base.serialize.call(this);
-  return result;
-};
-
-/** @inheritDoc */
-visflow.LineChart.prototype.deserialize = function(save) {
-  visflow.LineChart.base.deserialize.call(this, save);
-};
-
-
-/** @inheritDoc */
 visflow.LineChart.prototype.drawBrush = function() {
   this.drawSelectBox();
 };
-
 
 /** @inheritDoc */
 visflow.LineChart.prototype.selectItems = function() {
@@ -233,6 +221,16 @@ visflow.LineChart.prototype.initPanel = function(container) {
   });
   $(legendsToggle).on('visflow.change', function(event, value) {
     this.options.legends = value;
+    this.show();
+  }.bind(this));
+
+  var curveToggle = new visflow.Checkbox({
+    container: container.find('#curve'),
+    value: this.options.curve,
+    title: 'Curve'
+  });
+  $(curveToggle).on('visflow.change', function(event, value) {
+    this.options.curve = value;
     this.show();
   }.bind(this));
 };
@@ -417,7 +415,12 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps) {
   lines.enter().append('path')
     .style('opacity', 0);
   _(lines.exit()).fadeOut();
+
   var line = d3.svg.line();
+  if (this.options.curve) {
+    line.interpolate('basis');
+  }
+
   var updatedLines = this.allowTransition_ ? lines.transition() : lines;
   updatedLines
     .style('stroke', _.getValue('color'))
@@ -617,30 +620,24 @@ visflow.LineChart.prototype.dimensionChanged = function() {
 
 /**
  * Finds reasonable y dimension. X dimension will be default to empty.
- * @return {{x: string, y: number}}
+ * @return {number}
  * @override
  */
 visflow.LineChart.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
-  var chosen = 0;
   for (var i = 0; i < data.dimensionTypes.length; i++) {
     if (data.dimensionTypes[i] != 'string') {
-      chosen = i;
-      break;
+      return i;
     }
   }
-  return {
-    x: '',
-    y: chosen
-  };
+  return 0;
 };
 
 /** @inheritDoc */
 visflow.LineChart.prototype.dataChanged = function() {
   visflow.LineChart.base.dataChanged.call(this);
-  var dims = this.findPlotDimensions();
-  this.options.xDim = dims.x;
-  this.options.yDim = dims.y;
+  this.options.xDim = '';
+  this.options.yDim = this.findPlotDimensions();
   this.options.groupBy = '';
   this.groupItems_();
   this.sortItems_();

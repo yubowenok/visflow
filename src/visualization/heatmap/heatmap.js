@@ -661,7 +661,7 @@ visflow.Heatmap.prototype.findPlotDimensions = function() {
     }
   }, this);
   return {
-    dimensions: dimensions,
+    dimensions: dimensions.length == 0 ? [0] : dimensions,
     labelBy: labelBy == null ? 0 : labelBy
   };
 };

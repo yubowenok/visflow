@@ -14,6 +14,12 @@ visflow.upload.TEMPLATE_ = './src/upload/upload-dialog.html';
 visflow.upload.complete_ = null;
 
 /**
+ * CSV to be exported.
+ * @private {visflow.Package}
+ */
+visflow.upload.exportPackage_;
+
+/**
  * Creates an upload dialog that allows the user to select local file for
  * upload.
  */
@@ -21,6 +27,18 @@ visflow.upload.dialog = function() {
   visflow.dialog.create({
     template: visflow.upload.TEMPLATE_,
     complete: visflow.upload.initDialog_
+  });
+};
+
+/**
+ * Creates an upload dialog for the exported data.
+ * @param {!visflow.Package}
+ */
+visflow.upload.export = function(pack) {
+  visflow.upload.exportPackage_ = pack;
+  visflow.dialog.create({
+    template: visflow.upload.TEMPLATE_,
+    complete: visflow.upload.initExportDialog_
   });
 };
 
@@ -92,10 +110,10 @@ visflow.upload.initDialog_ = function(dialog) {
     }).done(function(res) {
         if (!res.success) {
           visflow.error('failed to upload data:', res.msg);
-        } else {
-          visflow.success('data uploaded:', name,
-            '(' + selectedFile.name + ')');
+          return;
         }
+        visflow.success('data uploaded:', name,
+          '(' + selectedFile.name + ')');
         if (visflow.upload.complete_ != null) {
           visflow.upload.complete_();
         }
@@ -104,6 +122,48 @@ visflow.upload.initDialog_ = function(dialog) {
       .fail(function(res, msg, error) {
         visflow.error('failed to upload data', msg, error);
         visflow.upload.complete_ = null;
+      });
+  });
+};
+
+/**
+ * Initializes the data export dialog that has special features over the normal
+ * upload dialog.
+ * @param {!jQuery} dialog
+ * @private
+ */
+visflow.upload.initExportDialog_ = function(dialog) {
+  var btnUpload = dialog.find('#confirm');
+  var pack = visflow.upload.exportPackage_;
+
+  dialog.find('#btn-file').prop('disabled', true);
+  dialog.find('#file-display').addClass('disabled')
+    .text('(exported from ' + pack.data.file + ')');
+
+  var dataName = dialog.find('#data-name')
+    .val(pack.data.name + ' (' + visflow.utils.randomString(4) + ')');
+  var csv = visflow.parser.tabularToCSV(pack.data, pack.items);
+
+  dataName.keyup(function() {
+    // Checks if all required fields are filled.
+    btnUpload.prop('disabled', !dataName.val());
+  });
+
+  btnUpload.click(function(event) {
+    var name = dataName.val();
+    $.post('./server/export.php', {
+      name: name,
+      file: pack.data.file + '_' + CryptoJS.SHA1(name).toString().substr(0, 8),
+      data: csv
+    }).done(function(res) {
+        if (!res.success) {
+          visflow.error('failed to upload data:', res.msg);
+          return;
+        }
+        visflow.success('data uploaded:', name);
+      })
+      .fail(function(res, msg, error) {
+        visflow.error('failed to export data', msg, error);
       });
   });
 };

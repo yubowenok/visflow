@@ -46,5 +46,5 @@
 }
 
 .editable-list #auxiliary button {
-  width: 100px;
+  width: calc(100% / 3 - 3px);
 }

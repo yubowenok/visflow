@@ -181,6 +181,7 @@ visflow.Table.prototype.showDetails = function() {
         return 'Page '+ (pageInfo.page + 1) + '/'+ pageInfo.pages;
       }
     });
+  this.dataTable.column(0).visible(false);
   this.dataTable.rows('.sel').select();
 
   this.updateScrollBodyHeight_();
@@ -237,12 +238,6 @@ visflow.Table.prototype.updateScrollBodyHeight_ = function() {
   this.content.find('.dataTables_scrollBody')
     .css('max-height', height)
     .css('height', height);
-};
-
-/** @inheritDoc */
-visflow.Table.prototype.showSelection = function() {
-  // TODO(bowen): Selection is now shown by DataTable select plugin.
-  // Check whether this works correctly on data update.
 };
 
 /** @inheritDoc */

@@ -10,7 +10,8 @@
  *   list: !Array<{id: string|number, text: string}>,
  *   selected: Array<string|number>
  *   listTitle: string,
- *   addTitle: string
+ *   addTitle: string,
+ *   allowClear: boolean
  * }} params
  *     container: Container of the list.
  *     list: Items for selection.
@@ -34,6 +35,9 @@ visflow.EditableList = function(params) {
 
   /** @private {string} */
   this.addTitle_ = params.addTitle ? params.addTitle: 'Add Item';
+
+  /** @private {boolean} */
+  this.allowClear_ = params.allowClear != null ? params.allowClear : true;
 
   /**
    * Mapping from item id to item text.
@@ -79,7 +83,14 @@ visflow.EditableList.prototype.init_ = function() {
     this.signal_('change');
   }.bind(this));
   this.container_.find('#clear').click(function() {
-    this.selected_ = [];
+    this.selected_ = this.allowClear_ ? [] : this.selected_.slice(0, 1);
+    this.createItems_();
+    this.signal_('change');
+  }.bind(this));
+  this.container_.find('#sort').click(function() {
+    this.selected_.sort(function(a, b) {
+      return visflow.utils.compare(this.list_[a].text, this.list_[b].text)
+    }.bind(this));
     this.createItems_();
     this.signal_('change');
   }.bind(this));
@@ -114,6 +125,11 @@ visflow.EditableList.prototype.createItems_ = function() {
     var li = this.container_.find('#item-template').clone()
       .show()
       .appendTo(ul);
+
+    if (!this.allowClear_ && this.selected_.length == 1) {
+      li.children('.close').hide();
+    }
+
     li.children('.close').click(function() {
       this.deleteItem_(id);
     }.bind(this));
