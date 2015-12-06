@@ -10,6 +10,9 @@ visflow.upload = {};
 /** @private @const {string} */
 visflow.upload.TEMPLATE_ = './src/upload/upload-dialog.html';
 
+/** @private {?function} */
+visflow.upload.complete_ = null;
+
 /**
  * Creates an upload dialog that allows the user to select local file for
  * upload.
@@ -19,6 +22,15 @@ visflow.upload.dialog = function() {
     template: visflow.upload.TEMPLATE_,
     complete: visflow.upload.initDialog_
   });
+};
+
+/**
+ * Adds a data upload complete callback which will be fired once after a
+ * successful data load.
+ * @param {function} complete
+ */
+visflow.upload.setComplete = function(complete) {
+  visflow.upload.complete_ = complete;
 };
 
 /**
@@ -59,7 +71,12 @@ visflow.upload.initDialog_ = function(dialog) {
     btnUpload.prop('disabled', !uploadReady());
   });
 
-  btnUpload.click(function() {
+  btnUpload.click(function(event) {
+    if (visflow.upload.complete_ != null) {
+      // complete_ callback may show another modal immediately.
+      event.stopPropagation();
+    }
+
     var formData = new FormData();
     var name = dataName.val();
     formData.append('name', name);
@@ -73,15 +90,20 @@ visflow.upload.initDialog_ = function(dialog) {
       processData: false,
       contentType: false
     }).done(function(res) {
-      if (!res.success) {
-        visflow.error('failed to upload data:', res.msg);
-      } else {
-        visflow.success('data uploaded:', name,
-          '(' + selectedFile.name + ')');
-      }
-    })
+        if (!res.success) {
+          visflow.error('failed to upload data:', res.msg);
+        } else {
+          visflow.success('data uploaded:', name,
+            '(' + selectedFile.name + ')');
+        }
+        if (visflow.upload.complete_ != null) {
+          visflow.upload.complete_();
+        }
+        visflow.upload.complete_ = null;
+      })
       .fail(function() {
         visflow.error('failed to upload data');
+        visflow.upload.complete_ = null;
       });
   });
 };

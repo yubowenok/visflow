@@ -37,6 +37,9 @@
 
 #modal .data-source .btn-right {
   float: right;
+  margin-right: 10px;
+  position: relative;
+  top: -5px;
 }
 
 #modal .data-source .hint {

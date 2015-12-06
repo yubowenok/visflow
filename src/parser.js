@@ -103,16 +103,26 @@ visflow.parser.tokenize = function(value, opt_type) {
  * @return {!visflow.TabularData}
  */
 visflow.parser.csv = function(csv, opt_params) {
+  // TODO(bowen): handle tsv and other delimiters
   var params = _({}).extend(opt_params);
+
   var values = d3.csv.parseRows(csv);
   var dimensions = values.splice(0, 1)[0];
   var dimensionTypes = [];
   dimensions.forEach(function(dimName, dimIndex) {
+    var hasEmpty = false;
     var grade = d3.max(values.map(function(row) {
       var val = row[dimIndex];
-      return visflow.parser.TYPE_TO_GRADE[visflow.parser.checkToken(val).type];
+      var type = visflow.parser.checkToken(val).type;
+      if (type == 'empty') {
+        hasEmpty = true;
+      }
+      return visflow.parser.TYPE_TO_GRADE[type];
     }));
     var type = visflow.parser.GRADE_TO_TYPE[grade];
+    if (hasEmpty) {
+      type = 'string';
+    }
     for (var i = 0; i < values.length; i++) {
       values[i][dimIndex] = visflow.parser.tokenize(values[i][dimIndex], type);
     }

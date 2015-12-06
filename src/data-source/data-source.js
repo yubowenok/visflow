@@ -172,6 +172,11 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
   visflow.dialog.create({
     template: './src/data-source/load-data.html',
     complete: function(dialog) {
+
+      dialog.find('.to-tooltip').tooltip({
+        delay: this.TOOLTIP_DELAY_
+      });
+
       var select = dialog.find('select');
 
       var dataFile = '';
@@ -249,8 +254,13 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
         this.updateActiveSections_(dialog);
         uploadable();
       }.bind(this));
-
       this.updateActiveSections_(dialog);
+
+      dialog.find('#btn-upload').click(function(event) {
+        event.stopPropagation();
+        visflow.upload.setComplete(this.loadDataDialog_.bind(this));
+        visflow.upload.dialog();
+      }.bind(this));
     }.bind(this)
   });
 };
