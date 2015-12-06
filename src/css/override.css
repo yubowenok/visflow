@@ -85,6 +85,15 @@
   opacity: 0;
 }
 
+.ui-resizable-sw,
+.ui-resizable-nw,
+.ui-resizable-ne {
+  transform: scale(2);
+}
+.ui-resizable-se {
+  transform: scale(1.5);
+}
+
 /*** User agent ***/
 th {
   /* user agent may default to bold */

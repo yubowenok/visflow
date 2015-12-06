@@ -317,12 +317,6 @@ visflow.Visualization.prototype.keyAction = function(key, event) {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.mousedown = function(event) {
-  // always add this view to selection
-  if (!visflow.interaction.shifted) {
-    visflow.flow.clearNodeSelection();
-  }
-  visflow.flow.addNodeSelection(this);
-
   if (visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT)) {
     // Alt drag mode blocks.
     return false;
@@ -386,7 +380,6 @@ visflow.Visualization.prototype.mouseleave = function(event) {
     visflow.Visualization.base.mouseleave.call(this, event);
     return;
   }
-  event.stopPropagation();
 };
 
 /**
@@ -592,6 +585,15 @@ visflow.Visualization.prototype.drawAxis = function(params) {
 };
 
 /** @inheritDoc */
+visflow.Visualization.prototype.updateContent = function() {
+  if (!this.options.minimized) {
+    this.updateSVGSize();
+    this.prepareScales();
+  }
+  visflow.Visualization.base.updateContent.call(this);
+};
+
+/** @inheritDoc */
 visflow.Visualization.prototype.resize = function() {
   visflow.Visualization.base.resize.call(this);
   if (!this.options.minimized) {
@@ -599,9 +601,8 @@ visflow.Visualization.prototype.resize = function() {
     if (!this.checkDataEmpty()) {
       this.prepareScales();
       this.allowTransition_ = false;
-      this.show();
+      this.updateContent();
       this.allowTransition_ = true;
-      this.showSelection();
     }
   }
 };

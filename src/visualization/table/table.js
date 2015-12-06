@@ -275,11 +275,6 @@ visflow.Table.prototype.resize = function(size) {
 
 /** @inheritDoc */
 visflow.Table.prototype.mousedown = function(event) {
-  if (!visflow.interaction.shifted) {
-    visflow.flow.clearNodeSelection();
-  }
-  visflow.flow.addNodeSelection(this);
-
   if (visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT)) {
     // Alt drag mode blocks.
     return false;

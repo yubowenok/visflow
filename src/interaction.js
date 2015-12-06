@@ -427,32 +427,36 @@ visflow.interaction.mouseupHandler = function(params) {
       dy = this.mousedownPos[1] - this.mousedownPos[1];
   this.mouseMoved = Math.abs(dx) + Math.abs(dy) > 0;
 
-  if (type == 'background') {
-    if (this.mouseMode == 'pan') {
-      if (!this.mouseMoved){
-        // mouse not moved for select box
-        // trigger empty click
-        this.clickHandler({
-          type: 'empty',
-          event: event
-        });
-      }
-      visflow.interaction.mainContainer_.css('cursor', '');
-    } else if (this.mouseMode == 'selectbox') {
-      this.jqselectbox.hide();
-      if (visflow.interaction.alted) {  // not panning, then selecting
-        if (!this.shifted) {
-          visflow.flow.clearNodeSelection();
-        }
-        visflow.flow.addHoveredToSelection();
-      }
-    }
-  } else if (type == 'node') {
-    if (!this.mouseMoved) {
+  if (this.mouseMode == 'selectbox') {
+    this.jqselectbox.hide();
+    if (visflow.interaction.alted) {  // not panning, then selecting
       if (!this.shifted) {
         visflow.flow.clearNodeSelection();
       }
-      visflow.flow.addNodeSelection(params.node);
+      visflow.flow.addHoveredToSelection();
+    }
+  } else {
+    if (type == 'background') {
+      if (this.mouseMode == 'pan') {
+        if (!this.mouseMoved) {
+          // mouse not moved for select box
+          // trigger empty click
+          this.clickHandler({
+            type: 'empty',
+            event: event
+          });
+        }
+        visflow.interaction.mainContainer_.css('cursor', '');
+      } else if (this.mouseMode == 'selectbox') {
+
+      }
+    } else if (type == 'node') {
+      if (!this.mouseMoved) {
+        if (!this.shifted) {
+          visflow.flow.clearNodeSelection();
+        }
+        visflow.flow.addNodeSelection(params.node);
+      }
     }
   }
 
@@ -563,9 +567,11 @@ visflow.interaction.dragmoveHandler = function(params) {
     var dx = event.pageX - this.draglastPos[0],
         dy = event.pageY - this.draglastPos[1];
 
-    // the dragged node is moving together (with more offset)
-    // the more offset will be reset immediately by jquery draggable however
-    visflow.flow.moveNodes(dx, dy, visflow.flow.nodesSelected);  // delta & nodes
+    // The dragged node is moving together (with more offset).
+    // The more offset will be reset immediately by jquery draggable however.
+
+    // delta & nodes
+    visflow.flow.moveNodes(dx, dy, visflow.flow.nodesSelected);
     this.draglastPos = [event.pageX, event.pageY];
   }
 };

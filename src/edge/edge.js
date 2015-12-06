@@ -68,13 +68,13 @@ visflow.Edge.prototype.show = function() {
   // clear before drawing
   this.container.children().remove();
 
-  if (visflow.flow.visModeOn) {
+  if (visflow.flow.visMode) {
     return; // not showing edges in vis mode
   }
 
   this.container.show();
 
-  this.jqarrow = $('<div></div>')
+  this.arrow = $('<div></div>')
     .addClass('edge-arrow')
     .appendTo(this.container);
 
@@ -86,7 +86,7 @@ visflow.Edge.prototype.show = function() {
   this.container
     .mouseenter(function() {
       // Prevent drag interference
-      if (visflow.interaction.mouseMode != '') {
+      if (visflow.interaction.mouseMode != '' || visflow.flow.visMode) {
         return;
       }
       visflow.flow.addEdgeSelection(edge);
@@ -154,7 +154,7 @@ visflow.Edge.prototype.update = function() {
           top: sy,
           transform: 'rotate(' + yAngle + 'rad)'
         });
-      this.jqarrow.css({
+      this.arrow.css({
         left: ex + hseg / 2,
         top: ey + topOffset[yDir],
         transform: 'rotate(' + yAngle + 'rad)'
@@ -178,7 +178,7 @@ visflow.Edge.prototype.update = function() {
           left: sx + headWidth,
           top: ey
         });
-      this.jqarrow.css({
+      this.arrow.css({
         left: ex - wArrow,
         top: ey + hseg / 2 - hArrow / 2,
         transform: ''
@@ -238,14 +238,14 @@ visflow.Edge.prototype.update = function() {
         top: midy,
         transform: 'rotate(' + Math.atan2(ey - midy, 0) + 'rad)'
       });
-    this.jqarrow.css({
+    this.arrow.css({
       left: ex + hseg / 2,
       top: ey + topOffset[ey > midy ? 'down' : 'up'],
       transform: 'rotate(' + Math.atan2(ey - midy, 0) + 'rad)'
     });
   }
 
-  this.jqarrow.appendTo(this.container); // re-append to appear on top
+  this.arrow.appendTo(this.container); // re-append to appear on top
 };
 
 /**

@@ -49,10 +49,14 @@ visflow.menu.init = function() {
       visMode.children('.btn').toggleClass('active');
     })
     .on('mouseenter', function() {
-      visflow.flow.previewVisMode(true);
+      if (!visflow.flow.visMode) {
+        visflow.flow.previewVisMode(true);
+      }
     })
     .on('mouseleave', function() {
-      visflow.flow.previewVisMode(false);
+      if (!visflow.flow.visMode) {
+        visflow.flow.previewVisMode(false);
+      }
     });
 
   var help = navbar.find('#help');

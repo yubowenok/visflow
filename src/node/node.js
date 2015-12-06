@@ -224,6 +224,7 @@ visflow.Node.prototype.CONTEXTMENU_ITEMS = [
  */
 visflow.Node.prototype.init = function() {
   this.listInOutPorts_();
+  this.createPorts();
   this.initContextMenu();
 };
 
@@ -234,7 +235,6 @@ visflow.Node.prototype.init = function() {
 visflow.Node.prototype.serialize = function() {
   this.saveCss();
   var result = {
-    nodeId: this.nodeId,
     hashtag: this.hashtag,
     type: this.type,
     label: this.label,
@@ -278,8 +278,8 @@ visflow.Node.prototype.deserialize = function(save) {
   this.container.css(this.css);
 
   if (this.options.visMode == null){
-    visflow.error('visModeOn not saved');
-    this.visModeOn = false;
+    visflow.error('visMode not saved');
+    this.options.visMode = false;
     this.visCss = {};
   }
   if (this.options.label == null) {
@@ -323,6 +323,17 @@ visflow.Node.prototype.hideMessage = function() {
 };
 
 /**
+ * Updates the node content without changing wrapping stuffs.
+ */
+visflow.Node.prototype.updateContent = function() {
+  if (this.options.minimized) {
+    this.showIcon();
+  } else {
+    this.showDetails();
+  }
+};
+
+/**
  * Shows the node.
  * This removes everything created, including those from inheriting classes.
  * Inheriting classes shall not remove again.
@@ -330,7 +341,7 @@ visflow.Node.prototype.hideMessage = function() {
 visflow.Node.prototype.show = function() {
   //this.content.children().remove();
 
-  if (!this.options.visMode && visflow.flow.visModeOn) {
+  if (!this.options.visMode && visflow.flow.visMode) {
     // do not show if hidden in vis mode
     return;
   }
@@ -371,10 +382,10 @@ visflow.Node.prototype.show = function() {
     this.showDetails();
   }
 
-  if (!visflow.flow.visModeOn) {
-    // not show edges with vis mode on
+  if (!visflow.flow.visMode) {
+    // Not show edges with vismode on.
     this.showPorts();
-    this.updatePorts(); // update edges
+    this.updatePorts();
   } else {
     this.hidePorts();
   }
@@ -501,6 +512,16 @@ visflow.Node.prototype.interaction = function() {
     .mousedown(function(event) {
       if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
         this.focus();
+        var shifted = visflow.interaction.isPressed(
+            visflow.interaction.keyCodes.SHIFT);
+        if (!shifted && !this.container.hasClass('selected')) {
+          // It may be tempting to press ALT and then drag a visualization, in
+          // which case we shall only move the newly selected node.
+          // However if the node is already selected, ALT + drag means to move
+          // all the selected group and we shall not clear previous selection.
+          visflow.flow.clearNodeSelection();
+        }
+        visflow.flow.addNodeSelection(this);
         visflow.contextMenu.hide();
       }
     }.bind(this))
@@ -518,11 +539,11 @@ visflow.Node.prototype.interaction = function() {
       minHeight: this.MIN_HEIGHT,
       maxWidth: this.MAX_WIDTH,
       maxHeight: this.MAX_HEIGHT,
-      resize: function(event, ui) {
-        this.resize(ui.size);
+      resize: function() {
+        this.resize();
       }.bind(this),
-      stop: function(event, ui) {
-        this.resizeStop(ui.size);
+      stop: function() {
+        this.resizeStop();
       }.bind(this)
     })
     .draggable({
@@ -661,9 +682,9 @@ visflow.Node.prototype.updateEdges = function() {
 };
 
 /**
- * Shows all the ports.
+ * Creates and shows all the ports.
  */
-visflow.Node.prototype.showPorts = function() {
+visflow.Node.prototype.createPorts = function() {
   this.container.find('.port').remove();
 
   var height = this.container.innerHeight();
@@ -683,6 +704,15 @@ visflow.Node.prototype.showPorts = function() {
       .appendTo(this.container);
     port.setContainer(container);
   }, this);
+
+  this.updatePorts();
+};
+
+/**
+ * Shows all the ports.
+ */
+visflow.Node.prototype.showPorts = function() {
+  this.container.find('.port').show();
 };
 
 /**
@@ -800,7 +830,7 @@ visflow.Node.prototype.saveCss = function() {
       height: this.container.height()
     });
   }
-  if (!visflow.flow.visModeOn) {
+  if (!visflow.flow.visMode) {
     _(this.css).extend(css);
   } else {
     _(this.visCss).extend(css);
@@ -811,7 +841,7 @@ visflow.Node.prototype.saveCss = function() {
  * Applies css specification.
  */
 visflow.Node.prototype.loadCss = function() {
-  if (!visflow.flow.visModeOn) {
+  if (!visflow.flow.visMode) {
     this.container.css(this.css);
   } else {
     this.container.css(this.visCss);
@@ -907,7 +937,7 @@ visflow.Node.prototype.pushflow = function() {
  */
 visflow.Node.prototype.resize = function() {
   this.saveCss();
-  if (visflow.flow.visModeOn == false) {
+  if (visflow.flow.visMode == false) {
     this.updatePorts();
   }
 };
@@ -985,7 +1015,7 @@ visflow.Node.prototype.initPanelHeader = function(container) {
     }.bind(this));
 
   // Handle header button clicks.
-  if (!visflow.flow.visModeOn) {
+  if (!visflow.flow.visMode) {
     var btnDelete = header.find('#delete').show();
     btnDelete.click(function() {
       this.delete();

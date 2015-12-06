@@ -81,6 +81,7 @@ visflow.DataSource.prototype.serialize = function() {
 /** @inheritDoc */
 visflow.DataSource.prototype.deserialize = function(save) {
   visflow.DataSource.base.deserialize.call(this, save);
+
   if (save.dataSelected != null) {
     visflow.warning('older version data storage found, auto fixed');
     save.dataFile = save.dataSelected;
@@ -134,6 +135,7 @@ visflow.DataSource.prototype.interaction = function() {
 visflow.DataSource.prototype.initPanel = function(container) {
   container.find('#data-name').text(this.dataName);
   container.find('#load-data').click(this.loadDataDialog_.bind(this));
+  container.find('#clear-data').click(this.clearData_.bind(this));
 };
 
 /**
@@ -251,6 +253,19 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 };
 
 /**
+ * Clears the currently loaded data.
+ * @private
+ */
+visflow.DataSource.prototype.clearData_ = function() {
+  this.setData_({
+    name: 'No data loaded',
+    url: '',
+    file: ''
+  });
+  visflow.flow.propagate(this);
+};
+
+/**
  * Loads the data with given file and name from the server.
  * @param {!{
  *   name: string,
@@ -264,18 +279,6 @@ visflow.DataSource.prototype.loadData = function(params) {
   // Add to async queue
   visflow.flow.asyncDataLoadStart(this);
 
-  /*
-  // TODO(bowen): check whether we can comment out this
-  if (dataFile === '') {
-    this.container.find('#data-name')
-      .text('No data loaded');
-    this.dataFile = dataFile;
-    this.dataName = null;
-    $.extend(this.ports['out'].pack, new visflow.Package());
-    visflow.flow.asyncDataLoadEnd();  // propagate null data
-    return;
-  }
-  */
   if (!this.useServerData && params.url.substr(0, 4) != 'http') {
     params.url = 'http://' + params.url;
   }
@@ -309,9 +312,9 @@ visflow.DataSource.prototype.loadData = function(params) {
 visflow.DataSource.prototype.setData_ = function(params) {
   this.dataName = params.name;
   if (this.useServerData) {
-    this.onlineDataURL = params.url;
-  } else {
     this.dataFile = params.file;
+  } else {
+    this.onlineDataURL = params.url;
   }
 
   this.content.find('#data-name').text(this.dataName);
@@ -320,7 +323,9 @@ visflow.DataSource.prototype.setData_ = function(params) {
   }
 
   var data = new visflow.Data(params.data);
-  visflow.flow.registerData(data);
+  if (data.type != 'empty') {
+    visflow.flow.registerData(data);
+  }
   // overwrite data object (to keep the same reference)
   $.extend(this.ports['out'].pack, new visflow.Package(data));
 };
