@@ -110,17 +110,29 @@ visflow.parser.tokenize = function(value, opt_type) {
 /**
  * Parses a csv string and generates the TabularData.
  * @param {string} csv
- * @param {{
- *   delimiter: string
- * }=} opt_params
  * @return {!visflow.TabularData}
  */
-visflow.parser.csv = function(csv, opt_params) {
-  // TODO(bowen): handle tsv and other delimiters
-  var params = _({}).extend(opt_params);
+visflow.parser.csv = function(csv) {
+  var headerLine;
+  var firstNewLine = csv.indexOf('\n');
+  if (firstNewLine == -1) {
+    headerLine = csv;
+  } else {
+    headerLine = csv.substr(0, firstNewLine);
+  }
+  var delimiter = headerLine.match(/[,;|]/);
+  if (delimiter != null) {
+    delimiter = delimiter[0];
+  } else {
+    delimiter = ',';
+  }
 
-  var values = d3.csv.parseRows(csv);
+  var values = d3.dsv(delimiter).parseRows(csv);
   var dimensions = values.splice(0, 1)[0];
+  if (_(dimensions).last() === '') {
+    // In case there is a delimiter in the end.
+    dimensions.pop();
+  }
   var dimensionTypes = [];
   var dimensionDuplicate = [];
 

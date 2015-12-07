@@ -1069,6 +1069,21 @@ visflow.Node.prototype.initPanelHeader = function(container) {
 visflow.Node.prototype.initPanel = function(container) {};
 
 /**
+ * Initializes the panel user interface units.
+ * @param {!Array<{
+ *   constructor: !visflow.Node,
+ *   params: !Object,
+ *   change: function(!jQuery.event, *)
+ * }>} units
+ */
+visflow.Node.prototype.initPanelInterface = function(units) {
+  units.forEach(function(unit) {
+    $(new unit.constructor(unit.params))
+      .on('visflow.change', unit.change.bind(this));
+  }, this);
+};
+
+/**
  * Updates the panel when option values changes in the node.
  * @param {!jQuery} container Panel container.
  */

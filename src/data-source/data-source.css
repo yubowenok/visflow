@@ -34,6 +34,7 @@
   border-radius: 4px;
   padding: 5px;
   background-color: white;
+  max-width: 300px;
 }
 
 #option-panel .data-source #data-list .item > button {

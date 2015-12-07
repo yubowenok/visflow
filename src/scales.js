@@ -169,7 +169,7 @@ visflow.scales.init = function() {
  */
 visflow.scales.getScale = function(data, dim, items, range, opt_params) {
   var params = opt_params == null ? {} : opt_params;
-  var dimType = dim === visflow.data.INDEX_DIM ?
+  var dimType = dim == visflow.data.INDEX_DIM ?
       visflow.ValueType.INT : data.dimensionTypes[dim];
 
   var domainMargin = params.domainMargin == null ? 0 : params.domainMargin;
@@ -196,7 +196,7 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
   }
 
   var values = _.allKeys(items).map(function(index) {
-    return dim === visflow.data.INDEX_DIM ? +index : data.values[index][dim];
+    return dim == visflow.data.INDEX_DIM ? +index : data.values[index][dim];
   });
 
   var scale;

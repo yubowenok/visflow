@@ -7,10 +7,6 @@
   text-anchor: end;
 }
 
-#option-panel .histogram input {
-  width: 160px;
-}
-
 .visflow .node.histogram.minimized > .icon {
   background-image: url(/visflow/imgs/histogram-icon.png);
 }

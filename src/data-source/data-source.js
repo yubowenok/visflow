@@ -523,7 +523,6 @@ visflow.DataSource.prototype.process = function() {
   if (this.options.crossing) {
     if (this.options.crossingDims.length == 0) {
       this.options.crossingDims = this.findCrossingDims();
-      console.log(this.options.crossingDims);
     }
     var result = visflow.parser.cross(finalData, this.options.crossingDims,
       this.options.crossingName);

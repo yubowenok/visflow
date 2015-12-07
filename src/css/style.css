@@ -4,8 +4,9 @@
   contextMenu - 1000
   navbar (menu) - 106
   message - 105
-  node panel - 102
+  snapshot - 104
   option panel - 103
+  node panel - 102
   main selectbox - 100
   main - 0
 */
@@ -20,6 +21,13 @@ body {
   position: absolute;
   width: 100%;
   z-index: 105;
+}
+
+.visflow #snapshot {
+  z-index: 104;
+  width: 100px;
+  height: 100px;
+  position: absolute;
 }
 
 .visflow .system-message {

@@ -13,12 +13,6 @@ visflow.ParallelCoordinates = function(params) {
   visflow.ParallelCoordinates.base.constructor.call(this, params);
 
   /**
-   * Dimensions of parallel coordinates.
-   * @protected {!Array<number>}
-   */
-  this.dimensions = [];
-
-  /**
    * Mapping from axes indexes to x coordinates.
    * @protected {!d3.scale}
    */
@@ -37,28 +31,42 @@ visflow.ParallelCoordinates = function(params) {
   this.yScaleTypes = [];
 
   /**
+   * Rendering properties for the polylines.
+   * @private {!Array}
+   */
+  this.itemProps_ = [];
+
+  /**
    * SVG group for polylines.
    * @private {d3.selection}
    */
   this.svgPolylines_;
-
   /**
    * SVG group for axes.
    * @private {d3.selection}
    */
   this.svgAxes_;
+  /**
+   * SVG group for drawing temporary axes, used to determine label sizes.
+   * @private {d3.selection}
+   */
+  this.svgTempAxes_;
 
   /**
    * Left margin computed based on the leftmost axis label.
    * @private {number}
    */
   this.leftMargin_ = 0;
-
   /**
    * Right margin computed based on the rightmost axis label.
    * @private {number}
    */
   this.rightMargin_ = 0;
+  /**
+   * Bottom margin that depends on axis label visibility.
+   * @private {number}
+   */
+  this.bottomMargin_ = 0;
 };
 
 visflow.utils.inherit(visflow.ParallelCoordinates, visflow.Visualization);
@@ -82,26 +90,26 @@ visflow.ParallelCoordinates.prototype.DEFAULT_NUM_DIMENSIONS_ = 7;
  * @private @const {number}
  */
 visflow.ParallelCoordinates.prototype.LABEL_FONT_SIZE_ = 6.5;
-
 /**
  * Offset from the leftmost axis to the tick text.
  * @private @const {number}
  */
 visflow.ParallelCoordinates.prototype.AXIS_TICK_OFFSET_ = 8;
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.PLOT_MARGINS = {
-  left: 5,
-  right: 5,
-  top: 10,
-  bottom: 20
-};
 /**
  * Y offset of the axes labels, to the plot bottom.
  * @private @const {number}
  */
 visflow.ParallelCoordinates.prototype.AXIS_LABEL_OFFSET_ = 5;
 
+/** @inheritDoc */
+visflow.ParallelCoordinates.prototype.DEFAULT_OPTIONS = {
+  // Dimensions of parallel coordinates.
+  dims: [],
+  // Show axes ticks.
+  ticks: true,
+  // Show axis label.
+  axisLabel: true
+};
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.defaultProperties = {
@@ -124,30 +132,15 @@ visflow.ParallelCoordinates.prototype.init = function() {
     .classed('polylines', true);
   this.svgAxes_ = this.svg.append('g')
     .classed('axes', true);
-};
-
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.serialize = function() {
-  var result = visflow.ParallelCoordinates.base.serialize.call(this);
-  result.dimensions = this.dimensions;
-  return result;
-};
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.deserialize = function(save) {
-  visflow.ParallelCoordinates.base.deserialize.call(this, save);
-
-  this.dimensions = save.dimensions;
-  if (this.dimensions == null) {
-    visflow.error('dimensions not saved for ' + this.NODE_NAME);
-    this.dimensions = [0, 0];
-  }
+  this.svgTempAxes_ = this.svg.append('g')
+    .classed('axes', true);
 };
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.selectItems = function() {
   this.selectItemsIntersectLasso_();
+  this.itemProps_ = this.getItemProperties_();
+  visflow.ParallelCoordinates.base.selectItems.call(this);
 };
 
 /**
@@ -171,7 +164,7 @@ visflow.ParallelCoordinates.prototype.selectItemsIntersectLasso_ = function() {
     values = inpack.data.values;
 
   var points = [];
-  this.dimensions.forEach(function(dim, dimIndex) {
+  this.options.dims.forEach(function(dim, dimIndex) {
     points[dimIndex] = [this.xScale(dimIndex)];
   }, this);
 
@@ -180,12 +173,12 @@ visflow.ParallelCoordinates.prototype.selectItemsIntersectLasso_ = function() {
       // Already selected.
       continue;
     }
-    this.dimensions.forEach(function(dim, dimIndex) {
+    this.options.dims.forEach(function(dim, dimIndex) {
       var value = values[index][dim];
       points[dimIndex][1] = this.yScales[dimIndex](value);
     }, this);
     var hit = 0;
-    for (var dimIndex = 0; dimIndex < this.dimensions.length - 1 && !hit;
+    for (var dimIndex = 0; dimIndex < this.options.dims.length - 1 && !hit;
          dimIndex++) {
       for (var i = 0; i < brush.length - 1 && !hit; i++) {
         if (visflow.utils.intersect(points[dimIndex], points[dimIndex + 1],
@@ -196,8 +189,6 @@ visflow.ParallelCoordinates.prototype.selectItemsIntersectLasso_ = function() {
       }
     }
   }
-  this.show();
-  this.pushflow();
 };
 
 /** @inheritDoc */
@@ -210,20 +201,21 @@ visflow.ParallelCoordinates.prototype.showDetails = function() {
   if (this.checkDataEmpty()) {
     return;
   }
-  this.drawPolylines_();
+  this.drawPolylines_(this.itemProps_);
   this.showSelection();
   this.drawAxes_();
 };
 
 /**
- * Renders the parallel coordinates polylines.
+ * Computes the item rendering properties.
+ * @return {!Array}
  * @private
  */
-visflow.ParallelCoordinates.prototype.drawPolylines_ = function() {
-  var inpack = this.ports['in'].pack,
-    items = inpack.items,
-    data = inpack.data,
-    values = data.values;
+visflow.ParallelCoordinates.prototype.getItemProperties_ = function() {
+  var inpack = this.ports['in'].pack;
+  var items = inpack.items;
+  var data = inpack.data;
+  var values = data.values;
 
   // Data to be rendered.
   var itemProps = [];
@@ -233,7 +225,7 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function() {
       this.defaultProperties,
       items[index].properties,
       {
-        id: 'l' + index,
+        index: index,
         points: []
       }
     );
@@ -246,26 +238,35 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function() {
       }
     }
 
-    this.dimensions.forEach(function(dim, dimIndex) {
+    this.options.dims.forEach(function(dim, dimIndex) {
       var value = values[index][dim];
-      prop.points.push([
-        this.xScale(dimIndex),
-        this.yScales[dimIndex](value)
-      ])
+      prop.points.push([dimIndex, value]);
     }, this);
     itemProps.push(prop);
   }
+  return itemProps;
+};
 
+/**
+ * Renders the parallel coordinates polylines.
+ * @param {!Array} itemProps
+ * @private
+ */
+visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
   var lines = this.svgPolylines_.selectAll('path').data(itemProps,
-    function(prop) {
-      return prop.id;
-    });
+      _.getValue('index'));
   lines.enter().append('path')
     .style('opacity', 0)
-    .attr('id', _.getValue('id'));
+    .attr('id', _.getValue('index'));
   _(lines.exit()).fadeOut();
 
-  var line = d3.svg.line().interpolate('linear');
+  var line = d3.svg.line().interpolate('linear')
+    .x(function(point) {
+      return this.xScale(point[0]);
+    }.bind(this))
+    .y(function(point) {
+      return this.yScales[point[0]](point[1]);
+    }.bind(this));
   var updatedLines = this.allowTransition_ ? lines.transition() : lines;
   updatedLines
     .attr('d', function(prop) {
@@ -281,7 +282,7 @@ visflow.ParallelCoordinates.prototype.showSelection = function() {
   // Change position of tag to make them appear on top.
   var svg = $(this.svgPolylines_.node());
   for (var index in this.selected) {
-    svg.find('path#l' + index).appendTo(svg);
+    svg.find('path#' + index).appendTo(svg);
   }
 };
 
@@ -290,17 +291,47 @@ visflow.ParallelCoordinates.prototype.initPanel = function(container) {
   visflow.ParallelCoordinates.base.initPanel.call(this, container);
   var dimensionList = this.getDimensionList();
 
-  var list = new visflow.EditableList({
-    container: container.find('#dims'),
-    list: dimensionList,
-    selected: this.dimensions,
-    listTitle: 'Dimensions',
-    addTitle: 'Add Dimension'
-  });
-  $(list).on('visflow.change', function(event, items) {
-    this.dimensions = items;
-    this.dimensionChanged();
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.EditableList,
+      params: {
+        container: container.find('#dims'),
+        list: dimensionList,
+        selected: this.options.dims,
+        listTitle: 'Dimensions',
+        addTitle: 'Add Dimension'
+      },
+      change: function(event, items) {
+        this.options.dims = items;
+        this.dimensionChanged();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#ticks'),
+        value: this.options.ticks,
+        title: 'Ticks'
+      },
+      change: function(event, value) {
+        this.options.ticks = value;
+        this.layoutChanged();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#axis-label'),
+        value: this.options.axisLabel,
+        title: 'Axis Labels'
+      },
+      change: function(event, value) {
+        this.options.axisLabel = value;
+        this.layoutChanged();
+      }
+    }
+  ];
+  this.initPanelInterface(units);
 };
 
 /**
@@ -309,35 +340,72 @@ visflow.ParallelCoordinates.prototype.initPanel = function(container) {
  */
 visflow.ParallelCoordinates.prototype.drawAxes_ = function() {
   // Clear extra axes when dimension changes.
-  var dimInfos = this.uniqueDimensions(this.dimensions);
+  var dimInfos = this.uniqueDimensions(this.options.dims);
   var uniqIds = dimInfos.map(function(dimInfo) {
     return dimInfo.uniqId;
   });
-  var exitAxes = this.svgAxes_.selectAll('g.axis').data(uniqIds, _.identity);
+  var exitAxes = this.svgAxes_.selectAll('g.axis')
+    .data(uniqIds, _.identity)
+    .exit();
   _(exitAxes).fadeOut();
-  dimInfos.forEach(function(dimInfo, dimIndex) {
+  dimInfos.forEach(function (dimInfo, dimIndex) {
     this.drawAxis_(dimIndex, dimInfo.uniqId);
   }, this);
 };
 
 /**
+ * Renders temporary axis for determining label width.
+ * @param {number} dimIndex
+ * @param {string=} uniqId
+ * @param {function} check Function to be completed before the temp axis is
+ *     removed.
+ * @private
+ */
+visflow.ParallelCoordinates.prototype.drawTempAxis_ = function(dimIndex,
+   uniqId, check) {
+  // Content must be visible when we draw.
+  var tempShow = !this.content.is(':visible');
+  if (tempShow) {
+    this.content.show();
+  }
+
+  // Transition must be disabled before we draw the axis.
+  var allowTransition = this.allowTransition_;
+  this.allowTransition_ = false;
+
+  var svgAxes = this.svgAxes_;
+  this.svgAxes_ = this.svgTempAxes_;
+  this.drawAxis_(dimIndex, uniqId);
+  this.svgAxes_ = svgAxes;
+
+  check();
+
+  // Clear temp axis.
+  this.svgTempAxes_.selectAll('*').remove();
+
+  // Reset transition to original value.
+  this.allowTransition_ = allowTransition;
+  if (tempShow) {
+    this.content.hide();
+  }
+};
+
+/**
  * Shows the parallel coordinate axis for one dimension.
- * @param {number} dimIndex Index of dimension in this.dimensions.
+ * @param {number} dimIndex Index of dimension in this.options.dims.
  * @param {string=} opt_uniqId Distinct dimension id.
  */
 visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
                                                            opt_uniqId) {
-  var dim = this.dimensions[dimIndex];
+  var dim = this.options.dims[dimIndex];
   var id = opt_uniqId == null ? dim : opt_uniqId;
 
   var svgSize = this.getSVGSize();
   var yScale = this.yScales[dimIndex];
   var axis = d3.svg.axis()
     .orient('left')
-    .tickValues(yScale.domain())
+    .tickValues(this.options.ticks ? yScale.domain() : [])
     .scale(yScale);
-
-  var data = this.ports['in'].pack.data;
 
   var g = this.svgAxes_.select('#axis' + id);
   var gTransform = visflow.utils.getTransform([
@@ -356,28 +424,40 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
     .style('opacity', 1)
     .attr('transform', gTransform);
 
-  var label = g.select('.vis-label');
-  var labelTransform = visflow.utils.getTransform([
-    0,
-    svgSize.height - this.AXIS_LABEL_OFFSET_
-  ]);
-  if (label.empty()) {
-    label = g.append('text')
-      .classed('vis-label', true)
-      .attr('transform', labelTransform);
+  if (this.options.axisLabel) {
+    var label = g.select('.vis-label');
+    var labelTransform = visflow.utils.getTransform([
+      0,
+      svgSize.height - this.AXIS_LABEL_OFFSET_
+    ]);
+    if (label.empty()) {
+      label = g.append('text')
+        .classed('vis-label', true)
+        .attr('transform', labelTransform);
+    }
+    var data = this.ports['in'].pack.data;
+    var updatedLabel = this.allowTransition_ ? label.transition() : label;
+    updatedLabel
+      .style('opacity', 1)
+      .attr('transform', labelTransform)
+      .text(data.dimensions[dim]);
+  } else {
+    _(g.select('.vis-label')).fadeOut();
   }
-  var updatedLabel = this.allowTransition_ ? label.transition() : label;
-  updatedLabel
-    .style('opacity', 1)
-    .attr('transform', labelTransform)
-    .text(data.dimensions[dim]);
 };
+
+/**
+ * Computes the bottom margin based
+ */
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.prepareScales = function() {
   var svgSize = this.getSVGSize();
+
+  this.updateBottomMargin_();
+
   var yRange = [
-    svgSize.height - this.PLOT_MARGINS.bottom,
+    svgSize.height - this.bottomMargin_,
     this.PLOT_MARGINS.top
   ];
 
@@ -385,7 +465,7 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   var data = inpack.data;
   var items = inpack.items;
 
-  this.dimensions.forEach(function(dim, index) {
+  this.options.dims.forEach(function(dim, index) {
     var yScaleInfo = visflow.scales.getScale(data, dim, items, yRange);
     this.yScales[index] = yScaleInfo.scale;
     this.yScaleTypes[index] = yScaleInfo.type;
@@ -395,13 +475,12 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   this.updateLeftRightMargins_();
 
   this.xScale = d3.scale.linear()
-    .domain([0, this.dimensions.length - 1])
+    .domain([0, this.options.dims.length - 1])
     .range([
       this.leftMargin_,
       svgSize.width - this.rightMargin_
     ]);
 };
-
 
 /**
  * Finds all non-categorical dimensions.
@@ -409,21 +488,25 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
  */
 visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
-  var dimensions = [];
+  var dims = [];
   data.dimensionTypes.forEach(function(type, index) {
     if (type == visflow.ValueType.STRING) {
       return;
     }
-    if (dimensions.length < this.DEFAULT_NUM_DIMENSIONS_) {
-      dimensions.push(index);
+    if (dims.length < this.DEFAULT_NUM_DIMENSIONS_) {
+      dims.push(index);
     }
   }, this);
-  return dimensions;
+  return dims;
 };
 
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.dataChanged = function() {
-  this.dimensions = this.findPlotDimensions();
+/**
+ * Updates the bottom margin based on ticks visibility.
+ * @private
+ */
+visflow.ParallelCoordinates.prototype.updateBottomMargin_ = function() {
+  this.bottomMargin_ = this.PLOT_MARGINS.bottom +
+    (this.options.axisLabel ? this.TICKS_HEIGHT_ : 0);
 };
 
 /**
@@ -432,32 +515,51 @@ visflow.ParallelCoordinates.prototype.dataChanged = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
-  if (this.dimensions.length == 0) {
-    return;
+  this.leftMargin_ = this.PLOT_MARGINS.left;
+  this.rightMargin_ = this.PLOT_MARGINS.right;
+
+  var leftLabelWidth = 0;
+  if (this.options.ticks) {
+    var maxLength = 0;
+    // Id is required for axis drawing routine.
+    this.drawTempAxis_(0, '0', function() {
+      $(this.svgTempAxes_.node())
+        .find('#axis0 > .tick > text')
+        .each(function(index, element) {
+          maxLength = Math.max(maxLength, element.getBBox().width);
+        });
+      if (this.options.axisLabel) {
+        leftLabelWidth = $(this.svgTempAxes_.node())
+          .find('.vis-label')[0].getBBox().width;
+      }
+    }.bind(this));
+  }
+  var rightLabelWidth = 0;
+  if (this.options.axisLabel) {
+    // Though this is the last axis, we still apply Id '0'.
+    this.drawTempAxis_(this.options.dims.length - 1, '0', function() {
+      rightLabelWidth = $(this.svgTempAxes_.node())
+        .find('.vis-label')[0].getBBox().width;
+    }.bind(this));
   }
 
-  // Apply Id '0'.
-  this.drawAxis_(0, '0');
+  this.leftMargin_ += Math.max(leftLabelWidth / 2, maxLength +
+    this.AXIS_TICK_OFFSET_);
+  this.rightMargin_ += rightLabelWidth / 2;
+};
 
-  var maxLength = Math.max.apply(this,
-    $(this.svgAxes_.node())
-      .find('#axis0 > .tick > text')
-      .map(function() {
-        return $(this).text().length;
-      })
-  );
-  // Remove axis0 to avoid transition different from other axes.
-  this.svgAxes_.select('#axis0').remove();
+/** @inheritDoc */
+visflow.ParallelCoordinates.prototype.dataChanged = function() {
+  this.options.dims = this.findPlotDimensions();
+};
 
-  var data = this.ports['in'].pack.data;
-  var axisLabelMargin = data.dimensions[_(this.dimensions).first()].length / 2 *
-      this.LABEL_FONT_SIZE_;
-  var axisTickMargin = maxLength * this.LABEL_FONT_SIZE_ +
-      this.AXIS_TICK_OFFSET_;
+/** @inheritDoc */
+visflow.ParallelCoordinates.prototype.dimensionChanged = function() {
+  this.itemProps_ = this.getItemProperties_();
+  visflow.ParallelCoordinates.base.dimensionChanged.call(this);
+};
 
-  this.leftMargin_ = Math.max(axisLabelMargin, axisTickMargin) +
-      this.PLOT_MARGINS.left;
-  this.rightMargin_ = this.PLOT_MARGINS.right +
-      data.dimensions[_(this.dimensions).last()].length / 2 *
-      this.LABEL_FONT_SIZE_;
+/** @inheritDoc */
+visflow.ParallelCoordinates.prototype.inputChanged = function() {
+  this.itemProps_ = this.getItemProperties_();
 };

@@ -82,6 +82,9 @@ visflow.upload.initDialog_ = function(dialog) {
     if (event.target.files[0] != null) {
       selectedFile = event.target.files[0];
       fileDisplay.text(selectedFile.name);
+      if (dataName.val() === '') {
+        dataName.val(selectedFile.name);
+      }
     }
     btnUpload.prop('disabled', !uploadReady());
   });
@@ -149,7 +152,7 @@ visflow.upload.initExportDialog_ = function(dialog) {
     btnUpload.prop('disabled', !dataName.val());
   });
 
-  btnUpload.click(function(event) {
+  btnUpload.click(function() {
     var name = dataName.val();
     $.post('./server/export.php', {
       name: name,

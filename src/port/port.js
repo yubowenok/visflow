@@ -271,7 +271,7 @@ visflow.Port.prototype.interaction = function() {
     .dblclick(function() {
       this.info();
       // For debugging.
-      console.log(this.pack);
+      console.log(this.pack, this);
     }.bind(this))
     .mouseenter(function() {
       this.connections.forEach(function(connection) {

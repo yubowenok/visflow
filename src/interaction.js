@@ -20,7 +20,8 @@ visflow.interaction.keyCodes = {
   LEFT: 37,
   RIGHT: 39,
   LEFT_MOUSE: 1,
-  RIGHT_MOUSE: 3
+  RIGHT_MOUSE: 3,
+  S: 83
 };
 
 /** @type {number} */
@@ -258,7 +259,7 @@ visflow.interaction.keyPress = function(event) {
     case keyCodes.RIGHT:
       var index = [keyCodes.UP, keyCodes.DOWN, keyCodes.LEFT, keyCodes.RIGHT]
         .indexOf(code);
-      var shift = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+      var shift = [[0, 1], [0, -1], [1, 0], [-1, 0]];
       visflow.flow.moveNodes(
         shift[index][0] * visflow.interaction.MOVE_DELTA_,
         shift[index][1] * visflow.interaction.MOVE_DELTA_,

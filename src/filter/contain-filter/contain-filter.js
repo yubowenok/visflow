@@ -227,7 +227,7 @@ visflow.ContainFilter.prototype.filter = function() {
       value = value.toLowerCase();
     }
     for (var j in this.value) {
-      var pattern = this.value[j];
+      var pattern = this.value[j] + '';
       if (this.options.ignoreCases) {
         pattern = pattern.toLowerCase();
       }

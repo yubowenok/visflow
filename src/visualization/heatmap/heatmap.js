@@ -62,6 +62,12 @@ visflow.Heatmap = function(params) {
   this.colLabelVerticalChanged_ = false;
 
   /**
+   * Whether have too many row labels to show.
+   * @private {boolean}
+   */
+  this.rowLabelClutter_ = false;
+
+  /**
    * Sorted item indexes.
    * @private {!Array<number>}
    */
@@ -86,7 +92,9 @@ visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;
 /** @private @const {number} */
 visflow.Heatmap.prototype.COL_LABEL_OFFSET_ = 10;
 /** @private @const {number} */
-visflow.Heatmap.prototype.ELLIPSIS_STEP_ = 8;
+visflow.Heatmap.prototype.ROW_LABEL_CLUTTER_OFFSET_ = 5;
+/** @private @const {number} */
+visflow.Heatmap.prototype.ROW_LABEL_CLUTTER_MSG_ = '(too many labels to show)';
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.DEFAULT_OPTIONS = {
@@ -122,18 +130,11 @@ visflow.Heatmap.prototype.selectedProperties = {
   width: 1.5
 };
 
-/** @inheritDoc */
-visflow.Heatmap.prototype.PLOT_MARGINS = {
-  left: 10,
-  right: 10,
-  top: 0,
-  bottom: 10
-};
-
 /** @private @const {number} */
 visflow.Heatmap.prototype.LABEL_FONT_SIZE_X_ = 6.5;
 /** @private @const {number} */
 visflow.Heatmap.prototype.LABEL_FONT_SIZE_Y_ = 11;
+
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.init = function() {
@@ -350,7 +351,11 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
   }
   var cellHeight = this.yScale(0) - this.yScale(1);
 
-  var clutter = cellHeight < this.LABEL_FONT_SIZE_Y_;
+  this.rowLabelClutter_ = cellHeight < this.LABEL_FONT_SIZE_Y_;
+
+  // First clear potentially existing row clutter hint.
+  this.svgRowLabels_.select('g').remove();
+
   var labels = this.svgRowLabels_.selectAll('text')
     .data(itemProps, _.getValue('id'));
 
@@ -370,21 +375,32 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
   var updatedLabels = this.allowTransition_ ? labels.transition(): labels;
   updatedLabels
     .text(function(row, index) {
-      if (clutter) {
-        switch(index) {
-          case 0:
-          case itemProps.length - 1:
-            return row.label;
-          case itemProps.length >> 1:
-            return '(too many items to show)';
-          default:
-            return '';
+      if (this.rowLabelClutter_) {
+        if (index == 0 || index == itemProps.length - 1) {
+          return row.label;
         }
+        return '';
       }
       return row.label;
     }.bind(this))
     .style('stroke', _.getValue('labelBorder'))
     .attr('transform', labelTransform);
+
+  // Must run after the regular label rendering.
+  if (this.rowLabelClutter_) {
+    var midIndex = itemProps.length >> 1;
+    this.svgRowLabels_.append('g')
+      .append('text')
+      .classed('vis-label', true)
+      .text(this.ROW_LABEL_CLUTTER_MSG_)
+      .attr('transform', visflow.utils.getTransform([
+        this.leftMargin_ - this.ROW_LABEL_OFFSET_ -
+            this.ROW_LABEL_CLUTTER_OFFSET_,
+        this.yScale(midIndex + 1) + cellHeight / 2
+      ], 1, 90));
+  } else {
+    this.svgRowLabels_.select('g').remove();
+  }
 };
 
 /**

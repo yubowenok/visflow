@@ -47,10 +47,37 @@ visflow.LineChart = function(params) {
   this.svgAxes_;
 
   /**
+   * Whether x axis have duplicated values.
+   * @private {boolean}
+   */
+  this.xCollided_ = false;
+  /**
+   * The collided value.
+   * @private {string}
+   */
+  this.xCollidedMsg_ = '';
+
+  /**
    * Left margin computed based on the y Axis labels.
    * @private {number}
    */
   this.leftMargin_ = 0;
+  /**
+   * Bottom margin that depends on whether xTicks are shown.
+   * @private {number}
+   */
+  this.bottomMargin_ = 0;
+
+  /**
+   * Line rendering properties.
+   * @private {!Array}
+   */
+  this.lineProps_ = [];
+  /**
+   * Item rendering properties.
+   * @private {!Array}
+   */
+  this.itemProps_ = [];
 };
 
 visflow.utils.inherit(visflow.LineChart, visflow.Visualization);
@@ -65,41 +92,41 @@ visflow.LineChart.prototype.PANEL_TEMPLATE =
 
 /** @inheritDoc */
 visflow.LineChart.prototype.DEFAULT_OPTIONS = {
+  // Series dimension.
   xDim: visflow.data.INDEX_DIM,
+  // Value dimension.
   yDim: 0,
-  groupBy: visflow.data.INDEX_DIM,
+  // Group by dimension, must be key.
+  groupBy: '',
+  // Show points.
   points: false,
+  // Show legends.
   legends: true,
-  curve: false
+  // Use curve to draw lines.
+  curve: false,
+  // Show x-axis ticks.
+  xTicks: true,
+  // Show y-axis ticks.
+  yTicks: true
 };
 
 /** @private @const {number} */
-visflow.LineChart.prototype.LABEL_FONT_SIZE_ = 6.5;
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_OFFSET_X_ = 20;
+visflow.LineChart.prototype.LEGEND_OFFSET_X_ = 10;
 /** @private @const {number} */
 visflow.LineChart.prototype.LEGEND_OFFSET_Y_ = 15;
-/** @private @const {number} */
+/**
+ * This includes the colorbox size.
+ * @private @const {number}
+ */
 visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_X_ = 15;
 /** @private @const {number} */
 visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_Y_ = 10;
-
-/**
- * Margin space for axes.
- * @const {!Array<{before:number, after:number}>}
- */
-visflow.LineChart.prototype.PLOT_MARGINS = {
-  left: 15,
-  right: 10,
-  top: 10,
-  bottom: 20
-};
 
 /** @inheritDoc */
 visflow.LineChart.prototype.defaultProperties = {
   color: '#333',
   border: 'black',
-  width: 1,
+  width: 1.5,
   size: 3,
   opacity: 1
 };
@@ -131,6 +158,8 @@ visflow.LineChart.prototype.drawBrush = function() {
 /** @inheritDoc */
 visflow.LineChart.prototype.selectItems = function() {
   this.selectItemsInBox_();
+  this.itemProps_ = this.getItemProperties_();
+  this.lineProps_ = this.getLineProperties_();
   visflow.LineChart.base.selectItems.call(this);
 };
 
@@ -153,7 +182,7 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
   var values = inpack.data.values;
   for (var index in items) {
     var point = {
-      x: this.xScale(this.options.xDim === visflow.data.INDEX_DIM ?
+      x: this.xScale(this.options.xDim == visflow.data.INDEX_DIM ?
           +index : values[index][this.options.xDim]),
       y: this.yScale(values[index][this.options.yDim])
     };
@@ -164,93 +193,187 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
   }
 };
 
-
 /** @inheritDoc */
 visflow.LineChart.prototype.initPanel = function(container) {
   visflow.LineChart.base.initPanel.call(this, container);
   var dimensionList = this.getDimensionList(null, true);
 
-  var xSelect = new visflow.Select({
-    container: container.find('#x-dim'),
-    list: dimensionList,
-    selected: this.options.xDim,
-    listTitle: 'Series'
-  });
-  $(xSelect).on('visflow.change', function(event, dim) {
-    this.options.xDim = dim;
-    this.dimensionChanged();
-  }.bind(this));
-  var ySelect = new visflow.Select({
-    container: container.find('#y-dim'),
-    list: dimensionList,
-    selected: this.options.yDim,
-    listTitle: 'Value'
-  });
-  $(ySelect).on('visflow.change', function(event, dim) {
-    this.options.yDim = dim;
-    this.dimensionChanged();
-  }.bind(this));
-
-  var groupBySelect = new visflow.Select({
-    container: container.find('#group-by'),
-    list: dimensionList,
-    selected: this.options.groupBy,
-    listTitle: 'Group By'
-  });
-  $(groupBySelect).on('visflow.change', function(event, dim) {
-    this.options.groupBy = dim;
-    this.dimensionChanged();
-  }.bind(this));
-
-  var pointsToggle = new visflow.Checkbox({
-    container: container.find('#points'),
-    value: this.options.points,
-    title: 'Points'
-  });
-  $(pointsToggle).on('visflow.change', function(event, value) {
-    this.options.points = value;
-    this.show();
-  }.bind(this));
-
-  var legendsToggle = new visflow.Checkbox({
-    container: container.find('#legends'),
-    value: this.options.legends,
-    title: 'Legends'
-  });
-  $(legendsToggle).on('visflow.change', function(event, value) {
-    this.options.legends = value;
-    this.show();
-  }.bind(this));
-
-  var curveToggle = new visflow.Checkbox({
-    container: container.find('#curve'),
-    value: this.options.curve,
-    title: 'Curve'
-  });
-  $(curveToggle).on('visflow.change', function(event, value) {
-    this.options.curve = value;
-    this.show();
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#x-dim'),
+        list: dimensionList,
+        selected: this.options.xDim,
+        listTitle: 'Series'
+      },
+      change: function(event, dim) {
+        this.options.xDim = dim;
+        this.dimensionChanged();
+      }
+    },
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#y-dim'),
+        list: dimensionList,
+        selected: this.options.yDim,
+        listTitle: 'Value'
+      },
+      change: function(event, dim) {
+        this.options.yDim = dim;
+        this.dimensionChanged();
+      }
+    },
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#group-by'),
+        list: dimensionList,
+        allowClear: true,
+        selected: this.options.groupBy,
+        listTitle: 'Group By'
+      },
+      change: function(event, dim) {
+        this.options.groupBy = dim;
+        this.dimensionChanged();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#points'),
+        value: this.options.points,
+        title: 'Points'
+      },
+      change: function(event, value) {
+        this.options.points = value;
+        this.show();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#legends'),
+        value: this.options.legends,
+        title: 'Legends'
+      },
+      change: function(event, value) {
+        this.options.legends = value;
+        this.layoutChanged();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#curve'),
+        value: this.options.curve,
+        title: 'Curve'
+      },
+      change: function(event, value) {
+        this.options.curve = value;
+        this.show();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#x-ticks'),
+        value: this.options.xTicks,
+        title: 'X Ticks'
+      },
+      change: function(event, value) {
+        this.options.xTicks = value;
+        this.layoutChanged();
+        this.show();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#y-ticks'),
+        value: this.options.xTicks,
+        title: 'Y Ticks'
+      },
+      change: function(event, value) {
+        this.options.yTicks = value;
+        this.layoutChanged();
+      }
+    }
+  ];
+  this.initPanelInterface(units);
+  this.updateCollisionMessage_();
 };
+
+/**
+ * Updates the collision message in the panel.
+ * @private
+ */
+visflow.LineChart.prototype.updateCollisionMessage_ = function() {
+  if (!visflow.optionPanel.isOpen) {
+    return;
+  }
+  var container = visflow.optionPanel.contentContainer();
+  var collided = container.find('#collided');
+  if (this.xCollided_) {
+    collided.show();
+    collided.children('#msg').text(this.xCollidedMsg_);
+  } else {
+    collided.hide();
+  }
+};
+
+/**
+ * Updates the bottom margin based on the visibility of xTicks.
+ * @private
+ */
+visflow.LineChart.prototype.updateBottomMargin_ = function() {
+  this.bottomMargin_ = this.PLOT_MARGINS.bottom +
+    (this.options.xTicks ? this.TICKS_HEIGHT_ : 0);
+};
+
 
 /**
  * Updates the left margin of the plot based on the longest label for y-axis.
  * @private
  */
 visflow.LineChart.prototype.updateLeftMargin_ = function() {
-  this.drawYAxis_();
+  var tempShow = !this.content.is(':visible');
+  if (tempShow) {
+    this.content.show();
+  }
 
-  var maxLength = Math.max.apply(this,
+  this.leftMargin_ = this.PLOT_MARGINS.left ;
+  if (this.options.yTicks) {
+    this.drawYAxis_();
+    var maxLength = 0;
     $(this.svgAxes_.node())
       .find('.y.axis > .tick > text')
-      .map(function() {
-        return $(this).text().length;
-      })
-  );
-  // In case the input data is empty.
-  maxLength = Math.max(maxLength, 0);
+      .each(function(index, element) {
+        maxLength = Math.max(maxLength, element.getBBox().width);
+      });
+    // In case the input data is empty.
+    if (maxLength == 0) {
+      maxLength = 0;
+    }
+    this.leftMargin_ += maxLength;
+  }
 
-  this.leftMargin_ = this.PLOT_MARGINS.left + maxLength * this.LABEL_FONT_SIZE_;
+  if (this.options.legends) {
+    maxLength = 0;
+    this.drawLegends_(this.lineProps_);
+    $(this.svgLegends_.node())
+      .find('text')
+      .each(function(index, element) {
+        maxLength = Math.max(maxLength, element.getBBox().width);
+      });
+    this.leftMargin_ += maxLength +
+        this.LEGEND_LABEL_OFFSET_X_ + this.LEGEND_OFFSET_X_;
+  }
+
+  if (tempShow) {
+    this.content.hide();
+  }
 };
 
 /** @inheritDoc */
@@ -258,11 +381,9 @@ visflow.LineChart.prototype.showDetails = function() {
   if (this.checkDataEmpty()) {
     return;
   }
-  var lineProps = this.getLineProperties_();
-  var itemProps = this.getItemProperties_();
-  this.drawLines_(lineProps);
-  this.drawPoints_(itemProps);
-  this.drawLegends_(lineProps);
+  this.drawLines_(this.lineProps_);
+  this.drawPoints_(this.itemProps_);
+  this.drawLegends_(this.lineProps_);
   this.showSelection();
   this.drawAxes_();
 };
@@ -292,17 +413,18 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
       {
         itemIndices: itemIndices,
         points: [],
-        label: this.options.groupBy === visflow.data.INDEX_DIM ? '' :
-            values[_(itemIndices).first()][this.options.groupBy]
+        label: this.options.groupBy == visflow.data.INDEX_DIM ||
+            this.options.groupBy === '' ?
+            '' : values[_(itemIndices).first()][this.options.groupBy]
       },
       this.defaultProperties
     );
     itemIndices.forEach(function(index) {
       _(prop).extend(items[index].properties);
       prop.points.push([
-        this.xScale(this.options.xDim === visflow.data.INDEX_DIM ?
-            +index : values[index][this.options.xDim]),
-        this.yScale(values[index][this.options.yDim])
+        this.options.xDim == visflow.data.INDEX_DIM ?
+            +index : values[index][this.options.xDim],
+        values[index][this.options.yDim]
       ]);
     }, this);
     lineProps.push(prop);
@@ -328,7 +450,7 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
       items[index].properties,
       {
         id: 'p' + index,
-        x: this.xScale(this.options.xDim === visflow.data.INDEX_DIM ?
+        x: this.xScale(this.options.xDim == visflow.data.INDEX_DIM ?
           +index : values[index][this.options.xDim]),
         y: this.yScale(values[index][this.options.yDim])
       }
@@ -348,8 +470,8 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
  * @private
  */
 visflow.LineChart.prototype.drawLegends_ = function(lineProps) {
-  if (this.options.groupBy === visflow.data.INDEX_DIM ||
-      !this.options.legends) {
+  if (this.options.groupBy == visflow.data.INDEX_DIM ||
+    this.options.groupBy === '' || !this.options.legends) {
     _(this.svgLegends_.selectAll('*')).fadeOut();
     return;
   }
@@ -361,7 +483,7 @@ visflow.LineChart.prototype.drawLegends_ = function(lineProps) {
   boxes
     .attr('transform', function(prop, index) {
       return visflow.utils.getTransform([
-        this.leftMargin_ + this.LEGEND_OFFSET_X_,
+        this.LEGEND_OFFSET_X_,
         (index + 1) * this.LEGEND_OFFSET_Y_
       ]);
     }.bind(this));
@@ -415,7 +537,13 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps) {
     .style('opacity', 0);
   _(lines.exit()).fadeOut();
 
-  var line = d3.svg.line();
+  var line = d3.svg.line()
+    .x(function(point) {
+      return this.xScale(point[0]);
+    }.bind(this))
+    .y(function(point) {
+      return this.yScale(point[1]);
+    }.bind(this));
   if (this.options.curve) {
     line.interpolate('basis');
   }
@@ -423,6 +551,7 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps) {
   var updatedLines = this.allowTransition_ ? lines.transition() : lines;
   updatedLines
     .style('stroke', _.getValue('color'))
+    .style('stroke-width', _.getValue('width'))
     .style('opacity', _.getValue('opacity'))
     .attr('d', function(prop) {
       return line(prop.points);
@@ -438,13 +567,14 @@ visflow.LineChart.prototype.groupItems_ = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
   var data = inpack.data;
-  if (this.options.groupBy === visflow.data.INDEX_DIM) {
+  if (this.options.groupBy === '') {
     this.itemGroups_.push(_.allKeys(items));
   } else {
     var valueSet = {};
     var valueCounter = 0;
     for (var index in items) {
-      var val = data.values[index][this.options.groupBy];
+      var val = this.options.groupBy == visflow.data.INDEX_DIM ?
+          index : data.values[index][this.options.groupBy];
       var group = valueSet[val];
       if (group != null) {
         this.itemGroups_[group].push(index);
@@ -467,30 +597,30 @@ visflow.LineChart.prototype.sortItems_ = function() {
   var xCollided = false;
   this.itemGroups_.forEach(function(itemIndices) {
     var sortBy = this.options.xDim;
-    itemIndices.sort(function (a, b) {
-      if (sortBy === visflow.data.INDEX_DIM) {
+    itemIndices.sort(function(a, b) {
+      if (sortBy == visflow.data.INDEX_DIM) {
         // Empty string is to sort by item index.
-        return a - b;
+        return (+a) - (+b);
       } else {
         return visflow.utils.compare(data.values[a][sortBy],
-          data.values[b][sortBy], data.dimensionTypes[sortBy]);
+            data.values[b][sortBy]);
       }
     }.bind(this));
-    if (sortBy !== '') {
-      for (var i = 1; !xCollided && i < itemIndices.length; i++) {
-        var index = itemIndices[i];
-        var prevIndex = itemIndices[i - 1];
-        if (visflow.utils.compare(data.values[index][sortBy],
-            data.values[prevIndex][sortBy],
-            data.dimensionTypes[sortBy]) == 0) {
-          xCollided = true;
-        }
+    for (var i = 1; !xCollided && i < itemIndices.length; i++) {
+      var index = itemIndices[i];
+      var prevIndex = itemIndices[i - 1];
+      var curValue = sortBy == visflow.data.INDEX_DIM ?
+          index : data.values[index][sortBy];
+      var prevValue = sortBy == visflow.data.INDEX_DIM ?
+          prevIndex : data.values[prevIndex][sortBy];
+      if (visflow.utils.compare(curValue, prevValue) == 0) {
+        this.xCollidedMsg_ =
+        xCollided = true;
       }
     }
   }, this);
-  if (xCollided) {
-    visflow.warning('collided series x values in', this.label);
-  }
+  this.xCollided_ = xCollided;
+  this.updateCollisionMessage_();
 };
 
 
@@ -508,9 +638,10 @@ visflow.LineChart.prototype.drawXAxis_ = function() {
     classes: 'x axis',
     orient: 'bottom',
     ticks: this.DEFAULT_TICKS_,
+    noTicks: !this.options.xTicks,
     transform: visflow.utils.getTransform([
       0,
-      svgSize.height - this.PLOT_MARGINS.bottom
+      svgSize.height - this.bottomMargin_
     ]),
     label: {
       text: data.dimensions[this.options.xDim],
@@ -535,6 +666,7 @@ visflow.LineChart.prototype.drawYAxis_ = function() {
     classes: 'y axis',
     orient: 'left',
     ticks: this.DEFAULT_TICKS_,
+    noTicks: !this.options.yTicks,
     transform: visflow.utils.getTransform([
       this.leftMargin_,
       0
@@ -566,9 +698,11 @@ visflow.LineChart.prototype.prepareScales = function() {
   var items = inpack.items;
   var data = inpack.data;
 
+  this.updateBottomMargin_();
+
   var svgSize = this.getSVGSize();
   var yRange = [
-    svgSize.height - this.PLOT_MARGINS.bottom,
+    svgSize.height - this.bottomMargin_,
     this.PLOT_MARGINS.top
   ];
   var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
@@ -582,6 +716,7 @@ visflow.LineChart.prototype.prepareScales = function() {
   // Compute new left margin based on selected y dimension.
   // xScale has to be created after yScale because the left margin depends on
   // yScale's domain.
+  // Left margin also depends on legend, if shown.
   this.updateLeftMargin_();
 
   var xRange = [
@@ -599,8 +734,8 @@ visflow.LineChart.prototype.prepareScales = function() {
 
 /** @inheritDoc */
 visflow.LineChart.prototype.dimensionChanged = function() {
-  this.groupItems_();
-  this.sortItems_();
+  this.inputChanged();
+  this.updateCollisionMessage_();
   visflow.LineChart.base.dimensionChanged.call(this);
 };
 
@@ -630,23 +765,23 @@ visflow.LineChart.prototype.findPlotDimensions = function() {
   return {
     x: x != null ? x : visflow.data.INDEX_DIM,
     y: y != null ? y : 0,
-    groupBy: groupBy != null ? groupBy : visflow.data.INDEX_DIM
+    groupBy: groupBy != null ? groupBy : ''
   };
 };
 
 /** @inheritDoc */
 visflow.LineChart.prototype.dataChanged = function() {
-  visflow.LineChart.base.dataChanged.call(this);
   var dims = this.findPlotDimensions();
   this.options.xDim = dims.x;
   this.options.yDim = dims.y;
   this.options.groupBy = dims.groupBy;
-  this.groupItems_();
-  this.sortItems_();
+  this.inputChanged();
 };
 
 /** @inheritDoc */
 visflow.LineChart.prototype.inputChanged = function() {
   this.groupItems_();
   this.sortItems_();
+  this.itemProps_ = this.getItemProperties_();
+  this.lineProps_ = this.getLineProperties_();
 };

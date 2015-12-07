@@ -87,10 +87,10 @@ visflow.Visualization.prototype.VISUALIZATION_OPTIONS = {
  * @const {!Array<{left: number, right: number, top: number, bottom: number}>}
  */
 visflow.Visualization.prototype.PLOT_MARGINS = {
-  left: 0,
-  right: 0,
-  top: 0,
-  bottom: 0
+  left: 10,
+  right: 10,
+  top: 10,
+  bottom: 10
 };
 
 /**
@@ -140,6 +140,8 @@ visflow.Visualization.prototype.DEFAULT_TICKS_ = 5;
 visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
 /** @type @const {boolean} */
 visflow.Visualization.prototype.IS_VISUALIZATION = true;
+/** @private @const {number} */
+visflow.Visualization.prototype.TICKS_HEIGHT_ = 10;
 
 /** @inheritDoc */
 visflow.Visualization.prototype.init = function() {
@@ -226,9 +228,9 @@ visflow.Visualization.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.process = function() {
-  var inpack = this.ports['in'].pack,
-      outpack = this.ports['out'].pack,
-      outspack = this.ports['outs'].pack;
+  var inpack = this.ports['in'].pack;
+  var outpack = this.ports['out'].pack;
+  var outspack = this.ports['outs'].pack;
 
   outpack.copy(inpack, true); // always pass data through
 
@@ -415,14 +417,6 @@ visflow.Visualization.prototype.initContextMenu = function() {
 };
 
 /**
- * Handles user changing dimension(s) to be visualized.
- */
-visflow.Visualization.prototype.dimensionChanged = function() {
-  this.prepareScales();
-  this.show();
-};
-
-/**
  * Creates a unique dimension array for potentially duplicated dimensions.
  * @param {!Array<number>} dimensions
  * @return {!Array<{dim: number, uniqueDim: string}>}
@@ -554,6 +548,7 @@ visflow.Visualization.prototype.clearSelection = function() {
  *   orient: string,
  *   ticks: number,
  *   transform: string,
+ *   noTicks: boolean
  *   label: {
  *     text: string,
  *     transform: string
@@ -572,6 +567,9 @@ visflow.Visualization.prototype.drawAxis = function(params) {
         return value;
       }
     }.bind(this));
+  if (params.noTicks) {
+    axis.tickValues([]);
+  }
   axis.scale(params.scale.copy());
 
   if(svg.empty()) {
@@ -647,3 +645,19 @@ visflow.Visualization.prototype.dataChanged = function() {};
  * @return {*}
  */
 visflow.Visualization.prototype.findPlotDimensions = function() {};
+
+/**
+ * Handles layout changes such as label visibility changes.
+ */
+visflow.Visualization.prototype.layoutChanged = function() {
+  this.prepareScales();
+  this.show();
+};
+
+/**
+ * Handles user changing dimension(s) to be visualized.
+ */
+visflow.Visualization.prototype.dimensionChanged = function() {
+  this.prepareScales();
+  this.show();
+};
