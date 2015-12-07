@@ -117,12 +117,12 @@ visflow.EditableList.prototype.init_ = function() {
  */
 visflow.EditableList.prototype.createItems_ = function() {
   var ul = this.container_.find('#list > ul');
-
+  var template = this.container_.find('#item-template');
   // Clear everything. Not ideal but it works for now...
   ul.children('li').remove();
 
   this.selected_.forEach(function(id) {
-    var li = this.container_.find('#item-template').clone()
+    var li = template.clone()
       .show()
       .appendTo(ul);
 

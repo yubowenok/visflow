@@ -326,6 +326,18 @@ visflow.utils.propertiesCompare = function(a, b) {
 };
 
 /**
+ * Gets a standardized URL (add protocol).
+ * @param {string} url
+ * @return {string}
+ */
+visflow.utils.standardURL = function(url) {
+  if (url.substr(0, 4) != 'http') {
+    return 'http://' + url;
+  }
+  return url;
+};
+
+/**
  * Converts an array of string or object with string keys to a set with strings
  * as keys. The values will be set to all true.
  * @param {!Array<string>|!Object<*>} collection

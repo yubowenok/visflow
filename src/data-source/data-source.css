@@ -19,6 +19,10 @@
   text-align: center;
 }
 
+.visflow .node.data-source #data-error {
+  color: red;
+}
+
 #option-panel .data-source #load-data,
 #option-panel .data-source #clear-data {
   width: calc(50% - 2px);

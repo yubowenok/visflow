@@ -10,7 +10,9 @@
  *   type: string
  *   dimensions: !Array<string>,
  *   dimensionTypes: !Array<string>,
- *   values: !Array<!Array<string|number>>
+ *   values: !Array<!Array<string|number>>,
+ *   type: string,
+ *   hash: string
  * }}
  */
 visflow.TabularData;
@@ -40,8 +42,15 @@ visflow.Data = function(data) {
   /**
    * Type of data. It will be a hash value of the data's dimensions and
    * dimension types.
+   * @type {string}
    */
   this.type = data.type;
+
+  /**
+   * Hash id of the data, computed from all values inside the data.
+   * @type {string}
+   */
+  this.hash = data.hash;
 
   /**
    * Name of the data.

@@ -180,6 +180,8 @@ visflow.Node.prototype.MAX_HEIGHT = Infinity;
 
 /** @protected @const {number} */
 visflow.Node.prototype.MAX_LABEL_LENGTH = 15;
+/** @private @const {number} */
+visflow.Node.prototype.ERROR_LENGTH_ = 100;
 
 /**
  * Default options that shall be set by the node.

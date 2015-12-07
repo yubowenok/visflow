@@ -130,13 +130,17 @@ visflow.parser.csv = function(csv, opt_params) {
     dimensionTypes.push(type);
   }.bind(this));
 
-  var hashType = CryptoJS.SHA256(dimensions.join(',')).toString();
-  return {
-    type: hashType,
-    values: values,
+  var data = {
     dimensions: dimensions,
-    dimensionTypes: dimensionTypes
+    dimensionTypes: dimensionTypes,
+    values: values
   };
+  var typeHash = visflow.parser.dataTypeHash(data);
+  var dataHash = visflow.parser.dataHash(data);
+  return _(data).extend({
+    type: typeHash,
+    hash: dataHash
+  });
 };
 
 /**
@@ -225,14 +229,37 @@ visflow.parser.cross = function(data, dims, name) {
     }
   }, this);
 
-  var hashType = CryptoJS.SHA256(dimensions.join(',')).toString();
+  var data = {
+    dimensions: dimensions,
+    dimensionTypes: dimensionTypes,
+    values: values
+  };
+  var typeHash = visflow.parser.dataTypeHash(data);
+  var dataHash = visflow.parser.dataHash(data);
   return {
     success: true,
-    data: {
-      type: hashType,
-      dimensions: dimensions,
-      dimensionTypes: dimensionTypes,
-      values: values
-    }
+    data: _(data).extend({
+      type: typeHash,
+      hash: dataHash
+    })
   };
+};
+
+/**
+ * Computes the hash value of the dimensions.
+ * @param {!visflow.TabularData} data
+ * @return {string}
+ */
+visflow.parser.dataTypeHash = function(data) {
+  return CryptoJS.SHA256(data.dimensions.join(',')).toString();
+};
+
+/**
+ * Computes the hash value for the entire dataset.
+ * @param {!visflow.TabularData} data
+ * @return {string}
+ */
+visflow.parser.dataHash = function(data) {
+  return CryptoJS.SHA256(data.dimensions.join(',') + ',' +
+      data.values.join(',')).toString();
 };
