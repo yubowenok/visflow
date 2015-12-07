@@ -23,7 +23,7 @@
   color: red;
 }
 
-#option-panel .data-source #load-data,
+#option-panel .data-source #add-data,
 #option-panel .data-source #clear-data {
   width: calc(50% - 2px);
 }

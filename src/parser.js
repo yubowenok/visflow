@@ -8,10 +8,22 @@
 visflow.parser = {};
 
 /**
- * Mapping from value grades to value types.
+ * Value types.
+ * @enum {number}
+ */
+visflow.ValueType = {
+  EMPTY: 0,
+  INT: 1,
+  FLOAT: 2,
+  TIME: 3,
+  STRING: 4
+};
+
+/**
+ * Value types enum to string.
  * @const {!Object<string>}
  */
-visflow.parser.GRADE_TO_TYPE = {
+visflow.ValueTypeName = {
   0: 'empty',
   1: 'int',
   2: 'float',
@@ -19,78 +31,78 @@ visflow.parser.GRADE_TO_TYPE = {
   4: 'string'
 };
 
-/**
- * Mapping from value types to value grades.
- * @const {!Object<number>}
- */
-visflow.parser.TYPE_TO_GRADE = {
-  empty: 0,
-  int: 1,
-  float: 2,
-  time: 3,
-  string: 4
-};
 
 /**
  * Parses a token and returns its value and type.
  * @param {string} text
+ * @param {Array=} opt_ignoredTypes
+ * @return {{
+ *   type: visflow.ValueType,
+ *   value: number|string
+ * }}
  */
-visflow.parser.checkToken = function(text) {
-  // grades: [empty, int, float, string]
-  text += ''; // convert to string
-  if (text === '') {  // empty constants are ignored
+visflow.parser.checkToken = function(text, opt_ignoredTypes) {
+  var ignored = {};
+  if (opt_ignoredTypes != null) {
+    ignored = _.keySet(opt_ignoredTypes);
+  }
+
+  text += ''; // Convert to string
+  if (!(visflow.ValueType.EMPTY in ignored) && text === '') {
     return {
-      type: 'empty',
+      type: visflow.ValueType.EMPTY,
       value: ''
     };
   }
 
   var res;
   res = text.match(/^-?[0-9]+/);
-  if (res && res[0] === text) {
+  if (!(visflow.ValueType.INT in ignored) && res && res[0] === text) {
     return {
-      type: 'int',
+      type: visflow.ValueType.INT,
       value: parseInt(text)
     };
   }
-  //res = text.match(/^-?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)/);
-  if (Number(text) == text) {
+  if (!(visflow.ValueType.FLOAT in ignored) && Number(text) == text) {
     return {
-      type: 'float',
+      type: visflow.ValueType.FLOAT,
       value: parseFloat(text)
     };
   }
   var date = new Date(text);
-  if (date != 'Invalid Date') {
+  if (!(visflow.ValueType.TIME in ignored) && date != 'Invalid Date') {
     return {
-      type: 'time',
+      type: visflow.ValueType.TIME,
       value: date.getTime()
     };
   }
-  return {
-    type: 'string',
-    value: text
-  };
+  if (!(visflow.ValueType.STRING in ignored)) {
+    return {
+      type: visflow.ValueType.STRING,
+      value: text
+    };
+  }
+  visflow.error('none of the value types matched', text);
 };
 
 /**
  * Tokenizes the input value to form a value of chosen type.
  * @param {string} value
- * @param {string=} opt_type
+ * @param {visflow.ValueType=} opt_type
  */
 visflow.parser.tokenize = function(value, opt_type) {
   var type = opt_type == null ?
       visflow.parser.checkToken(value).type : opt_type;
   switch(type) {
-    case 'empty':
+    case visflow.ValueType.EMPTY:
       return '';
-    case 'int':
+    case visflow.ValueType.INT:
       return parseInt(value);
-    case 'float':
+    case visflow.ValueType.FLOAT:
       return parseFloat(value);
-    case 'time':
+    case visflow.ValueType.TIME:
       return new Date(value).getTime();
-    case 'string':
+    case visflow.ValueType.STRING:
       return '' + value;
   }
 };
@@ -110,29 +122,18 @@ visflow.parser.csv = function(csv, opt_params) {
   var values = d3.csv.parseRows(csv);
   var dimensions = values.splice(0, 1)[0];
   var dimensionTypes = [];
+  var dimensionDuplicate = [];
+
   dimensions.forEach(function(dimName, dimIndex) {
-    var hasEmpty = false;
-    var grade = d3.max(values.map(function(row) {
-      var val = row[dimIndex];
-      var type = visflow.parser.checkToken(val).type;
-      if (type == 'empty') {
-        hasEmpty = true;
-      }
-      return visflow.parser.TYPE_TO_GRADE[type];
-    }));
-    var type = visflow.parser.GRADE_TO_TYPE[grade];
-    if (hasEmpty) {
-      type = 'string';
-    }
-    for (var i = 0; i < values.length; i++) {
-      values[i][dimIndex] = visflow.parser.tokenize(values[i][dimIndex], type);
-    }
-    dimensionTypes.push(type);
+    var colInfo = visflow.parser.typingColumn(values, dimIndex);
+    dimensionTypes.push(colInfo.type);
+    dimensionDuplicate.push(colInfo.duplicate);
   }.bind(this));
 
   var data = {
     dimensions: dimensions,
     dimensionTypes: dimensionTypes,
+    dimensionDuplicate: dimensionDuplicate,
     values: values
   };
   var typeHash = visflow.parser.dataTypeHash(data);
@@ -141,6 +142,51 @@ visflow.parser.csv = function(csv, opt_params) {
     type: typeHash,
     hash: dataHash
   });
+};
+
+/**
+ * Parses and returns the column value type. Also promotes the values in the
+ * specified column.
+ * @param {!Array<!Array>} values
+ * @param {number} colIndex Column index.
+ * @return {{
+ *   type: visflow.ValueType,
+ *   duplicate: boolean
+ * }}
+ */
+visflow.parser.typingColumn = function(values, colIndex) {
+  var hasEmpty = false;
+  var colType = visflow.ValueType.EMPTY;
+  values.forEach(function(row) {
+    var type = visflow.parser.checkToken(row[colIndex]).type;
+    if (type == visflow.ValueType.EMPTY) {
+      hasEmpty = true;
+    }
+    if (type > colType) {
+      colType = type;
+    }
+  });
+  if (hasEmpty) {
+    colType = visflow.ValueType.STRING;
+  }
+  var duplicate = false;
+  var exist = {};
+  values.forEach(function(row) {
+    var val = visflow.parser.tokenize(row[colIndex], colType);
+    row[colIndex] = val;
+    if (duplicate) {
+      return;
+    }
+    if (val in exist) {
+      duplicate = true;
+    } else {
+      exist[val] = true;
+    }
+  });
+  return {
+    type: colType,
+    duplicate: duplicate
+  };
 };
 
 /**
@@ -175,7 +221,7 @@ visflow.parser.cross = function(data, dims, name) {
   data.values.forEach(function(row, index) {
     var vals = [];
     dims.forEach(function(dim) {
-      if (dim == -1) {
+      if (dim == visflow.data.INDEX_DIM) {
         vals.push(index);
       } else {
         vals.push(row[dim]);
@@ -200,21 +246,21 @@ visflow.parser.cross = function(data, dims, name) {
 
   var dimensions = [];
   var dimensionTypes = [];
+  var dimensionDuplicate = [];
   dims.forEach(function(dim) {
-    if (dim == -1) {
-      dimensions.push('index');
-      dimensionTypes.push('int');
+    if (dim == visflow.data.INDEX_DIM) {
+      dimensions.push(visflow.data.INDEX_TEXT);
+      dimensionTypes.push(visflow.ValueType.INT);
+      dimensionDuplicate.push(false);
     } else {
       dimensions.push(data.dimensions[dim]);
       dimensionTypes.push(data.dimensionTypes[dim]);
+      dimensionDuplicate.push(data.dimensionDuplicate[dim]);
     }
   });
   // Attribute column.
   dimensions.push(name);
-  dimensionTypes.push('string');
-  // Value column.
-  dimensions.push('value');
-  dimensionTypes.push('string');
+  dimensionTypes.push(visflow.ValueType.STRING);
 
   var values = [];
   keys.forEach(function(key, index) {
@@ -228,10 +274,16 @@ visflow.parser.cross = function(data, dims, name) {
       ]));
     }
   }, this);
+  // Value column.
+  var colInfo = visflow.parser.typingColumn(values, dims.length + 1);
+  dimensions.push('value');
+  dimensionTypes.push(colInfo.type);
+  dimensionDuplicate.push(colInfo.duplicate);
 
   var data = {
     dimensions: dimensions,
     dimensionTypes: dimensionTypes,
+    dimensionDuplicate: dimensionDuplicate,
     values: values
   };
   var typeHash = visflow.parser.dataTypeHash(data);

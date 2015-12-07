@@ -223,7 +223,7 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
   // Remap every string to [0, count - 1].
   var ordinalMapping;
 
-  if (this.xScaleType == 'numerical') {
+  if (this.xScaleType == visflow.ScaleType.NUMERICAL) {
     range = this.xScale.domain();
 
     // If xScale domain has only a single value, the ticks will return empty
@@ -233,7 +233,7 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
       // D3 Histogram cannot handle 1 bin.
       bins = 1;
     }
-  } else if (this.xScaleType == 'ordinal') {
+  } else if (this.xScaleType == visflow.ScaleType.ORDINAL) {
     range = [0, this.xScale.domain().length - 1];
     ordinalMapping = this.xScale.copy()
       .range(d3.range(this.xScale.domain().length));
@@ -244,7 +244,8 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
   for (var index in items) {
     var value = data.values[index][this.dim];
     values.push({
-      value: this.xScaleType == 'numerical' ? value : ordinalMapping(value),
+      value: this.xScaleType == visflow.ScaleType.NUMERICAL ?
+          value : ordinalMapping(value),
       index: index
     });
   }
@@ -268,8 +269,8 @@ visflow.Histogram.prototype.createHistogramScale_ = function() {
     svgSize.width - this.PLOT_MARGINS.right
   ];
   this.histogramScale = d3.scale.linear()
-    .domain(this.xScaleType == 'numerical' ? this.xScale.domain() :
-        [0, this.xScale.domain().length - 1])
+    .domain(this.xScaleType == visflow.ScaleType.NUMERICAL ?
+        this.xScale.domain() : [0, this.xScale.domain().length - 1])
     .range(range);
 };
 
@@ -451,7 +452,7 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
     scale: this.xScale,
     classes: 'x axis',
     orient: 'bottom',
-    ticks: this.xScaleType == 'ordinal' ? this.xScale.domain() :
+    ticks: this.xScaleType == visflow.ScaleType.ORDINAL ? this.xScale.domain() :
         this.options.numBins,
     transform: visflow.utils.getTransform([
       0,
@@ -515,7 +516,7 @@ visflow.Histogram.prototype.initPanel = function(container) {
   var inputBins = new visflow.Input({
     container: container.find('#bins'),
     value: this.options.numBins,
-    accept: 'int',
+    accept: visflow.ValueType.INT,
     range: [1, 1000],
     scrollDelta: 1,
     title: 'Number of Bins'
@@ -538,7 +539,7 @@ visflow.Histogram.prototype.prepareScales = function() {
   var inpack = this.ports['in'].pack;
   var data = inpack.data;
   var items = inpack.items;
-  var scaleInfo = visflow.utils.getScale(data, this.dim, items, [
+  var scaleInfo = visflow.scales.getScale(data, this.dim, items, [
       this.PLOT_MARGINS.left,
       svgSize.width - this.PLOT_MARGINS.right
     ], {
@@ -581,7 +582,7 @@ visflow.Histogram.prototype.inputChanged = function() {
 visflow.Histogram.prototype.findPlotDimension = function() {
   var data = this.ports['in'].pack.data;
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
-    if (data.dimensionTypes[dim] != 'string') {
+    if (data.dimensionTypes[dim] != visflow.ValueType.STRING) {
       return dim;
     }
   }

@@ -251,8 +251,11 @@ visflow.Port.prototype.info = function() {
   } else if (this.isInput) {
     text += this.pack.count() + ' items';
   } else {
-    text += this.pack.count() + '/' +
-        this.node.ports[this.fromPort].pack.count() + ' items';
+    text += this.pack.count();
+    if (this.fromPort !== '') {
+      text += '/' + this.node.ports[this.fromPort].pack.count();
+    }
+    text +=  ' items';
   }
   if (text.length > this.INFO_LENGTH) {
     text = text.substr(0, this.INFO_LENGTH - 3) + '...';
@@ -265,7 +268,11 @@ visflow.Port.prototype.info = function() {
  */
 visflow.Port.prototype.interaction = function() {
   this.container
-    .dblclick(this.info.bind(this))
+    .dblclick(function() {
+      this.info();
+      // For debugging.
+      console.log(this.pack);
+    }.bind(this))
     .mouseenter(function() {
       this.connections.forEach(function(connection) {
         visflow.viewManager.addEdgeHover(connection);

@@ -6,10 +6,14 @@
 visflow.scales = {};
 
 /**
- * 'numerical', 'ordinal', 'time'
- * @typedef {string}
+ * VisFlow scale type.
+ * @enum {number}
  */
-visflow.ScaleType;
+visflow.ScaleType = {
+  NUMERICAL: 0,
+  ORDINAL: 1,
+  TIME: 2
+};
 
 /**
  * @typedef {{
@@ -140,4 +144,101 @@ visflow.scales.init = function() {
       gradientDiv: gradientDiv
     };
   }
+};
+
+
+/**
+ * Gets a scale with domain set based on value types.
+ * @param {!visflow.Data} data Data the scale is for.
+ * @param {number} dim Dimension index of the data to process.
+ * @param {!Object} items Collection of items the scale is for.
+ * @param {!Array<number>} range Range of the scale.
+ * @param {{
+ *   domainMargin: number=,
+ *   rangeMargin: number=,
+ *   ordinalRangeType: string=,
+ *   ordinalPadding: number=,
+ *   ordinalRange: boolean=
+ * }=} opt_params
+ *   domainMargin: Margin percentage, this has no effect if domain span is zero.
+ *   rangeMargin: Margin percentage, this has no effect if range span is zero.
+ *   ordinalRangeType: rangePoints, rangeBands, rangeRoundBands.
+ *   ordinalPadding: Padding used for ordinal range.
+ *   ordinalRange: Whether to use d3.range(length) for ordinal scale's range.
+ * @return {!{scale: !d3.scale, type: visflow.ScaleType}}
+ */
+visflow.scales.getScale = function(data, dim, items, range, opt_params) {
+  var params = opt_params == null ? {} : opt_params;
+  var dimType = dim === visflow.data.INDEX_DIM ?
+      visflow.ValueType.INT : data.dimensionTypes[dim];
+
+  var domainMargin = params.domainMargin == null ? 0 : params.domainMargin;
+  var rangeMargin = params.rangeMargin;
+  if (rangeMargin != null) {
+    // Make a copy.
+    range = [range[0], range[1]];
+    var span = range[1] - range[0];
+    range[0] -= span * rangeMargin;
+    range[1] += span * rangeMargin;
+  }
+
+  var scaleType;
+  switch(dimType) {
+    case visflow.ValueType.INT:
+    case visflow.ValueType.FLOAT:
+      scaleType = visflow.ScaleType.NUMERICAL;
+      break;
+    case visflow.ValueType.TIME:
+      scaleType = visflow.ScaleType.TIME;
+      break;
+    default:
+      scaleType = visflow.ScaleType.ORDINAL;
+  }
+
+  var values = _.allKeys(items).map(function(index) {
+    return dim === visflow.data.INDEX_DIM ? +index : data.values[index][dim];
+  });
+
+  var scale;
+  switch(scaleType) {
+    case visflow.ScaleType.NUMERICAL:
+    case visflow.ScaleType.TIME:
+      var minVal = d3.min(values);
+      var maxVal = d3.max(values);
+      var span = maxVal - minVal;
+      scale = d3.scale.linear()
+        .domain([minVal - span * domainMargin, maxVal + span * domainMargin])
+        .range(range);
+      break;
+    case visflow.ScaleType.ORDINAL:
+      var values = [];
+      for (var index in items) {
+        values.push(data.values[index][dim]);
+      }
+      var uniqValues = _.uniq(values).sort();
+      scale = d3.scale.ordinal()
+        .domain(uniqValues);
+
+      if (params.ordinalRange) {
+        scale.range(d3.range(uniqValues.length));
+      } else {
+        var ordinalPadding = params.ordinalPadding != null ?
+          params.ordinalPadding : 0;
+        switch(params.ordinalRangeType) {
+          case 'rangeBands':
+            scale.rangeBands(range, ordinalPadding);
+            break;
+          case 'rangeRoundBands':
+            scale.rangeRoundBands(range, ordinalPadding);
+            break;
+          default:
+            scale.rangePoints(range, ordinalPadding);
+        }
+      }
+      break;
+  }
+  return {
+    scale: scale,
+    type: scaleType
+  };
 };

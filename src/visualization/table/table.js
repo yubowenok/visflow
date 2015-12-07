@@ -139,7 +139,7 @@ visflow.Table.prototype.showDetails = function() {
 
   var columnDefs = [];
   this.dimensions.forEach(function(dim, dimIndex) {
-    if (data.dimensionTypes[dim] == 'time') {
+    if (data.dimensionTypes[dim] == visflow.ValueType.TIME) {
       columnDefs.push({
         render: function(value) {
           return moment(new Date(value)).format(this.TIME_FORMAT);

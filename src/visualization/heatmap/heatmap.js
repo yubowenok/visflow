@@ -85,6 +85,8 @@ visflow.Heatmap.prototype.NODE_CLASS = 'heatmap';
 visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;
 /** @private @const {number} */
 visflow.Heatmap.prototype.COL_LABEL_OFFSET_ = 10;
+/** @private @const {number} */
+visflow.Heatmap.prototype.ELLIPSIS_STEP_ = 8;
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.DEFAULT_OPTIONS = {
@@ -346,11 +348,13 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
     this.svgRowLabels_.selectAll('*').remove();
     return;
   }
-  var cellHeight = Math.ceil(this.yScale(0) - this.yScale(1));
+  var cellHeight = this.yScale(0) - this.yScale(1);
+
+  var clutter = cellHeight < this.LABEL_FONT_SIZE_Y_;
   var labels = this.svgRowLabels_.selectAll('text')
     .data(itemProps, _.getValue('id'));
 
-  var labelTransform = function(cell, index) {
+  var labelTransform = function(row, index) {
     return visflow.utils.getTransform([
       this.leftMargin_ - this.ROW_LABEL_OFFSET_,
       this.yScale(index + 1) + cellHeight / 2
@@ -365,7 +369,20 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
 
   var updatedLabels = this.allowTransition_ ? labels.transition(): labels;
   updatedLabels
-    .text(_.getValue('label'))
+    .text(function(row, index) {
+      if (clutter) {
+        switch(index) {
+          case 0:
+          case itemProps.length - 1:
+            return row.label;
+          case itemProps.length >> 1:
+            return '(too many items to show)';
+          default:
+            return '';
+        }
+      }
+      return row.label;
+    }.bind(this))
     .style('stroke', _.getValue('labelBorder'))
     .attr('transform', labelTransform);
 };
@@ -557,7 +574,7 @@ visflow.Heatmap.prototype.prepareNormalizeScales_ = function() {
   var data = inpack.data;
 
   this.dimensions.forEach(function(dim, dimIndex) {
-    var scaleInfo = visflow.utils.getScale(data, dim, items, [0, 1]);
+    var scaleInfo = visflow.scales.getScale(data, dim, items, [0, 1]);
     this.normalizeScales[dimIndex] = scaleInfo.scale;
   }, this);
 };
@@ -652,7 +669,7 @@ visflow.Heatmap.prototype.findPlotDimensions = function() {
   var dimensions = [];
   var labelBy = null;
   data.dimensionTypes.forEach(function(type, index) {
-    if (type != 'string') {
+    if (type != visflow.ValueType.STRING) {
       if (dimensions.length < this.DEFAULT_NUM_DIMENSION_) {
         dimensions.push(index);
       }

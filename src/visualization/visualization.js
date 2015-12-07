@@ -138,6 +138,8 @@ visflow.Visualization.prototype.LABEL_OFFSET_ = 5;
 visflow.Visualization.prototype.DEFAULT_TICKS_ = 5;
 /** @private @const {number} */
 visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
+/** @type @const {boolean} */
+visflow.Visualization.prototype.IS_VISUALIZATION = true;
 
 /** @inheritDoc */
 visflow.Visualization.prototype.init = function() {
@@ -564,7 +566,7 @@ visflow.Visualization.prototype.drawAxis = function(params) {
     .orient(params.orient)
     .ticks(params.ticks)
     .tickFormat(function(value) {
-      if (params.scaleType == 'time') {
+      if (params.scaleType == visflow.ScaleType.TIME) {
         return moment(new Date(value)).format(this.TIME_FORMAT);
       } else {
         return value;
@@ -640,12 +642,6 @@ visflow.Visualization.prototype.showOptions = function() {};
 /** @inheritDoc */
 visflow.Visualization.prototype.dataChanged = function() {};
 
-/**
- * Validates the selected dimensions against the current data.
- * @return {boolean}
- */
-visflow.Visualization.prototype.validDimensions = function() {
-};
 /**
  * Finds reasonable dimensions to show.
  * @return {*}

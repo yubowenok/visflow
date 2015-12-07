@@ -49,6 +49,19 @@ visflow.nodePanel.init = function() {
   visflow.nodePanel.hoverArea_.mouseenter(showPanel);
 };
 
+/**
+ * Shows the node panel.
+ */
+visflow.nodePanel.show = function() {
+  visflow.nodePanel.container_.show();
+};
+
+/**
+ * Hides the node panel, including the popup handle.
+ */
+visflow.nodePanel.hide = function() {
+  visflow.nodePanel.container_.hide();
+};
 
 /**
  * Toggles the node panel.

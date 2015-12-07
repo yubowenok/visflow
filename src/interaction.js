@@ -639,8 +639,7 @@ visflow.interaction.dropHandler = function(params) {
  * @param params
  */
 visflow.interaction.clickHandler = function(params) {
-  var type = params.type,
-      event = params.event;
+  var type = params.type;
   if (type == 'empty') {
     visflow.flow.backgroundClearSelection();
     visflow.nodePanel.toggle(false);

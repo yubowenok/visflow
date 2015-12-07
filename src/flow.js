@@ -22,7 +22,6 @@ visflow.flow.init = function() {
 visflow.flow.resetFlow = function() {
   // counters start from 1
   this.nodeCounter = 0;
-  this.visCounter = 0;
   this.edgeCounter = 0;
   this.dataCounter = 0;
 
@@ -81,20 +80,6 @@ visflow.flow.NODE_CONSTRUCTORS_ = {
 };
 
 /**
- * Visualization node types.
- * @const @private {!Object<boolean>}
- */
-visflow.flow.VISUALIZATION_TYPES_ = {
-  table: true,
-  scatterplot: true,
-  parallelCoordinates: true,
-  histogram: true,
-  heatmap: true,
-  lineChart: true,
-  network: true
-};
-
-/**
  * Creates a node of given type.
  * @param {string} type
  * @param {Object} nodeSave Saved node data for de-serialization.
@@ -111,13 +96,6 @@ visflow.flow.createNode = function(type, save) {
     return;
   }
   var nodeConstructor = this.NODE_CONSTRUCTORS_[type];
-
-  if (type in this.VISUALIZATION_TYPES_) {
-    // Increment visualization node counter.
-    _(params).extend({
-      visId: ++this.visCounter
-    });
-  }
 
   _(params).extend({
     id: ++this.nodeCounter,
@@ -311,7 +289,7 @@ visflow.flow.propagate = function(node) {
  * @param {!visflow.Data} data
  */
 visflow.flow.registerData = function(data) {
-  if (data == null || data.type == 'empty') {
+  if (data == null || data.type === '') {
     return visflow.error('attempt register null/empty data');
   }
   this.data[data.type] = data;
@@ -540,6 +518,12 @@ visflow.flow.toggleVisMode = function() {
         .stop(true)
         .animate(visflow.flow.VISMODE_OFF_CSS_);
     }
+  }
+
+  if (visflow.flow.visMode) {
+    visflow.nodePanel.hide();
+  } else {
+    visflow.nodePanel.show();
   }
 };
 

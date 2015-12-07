@@ -667,7 +667,7 @@ visflow.Network.prototype.initPanel = function(container) {
   var inputCharge = new visflow.Input({
     container: container.find('#charge'),
     value: this.options.charge,
-    accept: 'int',
+    accept: visflow.ValueType.INT,
     range: [-200000, 0],
     scrollDelta: 500,
     title: 'Force Charge'
@@ -955,7 +955,7 @@ visflow.Network.prototype.dataChanged = function() {
 visflow.Network.prototype.findLabelByDimension_ = function() {
   var labelBy = null;
   this.ports['in'].pack.data.dimensionTypes.forEach(function(type, index) {
-    if (labelBy == null && type == 'string') {
+    if (labelBy == null && type == visflow.ValueType.STRING) {
       labelBy = index;
     }
   });
@@ -972,7 +972,7 @@ visflow.Network.prototype.findEdgeDimensions_ = function() {
   var sourceBy = null;
   var targetBy = null;
   dimTypes.forEach(function(type, index) {
-    if (type == 'string') {
+    if (type == visflow.ValueType.STRING) {
       if (sourceBy == null) {
         sourceBy = index;
       } else if (targetBy == null) {

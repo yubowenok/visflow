@@ -65,9 +65,9 @@ visflow.LineChart.prototype.PANEL_TEMPLATE =
 
 /** @inheritDoc */
 visflow.LineChart.prototype.DEFAULT_OPTIONS = {
-  xDim: '',
+  xDim: visflow.data.INDEX_DIM,
   yDim: 0,
-  groupBy: '',
+  groupBy: visflow.data.INDEX_DIM,
   points: false,
   legends: true,
   curve: false
@@ -153,7 +153,7 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
   var values = inpack.data.values;
   for (var index in items) {
     var point = {
-      x: this.xScale(this.options.xDim === '' ?
+      x: this.xScale(this.options.xDim === visflow.data.INDEX_DIM ?
           +index : values[index][this.options.xDim]),
       y: this.yScale(values[index][this.options.yDim])
     };
@@ -168,12 +168,11 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
 /** @inheritDoc */
 visflow.LineChart.prototype.initPanel = function(container) {
   visflow.LineChart.base.initPanel.call(this, container);
-  var dimensionList = this.getDimensionList();
+  var dimensionList = this.getDimensionList(null, true);
 
   var xSelect = new visflow.Select({
     container: container.find('#x-dim'),
     list: dimensionList,
-    allowClear: true,
     selected: this.options.xDim,
     listTitle: 'Series'
   });
@@ -195,7 +194,6 @@ visflow.LineChart.prototype.initPanel = function(container) {
   var groupBySelect = new visflow.Select({
     container: container.find('#group-by'),
     list: dimensionList,
-    allowClear: true,
     selected: this.options.groupBy,
     listTitle: 'Group By'
   });
@@ -294,7 +292,7 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
       {
         itemIndices: itemIndices,
         points: [],
-        label: this.options.groupBy === '' ? '' :
+        label: this.options.groupBy === visflow.data.INDEX_DIM ? '' :
             values[_(itemIndices).first()][this.options.groupBy]
       },
       this.defaultProperties
@@ -302,7 +300,7 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
     itemIndices.forEach(function(index) {
       _(prop).extend(items[index].properties);
       prop.points.push([
-        this.xScale(this.options.xDim === '' ?
+        this.xScale(this.options.xDim === visflow.data.INDEX_DIM ?
             +index : values[index][this.options.xDim]),
         this.yScale(values[index][this.options.yDim])
       ]);
@@ -330,7 +328,7 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
       items[index].properties,
       {
         id: 'p' + index,
-        x: this.xScale(this.options.xDim === '' ?
+        x: this.xScale(this.options.xDim === visflow.data.INDEX_DIM ?
           +index : values[index][this.options.xDim]),
         y: this.yScale(values[index][this.options.yDim])
       }
@@ -350,7 +348,8 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
  * @private
  */
 visflow.LineChart.prototype.drawLegends_ = function(lineProps) {
-  if (this.options.groupBy === '' || !this.options.legends) {
+  if (this.options.groupBy === visflow.data.INDEX_DIM ||
+      !this.options.legends) {
     _(this.svgLegends_.selectAll('*')).fadeOut();
     return;
   }
@@ -439,7 +438,7 @@ visflow.LineChart.prototype.groupItems_ = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
   var data = inpack.data;
-  if (this.options.groupBy === '') {
+  if (this.options.groupBy === visflow.data.INDEX_DIM) {
     this.itemGroups_.push(_.allKeys(items));
   } else {
     var valueSet = {};
@@ -469,7 +468,7 @@ visflow.LineChart.prototype.sortItems_ = function() {
   this.itemGroups_.forEach(function(itemIndices) {
     var sortBy = this.options.xDim;
     itemIndices.sort(function (a, b) {
-      if (sortBy === '') {
+      if (sortBy === visflow.data.INDEX_DIM) {
         // Empty string is to sort by item index.
         return a - b;
       } else {
@@ -572,7 +571,7 @@ visflow.LineChart.prototype.prepareScales = function() {
     svgSize.height - this.PLOT_MARGINS.bottom,
     this.PLOT_MARGINS.top
   ];
-  var yScaleInfo = visflow.utils.getScale(data, this.options.yDim, items,
+  var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
     yRange, {
       domainMargin: 0.1,
       ordinalPadding: 1.0
@@ -589,26 +588,13 @@ visflow.LineChart.prototype.prepareScales = function() {
     this.leftMargin_,
     svgSize.width - this.PLOT_MARGINS.right
   ];
-  var xScaleInfo = visflow.utils.getScale(data, this.options.xDim, items,
+  var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items,
     xRange, {
       domainMargin: 0.1,
       ordinalPadding: 1.0
     });
   this.xScale = xScaleInfo.scale;
   this.xScaleType = xScaleInfo.type;
-};
-
-/** @inheritDoc */
-visflow.LineChart.prototype.validDimensions = function() {
-  var dims = this.ports['in'].pack.data.dimensions;
-  if (this.options.xDim == null || this.options.yDim == null) {
-    return false;
-  }
-  if (this.options.xDim >= dims.length ||
-      this.options.yDim >= dims.length ) {
-    return false;
-  }
-  return true;
 };
 
 /** @inheritDoc */
@@ -620,25 +606,41 @@ visflow.LineChart.prototype.dimensionChanged = function() {
 
 /**
  * Finds reasonable y dimension. X dimension will be default to empty.
- * @return {number}
+ * @return {{x: number, y: number, groupBy: number}}
  * @override
  */
 visflow.LineChart.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
-  for (var i = 0; i < data.dimensionTypes.length; i++) {
-    if (data.dimensionTypes[i] != 'string') {
-      return i;
+  var x = null;
+  var y = null;
+  var groupBy = null;
+  for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
+    if (data.dimensionTypes[dim] == visflow.ValueType.STRING &&
+       !data.dimensionDuplicate[dim]) {
+      if (groupBy == null) {
+        groupBy = dim;
+      } else if (x == null) {
+        x = dim;
+      }
+    }
+    if (data.dimensionTypes[dim] != visflow.ValueType.STRING) {
+      y = dim;
     }
   }
-  return 0;
+  return {
+    x: x != null ? x : visflow.data.INDEX_DIM,
+    y: y != null ? y : 0,
+    groupBy: groupBy != null ? groupBy : visflow.data.INDEX_DIM
+  };
 };
 
 /** @inheritDoc */
 visflow.LineChart.prototype.dataChanged = function() {
   visflow.LineChart.base.dataChanged.call(this);
-  this.options.xDim = '';
-  this.options.yDim = this.findPlotDimensions();
-  this.options.groupBy = '';
+  var dims = this.findPlotDimensions();
+  this.options.xDim = dims.x;
+  this.options.yDim = dims.y;
+  this.options.groupBy = dims.groupBy;
   this.groupItems_();
   this.sortItems_();
 };

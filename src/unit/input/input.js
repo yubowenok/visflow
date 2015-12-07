@@ -7,7 +7,7 @@
 /**
  * @param {{
  *   container: !jQuery,
- *   accept: string=,
+ *   accept: visflow.ValueType=
  *   range: Array<number>=,
  *   scrollDelta: number=,
  *   value: (string|number)=,
@@ -29,7 +29,8 @@ visflow.Input = function(params) {
   this.title_ = params.title;
 
   /** @private {string} */
-  this.accept_ = params.accept != null ? params.accept : 'string';
+  this.accept_ = params.accept != null ? params.accept :
+      visflow.ValueType.STRING;
 
   /** @private {!Array<number>} */
   this.range_ = params.range != null ? params.range : [null, null];
@@ -48,8 +49,7 @@ visflow.Input = function(params) {
    * @private {boolean}
    */
   this.scrollable_ = this.scrollDelta_ != null &&
-      visflow.parser.TYPE_TO_GRADE[this.accept_] <=
-      visflow.parser.TYPE_TO_GRADE['float'];
+      this.accept_ <= visflow.ValueType.FLOAT;
 
   this.container_.load(this.TEMPLATE_, function() {
     this.init_();
@@ -90,7 +90,7 @@ visflow.Input.prototype.init_ = function() {
       }
 
       var newValue;
-      if (this.accept_ == 'int') {
+      if (this.accept_ == visflow.ValueType.INT) {
         newValue = parseInt(this.value_ + sign * this.scrollDelta_);
       } else {
         newValue = (parseFloat(this.value_) + sign * this.scrollDelta_)
@@ -119,7 +119,7 @@ visflow.Input.prototype.init_ = function() {
 visflow.Input.prototype.setValue_ = function(value) {
   var input = this.container_.find('input');
   var parsedToken = visflow.parser.checkToken(value);
-  if (parsedToken.grade > visflow.parser.TYPE_TO_GRADE[this.accept_]) {
+  if (parsedToken.type > this.accept_) {
     // Cannot accept a greater grade value type.
     input.val(this.value_);
     return;

@@ -129,7 +129,7 @@ visflow.PropertyMapping.prototype.showEditableScale_ = function(scaleDiv,
     ].forEach(function(info) {
         var input = new visflow.Input({
           container: numberDiv.find(info.selector),
-          accept: 'float',
+          accept: visflow.ValueType.FLOAT,
           range: visflow.property.MAPPING_RANGES[this.options.mapping],
           scrollDelta: visflow.property.SCROLL_DELTAS[this.options.mapping],
           value: this.options.numberRange[info.index]
@@ -212,7 +212,7 @@ visflow.PropertyMapping.prototype.process = function() {
 
   var mappingType = visflow.property.MAPPING_TYPES[this.options.mapping];
 
-  var dataScale = visflow.utils.getScale(data, this.dim, items, [0, 1], {
+  var dataScale = visflow.scales.getScale(data, this.dim, items, [0, 1], {
     ordinalRange: true
   }).scale;
   var propScale;

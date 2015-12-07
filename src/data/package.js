@@ -93,5 +93,5 @@ visflow.Package.prototype.isEmpty = function() {
  * @return {boolean}
  */
 visflow.Package.prototype.isEmptyData = function() {
-  return this.data.type == 'empty';
+  return this.data.type === '';
 };

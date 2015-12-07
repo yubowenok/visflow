@@ -386,7 +386,7 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   var items = inpack.items;
 
   this.dimensions.forEach(function(dim, index) {
-    var yScaleInfo = visflow.utils.getScale(data, dim, items, yRange);
+    var yScaleInfo = visflow.scales.getScale(data, dim, items, yRange);
     this.yScales[index] = yScaleInfo.scale;
     this.yScaleTypes[index] = yScaleInfo.type;
   }, this);
@@ -411,7 +411,7 @@ visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
   var dimensions = [];
   data.dimensionTypes.forEach(function(type, index) {
-    if (type == 'string') {
+    if (type == visflow.ValueType.STRING) {
       return;
     }
     if (dimensions.length < this.DEFAULT_NUM_DIMENSIONS_) {

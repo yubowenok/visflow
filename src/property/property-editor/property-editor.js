@@ -95,7 +95,7 @@ visflow.PropertyEditor.prototype.initPanel = function(container) {
         container: container.find(info.selector),
         value: this.options.properties[info.property],
         title: info.title,
-        accept: 'float',
+        accept: visflow.ValueType.FLOAT,
         range: visflow.property.MAPPING_RANGES[info.property],
         scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
       });
@@ -132,7 +132,7 @@ visflow.PropertyEditor.prototype.showDetails = function() {
     var input = new visflow.Input({
       container: this.content.find(info.selector),
       value: this.options.properties[info.property],
-      accept: 'float',
+      accept: visflow.ValueType.FLOAT,
       range: visflow.property.MAPPING_RANGES[info.property],
       scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
     });

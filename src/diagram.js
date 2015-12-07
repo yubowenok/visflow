@@ -105,6 +105,7 @@ visflow.diagram.new = function() {
     complete: function(dialog) {
       dialog.find('#confirm').click(function() {
         visflow.diagram.lastFilename = 'myDiagram';
+        visflow.diagram.updateURL('myDiagram');
         visflow.flow.clearFlow();
       });
     }

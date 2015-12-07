@@ -391,8 +391,8 @@ visflow.Node.prototype.show = function() {
       .addClass('details')
       .removeClass('minimized')
       .css({
-        width: this.css.width,
-        height: this.css.height
+        width: visflow.flow.visMode ? this.visCss.width : this.css.width,
+        height: visflow.flow.visMode ? this.visCss.height : this.css.height
       });
 
     if (this.RESIZABLE) {
@@ -1107,14 +1107,22 @@ visflow.Node.prototype.delete = function() {
 /**
  * Gets the list of dimensions used for select2.
  * @param {visflow.Data=} opt_data
+ * @param {boolean=} opt_addIndex
  * @return {!Array<{id: number, text: string}>}
  */
-visflow.Node.prototype.getDimensionList = function(opt_data) {
+visflow.Node.prototype.getDimensionList = function(opt_data, opt_addIndex) {
   var data = opt_data == null ? this.ports['in'].pack.data : opt_data;
-  return data.dimensions.map(function(dimName, index) {
+  var result = data.dimensions.map(function(dimName, index) {
     return {
       id: index,
       text: dimName
     }
   });
+  if (opt_addIndex) {
+    return [{
+      id: visflow.data.INDEX_DIM,
+      text: visflow.data.INDEX_TEXT
+    }].concat(result);
+  }
+  return result;
 };

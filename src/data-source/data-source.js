@@ -38,7 +38,8 @@ visflow.DataSource = function(params) {
       node: this,
       id: 'out',
       isInput: false,
-      isConstants: false
+      isConstants: false,
+      fromPort: ''
     })
   };
 };
@@ -81,7 +82,7 @@ visflow.DataSource.prototype.DEFAULT_OPTIONS = {
   // Whether to use data crossing.
   crossing: false,
   // Dimensions used for crossing. -1 is index.
-  crossingDims: [-1],
+  crossingDims: [],
   // Name for the attribute column in crossing.
   crossingName: 'attributes',
   // Whether to user server data set in the UI.
@@ -138,7 +139,7 @@ visflow.DataSource.prototype.interaction = function() {
 /** @inheritDoc */
 visflow.DataSource.prototype.initPanel = function(container) {
   container.find('#data-name').text(this.dataName);
-  container.find('#load-data').click(this.loadDataDialog_.bind(this));
+  container.find('#add-data').click(this.loadDataDialog_.bind(this));
   container.find('#clear-data').click(this.clearData_.bind(this));
 
   this.createPanelDataList_(container);
@@ -154,9 +155,7 @@ visflow.DataSource.prototype.initPanel = function(container) {
   }.bind(this));
 
   var dimensionList = this.rawData_[0] != null ?
-    [{id: -1, text: 'index'}].concat(this.getDimensionList(this.rawData_[0])) :
-    [];
-
+      this.getDimensionList(this.rawData_[0], true) : [];
   var crossingDimsSelect = new visflow.EditableList({
     container: container.find('#crossing-dims'),
     list: dimensionList,
@@ -303,7 +302,7 @@ visflow.DataSource.prototype.updateActiveSections_ = function(dialog) {
  */
 visflow.DataSource.prototype.loadDataDialog_ = function() {
   visflow.dialog.create({
-    template: './src/data-source/load-data.html',
+    template: './src/data-source/select-data.html',
     complete: function(dialog) {
 
       dialog.find('.to-tooltip').tooltip({
@@ -400,6 +399,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 visflow.DataSource.prototype.clearData_ = function() {
   this.data = [];
   this.rawData_ = [];
+  this.showDataList_();
   this.process();
 };
 
@@ -468,6 +468,24 @@ visflow.DataSource.prototype.useEmptyData_ = function(opt_isError) {
 };
 
 /**
+ * Automatically finds a string dimension for crossing.
+ * @return {!Array<number>} Dimension index.
+ */
+visflow.DataSource.prototype.findCrossingDims = function() {
+  if (this.data.length == 0) {
+    return [];
+  }
+  var data = _(this.rawData_).first();
+  for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
+    if (data.dimensionTypes[dim] == visflow.ValueType.STRING &&
+        !data.dimensionDuplicate[dim]) {
+      return [dim];
+    }
+  }
+  return [visflow.data.INDEX_DIM];
+};
+
+/**
  * Processes all data sets and produces output.
  */
 visflow.DataSource.prototype.process = function() {
@@ -503,6 +521,10 @@ visflow.DataSource.prototype.process = function() {
 
   // Apply crossing.
   if (this.options.crossing) {
+    if (this.options.crossingDims.length == 0) {
+      this.options.crossingDims = this.findCrossingDims();
+      console.log(this.options.crossingDims);
+    }
     var result = visflow.parser.cross(finalData, this.options.crossingDims,
       this.options.crossingName);
     if (!result.success) {
@@ -513,8 +535,22 @@ visflow.DataSource.prototype.process = function() {
     finalData = result.data;
   }
 
+  var lengthSuffix = this.data.length > 3 ? '...' : '';
+  var firstThreeData = this.data.slice(0, 3);
+  var finalName = firstThreeData.map(function(data) {
+    return data.name;
+  }).join(',') + lengthSuffix;
+  var finalFile = firstThreeData.map(function(data) {
+    return data.file;
+  }).join(',') + lengthSuffix;
+
+  _(finalData).extend({
+    name: finalName,
+    file: finalFile
+  });
+
   var data = new visflow.Data(finalData);
-  if (data.type != 'empty') {
+  if (data.type !== '') {
     visflow.flow.registerData(data);
   }
   // Overwrite data object (to keep the same reference).

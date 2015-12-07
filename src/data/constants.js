@@ -15,7 +15,7 @@ visflow.Constants = function(text) {
    * Can be one of {empty, int, float, string}.
    * @type {string}
    */
-  this.constantType = 'empty';
+  this.constantType = visflow.ValueType.EMPTY;
 
   /**
    * List of elements.
@@ -57,14 +57,16 @@ visflow.Constants.prototype.type = 'constants';
 
 /**
  * Checks if another package is compatible with the constants.
- * @param {!visflow.Package} pack
+ * @param {!visflow.Constants} pack
  * @return {boolean}
  */
 visflow.Constants.prototype.compatible = function(pack) {
-  if (this.constantType == 'empty' || pack.constantType == 'empty') {
+  if (this.constantType == visflow.ValueType.EMPTY ||
+      pack.constantType == visflow.ValueType.EMPTY) {
     return true;
   }
-  if (this.constantType == 'string' ^ pack.constantType == 'string') {
+  if (this.constantType == visflow.ValueType.STRING ^
+      pack.constantType == visflow.ValueType.STRING) {
     return false;
   }
   return true;
@@ -79,61 +81,20 @@ visflow.Constants.prototype.stringify = function() {
 };
 
 /**
- * Parses input string.
- * @param {string} text
- * @return {{type: string, value: string}}
- */
-visflow.Constants.prototype.parse = function(text) {
-  var res;
-  res = text.match(/^-?[0-9]+/);
-  if (res && res[0] === text) {
-    return {
-      type: 'int',
-      value: parseInt(text)
-    };
-  }
-  res = text.match(/^-?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)/);
-  if (res && res[0] === text) {
-    return {
-      type: 'float',
-      value: parseFloat(text)
-    };
-  }
-  if (text === '') {  // empty constants are ignored
-    return {
-      type: 'empty',
-      value: null
-    };
-  }
-  return {
-    type: 'string',
-    value: text
-  };
-};
-
-/** @private @enum {number} */
-visflow.Constants.prototype.TYPE_GRADES_ = {
-  empty: -1,
-  int: 0,
-  float: 1,
-  string: 2
-};
-
-/** @private @const {!Array<string>} */
-visflow.Constants.prototype.GRADE_TYPES_ = ['int', 'float', 'string'];
-
-/**
  * Adds one element to the set.
  * @param {number|string} value
  */
 visflow.Constants.prototype.add = function(value) {
-  var grade = this.TYPE_GRADES_[this.constantType];
-  var e = this.parse(value);
+  var parsed = visflow.parser.checkToken(value, [
+    // Time is not handled by constants.
+    visflow.ValueType.TIME
+  ]);
+  var valueType = parsed.type;
+  value = parsed.value;
 
-  if (e.type === 'empty') {
+  if (valueType == visflow.ValueType.EMPTY) {
     return; //  ignore empty element
   }
-  value = e.value;
 
   if (this.hasElement[value]) {
     return; // element already exists
@@ -142,21 +103,13 @@ visflow.Constants.prototype.add = function(value) {
   this.hasElement[value] = true;
   this.elements.push(value);
 
-  var newGrade = Math.max(grade, this.TYPE_GRADES_[e.type]);
-  this.constantType = this.GRADE_TYPES_[newGrade];
-
-  // force conversion to higher types
+  // Force conversion to higher types
   // i.e. int -> float -> string
-  if (newGrade > grade) {
-    for (var i in this.elements) {
-      var e = this.elements[i];
-      if (grade === 1) {
-        e = parseFloat(e);
-      } else if (grade === 2) {
-        e = e.toString();
-      }
-      this.elements[i] = e;
-    }
+  if (valueType > this.constantType) {
+    this.constantType = valueType;
+    this.elements.forEach(function(element, index, array) {
+      array[index] = visflow.parser.tokenize(element, valueType);
+    });
   }
 };
 
@@ -165,7 +118,7 @@ visflow.Constants.prototype.add = function(value) {
  */
 visflow.Constants.prototype.clear = function() {
   this.elements = [];
-  this.constantType = 'empty';
+  this.constantType = visflow.ValueType.EMPTY;
 };
 
 /**
