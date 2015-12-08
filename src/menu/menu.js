@@ -105,7 +105,7 @@ visflow.menu.initUpdateHandlers_ = function() {
  * Updates the alt button's active class to reflect the system's alted state.
  */
 visflow.menu.updateAlt = function() {
-  var alted = visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT);
+  var alted = visflow.interaction.isAlted();
   var btnAlt = $('.visflow > .navbar-fixed-top #alted > .btn');
   if (alted) {
     btnAlt.addClass('active');

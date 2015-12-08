@@ -71,7 +71,11 @@ visflow.Scatterplot.prototype.DEFAULT_OPTIONS = {
   // Show x-axis ticks.
   xTicks: true,
   // Show y-axis ticks.
-  yTicks: true
+  yTicks: true,
+  // Margin percentage of x.
+  xMargin: 0.1,
+  // Margin percentage of y.
+  yMargin: 0.1
 };
 
 /** @inheritDoc */
@@ -249,6 +253,36 @@ visflow.Scatterplot.prototype.initPanel = function(container) {
         this.options.yTicks = value;
         this.layoutChanged();
       }
+    },
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#x-margin'),
+        value: this.options.xMargin,
+        title: 'X Domain Margin',
+        accept: visflow.ValueType.FLOAT,
+        scrollDelta: 0.05,
+        range: [0, 100]
+      },
+      change: function(event, value) {
+        this.options.xMargin = value;
+        this.layoutChanged();
+      }
+    },
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#y-margin'),
+        value: this.options.yMargin,
+        title: 'Y Domain Margin',
+        accept: visflow.ValueType.FLOAT,
+        scrollDelta: 0.05,
+        range: [0, 100]
+      },
+      change: function(event, value) {
+        this.options.yMargin = value;
+        this.layoutChanged();
+      }
     }
   ];
   this.initInterface(units);
@@ -396,7 +430,7 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     this.PLOT_MARGINS.top
   ];
   var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items, yRange, {
-    domainMargin: 0.1,
+    domainMargin: this.options.xMargin,
     ordinalPadding: 1.0
   });
   this.yScale = yScaleInfo.scale;
@@ -412,7 +446,7 @@ visflow.Scatterplot.prototype.prepareScales = function() {
     svgSize.width - this.PLOT_MARGINS.right
   ];
   var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items, xRange, {
-    domainMargin: 0.1,
+    domainMargin: this.options.yMargin,
     ordinalPadding: 1.0
   });
   this.xScale = xScaleInfo.scale;

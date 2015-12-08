@@ -470,7 +470,7 @@ visflow.flow.toggleVisMode = function() {
       var edge = this.edges[id];
       edge.container
         .stop(true)
-        .animate(visflow.flow.VISMODE_ON_CSS_);
+        .animate(visflow.flow.VISMODE_ON_CSS_, edge.hide.bind(edge));
     }
     for (var id in this.nodes) {
       var node = this.nodes[id];
@@ -481,7 +481,7 @@ visflow.flow.toggleVisMode = function() {
       } else {
         node.container
           .stop(true)
-          .animate(visflow.flow.VISMODE_ON_CSS_);
+          .animate(visflow.flow.VISMODE_ON_CSS_, node.hide.bind(node));
       }
     }
   } else {
@@ -507,6 +507,7 @@ visflow.flow.toggleVisMode = function() {
             }.bind(node)
           });
       } else {
+        node.show();
         node.container
           .stop(true)
           .animate(visflow.flow.VISMODE_OFF_CSS_);
@@ -514,6 +515,7 @@ visflow.flow.toggleVisMode = function() {
     }
     for (var id in this.edges) {
       var edge = this.edges[id];
+      edge.show();
       edge.container
         .stop(true)
         .animate(visflow.flow.VISMODE_OFF_CSS_);

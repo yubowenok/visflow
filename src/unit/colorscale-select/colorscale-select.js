@@ -33,7 +33,7 @@ visflow.ColorScaleSelect = function(params) {
 visflow.utils.inherit(visflow.ColorScaleSelect, visflow.Select);
 
 /** @private @const {number} */
-visflow.ColorScaleSelect.prototype.SEARCH_DELAY_ = 20;
+visflow.ColorScaleSelect.prototype.GRADIENT_DELAY_ = 0;
 
 /** @inheritDoc */
 visflow.ColorScaleSelect.prototype.init_ = function() {
@@ -45,14 +45,16 @@ visflow.ColorScaleSelect.prototype.init_ = function() {
     var listId = this.container_.find('.select2-selection')
       .attr('aria-owns');
     var list = $('#' + listId);
-    this.addGradients_(list);
+    setTimeout(function() {
+      this.addGradients_(list);
+    }.bind(this), this.GRADIENT_DELAY_);
     $('.select2-search__field').keydown(function() {
       // The list item may not be immediately refreshed, and keydown handler
       // needs to wait a bit. Ideally we should wait for select2:search event
       // but it seems that select2 4.0 doesn't have such event.
       setTimeout(function() {
         this.addGradients_(list);
-      }.bind(this), this.SEARCH_DELAY_);
+      }.bind(this), this.GRADIENT_DELAY_);
     }.bind(this));
   }.bind(this));
   this.showSelected_();

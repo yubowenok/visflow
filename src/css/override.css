@@ -109,3 +109,8 @@ div {
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
+
+/*** DataTables ***/
+.dataTables_wrapper .dataTables_length select.form-control {
+  cursor: pointer;
+}

@@ -27,6 +27,13 @@ visflow.Table = function(params) {
    * @private {jQuery}
    */
   this.tableTemplate_;
+
+  /**
+   * Flag indicating the next select/deselect in the table shall be canceled as
+   * the interaction is performed as dragging.
+   * @private {boolean}
+   */
+  this.cancelTableSelect_ = false;
 };
 
 visflow.utils.inherit(visflow.Table, visflow.Visualization);
@@ -186,24 +193,47 @@ visflow.Table.prototype.showDetails = function() {
 
   this.updateScrollBodyHeight_();
 
+  var selectHandler = function(event, dt, type, tableIndices) {
+    var cancelled = this.toCancelSelect_();
+    tableIndices.forEach(function(tableIndex) {
+      if (cancelled) {
+        return;
+      }
+      var itemId = rows[tableIndex][0];
+      this.selected[itemId] = true;
+    }, this);
+    if (cancelled) {
+      // Cancel undesired dragging select.
+      this.dataTable.off('deselect.dt', deselectHandler);
+      this.dataTable.rows(tableIndices).deselect();
+      this.dataTable.on('deselect.dt', deselectHandler);
+    }
+    this.pushflow();
+  }.bind(this);
+  var deselectHandler = function(event, dt, type, tableIndices) {
+    var cancelled = this.toCancelSelect_();
+    tableIndices.forEach(function(tableIndex) {
+      if (cancelled) {
+        return;
+      }
+      var itemId = rows[tableIndex][0];
+      delete this.selected[itemId];
+    }, this);
+    if (cancelled) {
+      // Cancel undesired dragging deselect.
+      this.dataTable.off('select.dt', selectHandler);
+      this.dataTable.rows(tableIndices).select();
+      this.dataTable.on('select.dt', selectHandler);
+    }
+    this.pushflow();
+  }.bind(this);
+
   this.dataTable
     .on('length.dt', function(event, settings, length) {
       this.options.pageLength = length;
     }.bind(this))
-    .on('select.dt', function(event, dt, type, tableIndices) {
-      tableIndices.forEach(function(tableIndex) {
-        var itemId = rows[tableIndex][0];
-        this.selected[itemId] = true;
-      }, this);
-      this.pushflow();
-    }.bind(this))
-    .on('deselect.dt', function(event, dt, type, tableIndices) {
-      tableIndices.forEach(function(tableIndex) {
-        var itemId = rows[tableIndex][0];
-        delete this.selected[itemId];
-      }, this);
-      this.pushflow();
-    }.bind(this));
+    .on('select.dt', selectHandler)
+    .on('deselect.dt', deselectHandler);
 };
 
 /** @inheritDoc */
@@ -288,13 +318,17 @@ visflow.Table.prototype.resize = function(size) {
 
 /** @inheritDoc */
 visflow.Table.prototype.mousedown = function(event) {
-  if (visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT)) {
+  var inTable = $(event.target).closest('.dataTables_scroll').length > 0;
+  if (visflow.interaction.isAlted()) {
     // Alt drag mode blocks.
+    if (inTable) {
+      this.cancelTableSelect_ = true;
+    }
     return false;
   }
 
   if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
-    if ($(event.target).closest('.dataTables_scroll').length == 0) {
+    if (!inTable) {
       // Dragging is allowed on search header and bottom info.
       return true;
     }
@@ -306,4 +340,17 @@ visflow.Table.prototype.mousedown = function(event) {
 visflow.Table.prototype.selectItems = function() {
   // Nothing. Do not pass to parent class. Otherwise show and pushflow will
   // be called and table would have to incorrectly refresh.
+};
+
+/**
+ * Checks if the next select/deselect shall be cancelled. If so clear the flag.
+ * @return {boolean}
+ * @private
+ */
+visflow.Table.prototype.toCancelSelect_ = function() {
+  if (this.cancelTableSelect_) {
+    this.cancelTableSelect_ = false;
+    return true;
+  }
+  return false;
 };

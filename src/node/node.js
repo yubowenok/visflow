@@ -570,7 +570,7 @@ visflow.Node.prototype.interaction = function() {
       }.bind(this)
     })
     .draggable({
-      cancel: 'input, button, a, select.form-control #node-label ' +
+      cancel: 'input, button, a, select.form-control, #node-label, ' +
         '.select2-selection',
       //containment: '#main',
       start: function(event) {
@@ -783,6 +783,7 @@ visflow.Node.prototype.remove = function() {
  * Hides the port.
  */
 visflow.Node.prototype.hide = function() {
+  console.log(this);
   $(this.container).hide();
 };
 
@@ -1079,7 +1080,7 @@ visflow.Node.prototype.initPanel = function(container) {};
  */
 visflow.Node.prototype.initInterface = function(units) {
   var preventAltedOpen = function(event) {
-    if(visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT)) {
+    if(visflow.interaction.isAlted()) {
       // When alted, do not show list.
       return false;
     }

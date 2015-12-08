@@ -220,6 +220,7 @@ visflow.parser.tabularToCSV = function(data, opt_items) {
  * Crosses the data on the given key dimensions.
  * @param {!visflow.TabularData} data
  * @param {!Array<number>} dims
+ * @param {!Array<number>} attrs
  * @param {string} name Column name for the attributes.
  * @return {!{
  *   success: boolean,
@@ -227,7 +228,7 @@ visflow.parser.tabularToCSV = function(data, opt_items) {
  *   data: visflow.TabularData
  * }}
  */
-visflow.parser.cross = function(data, dims, name) {
+visflow.parser.cross = function(data, dims, attrs, name) {
   var keysSorted = [];
   var keys = [];
   data.values.forEach(function(row, index) {
@@ -276,15 +277,12 @@ visflow.parser.cross = function(data, dims, name) {
 
   var values = [];
   keys.forEach(function(key, index) {
-    for (var dim = 0; dim < data.dimensions.length; dim++) {
-      if (dim in keyDims) {
-        continue;
-      }
+    attrs.forEach(function(dim) {
       values.push(key.concat([
         data.dimensions[dim],
         data.values[index][dim]
       ]));
-    }
+    }, this);
   }, this);
   // Value column.
   var colInfo = visflow.parser.typingColumn(values, dims.length + 1);

@@ -155,7 +155,7 @@ visflow.interaction.isPressed = function(key) {
   var keyCodes = visflow.interaction.keyCodes;
   switch(key) {
     case keyCodes.ALT:
-      return visflow.interaction.altHold_ || visflow.interaction.alted;
+      return visflow.interaction.isAlted();
     case keyCodes.SHIFT:
       return visflow.interaction.shifted;
     case keyCodes.CTRL:
@@ -164,6 +164,14 @@ visflow.interaction.isPressed = function(key) {
       visflow.error('unknown key code', key);
   }
   return false;
+};
+
+/**
+ * Checks if alt is pressed.
+ * @return {boolean}
+ */
+visflow.interaction.isAlted = function() {
+  return visflow.interaction.altHold_ || visflow.interaction.alted;
 };
 
 /**
@@ -449,7 +457,7 @@ visflow.interaction.mouseupHandler = function(params) {
         }
         visflow.interaction.mainContainer_.css('cursor', '');
       } else if (this.mouseMode == 'selectbox') {
-
+        // TODO(bowen): what is this?
       }
     } else if (type == 'node') {
       if (!this.mouseMoved) {

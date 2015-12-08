@@ -327,7 +327,7 @@ visflow.Visualization.prototype.keyAction = function(key, event) {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.mousedown = function(event) {
-  if (visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT)) {
+  if (visflow.interaction.isAlted()) {
     // Alt drag mode blocks.
     return false;
   }

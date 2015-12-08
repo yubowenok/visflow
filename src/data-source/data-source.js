@@ -27,6 +27,13 @@ visflow.DataSource = function(params) {
   this.rawData_ = [];
 
   /**
+   * Last used data type value. When this changed, we shall auto find the
+   * crossing keys and attributes.
+   * @private {number}
+   */
+  this.lastDataType_ = 0;
+
+  /**
    * Created DataTable.
    * @private {DataTable}
    */
@@ -71,6 +78,9 @@ visflow.DataSource.prototype.MIN_HEIGHT = 40;
 /** @inheritDoc */
 visflow.DataSource.prototype.MAX_HEIGHT = 40;
 
+/** @inheritDoc */
+visflow.DataSource.prototype.DEFAULT_NUM_ATTRS_ = 1;
+
 /**
  * Maximum data names length shown in the node.
  * @private {number}
@@ -82,9 +92,11 @@ visflow.DataSource.prototype.DEFAULT_OPTIONS = {
   // Whether to use data crossing.
   crossing: false,
   // Dimensions used for crossing. -1 is index.
-  crossingDims: [],
+  crossingKeys: [],
   // Name for the attribute column in crossing.
   crossingName: 'attributes',
+  // Crossing attributes, in dimension indices.
+  crossingAttrs: [],
   // Whether to user server data set in the UI.
   useServerData: true
 };
@@ -163,15 +175,33 @@ visflow.DataSource.prototype.initPanel = function(container) {
     {
       constructor: visflow.EditableList,
       params: {
-        container: container.find('#crossing-dims'),
+        container: container.find('#crossing-keys'),
         list: dimensionList,
         listTitle: 'Key(s)',
         addTitle: 'Add Dimension',
-        selected: this.options.crossingDims,
+        selected: this.options.crossingKeys,
         allowClear: false
       },
       change: function(event, dims) {
-        this.options.crossingDims = dims;
+        this.options.crossingKeys = dims;
+        if (this.options.crossing) {
+          this.updateCrossing_();
+        }
+      }
+    },
+    {
+      constructor: visflow.EditableList,
+      params: {
+        container: container.find('#crossing-attrs'),
+        list: dimensionList,
+        listTitle: 'Attributes',
+        addTitle: 'Add Attribute',
+        selected: this.options.crossingAttrs,
+        allowClear: true
+      },
+      change: function(event, attrs) {
+        this.options.crossingAttrs = attrs;
+        this.validateCrossingAttributes_();
         if (this.options.crossing) {
           this.updateCrossing_();
         }
@@ -182,7 +212,7 @@ visflow.DataSource.prototype.initPanel = function(container) {
       params: {
         container: container.find('#crossing-name'),
         value: this.options.crossingName,
-        title: 'Column Name'
+        title: 'Attribute Column Name'
       },
       change: function(event, value) {
         this.options.crossingName = value;
@@ -281,6 +311,23 @@ visflow.DataSource.prototype.updateCrossing_ = function() {
     panelContainer.find("#crossing-section").show();
   }
   this.process();
+};
+
+/**
+ * Checks if there are duplicate attribute in crossing keys.
+ * @private
+ */
+visflow.DataSource.prototype.validateCrossingAttributes_ = function() {
+  var keys = _.keySet(this.options.crossingKeys);
+  var duplicate = false;
+  this.options.crossingAttrs.forEach(function(dim) {
+    if (dim in keys) {
+      duplicate = true;
+    }
+  });
+  if (duplicate) {
+    visflow.warning('crossing attribute duplicate in keys');
+  }
 };
 
 /**
@@ -478,7 +525,7 @@ visflow.DataSource.prototype.useEmptyData_ = function(opt_isError) {
 };
 
 /**
- * Automatically finds a string dimension for crossing.
+ * Automatically finds a string dimension for crossing key.
  * @return {!Array<number>} Dimension index.
  */
 visflow.DataSource.prototype.findCrossingDims = function() {
@@ -493,6 +540,26 @@ visflow.DataSource.prototype.findCrossingDims = function() {
     }
   }
   return [visflow.data.INDEX_DIM];
+};
+
+/**
+ * Automatically finds numerical attributes for crossing attibutes.
+ * @return {!Array<number>} Dimension index.
+ */
+visflow.DataSource.prototype.findCrossingAttrs = function() {
+  if (this.data.length == 0) {
+    return [];
+  }
+  var data = _(this.rawData_).first();
+  var dims = [];
+  for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
+    if (data.dimensionTypes[dim] != visflow.ValueType.STRING) {
+      if (dims.length < this.DEFAULT_NUM_ATTRS_) {
+        dims.push(dim);
+      }
+    }
+  }
+  return dims;
 };
 
 /**
@@ -531,11 +598,16 @@ visflow.DataSource.prototype.process = function() {
 
   // Apply crossing.
   if (this.options.crossing) {
-    if (this.options.crossingDims.length == 0) {
-      this.options.crossingDims = this.findCrossingDims();
+    if (this.options.crossingKeys.length == 0) {
+      this.options.crossingKeys = this.findCrossingDims();
+      this.options.crossingAttrs = this.findCrossingAttrs();
     }
-    var result = visflow.parser.cross(finalData, this.options.crossingDims,
-      this.options.crossingName);
+    var result = visflow.parser.cross(
+      finalData,
+      this.options.crossingKeys,
+      this.options.crossingAttrs,
+      this.options.crossingName
+    );
     if (!result.success) {
       visflow.error('failed to cross data:', result.msg);
       this.useEmptyData_(true);
