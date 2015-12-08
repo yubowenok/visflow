@@ -517,7 +517,7 @@ visflow.Histogram.prototype.initPanel = function(container) {
       }
     },
     {
-      constructor: visflow.Select,
+      constructor: visflow.Input,
       params: {
         container: container.find('#bins'),
         value: this.options.numBins,

@@ -602,7 +602,7 @@ visflow.LineChart.prototype.sortItems_ = function() {
     itemIndices.sort(function(a, b) {
       if (sortBy == visflow.data.INDEX_DIM) {
         // Empty string is to sort by item index.
-        return (+a) - (+b);
+        return a - b;
       } else {
         return visflow.utils.compare(data.values[a][sortBy],
             data.values[b][sortBy]);

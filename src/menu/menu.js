@@ -34,6 +34,12 @@ visflow.menu.init = function() {
     visflow.nodePanel.toggle(true);
   });
 
+  // Options
+  var options = navbar.find('#options');
+  options.find('#show-node-label').click(function() {
+    visflow.options.toggleNodeLabel();
+  });
+
   // Alt hold
   var alted = navbar.find('#alted');
   alted.click(function() {
@@ -74,6 +80,24 @@ visflow.menu.init = function() {
 
   navbar.find('.to-tooltip').tooltip({
     delay: visflow.menu.TOOLTIP_DELAY_
+  });
+
+  visflow.menu.initUpdateHandlers_();
+};
+
+/**
+ * Initializes the update event handlers for events across systems.
+ * @private
+ */
+visflow.menu.initUpdateHandlers_ = function() {
+  $(visflow.options).on('visflow.change', function(event, data) {
+    var value = data.value;
+    switch(data.type) {
+      case 'nodeLabel':
+        $('#options #show-node-label > i').toggleClass('glyphicon-ok', value);
+        visflow.flow.updateNodeLabels();
+        break;
+    }
   });
 };
 

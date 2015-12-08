@@ -62,16 +62,16 @@ visflow.Heatmap = function(params) {
   this.colLabelVerticalChanged_ = false;
 
   /**
-   * Whether have too many row labels to show.
-   * @private {boolean}
-   */
-  this.rowLabelClutter_ = false;
-
-  /**
    * Sorted item indexes.
    * @private {!Array<number>}
    */
   this.itemIndices_ = [];
+
+  /**
+   * Item rendering properties.
+   * @private {!Array}
+   */
+  this.itemProps_ = [];
 
   /** @private {d3.selection} */
   this.svgHeatmap_;
@@ -131,9 +131,9 @@ visflow.Heatmap.prototype.selectedProperties = {
 };
 
 /** @private @const {number} */
-visflow.Heatmap.prototype.LABEL_FONT_SIZE_X_ = 6.5;
+visflow.Heatmap.prototype.LABEL_FONT_SIZE_X_ = 6;
 /** @private @const {number} */
-visflow.Heatmap.prototype.LABEL_FONT_SIZE_Y_ = 11;
+visflow.Heatmap.prototype.LABEL_FONT_SIZE_Y_ = 9;
 
 
 /** @inheritDoc */
@@ -169,6 +169,8 @@ visflow.Heatmap.prototype.deserialize = function(save) {
 /** @inheritDoc */
 visflow.Heatmap.prototype.selectItems = function() {
   this.selectItemsInBox_();
+  this.itemProps_ = this.getItemProperties_();
+  visflow.Heatmap.base.selectItems.call(this);
 };
 
 /**
@@ -191,8 +193,6 @@ visflow.Heatmap.prototype.selectItemsInBox_ = function() {
       this.selected[itemIndex] = true;
     }
   }, this);
-  this.showDetails();
-  this.pushflow();
 };
 
 /** @typedef {{
@@ -213,17 +213,17 @@ visflow.Heatmap.ItemProperty;
  * @private
  */
 visflow.Heatmap.prototype.getItemProperties_ = function() {
-  var inpack = this.ports['in'].pack,
-    items = inpack.items,
-    data = inpack.data;
+  var inpack = this.ports['in'].pack;
+  var items = inpack.items;
+  var data = inpack.data;
   // visflow.Scale information
   var colorScaleInfo = visflow.scales[this.options.colorScaleId];
   var colorScale = colorScaleInfo.scale;
   var dimInfos = this.uniqueDimensions(this.dimensions);
 
-  return this.itemIndices_.map(function(index) {
+  var itemProps = this.itemIndices_.map(function(index) {
     var prop = {
-      id: 'r' + index,
+      index: index,
       cells: this.dimensions.map(function (dim, dimIndex) {
         var value = data.values[index][dim];
         return {
@@ -250,6 +250,7 @@ visflow.Heatmap.prototype.getItemProperties_ = function() {
     }
     return prop;
   }, this);
+  return itemProps;
 };
 
 /** @inheritDoc */
@@ -286,10 +287,8 @@ visflow.Heatmap.prototype.showDetails = function() {
   if (this.checkDataEmpty()) {
     return;
   }
-
-  var itemProps = this.getItemProperties_();
-  this.drawHeatmap_(itemProps);
-  this.drawRowLabels_(itemProps);
+  this.drawHeatmap_(this.itemProps_);
+  this.drawRowLabels_(this.itemProps_);
   this.drawColLabels_();
   this.showSelection();
 };
@@ -300,10 +299,11 @@ visflow.Heatmap.prototype.showDetails = function() {
  * @private
  */
 visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
-  var rows = this.svgHeatmap_.selectAll('g').data(itemProps, _.getValue('id'));
+  var rows = this.svgHeatmap_.selectAll('g')
+    .data(itemProps, _.getValue('index'));
   rows.enter().append('g')
     .style('opacity', 0)
-    .attr('id', _.getValue('id'));
+    .attr('id', _.getValue('index'));
   _(rows.exit()).fadeOut();
 
   var updatedRows = this.allowTransition_ ? rows.transition() : rows;
@@ -342,32 +342,32 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
 /**
  * Renders the heatmap row labels.
  * @param {!Array<!visflow.Heatmap.ItemProperty>} itemProps
+ * @param {boolean=} opt_temp Whether this is temporary rendering.
  * @private
  */
-visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
+visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps, opt_temp) {
   if (this.options.labelBy === '') {
     this.svgRowLabels_.selectAll('*').remove();
     return;
   }
-  var cellHeight = this.yScale(0) - this.yScale(1);
-
-  this.rowLabelClutter_ = cellHeight < this.LABEL_FONT_SIZE_Y_;
+  var cellHeight = opt_temp ? 0 : this.yScale(0) - this.yScale(1);
+  var clutter = opt_temp ? false : cellHeight < this.LABEL_FONT_SIZE_Y_;
 
   // First clear potentially existing row clutter hint.
   this.svgRowLabels_.select('g').remove();
 
   var labels = this.svgRowLabels_.selectAll('text')
-    .data(itemProps, _.getValue('id'));
+    .data(itemProps, _.getValue('index'));
 
   var labelTransform = function(row, index) {
     return visflow.utils.getTransform([
       this.leftMargin_ - this.ROW_LABEL_OFFSET_,
-      this.yScale(index + 1) + cellHeight / 2
+      opt_temp ? 0 : this.yScale(index + 1) + cellHeight / 2
     ]);
   }.bind(this);
 
   labels.enter().append('text')
-    .attr('id', _.getValue('id'))
+    .attr('id', _.getValue('index'))
     .attr('transform', labelTransform)
     .classed('row-label', true);
   _(labels.exit()).fadeOut();
@@ -375,7 +375,7 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
   var updatedLabels = this.allowTransition_ ? labels.transition(): labels;
   updatedLabels
     .text(function(row, index) {
-      if (this.rowLabelClutter_) {
+      if (clutter) {
         if (index == 0 || index == itemProps.length - 1) {
           return row.label;
         }
@@ -387,7 +387,7 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps) {
     .attr('transform', labelTransform);
 
   // Must run after the regular label rendering.
-  if (this.rowLabelClutter_) {
+  if (clutter) {
     var midIndex = itemProps.length >> 1;
     this.svgRowLabels_.append('g')
       .append('text')
@@ -460,12 +460,41 @@ visflow.Heatmap.prototype.drawColLabels_ = function() {
     .attr('transform', labelTransform);
 };
 
+/**
+ * Renders the temporary row labels to determine the label widths.
+ * @param {function} check
+ * @param {string} type 'row' or 'col'
+ * @private
+ */
+visflow.Heatmap.prototype.drawTempLabels_ = function(check, type) {
+  var tempShow = !this.content.is(':visible');
+  if (tempShow) {
+    this.content.show();
+  }
+  var allowTransition = this.allowTransition_;
+  this.allowTransition_ = false;
+  if (type == 'row') {
+    this.drawRowLabels_(this.itemProps_, true);
+  } else {
+    this.drawColLabels_(true);
+  }
+  this.allowTransition_ = allowTransition;
+
+  check();
+
+  this.svgRowLabels_.selectAll('*').remove();
+
+  if (tempShow) {
+    this.content.hide();
+  }
+};
+
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.showSelection = function() {
   var svg = $(this.svgHeatmap_.node());
   for (var index in this.selected) {
-    svg.find('#r' + index).appendTo(svg);
+    svg.find('g#' + index).appendTo(svg);
   }
 };
 
@@ -528,8 +557,7 @@ visflow.Heatmap.prototype.initPanel = function(container) {
       change: function(event, dim) {
         this.options.labelBy = dim;
         // Label dimension change may lead to leftMargin change.
-        this.prepareScales();
-        this.show();
+        this.layoutChanged();
       }
     },
     {
@@ -541,17 +569,11 @@ visflow.Heatmap.prototype.initPanel = function(container) {
       },
       change: function(event, value) {
         this.options.colLabel = value;
-        this.prepareScales();
-        this.show();
+        this.layoutChanged();
       }
     }
   ];
   this.initInterface(units);
-};
-
-/** @inheritDoc */
-visflow.Heatmap.prototype.inputChanged = function() {
-  this.sortItems_();
 };
 
 /**
@@ -614,19 +636,16 @@ visflow.Heatmap.prototype.prepareNormalizeScales_ = function() {
  * @private
  */
 visflow.Heatmap.prototype.updateLeftMargin_ = function() {
-  var inpack = this.ports['in'].pack;
-  var items = inpack.items;
-  var data = inpack.data;
-  if (this.options.labelBy === '') {
-    this.leftMargin_ = this.PLOT_MARGINS.left;
-  } else {
-    var maxLength = 0;
-    for (var index in items) {
-      var value = '' + data.values[index][this.options.labelBy];
-      maxLength = Math.max(maxLength, value.length);
-    }
-    this.leftMargin_ = this.PLOT_MARGINS.left + maxLength *
-        this.LABEL_FONT_SIZE_X_ + this.ROW_LABEL_OFFSET_;
+  this.leftMargin_ = this.PLOT_MARGINS.left;
+  if (this.options.labelBy !== '') {
+    var maxWidth = 0;
+    this.drawTempLabels_(function() {
+      $(this.svgRowLabels_.node()).find('.row-label')
+        .each(function(index, element) {
+          maxWidth = Math.max(maxWidth, element.getBBox().width);
+        });
+    }.bind(this), 'row');
+    this.leftMargin_ += this.ROW_LABEL_OFFSET_ + maxWidth;
   }
 };
 
@@ -635,35 +654,29 @@ visflow.Heatmap.prototype.updateLeftMargin_ = function() {
  * @private
  */
 visflow.Heatmap.prototype.updateTopMargin_ = function() {
-  var inpack = this.ports['in'].pack;
-  var items = inpack.items;
-  var data = inpack.data;
+  var data = this.ports['in'].pack.data;
+  this.topMargin_ = this.PLOT_MARGINS.top;
   if (this.options.colLabel) {
+    var svgSize = this.getSVGSize();
+    var colWidth = (svgSize.width - this.leftMargin_ -
+      this.PLOT_MARGINS.right) / this.dimensions.length;
     var maxLength = d3.max(this.dimensions.map(function(dim) {
       return data.dimensions[dim].length;
     }));
     if (maxLength == null) {
       maxLength = 0;
     }
-    var svgSize = this.getSVGSize();
-    var colWidth = (svgSize.width - this.leftMargin_ -
-        this.PLOT_MARGINS.right) / this.dimensions.length;
-
     var oldVertical = this.colLabelVertical_;
     if (colWidth < maxLength * this.LABEL_FONT_SIZE_X_) {
       this.colLabelVertical_ = true;
-      this.topMargin_ = this.LABEL_FONT_SIZE_X_ * maxLength +
-          this.PLOT_MARGINS.top;
+      this.topMargin_ += this.LABEL_FONT_SIZE_X_ * maxLength;
     } else {
       this.colLabelVertical_ = false;
-      this.topMargin_ = this.PLOT_MARGINS.top + this.LABEL_FONT_SIZE_Y_ +
-        this.COL_LABEL_OFFSET_;
+      this.topMargin_ += this.LABEL_FONT_SIZE_Y_ + this.COL_LABEL_OFFSET_;
     }
     if (this.colLabelVertical_ != oldVertical) {
       this.colLabelVerticalChanged_ = true;
     }
-  } else {
-    this.topMargin_ = this.PLOT_MARGINS.top;
   }
 };
 
@@ -677,12 +690,15 @@ visflow.Heatmap.prototype.updateMargins_ = function() {
   this.updateTopMargin_();
 };
 
-/** @inheritDoc */
+/**
+ * Prepares the scales relating to layouts. Normalized scales are not prepared
+ * here!
+ * @inheritDoc
+ */
 visflow.Heatmap.prototype.prepareScales = function() {
   this.updateMargins_();
   // xScale depends on leftMargin.
   this.prepareXYScales_();
-  this.prepareNormalizeScales_();
 };
 
 /**
@@ -714,6 +730,13 @@ visflow.Heatmap.prototype.findPlotDimensions = function() {
 };
 
 /** @inheritDoc */
+visflow.Heatmap.prototype.inputChanged = function() {
+  this.sortItems_();
+  this.prepareNormalizeScales_();
+  this.itemProps_ = this.getItemProperties_();
+};
+
+/** @inheritDoc */
 visflow.Heatmap.prototype.dataChanged = function() {
   var info = this.findPlotDimensions();
   this.dimensions = info.dimensions;
@@ -721,7 +744,11 @@ visflow.Heatmap.prototype.dataChanged = function() {
   // The previous sortBy corresponds to unknown dimension in new data set.
   // We choose to sort by nothing by default.
   this.options.sortBy = '';
+};
 
-  this.updateMargins_();
-  this.sortItems_();
+/** @inheritDoc */
+visflow.Heatmap.prototype.dimensionChanged = function() {
+  this.prepareNormalizeScales_();
+  this.itemProps_ = this.getItemProperties_();
+  visflow.Heatmap.base.dimensionChanged.call(this);
 };

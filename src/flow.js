@@ -749,3 +749,13 @@ visflow.flow.keyAction = function(key, event) {
       }
   }
 };
+
+/**
+ * Updates the node labels based on the currently node label visibility option.
+ */
+visflow.flow.updateNodeLabels = function() {
+  for (var id in visflow.flow.nodes) {
+    var node = visflow.flow.nodes[id];
+    node.showLabel();
+  }
+};
