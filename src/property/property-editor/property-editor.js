@@ -70,58 +70,71 @@ visflow.PropertyEditor.prototype.deserialize = function(save) {
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.initPanel = function(container) {
+  var units = [];
   [
     {selector: '#color', property: 'color', title: 'Color'},
     {selector: '#border', property: 'border', title: 'Border'}
   ].forEach(function(info) {
-      var colorPicker = new visflow.ColorPicker({
-        container: container.find(info.selector),
-        colorPickerContainer: container,
-        color: this.options.properties[info.property],
-        title: info.title
-      });
-      $(colorPicker).on('visflow.change', function(event, color) {
-        this.options.properties[info.property] = color;
-        this.inputChanged('panel');
-      }.bind(this));
+      units.push({
+        constructor: visflow.ColorPicker,
+        params: {
+          container: container.find(info.selector),
+          colorPickerContainer: container,
+          color: this.options.properties[info.property],
+          title: info.title
+        },
+        change: function(event, color) {
+          this.options.properties[info.property] = color;
+          this.parameterChanged('panel');
+        }
+      })
     }, this);
-
   [
     {selector: '#width', property: 'width', title: 'Width'},
     {selector: '#size', property: 'size', title: 'Size'},
     {selector: '#opacity', property: 'opacity', title: 'Opacity'}
   ].forEach(function(info) {
-      var input = new visflow.Input({
-        container: container.find(info.selector),
-        value: this.options.properties[info.property],
-        title: info.title,
-        accept: visflow.ValueType.FLOAT,
-        range: visflow.property.MAPPING_RANGES[info.property],
-        scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
+      units.push({
+        constructor: visflow.Input,
+        params: {
+          container: container.find(info.selector),
+          value: this.options.properties[info.property],
+          title: info.title,
+          accept: visflow.ValueType.FLOAT,
+          range: visflow.property.MAPPING_RANGES[info.property],
+          scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
+        },
+        change: function(event, value) {
+          this.options.properties[info.property] = value;
+          this.parameterChanged('panel');
+        }
       });
-      $(input).on('visflow.change', function(event, value) {
-        this.options.properties[info.property] = value;
-        this.inputChanged('panel');
-      }.bind(this));
     }, this);
+
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.showDetails = function() {
   visflow.PropertyEditor.base.showDetails.call(this); // call parent settings
 
+  var units = [];
+
   [
     {selector: '#color', property: 'color'},
     {selector: '#border', property: 'border'}
   ].forEach(function(info) {
-    var colorPicker = new visflow.ColorPicker({
-      container: this.content.find(info.selector),
-      color: this.options.properties[info.property]
+    units.push({
+      constructor: visflow.ColorPicker,
+      params: {
+        container: this.content.find(info.selector),
+        color: this.options.properties[info.property]
+      },
+      change: function (event, color) {
+        this.options.properties[info.property] = color;
+        this.parameterChanged('node');
+      }
     });
-    $(colorPicker).on('visflow.change', function(event, color) {
-      this.options.properties[info.property] = color;
-      this.inputChanged('node');
-    }.bind(this));
   }, this);
 
   [
@@ -129,18 +142,22 @@ visflow.PropertyEditor.prototype.showDetails = function() {
     {selector: '#size', property: 'size'},
     {selector: '#opacity', property: 'opacity'}
   ].forEach(function(info) {
-    var input = new visflow.Input({
-      container: this.content.find(info.selector),
-      value: this.options.properties[info.property],
-      accept: visflow.ValueType.FLOAT,
-      range: visflow.property.MAPPING_RANGES[info.property],
-      scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
+    units.push({
+      constructor: visflow.Input,
+      params: {
+        container: this.content.find(info.selector),
+        value: this.options.properties[info.property],
+        accept: visflow.ValueType.FLOAT,
+        range: visflow.property.MAPPING_RANGES[info.property],
+        scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
+      },
+      change: function(event, value) {
+        this.options.properties[info.property] = value;
+        this.parameterChanged('node');
+      }
     });
-    $(input).on('visflow.change', function(event, value) {
-      this.options.properties[info.property] = value;
-      this.inputChanged('node');
-    }.bind(this));
   }, this);
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
@@ -190,7 +207,7 @@ visflow.PropertyEditor.prototype.adjustNumbers = function() {
 };
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.inputChanged = function(source) {
+visflow.PropertyEditor.prototype.parameterChanged = function(source) {
   var adjusted = this.adjustNumbers();
   this.process();
   this.pushflow();

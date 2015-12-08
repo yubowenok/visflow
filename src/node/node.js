@@ -179,7 +179,7 @@ visflow.Node.prototype.MAX_WIDTH = Infinity;
 visflow.Node.prototype.MAX_HEIGHT = Infinity;
 
 /** @protected @const {number} */
-visflow.Node.prototype.MAX_LABEL_LENGTH = 15;
+visflow.Node.prototype.MAX_LABEL_LENGTH = 14;
 /** @private @const {number} */
 visflow.Node.prototype.ERROR_LENGTH_ = 100;
 
@@ -570,8 +570,8 @@ visflow.Node.prototype.interaction = function() {
       }.bind(this)
     })
     .draggable({
-      cancel: 'input, button, a, select, #node-label, ' +
-          '.select2-selection__rendered',
+      cancel: 'input, button, a, select.form-control #node-label ' +
+        '.select2-selection',
       //containment: '#main',
       start: function(event) {
         visflow.interaction.dragstartHandler({
@@ -1069,15 +1069,25 @@ visflow.Node.prototype.initPanelHeader = function(container) {
 visflow.Node.prototype.initPanel = function(container) {};
 
 /**
- * Initializes the panel user interface units.
+ * Initializes the user interface units.
  * @param {!Array<{
  *   constructor: !visflow.Node,
  *   params: !Object,
- *   change: function(!jQuery.event, *)
+ *   change: function(!jQuery.event, *),
+ *   opening: function(!jQuery.event, *): *
  * }>} units
  */
-visflow.Node.prototype.initPanelInterface = function(units) {
+visflow.Node.prototype.initInterface = function(units) {
+  var preventAltedOpen = function(event) {
+    if(visflow.interaction.isPressed(visflow.interaction.keyCodes.ALT)) {
+      // When alted, do not show list.
+      return false;
+    }
+  };
   units.forEach(function(unit) {
+    _(unit.params).extend({
+      opening: preventAltedOpen
+    });
     $(new unit.constructor(unit.params))
       .on('visflow.change', unit.change.bind(this));
   }, this);

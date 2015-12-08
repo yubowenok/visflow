@@ -251,7 +251,7 @@ visflow.Scatterplot.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initPanelInterface(units);
+  this.initInterface(units);
 };
 
 /**

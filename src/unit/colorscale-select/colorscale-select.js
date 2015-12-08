@@ -18,8 +18,6 @@ visflow.ColorScaleSelect = function(params) {
   });
   visflow.ColorScaleSelect.base.constructor.call(this, params);
 
-  this.container_.children('.select').addClass('color-scale');
-
   /**
    * Mapping from scale text to scale item, so that we can add gradientDiv to
    * dropdown select list (li's of which do not have identifiers).
@@ -40,6 +38,8 @@ visflow.ColorScaleSelect.prototype.SEARCH_DELAY_ = 20;
 /** @inheritDoc */
 visflow.ColorScaleSelect.prototype.init_ = function() {
   visflow.ColorScaleSelect.base.init_.call(this);
+
+  this.container_.children('.select').addClass('color-scale');
 
   this.select2_.on('select2:open', function() {
     var listId = this.container_.find('.select2-selection')

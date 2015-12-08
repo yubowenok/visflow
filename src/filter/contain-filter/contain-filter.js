@@ -39,14 +39,7 @@ visflow.ContainFilter = function(params) {
    * Filtering value applied.
    * @protected {!Array<number|string>}
    */
-  this.value = null;
-
-  /**
-   * Filtering value specified by directly typing in the input boxes.
-   * Type-in value is stored as string.
-   * @protected {!Array<string>}
-   */
-  this.typeInValue = null;
+  this.value = [];
 };
 
 visflow.utils.inherit(visflow.ContainFilter, visflow.Filter);
@@ -64,122 +57,153 @@ visflow.ContainFilter.prototype.NODE_CLASS = 'contain-filter';
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.DEFAULT_OPTIONS = {
+  // Dimensions to be filtered on.
+  dims: [],
   // Whether input is treated as normal text or regex.
   // 'text' or 'regex'.
   mode: 'text',
   // Matching target. 'full' or 'substring'.
   target: 'full',
   // Whether to ignore cases in matching.
-  ignoreCases: true
-};
-
-/** @inheritDoc */
-visflow.ContainFilter.prototype.serialize = function() {
-  var result = visflow.ContainFilter.base.serialize.call(this);
-  result.mode = this.options.mode;
-  result.typeInValue = this.typeInValue;
-  return result;
+  ignoreCases: true,
+  // Filtering value specified by directly typing in the input boxes.
+  // Type-in value is stored as string.
+  typeInValue: null
 };
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.deserialize = function(save) {
   visflow.ContainFilter.base.deserialize.call(this, save);
-  this.options.mode = save.mode;
-  this.typeInValue = save.typeInValue;
+  if (save.typeInValue) {
+    this.options.typeInValue = save.typeInValue;
+  }
 };
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.initPanel = function(container) {
-  var dimSelect = new visflow.Select({
-    container: container.find('#dim'),
-    list: this.getDimensionList(),
-    selected: this.dim,
-    listTitle: 'Filtering Dimension',
-    selectTitle: this.ports['in'].pack.data.isEmpty() ?
-        this.NO_DATA_STRING : null
-  });
-  $(dimSelect).on('visflow.change', function(event, dim) {
-    this.dim = dim;
-    this.inputChanged();
-  }.bind(this));
-
-  var inputVal = new visflow.Input({
-    container: container.find('#value'),
-    value: this.value,
-    title: 'Value(s)',
-    disabled: this.ports['inVal'].connected()
-  });
-  $(inputVal).on('visflow.change', function(event, value) {
-    this.typeInValue = '' + value;
-    this.inputChanged();
-  }.bind(this));
-
-  var modes = [
-    {id: 'text', text: 'Text'},
-    {id: 'regex', text: 'Regex'}
+  var units = [
+    // Dimension
+    {
+      constructor: visflow.MultipleSelect,
+      params: {
+        container: container.find('#dims'),
+        list: this.getDimensionList(),
+        selected: this.options.dims,
+        listTitle: 'Filtering Dimension(s)',
+        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+          this.NO_DATA_STRING : null
+      },
+      change: function(event, dims) {
+        if (dims == null) {
+          dims = [];
+        }
+        this.options.dims = dims;
+        this.parameterChanged();
+      }
+    },
+    // Value
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#value'),
+        value: this.value,
+        title: 'Value(s)',
+        disabled: this.ports['inVal'].connected()
+      },
+      change: function(event, value) {
+        this.options.typeInValue = '' + value;
+        this.parameterChanged();
+      }
+    },
+    // Mode
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#mode'),
+        list: [
+          {id: 'text', text: 'Text'},
+          {id: 'regex', text: 'Regex'}
+        ],
+        selected: this.options.mode,
+        listTitle: 'Matching Mode'
+      },
+      change: function(event, mode) {
+        this.options.mode = mode;
+        this.parameterChanged();
+      }
+    },
+    // Target
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#target'),
+        list: [
+          {id: 'full', text: 'Full String'},
+          {id: 'substring', text: 'Substring'}
+        ],
+        selected: this.options.target,
+        listTitle: 'Matching Target'
+      },
+      change: function(event, target) {
+        this.options.target = target;
+        this.parameterChanged();
+      }
+    },
+    // Ignore cases
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#ignore-cases'),
+        value: this.options.ignoreCases,
+        title: 'Ignore Cases'
+      },
+      change: function(event, value) {
+        this.options.ignoreCases = value;
+        this.parameterChanged();
+      }
+    }
   ];
-  var modeSelect = new visflow.Select({
-    container: container.find('#mode'),
-    list: modes,
-    selected: this.options.mode,
-    listTitle: 'Matching Mode'
-  });
-  $(modeSelect).on('visflow.change', function(event, mode) {
-    this.options.mode = mode;
-    this.inputChanged();
-  }.bind(this));
-
-  var targets = [
-    {id: 'full', text: 'Full String'},
-    {id: 'substring', text: 'Substring'}
-  ];
-  var targetSelect = new visflow.Select({
-    container: container.find('#target'),
-    list: targets,
-    selected: this.options.target,
-    listTitle: 'Matching Target'
-  });
-  $(targetSelect).on('visflow.change', function(event, target) {
-    this.options.target = target;
-    this.inputChanged();
-  }.bind(this));
-
-  var ignoreCasesToggle = new visflow.Checkbox({
-    container: container.find('#ignore-cases'),
-    value: this.options.ignoreCases,
-    title: 'Ignore Cases'
-  });
-  $(ignoreCasesToggle).on('visflow.change', function(event, value) {
-    this.options.ignoreCases = value;
-    this.inputChanged();
-  }.bind(this));
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.showDetails = function() {
   visflow.ContainFilter.base.showDetails.call(this);
 
-  var dimSelect = new visflow.Select({
-    container: this.content.find('#dim'),
-    list: this.getDimensionList(),
-    selected: this.dim,
-    selectTitle: this.ports['in'].pack.data.isEmpty() ?
-        this.NO_DATA_STRING : null
-  });
-  $(dimSelect).on('visflow.change', function(event, dim) {
-    this.dim = dim;
-    this.inputChanged();
-  }.bind(this));
-
-  var inputVal = new visflow.Input({
-    container: this.content.find('#value'),
-    value: this.value,
-    disabled: this.ports['inVal'].connected()
-  });
-  $(inputVal).on('visflow.change', function(event, value) {
-    this.typeInValue = '' + value;
-    this.inputChanged();
-  }.bind(this));
+  var units = [
+    // Dimension
+    {
+      constructor: visflow.MultipleSelect,
+      params: {
+        container: this.content.find('#dims'),
+        list: this.getDimensionList(),
+        selected: this.options.dims,
+        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+          this.NO_DATA_STRING : null
+      },
+      change: function(event, dims) {
+        if (dims == null) {
+          dims = [];
+        }
+        this.options.dims = dims;
+        this.parameterChanged();
+      }
+    },
+    // Value
+    {
+      constructor: visflow.Input,
+      params: {
+        container: this.content.find('#value'),
+        value: this.value,
+        disabled: this.ports['inVal'].connected()
+      },
+      change: function(event, value) {
+        this.options.typeInValue = '' + value;
+        this.parameterChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
@@ -188,8 +212,8 @@ visflow.ContainFilter.prototype.process = function() {
   var pack;
   if (port.connected()) {
     pack = port.pack;
-  } else if (this.typeInValue != null) {
-    pack = new visflow.Constants(this.typeInValue);
+  } else if (this.options.typeInValue != null) {
+    pack = new visflow.Constants(this.options.typeInValue);
   } else {
     // Empty constants
     pack = port.pack;
@@ -222,33 +246,36 @@ visflow.ContainFilter.prototype.filter = function() {
 
   var result = [];
   for (var index in items) {
-    var value = '' + data.values[index][this.dim];
-    if (this.options.ignoreCases) {
-      value = value.toLowerCase();
-    }
-    for (var j in this.value) {
-      var pattern = this.value[j] + '';
+    var matched = false;
+    for (var dimIndex = 0; dimIndex < this.options.dims.length && !matched;
+         dimIndex++) {
+      var dim = this.options.dims[dimIndex];
+      var value = '' + data.values[index][dim];
       if (this.options.ignoreCases) {
-        pattern = pattern.toLowerCase();
+        value = value.toLowerCase();
       }
-      var matched = false;
-      if (this.options.mode == 'regex') {
-        pattern = RegExp(pattern);
-        var m = value.match(pattern);
-        matched = m != null &&
+      for (var i = 0; i < this.value.length && !matched; i++) {
+        var pattern = this.value[i] + '';
+        if (this.options.ignoreCases) {
+          pattern = pattern.toLowerCase();
+        }
+        if (this.options.mode == 'regex') {
+          pattern = RegExp(pattern);
+          var m = value.match(pattern);
+          matched = m != null &&
             (this.options.target == 'substring' || m[0] == value);
-      } else {
-        // text matching
-        if (this.options.target == 'full') {
-          matched = value === pattern;
         } else {
-          matched = value.indexOf(pattern) != -1;
+          // text matching
+          if (this.options.target == 'full') {
+            matched = value === pattern;
+          } else {
+            matched = value.indexOf(pattern) != -1;
+          }
         }
       }
-      if (matched) {
-        result.push(index);
-        break;
-      }
+    }
+    if (matched) {
+      result.push(index);
     }
   }
   outpack.copy(inpack);

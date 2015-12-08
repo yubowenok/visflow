@@ -474,65 +474,79 @@ visflow.Heatmap.prototype.initPanel = function(container) {
   visflow.Heatmap.base.initPanel.call(this, container);
   var dimensionList = this.getDimensionList();
 
-  var list = new visflow.EditableList({
-    container: container.find('#dims'),
-    list: dimensionList,
-    selected: this.dimensions,
-    listTitle: 'Dimensions',
-    addTitle: 'Add Dimension'
-  });
-  $(list).on('visflow.change', function(event, items) {
-    this.dimensions = items;
-    this.dimensionChanged();
-  }.bind(this));
-
-  var colorScaleSelect = new visflow.ColorScaleSelect({
-    container: container.find('#color-scale'),
-    selected: this.options.colorScaleId,
-    listTitle: 'Color Scale'
-  });
-  $(colorScaleSelect).on('visflow.change', function(event, scaleId) {
-    this.options.colorScaleId = scaleId;
-    this.show();
-  }.bind(this));
-
-  var sortBySelect = new visflow.Select({
-    container: container.find('#sort-by'),
-    list: dimensionList,
-    allowClear: true,
-    selected: this.options.sortBy,
-    listTitle: 'Sort By'
-  });
-  $(sortBySelect).on('visflow.change', function(event, dim) {
-    this.options.sortBy = dim;
-    this.sortItems_();
-    this.show();
-  }.bind(this));
-
-  var labelBySelect = new visflow.Select({
-    container: container.find('#label-by'),
-    list: dimensionList,
-    allowClear: true,
-    selected: this.options.labelBy,
-    listTitle: 'Row Labels'
-  });
-  $(labelBySelect).on('visflow.change', function(event, dim) {
-    this.options.labelBy = dim;
-    // Label dimension change may lead to leftMargin change.
-    this.prepareScales();
-    this.show();
-  }.bind(this));
-
-  var colLabelToggle = new visflow.Checkbox({
-    container: container.find('#col-label'),
-    value: this.options.colLabel,
-    title: 'Column Labels'
-  });
-  $(colLabelToggle).on('visflow.change', function(event, value) {
-    this.options.colLabel = value;
-    this.prepareScales();
-    this.show();
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.EditableList,
+      params: {
+        container: container.find('#dims'),
+        list: dimensionList,
+        selected: this.dimensions,
+        listTitle: 'Dimensions',
+        addTitle: 'Add Dimension'
+      },
+      change :function(event, items) {
+        this.dimensions = items;
+        this.dimensionChanged();
+      }
+    },
+    {
+      constructor: visflow.ColorScaleSelect,
+      params: {
+        container: container.find('#color-scale'),
+        selected: this.options.colorScaleId,
+        listTitle: 'Color Scale'
+      },
+      change: function(event, scaleId) {
+        this.options.colorScaleId = scaleId;
+        this.show();
+      }
+    },
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#sort-by'),
+        list: dimensionList,
+        allowClear: true,
+        selected: this.options.sortBy,
+        listTitle: 'Sort By'
+      },
+      change: function(event, dim) {
+        this.options.sortBy = dim;
+        this.sortItems_();
+        this.show();
+      }
+    },
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#label-by'),
+        list: dimensionList,
+        allowClear: true,
+        selected: this.options.labelBy,
+        listTitle: 'Row Labels'
+      },
+      change: function(event, dim) {
+        this.options.labelBy = dim;
+        // Label dimension change may lead to leftMargin change.
+        this.prepareScales();
+        this.show();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#col-label'),
+        value: this.options.colLabel,
+        title: 'Column Labels'
+      },
+      change: function(event, value) {
+        this.options.colLabel = value;
+        this.prepareScales();
+        this.show();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */

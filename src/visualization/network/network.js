@@ -617,84 +617,103 @@ visflow.Network.prototype.initPanel = function(container) {
   var edgeDimensionList = this.getDimensionList(
     this.ports['inEdges'].pack.data);
 
-  var nodeIdSelect = new visflow.Select({
-    container: container.find('#node-id-by'),
-    list: nodeDimensionList,
-    allowClear: false,
-    selected: this.options.nodeIdBy,
-    listTitle: 'Node Id'
-  });
-  $(nodeIdSelect).on('visflow.change', function(event, dim) {
-    this.options.nodeIdBy = dim;
-    this.inputChanged();
-  }.bind(this));
-
-  var sourceSelect = new visflow.Select({
-    container: container.find('#source-by'),
-    list: edgeDimensionList,
-    allowClear: false,
-    selected: this.options.sourceBy,
-    listTitle: 'Edge Source'
-  });
-  $(sourceSelect).on('visflow.change', function(event, dim) {
-    this.options.sourceBy = dim;
-    this.inputChanged();
-  }.bind(this));
-  var targetSelect = new visflow.Select({
-    container: container.find('#target-by'),
-    list: edgeDimensionList,
-    allowClear: false,
-    selected: this.options.targetBy,
-    listTitle: 'Edge Target'
-  });
-  $(targetSelect).on('visflow.change', function(event, dim) {
-    this.options.targetBy = dim;
-    this.inputChanged();
-  }.bind(this));
-
-  var labelBySelect = new visflow.Select({
-    container: container.find('#label-by'),
-    list: nodeDimensionList,
-    allowClear: true,
-    selected: this.options.labelBy,
-    listTitle: 'Label By'
-  });
-  $(labelBySelect).on('visflow.change', function(event, dim) {
-    this.options.labelBy = dim;
-    this.inputChanged();
-  }.bind(this));
-
-  var inputCharge = new visflow.Input({
-    container: container.find('#charge'),
-    value: this.options.charge,
-    accept: visflow.ValueType.INT,
-    range: [-200000, 0],
-    scrollDelta: 500,
-    title: 'Force Charge'
-  });
-  $(inputCharge).on('visflow.change', function(event, value) {
-    this.options.charge = value;
-    this.inputChanged();
-  }.bind(this));
-
-  // Toggles
-  var nodeLabelToggle = new visflow.Checkbox({
-    container: container.find('#label-node'),
-    value: this.options.nodeLabel,
-    title: 'Node Label'
-  });
-  $(nodeLabelToggle).on('visflow.change', function(event, value) {
-    this.options.nodeLabel = value;
-    this.show();
-  }.bind(this));
-  var navigationToggle = new visflow.Checkbox({
-    container: container.find('#navigation'),
-    value: this.options.navigation,
-    title: 'Navigation'
-  });
-  $(navigationToggle).on('visflow.change', function(event, value) {
-    this.options.navigation = value;
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#node-id-by'),
+        list: nodeDimensionList,
+        allowClear: false,
+        selected: this.options.nodeIdBy,
+        listTitle: 'Node Id'
+      },
+      change: function(event, dim) {
+        this.options.nodeIdBy = dim;
+        this.inputChanged();
+      }
+    },
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#source-by'),
+        list: edgeDimensionList,
+        allowClear: false,
+        selected: this.options.sourceBy,
+        listTitle: 'Edge Source'
+      },
+      change: function(event, dim) {
+        this.options.sourceBy = dim;
+        this.inputChanged();
+      }
+    },
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#target-by'),
+        list: edgeDimensionList,
+        allowClear: false,
+        selected: this.options.targetBy,
+        listTitle: 'Edge Target'
+      },
+      change: function(event, dim) {
+        this.options.targetBy = dim;
+        this.inputChanged();
+      }
+    },
+    {
+      constructor: visflow.Select,
+      params: {
+        container: container.find('#label-by'),
+        list: nodeDimensionList,
+        allowClear: true,
+        selected: this.options.labelBy,
+        listTitle: 'Label By'
+      },
+      change: function(event, dim) {
+        this.options.labelBy = dim;
+        this.inputChanged();
+      }
+    },
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#charge'),
+        value: this.options.charge,
+        accept: visflow.ValueType.INT,
+        range: [-200000, 0],
+        scrollDelta: 500,
+        title: 'Force Charge'
+      },
+      change: function(event, value) {
+        this.options.charge = value;
+        this.inputChanged();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#label-node'),
+        value: this.options.nodeLabel,
+        title: 'Node Label'
+      },
+      change: function(event, value) {
+        this.options.nodeLabel = value;
+        this.show();
+      }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#navigation'),
+        value: this.options.navigation,
+        title: 'Navigation'
+      },
+      change: function(event, value) {
+        this.options.navigation = value;
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */

@@ -247,7 +247,11 @@ visflow.Port.prototype.initContextMenu = function() {
 visflow.Port.prototype.info = function() {
   var text = this.text_ ? this.text_ + ': ' : '';
   if (this.isConstants) {
-    text += this.pack.stringify();
+    var constants = this.pack.stringify();
+    if (constants === '') {
+      constants = '(empty)';
+    }
+    text += constants;
   } else if (this.isInput) {
     text += this.pack.count() + ' items';
   } else {

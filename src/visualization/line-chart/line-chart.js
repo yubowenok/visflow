@@ -114,6 +114,8 @@ visflow.LineChart.prototype.DEFAULT_OPTIONS = {
 visflow.LineChart.prototype.LEGEND_OFFSET_X_ = 10;
 /** @private @const {number} */
 visflow.LineChart.prototype.LEGEND_OFFSET_Y_ = 15;
+/** @private @const {number} */
+visflow.LineChart.prototype.LEGEND_MARGIN_RIGHT_ = 5;
 /**
  * This includes the colorbox size.
  * @private @const {number}
@@ -301,7 +303,7 @@ visflow.LineChart.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initPanelInterface(units);
+  this.initInterface(units);
   this.updateCollisionMessage_();
 };
 
@@ -367,8 +369,8 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
       .each(function(index, element) {
         maxLength = Math.max(maxLength, element.getBBox().width);
       });
-    this.leftMargin_ += maxLength +
-        this.LEGEND_LABEL_OFFSET_X_ + this.LEGEND_OFFSET_X_;
+    this.leftMargin_ += maxLength + this.LEGEND_LABEL_OFFSET_X_ +
+      this.LEGEND_OFFSET_X_ + this.LEGEND_MARGIN_RIGHT_;
   }
 
   if (tempShow) {

@@ -29,18 +29,10 @@ visflow.ValueExtractor = function(params) {
   };
 
   /**
-   * Dimension from which to extract constants.
-   * @type {number}
-   */
-  this.dim = 0;
-
-  /**
    * Last applied data id. Default is empty data (0).
    * @protected {number}
    */
   this.lastDataId = 0;
-
-  this.ports['out'].pack = new visflow.Constants();
 };
 
 visflow.utils.inherit(visflow.ValueExtractor, visflow.Node);
@@ -66,9 +58,14 @@ visflow.ValueExtractor.prototype.MAX_HEIGHT = 53;
 visflow.ValueExtractor.prototype.NO_DATA_STRING = 'No Data';
 
 /** @inheritDoc */
+visflow.ValueExtractor.prototype.DEFAULT_OPTIONS = {
+  // Dimensions from which to extract values.
+  dims: []
+};
+
+/** @inheritDoc */
 visflow.ValueExtractor.prototype.serialize = function() {
   var result = visflow.ValueExtractor.base.serialize.call(this);
-  result.dim = this.dim;
   result.lastDataId = this.lastDataId;
   return result;
 };
@@ -76,53 +73,63 @@ visflow.ValueExtractor.prototype.serialize = function() {
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.deserialize = function(save) {
   visflow.ValueExtractor.base.deserialize.call(this, save);
-  this.dim = save.dim;
   this.lastDataId = save.lastDataId;
-
-  if (this.dim == null) {
-    this.dim = 0;
-    visflow.warning('dim not saved in', this.label);
-  }
 };
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.initPanel = function(container) {
   visflow.ValueExtractor.base.initPanel.call(this, container);
-
-  var dimSelect = new visflow.Select({
-    container: container.find('#dim'),
-    list: this.getDimensionList(),
-    selected: this.dim,
-    selectTitle: this.ports['in'].pack.data.isEmpty() ?
-        this.NO_DATA_STRING : null
-  });
-  $(dimSelect).on('visflow.change', function(event, dim) {
-    this.dim = dim;
-    this.inputChanged();
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.MultipleSelect,
+      params: {
+        container: container.find('#dims'),
+        list: this.getDimensionList(),
+        selected: this.options.dims,
+        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+          this.NO_DATA_STRING : null
+      },
+      change: function(event, dims) {
+        if (dims == null) {
+          dims = [];
+        }
+        this.options.dims = dims;
+        this.parameterChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.showDetails = function() {
-  visflow.ValueExtractor.base.showDetails.call(this); // call parent settings
-
-  var dimSelect = new visflow.Select({
-    container: this.content.find('#dim'),
-    list: this.getDimensionList(),
-    selected: this.dim,
-    selectTitle: this.ports['in'].pack.data.isEmpty() ?
-        this.NO_DATA_STRING : null
-  });
-  $(dimSelect).on('visflow.change', function(event, dim) {
-    this.dim = dim;
-    this.inputChanged();
-  }.bind(this));
+  visflow.ValueExtractor.base.showDetails.call(this);
+  var units = [
+    {
+      constructor: visflow.MultipleSelect,
+      params: {
+        container: this.content.find('#dims'),
+        list: this.getDimensionList(),
+        selected: this.options.dims,
+        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+          this.NO_DATA_STRING : null
+      },
+      change: function(event, dims) {
+        if (dims == null) {
+          dims = [];
+        }
+        this.options.dims = dims;
+        this.parameterChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.process = function() {
-  var inpack = this.ports['in'].pack,
-      outpack = this.ports['out'].pack;
+  var inpack = this.ports['in'].pack;
+  var outpack = this.ports['out'].pack;
   if (inpack.type === 'constants')
     return visflow.error('constants in connected to value extractor');
 
@@ -135,15 +142,17 @@ visflow.ValueExtractor.prototype.process = function() {
 
   if (inpack.data.dataId != this.lastDataId) {
     this.lastDataId = inpack.data.dataId;
-    this.dim = 0;
+    this.options.dims = [];
   }
 
-  var items = inpack.items,
-      values = inpack.data.values;
+  var items = inpack.items;
+  var values = inpack.data.values;
   var allValues = {};
   for (var index in items) {
-    var value = values[index][this.dim];
-    allValues[value] = true;
+    this.options.dims.forEach(function(dim) {
+      var value = values[index][dim];
+      allValues[value] = true;
+    });
   }
 
   _(allValues).allKeys().map(function(val) {
@@ -153,11 +162,13 @@ visflow.ValueExtractor.prototype.process = function() {
 };
 
 /**
- * Handles input dimension changes.
+ * Handles interface parameter changes.
  */
-visflow.ValueExtractor.prototype.inputChanged = function() {
+visflow.ValueExtractor.prototype.parameterChanged = function() {
   this.process();
   this.pushflow();
   this.show();
-  this.updatePanel(visflow.optionPanel.contentContainer());
+  if (visflow.optionPanel.isOpen) {
+    this.updatePanel(visflow.optionPanel.contentContainer());
+  }
 };

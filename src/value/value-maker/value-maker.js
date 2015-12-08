@@ -33,8 +33,6 @@ visflow.ValueMaker = function(params) {
    * @protected {visflow.Constants}
    */
   this.value = new visflow.Constants('' + this.valueString);
-
-
   this.ports['out'].pack = this.value;
 };
 
@@ -73,40 +71,52 @@ visflow.ValueMaker.prototype.deserialize = function(save) {
 /** @inheritDoc */
 visflow.ValueMaker.prototype.initPanel = function(container) {
   visflow.ValueMaker.base.initPanel.call(this, container);
-
-  var input = new visflow.Input({
-    container: container.find('#value'),
-    value: this.valueString,
-    title: 'Value'
-  });
-  $(input).on('visflow.change', function(event, valueString) {
-    this.setValueString(valueString);
-    this.inputChanged();
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#value'),
+        value: this.valueString,
+        title: 'Value'
+      },
+      change: function (event, valueString) {
+        this.setValueString(valueString);
+        this.parameterChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.showDetails = function() {
   visflow.ValueMaker.base.showDetails.call(this);
-
-  var input = new visflow.Input({
-    container: this.content.find('#value'),
-    value: this.valueString
-  });
-  $(input).on('visflow.change', function(event, valueString) {
-    this.setValueString(valueString);
-    this.inputChanged();
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.Input,
+      params: {
+        container: this.content.find('#value'),
+        value: this.valueString
+      },
+      change: function (event, valueString) {
+        this.setValueString(valueString);
+        this.parameterChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /**
- * Handles input changes.
+ * Handles interface parameter changes.
  */
-visflow.ValueMaker.prototype.inputChanged = function() {
+visflow.ValueMaker.prototype.parameterChanged = function() {
   this.process();
   this.show();
-  this.updatePanel(visflow.optionPanel.contentContainer());
   this.pushflow();
+  if (visflow.optionPanel.isOpen) {
+    this.updatePanel(visflow.optionPanel.contentContainer());
+  }
 };
 
 /**

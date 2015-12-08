@@ -47,13 +47,6 @@ visflow.RangeFilter = function(params) {
    * @protected {!Array<number|string>}
    */
   this.value = [];
-
-  /**
-   * Filtering range values specified by directly typing in the input boxes.
-   * Type-in values are stored as strings.
-   * @protected {!Array<string>}
-   */
-  this.typeInValue = [];
 };
 
 visflow.utils.inherit(visflow.RangeFilter, visflow.Filter);
@@ -70,97 +63,127 @@ visflow.RangeFilter.prototype.NODE_NAME = 'Range Filter';
 visflow.RangeFilter.prototype.NODE_CLASS = 'range-filter';
 
 /** @inheritDoc */
-visflow.RangeFilter.prototype.serialize = function() {
-  var result = visflow.RangeFilter.base.serialize.call(this);
-  result.value = this.value;
-  result.typeInValue = this.typeInValue;
-  return result;
+visflow.RangeFilter.prototype.DEFAULT_OPTIONS = {
+  // Filtering dimensions.
+  dims: [],
+  // Filtering range values specified by directly typing in the input boxes.
+  // Type-in values are stored as strings.
+  typeInValue: []
 };
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.deserialize = function(save) {
   visflow.RangeFilter.base.deserialize.call(this, save);
-  this.value = save.value;
-  this.typeInValue = save.typeInValue;
-  if (this.typeInValue == null) {
-    visflow.warning('typeInValue not saved');
-    this.typeInValue = [];
+  if (save.typeInValue) {
+    this.options.typeInValue = save.typeInValue;
   }
 };
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.initPanel = function(container) {
-  var dimSelect = new visflow.Select({
-    container: container.find('#dim'),
-    list: this.getDimensionList(),
-    selected: this.dim,
-    listTitle: 'Filtering Dimension',
-    selectTitle: this.ports['in'].pack.data.isEmpty() ?
-        this.NO_DATA_STRING : null
-  });
-  $(dimSelect).on('visflow.change', function(event, dim) {
-    this.dim = dim;
-    this.inputChanged();
-  }.bind(this));
-
-  var minValue = new visflow.Input({
-    container: container.find('#min'),
-    value: this.value[0],
-    title: 'Min Value',
-    disabled: this.ports['inMin'].connected()
-  });
-  $(minValue).on('visflow.change', function(event, value) {
-    this.typeInValue[0] = '' + value;
-    this.inputChanged();
-  }.bind(this));
-
-  var maxValue = new visflow.Input({
-    container: container.find('#max'),
-    value: this.value[1],
-    title: 'Max Value',
-    disabled: this.ports['inMax'].connected()
-  });
-  $(maxValue).on('visflow.change', function(event, value) {
-    this.typeInValue[1] = '' + value;
-    this.inputChanged();
-  }.bind(this));
+  var units = [
+    // Dimensions
+    {
+      constructor: visflow.MultipleSelect,
+      params: {
+        container: container.find('#dims'),
+        list: this.getDimensionList(),
+        selected: this.options.dims,
+        listTitle: 'Filtering Dimension(s)',
+        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+          this.NO_DATA_STRING : null
+      },
+      change: function(event, dims) {
+        if (dims == null) {
+          dims = [];
+        }
+        this.options.dims = dims;
+        this.parameterChanged();
+      }
+    },
+    // Min Value
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#min'),
+        value: this.value[0],
+        title: 'Min Value',
+        disabled: this.ports['inMin'].connected()
+      },
+      change: function(event, value) {
+        this.options.typeInValue[0] = '' + value;
+        this.parameterChanged();
+      }
+    },
+    // Max Value
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#max'),
+        value: this.value[1],
+        title: 'Max Value',
+        disabled: this.ports['inMax'].connected()
+      },
+      change: function(event, value) {
+        this.options.typeInValue[1] = '' + value;
+        this.parameterChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.showDetails = function() {
   visflow.RangeFilter.base.showDetails.call(this);
 
-  var dimSelect = new visflow.Select({
-    container: this.content.find('#dim'),
-    list: this.getDimensionList(),
-    selected: this.dim,
-    selectTitle: this.ports['in'].pack.data.isEmpty() ?
-        this.NO_DATA_STRING : null
-  });
-  $(dimSelect).on('visflow.change', function(event, dim) {
-    this.dim = dim;
-    this.inputChanged();
-  }.bind(this));
-
-  var minValue = new visflow.Input({
-    container: this.content.find('#min'),
-    value: this.value[0],
-    disabled: this.ports['inMin'].connected()
-  });
-  $(minValue).on('visflow.change', function(event, value) {
-    this.typeInValue[0] = '' + value;
-    this.inputChanged();
-  }.bind(this));
-
-  var maxValue = new visflow.Input({
-    container: this.container.find('#max'),
-    value: this.value[1],
-    disabled: this.ports['inMax'].connected()
-  });
-  $(maxValue).on('visflow.change', function(event, value) {
-    this.typeInValue[1] = '' + value;
-    this.inputChanged();
-  }.bind(this));
+  var units = [
+    // Dimensions
+    {
+      constructor: visflow.MultipleSelect,
+      params: {
+        container: this.content.find('#dims'),
+        list: this.getDimensionList(),
+        selected: this.options.dims,
+        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+          this.NO_DATA_STRING : null
+      },
+      change:  function(event, dims) {
+        if (dims == null) {
+          dims = [];
+        }
+        this.options.dims = dims;
+        this.parameterChanged();
+      }
+    },
+    // Min value
+    {
+      constructor: visflow.Input,
+      params: {
+        container: this.content.find('#min'),
+        value: this.value[0],
+        disabled: this.ports['inMin'].connected()
+      },
+      change: function(event, value) {
+        this.options.typeInValue[0] = '' + value;
+        this.parameterChanged();
+      }
+    },
+    // Max value
+    {
+      constructor: visflow.Input,
+      params: {
+        container: this.container.find('#max'),
+        value: this.value[1],
+        disabled: this.ports['inMax'].connected()
+      },
+      change: function(event, value) {
+        this.options.typeInValue[1] = '' + value;
+        this.parameterChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /** @inheritDoc */
@@ -175,8 +198,8 @@ visflow.RangeFilter.prototype.process = function() {
       var pack;
       if (port.connected()) {
         pack = port.pack;
-      } else if (this.typeInValue[index] != null) {
-        pack = new visflow.Constants(this.typeInValue[index]);
+      } else if (this.options.typeInValue[index] != null) {
+        pack = new visflow.Constants(this.options.typeInValue[index]);
       } else {
         // Empty pack.
         pack = port.pack;
@@ -195,7 +218,6 @@ visflow.RangeFilter.prototype.process = function() {
   if (this.value[0] != null && this.value[1] != null &&
       this.value[0] > this.value[1]) {
     visflow.warning('minValue > maxValue in', this.label);
-    return;
   }
 
   var inpack = this.ports['in'].pack;
@@ -218,16 +240,22 @@ visflow.RangeFilter.prototype.process = function() {
 visflow.RangeFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
   var inpack = this.ports['in'].pack;
-  var items = inpack.items,
-      data = inpack.data;
+  var items = inpack.items;
+  var data = inpack.data;
 
   var result = [];
   for (var index in items) {
-    var value = data.values[index][this.dim];
-    var inRange = true;
-    if (this.value[0] != null && value < this.value[0]
-      || this.value[1] != null && value > this.value[1]) {
-      inRange = false;
+    var inRange = false;
+    for (var dimIndex = 0; dimIndex < this.options.dims.length && !inRange;
+         dimIndex++) {
+      var value = data.values[index][this.options.dims[dimIndex]];
+      if ((this.value[0] == null || value >= this.value[0]) &&
+          (this.value[1] == null || value <= this.value[1])) {
+        inRange = true;
+      }
+      if (inRange) {
+        break;
+      }
     }
     if (inRange) {
       result.push(index);

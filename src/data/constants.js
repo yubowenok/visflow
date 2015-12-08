@@ -134,11 +134,11 @@ visflow.Constants.prototype.getOne = function() {
 
 /**
  * Gets all elements of the set.
- * @return {Array<number|string>}
+ * @return {!Array<number|string>}
  */
 visflow.Constants.prototype.getAll = function() {
   if (this.elements.length == 0) {
-    return null;
+    return [];
   }
   return this.elements;
 };

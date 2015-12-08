@@ -28,9 +28,8 @@ visflow.Filter = function(params) {
 visflow.utils.inherit(visflow.Filter, visflow.Node);
 
 /** @inheritDoc */
-visflow.Filter.prototype.MIN_HEIGHT = 98;
-/** @inheritDoc */
-visflow.Filter.prototype.MAX_HEIGHT = 98;
+visflow.Filter.prototype.MIN_HEIGHT = 95;
+visflow.Filter.prototype.MAX_HEIGHT = 95;
 
 /** @protected @const {string} */
 visflow.Filter.prototype.NO_DATA_STRING = 'No Data';
@@ -73,12 +72,15 @@ visflow.Filter.prototype.dataChanged = function() {
 };
 
 /**
- * Handles input changes, e.g. dimension changed, filtering values changed.
+ * Handles interface changes, e.g. dimension changed, filtering values changed.
  */
-visflow.Filter.prototype.inputChanged = function() {
+visflow.Filter.prototype.parameterChanged = function() {
   this.process();
   this.pushflow();
   this.show();
+  if (visflow.optionPanel.isOpen) {
+    this.updatePanel(visflow.optionPanel.contentContainer());
+  }
 };
 
 /**

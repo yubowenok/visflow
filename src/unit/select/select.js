@@ -11,7 +11,8 @@
  *   selected: (string|number)=
  *   listTitle: string=,
  *   allowClear: boolean=,
- *   selectTitle: string=
+ *   selectTitle: string=,
+ *   opening: function: boolean
  * }} params
  *     container: Container of the select.
  *     list: Items for selection.
@@ -21,6 +22,8 @@
  *         be given.
  *     selectTitle: Text to show for add item select2. This will be used as
  *         placeholder.
+ *     opening: Function that will be called before the select list is opened.
+ *         This can be used to prevent the list from opening.
  * @constructor
  */
 visflow.Select = function(params) {
@@ -46,6 +49,9 @@ visflow.Select = function(params) {
 
   /** @private {string} */
   this.selectTitle_ = params.selectTitle ? params.selectTitle: 'Select';
+
+  /** @private {function: boolean} */
+  this.opening_ = params.opening;
 
   /** @private {select2} */
   this.select2_;
@@ -78,9 +84,23 @@ visflow.Select.prototype.init_ = function() {
     });
   this.select2_.val(this.selected_).trigger('change');
 
+  this.initEnd();
+};
+
+/**
+ * Adds common event listeners, adjust select2 width, etc.
+ * @protected
+ */
+visflow.Select.prototype.initEnd = function() {
   this.container_.find('.select2-container').css('width', '');
 
-  this.select2_.on('change', this.change_.bind(this));
+  this.select2_
+    .on('change', this.change_.bind(this))
+    .on('select2:opening', function() {
+      if (this.opening_) {
+        return this.opening_();
+      }
+    }.bind(this))
 };
 
 /**
@@ -88,9 +108,9 @@ visflow.Select.prototype.init_ = function() {
  * @private
  */
 visflow.Select.prototype.change_ = function() {
-  var id = this.select2_.val();
-  if (this.selected_ !== id) {
-    this.selected_ = id;
+  var val = this.select2_.val();
+  if (this.selected_ !== val) {
+    this.selected_ = val;
     this.signal_('change');
   }
 };

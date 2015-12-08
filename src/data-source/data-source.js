@@ -144,45 +144,55 @@ visflow.DataSource.prototype.initPanel = function(container) {
 
   this.createPanelDataList_(container);
 
-  var crossingToggle = new visflow.Checkbox({
-    container: container.find('#crossing'),
-    value: this.options.crossing,
-    title: 'Crossing'
-  });
-  $(crossingToggle).on('visflow.change', function(event, value) {
-    this.options.crossing = value;
-    this.updateCrossing_();
-  }.bind(this));
-
   var dimensionList = this.rawData_[0] != null ?
-      this.getDimensionList(this.rawData_[0], true) : [];
-  var crossingDimsSelect = new visflow.EditableList({
-    container: container.find('#crossing-dims'),
-    list: dimensionList,
-    listTitle: 'Key(s)',
-    addTitle: 'Add Dimension',
-    selected: this.options.crossingDims,
-    allowClear: false
-  });
-  $(crossingDimsSelect).on('visflow.change', function(event, dims) {
-    this.options.crossingDims = dims;
-    if (this.options.crossing) {
-      this.updateCrossing_();
-    }
-  }.bind(this));
+    this.getDimensionList(this.rawData_[0], true) : [];
 
-  var crossingNameInput = new visflow.Input({
-    container: container.find('#crossing-name'),
-    value: this.options.crossingName,
-    title: 'Column Name'
-  });
-  $(crossingNameInput).on('visflow.change', function(event, value) {
-    this.options.crossingName = value;
-    if (this.options.crossing) {
-      this.updateCrossing_();
+  var units = [
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#crossing'),
+        value: this.options.crossing,
+        title: 'Crossing'
+      },
+      change: function(event, value) {
+        this.options.crossing = value;
+        this.updateCrossing_();
+      }
+    },
+    {
+      constructor: visflow.EditableList,
+      params: {
+        container: container.find('#crossing-dims'),
+        list: dimensionList,
+        listTitle: 'Key(s)',
+        addTitle: 'Add Dimension',
+        selected: this.options.crossingDims,
+        allowClear: false
+      },
+      change: function(event, dims) {
+        this.options.crossingDims = dims;
+        if (this.options.crossing) {
+          this.updateCrossing_();
+        }
+      }
+    },
+    {
+      constructor: visflow.Input,
+      params: {
+        container: container.find('#crossing-name'),
+        value: this.options.crossingName,
+        title: 'Column Name'
+      },
+      change: function(event, value) {
+        this.options.crossingName = value;
+        if (this.options.crossing) {
+          this.updateCrossing_();
+        }
+      }
     }
-  }.bind(this));
-
+  ];
+  this.initInterface(units);
   if (!this.options.crossing) {
     container.find('#crossing-section').hide();
   }

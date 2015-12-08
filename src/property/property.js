@@ -74,9 +74,9 @@ visflow.Property.prototype.NO_DATA_STRING = 'No Data';
 visflow.Property.prototype.adjustNumbers = function() {};
 
 /**
- * Handles input changes.
+ * Handles interface parameter changes.
  * @param {string} source 'panel' or 'node', denoting where the user changes the
  *     input. We should not redraw the interface underlying user's current
  *     changes.
  */
-visflow.Property.prototype.inputChanged = function(source) {};
+visflow.Property.prototype.parameterChanged = function(source) {};

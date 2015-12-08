@@ -216,17 +216,23 @@ visflow.Table.prototype.initPanel = function(container) {
   visflow.Table.base.initPanel.call(this, container);
   var dimensionList = this.getDimensionList();
 
-  var list = new visflow.EditableList({
-    container: container.find('#dims'),
-    list: dimensionList,
-    selected: this.dimensions,
-    listTitle: 'Dimensions',
-    addTitle: 'Add Dimension'
-  });
-  $(list).on('visflow.change', function(event, items) {
-    this.dimensions = items;
-    this.dimensionChanged();
-  }.bind(this));
+  var units = [
+    {
+      constructor: visflow.EditableList,
+      params: {
+        container: container.find('#dims'),
+        list: dimensionList,
+        selected: this.dimensions,
+        listTitle: 'Dimensions',
+        addTitle: 'Add Dimension'
+      },
+      change: function(event, items) {
+        this.dimensions = items;
+        this.dimensionChanged();
+      }
+    }
+  ];
+  this.initInterface(units);
 };
 
 /**
