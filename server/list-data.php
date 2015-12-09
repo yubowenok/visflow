@@ -18,7 +18,8 @@ for($i = 0; $i < count($filelist); $i++) {
     'dataname' => $dataName,
     'filename' => $fileName,
     'mtime' => filemtime($filelist[$i]) * 1000,
-    'isDir' => is_dir($filelist[$i])
+    'isDir' => is_dir($filelist[$i]),
+    'size' => filesize($filelist[$i])
   ));
 }
 $response = array();

@@ -296,3 +296,19 @@ visflow.utils.inherit = function(child, base) {
   child.prototype.constructor = child;
   child.base = base.prototype;
 };
+
+// Extend sorting to support custom types.
+$.fn.dataTable.ext.type.order['data-size-pre'] = function (d) {
+  var unit = d.replace( /[\d\.\s]/g, '' ).toLowerCase();
+  var base = 1000;
+  var multiplier = 1;
+  switch(unit) {
+    case 'mb':
+      multiplier *= base;
+    case 'kb':
+      multiplier *= base;
+    case 'b':
+      break;
+  }
+  return parseFloat(d) * multiplier;
+};

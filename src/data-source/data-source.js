@@ -656,19 +656,36 @@ visflow.DataSource.prototype.listDataTable_ = function(table, fileList) {
     pageLength: 5,
     lengthMenu: [5, 10, 20],
     order: [
-      [2, 'desc']
+      [3, 'desc']
     ],
     columns: [
       {title: 'Data Name', data: 'dataname'},
       {title: 'File Name', data: 'filename'},
+      {title: 'Size', data: 'size'},
       {title: 'Last Modified', data: 'mtime'}
     ],
     columnDefs: [
       {
+        type: 'data-size',
+        // Size
+        render: function (size) {
+          var base = 1000;
+          if (size < base) {
+            return size + 'B';
+          } else if (size < base * base) {
+            return (size / base).toFixed(2) + 'KB';
+          } else {
+            return (size / base / base).toFixed(2) + 'MB';
+          }
+        },
+        targets: 2
+      },
+      {
+        // Last Modified
         render: function (lastModified) {
           return (new Date(lastModified)).toLocaleString();
         },
-        targets: 2
+        targets: 3
       }
     ]
   });

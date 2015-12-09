@@ -743,7 +743,7 @@ visflow.LineChart.prototype.prepareScales = function() {
   ];
   var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
     yRange, {
-      domainMargin: this.options.xMargin,
+      domainMargin: this.options.yMargin,
       ordinalPadding: 1.0
     });
   this.yScale = yScaleInfo.scale;
@@ -761,7 +761,7 @@ visflow.LineChart.prototype.prepareScales = function() {
   ];
   var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items,
     xRange, {
-      domainMargin: this.options.yMargin,
+      domainMargin: this.options.xMargin,
       ordinalPadding: 1.0
     });
   this.xScale = xScaleInfo.scale;
