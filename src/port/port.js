@@ -246,25 +246,23 @@ visflow.Port.prototype.initContextMenu = function() {
  */
 visflow.Port.prototype.info = function() {
   var text = this.text_ ? this.text_ + ': ' : '';
+  var count = 0;
   if (this.isConstants) {
     var constants = this.pack.stringify();
-    if (constants === '') {
-      constants = '(empty)';
-    }
     text += constants;
+    count = this.pack.count();
   } else if (this.isInput) {
-    text += this.pack.count() + ' items';
+    count = this.pack.count();
   } else {
-    text += this.pack.count();
+    count = this.pack.count();
     if (this.fromPort !== '') {
-      text += '/' + this.node.ports[this.fromPort].pack.count();
+      count += '/' + this.node.ports[this.fromPort].pack.count();
     }
-    text +=  ' items';
   }
   if (text.length > this.INFO_LENGTH) {
     text = text.substr(0, this.INFO_LENGTH - 3) + '...';
   }
-  return text;
+  return text + ' (' + count + ' items)';
 };
 
 /**

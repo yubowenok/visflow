@@ -44,28 +44,33 @@ visflow.PropertyEditor.prototype.PANEL_TEMPLATE =
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.DEFAULT_OPTIONS = {
-  properties: {
-    color: null,
-    border: null,
-    width: null,
-    size: null,
-    opacity: null
-  }
+  color: null,
+  border: null,
+  width: null,
+  size: null,
+  opacity: null
 };
+
+/** @const {!Array<string>} */
+visflow.PropertyEditor.prototype.PROPERTIES_ = [
+  'color',
+  'border',
+  'width',
+  'size',
+  'opacity'
+];
+
+/** @const {!Array<string>} */
+visflow.PropertyEditor.prototype.NUMBER_PROPERTIES_ = [
+  'width',
+  'size',
+  'opacity'
+];
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.serialize = function() {
   var result = visflow.PropertyEditor.base.serialize.call(this);
   return result;
-};
-
-/** @inheritDoc */
-visflow.PropertyEditor.prototype.deserialize = function(save) {
-  visflow.PropertyEditor.base.deserialize.call(this, save);
-  if (this.options.properties == null) {
-    visflow.error('properties not saved in ', this.label);
-    this.options.properties = {};
-  }
 };
 
 /** @inheritDoc */
@@ -80,11 +85,11 @@ visflow.PropertyEditor.prototype.initPanel = function(container) {
         params: {
           container: container.find(info.selector),
           colorPickerContainer: container,
-          color: this.options.properties[info.property],
+          color: this.options[info.property],
           title: info.title
         },
         change: function(event, color) {
-          this.options.properties[info.property] = color;
+          this.options[info.property] = color;
           this.parameterChanged('panel');
         }
       })
@@ -98,14 +103,14 @@ visflow.PropertyEditor.prototype.initPanel = function(container) {
         constructor: visflow.Input,
         params: {
           container: container.find(info.selector),
-          value: this.options.properties[info.property],
+          value: this.options[info.property],
           title: info.title,
           accept: visflow.ValueType.FLOAT,
           range: visflow.property.MAPPING_RANGES[info.property],
           scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
         },
         change: function(event, value) {
-          this.options.properties[info.property] = value;
+          this.options[info.property] = value;
           this.parameterChanged('panel');
         }
       });
@@ -128,10 +133,10 @@ visflow.PropertyEditor.prototype.showDetails = function() {
       constructor: visflow.ColorPicker,
       params: {
         container: this.content.find(info.selector),
-        color: this.options.properties[info.property]
+        color: this.options[info.property]
       },
       change: function (event, color) {
-        this.options.properties[info.property] = color;
+        this.options[info.property] = color;
         this.parameterChanged('node');
       }
     });
@@ -146,13 +151,13 @@ visflow.PropertyEditor.prototype.showDetails = function() {
       constructor: visflow.Input,
       params: {
         container: this.content.find(info.selector),
-        value: this.options.properties[info.property],
+        value: this.options[info.property],
         accept: visflow.ValueType.FLOAT,
         range: visflow.property.MAPPING_RANGES[info.property],
         scrollDelta: visflow.property.SCROLL_DELTAS[info.property]
       },
       change: function(event, value) {
-        this.options.properties[info.property] = value;
+        this.options[info.property] = value;
         this.parameterChanged('node');
       }
     });
@@ -167,12 +172,12 @@ visflow.PropertyEditor.prototype.process = function() {
   outpack.copy(inpack);
   var newItems = {};
   var setProps = {};
-  for (var p in this.options.properties) {
-    var value = this.options.properties[p];
+  this.PROPERTIES_.forEach(function(p) {
+    var value = this.options[p];
     if (value != null) {
       setProps[p] = value;
     }
-  }
+  }, this);
   for (var index in inpack.items) {
     var prop = _.extend(
       {},
@@ -190,8 +195,8 @@ visflow.PropertyEditor.prototype.process = function() {
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.adjustNumbers = function() {
   var adjusted = false;
-  ['width', 'size', 'opacity'].forEach(function(prop) {
-    var value = this.options.properties[prop];
+  this.NUMBER_PROPERTIES_.forEach(function(prop) {
+    var value = this.options[prop];
     var range = visflow.property.MAPPING_RANGES[prop];
     if (value < range[0]) {
       value = range[0];
@@ -201,7 +206,7 @@ visflow.PropertyEditor.prototype.adjustNumbers = function() {
       value = range[1];
       adjusted = true;
     }
-    this.options.properties[prop] = value;
+    this.options[prop] = value;
   }, this);
   return adjusted;
 };

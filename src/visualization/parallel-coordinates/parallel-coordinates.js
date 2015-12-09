@@ -116,12 +116,13 @@ visflow.ParallelCoordinates.prototype.defaultProperties = {
   color: 'black',
   size: 1,
   fill: 'none',
-  opacity: 0.5
+  opacity: 0.25
 };
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.selectedProperties = {
-  color: '#6699ee'
+  color: '#6699ee',
+  opacity: 0.75
 };
 
 
@@ -256,7 +257,6 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
   var lines = this.svgPolylines_.selectAll('path').data(itemProps,
       _.getValue('index'));
   lines.enter().append('path')
-    .style('opacity', 0)
     .attr('id', _.getValue('index'));
   _(lines.exit()).fadeOut();
 
@@ -519,8 +519,8 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
   this.rightMargin_ = this.PLOT_MARGINS.right;
 
   var leftLabelWidth = 0;
+  var maxLength = 0;
   if (this.options.ticks) {
-    var maxLength = 0;
     // Id is required for axis drawing routine.
     this.drawTempAxis_(0, '0', function() {
       $(this.svgTempAxes_.node())

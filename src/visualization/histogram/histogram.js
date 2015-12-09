@@ -158,7 +158,7 @@ visflow.Histogram.prototype.selectItems = function() {
  * @private
  */
 visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
-  var box = this.getSelectBox(true);
+  var box = this.getSelectBox();
   if (box == null) {
     return;
   }

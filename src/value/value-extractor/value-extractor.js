@@ -142,7 +142,6 @@ visflow.ValueExtractor.prototype.process = function() {
 
   if (inpack.data.dataId != this.lastDataId) {
     this.lastDataId = inpack.data.dataId;
-    this.options.dims = [];
   }
 
   var items = inpack.items;

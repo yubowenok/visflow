@@ -93,9 +93,17 @@ visflow.parser.checkToken = function(text, opt_ignoredTypes) {
 visflow.parser.tokenize = function(value, opt_type) {
   var type = opt_type == null ?
       visflow.parser.checkToken(value).type : opt_type;
+  if (value === '') {
+    switch(type) {
+      case visflow.ValueType.INT:
+      case visflow.ValueType.FLOAT:
+      case visflow.ValueType.TIME:
+        return 0;
+      default:
+        return '';
+    }
+  }
   switch(type) {
-    case visflow.ValueType.EMPTY:
-      return '';
     case visflow.ValueType.INT:
       return parseInt(value);
     case visflow.ValueType.FLOAT:
@@ -171,16 +179,10 @@ visflow.parser.typingColumn = function(values, colIndex) {
   var colType = visflow.ValueType.EMPTY;
   values.forEach(function(row) {
     var type = visflow.parser.checkToken(row[colIndex]).type;
-    if (type == visflow.ValueType.EMPTY) {
-      hasEmpty = true;
-    }
     if (type > colType) {
       colType = type;
     }
   });
-  if (hasEmpty) {
-    colType = visflow.ValueType.STRING;
-  }
   var duplicate = false;
   var exist = {};
   values.forEach(function(row) {

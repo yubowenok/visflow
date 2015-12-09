@@ -142,6 +142,8 @@ visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
 visflow.Visualization.prototype.IS_VISUALIZATION = true;
 /** @private @const {number} */
 visflow.Visualization.prototype.TICKS_HEIGHT_ = 10;
+/** @private @const {number} */
+visflow.Visualization.prototype.TRANSITION_ELEMENT_LIMIT_ = 5000;
 
 /** @inheritDoc */
 visflow.Visualization.prototype.init = function() {
@@ -645,6 +647,13 @@ visflow.Visualization.prototype.dataChanged = function() {};
  * @return {*}
  */
 visflow.Visualization.prototype.findPlotDimensions = function() {};
+
+/**
+ * Checks if transition should be applied.
+ * Transitions should not be applied when there are too many elements.
+ * @return {boolean}
+ */
+visflow.Visualization.prototype.transitionFeasible = function() {};
 
 /**
  * Handles layout changes such as label visibility changes.

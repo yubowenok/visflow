@@ -335,7 +335,7 @@ visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
     .attr('id', _.getValue('index'));
   _(points.exit()).fadeOut();
 
-  var updatedPoints = this.allowTransition_ ? points.transition() : points;
+  var updatedPoints = this.transitionFeasible() ? points.transition() : points;
   updatedPoints
     .attr('cx', function(point) {
       return this.xScale(point.x);
@@ -364,6 +364,7 @@ visflow.Scatterplot.prototype.drawXAxis_ = function() {
     classes: 'x axis',
     orient: 'bottom',
     ticks: this.DEFAULT_TICKS_,
+    noTicks: !this.options.xTicks,
     transform: visflow.utils.getTransform([
       0,
       svgSize.height - this.bottomMargin_
@@ -391,6 +392,7 @@ visflow.Scatterplot.prototype.drawYAxis_ = function() {
     classes: 'y axis',
     orient: 'left',
     ticks: this.DEFAULT_TICKS_,
+    noTicks: !this.options.yTicks,
     transform: visflow.utils.getTransform([
       this.leftMargin_,
       0
@@ -451,6 +453,12 @@ visflow.Scatterplot.prototype.prepareScales = function() {
   });
   this.xScale = xScaleInfo.scale;
   this.xScaleType = xScaleInfo.type;
+};
+
+/** @inheritDoc */
+visflow.Scatterplot.prototype.transitionFeasible = function() {
+  return this.allowTransition_ &&
+    this.itemProps_.length < this.TRANSITION_ELEMENT_LIMIT_;
 };
 
 /**

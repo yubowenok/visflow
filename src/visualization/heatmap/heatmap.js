@@ -245,7 +245,10 @@ visflow.Heatmap.prototype.getItemProperties_ = function() {
       prop.width = this.selectedProperties.width;
     } else {
       if (items[index].properties.color != null) {
-        prop.labelBorder = items[index].properties.color;
+        prop.labelColor = items[index].properties.color;
+      }
+      if (items[index].properties.border != null) {
+        prop.labelBorder = items[index].properties.border;
       }
     }
     return prop;
@@ -383,6 +386,7 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps, opt_temp) {
       }
       return row.label;
     }.bind(this))
+    .style('fill', _.getValue('labelColor'))
     .style('stroke', _.getValue('labelBorder'))
     .attr('transform', labelTransform);
 

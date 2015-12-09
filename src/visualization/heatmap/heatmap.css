@@ -9,7 +9,8 @@
 }
 
 .visflow .heatmap .row-label {
-  stroke-width: 1px;
+  stroke-width: 0.5px;
+  font-weight: bold;
   font-size: 11px;
   dominant-baseline: middle;
   text-anchor: end;

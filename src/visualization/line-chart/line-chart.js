@@ -41,10 +41,16 @@ visflow.LineChart = function(params) {
    */
   this.svgLines_;
   /**
-   * SVG gruop for axes.
+   * SVG group for axes.
    * @private {d3.selection}
    */
   this.svgAxes_;
+
+  /**
+   * Selected group indices.
+   * @protected {!Object<boolean>}
+   */
+  this.selectedGroups = {};
 
   /**
    * Whether x axis have duplicated values.
@@ -78,6 +84,11 @@ visflow.LineChart = function(params) {
    * @private {!Array}
    */
   this.itemProps_ = [];
+  /**
+   * Index of item in the properties array.
+   * @private {!Object<number>}
+   */
+  this.itemPropIndices_ = {};
 };
 
 visflow.utils.inherit(visflow.LineChart, visflow.Visualization);
@@ -144,6 +155,26 @@ visflow.LineChart.prototype.selectedProperties = {
 };
 
 /** @inheritDoc */
+visflow.LineChart.prototype.selectedLineProperties = {
+  color: '#6699ee',
+  width: 2
+};
+
+/** @inheritDoc */
+visflow.LineChart.prototype.serialize = function() {
+  var result = visflow.LineChart.base.serialize.call(this);
+  result.selectedGroups = this.selectedGroups;
+  return result;
+};
+
+/** @inheritDoc */
+visflow.LineChart.prototype.deserialize = function(save) {
+  visflow.LineChart.base.deserialize.call(this, save);
+  this.selectedGroups = save.selectedGroups;
+};
+
+
+/** @inheritDoc */
 visflow.LineChart.prototype.init = function() {
   visflow.LineChart.base.init.call(this);
   this.svgLines_ = this.svg.append('g')
@@ -164,7 +195,9 @@ visflow.LineChart.prototype.drawBrush = function() {
 /** @inheritDoc */
 visflow.LineChart.prototype.selectItems = function() {
   this.selectItemsInBox_();
-  this.itemProps_ = this.getItemProperties_();
+  if (this.options.points) {
+    this.itemProps_ = this.getItemProperties_();
+  }
   this.lineProps_ = this.getLineProperties_();
   visflow.LineChart.base.selectItems.call(this);
 };
@@ -179,14 +212,25 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
   if (box == null) {
     return;
   }
-
+  // Mapping from item to group index.
+  var groupIndices = {};
+  this.itemGroups_.forEach(function(itemIndices, groupIndex) {
+    itemIndices.forEach(function(index) {
+      groupIndices[index] = groupIndex;
+    })
+  });
   if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down
+    this.selectedGroups = {};
   }
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
   var values = inpack.data.values;
   for (var index in items) {
+    var groupIndex = groupIndices[index];
+    if (groupIndex in this.selectedGroups) {
+      continue;
+    }
     var point = {
       x: this.xScale(this.options.xDim == visflow.data.INDEX_DIM ?
           +index : values[index][this.options.xDim]),
@@ -194,6 +238,11 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
     };
 
     if (visflow.utils.pointInBox(point, box)) {
+      this.selectedGroups[groupIndices[index]] = true;
+    }
+  }
+  for (index in items) {
+    if (groupIndices[index] in this.selectedGroups) {
       this.selected[index] = true;
     }
   }
@@ -417,7 +466,7 @@ visflow.LineChart.prototype.showDetails = function() {
   if (this.checkDataEmpty()) {
     return;
   }
-  this.drawLines_(this.lineProps_);
+  this.drawLines_(this.lineProps_, this.itemProps_);
   this.drawPoints_(this.itemProps_);
   this.drawLegends_(this.lineProps_);
   this.showSelection();
@@ -426,10 +475,9 @@ visflow.LineChart.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.LineChart.prototype.showSelection = function() {
-  // Change position of tag to make them appear on top.
-  var svg = $(this.svgPoints_.node());
-  for (var index in this.selected) {
-    svg.find('circle#p' + index).appendTo(svg);
+  var svg = $(this.svgLines_.node());
+  for (var index in this.selectedGroups) {
+    svg.find('path#' + index).appendTo(svg);
   }
 };
 
@@ -444,7 +492,7 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
   var data = inpack.data;
   var values = data.values;
   var lineProps = [];
-  this.itemGroups_.forEach(function(itemIndices) {
+  this.itemGroups_.forEach(function(itemIndices, groupIndex) {
     var prop = _.extend(
       {
         itemIndices: itemIndices,
@@ -463,6 +511,12 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
         values[index][this.options.yDim]
       ]);
     }, this);
+
+    if (groupIndex in this.selectedGroups) {
+      _(prop).extend(this.selectedLineProperties);
+      this.multiplyProperties(prop, this.selectedMultiplier);
+    }
+    prop.index = groupIndex;
     lineProps.push(prop);
   }, this);
   return lineProps;
@@ -485,10 +539,10 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
       this.defaultProperties,
       items[index].properties,
       {
-        id: 'p' + index,
-        x: this.xScale(this.options.xDim == visflow.data.INDEX_DIM ?
-          +index : values[index][this.options.xDim]),
-        y: this.yScale(values[index][this.options.yDim])
+        index: index,
+        x: this.options.xDim == visflow.data.INDEX_DIM ?
+          +index : values[index][this.options.xDim],
+        y: values[index][this.options.yDim]
       }
     );
     if (index in this.selected) {
@@ -545,16 +599,18 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
     return;
   }
   var points = this.svgPoints_.selectAll('circle')
-    .data(itemProps, _.getValue('id'));
-  points.enter().append('circle')
-    .attr('id', _.getValue('id'))
-    .style('opacity', 0);
+    .data(itemProps, _.getValue('index'));
+  points.enter().append('circle');
   _(points.exit()).fadeOut();
 
-  var updatedPoints = this.allowTransition_ ? points.transition() : points;
+  var updatedPoints = this.transitionFeasible() ? points.transition() : points;
   updatedPoints
-    .attr('cx', _.getValue('x'))
-    .attr('cy', _.getValue('y'))
+    .attr('cx', function(point) {
+      return this.xScale(point.x);
+    }.bind(this))
+    .attr('cy', function(point) {
+      return this.yScale(point.y);
+    }.bind(this))
     .attr('r', _.getValue('size'))
     .style('fill', _.getValue('color'))
     .style('stroke', _.getValue('border'))
@@ -567,30 +623,36 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
  * @param {!Array<!Object>} lineProps
  * @private
  */
-visflow.LineChart.prototype.drawLines_ = function(lineProps) {
-  var lines = this.svgLines_.selectAll('path').data(lineProps);
+visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
+  var lines = this.svgLines_.selectAll('path').data(lineProps,
+    _.getValue('index'));
   lines.enter().append('path')
-    .style('opacity', 0);
+    .attr('id', _.getValue('index'));
   _(lines.exit()).fadeOut();
 
+  var points = {};
+  itemProps.forEach(function(prop) {
+    points[prop.index] = {x: prop.x, y: prop.y};
+  });
+
   var line = d3.svg.line()
-    .x(function(point) {
-      return this.xScale(point[0]);
+    .x(function(index) {
+      return this.xScale(points[index].x);
     }.bind(this))
-    .y(function(point) {
-      return this.yScale(point[1]);
+    .y(function(index) {
+      return this.yScale(points[index].y);
     }.bind(this));
   if (this.options.curve) {
     line.interpolate('basis');
   }
 
-  var updatedLines = this.allowTransition_ ? lines.transition() : lines;
+  var updatedLines = this.transitionFeasible() ? lines.transition() : lines;
   updatedLines
     .style('stroke', _.getValue('color'))
     .style('stroke-width', _.getValue('width'))
     .style('opacity', _.getValue('opacity'))
     .attr('d', function(prop) {
-      return line(prop.points);
+      return line(prop.itemIndices);
     }.bind(this));
 };
 
@@ -599,6 +661,9 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps) {
  * @private
  */
 visflow.LineChart.prototype.groupItems_ = function() {
+  // Clear group selection as grouping has changed.
+  this.selectedGroups = {};
+
   this.itemGroups_ = [];
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
@@ -803,6 +868,12 @@ visflow.LineChart.prototype.findPlotDimensions = function() {
     y: y != null ? y : 0,
     groupBy: groupBy != null ? groupBy : ''
   };
+};
+
+/** @inheritDoc */
+visflow.LineChart.prototype.transitionFeasible = function() {
+  return this.allowTransition_ &&
+      this.itemProps_.length < this.TRANSITION_ELEMENT_LIMIT_;
 };
 
 /** @inheritDoc */
