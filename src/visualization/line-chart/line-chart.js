@@ -291,7 +291,7 @@ visflow.LineChart.prototype.initPanel = function(container) {
       },
       change: function(event, dim) {
         this.options.groupBy = dim;
-        this.dimensionChanged();
+        this.inputChanged();
       }
     },
     {
@@ -657,37 +657,6 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
 };
 
 /**
- * Groups items based on 'groupBy' attribute.
- * @private
- */
-visflow.LineChart.prototype.groupItems_ = function() {
-  // Clear group selection as grouping has changed.
-  this.selectedGroups = {};
-
-  this.itemGroups_ = [];
-  var inpack = this.ports['in'].pack;
-  var items = inpack.items;
-  var data = inpack.data;
-  if (this.options.groupBy === '') {
-    this.itemGroups_.push(_.allKeys(items));
-  } else {
-    var valueSet = {};
-    var valueCounter = 0;
-    for (var index in items) {
-      var val = this.options.groupBy == visflow.data.INDEX_DIM ?
-          index : data.values[index][this.options.groupBy];
-      var group = valueSet[val];
-      if (group != null) {
-        this.itemGroups_[group].push(index);
-      } else {
-        valueSet[val] = valueCounter;
-        this.itemGroups_[valueCounter++] = [index];
-      }
-    }
-  }
-};
-
-/**
  * Sorts items based on 'sortBy' attribute.
  * @private
  */
@@ -882,12 +851,13 @@ visflow.LineChart.prototype.dataChanged = function() {
   this.options.xDim = dims.x;
   this.options.yDim = dims.y;
   this.options.groupBy = dims.groupBy;
+  this.selectedGroups = {};
   this.inputChanged();
 };
 
 /** @inheritDoc */
 visflow.LineChart.prototype.inputChanged = function() {
-  this.groupItems_();
+  this.itemGroups_ = this.ports['in'].pack.groupItems(this.options.groupBy);
   this.sortItems_();
   this.itemProps_ = this.getItemProperties_();
   this.lineProps_ = this.getLineProperties_();

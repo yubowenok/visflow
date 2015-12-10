@@ -1,0 +1,8 @@
+.visflow .node.band-limiter.minimized > .icon {
+  background-image: url(/visflow/imgs/band-limiter-icon.png);
+}
+
+.visflow .node.band-limiter.details {
+  width: 120px;
+  height: 60px;
+}

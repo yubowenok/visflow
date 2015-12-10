@@ -95,3 +95,31 @@ visflow.Package.prototype.isEmpty = function() {
 visflow.Package.prototype.isEmptyData = function() {
   return this.data.type === '';
 };
+
+
+/**
+ * Groups items based on a given 'groupBy' attribute.
+ * @param {string|number} groupBy If empty string, return a single group.
+ * @private
+ */
+visflow.Package.prototype.groupItems = function(groupBy) {
+  var groups = [];
+  if (groupBy === '') {
+    groups.push(_.allKeys(this.items));
+  } else {
+    var valueSet = {};
+    var valueCounter = 0;
+    for (var index in this.items) {
+      var val = groupBy == visflow.data.INDEX_DIM ?
+        index : this.data.values[index][groupBy];
+      var group = valueSet[val];
+      if (group != null) {
+        groups[group].push(index);
+      } else {
+        valueSet[val] = valueCounter;
+        groups[valueCounter++] = [index];
+      }
+    }
+  }
+  return groups;
+};

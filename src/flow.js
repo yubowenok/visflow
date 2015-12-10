@@ -66,6 +66,7 @@ visflow.flow.NODE_CONSTRUCTORS_ = {
   union: visflow.Union,
   range: visflow.RangeFilter,
   contain: visflow.ContainFilter,
+  bandLimiter: visflow.BandLimiter,
   valueExtractor: visflow.ValueExtractor,
   valueMaker: visflow.ValueMaker,
   propertyEditor: visflow.PropertyEditor,

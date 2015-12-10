@@ -546,6 +546,7 @@ visflow.Heatmap.prototype.initPanel = function(container) {
       change: function(event, dim) {
         this.options.sortBy = dim;
         this.sortItems_();
+        this.itemProps_ = this.getItemProperties_();
         this.show();
       }
     },

@@ -19,3 +19,9 @@
 .visflow .node.table .dataTables_filter input {
   width: 100px;
 }
+
+.visflow .node.table.details .dataTables_scrollBody {
+  -moz-user-select: initial;
+  -webkit-user-select: initial;
+  -webkit-user-drag: initial;
+}

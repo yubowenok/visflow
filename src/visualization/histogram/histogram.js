@@ -551,7 +551,9 @@ visflow.Histogram.prototype.prepareScales = function() {
       this.PLOT_MARGINS.left,
       svgSize.width - this.PLOT_MARGINS.right
     ], {
-      domainMargin: 0.15
+      domainMargin: 0.15,
+      ordinalRangeType: 'rangeBands',
+      ordinalPadding: 1
     });
   this.xScale = scaleInfo.scale;
   this.xScaleType = scaleInfo.type;

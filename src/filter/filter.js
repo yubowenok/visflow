@@ -43,7 +43,6 @@ visflow.Filter.prototype.init = function() {
 /** @inheritDoc */
 visflow.Filter.prototype.serialize = function() {
   var result = visflow.Filter.base.serialize.call(this);
-  result.dim = this.dim;
   result.lastDataId = this.lastDataId;
   return result;
 };
@@ -51,12 +50,7 @@ visflow.Filter.prototype.serialize = function() {
 /** @inheritDoc */
 visflow.Filter.prototype.deserialize = function(save) {
   visflow.Filter.base.deserialize.call(this, save);
-  this.dim = save.dim;
   this.lastDataId = save.lastDataId;
-  if (this.dim == null) {
-    this.dim = 0;
-    visflow.warning('filter dim not saved');
-  }
   if (this.lastDataId == null) {
     this.lastDataId = 0;
     visflow.warning('filter lastDataId not saved');
@@ -67,7 +61,6 @@ visflow.Filter.prototype.deserialize = function(save) {
  * Handles data change event.
  */
 visflow.Filter.prototype.dataChanged = function() {
-  this.dim = 0;
   this.show();
 };
 
@@ -75,7 +68,6 @@ visflow.Filter.prototype.dataChanged = function() {
  * Handles interface changes, e.g. dimension changed, filtering values changed.
  */
 visflow.Filter.prototype.parameterChanged = function() {
-  this.process();
   this.pushflow();
   this.show();
   if (visflow.optionPanel.isOpen) {
