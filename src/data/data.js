@@ -21,6 +21,12 @@ visflow.TabularData;
 visflow.data = {};
 
 /**
+ * Counter to set process based dataIds.
+ * @type {number}
+ */
+visflow.data.counter = 0;
+
+/**
  * Dimension index of item table index.
  * @const {number}
  */
@@ -28,6 +34,89 @@ visflow.data.INDEX_DIM = -1;
 
 /** @const {string} */
 visflow.data.INDEX_TEXT = '[index]';
+
+/**
+ * Data references by their hashes. When same datasets are loaded, the same
+ * data object is re-used to save memory.
+ * @type {!Object<!visflow.Data>}
+ */
+visflow.data.hashToData = {};
+
+/**
+ * Raw data references by the hashed values of their loading info, i.e. name,
+ * file and isServerData. It is considered not possible to duplicate if all
+ * these three entries match.
+ * @type {!Object<!visflow.TabularData>}
+ */
+visflow.data.infoHashToRawData = {};
+
+/**
+ * Returns a hash of data loading info, including name, file and isServer.
+ * If the hash value matches, the data should be the same.
+ * @param {!{
+ *   name: string,
+ *   file: string,
+ *   isServerData: boolean
+ * }} dataInfo
+ * @return {string}
+ */
+visflow.data.infoHash = function(dataInfo) {
+  return CryptoJS.SHA256([
+    dataInfo.name,
+    dataInfo.file,
+    dataInfo.isServerData
+  ].join(',')).toString();
+};
+
+/**
+ * Checks for duplicate data.
+ * @param {!{
+ *   name: string,
+ *   file: string,
+ *   isServerData: boolean
+ * }} dataInfo
+ * @return {visflow.TabularData} null if no duplicate,
+ *     and the duplicate data otherwise.
+ */
+visflow.data.duplicateData = function(dataInfo) {
+  var infoHash = visflow.data.infoHash(dataInfo);
+  if (infoHash in visflow.data.infoHashToRawData) {
+    return visflow.data.infoHashToRawData[infoHash];
+  }
+  return null;
+};
+
+/**
+ * Registers the raw data.
+ * @param {!{
+ *   name: string,
+ *   file: string,
+ *   isServerData: boolean
+ * }} dataInfo
+ * @param {!visflow.TabularData} data
+ */
+visflow.data.registerRawData = function(dataInfo, data) {
+  var infoHash = visflow.data.infoHash(dataInfo);
+  visflow.data.infoHashToRawData[infoHash] = data;
+};
+
+/**
+ * Registers the flow data.
+ * @param {!visflow.Data} data
+ */
+visflow.data.registerData = function(data) {
+  if (data == null || data.type === '') {
+    visflow.error('attempt register null/empty data');
+    return;
+  }
+  if (!(data.hash in visflow.data.hashToData)) {
+    visflow.data.hashToData[data.hash] = data;
+    data.dataId = ++visflow.data.counter;
+  } else {
+    data.dataId = visflow.data.hashToData[data.hash].dataId;
+  }
+};
+
 
 /**
  * @param {visflow.TabularData} data

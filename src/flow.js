@@ -10,38 +10,6 @@
 visflow.flow = {};
 
 /**
- * Initializes flow manager.
- */
-visflow.flow.init = function() {
-  this.resetFlow();
-};
-
-/**
- * Resets the loaded flow.
- */
-visflow.flow.resetFlow = function() {
-  // counters start from 1
-  this.nodeCounter = 0;
-  this.edgeCounter = 0;
-  this.dataCounter = 0;
-
-  this.dataSources = [];
-
-  this.nodes = {};
-  this.edges = {};
-
-  // the whole data collection
-  // each id refers to a data object
-  this.data = {};
-
-  this.nodesSelected = {};
-  this.nodesHovered = {};
-  this.lastSelectedNode = null;
-
-  this.edgeSelected = null;
-};
-
-/**
  * Visualization mode on/off.
  * @type {boolean}
  */
@@ -53,6 +21,37 @@ visflow.flow.visMode = false;
  * @type {boolean}
  */
 visflow.flow.deserializing = false;
+
+/**
+ * Initializes flow manager.
+ */
+visflow.flow.init = function() {
+  this.resetFlow();
+};
+
+/**
+ * Resets the loaded flow.
+ */
+visflow.flow.resetFlow = function() {
+  // counters start from 1
+  visflow.flow.nodeCounter = 0;
+  visflow.flow.edgeCounter = 0;
+
+  visflow.flow.dataSources = [];
+
+  visflow.flow.nodes = {};
+  visflow.flow.edges = {};
+
+  // the whole data collection
+  // each id refers to a data object
+  visflow.flow.data = {};
+
+  visflow.flow.nodesSelected = {};
+  visflow.flow.nodesHovered = {};
+  visflow.flow.lastSelectedNode = null;
+
+  visflow.flow.edgeSelected = null;
+};
 
 
 /**
@@ -283,18 +282,6 @@ visflow.flow.propagate = function(node) {
       topo[i].ports[j].pack.changed = false;
     }
   }
-};
-
-/**
- * Registers the flow data.
- * @param {!visflow.Data} data
- */
-visflow.flow.registerData = function(data) {
-  if (data == null || data.type === '') {
-    return visflow.error('attempt register null/empty data');
-  }
-  this.data[data.type] = data;
-  data.dataId = ++this.dataCounter;
 };
 
 /**

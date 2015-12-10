@@ -478,6 +478,7 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
     }
     this.process();
   }.bind(this);
+  var hasAsyncLoad = false;
   this.data.forEach(function(data, dataIndex) {
     if (this.rawData_[dataIndex]) {
       // Skip already loaded data.
@@ -486,6 +487,16 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
     counter++;
     var url = data.isServerData ?
       './server/data/' + data.file : visflow.utils.standardURL(data.file);
+
+    var duplicateData = visflow.data.duplicateData(data);
+    if (duplicateData != null) {
+      this.rawData_[dataIndex] = duplicateData;
+      --counter;
+      return;
+    }
+
+    hasAsyncLoad = true;
+
     $.get(url)
       .done(function(result) {
         visflow.assert(result != null);
@@ -495,6 +506,8 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
         // Store a copy of parsed data, so that we can switch between crossing
         // and non-crossing.
         this.rawData_[dataIndex] = result;
+
+        visflow.data.registerRawData(data, result);
 
         --counter;
         complete();
@@ -507,6 +520,10 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
         complete();
       }.bind(this));
   }, this);
+
+  if (!hasAsyncLoad) {
+    this.process();
+  }
 };
 
 /**
@@ -632,7 +649,7 @@ visflow.DataSource.prototype.process = function() {
 
   var data = new visflow.Data(finalData);
   if (data.type !== '') {
-    visflow.flow.registerData(data);
+    visflow.data.registerData(data);
   }
   // Overwrite data object (to keep the same reference).
   $.extend(this.ports['out'].pack, new visflow.Package(data));
