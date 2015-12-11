@@ -239,11 +239,20 @@ visflow.PropertyMapping.prototype.process = function() {
       .range(this.options.numberRange);
   }
 
+  var isOrdinal = visflow.scales[this.options.colorScaleId].isOrdinal;
+
   var newItems = {};
   for (var index in inpack.items) {
     var value = data.values[index][this.dim];
+    var mappedDataValue;
+    if (isOrdinal) {
+      value = visflow.utils.hashString('' + value);
+      mappedDataValue = value;
+    } else {
+      mappedDataValue = dataScale(value);
+    }
     var prop = {};
-    prop[this.options.mapping] = propScale(dataScale(value));
+    prop[this.options.mapping] = propScale(mappedDataValue);
     newItems[index] = {
       properties: _.extend({}, inpack.items[index].properties, prop)
     };

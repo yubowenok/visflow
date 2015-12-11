@@ -79,7 +79,8 @@ visflow.scales.SPECS_ = {
     property: 'color',
     contrastColor: 'black',
     domain: d3.range(10),
-    range: d3.scale.category10().range()
+    range: d3.scale.category10().range(),
+    isOrdinal: true
   }
 };
 
@@ -141,7 +142,8 @@ visflow.scales.init = function() {
       text: spec.text,
       scale: scale,
       contrastColor: spec.contrastColor,
-      gradientDiv: gradientDiv
+      gradientDiv: gradientDiv,
+      isOrdinal: spec.isOrdinal
     };
   }
 };

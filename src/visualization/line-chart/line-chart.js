@@ -857,6 +857,7 @@ visflow.LineChart.prototype.dataChanged = function() {
 
 /** @inheritDoc */
 visflow.LineChart.prototype.inputChanged = function() {
+  this.selectedGroups = {};
   this.itemGroups_ = this.ports['in'].pack.groupItems(this.options.groupBy);
   this.sortItems_();
   this.itemProps_ = this.getItemProperties_();
