@@ -65,7 +65,7 @@ visflow.flow.NODE_CONSTRUCTORS_ = {
   union: visflow.Union,
   range: visflow.RangeFilter,
   contain: visflow.ContainFilter,
-  bandLimiter: visflow.BandLimiter,
+  sampler: visflow.Sampler,
   valueExtractor: visflow.ValueExtractor,
   valueMaker: visflow.ValueMaker,
   propertyEditor: visflow.PropertyEditor,
@@ -80,6 +80,14 @@ visflow.flow.NODE_CONSTRUCTORS_ = {
 };
 
 /**
+ * Mapping from obsolete type names to new ones.
+ * @const @private {!Object<string>}
+ */
+visflow.flow.OBSOLETE_TYPES_ = {
+  bandLimiter: 'sampler'
+};
+
+/**
  * Creates a node of given type.
  * @param {string} type
  * @param {Object} nodeSave Saved node data for de-serialization.
@@ -89,6 +97,11 @@ visflow.flow.createNode = function(type, save) {
   type = $.camelCase(type);
 
   var params = {};
+
+  // Convert old types to new ones.
+  if (type in visflow.flow.OBSOLETE_TYPES_) {
+    type = visflow.flow.OBSOLETE_TYPES_[type];
+  }
 
   // Gets the node constructor.
   if (!(type in this.NODE_CONSTRUCTORS_)) {
@@ -465,7 +478,13 @@ visflow.flow.toggleVisMode = function() {
       if (node.options.visMode) {
         node.container
           .stop(true)
-          .animate(node.visCss, node.updateContent.bind(node));
+          .animate(node.visCss, function() {
+            if (this.options.minimized) {
+              this.toggleMinimized();
+            } else {
+              this.updateContent();
+            }
+          }.bind(node));
       } else {
         node.container
           .stop(true)

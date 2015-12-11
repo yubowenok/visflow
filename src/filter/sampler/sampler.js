@@ -1,5 +1,5 @@
 /**
- * @fileoverview VisFlow band limiter module.
+ * @fileoverview VisFlow sampler module.
  */
 
 'use strict';
@@ -9,8 +9,8 @@
  * @constructor
  * @extends {visflow.Filter}
  */
-visflow.BandLimiter = function(params) {
-  visflow.BandLimiter.base.constructor.call(this, params);
+visflow.Sampler = function(params) {
+  visflow.Sampler.base.constructor.call(this, params);
 
   /** @inheritDoc */
   this.ports = {
@@ -29,31 +29,31 @@ visflow.BandLimiter = function(params) {
   };
 };
 
-visflow.utils.inherit(visflow.BandLimiter, visflow.Filter);
+visflow.utils.inherit(visflow.Sampler, visflow.Filter);
 
 /** @inheritDoc */
-visflow.BandLimiter.prototype.TEMPLATE =
-  './src/filter/band-limiter/band-limiter.html';
+visflow.Sampler.prototype.TEMPLATE =
+  './src/filter/sampler/sampler.html';
 /** @inheritDoc */
-visflow.BandLimiter.prototype.PANEL_TEMPLATE =
-  './src/filter/band-limiter/band-limiter-panel.html';
+visflow.Sampler.prototype.PANEL_TEMPLATE =
+  './src/filter/sampler/sampler-panel.html';
 /** @inheritDoc */
-visflow.BandLimiter.prototype.NODE_NAME = 'Band Limiter';
+visflow.Sampler.prototype.NODE_NAME = 'Sampler';
 /** @inheritDoc */
-visflow.BandLimiter.prototype.NODE_CLASS = 'band-limiter';
+visflow.Sampler.prototype.NODE_CLASS = 'sampler';
 
 /** @inheritDoc */
-visflow.BandLimiter.prototype.MAX_HEIGHT = 60;
+visflow.Sampler.prototype.MAX_HEIGHT = 60;
 /** @inheritDoc */
-visflow.BandLimiter.prototype.MIN_HEIGHT = 60;
+visflow.Sampler.prototype.MIN_HEIGHT = 60;
 
 /**
- * Condition for band limiting.
+ * Condition for sampling.
  * @private @const {!Array<{id: string, text: string}>}
  */
-visflow.BandLimiter.prototype.CONDITIONS_ = [
-  {id: 'first', text: 'First / Smallest'},
-  {id: 'last', text: 'Last / Largest'},
+visflow.Sampler.prototype.CONDITIONS_ = [
+  {id: 'first', text: 'First / Minimum'},
+  {id: 'last', text: 'Last / Maximum'},
   {id: 'sampling', text: 'Random Sampling'}
 ];
 
@@ -61,13 +61,13 @@ visflow.BandLimiter.prototype.CONDITIONS_ = [
  * Modes for band limiting.
  * @private @const {!Array<{id: string, text: string}>}
  */
-visflow.BandLimiter.prototype.MODES_ = [
+visflow.Sampler.prototype.MODES_ = [
   {id: 'count', text: 'Count'},
   {id: 'percentage', text: 'Percentage'}
 ];
 
 /** @inheritDoc */
-visflow.BandLimiter.prototype.DEFAULT_OPTIONS = {
+visflow.Sampler.prototype.DEFAULT_OPTIONS = {
   // Dimension to be filtered on.
   dim: 0,
   // Filtering conditions, 'first', 'last' or 'sampling'.
@@ -81,7 +81,7 @@ visflow.BandLimiter.prototype.DEFAULT_OPTIONS = {
 };
 
 /** @inheritDoc */
-visflow.BandLimiter.prototype.initPanel = function(container) {
+visflow.Sampler.prototype.initPanel = function(container) {
   var units = [
     // Group By
     {
@@ -163,8 +163,8 @@ visflow.BandLimiter.prototype.initPanel = function(container) {
 };
 
 /** @inheritDoc */
-visflow.BandLimiter.prototype.showDetails = function() {
-  visflow.BandLimiter.base.showDetails.call(this);
+visflow.Sampler.prototype.showDetails = function() {
+  visflow.Sampler.base.showDetails.call(this);
 
   var units = [
     // Dimension
@@ -172,7 +172,7 @@ visflow.BandLimiter.prototype.showDetails = function() {
       constructor: visflow.Select,
       params: {
         container: this.content.find('#dim'),
-        list: this.getDimensionList(),
+        list: this.getDimensionList(null, true),
         selected: this.options.dim,
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
@@ -187,7 +187,7 @@ visflow.BandLimiter.prototype.showDetails = function() {
 };
 
 /** @inheritDoc */
-visflow.BandLimiter.prototype.process = function() {
+visflow.Sampler.prototype.process = function() {
   var inpack = this.ports['in'].pack;
   var outpack = this.ports['out'].pack;
   if (inpack.isEmpty()) {
@@ -205,7 +205,7 @@ visflow.BandLimiter.prototype.process = function() {
 };
 
 /** @inheritDoc */
-visflow.BandLimiter.prototype.filter = function() {
+visflow.Sampler.prototype.filter = function() {
   var inpack = this.ports['in'].pack;
   var outpack = this.ports['out'].pack;
   var items = inpack.items;
