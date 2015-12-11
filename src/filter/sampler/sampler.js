@@ -77,7 +77,9 @@ visflow.Sampler.prototype.DEFAULT_OPTIONS = {
   // Filtering count or percentage
   number: 5,
   // Group by dimension.
-  groupBy: ''
+  groupBy: '',
+  // Whether the values shall be uniqued before data items are filtered.
+  unique: false
 };
 
 /** @inheritDoc */
@@ -155,7 +157,20 @@ visflow.Sampler.prototype.initPanel = function(container) {
       },
       change: function (event, number) {
         this.options.number = number;
-        this.parameterChanged();5
+        this.parameterChanged();
+      }
+    },
+    // Unique
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#unique'),
+        value: this.options.unique,
+        title: 'Unique Values'
+      },
+      change: function (event, value) {
+        this.options.unique = value;
+        this.parameterChanged();
       }
     }
   ];
@@ -225,6 +240,10 @@ visflow.Sampler.prototype.filter = function() {
       return reversed * visflow.utils.compare(a, b);
     });
 
+    if (this.options.unique) {
+      colValues = _(colValues).uniq();
+    }
+
     var count = this.options.mode == 'count' ? this.options.number :
       Math.ceil(this.options.number / 100 * colValues.length);
     count = Math.min(colValues.length, count);
@@ -237,6 +256,7 @@ visflow.Sampler.prototype.filter = function() {
         break;
       case 'sampling':
         var i = 0;
+        var percentage = this.options.number / 100;
         while(count > 0) {
           if (i == colValues.length) {
             i = 0;
@@ -245,7 +265,7 @@ visflow.Sampler.prototype.filter = function() {
             });
           }
           var rand = Math.random();
-          if (rand < this.options.number / 100) {
+          if (rand < percentage) {
             acceptedVals.push(colValues[i]);
             colValues[i] = null;
             count--;
