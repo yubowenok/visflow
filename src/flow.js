@@ -430,7 +430,17 @@ visflow.flow.previewVisMode = function(state) {
         node.hidePorts();
         node.container
           .stop(true)
-          .animate(node.visCss, node.updateContent.bind(node));
+          .animate(node.visCss, function() {
+            // Enable visMode so that the view temporarily gets the correct
+            // visMode size.
+            visflow.flow.visMode = true;
+            if (this.options.minimized) {
+              this.backMinimized = true;
+              this.setMinimized(false);
+            }
+            this.updateContent();
+            visflow.flow.visMode = false;
+          }.bind(node));
       } else {
         node.container
           .stop(true)
@@ -447,10 +457,22 @@ visflow.flow.previewVisMode = function(state) {
     for (var id in this.nodes){
       var node = this.nodes[id];
       if (node.options.visMode) {
+        var css = node.css;
+        if (node.backMinimized) {
+          node.backMinimized = false;
+          css = _(css).pick('left', 'top');
+          node.setMinimized(true);
+        } else if (node.options.minimized) {
+          // Already set minimized by toggleVisMode.
+          continue;
+        }
         node.showPorts();
         node.container
           .stop(true)
-          .animate(node.css, node.updateContent.bind(node));
+          .animate(css, function() {
+            this.updateContent();
+            this.updatePorts();
+          }.bind(node));
       } else {
         node.container
           .stop(true)
@@ -480,10 +502,10 @@ visflow.flow.toggleVisMode = function() {
           .stop(true)
           .animate(node.visCss, function() {
             if (this.options.minimized) {
-              this.toggleMinimized();
-            } else {
-              this.updateContent();
+              this.backMinimized = true;
+              this.setMinimized(false);
             }
+            this.updateContent();
           }.bind(node));
       } else {
         node.container
@@ -504,15 +526,19 @@ visflow.flow.toggleVisMode = function() {
     for (var id in this.nodes) {
       var node = this.nodes[id];
       if (node.options.visMode) {
+        var css = node.css;
+        if (node.backMinimized) {
+          node.backMinimized = false;
+          node.setMinimized(true);
+          css = _(node.css).pick('left', 'top');
+        }
         node.container
           .stop(true)
-          .animate(node.css, {
-            complete: function() {
-              this.showPorts();
-              this.updatePorts();
-              this.updateContent();
-            }.bind(node)
-          });
+          .animate(css, function() {
+            this.showPorts();
+            this.updatePorts();
+            this.updateContent();
+          }.bind(node));
       } else {
         node.show();
         node.container

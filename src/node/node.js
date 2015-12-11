@@ -113,6 +113,14 @@ visflow.Node = function(params) {
    */
   this.contextMenu;
 
+  /**
+   * Flag used to record that the node should go back to minimized mode, usd
+   * when the user switch to visMode (turn it on or preview) when this node is
+   * minimized.
+   * @type {boolean}
+   */
+  this.backMinimized = false;
+
   // Extend the options. Default options maybe overwritten by inheriting
   // classes.
   _(this.options).extend(this.DEFAULT_OPTIONS);
@@ -357,19 +365,11 @@ visflow.Node.prototype.updateContent = function() {
 };
 
 /**
- * Shows the node.
- * This removes everything created, including those from inheriting classes.
- * Inheriting classes shall not remove again.
+ * Updates the node containing elements, so that they correspond to details/
+ * minimized state.
+ * @private
  */
-visflow.Node.prototype.show = function() {
-  //this.content.children().remove();
-
-  if (!this.options.visMode && visflow.flow.visMode) {
-    // do not show if hidden in vis mode
-    return;
-  }
-  this.container.show();
-
+visflow.Node.prototype.updateContainer_ = function() {
   if (this.options.minimized) {
     this.container
       .removeClass('details')
@@ -384,8 +384,6 @@ visflow.Node.prototype.show = function() {
     this.hideLabel();
     // Hide message when node is minimized.
     this.hideMessage();
-
-    this.showIcon();
   } else {
     this.container
       .addClass('details')
@@ -401,9 +399,25 @@ visflow.Node.prototype.show = function() {
 
     // Show label. This has no effect when options.label is false.
     this.showLabel();
-
-    this.showDetails();
   }
+};
+
+/**
+ * Shows the node.
+ * This removes everything created, including those from inheriting classes.
+ * Inheriting classes shall not remove again.
+ */
+visflow.Node.prototype.show = function() {
+  //this.content.children().remove();
+
+  if (!this.options.visMode && visflow.flow.visMode) {
+    // do not show if hidden in vis mode
+    return;
+  }
+  this.container.show();
+
+  this.updateContainer_();
+  this.updateContent();
 
   if (!visflow.flow.visMode) {
     // Not show edges with vismode on.
@@ -563,6 +577,7 @@ visflow.Node.prototype.interaction = function() {
       maxWidth: this.MAX_WIDTH,
       maxHeight: this.MAX_HEIGHT,
       resize: function() {
+        this.saveCss();
         this.resize();
       }.bind(this),
       stop: function() {
@@ -783,7 +798,6 @@ visflow.Node.prototype.remove = function() {
  * Hides the port.
  */
 visflow.Node.prototype.hide = function() {
-  console.log(this);
   $(this.container).hide();
 };
 
@@ -916,6 +930,24 @@ visflow.Node.prototype.toggleVisMode = function() {
 };
 
 /**
+ * Sets the minimization without saving state.
+ * @param {boolean} state
+ */
+visflow.Node.prototype.setMinimized = function(state) {
+  this.options.minimized = state;
+  this.show();
+  this.updatePorts();
+  if (visflow.optionPanel.isOpen) {
+    var btnMinimized = $('#option-panel').find('#minimized');
+    if (this.options.minimized) {
+      btnMinimized.addClass('active');
+    } else {
+      btnMinimized.removeClass('active');
+    }
+  }
+};
+
+/**
  * Toggles node minimization.
  */
 visflow.Node.prototype.toggleMinimized = function() {
@@ -923,19 +955,7 @@ visflow.Node.prototype.toggleMinimized = function() {
   // If the currently minimized is true, node size will NOT be saved.
   this.saveCss();
 
-  this.options.minimized = !this.options.minimized;
-  this.show();
-  this.updatePorts();
-
-  if (visflow.optionPanel.isOpen) {
-    var btnMinimized = $('#option-panel').find('#minimized');
-    if (this.options.minimized) {
-      btnMinimized.addClass('active');
-    } else {
-      btnMinimized.removeClass('active');
-      this.resize();
-    }
-  }
+  this.setMinimized(!this.options.minimized);
 };
 
 /**
@@ -960,7 +980,6 @@ visflow.Node.prototype.pushflow = function() {
  * @param size
  */
 visflow.Node.prototype.resize = function() {
-  this.saveCss();
   if (visflow.flow.visMode == false) {
     this.updatePorts();
   }
