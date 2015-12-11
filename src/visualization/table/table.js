@@ -50,7 +50,8 @@ visflow.Table.prototype.NODE_CLASS = 'table';
 
 /** @inheritDoc */
 visflow.Table.prototype.DEFAULT_OPTIONS = {
-  pageLength: 5
+  // pageLength of the dataTables
+  pageLength: 20
 };
 
 /** @inheritDoc */

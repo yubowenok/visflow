@@ -402,6 +402,7 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
 
   var svgSize = this.getSVGSize();
   var yScale = this.yScales[dimIndex];
+
   var axis = d3.svg.axis()
     .orient('left')
     .tickValues(this.options.ticks ? yScale.domain() : [])
@@ -519,8 +520,9 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
   this.rightMargin_ = this.PLOT_MARGINS.right;
 
   var leftLabelWidth = 0;
+  var rightLabelWidth = 0;
   var maxLength = 0;
-  if (this.options.ticks) {
+  if (this.options.ticks && this.yScales.length) {
     // Id is required for axis drawing routine.
     this.drawTempAxis_(0, '0', function() {
       $(this.svgTempAxes_.node())
@@ -534,8 +536,7 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
       }
     }.bind(this));
   }
-  var rightLabelWidth = 0;
-  if (this.options.axisLabel) {
+  if (this.options.axisLabel && this.yScales.length) {
     // Though this is the last axis, we still apply Id '0'.
     this.drawTempAxis_(this.options.dims.length - 1, '0', function() {
       rightLabelWidth = $(this.svgTempAxes_.node())

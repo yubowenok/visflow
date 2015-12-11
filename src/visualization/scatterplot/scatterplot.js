@@ -156,7 +156,7 @@ visflow.Scatterplot.prototype.showSelection = function() {
   // Change position of tag to make them appear on top.
   var svg = $(this.svgPoints_.node());
   for (var index in this.selected) {
-    svg.find('circle#' + index).appendTo(svg);
+    svg.children('circle#' + index).appendTo(svg);
   }
 };
 
@@ -331,7 +331,6 @@ visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
   var points = this.svgPoints_.selectAll('circle')
     .data(itemProps, _.getValue('index'));
   points.enter().append('circle')
-    .style('opacity', 0)
     .attr('id', _.getValue('index'));
   _(points.exit()).fadeOut();
 

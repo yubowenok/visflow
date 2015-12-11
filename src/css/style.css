@@ -23,13 +23,6 @@ body {
   z-index: 105;
 }
 
-.visflow #snapshot {
-  z-index: 104;
-  width: 100px;
-  height: 100px;
-  position: absolute;
-}
-
 .visflow .system-message {
   padding: 5px 15px;
   margin-bottom: 0px;

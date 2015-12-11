@@ -531,6 +531,7 @@ visflow.Heatmap.prototype.initPanel = function(container) {
       },
       change: function(event, scaleId) {
         this.options.colorScaleId = scaleId;
+        this.itemProps_ = this.getItemProperties_();
         this.show();
       }
     },
@@ -561,6 +562,7 @@ visflow.Heatmap.prototype.initPanel = function(container) {
       },
       change: function(event, dim) {
         this.options.labelBy = dim;
+        this.itemProps_ = this.getItemProperties_();
         // Label dimension change may lead to leftMargin change.
         this.layoutChanged();
       }
@@ -661,6 +663,9 @@ visflow.Heatmap.prototype.updateLeftMargin_ = function() {
 visflow.Heatmap.prototype.updateTopMargin_ = function() {
   var data = this.ports['in'].pack.data;
   this.topMargin_ = this.PLOT_MARGINS.top;
+  if (data.isEmpty()) {
+    return;
+  }
   if (this.options.colLabel) {
     var svgSize = this.getSVGSize();
     var colWidth = (svgSize.width - this.leftMargin_ -
