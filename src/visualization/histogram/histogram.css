@@ -1,0 +1,12 @@
+.visflow .node.details.histogram {
+  width: 400px;
+  height: 200px;
+}
+
+.visflow .histogram g.x.axis .vis-label {
+  text-anchor: end;
+}
+
+.visflow .node.histogram.minimized > .icon {
+  background-image: url(/visflow/imgs/histogram-icon.png);
+}

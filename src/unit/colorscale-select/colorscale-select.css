@@ -1,0 +1,6 @@
+.select2-selection__rendered .gradient-div,
+.select2-results__options .gradient-div {
+  border-radius: 4px;
+  box-shadow: 1px 1px 1px #888;
+  height: 15px;
+}

@@ -1,0 +1,13 @@
+.visflow .parallel-coordinates path {
+  fill: none;
+  shape-rendering: optimizeSpeed;
+}
+
+.visflow .node.parallel-coordinates.details {
+  width: 600px;
+  height: 200px;
+}
+
+.visflow .node.parallel-coordinates.minimized > .icon {
+  background-image: url(/visflow/imgs/parallelcoordinates-icon.png);
+}

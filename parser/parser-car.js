@@ -10,42 +10,42 @@
 -origin REAL 8 string []
 */
 
-"use strict";
+'use strict';
 
 function parseOrigin(p) {
   p = parseInt(p);
-  if(p == 1) return "American";
-  if(p == 2) return "European";
-  if(p == 3) return "Japanese";
-  console.error("unhandled car category");
+  if(p == 1) return 'American';
+  if(p == 2) return 'European';
+  if(p == 3) return 'Japanese';
+  console.error('unhandled car category');
 };
 function parseInt1900(p) {
   return parseInt(p) + 1900;
 }
 
-var dimTypes = ["string", "float", "int", "float", "float", "int", "float", "int", "string"];
+var dimTypes = ['string', 'float', 'int', 'float', 'float', 'int', 'float', 'int', 'string'];
 var parses = [parseFloat, parseInt, parseFloat, parseFloat, parseInt, parseFloat, parseInt1900, parseOrigin];
 
-var fs = require("fs");
+var fs = require('fs');
 
-fs.readFile("car", function(err, data) {
+fs.readFile('car', function(err, data) {
     if(err)
       throw err;
-    var array = data.toString().split("\n");
+    var array = data.toString().split('\n');
     var cars = [];
     var dims = [];
-    var stage = "";
+    var stage = '';
     var j;
     for(var i in array) {
       var line = array[i];
       var cline = line.match(/\S+/)[0];
-      if (cline.substr(0,2) === "//") {
-        if (cline === "//dimensions") {
-          stage = "dim";
-        } else if (cline === "//names") {
-          stage = "name";
-        } else if (cline === "//values") {
-          stage = "value";
+      if (cline.substr(0,2) === '//') {
+        if (cline === '//dimensions') {
+          stage = 'dim';
+        } else if (cline === '//names') {
+          stage = 'name';
+        } else if (cline === '//values') {
+          stage = 'value';
           j = 0; // car counter
         }
       } else {
@@ -53,15 +53,15 @@ fs.readFile("car", function(err, data) {
         var vals = line.match(/\S+/g);
         vals[0] = vals[0].substr(1);
 
-        if (stage === "dim") {
+        if (stage === 'dim') {
           dims.push(vals[0]);
-        } else if (stage === "name") {
+        } else if (stage === 'name') {
           var name = line.substr(1).match(/[\w\s\d-().\/]+/);
           cars.push([name[0]]);
         } else {
 
           for(var k = 0; k < dims.length; k++){
-            if(vals[k] === "NA") {
+            if(vals[k] === 'NA') {
               // remove this car
               cars.splice(j,1);
               j--;
@@ -73,20 +73,20 @@ fs.readFile("car", function(err, data) {
         }
       }
     }
-    dims = ["name"].concat(dims);
+    dims = ['name'].concat(dims);
     var data = {
-      type: "car",
+      type: 'car',
       dimensions: dims,
       dimensionTypes: dimTypes,
       values: cars
     };
     var output = JSON.stringify(data);
 
-    fs.writeFile("car.json", output, function(err) {
+    fs.writeFile('car.json', output, function(err) {
     if(err) {
         console.log(err);
     } else {
-        console.log("file saved");
+        console.log('file saved');
     }
 });
 });

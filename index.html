@@ -2,109 +2,297 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Dataflow Visualization Builder</title>
+  <title>VisFlow - Workflow Framework for Visual Analytics</title>
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 
-
-  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
-  <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
+  <!-- npm components -->
+  <!-- jquery -->
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <!-- jquery-ui -->
+  <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css"/>
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css"/>
+  <!-- bootstrap -->
+  <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
+  <!-- bootstrap switch -->
+  <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
+  <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
+  <!-- select2 -->
+  <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
+  <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
+  <!-- datatables -->
+  <script type="text/javascript" src="bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+  <script type="text/javascript" src="bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+  <link rel="stylesheet" href="bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css"/>
+  <script type="text/javascript" src="bower_components/datatables.net-select/js/dataTables.select.min.js"></script>
+  <link rel="stylesheet" href="bower_components/datatables.net-select-bs/css/select.bootstrap.min.css"/>
+  <!-- bootstrap-colorpicker -->
+  <script type="text/javascript" src="bower_components/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+  <link rel="stylesheet" href="bower_components/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css"/>
 
-  <!-- DataTables is using library because there was a bug in ui theme integration of the bower version-->
-  <script type="text/javascript" src="libraries/DataTables/media/js/jquery.js"></script>
-  <script type="text/javascript" src="libraries/DataTables/media/js/jquery.dataTables.min.js"></script>
-  <script type="text/javascript" src="libraries/DataTables/jqueryui/dataTables.jqueryui.min.js"></script>
-  <link rel="stylesheet" href="libraries/DataTables/jqueryui/dataTables.jqueryui.css" />
-
-
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/theme.css" />
-  <link rel="stylesheet" href="bower_components/jquery-ui/themes/humanity/jquery-ui.min.css" />
-  <!-- jquery.ui modified
-   * there are hacks made to the jquery-ui.js, so don't use min.js/bower_components
-   * hacks include:
-    - set menu delay to 0
-    - replace mouseleave callback by collapseAll call
-  -->
-  <script type="text/javascript" src="libraries/jquery-ui/jquery-ui.js"></script>
-  <script type="text/javascript" src="bower_components/ui-contextmenu/jquery.ui-contextmenu.min.js"></script>
+  <!-- others -->
+  <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
+  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
   <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
-
-  <script type="text/javascript" src="libraries/Automattic-Iris/dist/iris.min.js"></script>
-  <script type="text/javascript" src="libraries/selfish/selfish.js"></script>
-
-  <script type="text/javascript" src="bower_components/select2/select2.min.js"></script>
-  <link type="text/css" rel="stylesheet" href="bower_components/select2/select2.css" />
-
-  <!-- dataflow css -->
-  <link type="text/css" rel="stylesheet" href="css/override.css" />
-  <link type="text/css" rel="stylesheet" href="css/style.css" />
-  <link type="text/css" rel="stylesheet" href="css/panel.css" />
-  <link type="text/css" rel="stylesheet" href="css/dataflow-visualization.css" />
-  <link type="text/css" rel="stylesheet" href="css/dataflow-unit.css" />
-
-  <!-- dataflow js -->
-  <!-- utils -->
-  <script type="text/javascript" src="js/utils.js"></script>
-  <!-- dataflow -->
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-unit.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-checkbox.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-select.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-colorscale.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-colorpicker.js"></script>
-  <script type="text/javascript" src="js/dataflow/unit/dataflow-input.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-constants.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-package.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-data.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-port.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-edge.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-node.js"></script>
-  <script type="text/javascript" src="js/dataflow/datasource/dataflow-datasource.js"></script>
-  <script type="text/javascript" src="js/dataflow/filter/dataflow-filter.js"></script>
-  <script type="text/javascript" src="js/dataflow/filter/dataflow-range.js"></script>
-  <script type="text/javascript" src="js/dataflow/filter/dataflow-contain.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-visualization.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-network.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-heatmap.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-table.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-scatterplot.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-histogram.js"></script>
-  <script type="text/javascript" src="js/dataflow/visualization/dataflow-parallelcoordinates.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-set.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-intersect.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-union.js"></script>
-  <script type="text/javascript" src="js/dataflow/set/dataflow-minus.js"></script>
-  <script type="text/javascript" src="js/dataflow/value/dataflow-value-maker.js"></script>
-  <script type="text/javascript" src="js/dataflow/value/dataflow-value-extractor.js"></script>
-  <script type="text/javascript" src="js/dataflow/property/dataflow-property-editor.js"></script>
-  <script type="text/javascript" src="js/dataflow/property/dataflow-property-mapping.js"></script>
-  <script type="text/javascript" src="js/dataflow/dataflow-manager.js"></script>
-  <!-- ui -->
-  <script type="text/javascript" src="js/ui/view.js"></script>
-  <script type="text/javascript" src="js/ui/panel.js"></script>
-  <script type="text/javascript" src="js/ui/view-manager.js"></script>
-  <script type="text/javascript" src="js/ui/interaction-manager.js"></script>
-  <!-- core -->
-  <script type="text/javascript" src="js/core.js"></script>
-  <script type="text/javascript" src="js/test.js"></script>
+  <script type="text/javascript" src="bower_components/crypto-js/crypto-js.js"></script>
+  <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
 
 
+  <!-- visflow src -->
+
+  <!-- global -->
+  <script type="text/javascript" src="src/visflow.js"></script>
+  <script type="text/javascript" src="src/tooltip/tooltip.js"></script>
+  <link rel="stylesheet" href="src/tooltip/tooltip.css"/>
+  <script type="text/javascript" src="src/options.js"></script>
+  <script type="text/javascript" src="src/scales.js"></script>
+  <script type="text/javascript" src="src/parser.js"></script>
+  <script type="text/javascript" src="src/utils.js"></script>
+  <script type="text/javascript" src="src/vectors.js"></script>
+
+  <!-- file upload -->
+  <script type="text/javascript" src="src/upload/upload.js"></script>
+
+  <!-- node -->
+  <script type="text/javascript" src="src/node/node.js"></script>
+  <link rel="stylesheet" href="src/node/node.css"/>
+
+  <!-- edge -->
+  <script type="text/javascript" src="src/edge/edge.js"></script>
+  <link rel="stylesheet" href="src/edge/edge.css"/>
+
+  <!-- base components -->
+  <script type="text/javascript" src="src/data/constants.js"></script>
+  <script type="text/javascript" src="src/data/package.js"></script>
+  <script type="text/javascript" src="src/data/data.js"></script>
+  <script type="text/javascript" src="src/contextmenu/contextmenu.js"></script>
+  <link rel="stylesheet" href="src/contextmenu/contextmenu.css"/>
+  <script type="text/javascript" src="src/dialog/dialog.js"></script>
+  <link rel="stylesheet" href="src/dialog/dialog.css"/>
+
+  <!-- ports -->
+  <script type="text/javascript" src="src/port/port.js"></script>
+  <script type="text/javascript" src="src/port/multiple-port.js"></script>
+  <script type="text/javascript" src="src/port/selection-port.js"></script>
+
+  <!-- units -->
+  <script type="text/javascript" src="src/unit/editable-list/editable-list.js"></script>
+  <link rel="stylesheet" href="src/unit/editable-list/editable-list.css"/>
+  <script type="text/javascript" src="src/unit/select/select.js"></script>
+  <link rel="stylesheet" href="src/unit/select/select.css"/>
+  <script type="text/javascript" src="src/unit/multiple-select/multiple-select.js"></script>
+  <link rel="stylesheet" href="src/unit/multiple-select/multiple-select.css"/>
+  <script type="text/javascript" src="src/unit/input/input.js"></script>
+  <link rel="stylesheet" href="src/unit/input/input.css"/>
+  <script type="text/javascript" src="src/unit/colorscale-select/colorscale-select.js"></script>
+  <link rel="stylesheet" href="src/unit/colorscale-select/colorscale-select.css"/>
+  <script type="text/javascript" src="src/unit/colorpicker/colorpicker.js"></script>
+  <link rel="stylesheet" href="src/unit/colorpicker/colorpicker.css"/>
+  <script type="text/javascript" src="src/unit/checkbox/checkbox.js"></script>
+  <link rel="stylesheet" href="src/unit/checkbox/checkbox.css"/>
+
+
+  <!-- panel -->
+  <script type="text/javascript" src="src/panel/popup-panel/popup-panel.js"></script>
+  <link rel="stylesheet" href="src/panel/popup-panel/popup-panel.css"/>
+  <script type="text/javascript" src="src/panel/node-panel/node-panel.js"></script>
+  <link rel="stylesheet" href="src/panel/node-panel/node-panel.css"/>
+  <script type="text/javascript" src="src/panel/option-panel/option-panel.js"></script>
+  <link rel="stylesheet" href="src/panel/option-panel/option-panel.css"/>
+
+  <!-- data sources -->
+  <script type="text/javascript" src="src/data-source/data-source.js"></script>
+  <link rel="stylesheet" href="src/data-source/data-source.css"/>
+
+  <!-- filters -->
+  <script type="text/javascript" src="src/filter/filter.js"></script>
+  <link rel="stylesheet" href="src/filter/filter.css"/>
+  <script type="text/javascript" src="src/filter/range-filter/range-filter.js"></script>
+  <link rel="stylesheet" href="src/filter/range-filter/range-filter.css"/>
+  <script type="text/javascript" src="src/filter/contain-filter/contain-filter.js"></script>
+  <link rel="stylesheet" href="src/filter/contain-filter/contain-filter.css"/>
+  <script type="text/javascript" src="src/filter/sampler/sampler.js"></script>
+  <link rel="stylesheet" href="src/filter/sampler/sampler.css"/>
+
+  <!-- visualizations -->
+  <script type="text/javascript" src="src/visualization/visualization.js"></script>
+  <link rel="stylesheet" href="src/visualization/visualization.css"/>
+  <!-- network -->
+  <script type="text/javascript" src="src/visualization/network/network.js"></script>
+  <link rel="stylesheet" href="src/visualization/network/network.css"/>
+  <!-- heatmap -->
+  <script type="text/javascript" src="src/visualization/heatmap/heatmap.js"></script>
+  <link rel="stylesheet" href="src/visualization/heatmap/heatmap.css"/>
+  <!-- histogram -->
+  <script type="text/javascript" src="src/visualization/histogram/histogram.js"></script>
+  <link rel="stylesheet" href="src/visualization/histogram/histogram.css"/>
+  <!-- table -->
+  <script type="text/javascript" src="src/visualization/table/table.js"></script>
+  <link rel="stylesheet" href="src/visualization/table/table.css"/>
+  <!-- scatterplot -->
+  <script type="text/javascript" src="src/visualization/scatterplot/scatterplot.js"></script>
+  <link rel="stylesheet" href="src/visualization/scatterplot/scatterplot.css"/>
+  <!-- parallel coordinates -->
+  <script type="text/javascript" src="src/visualization/parallel-coordinates/parallel-coordinates.js"></script>
+  <link rel="stylesheet" href="src/visualization/parallel-coordinates/parallel-coordinates.css"/>
+  <!-- line chart-->
+  <script type="text/javascript" src="src/visualization/line-chart/line-chart.js"></script>
+  <link rel="stylesheet" href="src/visualization/line-chart/line-chart.css"/>
+
+  <!-- set operations -->
+  <script type="text/javascript" src="src/set/set.js"></script>
+  <link rel="stylesheet" href="src/set/set.css"/>
+  <script type="text/javascript" src="src/set/intersect/intersect.js"></script>
+  <link rel="stylesheet" href="src/set/intersect/intersect.css"/>
+  <script type="text/javascript" src="src/set/union/union.js"></script>
+  <link rel="stylesheet" href="src/set/union/union.css"/>
+  <script type="text/javascript" src="src/set/minus/minus.js"></script>
+  <link rel="stylesheet" href="src/set/minus/minus.css"/>
+
+  <!-- value processors -->
+  <script type="text/javascript" src="src/value/value-maker/value-maker.js"></script>
+  <link rel="stylesheet" href="src/value/value-maker/value-maker.css"/>
+  <script type="text/javascript" src="src/value/value-extractor/value-extractor.js"></script>
+  <link rel="stylesheet" href="src/value/value-extractor/value-extractor.css"/>
+
+  <!-- property processors -->
+  <script type="text/javascript" src="src/property/property.js"></script>
+  <script type="text/javascript" src="src/property/property-editor/property-editor.js"></script>
+  <link rel="stylesheet" href="src/property/property-editor/property-editor.css"/>
+  <script type="text/javascript" src="src/property/property-mapping/property-mapping.js"></script>
+  <link rel="stylesheet" href="src/property/property-mapping/property-mapping.css"/>
+
+  <!-- system program entry -->
+  <script type="text/javascript" src="src/menu/menu.js"></script>
+  <script type="text/javascript" src="src/diagram.js"></script>
+  <script type="text/javascript" src="src/flow.js"></script>
+  <script type="text/javascript" src="src/view-manager.js"></script>
+  <script type="text/javascript" src="src/interaction.js"></script>
+  <script type="text/javascript" src="src/test.js"></script>
+  <link rel="stylesheet" href="src/css/override.css"/>
+  <link rel="stylesheet" href="src/css/style.css"/>
+  <link rel="stylesheet" href="src/menu/menu.css"/>
+  <link rel="stylesheet" href="src/port/port.css"/>
   <script>
     $(document).ready(function () {
-        core = Core.new();
-        test();
+      visflow.init();
+      visflow.test.run();
     });
   </script>
 </head>
-<body>
-  <div id="dataflow" oncontextmenu="return false;">
-    <div id="dataflow-hover"></div>
-    <div id="dataflow-selectbox"></div>
-    <div id="dataflow-edge-drawing" style="visibility:hidden">
-      <div id="dataflow-edge-drawing-segment" class="dataflow-edge-segment"></div>
-      <div id="dataflow-edge-drawing-arrow" class="dataflow-edge-arrow"></div>
+<body class="visflow">
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand bold">VisFlow</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li id="diagram" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Diagram <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="new"><i class="glyphicon glyphicon-file"></i>New<span class="hotkey">( CTRL + E )</span></a></li>
+            <li><a id="save"><i class="glyphicon glyphicon-floppy-disk"></i>Save<span class="hotkey">( CTRL + S )</span></a></li>
+            <li><a id="load"><i class="glyphicon glyphicon-folder-open"></i>Load<span class="hotkey">( CTRL + L )</span></a></li>
+          </ul>
+        </li>
+        <li id="edit" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Edit <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node<span class="hotkey">( A )</span></a></li>
+          </ul>
+        </li>
+        <li id="options" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="show-node-label"><i class="glyphicon glyphicon-ok"></i>Show Node Labels</a></li>
+          </ul>
+        </li>
+        <i class=""></i>
+        <li id="help" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a id="documentation"><i class="glyphicon glyphicon-book"></i>Documentation</a></li>
+            <li><a id="about"><i class="glyphicon glyphicon-info-sign"></i>About</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <ul class="nav navbar-nav navbar-right">
+        <li><a id="alted" class="to-tooltip" data-placement="bottom" title="dragging mode">
+          <span class="btn btn-default"><i class="glyphicon glyphicon-move"></i></span>
+        </a></li>
+        <li><a id="vis-mode" class="to-tooltip" data-placement="bottom"  title="visualization mode">
+          <span class="btn btn-default"><i class="glyphicon glyphicon glyphicon-facetime-video"></i></span>
+        </a></li>
+        <li class="upload"><a id="upload">Upload Data</a></li>
+      </ul>
     </div>
-    <div id="dataflow-edges">
+  </nav>
+
+  <div id="modal" class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      </div>
     </div>
   </div>
 
+  <div id="message" class="container-fluid">
+    <div class="row">
+      <div class="system-message alert alert-success" style="display:none">
+        <button class="close">&times;</button>
+        <div id="success">Success info displayed here</div>
+      </div>
+      <div class="system-message alert alert-warning" style="display:none">
+        <button class="close">&times;</button>
+        <div id="warning">Warning displayed here</div>
+      </div>
+      <div class="system-message alert alert-danger" style="display:none">
+        <button class="close">&times;</button>
+        <div id="error">Error displayed here</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="context-menu">
+    <ul class="dropdown-menu">
+    </ul>
+  </div>
+
+  <div id="main">
+    <div id="nodes"></div>
+    <div id="hover"></div>
+    <div id="selectbox"></div>
+    <div id="edge-drawing" style="display: none;">
+      <div id="edge-drawing-segment" class="edge-segment"></div>
+      <div id="edge-drawing-arrow" class="edge-arrow"></div>
+    </div>
+    <div id="edges">
+    </div>
+  </div>
+
+  <div id="option-panel">
+    <button id="btn-toggle" class="btn btn-default">
+      <span class="glyphicon glyphicon-chevron-left"></span>
+    </button>
+    <button id="btn-pin" class="btn btn-default to-tooltip" data-placement="left" title="pin the control panel">
+      <span class="glyphicon glyphicon-pushpin"></span>
+    </button>
+    <div class="content">
+    </div>
+  </div>
+
+  <div id="node-panel">
+    <button id="btn-toggle">
+      <span class="glyphicon glyphicon-plus"></span>
+    </button>
+    <div class="hover-area">
+    </div>
+    <div class="content">
+    </div>
+  </div>
+
+  <div id="popup-panel" class="popup-panel" style="display: none;"></div>
 </body>
 </html>

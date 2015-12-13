@@ -1,0 +1,35 @@
+.visflow .node.property-editor.minimized > .icon {
+  background-image: url(/visflow/imgs/property-editor-icon.png);
+}
+
+.visflow .node.property-editor.details {
+  width: 185px;
+  height: 210px;
+}
+
+.visflow .node.property-editor.details .form-control {
+  font-size: 0.95em;
+  text-align: center;
+}
+
+.visflow .node.property-editor.details tr > td:first-child {
+  padding-right: 5px;
+  text-align: right;
+}
+
+.visflow .node.property-editor.details tr > td {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.visflow .node.property-editor.details .input-group > .form-control {
+  padding: 6px 6px;
+}
+
+#option-panel .property-editor .input-group {
+  width: 180px;
+}
+
+#option-panel .property-editor .input > input.form-control {
+  width: 180px;
+}

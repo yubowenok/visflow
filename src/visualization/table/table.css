@@ -1,0 +1,27 @@
+.visflow .node.table {
+  font-size: .9em;
+  word-wrap: break-word;
+}
+
+.visflow .node.table.details {
+  width: 400px;
+  height: 300px;
+}
+
+.visflow .node.table.minimized > .icon {
+  background-image: url(/visflow/imgs/table-icon.png);
+}
+
+.visflow .node.table.details .pagination > li > a {
+  padding: 6px 8px;
+}
+
+.visflow .node.table .dataTables_filter input {
+  width: 100px;
+}
+
+.visflow .node.table.details .dataTables_scrollBody {
+  -moz-user-select: initial;
+  -webkit-user-select: initial;
+  -webkit-user-drag: initial;
+}

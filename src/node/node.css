@@ -1,0 +1,128 @@
+.visflow .node {
+  position: absolute;
+}
+
+.visflow .node > .content {
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.visflow .node > .background {
+  border-radius: 4px;
+  border: 1px solid #aaa;
+  background-color: white;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: -1;
+}
+
+.visflow .node.details {
+  width: 100px;
+  height: 100px;
+}
+
+.visflow .node.minimized {
+  width: 50px;
+  height: 50px;
+}
+
+.visflow .node > .icon {
+  width: 50px;
+  height: 50px;
+  position: absolute;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 45px;
+}
+
+.visflow .node.hover > .background,
+.visflow .node.selected > .background {
+  border-width: 3px;
+}
+
+.visflow .node.hover > .background {
+  border-color: #bbb;
+}
+
+.visflow .node.selected > .background {
+  border-color: #777;
+}
+
+.visflow .node #node-label {
+  font-size: 11px;
+  line-height: 11px;
+  font-weight: bold;
+  position: absolute;
+  padding: 5px;
+  left: 5px;
+  top: -22px;
+  background: white;
+  border-radius: 2px 2px 0px 0px;
+  border: 1px solid #ccc;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100px;
+}
+
+.node .popup {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: 1;
+}
+
+.node .popup * {
+  position: absolute;
+}
+
+.node .popup .text {
+  font-size: 0.95em;
+  margin-top: 5px;
+  text-align: center;
+  top: calc(50% - 0.95em);
+  width: 100%;
+}
+
+.node .popup .text.with-image {
+  top: calc(55% - 0.95em);
+}
+
+.node .popup .cover {
+  background-image: linear-gradient(to bottom,#f5f5f5 0,#e8e8e8 100%);
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  border-radius: 4px;
+  opacity: 0.9;
+  left: 2px;
+  top: 2px;
+}
+
+.node .popup .image-hourglass {
+  left: calc(50% - 40px/2);
+  top: calc(55% - 59px);
+}
+
+.node .popup .image-failure {
+  left: calc(50% - 50px/2);
+  top: calc(55% - 50px);
+}
+
+#option-panel .panel-header #node-label {
+  margin-bottom: -10px;
+  font-weight: bold;
+}
+
+#option-panel .node-panel.panel-header {
+  margin-bottom: 20px;
+}
+
+#option-panel .node-panel.panel-header > span > button {
+  margin-right: 5px;
+  width: 45px;
+}
+
+#option-panel .node-panel.panel-header > span > button.active {
+  border: 1px solid #aaa;
+}

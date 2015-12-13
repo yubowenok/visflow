@@ -1,0 +1,116 @@
+/*
+ * Override library and user agent settings.
+ */
+
+/*** Bootstrap navbar ***/
+.visflow .navbar-nav > li > a, .navbar-brand {
+  padding-top: 4px !important;
+  padding-bottom: 0 !important;
+  height: 28px;
+  font-size: 1em;
+}
+
+.visflow .navbar {
+  min-height: 28px !important;
+  z-index: 0;
+}
+
+.visflow .navbar-fixed-top a:hover {
+  cursor: pointer;
+}
+
+.visflow .navbar .dropdown-menu > li > a > i {
+  margin-right: 10px;
+}
+
+.visflow .bold {
+  font-weight: bold;
+}
+
+.visflow .tooltip {
+  z-index: 1001;
+}
+
+
+/*** Make select2 look like bootstrap select. ***/
+.select2-container .select2-selection--single .select2-selection__rendered {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  line-height: 1.42857143;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+
+.select2-container .select2-selection--single {
+  height: inherit;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+  height: 100%;
+  right: 7px;
+  color: black;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #333 transparent transparent transparent;
+  border-width: 4px 4px 0 4px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__clear {
+  margin-right: 10px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.select2-selection.select2-selection--single {
+  border-color: #ccc;
+}
+
+.select2-container--default .select2-selection--multiple {
+  border-color: #ccc;
+}
+
+.select2-container--default .select2-selection--multiple {
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+
+.select2-container--default.select2-container--focus .select2-selection--multiple {
+  border-color: #aaa;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice {
+  background-color: white;
+}
+
+/*** jQuery-UI ***/
+/* Hides grip-se */
+.ui-icon-gripsmall-diagonal-se {
+  opacity: 0;
+}
+
+.ui-resizable-sw,
+.ui-resizable-nw,
+.ui-resizable-ne {
+  transform: scale(2);
+}
+.ui-resizable-se {
+  transform: scale(1.5);
+}
+
+/*** User agent ***/
+th {
+  /* user agent may default to bold */
+  font-weight: normal;
+}
+
+div {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+}
+
+/*** DataTables ***/
+.dataTables_wrapper .dataTables_length select.form-control {
+  cursor: pointer;
+}

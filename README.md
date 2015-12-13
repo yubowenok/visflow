@@ -1,4 +1,6 @@
-# Dataflow Visualization Builder
+## VisFlow - Web-based Workflow Framework for Visual Analytics of Tabular Data
 
-Dataflow Visualization Builder is a web tool that enables user to create visualization application by drawing a dataflow diagram.
-This tool works as a user end application and make transparent the underlying work of data processing and algorithmic filtering.
+VisFlow is a tool that enables creation of visual analytics system for tabular data based on flow diagram editing.
+This tool works as a user end application and makes transparent the underlying work of data processing, filtering and rendering.
+
+For details, refer to the system documentation.

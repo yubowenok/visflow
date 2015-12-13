@@ -1,0 +1,91 @@
+#option-panel {
+  height: auto;
+  top: 50px;
+  bottom: 25px;
+  position: fixed;
+  right: -210px;
+  z-index: 102;
+}
+
+#option-panel > button {
+  position: absolute;
+  left: -25px;
+  width: 26px;
+  height: 100px;
+  z-index: 1;
+}
+
+#option-panel > #btn-toggle {
+  border-radius: 4px 0px 0px 0px;
+}
+
+#option-panel > #btn-toggle:disabled {
+  opacity: 1;
+}
+
+#option-panel > #btn-toggle:disabled > span {
+  color: #ccc;
+}
+
+#option-panel > #btn-pin {
+  border-radius: 0px 0px 0px 4px;
+  top: 99px;
+  height: 30px;
+}
+
+#option-panel > #btn-toggle > span,
+#option-panel > #btn-pin > span {
+  margin-left: -6px;
+}
+
+#option-panel .section {
+  margin-top: 20px;
+  width: 100%;
+}
+
+#option-panel .input-with-update {
+  border-radius: 4px 0px 0px 4px;
+  width: calc(100% - 40px);
+}
+
+#option-panel .sub-buttons {
+  float: right;
+}
+
+#side-panel .btn-update {
+  border-radius: 0px 4px 4px 0px;
+  float: right;
+  top: -0.5px;
+  left: -1px;
+}
+
+#option-panel .switches > table {
+  width: 100%;
+}
+
+#option-panel .switches td {
+  padding: 2px;
+}
+
+#option-panel .content {
+  background-color: white;
+  border: solid 1px #ccc;
+  border-radius: 0px 0px 0px 4px;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 15px;
+  min-width: 210px;
+}
+
+#option-panel .section {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#option-panel .panel-header .btn {
+  color: #888;
+}
+#option-panel .panel-header .btn.active {
+  color: black;
+}

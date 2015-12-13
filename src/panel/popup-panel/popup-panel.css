@@ -1,0 +1,68 @@
+.popup-panel {
+  border-radius: 10px;
+  z-index: 103;
+  padding: 5px;
+  border: 1px solid #ccc;
+  background: rgba(224, 224, 224, 0.5);
+  display: inline-block;
+  position: absolute;
+  width: 540px;
+}
+
+.popup-panel hr {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-color: #ccc;
+}
+
+.popup-panel.compact {
+  width: 210px;
+}
+
+.popup-panel .panel-button {
+  width: 45px;
+  padding: 3px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.popup-panel .panel-button:hover > img {
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+}
+
+.popup-panel .text {
+  width: 100%;
+  text-align: center;
+}
+
+.popup-panel * > p {
+  font-weight: bold;
+  font-size: 1em;
+  margin: 10px 0px 5px 0px;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.75), rgba(200, 200, 200, 0.0) 10%);
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.popup-panel .square-icon {
+  width: 45px;
+  height: 45px;
+}
+
+.popup-panel .flat-icon {
+  width: 45px;
+  height: 22.5px;
+}
+
+.popup-panel .panel-button:disabled {
+  opacity: 0.5;
+}
+
+.dropzone-temp {
+  position: absolute;
+  width: 100%;
+  top: 100%;
+}

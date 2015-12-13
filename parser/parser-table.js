@@ -4,16 +4,16 @@
  * assuming the first row is dimensions
  */
 
-"use strict";
+'use strict';
 
-var gradeTypes = ["int", "float", "string"];
+var gradeTypes = ['int', 'float', 'string'];
 // parse a token
 var parseToken = function(text) {
   var res;
   res = text.match(/^-?[0-9]+/);
   if (res && res[0] === text) {
     return {
-      type: "int",
+      type: 'int',
       value: parseInt(text),
       grade: 0
     };
@@ -21,28 +21,28 @@ var parseToken = function(text) {
   res = text.match(/^-?([0-9]*\.[0-9]+|[0-9]+\.[0-9]*)/);
   if (res && res[0] === text) {
     return {
-      type: "float",
+      type: 'float',
       value: parseFloat(text),
       grade: 1
     };
   }
-  if (text === "") {  // empty constants are ignored
+  if (text === '') {  // empty constants are ignored
     return {
-      type: "empty",
+      type: 'empty',
       value: null,
       grade: -1
     };
   }
   return {
-    type: "string",
+    type: 'string',
     value: text,
     grade: 2
   };
 };
 
-var fs = require("fs");
+var fs = require('fs');
 
-fs.readFile("input", function(err, data) {
+fs.readFile('input', function(err, data) {
   if(err)
       throw err;
   var lines = data.toString().split(/[\n\r]+/);
@@ -78,11 +78,11 @@ fs.readFile("input", function(err, data) {
 
   var output = JSON.stringify(data);
 
-  fs.writeFile("output.json", output, function(err) {
+  fs.writeFile('output.json', output, function(err) {
     if(err) {
         console.log(err);
     } else {
-        console.log("file saved");
+        console.log('file saved');
     }
   });
 });
