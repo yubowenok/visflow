@@ -676,6 +676,9 @@ visflow.Node.prototype.initContextMenu = function() {
         minimize.children('span')
           .text('Maximize');
       }
+      if (visflow.flow.visMode) {
+        minimize.hide();
+      }
     }.bind(this));
 };
 

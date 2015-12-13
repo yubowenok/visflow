@@ -238,3 +238,15 @@ visflow.optionPanel.clear_ = function() {
 visflow.optionPanel.signal_ = function(eventType) {
   $(visflow.optionPanel).trigger('visflow.' + eventType);
 };
+
+/**
+ * Shows/hides the panel header according to visMode on/off.
+ */
+visflow.optionPanel.updateVisMode = function() {
+  var header = $('#option-panel .node-panel.panel-header');
+  if (visflow.flow.visMode) {
+    header.hide();
+  } else {
+    header.show();
+  }
+};

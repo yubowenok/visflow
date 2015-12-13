@@ -52,7 +52,6 @@ visflow.menu.init = function() {
   visMode
     .click(function() {
       visflow.flow.toggleVisMode();
-      visMode.children('.btn').toggleClass('active');
     })
     .on('mouseenter', function() {
       if (!visflow.flow.visMode) {
@@ -99,6 +98,17 @@ visflow.menu.initUpdateHandlers_ = function() {
         break;
     }
   });
+};
+
+/**
+ * Updates the visMode button active state.
+ */
+visflow.menu.updateVisMode = function() {
+  var navbar = $('.visflow > .navbar-fixed-top');
+  var visMode = navbar.find('#vis-mode');
+  visMode.children('.btn').toggleClass('active', visflow.flow.visMode);
+  var addNode = navbar.find('#add-node');
+  addNode.toggleClass('disabled', visflow.flow.visMode);
 };
 
 /**

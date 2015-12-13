@@ -51,6 +51,7 @@ body {
 
 .visflow .disabled {
   color: #ccc;
+  pointer-events: none;
 }
 
 .visflow .input-node {

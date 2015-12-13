@@ -305,7 +305,9 @@ visflow.interaction.keyPress = function(event) {
         case 'A':
           event.pageX = visflow.interaction.mouseX;
           event.pageY = visflow.interaction.mouseY;
-          visflow.popupPanel.show(event, true); // compact mode
+          if (!visflow.flow.visMode) {
+            visflow.popupPanel.show(event, true);
+          }
           break;
         case 'shift+A':
           event.pageX = visflow.interaction.mouseX;

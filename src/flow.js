@@ -33,6 +33,11 @@ visflow.flow.init = function() {
  * Resets the loaded flow.
  */
 visflow.flow.resetFlow = function() {
+
+  // Clear visMode.
+  visflow.flow.visMode = false;
+  visflow.menu.updateVisMode();
+
   // counters start from 1
   visflow.flow.nodeCounter = 0;
   visflow.flow.edgeCounter = 0;
@@ -555,11 +560,10 @@ visflow.flow.toggleVisMode = function() {
     }
   }
 
-  if (visflow.flow.visMode) {
-    visflow.nodePanel.hide();
-  } else {
-    visflow.nodePanel.show();
-  }
+
+  visflow.optionPanel.updateVisMode();
+  visflow.nodePanel.updateVisMode();
+  visflow.menu.updateVisMode();
 };
 
 /**

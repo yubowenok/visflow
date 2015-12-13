@@ -213,3 +213,14 @@ visflow.nodePanel.initButton_ = function(button) {
     create(event);
   });
 };
+
+/**
+ * Shows/hides the node creation panel according to visMode on/off.
+ */
+visflow.nodePanel.updateVisMode = function() {
+  if (visflow.flow.visMode) {
+    visflow.nodePanel.hide();
+  } else {
+    visflow.nodePanel.show();
+  }
+};
