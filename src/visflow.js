@@ -4,6 +4,13 @@
 
 'use strict';
 
+$(document).ready(function() {
+  visflow.init();
+  if (visflow.dev) {
+    visflow.dev.run();
+  }
+});
+
 /**
  * System kernel namespace.
  * @const
@@ -26,22 +33,24 @@ visflow.init = function() {
   visflow.interaction.init();
 };
 
+/** @private @const {number} */
+visflow.MESSAGE_DURATION_ = 2000;
+
 /**
  * Displays a user visible error message.
+ * @param {...} args
  */
-visflow.error = function() {
+visflow.error = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
   $('#error').text(msg).parent().slideDown();
 };
 
-/** @const {number} */
-visflow.MESSAGE_DURATION_ = 2000;
-
 /**
  * Displays a user visible warning message.
+ * @param {...} args
  */
-visflow.warning = function() {
+visflow.warning = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
   $('#warning').text(msg).parent()
@@ -52,8 +61,9 @@ visflow.warning = function() {
 
 /**
  * Displays a user visible success message.
+ * @param {...} args
  */
-visflow.success = function() {
+visflow.success = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
   $('#success').text(msg).parent()
@@ -65,7 +75,7 @@ visflow.success = function() {
 /**
  * Asserts a condition. If false then panick.
  * @param {boolean} condition
- * @param {string} opt_msg
+ * @param {string=} opt_msg
  */
 visflow.assert = function(condition, opt_msg) {
   if (!condition) {

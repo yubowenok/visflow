@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -32,7 +32,7 @@ visflow.Heatmap = function(params) {
 
   /**
    * Scales from column values to [0, 1]
-   * @protected {!d3.scale}
+   * @protected {!Array<!d3.scale>}
    */
   this.normalizeScales = [];
 
@@ -73,11 +73,11 @@ visflow.Heatmap = function(params) {
    */
   this.itemProps_ = [];
 
-  /** @private {d3.selection} */
+  /** @private {d3} */
   this.svgHeatmap_;
-  /** @private {d3.selection} */
+  /** @private {d3} */
   this.svgRowLabels_;
-  /** @private {d3.selection} */
+  /** @private {d3} */
   this.svgColLabels_;
 };
 
@@ -93,20 +93,22 @@ visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;
 visflow.Heatmap.prototype.COL_LABEL_OFFSET_ = 10;
 /** @private @const {number} */
 visflow.Heatmap.prototype.ROW_LABEL_CLUTTER_OFFSET_ = 5;
-/** @private @const {number} */
+/** @private @const {string} */
 visflow.Heatmap.prototype.ROW_LABEL_CLUTTER_MSG_ = '(too many labels to show)';
 
 /** @inheritDoc */
-visflow.Heatmap.prototype.DEFAULT_OPTIONS = {
-  // Id corresponding to the id of visflow.scales.
-  colorScaleId: 'redGreen',
-  // By which column value shall the rows be sorted.
-  sortBy: 0,
-  // By which column value shall the rows be labeled. If this is empty string,
-  // then show no row label.
-  labelBy: 0,
-  // Whether to show column label.
-  colLabel: true
+visflow.Heatmap.prototype.defaultOptions = function() {
+  return {
+    // Id corresponding to the id of visflow.scales.
+    colorScaleId: 'redGreen',
+      // By which column value shall the rows be sorted.
+      sortBy: 0,
+    // By which column value shall the rows be labeled. If this is empty string,
+    // then show no row label.
+    labelBy: 0,
+    // Whether to show column label.
+    colLabel: true
+  };
 };
 
 /**
@@ -120,21 +122,24 @@ visflow.Heatmap.prototype.PANEL_TEMPLATE =
     './src/visualization/heatmap/heatmap-panel.html';
 
 /** @inheritDoc */
-visflow.Heatmap.prototype.defaultProperties = {
-  color: '#555'
+visflow.Heatmap.prototype.defaultProperties = function() {
+  return {
+    color: '#555'
+  };
 };
 
 /** @inheritDoc */
-visflow.Heatmap.prototype.selectedProperties = {
-  border: '#6699ee',
-  width: 1.5
+visflow.Heatmap.prototype.selectedProperties = function() {
+  return {
+    border: '#6699ee',
+    width: 1.5
+  };
 };
 
 /** @private @const {number} */
 visflow.Heatmap.prototype.LABEL_FONT_SIZE_X_ = 6;
 /** @private @const {number} */
 visflow.Heatmap.prototype.LABEL_FONT_SIZE_Y_ = 9;
-
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.init = function() {
@@ -146,7 +151,6 @@ visflow.Heatmap.prototype.init = function() {
   this.svgColLabels_ = this.svg.append('g')
     .classed('col-labels', true);
 };
-
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.serialize = function() {
@@ -224,11 +228,14 @@ visflow.Heatmap.prototype.getItemProperties_ = function() {
   var itemProps = this.itemIndices_.map(function(index) {
     var prop = {
       index: index,
-      cells: this.dimensions.map(function (dim, dimIndex) {
+      cells: this.dimensions.map(function(dim, dimIndex) {
         var value = data.values[index][dim];
         return {
           color: colorScale(this.normalizeScales[dimIndex](value)),
-          dimId: dimInfos[dimIndex].uniqId
+          dimId: /** @type {{
+            dim: number,
+            uniqId: string
+          }} */(dimInfos[dimIndex]).uniqId
         };
       }, this),
       border: 'none',
@@ -238,11 +245,12 @@ visflow.Heatmap.prototype.getItemProperties_ = function() {
       width: 0
     };
     if (this.selected[index]) {
+      var selectedProperties = this.selectedProperties();
       // Manually coded property for selected.
       prop.border = colorScaleInfo.contrastColor != null ?
-        colorScaleInfo.contrastColor : this.selectedProperties.border;
-      prop.labelBorder = this.selectedProperties.border;
-      prop.width = this.selectedProperties.width;
+        colorScaleInfo.contrastColor : selectedProperties.border;
+      prop.labelBorder = selectedProperties.border;
+      prop.width = selectedProperties.width;
     } else {
       if (items[index].properties.color != null) {
         prop.labelColor = items[index].properties.color;
@@ -271,8 +279,8 @@ visflow.Heatmap.prototype.drawRowSelectbox_ = function() {
     box = this.svg.append('rect')
       .classed('selectbox', true);
   }
-  var startPos = _(this.brushPoints_).first();
-  var endPos = _(this.brushPoints_).last();
+  var startPos = _.first(this.brushPoints);
+  var endPos = _.last(this.brushPoints);
 
   var y1 = Math.min(startPos.y, endPos.y);
   var y2 = Math.max(startPos.y, endPos.y);
@@ -281,7 +289,7 @@ visflow.Heatmap.prototype.drawRowSelectbox_ = function() {
   box
     .attr('x', this.leftMargin_)
     .attr('y', y1)
-    .attr('width', svgSize.width - this.leftMargin_ - this.PLOT_MARGINS.right)
+    .attr('width', svgSize.width - this.leftMargin_ - this.plotMargins().right)
     .attr('height', y2 - y1);
 };
 
@@ -307,9 +315,9 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
   rows.enter().append('g')
     .style('opacity', 0)
     .attr('id', _.getValue('index'));
-  _(rows.exit()).fadeOut();
+  _.fadeOut(rows.exit());
 
-  var updatedRows = this.allowTransition_ ? rows.transition() : rows;
+  var updatedRows = this.allowTransition ? rows.transition() : rows;
   updatedRows
     .style('stroke', _.getValue('border'))
     .style('stroke-width', _.getValue('width'))
@@ -331,9 +339,9 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
     .style('opacity', 0)
     .attr('id', _.getValue('dimId'))
     .attr('transform', cellTransform);
-  _(cells.exit()).fadeOut();
+  _.fadeOut(cells.exit());
 
-  var updatedCells = this.allowTransition_ ? cells.transition() : cells;
+  var updatedCells = this.allowTransition ? cells.transition() : cells;
   updatedCells
     .attr('fill', _.getValue('color'))
     .attr('transform', cellTransform)
@@ -373,9 +381,9 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps, opt_temp) {
     .attr('id', _.getValue('index'))
     .attr('transform', labelTransform)
     .classed('row-label', true);
-  _(labels.exit()).fadeOut();
+  _.fadeOut(labels.exit());
 
-  var updatedLabels = this.allowTransition_ ? labels.transition(): labels;
+  var updatedLabels = this.allowTransition ? labels.transition() : labels;
   updatedLabels
     .text(function(row, index) {
       if (clutter) {
@@ -413,14 +421,14 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(itemProps, opt_temp) {
  */
 visflow.Heatmap.prototype.drawColLabels_ = function() {
   if (!this.options.colLabel || this.dimensions.length == 0) {
-    _(this.svgColLabels_.selectAll('*')).fadeOut();
+    _.fadeOut(this.svgColLabels_.selectAll('*'));
     return;
   }
 
   var labelTransform;
   if (this.colLabelVertical_) {
     this.svgColLabels_.classed('vertical', true);
-    labelTransform = function (dimInfo, dimIndex) {
+    labelTransform = function(dimInfo, dimIndex) {
       return visflow.utils.getTransform([
         this.xScale(dimIndex + 0.5) + this.LABEL_FONT_SIZE_Y_ / 2,
         this.topMargin_ - this.COL_LABEL_OFFSET_
@@ -428,7 +436,7 @@ visflow.Heatmap.prototype.drawColLabels_ = function() {
     }.bind(this);
   } else {
     this.svgColLabels_.classed('vertical', false);
-    labelTransform = function (dimInfo, dimIndex) {
+    labelTransform = function(dimInfo, dimIndex) {
       return visflow.utils.getTransform([
         this.xScale(dimIndex + 0.5),
         this.topMargin_ - this.COL_LABEL_OFFSET_
@@ -444,13 +452,13 @@ visflow.Heatmap.prototype.drawColLabels_ = function() {
     .attr('id', _.getValue('uniqId'))
     .classed('vis-label', true)
     .attr('transform', labelTransform);
-  _(labels.exit()).fadeOut();
-  var updatedLabels = this.allowTransition_ ? labels.transition() : labels;
+  _.fadeOut(labels.exit());
+  var updatedLabels = this.allowTransition ? labels.transition() : labels;
   if (this.colLabelVerticalChanged_) {
     this.colLabelVerticalChanged_ = false;
     var counter = updatedLabels[0].length;
     updatedLabels = labels.transition()
-      .each('end', function () {
+      .each('end', function() {
         if ((--counter) == 0) {
           // Redraw after transition to keep up-to-date with resize.
           this.drawColLabels_();
@@ -458,7 +466,7 @@ visflow.Heatmap.prototype.drawColLabels_ = function() {
       }.bind(this));
   }
   updatedLabels
-    .text(function (dimInfo) {
+    .text(function(dimInfo) {
       return data.dimensions[dimInfo.dim];
     })
     .attr('transform', labelTransform);
@@ -466,7 +474,7 @@ visflow.Heatmap.prototype.drawColLabels_ = function() {
 
 /**
  * Renders the temporary row labels to determine the label widths.
- * @param {function} check
+ * @param {Function} check
  * @param {string} type 'row' or 'col'
  * @private
  */
@@ -475,14 +483,14 @@ visflow.Heatmap.prototype.drawTempLabels_ = function(check, type) {
   if (tempShow) {
     this.content.show();
   }
-  var allowTransition = this.allowTransition_;
-  this.allowTransition_ = false;
+  var allowTransition = this.allowTransition;
+  this.allowTransition = false;
   if (type == 'row') {
     this.drawRowLabels_(this.itemProps_, true);
   } else {
-    this.drawColLabels_(true);
+    this.drawColLabels_();
   }
-  this.allowTransition_ = allowTransition;
+  this.allowTransition = allowTransition;
 
   check();
 
@@ -517,7 +525,7 @@ visflow.Heatmap.prototype.initPanel = function(container) {
         listTitle: 'Dimensions',
         addTitle: 'Add Dimension'
       },
-      change :function(event, items) {
+      change: function(event, items) {
         this.dimensions = items;
         this.dimensionChanged();
       }
@@ -596,7 +604,7 @@ visflow.Heatmap.prototype.sortItems_ = function() {
   for (var index in items) {
     this.itemIndices_.push(+index); // index is string
   }
-  this.itemIndices_.sort(function(a, b){
+  this.itemIndices_.sort(function(a, b) {
     var sortBy = this.options.sortBy;
     // Sorting is in reversed order, as rendering starts from bottom.
     if (sortBy === '') {
@@ -604,7 +612,7 @@ visflow.Heatmap.prototype.sortItems_ = function() {
       return b - a;
     } else {
       return -visflow.utils.compare(data.values[a][sortBy],
-          data.values[b][sortBy], data.dimensionTypes[sortBy]);
+        data.values[b][sortBy]);
     }
   }.bind(this));
 };
@@ -614,13 +622,14 @@ visflow.Heatmap.prototype.sortItems_ = function() {
  * @private
  */
 visflow.Heatmap.prototype.prepareXYScales_ = function() {
+  var margins = this.plotMargins();
   var svgSize = this.getSVGSize();
   this.xScale = d3.scale.linear()
     .domain([0, this.dimensions.length])
-    .range([this.leftMargin_, svgSize.width - this.PLOT_MARGINS.right]);
+    .range([this.leftMargin_, svgSize.width - margins.right]);
   this.yScale = d3.scale.linear()
     .domain([0, this.itemIndices_.length])
-    .range([svgSize.height - this.PLOT_MARGINS.bottom, this.topMargin_]);
+    .range([svgSize.height - margins.bottom, this.topMargin_]);
 };
 
 /**
@@ -643,7 +652,7 @@ visflow.Heatmap.prototype.prepareNormalizeScales_ = function() {
  * @private
  */
 visflow.Heatmap.prototype.updateLeftMargin_ = function() {
-  this.leftMargin_ = this.PLOT_MARGINS.left;
+  this.leftMargin_ = this.plotMargins().left;
   if (this.options.labelBy !== '') {
     var maxWidth = 0;
     this.drawTempLabels_(function() {
@@ -662,14 +671,15 @@ visflow.Heatmap.prototype.updateLeftMargin_ = function() {
  */
 visflow.Heatmap.prototype.updateTopMargin_ = function() {
   var data = this.ports['in'].pack.data;
-  this.topMargin_ = this.PLOT_MARGINS.top;
+  var margins = this.plotMargins();
+  this.topMargin_ = margins.top;
   if (data.isEmpty()) {
     return;
   }
   if (this.options.colLabel) {
     var svgSize = this.getSVGSize();
-    var colWidth = (svgSize.width - this.leftMargin_ -
-      this.PLOT_MARGINS.right) / this.dimensions.length;
+    var colWidth = (svgSize.width - this.leftMargin_ - margins.right) /
+      this.dimensions.length;
     var maxLength = d3.max(this.dimensions.map(function(dim) {
       return data.dimensions[dim].length;
     }));

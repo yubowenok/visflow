@@ -30,8 +30,9 @@ visflow.options.toggleNodeLabel = function(opt_state) {
 
 /**
  * Fires an event with given type and data.
- * @param {string} eventType;
- * @param {*} data
+ * @param {string} eventType
+ * @param {*=} opt_data
+ * @private
  */
 visflow.options.signal_ = function(eventType, opt_data) {
   $(visflow.options).trigger('visflow.' + eventType, [opt_data]);

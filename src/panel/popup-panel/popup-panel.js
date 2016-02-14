@@ -7,8 +7,8 @@
 /** @const */
 visflow.popupPanel = {};
 
-/** @private {jQuery} */
-visflow.popupPanel.container_;
+/** @private {!jQuery} */
+visflow.popupPanel.container_ = $();
 
 /** @private @const {string} */
 visflow.popupPanel.TEMPLATE_ =
@@ -19,10 +19,6 @@ visflow.popupPanel.COMPACT_TEMPLATE_ =
 
 /** @private @const {number} */
 visflow.popupPanel.REVERT_DURATION_ = 100;
-/** @private @const {number} */
-visflow.popupPanel.TRANSITION_DURATION_ = 300;
-/** @private @const {number} */
-visflow.popupPanel.SHORT_TRANSITION_DURATION_ = 200;
 
 /** @private @const {number} */
 visflow.popupPanel.COMPACT_PANEL_HEIGHT_ = 260;
@@ -46,52 +42,23 @@ visflow.popupPanel.FADE_IN_PANEL_CSS_ = {
   left: '+=10'
 };
 
-/** @private @const {!Object} */
-visflow.popupPanel.INIT_BUTTON_CSS_ = {
-  zoom: 2,
-  opacity: 0
-};
-/** @private @const {!Object} */
-visflow.popupPanel.FADE_IN_BUTTON_CSS_ = {
-  zoom: 1,
-  opacity: 1
-};
-/** @private @const {!Object} */
-visflow.popupPanel.BUTTON_CSS_ = {
-  zoom: '',
-  opacity: ''
-};
-
 /**
  * Initializes the popup panel.
  */
 visflow.popupPanel.init = function() {
-  this.container_ = $('#popup-panel');
+  visflow.popupPanel.container_ = $('#popup-panel');
 };
 
 /**
  * Closes the popup panel.
  */
 visflow.popupPanel.hide = function() {
-  this.container_.hide();
-};
-
-/**
- * Filters the entries in the system add-node panel.
- */
-visflow.popupPanel.filter = function(key) {
-  if (this.container_ == null) {
-    visflow.error('filterAddPanel found no popup panel');
-    return
-  }
-  // two children(), there is a container div
-  this.container_.container.find('.group').not('.' + key).remove();
-  this.container_.container.find('.panel-button').not('.' + key).remove();
+  visflow.popupPanel.container_.hide();
 };
 
 /**
  * Shows the system add-node panel.
- * @param {jQuery.event=} opt_event
+ * @param {jQuery.Event=} opt_event
  * @param {boolean=} opt_compact
  */
 visflow.popupPanel.show = function(opt_event, opt_compact) {
@@ -120,7 +87,7 @@ visflow.popupPanel.show = function(opt_event, opt_compact) {
       top: Math.max(visflow.popupPanel.MIN_TOP_,
           Math.min(event.pageY, $(window).height() - panelHeight))
     })
-    .load(template, this.initPanel_.bind(this));
+    .load(template, visflow.popupPanel.initPanel_);
 };
 
 /**
@@ -128,20 +95,21 @@ visflow.popupPanel.show = function(opt_event, opt_compact) {
  * @private
  */
 visflow.popupPanel.initPanel_ = function() {
-  this.container_
+  var container = visflow.popupPanel.container_;
+  container
     .show()
     .css(visflow.popupPanel.INIT_PANEL_CSS_)
     .animate(visflow.popupPanel.FADE_IN_PANEL_CSS_,
-        visflow.popupPanel.TRANSITION_DURATION_);
+        visflow.panel.TRANSITION_DURATION);
 
-  this.container_.find('.panel-button').tooltip({
+  container.find('.panel-button').tooltip({
     delay: visflow.popupPanel.TOOLTIP_DELAY_
   });
 
-  this.container_.find('.panel-button')
+  container.find('.panel-button')
     .each(function(index, button) {
-      this.initButton_($(button));
-    }.bind(this));
+      visflow.popupPanel.initButton_($(button));
+    });
 };
 
 /**
@@ -150,19 +118,21 @@ visflow.popupPanel.initPanel_ = function() {
  * @private
  */
 visflow.popupPanel.initButton_ = function(button) {
-  var create = function (event) {
-    var node = visflow.flow.createNode(button.attr('id'));
+  var create = function() {
+    var node = visflow.flow.createNode(/** @type {string} */(
+      button.attr('id')));
 
     $(node).on('visflow.ready', function() {
-      node.container.css(_({
-        left: visflow.interaction.mouseX - node.container.width() / 2,
-        top: visflow.interaction.mouseY - node.container.height() / 2
-      }).extend(visflow.popupPanel.INIT_BUTTON_CSS_));
+      var container = node.getContainer();
+      container.css(_.extend({
+        left: visflow.interaction.mouseX - container.width() / 2,
+        top: visflow.interaction.mouseY - container.height() / 2
+      }, visflow.panel.INIT_BUTTON_CSS));
 
-      node.container.animate(visflow.popupPanel.FADE_IN_BUTTON_CSS_,
-        visflow.popupPanel.SHORT_TRANSITION_DURATION_,
+      container.animate(visflow.panel.FADE_IN_BUTTON_CSS,
+        visflow.panel.SHORT_TRANSITION_DURATION,
         function() {
-          $(this).css(visflow.popupPanel.BUTTON_CSS_);
+          container.css(visflow.panel.BUTTON_CSS);
         });
     });
 
@@ -174,15 +144,15 @@ visflow.popupPanel.initButton_ = function(button) {
   button.draggable({
     revert: 'valid',
     revertDuration: visflow.popupPanel.REVERT_DURATION_,
-    start: function () {
+    start: function() {
       // Create a temporary droppable under #main so that we cannot drop
       // the button to panel.
-      var panelOffset = visflow.utils.offsetMain(this.container_);
+      var panelOffset = visflow.utils.offsetMain(visflow.popupPanel.container_);
       $('<div></div>')
         .addClass('dropzone-temp')
         .css({
-          width: this.container_.width(),
-          height: this.container_.height(),
+          width: visflow.popupPanel.container_.width(),
+          height: visflow.popupPanel.container_.height(),
           left: panelOffset.left,
           top: panelOffset.top
         })
@@ -198,10 +168,10 @@ visflow.popupPanel.initButton_ = function(button) {
         accept: '.panel-button',
         drop: create
       });
-    }.bind(this)
+    }
   });
 
-  button.click(function (event) {
-    create(event);
+  button.click(function() {
+    create();
   });
 };

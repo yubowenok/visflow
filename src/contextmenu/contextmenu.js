@@ -11,9 +11,17 @@
 visflow.contextMenu = {};
 
 /**
- * @typedef {{id: string, text: string, icon: string}}
+ * Item used to define VisFlow contextmenu.
+ * @typedef {{
+ *   id: string,
+ *   text: string,
+ *   icon: string
+ * }}
+ *   id: Menu entry key.
+ *   text: Text to be displayed in the menu entry.
+ *   icon: Icon css classes.
  */
-visflow.contextMenu.Entry;
+visflow.contextMenu.Item;
 
 /**
  * Hides the contextmenu.
@@ -21,19 +29,6 @@ visflow.contextMenu.Entry;
 visflow.contextMenu.hide = function() {
   $('#context-menu').removeClass('open');
 };
-
-/**
- * Item used to define VisFlow contextmenu.
- * @typedef {{
- *    id: string,
- *        menu entry key
- *    text: string,
- *        text to display in the menu entry
- *    icon: ?string
- *        icon classes
- * }}
- */
-visflow.contextMenu.Item;
 
 /**
  * Global hotkey settings for contextMenu items.
@@ -83,16 +78,8 @@ visflow.ContextMenu = function(params) {
 };
 
 /**
- * Returns the contextMenu DOM element.
- * @return {!jQuery}
- */
-visflow.ContextMenu.prototype.menuContainer = function() {
-  return this.contextMenu_;
-};
-
-/**
  * Opens the contextmenu.
- * @param {!jQuery.event} event
+ * @param {!jQuery.Event} event
  * @private
  */
 visflow.ContextMenu.prototype.openMenu_ = function(event) {
@@ -148,7 +135,8 @@ visflow.ContextMenu.prototype.listItems_ = function() {
 /**
  * Signals a menu click event for the selected entry id.
  * @param {string} eventType
- * @param {*} data
+ * @param {*=} data
+ * @private
  */
 visflow.ContextMenu.prototype.signal_ = function(eventType, data) {
   $(this).trigger('visflow.' + eventType, [data]);

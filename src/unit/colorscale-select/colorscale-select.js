@@ -12,7 +12,7 @@
  * @extends {visflow.Select}
  */
 visflow.ColorScaleSelect = function(params) {
-  _(params).extend({
+  _.extend(params, {
     list: visflow.scales.getColorScales(),
     allowClear: false
   });
@@ -22,10 +22,16 @@ visflow.ColorScaleSelect = function(params) {
    * Mapping from scale text to scale item, so that we can add gradientDiv to
    * dropdown select list (li's of which do not have identifiers).
    * This requires text to be distinct.
-   * @private {!Object<!visflow.Scale>}
+   * @private {!Object<visflow.Scale>}
    */
   this.textToScale_ = {};
-  this.list_.forEach(function(scale) {
+
+  /**
+   * @protected {!Array<visflow.Scale>}
+   */
+  this.list;
+
+  this.list.forEach(function(scale) {
     this.textToScale_[scale.text] = scale;
   }, this);
 };
@@ -36,13 +42,13 @@ visflow.utils.inherit(visflow.ColorScaleSelect, visflow.Select);
 visflow.ColorScaleSelect.prototype.GRADIENT_DELAY_ = 0;
 
 /** @inheritDoc */
-visflow.ColorScaleSelect.prototype.init_ = function() {
+visflow.ColorScaleSelect.prototype.init = function() {
   visflow.ColorScaleSelect.base.init_.call(this);
 
-  this.container_.children('.select').addClass('color-scale');
+  this.container.children('.select').addClass('color-scale');
 
-  this.select2_.on('select2:open', function() {
-    var listId = this.container_.find('.select2-selection')
+  this.select2.on('select2:open', function() {
+    var listId = this.container.find('.select2-selection')
       .attr('aria-owns');
     var list = $('#' + listId);
     setTimeout(function() {
@@ -58,7 +64,7 @@ visflow.ColorScaleSelect.prototype.init_ = function() {
     }.bind(this));
   }.bind(this));
   this.showSelected_();
-  this.select2_.on('change', function() {
+  this.select2.on('change', function() {
     this.showSelected_();
   }.bind(this));
 };
@@ -83,9 +89,10 @@ visflow.ColorScaleSelect.prototype.addGradients_ = function(list) {
 
 /**
  * Shows selected color scale in the select list.
+ * @private
  */
 visflow.ColorScaleSelect.prototype.showSelected_ = function() {
-  var rendered = this.container_.find('.select2-selection__rendered');
+  var rendered = this.container.find('.select2-selection__rendered');
   var text = $(rendered).text();
   var scale = this.textToScale_[text];
   $(scale.gradientDiv).clone().appendTo(rendered);

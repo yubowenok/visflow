@@ -4,15 +4,18 @@
 
 'use strict';
 
+/**
+ * @typedef {!Object}
+ */
+visflow.DataSource.Params;
 
 /**
- * @param params
+ * @param {visflow.DataSource.Params} params
  * @constructor
  * @extends {visflow.Node}
  */
 visflow.DataSource = function(params) {
   visflow.DataSource.base.constructor.call(this, params);
-
 
   /**
    * Data array.
@@ -22,7 +25,7 @@ visflow.DataSource = function(params) {
 
   /**
    * Copy of parsed data, used for switching between non-crossing and crossing.
-   * @private {!Array<!visflow.TabularData>}
+   * @private {!Array<visflow.TabularData>}
    */
   this.rawData_ = [];
 
@@ -35,7 +38,7 @@ visflow.DataSource = function(params) {
 
   /**
    * Created DataTable.
-   * @private {DataTable}
+   * @private {DataTables}
    */
   this.table_;
 
@@ -78,7 +81,7 @@ visflow.DataSource.prototype.MIN_HEIGHT = 40;
 /** @inheritDoc */
 visflow.DataSource.prototype.MAX_HEIGHT = 40;
 
-/** @inheritDoc */
+/** @private @const {number} */
 visflow.DataSource.prototype.DEFAULT_NUM_ATTRS_ = 1;
 
 /**
@@ -88,17 +91,19 @@ visflow.DataSource.prototype.DEFAULT_NUM_ATTRS_ = 1;
 visflow.DataSource.prototype.DATA_NAMES_LENGTH_ = 100;
 
 /** @inheritDoc */
-visflow.DataSource.prototype.DEFAULT_OPTIONS = {
-  // Whether to use data crossing.
-  crossing: false,
-  // Dimensions used for crossing. -1 is index.
-  crossingKeys: [],
-  // Name for the attribute column in crossing.
-  crossingName: 'attributes',
-  // Crossing attributes, in dimension indices.
-  crossingAttrs: [],
-  // Whether to user server data set in the UI.
-  useServerData: true
+visflow.DataSource.prototype.defaultOptions = function() {
+  return {
+    // Whether to use data crossing.
+    crossing: false,
+    // Dimensions used for crossing. -1 is index.
+    crossingKeys: [],
+    // Name for the attribute column in crossing.
+    crossingName: 'attributes',
+    // Crossing attributes, in dimension indices.
+    crossingAttrs: [],
+    // Whether to user server data set in the UI.
+    useServerData: true
+  };
 };
 
 /** @inheritDoc */
@@ -112,12 +117,14 @@ visflow.DataSource.prototype.serialize = function() {
 visflow.DataSource.prototype.deserialize = function(save) {
   visflow.DataSource.base.deserialize.call(this, save);
 
+  save = /** @type {!visflow.DataSource.Save} */(save);
+
   if (save.dataSelected != null) {
     visflow.warning('older version data storage found, auto fixed');
     save.dataFile = save.dataSelected;
     save.data = [
       {file: save.dataSelected, name: 'data name', isServerData: true}
-    ]
+    ];
   }
   if (save.data == null) {
     save.data = [
@@ -136,9 +143,7 @@ visflow.DataSource.prototype.deserialize = function(save) {
 /** @inheritDoc */
 visflow.DataSource.prototype.showDetails = function() {
   visflow.DataSource.base.showDetails.call(this);
-  if (this.dataName != null) {
-    this.content.children('#data-name').text(this.dataName);
-  }
+  this.showNodeDataList_();
 };
 
 /** @inheritDoc */
@@ -150,7 +155,6 @@ visflow.DataSource.prototype.interaction = function() {
 
 /** @inheritDoc */
 visflow.DataSource.prototype.initPanel = function(container) {
-  container.find('#data-name').text(this.dataName);
   container.find('#add-data').click(this.loadDataDialog_.bind(this));
   container.find('#clear-data').click(this.clearData_.bind(this));
 
@@ -242,6 +246,7 @@ visflow.DataSource.prototype.deleteData_ = function(dataIndex) {
 /**
  * Creates a data list in the panel according to the currently loaded data.
  * @param {!jQuery} container
+ * @private
  */
 visflow.DataSource.prototype.createPanelDataList_ = function(container) {
   var ul = container.find('#data-list ul');
@@ -278,14 +283,10 @@ visflow.DataSource.prototype.createPanelDataList_ = function(container) {
 };
 
 /**
- * Shows the data list both in panel and in node.
+ * Shows the data list in the node.
  * @private
  */
-visflow.DataSource.prototype.showDataList_ = function() {
-  if (visflow.optionPanel.isOpen) {
-    this.createPanelDataList_(visflow.optionPanel.contentContainer());
-  }
-  // Show data list in node.
+visflow.DataSource.prototype.showNodeDataList_ = function() {
   var dataName = this.content.find('#data-name');
   var text = this.data.length == 0 ? 'No Data' :
     this.data.map(function(data) {
@@ -299,6 +300,18 @@ visflow.DataSource.prototype.showDataList_ = function() {
 };
 
 /**
+ * Shows the data list both in panel and in node.
+ * @private
+ */
+visflow.DataSource.prototype.showDataList_ = function() {
+  if (visflow.optionPanel.isOpen) {
+    this.createPanelDataList_(visflow.optionPanel.contentContainer());
+  }
+  // Show data list in node.
+  this.showNodeDataList_();
+};
+
+/**
  * Updates the data crossing option.
  * @private
  */
@@ -306,9 +319,9 @@ visflow.DataSource.prototype.updateCrossing_ = function() {
   if (visflow.optionPanel.isOpen) {
     var panelContainer = visflow.optionPanel.contentContainer();
     if (!this.options.crossing) {
-      panelContainer.find("#crossing-section").hide();
+      panelContainer.find('#crossing-section').hide();
     }
-    panelContainer.find("#crossing-section").show();
+    panelContainer.find('#crossing-section').show();
   }
   this.process();
 };
@@ -363,7 +376,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
     complete: function(dialog) {
 
       dialog.find('.to-tooltip').tooltip({
-        delay: this.TOOLTIP_DELAY_
+        delay: this.TOOLTIP_DELAY
       });
 
       var select = dialog.find('select');
@@ -512,9 +525,9 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
         --counter;
         complete();
       }.bind(this))
-      .fail(function(res, msg, error){
+      .fail(function(res, msg, error) {
         visflow.error('cannot get data', msg,
-          error.toString().substr(0, this.ERROR_LENGTH_));
+          error.toString().substr(0, this.ERROR_LENGTH));
 
         --counter;
         complete();
@@ -549,7 +562,7 @@ visflow.DataSource.prototype.findCrossingDims = function() {
   if (this.data.length == 0) {
     return [];
   }
-  var data = _(this.rawData_).first();
+  var data = _.first(this.rawData_);
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] == visflow.ValueType.STRING &&
         !data.dimensionDuplicate[dim]) {
@@ -567,7 +580,7 @@ visflow.DataSource.prototype.findCrossingAttrs = function() {
   if (this.data.length == 0) {
     return [];
   }
-  var data = _(this.rawData_).first();
+  var data = _.first(this.rawData_);
   var dims = [];
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] != visflow.ValueType.STRING) {
@@ -608,7 +621,8 @@ visflow.DataSource.prototype.process = function() {
     this.data.splice(dataIndex, 1);
     this.rawData_.splice(dataIndex, 1);
   }
-  var finalData = $.extend({}, this.rawData_[firstDataIndex]);
+  var finalData = /** @type {visflow.TabularData} */(
+    $.extend({}, this.rawData_[firstDataIndex]));
   finalData.values = values;
 
   this.showDataList_();
@@ -630,7 +644,7 @@ visflow.DataSource.prototype.process = function() {
       this.useEmptyData_(true);
       return;
     }
-    finalData = result.data;
+    finalData = /** @type {visflow.TabularData} */(result.data);
   }
 
   var lengthSuffix = this.data.length > 3 ? '...' : '';
@@ -642,12 +656,12 @@ visflow.DataSource.prototype.process = function() {
     return data.file;
   }).join(',') + lengthSuffix;
 
-  _(finalData).extend({
+  _.extend(finalData, {
     name: finalName,
     file: finalFile
   });
 
-  var data = new visflow.Data(finalData);
+  var data = new visflow.Data(/** @type {visflow.TabularData} */(finalData));
   if (data.type !== '') {
     visflow.data.registerData(data);
   }
@@ -685,7 +699,7 @@ visflow.DataSource.prototype.listDataTable_ = function(table, fileList) {
       {
         type: 'data-size',
         // Size
-        render: function (size) {
+        render: function(size) {
           var base = 1000;
           if (size < base) {
             return size + 'B';
@@ -699,7 +713,7 @@ visflow.DataSource.prototype.listDataTable_ = function(table, fileList) {
       },
       {
         // Last Modified
-        render: function (lastModified) {
+        render: function(lastModified) {
           return (new Date(lastModified)).toLocaleString();
         },
         targets: 3

@@ -7,12 +7,12 @@
 /**
  * @param {{
  *   container: !jQuery,
- *   accept: visflow.ValueType=
- *   range: Array<number>=,
- *   scrollDelta: number=,
- *   value: (string|number)=,
- *   title: string=,
- *   disabled: boolean=
+ *   accept: (visflow.ValueType|undefined),
+ *   range: (Array<number>|undefined),
+ *   scrollDelta: (number|undefined),
+ *   value: (string|number|undefined),
+ *   title: (string|undefined),
+ *   disabled: (boolean|undefined)
  * }} params
  *     container: Container of the select.
  *     accept: Accepted value type, int float or string.
@@ -25,24 +25,24 @@ visflow.Input = function(params) {
   /** @private {!jQuery} */
   this.container_ = params.container;
 
-  /** @private {string} */
-  this.title_ = params.title;
+  /** @private {?string} */
+  this.title_ = params.title != null ? params.title : null;
 
-  /** @private {string} */
+  /** @private {visflow.ValueType} */
   this.accept_ = params.accept != null ? params.accept :
       visflow.ValueType.STRING;
 
-  /** @private {!Array<number>} */
+  /** @private {!Array<string|number>} */
   this.range_ = params.range != null ? params.range : [null, null];
 
-  /** @private {number} */
+  /** @private {?number} */
   this.scrollDelta_ = params.scrollDelta != null ? params.scrollDelta : null;
 
   /** @private {string|number} */
   this.value_ = params.value != null ? params.value : '';
 
   /** @private {boolean} */
-  this.disabled_ = params.disabled;
+  this.disabled_ = !!params.disabled;
 
   /**
    * Only float or int can be scrolled.
@@ -91,7 +91,7 @@ visflow.Input.prototype.init_ = function() {
 
       var newValue;
       if (this.accept_ == visflow.ValueType.INT) {
-        newValue = parseInt(this.value_ + sign * this.scrollDelta_);
+        newValue = parseInt(this.value_ + sign * this.scrollDelta_, 10);
       } else {
         newValue = (parseFloat(this.value_) + sign * this.scrollDelta_)
           .toPrecision(3);
@@ -102,10 +102,13 @@ visflow.Input.prototype.init_ = function() {
 
   if (this.value_ !== '') {
     var valueString = this.value_;
+    // TODO(bowen): check if it's possible to have this.value_ being array.
+    /*
     if (this.value_ instanceof Array) {
       valueString = this.value_.join(', ');
     }
-    input.val(valueString);
+    */
+    input.val('' + valueString);
   }
   if (this.disabled_) {
     this.disable();
@@ -114,14 +117,15 @@ visflow.Input.prototype.init_ = function() {
 
 /**
  * Sets the value of the input.
+ * @param {string|number} value
  * @private
  */
 visflow.Input.prototype.setValue_ = function(value) {
   var input = this.container_.find('input');
-  var parsedToken = visflow.parser.checkToken(value);
+  var parsedToken = visflow.parser.checkToken('' + value);
   if (parsedToken.type > this.accept_) {
     // Cannot accept a greater grade value type.
-    input.val(this.value_);
+    input.val('' + this.value_);
     return;
   } else {
     value = parsedToken.value;
@@ -134,8 +138,8 @@ visflow.Input.prototype.setValue_ = function(value) {
     value = this.range_[1];
   }
   this.value_ = value;
-  input.val(value);
-  this.signal_('change', [value]);
+  input.val('' + value);
+  this.signal_('change');
 };
 
 /**

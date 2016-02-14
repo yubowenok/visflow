@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Node}
  */
@@ -79,7 +79,7 @@ visflow.ValueMaker.prototype.initPanel = function(container) {
         value: this.valueString,
         title: 'Value'
       },
-      change: function (event, valueString) {
+      change: function(event, valueString) {
         this.setValueString(valueString);
         this.parameterChanged();
       }
@@ -98,7 +98,7 @@ visflow.ValueMaker.prototype.showDetails = function() {
         container: this.content.find('#value'),
         value: this.valueString
       },
-      change: function (event, valueString) {
+      change: function(event, valueString) {
         this.setValueString(valueString);
         this.parameterChanged();
       }

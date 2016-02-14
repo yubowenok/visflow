@@ -5,14 +5,13 @@
 'use strict';
 
 /**
- * Port constructor.
- * @param {{
+ * @typedef {{
  *   node: !visflow.Node,
  *   id: string,
- *   text: string=,
- *   isInput: boolean,
- *   isConstants: boolean,
- *   fromPort: string=
+ *   text: (string|undefined),
+ *   isInput: (boolean|undefined),
+ *   isConstants: (boolean|undefined),
+ *   fromPort: (string|undefined)
  * }} params
  *     node: Node the port belongs to.
  *     id: Id of the port w.r.t the node.
@@ -20,6 +19,12 @@
  *     isInput: Whether the port is input port.
  *     isConstants: Whether the port accepts constants.
  *     fromPort: Port id from which this port gets the data from.
+ */
+visflow.Port.Params;
+
+/**
+ * Port constructor.
+ * @param {visflow.Port.Params} params
  * @constructor
  */
 visflow.Port = function(params) {
@@ -37,17 +42,17 @@ visflow.Port = function(params) {
 
   /**
    * Descriptive text used as tooltip.
-   * @rivate {string}
+   * @private {string}
    */
-  this.text_ = params.text;
+  this.text_ = params.text != undefined ? params.text : '';
 
   /** @type {boolean} */
-  this.isInput = params.isInput;
+  this.isInput = !!params.isInput;
    /** @type {boolean} */
-  this.isConstants = params.isConstants;
+  this.isConstants = !!params.isConstants;
 
   /** @type {string} */
-  this.fromPort = params.fromPort != null ? params.fromPort : 'in';
+  this.fromPort = params.fromPort != undefined ? params.fromPort : 'in';
 
   /**
    * List of ports this port is connected to (edges).
@@ -57,7 +62,7 @@ visflow.Port = function(params) {
 
   /**
    * Class constructor for the package.
-   * @type {visflow.Constants|visflow.Package}
+   * @type {Function}
    */
   this.packClass = this.isConstants ? visflow.Constants : visflow.Package;
 
@@ -75,13 +80,17 @@ visflow.Port.prototype.TOOLTIP_DELAY = 500;
 visflow.Port.prototype.INFO_LENGTH = 100;
 
 /**
- * ContextMenu entries.
- * @protected @const {!Array<!visflow.contextMenu.Entry>}
+ * Returns an array of port contextmenu items.
+ * @return {!Array<!visflow.contextMenu.Item>}
  */
-visflow.Port.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'disconnect', text: 'Disconnect', icon: 'glyphicon glyphicon-minus-sign'},
-  {id: 'export', text:'Export Data', icon: 'glyphicon glyphicon-open'}
-];
+visflow.Port.prototype.contextMenuItems = function() {
+  return [
+    {id: 'disconnect', text: 'Disconnect',
+      icon: 'glyphicon glyphicon-minus-sign'},
+    {id: 'export', text: 'Export Data',
+      icon: 'glyphicon glyphicon-open'}
+  ];
+};
 
 /**
  * Checks if more connections can be made on this port.
@@ -104,24 +113,27 @@ visflow.Port.prototype.connected = function() {
  *   - It has not been connected to its max capacity.
  *   - Connecting will not result in cyclic graph.
  * @param {!visflow.Port} port
- * @return {*}
+ * @return {{
+ *   connectable: boolean,
+ *   reason: (string|undefined)
+ * }}
  */
 visflow.Port.prototype.connectable = function(port) {
   var result = {
     connectable: false
   };
   if (this.node === port.node) {
-    return _(result).extend({
+    return _.extend(result, {
       reason: 'cannot connect ports of the same node'
     });
   }
   if (!this.hasMoreConnections() || !port.hasMoreConnections()) {
-    return _(result).extend({
+    return _.extend(result, {
       reason: 'single port has already been connected'
     });
   }
   if (this.isConstants !== port.isConstants) {
-    return _(result).extend({
+    return _.extend(result, {
       reason: 'cannot connect constant port with data port'
     });
   }
@@ -129,7 +141,7 @@ visflow.Port.prototype.connectable = function(port) {
     var edge = this.connections[i];
     if (this.isInput && edge.sourcePort === port ||
         !this.isInput && edge.targetPort === port) {
-      return _(result).extend({
+      return _.extend(result, {
         reason: 'connection already exists'
       });
     }
@@ -137,11 +149,11 @@ visflow.Port.prototype.connectable = function(port) {
   var sourceNode = this.isInput ? port.node : this.node;
   var targetNode = this.isInput ? this.node : port.node;
   if (visflow.flow.cycleTest(sourceNode, targetNode)) {
-    return _(result).extend({
+    return _.extend(result, {
       reason: 'cannot make connection that results in cycle'
     });
   }
-  return _(result).extend({
+  return _.extend(result, {
     connectable: true
   });
 };
@@ -222,7 +234,7 @@ visflow.Port.prototype.setContainer = function(container) {
 visflow.Port.prototype.initContextMenu = function() {
   var contextMenu = new visflow.ContextMenu({
     container: this.container,
-    items: this.CONTEXTMENU_ITEMS
+    items: this.contextMenuItems()
   });
 
   $(contextMenu)
@@ -232,7 +244,7 @@ visflow.Port.prototype.initContextMenu = function() {
       });
     }.bind(this))
     .on('visflow.export', function() {
-      visflow.upload.export(this.pack);
+      visflow.upload.export(/** @type {!visflow.Package} */(this.pack));
     }.bind(this))
     .on('visflow.beforeOpen', function(event, menuContainer) {
       if (this.isConstants) {
@@ -243,6 +255,7 @@ visflow.Port.prototype.initContextMenu = function() {
 
 /**
  * Displays a tooltip for the port information.
+ * @return {string}
  */
 visflow.Port.prototype.info = function() {
   var text = this.text_ ? this.text_ + ': ' : '';
@@ -256,7 +269,7 @@ visflow.Port.prototype.info = function() {
   } else {
     count = this.pack.count();
     if (this.fromPort !== '') {
-      count += '/' + this.node.ports[this.fromPort].pack.count();
+      count += '/' + this.node.getPort(this.fromPort).pack.count();
     }
   }
   if (text.length > this.INFO_LENGTH) {
@@ -280,46 +293,46 @@ visflow.Port.prototype.interaction = function() {
         visflow.viewManager.addEdgeHover(connection);
       });
     }.bind(this))
-    .mouseleave(function(){
+    .mouseleave(function() {
       visflow.viewManager.clearEdgeHover();
     }.bind(this))
     .draggable({
-      helper : function() {
+      helper: function() {
         return $('<div></div>');
       },
-      start : function(event) {
+      start: function(event) {
         visflow.interaction.dragstartHandler({
-          type : 'port',
-          port : this,
-          event : event
+          type: 'port',
+          port: this,
+          event: event
         });
       }.bind(this),
-      drag : function(event) {
+      drag: function(event) {
         visflow.interaction.dragmoveHandler({
-          type : 'port',
-          port : this,
-          event : event
+          type: 'port',
+          port: this,
+          event: event
         });
       }.bind(this),
-      stop : function(event) {
+      stop: function(event) {
         visflow.interaction.dragstopHandler({
-          type : 'port',
-          event : event
+          type: 'port',
+          event: event
         });
       }.bind(this)
     })
     .droppable({
-      hoverClass : 'hover',
-      tolerance : 'pointer',
-      accept : this.isInput ? '.port-out' : '.port-in',
-      greedy : true,
-      drop : function(event) {
+      hoverClass: 'hover',
+      tolerance: 'pointer',
+      accept: this.isInput ? '.port-out' : '.port-in',
+      greedy: true,
+      drop: function(event) {
         visflow.interaction.dropHandler({
-          type : 'port',
-          port : this,
-          event : event
-        }.bind(this));
-      }
+          type: 'port',
+          port: this,
+          event: event
+        });
+      }.bind(this)
     });
 };
 

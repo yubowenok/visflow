@@ -41,20 +41,19 @@ visflow.optionPanel.TOOLTIP_DELAY_ = 1000;
  * Initializes the option panel.
  */
 visflow.optionPanel.init = function() {
-  this.container_ = $('#option-panel');
-  var btnToggle = this.container_.children('#btn-toggle');
-  var btnPin = this.container_.children('#btn-pin');
-  btnToggle
-    .click(function() {
-      this.toggle();
-      btnToggle.blur();
-    }.bind(this));
+  var container = visflow.optionPanel.container_ = $('#option-panel');
+  var btnToggle = container.children('#btn-toggle');
+  var btnPin = container.children('#btn-pin');
+  btnToggle.click(function() {
+    visflow.optionPanel.toggle();
+    btnToggle.blur();
+  });
   btnPin.click(function() {
-      this.togglePin_();
-      btnPin.blur();
-    }.bind(this));
+    visflow.optionPanel.togglePin_();
+    btnPin.blur();
+  });
 
-  this.container_.find('.to-tooltip').tooltip({
+  container.find('.to-tooltip').tooltip({
     delay: visflow.optionPanel.TOOLTIP_DELAY_
   });
 };
@@ -64,7 +63,7 @@ visflow.optionPanel.init = function() {
  * @return {!jQuery}
  */
 visflow.optionPanel.contentContainer = function() {
-  return this.container_.find('.content');
+  return visflow.optionPanel.container_.find('.content');
 };
 
 /**
@@ -183,22 +182,22 @@ visflow.optionPanel.update_ = function() {
  * @param {visflow.Node} node
  */
 visflow.optionPanel.setLoadedNode = function(node) {
-  this.loadedNode_ = node;
+  visflow.optionPanel.loadedNode_ = node;
 };
 
 /**
  * Gets the last loaded node of the option panel.
  * @return {visflow.Node}
  */
-visflow.optionPanel.loadedNode = function(node) {
-  return this.loadedNode_;
+visflow.optionPanel.loadedNode = function() {
+  return visflow.optionPanel.loadedNode_;
 };
 
 /**
  * Loads a panel from given template. On complete it calls callback function
  * with panel container.
  * @param {string} template
- * @param {function} complete
+ * @param {Function} complete
  */
 visflow.optionPanel.load = function(template, complete) {
   var container = visflow.optionPanel.container_;

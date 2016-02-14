@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {!Object} params
  * @constructor
  * @extends {visflow.Filter}
  */
@@ -14,27 +14,27 @@ visflow.RangeFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    inMin: new visflow.Port({
+    'inMin': new visflow.Port({
       node: this,
       id: 'inMin',
       text: 'range min',
       isInput: true,
       isConstants: true
     }),
-    inMax: new visflow.Port({
+    'inMax': new visflow.Port({
       node: this,
       id: 'inMax',
       text: 'range max',
       isInput: true,
       isConstants: true
     }),
-    in: new visflow.Port({
+    'in': new visflow.Port({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -63,12 +63,14 @@ visflow.RangeFilter.prototype.NODE_NAME = 'Range Filter';
 visflow.RangeFilter.prototype.NODE_CLASS = 'range-filter';
 
 /** @inheritDoc */
-visflow.RangeFilter.prototype.DEFAULT_OPTIONS = {
-  // Filtering dimensions.
-  dims: [],
-  // Filtering range values specified by directly typing in the input boxes.
-  // Type-in values are stored as strings.
-  typeInValue: []
+visflow.RangeFilter.prototype.defaultOptions = function() {
+  return {
+    // Filtering dimensions.
+    dims: [],
+    // Filtering range values specified by directly typing in the input boxes.
+    // Type-in values are stored as strings.
+    typeInValue: []
+  };
 };
 
 /** @inheritDoc */
@@ -148,7 +150,7 @@ visflow.RangeFilter.prototype.showDetails = function() {
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
       },
-      change:  function(event, dims) {
+      change: function(event, dims) {
         if (dims == null) {
           dims = [];
         }
@@ -220,7 +222,7 @@ visflow.RangeFilter.prototype.process = function() {
     visflow.warning('minValue > maxValue in', this.label);
   }
 
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
@@ -239,7 +241,7 @@ visflow.RangeFilter.prototype.process = function() {
 /** @inheritDoc */
 visflow.RangeFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var items = inpack.items;
   var data = inpack.data;
 

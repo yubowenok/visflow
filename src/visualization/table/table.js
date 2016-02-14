@@ -49,9 +49,11 @@ visflow.Table.prototype.NODE_NAME = 'Table';
 visflow.Table.prototype.NODE_CLASS = 'table';
 
 /** @inheritDoc */
-visflow.Table.prototype.DEFAULT_OPTIONS = {
-  // pageLength of the dataTables
-  pageLength: 20
+visflow.Table.prototype.defaultOptions = function() {
+  return {
+    // pageLength of the dataTables
+    pageLength: 20
+  };
 };
 
 /** @inheritDoc */
@@ -154,7 +156,7 @@ visflow.Table.prototype.showDetails = function() {
         }.bind(this),
         // +1 for the index column!
         targets: dimIndex + 1
-      })
+      });
     }
   }, this);
 
@@ -169,7 +171,7 @@ visflow.Table.prototype.showDetails = function() {
       select: true,
       pageLength: this.options.pageLength,
       lengthMenu: [5, 10, 20, 50, 100],
-      createdRow: function (row, data) {
+      createdRow: function(row, data) {
         if (data[0] in this.selected) {
           $(row).addClass('sel');
         }
@@ -183,10 +185,11 @@ visflow.Table.prototype.showDetails = function() {
           search.val('').trigger('keyup');
         }.bind(this), this.COL_RESIZE_DELAY_);
       }.bind(this),
-      infoCallback: function(settings, start, end, max, total, pre) {
-        var api = this.api();
+      infoCallback: function() {
+        var this_ = /** @type {!DataTables.Api} */(this);
+        var api = this_.api();
         var pageInfo = api.page.info();
-        return 'Page '+ (pageInfo.page + 1) + '/'+ pageInfo.pages;
+        return 'Page ' + (pageInfo.page + 1) + '/' + pageInfo.pages;
       }
     });
   this.dataTable.column(0).visible(false);
@@ -268,7 +271,7 @@ visflow.Table.prototype.initPanel = function(container) {
 
 /**
  * Computes and updates the table scroll body height.
- * @return {number}
+ * @private
  */
 visflow.Table.prototype.updateScrollBodyHeight_ = function() {
   var height = this.container.height() - this.WRAPPER_HEIGHT_;
@@ -294,7 +297,10 @@ visflow.Table.prototype.dataChanged = function() {
   this.dimensions = this.findPlotDimensions();
 };
 
-/** @inheritDoc */
+/**
+ * @override
+ * @return {!Array<number>}
+ */
 visflow.Table.prototype.findPlotDimensions = function() {
   return d3.range(this.ports['in'].pack.data.dimensions.length)
     .slice(0, this.DEFAULT_NUM_DIMENSIONS_);
@@ -307,12 +313,12 @@ visflow.Table.prototype.dimensionChanged = function() {
 };
 
 /** @inheritDoc */
-visflow.Table.prototype.resize = function(size) {
+visflow.Table.prototype.resize = function() {
   // Do not call Visualization's resize because it will re-render the scene.
   // For table re-rendering is unnecessary and slow.
   // However we still need to call Visualization.base's (Node) resize because
   // it will save css states and update ports.
-  visflow.Visualization.base.resize.call(this, size);
+  visflow.Visualization.base.resize.call(this);
 
   this.updateScrollBodyHeight_();
 };

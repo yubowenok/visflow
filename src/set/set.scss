@@ -1,0 +1,26 @@
+.visflow .node.set {
+  &.details {
+    height: 48px;
+    width: 80px;
+
+    > .icon {
+      background-size: 80px;
+      height: 48px;
+      width: 80px;
+    }
+  }
+
+  &.minimized {
+    height: 30px;
+    width: 50px;
+
+    > .icon {
+      height: 30px;
+      width: 50px;
+    }
+  }
+
+  #node-label {
+    width: 65px;
+  }
+}

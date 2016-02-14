@@ -6,20 +6,20 @@
 'use strict';
 
 /**
- * @param {string} text
+ * @param {string=} opt_text Input to be parsed as constants.
  * @constructor
  */
-visflow.Constants = function(text) {
+visflow.Constants = function(opt_text) {
   /**
    * Type of the constant.
    * Can be one of {empty, int, float, string}.
-   * @type {string}
+   * @type {visflow.ValueType}
    */
   this.constantType = visflow.ValueType.EMPTY;
 
   /**
    * List of elements.
-   * @type {!Array<*>}
+   * @type {!Array<number|string>}
    */
   this.elements = [];
 
@@ -35,13 +35,13 @@ visflow.Constants = function(text) {
    */
   this.changed = true;
 
-  if (text != null) {
-    if (typeof text !== 'string') {
+  if (opt_text != null) {
+    if (typeof opt_text !== 'string') {
       visflow.error('non-string input');
       return;
     }
 
-    var elements = text.split(/[,;]+/);
+    var elements = opt_text.split(/[,;]+/);
     elements.forEach(function(element) {
       element = element.replace(/\s+/g, '');
       this.add(element);
@@ -85,7 +85,7 @@ visflow.Constants.prototype.stringify = function() {
  * @param {number|string} value
  */
 visflow.Constants.prototype.add = function(value) {
-  var parsed = visflow.parser.checkToken(value, [
+  var parsed = visflow.parser.checkToken('' + value, [
     // Time is not handled by constants.
     visflow.ValueType.TIME
   ]);
@@ -108,7 +108,7 @@ visflow.Constants.prototype.add = function(value) {
   if (valueType > this.constantType) {
     this.constantType = valueType;
     this.elements.forEach(function(element, index, array) {
-      array[index] = visflow.parser.tokenize(element, valueType);
+      array[index] = visflow.parser.tokenize('' + element, valueType);
     });
   }
 };
@@ -123,7 +123,7 @@ visflow.Constants.prototype.clear = function() {
 
 /**
  * Gets the first element in the set.
- * @return {number|string}
+ * @return {number|string|null}
  */
 visflow.Constants.prototype.getOne = function() {
   if (this.elements.length == 0) {
@@ -145,6 +145,7 @@ visflow.Constants.prototype.getAll = function() {
 
 /**
  * Counts the number of values in the constants set.
+ * @return {number}
  */
 visflow.Constants.prototype.count = function() {
   return this.elements.length;

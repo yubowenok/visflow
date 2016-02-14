@@ -5,9 +5,9 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Port.Params} params
  * @constructor
- * @extend {visflow.Port}
+ * @extends {visflow.Port}
  */
 visflow.MultiplePort = function(params) {
   visflow.MultiplePort.base.constructor.call(this, params);

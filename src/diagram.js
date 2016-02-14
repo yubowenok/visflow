@@ -30,7 +30,7 @@ visflow.diagram.save = function() {
 
     visflow.dialog.create({
       template: './src/dialog/save-diagram.html',
-      complete: function (dialog) {
+      complete: function(dialog) {
         var input = dialog.find('input').val(visflow.diagram.lastFilename);
         var confirm = dialog.find('#confirm');
 
@@ -53,7 +53,7 @@ visflow.diagram.save = function() {
         var table = dialog.find('table');
         visflow.diagram.listTable_(table, fileList);
         table.on('select.dt', function() {
-          fileName = table.find('tr.selected').children().first().text();
+          var fileName = table.find('tr.selected').children().first().text();
           input.val(fileName);
         });
       }
@@ -71,11 +71,14 @@ visflow.diagram.load = function() {
   $.post(visflow.diagram.LOAD_URL, {
     type: 'filelist'
   }).done(function(data) {
-    var fileList = data.filelist;
+    var data_ = /** @type {{
+      filelist: !Array<{filename: string, mtime: number}>
+    }} */(data);
+    var fileList = data_.filelist;
 
     visflow.dialog.create({
       template: './src/dialog/load-diagram.html',
-      complete: function (dialog) {
+      complete: function(dialog) {
         var fileName = visflow.diagram.lastFilename;
 
         var confirm = dialog.find('#confirm').prop('disabled', true)
@@ -165,7 +168,7 @@ visflow.diagram.upload_ = function(filename) {
  */
 visflow.diagram.updateURL = function(name) {
   if (history.pushState) {
-    var url = window.location.protocol + "//" + window.location.host +
+    var url = window.location.protocol + '//' + window.location.host +
       window.location.pathname + '?diagram=' + name;
     window.history.pushState({path: url}, '', url);
   }
@@ -211,7 +214,7 @@ visflow.diagram.listTable_ = function(table, fileList) {
     ],
     columnDefs: [
       {
-        render: function (lastModified) {
+        render: function(lastModified) {
           return (new Date(lastModified)).toLocaleString();
         },
         targets: 1

@@ -7,8 +7,8 @@
 /**
  * @param {{
  *   container: !jQuery,
- *   list: !Array<{id: string|number, text: string}>,
- *   selected: Array<string|number>
+ *   list: !Array<{id: (string|number), text: string}>,
+ *   selected: Array<string|number>,
  *   listTitle: string,
  *   addTitle: string,
  *   allowClear: boolean
@@ -24,7 +24,7 @@ visflow.EditableList = function(params) {
   /** @private {!jQuery} */
   this.container_ = params.container;
 
-  /** @private {!Array<{id: string|number, text:string}> */
+  /** @private {!Array<{id: (string|number), text: string}>} */
   this.list_ = params.list.concat();
 
   /** @private {!Array<string|number>} */
@@ -34,16 +34,17 @@ visflow.EditableList = function(params) {
   this.listTitle_ = params.listTitle ? params.listTitle : '';
 
   /** @private {string} */
-  this.addTitle_ = params.addTitle ? params.addTitle: 'Add Item';
+  this.addTitle_ = params.addTitle ? params.addTitle : 'Add Item';
 
   /** @private {boolean} */
   this.allowClear_ = params.allowClear != null ? params.allowClear : true;
 
   /**
    * Mapping from item id to item text.
-   * @private {string}
+   * @private {!Object<string>}
    */
   this.itemText_ = {};
+
   this.list_.forEach(function(item) {
     this.itemText_[item.id] = item.text;
   }.bind(this));
@@ -89,7 +90,7 @@ visflow.EditableList.prototype.init_ = function() {
   }.bind(this));
   this.container_.find('#sort').click(function() {
     this.selected_.sort(function(a, b) {
-      return visflow.utils.compare(this.list_[a].text, this.list_[b].text)
+      return visflow.utils.compare(this.list_[a].text, this.list_[b].text);
     }.bind(this));
     this.createItems_();
     this.signal_('change');
@@ -159,6 +160,9 @@ visflow.EditableList.prototype.deleteItem_ = function(id) {
 /**
  * Handles user dragged order change.
  * @param {!jQuery} event
+ * @param {{
+ *   item: !jQuery
+ * }} ui
  * @private
  */
 visflow.EditableList.prototype.sortableChanged_ = function(event, ui) {

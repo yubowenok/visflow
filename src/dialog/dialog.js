@@ -11,7 +11,7 @@ visflow.dialog = {};
  * Creates a dialog with the given parameters.
  * @param {{
  *   template: string,
- *   complete: ?function(dialog: !jQuery, ...): *
+ *   complete: (function(!jQuery, ...): *|undefined)
  * }} params
  *   template: HTML of the dialog.
  *   complete: callback function called after the modal dialog is loaded

@@ -38,17 +38,17 @@ visflow.ParallelCoordinates = function(params) {
 
   /**
    * SVG group for polylines.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgPolylines_;
   /**
    * SVG group for axes.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgAxes_;
   /**
    * SVG group for drawing temporary axes, used to determine label sizes.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgTempAxes_;
 
@@ -102,29 +102,34 @@ visflow.ParallelCoordinates.prototype.AXIS_TICK_OFFSET_ = 8;
 visflow.ParallelCoordinates.prototype.AXIS_LABEL_OFFSET_ = 5;
 
 /** @inheritDoc */
-visflow.ParallelCoordinates.prototype.DEFAULT_OPTIONS = {
-  // Dimensions of parallel coordinates.
-  dims: [],
-  // Show axes ticks.
-  ticks: true,
-  // Show axis label.
-  axisLabel: true
+visflow.ParallelCoordinates.prototype.defaultOptions = function() {
+  return {
+    // Dimensions of parallel coordinates.
+    dims: [],
+      // Show axes ticks.
+      ticks: true,
+    // Show axis label.
+    axisLabel: true
+  };
 };
 
 /** @inheritDoc */
-visflow.ParallelCoordinates.prototype.defaultProperties = {
-  color: 'black',
-  size: 1,
-  fill: 'none',
-  opacity: 0.25
+visflow.ParallelCoordinates.prototype.defaultProperties = function() {
+  return {
+    color: 'black',
+    size: 1,
+    fill: 'none',
+    opacity: 0.25
+  };
 };
 
 /** @inheritDoc */
-visflow.ParallelCoordinates.prototype.selectedProperties = {
-  color: '#6699ee',
-  opacity: 0.75
+visflow.ParallelCoordinates.prototype.selectedProperties = function() {
+  return {
+    color: '#6699ee',
+    opacity: 0.75
+  };
 };
-
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.init = function() {
@@ -149,9 +154,9 @@ visflow.ParallelCoordinates.prototype.selectItems = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.selectItemsIntersectLasso_ = function() {
-  var brush = this.brushPoints_;
-  var startPos = _(brush).first();
-  var endPos = _(brush).last();
+  var brush = this.brushPoints;
+  var startPos = _.first(brush);
+  var endPos = _.last(brush);
   if (startPos.x == endPos.x && startPos.y == endPos.y) {
     return;
   }
@@ -231,7 +236,7 @@ visflow.ParallelCoordinates.prototype.getItemProperties_ = function() {
       }
     );
     if (index in this.selected) {
-      _(prop).extend(this.selectedProperties);
+      _.extend(prop, this.selectedProperties);
       for (var p in this.selectedMultiplier) {
         if (p in prop) {
           prop[p] *= this.selectedMultiplier[p];
@@ -258,7 +263,7 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
       _.getValue('index'));
   lines.enter().append('path')
     .attr('id', _.getValue('index'));
-  _(lines.exit()).fadeOut();
+  _.fadeOut(lines.exit());
 
   var line = d3.svg.line().interpolate('linear')
     .x(function(point) {
@@ -267,7 +272,7 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
     .y(function(point) {
       return this.yScales[point[0]](point[1]);
     }.bind(this));
-  var updatedLines = this.allowTransition_ ? lines.transition() : lines;
+  var updatedLines = this.allowTransition ? lines.transition() : lines;
   updatedLines
     .attr('d', function(prop) {
       return line(prop.points);
@@ -342,27 +347,35 @@ visflow.ParallelCoordinates.prototype.drawAxes_ = function() {
   // Clear extra axes when dimension changes.
   var dimInfos = this.uniqueDimensions(this.options.dims);
   var uniqIds = dimInfos.map(function(dimInfo) {
-    return dimInfo.uniqId;
+    var dimInfo_ = /** @type {{
+      dim: number,
+      uniqId: string
+    }} */(dimInfo);
+    return dimInfo_.uniqId;
   });
   var exitAxes = this.svgAxes_.selectAll('g.axis')
     .data(uniqIds, _.identity)
     .exit();
-  _(exitAxes).fadeOut();
-  dimInfos.forEach(function (dimInfo, dimIndex) {
-    this.drawAxis_(dimIndex, dimInfo.uniqId);
+  _.fadeOut(exitAxes);
+  dimInfos.forEach(function(dimInfo, dimIndex) {
+    var dimInfo_ = /** @type {{
+      dim: number,
+      uniqId: string
+    }} */(dimInfo);
+    this.drawAxis_(dimIndex, dimInfo_.uniqId);
   }, this);
 };
 
 /**
  * Renders temporary axis for determining label width.
  * @param {number} dimIndex
- * @param {string=} uniqId
- * @param {function} check Function to be completed before the temp axis is
+ * @param {string=} opt_uniqId
+ * @param {Function=} opt_check Function to be completed before the temp axis is
  *     removed.
  * @private
  */
 visflow.ParallelCoordinates.prototype.drawTempAxis_ = function(dimIndex,
-   uniqId, check) {
+   opt_uniqId, opt_check) {
   // Content must be visible when we draw.
   var tempShow = !this.content.is(':visible');
   if (tempShow) {
@@ -370,21 +383,23 @@ visflow.ParallelCoordinates.prototype.drawTempAxis_ = function(dimIndex,
   }
 
   // Transition must be disabled before we draw the axis.
-  var allowTransition = this.allowTransition_;
-  this.allowTransition_ = false;
+  var allowTransition = this.allowTransition;
+  this.allowTransition = false;
 
   var svgAxes = this.svgAxes_;
   this.svgAxes_ = this.svgTempAxes_;
-  this.drawAxis_(dimIndex, uniqId);
+  this.drawAxis_(dimIndex, opt_uniqId);
   this.svgAxes_ = svgAxes;
 
-  check();
+  if (opt_check) {
+    opt_check();
+  }
 
   // Clear temp axis.
   this.svgTempAxes_.selectAll('*').remove();
 
   // Reset transition to original value.
-  this.allowTransition_ = allowTransition;
+  this.allowTransition = allowTransition;
   if (tempShow) {
     this.content.hide();
   }
@@ -394,6 +409,7 @@ visflow.ParallelCoordinates.prototype.drawTempAxis_ = function(dimIndex,
  * Shows the parallel coordinate axis for one dimension.
  * @param {number} dimIndex Index of dimension in this.options.dims.
  * @param {string=} opt_uniqId Distinct dimension id.
+ * @private
  */
 visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
                                                            opt_uniqId) {
@@ -420,7 +436,7 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
       .attr('transform', gTransform);
   }
   g.call(axis);
-  var updatedG = this.allowTransition_ ? g.transition() : g;
+  var updatedG = this.allowTransition ? g.transition() : g;
   updatedG
     .style('opacity', 1)
     .attr('transform', gTransform);
@@ -437,13 +453,13 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
         .attr('transform', labelTransform);
     }
     var data = this.ports['in'].pack.data;
-    var updatedLabel = this.allowTransition_ ? label.transition() : label;
+    var updatedLabel = this.allowTransition ? label.transition() : label;
     updatedLabel
       .style('opacity', 1)
       .attr('transform', labelTransform)
       .text(data.dimensions[dim]);
   } else {
-    _(g.select('.vis-label')).fadeOut();
+    _.fadeOut(g.select('.vis-label'));
   }
 };
 
@@ -459,7 +475,7 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
 
   var yRange = [
     svgSize.height - this.bottomMargin_,
-    this.PLOT_MARGINS.top
+    this.plotMargins().top
   ];
 
   var inpack = this.ports['in'].pack;
@@ -485,7 +501,7 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
 
 /**
  * Finds all non-categorical dimensions.
- * @returns {!Array<number>}
+ * @return {!Array<number>}
  */
 visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
@@ -506,8 +522,8 @@ visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.updateBottomMargin_ = function() {
-  this.bottomMargin_ = this.PLOT_MARGINS.bottom +
-    (this.options.axisLabel ? this.TICKS_HEIGHT_ : 0);
+  this.bottomMargin_ = this.plotMargins().bottom +
+    (this.options.axisLabel ? this.TICKS_HEIGHT : 0);
 };
 
 /**
@@ -516,8 +532,9 @@ visflow.ParallelCoordinates.prototype.updateBottomMargin_ = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
-  this.leftMargin_ = this.PLOT_MARGINS.left;
-  this.rightMargin_ = this.PLOT_MARGINS.right;
+  var margins = this.plotMargins();
+  this.leftMargin_ = margins.left;
+  this.rightMargin_ = margins.right;
 
   var leftLabelWidth = 0;
   var rightLabelWidth = 0;

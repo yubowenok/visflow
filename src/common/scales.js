@@ -110,7 +110,7 @@ visflow.scales.init = function() {
     var range = spec.range;
 
     // Generate gradient div and set domain/range for category scale.
-    switch(spec.type) {
+    switch (spec.type) {
       case 'color':
         // Gradient div does not support uneven scales.
         gradient += spec.range.join(',');
@@ -123,7 +123,7 @@ visflow.scales.init = function() {
         break;
     }
     var scale;
-    switch(spec.type) {
+    switch (spec.type) {
       case 'color':
         scale = d3.scale.linear()
           .domain(domain)
@@ -153,21 +153,24 @@ visflow.scales.init = function() {
  * Gets a scale with domain set based on value types.
  * @param {!visflow.Data} data Data the scale is for.
  * @param {number} dim Dimension index of the data to process.
- * @param {!Object} items Collection of items the scale is for.
+ * @param {!Object<boolean>} items Collection of items the scale is for.
  * @param {!Array<number>} range Range of the scale.
  * @param {{
- *   domainMargin: number=,
- *   rangeMargin: number=,
- *   ordinalRangeType: string=,
- *   ordinalPadding: number=,
- *   ordinalRange: boolean=
+ *   domainMargin: (number|undefined),
+ *   rangeMargin: (number|undefined),
+ *   ordinalRangeType: (string|undefined),
+ *   ordinalPadding: (number|undefined),
+ *   ordinalRange: (boolean|undefined)
  * }=} opt_params
  *   domainMargin: Margin percentage, this has no effect if domain span is zero.
  *   rangeMargin: Margin percentage, this has no effect if range span is zero.
  *   ordinalRangeType: rangePoints, rangeBands, rangeRoundBands.
  *   ordinalPadding: Padding used for ordinal range.
  *   ordinalRange: Whether to use d3.range(length) for ordinal scale's range.
- * @return {!{scale: !d3.scale, type: visflow.ScaleType}}
+ * @return {{
+ *   scale: !d3.scale,
+ *   type: !visflow.ScaleType
+ * }}
  */
 visflow.scales.getScale = function(data, dim, items, range, opt_params) {
   var params = opt_params == null ? {} : opt_params;
@@ -185,7 +188,7 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
   }
 
   var scaleType;
-  switch(dimType) {
+  switch (dimType) {
     case visflow.ValueType.INT:
     case visflow.ValueType.FLOAT:
       scaleType = visflow.ScaleType.NUMERICAL;
@@ -202,7 +205,7 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
   });
 
   var scale;
-  switch(scaleType) {
+  switch (scaleType) {
     case visflow.ScaleType.NUMERICAL:
     case visflow.ScaleType.TIME:
       var minVal = d3.min(values);
@@ -213,7 +216,7 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
         .range(range);
       break;
     case visflow.ScaleType.ORDINAL:
-      var values = [];
+      values = [];
       for (var index in items) {
         values.push(data.values[index][dim]);
       }
@@ -226,7 +229,7 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
       } else {
         var ordinalPadding = params.ordinalPadding != null ?
           params.ordinalPadding : 0;
-        switch(params.ordinalRangeType) {
+        switch (params.ordinalRangeType) {
           case 'rangeBands':
             scale.rangeBands(range, ordinalPadding);
             break;

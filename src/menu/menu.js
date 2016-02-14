@@ -91,7 +91,7 @@ visflow.menu.init = function() {
 visflow.menu.initUpdateHandlers_ = function() {
   $(visflow.options).on('visflow.change', function(event, data) {
     var value = data.value;
-    switch(data.type) {
+    switch (data.type) {
       case 'nodeLabel':
         $('#options #show-node-label > i').toggleClass('glyphicon-ok', value);
         visflow.flow.updateNodeLabels();

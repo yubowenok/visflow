@@ -7,8 +7,8 @@
 /**
  * @param {{
  *   container: !jQuery,
- *   value: boolean=,
- *   title: string=
+ *   value: (boolean|undefined),
+ *   title: (string|undefined)
  * }} params
  * @constructor
  */
@@ -19,14 +19,15 @@ visflow.Checkbox = function(params) {
   /** @private {boolean} */
   this.value_ = params.value != null ? params.value : false;
 
-  /** @private {string} */
-  this.title_ = params.title;
+  /** @private {?string} */
+  this.title_ = params.title != null ? params.title : null;
 
   this.container_.load(this.TEMPLATE_, function() {
     this.init_();
   }.bind(this));
 };
 
+/** @private @const {string} */
 visflow.Checkbox.prototype.TEMPLATE_ = './src/unit/checkbox/checkbox.html';
 
 /**

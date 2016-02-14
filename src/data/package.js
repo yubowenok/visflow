@@ -7,7 +7,7 @@
 'use strict';
 
 /**
- * @param {!Object} data
+ * @param {visflow.Data=} data
  * @constructor
  */
 visflow.Package = function(data) {
@@ -40,10 +40,12 @@ visflow.Package = function(data) {
 
 /**
  * Makes full references to another package.
+ * @param {!visflow.Package} pack
+ * @param {boolean=} opt_shallow
  */
-visflow.Package.prototype.copy = function(pack, shallow) {
+visflow.Package.prototype.copy = function(pack, opt_shallow) {
   this.data = pack.data;
-  if (!shallow) {   // default deep copy
+  if (!opt_shallow) {   // default deep copy
     this.items = {};
     for (var index in pack.items) {
       this.items[index] = {
@@ -64,7 +66,7 @@ visflow.Package.prototype.filter = function(indices) {
   var newItems = {};
   indices.forEach(function(index) {
     var e = this.items[index];
-    if(this.items[index] == null) {
+    if (this.items[index] == null) {
       visflow.error('selected element not exists');
     }
     newItems[index] = e;
@@ -100,7 +102,7 @@ visflow.Package.prototype.isEmptyData = function() {
 /**
  * Groups items based on a given 'groupBy' attribute.
  * @param {string|number} groupBy If empty string, return a single group.
- * @private
+ * @return {!Array<!Array<string>>}
  */
 visflow.Package.prototype.groupItems = function(groupBy) {
   var groups = [];

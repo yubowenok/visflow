@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Node}
  */
@@ -14,13 +14,13 @@ visflow.Set = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.MultiplePort({
+    'in': new visflow.MultiplePort({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -43,15 +43,20 @@ visflow.Set.prototype.RESIZABLE = false;
 /** @inheritDoc */
 visflow.Set.prototype.PANEL_TEMPLATE = './src/set/set-panel.html';
 
-/** @protected @const {number} */
+/** @protected {number} */
 visflow.Set.prototype.MAX_LABEL_LENGTH = 9;
 
 /** @inheritDoc */
-visflow.Set.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
-  {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
-  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
-];
+visflow.Set.prototype.contextMenuItems = function() {
+  return [
+    {id: 'minimize', text: 'Minimize',
+      icon: 'glyphicon glyphicon-resize-small'},
+    {id: 'panel', text: 'Control Panel',
+      icon: 'glyphicon glyphicon-th-list'},
+    {id: 'delete', text: 'Delete', icon:
+      'glyphicon glyphicon-remove'}
+  ];
+};
 
 /** @inheritDoc */
 visflow.Set.prototype.init = function() {
@@ -67,6 +72,7 @@ visflow.Set.prototype.initPanelHeader = function(container) {
 
 /**
  * Handles in port change event. This may be because of removed connections.
+ * @return {boolean}
  */
 visflow.Set.prototype.inPortsChanged = function() {
   if (this.numConnections_ != this.ports['in'].connections.length) {

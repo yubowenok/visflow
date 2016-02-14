@@ -5,8 +5,11 @@
 'use strict';
 
 /** @const */
-visflow.test = {};
+visflow.dev = {};
 
-visflow.test.run = function() {
+/**
+ * Executes a sequence of commands for development testing purpose.
+ */
+visflow.dev.run = function() {
   visflow.diagram.download_('myDiagram');
 };

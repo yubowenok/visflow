@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param {Object} params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -18,31 +18,30 @@ visflow.LineChart = function(params) {
   /** @type {!d3.scale} */
   this.yScale = d3.scale.linear();
 
-  /** @type {string} */
+  /** @type {visflow.ScaleType} */
   this.xScaleType;
-  /** @type {string} */
+  /** @type {visflow.ScaleType} */
   this.yScaleType;
 
   /**
    * Grouped item indices for lines.
-   * @private {!Array<!Array<number>>}
-   * @private
+   * @private {!Array<!Array<string>>}
    */
   this.itemGroups_ = [];
 
   /**
    * SVG group for points.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgPoints_;
   /**
    * SVG group for the line.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgLines_;
   /**
    * SVG group for axes.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgAxes_;
 
@@ -102,27 +101,29 @@ visflow.LineChart.prototype.PANEL_TEMPLATE =
   './src/visualization/line-chart/line-chart-panel.html';
 
 /** @inheritDoc */
-visflow.LineChart.prototype.DEFAULT_OPTIONS = {
-  // Series dimension.
-  xDim: visflow.data.INDEX_DIM,
-  // Value dimension.
-  yDim: 0,
-  // Group by dimension, must be key.
-  groupBy: '',
-  // Show points.
-  points: false,
-  // Show legends.
-  legends: true,
-  // Use curve to draw lines.
-  curve: false,
-  // Show x-axis ticks.
-  xTicks: true,
-  // Show y-axis ticks.
-  yTicks: true,
-  // X domain margin.
-  xMargin: 0.1,
-  // Y domain margin.
-  yMargin: 0.1
+visflow.LineChart.prototype.defaultOptions = function() {
+  return {
+    // Series dimension.
+    xDim: visflow.data.INDEX_DIM,
+    // Value dimension.
+    yDim: 0,
+    // Group by dimension, must be key.
+    groupBy: '',
+    // Show points.
+    points: false,
+    // Show legends.
+    legends: true,
+    // Use curve to draw lines.
+    curve: false,
+    // Show x-axis ticks.
+    xTicks: true,
+    // Show y-axis ticks.
+    yTicks: true,
+    // X domain margin.
+    xMargin: 0.1,
+    // Y domain margin.
+    yMargin: 0.1
+  };
 };
 
 /** @private @const {number} */
@@ -140,24 +141,36 @@ visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_X_ = 15;
 visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_Y_ = 10;
 
 /** @inheritDoc */
-visflow.LineChart.prototype.defaultProperties = {
-  color: '#333',
-  border: 'black',
-  width: 1.5,
-  size: 3,
-  opacity: 1
+visflow.LineChart.prototype.defaultProperties = function() {
+  return {
+    color: '#333',
+    border: 'black',
+    width: 1.5,
+    size: 3,
+    opacity: 1
+  };
 };
 
 /** @inheritDoc */
-visflow.LineChart.prototype.selectedProperties = {
-  color: 'white',
-  border: '#6699ee'
+visflow.LineChart.prototype.selectedProperties = function() {
+  return {
+    color: 'white',
+    border: '#6699ee'
+  };
 };
 
-/** @inheritDoc */
-visflow.LineChart.prototype.selectedLineProperties = {
-  color: '#6699ee',
-  width: 2
+/**
+ * Rendering properties for selected lines.
+ * @return {{
+ *   color: string,
+ *   width: number
+ * }}
+ */
+visflow.LineChart.prototype.selectedLineProperties = function() {
+  return {
+    color: '#6699ee',
+    width: 2
+  };
 };
 
 /** @inheritDoc */
@@ -172,7 +185,6 @@ visflow.LineChart.prototype.deserialize = function(save) {
   visflow.LineChart.base.deserialize.call(this, save);
   this.selectedGroups = save.selectedGroups;
 };
-
 
 /** @inheritDoc */
 visflow.LineChart.prototype.init = function() {
@@ -217,7 +229,7 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
   this.itemGroups_.forEach(function(itemIndices, groupIndex) {
     itemIndices.forEach(function(index) {
       groupIndices[index] = groupIndex;
-    })
+    });
   });
   if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down
@@ -413,8 +425,8 @@ visflow.LineChart.prototype.updateCollisionMessage_ = function() {
  * @private
  */
 visflow.LineChart.prototype.updateBottomMargin_ = function() {
-  this.bottomMargin_ = this.PLOT_MARGINS.bottom +
-    (this.options.xTicks ? this.TICKS_HEIGHT_ : 0);
+  this.bottomMargin_ = this.plotMargins().bottom +
+    (this.options.xTicks ? this.TICKS_HEIGHT : 0);
 };
 
 
@@ -428,7 +440,7 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
     this.content.show();
   }
 
-  this.leftMargin_ = this.PLOT_MARGINS.left ;
+  this.leftMargin_ = this.plotMargins().left;
   if (this.options.yTicks) {
     this.drawYAxis_();
     var maxLength = 0;
@@ -499,12 +511,12 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
         points: [],
         label: this.options.groupBy == visflow.data.INDEX_DIM ||
             this.options.groupBy === '' ?
-            '' : values[_(itemIndices).first()][this.options.groupBy]
+            '' : values[_.first(itemIndices)][this.options.groupBy]
       },
       this.defaultProperties
     );
     itemIndices.forEach(function(index) {
-      _(prop).extend(items[index].properties);
+      _.extend(prop, items[index].properties);
       prop.points.push([
         this.options.xDim == visflow.data.INDEX_DIM ?
             +index : values[index][this.options.xDim],
@@ -513,7 +525,7 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
     }, this);
 
     if (groupIndex in this.selectedGroups) {
-      _(prop).extend(this.selectedLineProperties);
+      _.extend(prop, this.selectedLineProperties);
       this.multiplyProperties(prop, this.selectedMultiplier);
     }
     prop.index = groupIndex;
@@ -546,7 +558,7 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
       }
     );
     if (index in this.selected) {
-      _(prop).extend(this.selectedProperties);
+      _.extend(prop, this.selectedProperties);
       this.multiplyProperties(prop, this.selectedMultiplier);
     }
     itemProps.push(prop);
@@ -562,14 +574,14 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
 visflow.LineChart.prototype.drawLegends_ = function(lineProps) {
   if (this.options.groupBy == visflow.data.INDEX_DIM ||
     this.options.groupBy === '' || !this.options.legends) {
-    _(this.svgLegends_.selectAll('*')).fadeOut();
+    _.fadeOut(this.svgLegends_.selectAll('*'));
     return;
   }
   var boxes = this.svgLegends_.selectAll('g').data(lineProps);
   var enteredBoxes = boxes.enter().append('g');
   enteredBoxes.append('rect');
   enteredBoxes.append('text');
-  _(boxes.exit()).fadeOut();
+  _.fadeOut(boxes.exit());
   boxes
     .attr('transform', function(prop, index) {
       return visflow.utils.getTransform([
@@ -601,7 +613,7 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
   var points = this.svgPoints_.selectAll('circle')
     .data(itemProps, _.getValue('index'));
   points.enter().append('circle');
-  _(points.exit()).fadeOut();
+  _.fadeOut(points.exit());
 
   var updatedPoints = this.transitionFeasible() ? points.transition() : points;
   updatedPoints
@@ -621,6 +633,7 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
 /**
  * Renders the polylines.
  * @param {!Array<!Object>} lineProps
+ * @param {!Array<!Object>} itemProps
  * @private
  */
 visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
@@ -628,7 +641,7 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
     _.getValue('index'));
   lines.enter().append('path')
     .attr('id', _.getValue('index'));
-  _(lines.exit()).fadeOut();
+  _.fadeOut(lines.exit());
 
   var points = {};
   itemProps.forEach(function(prop) {
@@ -684,7 +697,12 @@ visflow.LineChart.prototype.sortItems_ = function() {
       var prevValue = sortBy == visflow.data.INDEX_DIM ?
           prevIndex : data.values[prevIndex][sortBy];
       if (visflow.utils.compare(curValue, prevValue) == 0) {
-        this.xCollidedMsg_ =
+        this.xCollidedMsg_ = [
+          'values collided',
+          '(' + curValue + ')',
+          'on',
+          sortBy == visflow.data.INDEX_DIM ? 'index' : data.dimensions[sortBy]
+        ].join(' ');
         xCollided = true;
       }
     }
@@ -707,7 +725,7 @@ visflow.LineChart.prototype.drawXAxis_ = function() {
     scaleType: this.xScaleType,
     classes: 'x axis',
     orient: 'bottom',
-    ticks: this.DEFAULT_TICKS_,
+    ticks: this.DEFAULT_TICKS,
     noTicks: !this.options.xTicks,
     transform: visflow.utils.getTransform([
       0,
@@ -716,8 +734,8 @@ visflow.LineChart.prototype.drawXAxis_ = function() {
     label: {
       text: data.dimensions[this.options.xDim],
       transform: visflow.utils.getTransform([
-        svgSize.width - this.PLOT_MARGINS.right,
-        -this.LABEL_OFFSET_
+        svgSize.width - this.plotMargins().right,
+        -this.LABEL_OFFSET
       ])
     }
   });
@@ -735,7 +753,7 @@ visflow.LineChart.prototype.drawYAxis_ = function() {
     scaleType: this.yScaleType,
     classes: 'y axis',
     orient: 'left',
-    ticks: this.DEFAULT_TICKS_,
+    ticks: this.DEFAULT_TICKS,
     noTicks: !this.options.yTicks,
     transform: visflow.utils.getTransform([
       this.leftMargin_,
@@ -744,8 +762,8 @@ visflow.LineChart.prototype.drawYAxis_ = function() {
     label: {
       text: data.dimensions[this.options.yDim],
       transform: visflow.utils.getTransform([
-        this.LABEL_OFFSET_,
-        this.PLOT_MARGINS.top
+        this.LABEL_OFFSET,
+        this.plotMargins().top
       ], 1, 90)
     }
   });
@@ -767,13 +785,14 @@ visflow.LineChart.prototype.prepareScales = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
   var data = inpack.data;
+  var margins = this.plotMargins();
 
   this.updateBottomMargin_();
 
   var svgSize = this.getSVGSize();
   var yRange = [
     svgSize.height - this.bottomMargin_,
-    this.PLOT_MARGINS.top
+    margins.top
   ];
   var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
     yRange, {
@@ -791,7 +810,7 @@ visflow.LineChart.prototype.prepareScales = function() {
 
   var xRange = [
     this.leftMargin_,
-    svgSize.width - this.PLOT_MARGINS.right
+    svgSize.width - margins.right
   ];
   var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items,
     xRange, {
@@ -811,7 +830,7 @@ visflow.LineChart.prototype.dimensionChanged = function() {
 
 /**
  * Finds reasonable y dimension. X dimension will be default to empty.
- * @return {{x: number, y: number, groupBy: number}}
+ * @return {{x: number, y: number, groupBy: (number|string)}}
  * @override
  */
 visflow.LineChart.prototype.findPlotDimensions = function() {
@@ -841,8 +860,8 @@ visflow.LineChart.prototype.findPlotDimensions = function() {
 
 /** @inheritDoc */
 visflow.LineChart.prototype.transitionFeasible = function() {
-  return this.allowTransition_ &&
-      this.itemProps_.length < this.TRANSITION_ELEMENT_LIMIT_;
+  return this.allowTransition &&
+      this.itemProps_.length < this.TRANSITION_ELEMENT_LIMIT;
 };
 
 /** @inheritDoc */

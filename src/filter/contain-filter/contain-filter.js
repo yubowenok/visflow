@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {!Object} params
  * @constructor
  * @extends {visflow.Filter}
  */
@@ -14,20 +14,20 @@ visflow.ContainFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    inVal: new visflow.Port({
+    'inVal': new visflow.Port({
       node: this,
       id: 'inVal',
       text: 'containing value',
       isInput: true,
       isConstants: true
     }),
-    in: new visflow.MultiplePort({
+    'in': new visflow.MultiplePort({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -56,19 +56,21 @@ visflow.ContainFilter.prototype.NODE_NAME = 'Contain Filter';
 visflow.ContainFilter.prototype.NODE_CLASS = 'contain-filter';
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.DEFAULT_OPTIONS = {
-  // Dimensions to be filtered on.
-  dims: [],
-  // Whether input is treated as normal text or regex.
-  // 'text' or 'regex'.
-  mode: 'text',
-  // Matching target. 'full' or 'substring'.
-  target: 'full',
-  // Whether to ignore cases in matching.
-  ignoreCases: true,
-  // Filtering value specified by directly typing in the input boxes.
-  // Type-in value is stored as string.
-  typeInValue: null
+visflow.ContainFilter.prototype.defaultOptions = function() {
+  return {
+    // Dimensions to be filtered on.
+    dims: [],
+    // Whether input is treated as normal text or regex.
+    // 'text' or 'regex'.
+    mode: 'text',
+    // Matching target. 'full' or 'substring'.
+    target: 'full',
+    // Whether to ignore cases in matching.
+    ignoreCases: true,
+    // Filtering value specified by directly typing in the input boxes.
+    // Type-in value is stored as string.
+    typeInValue: null
+  };
 };
 
 /** @inheritDoc */
@@ -220,7 +222,7 @@ visflow.ContainFilter.prototype.process = function() {
   }
   this.value = pack.getAll();
 
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
@@ -239,7 +241,7 @@ visflow.ContainFilter.prototype.process = function() {
 /** @inheritDoc */
 visflow.ContainFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   var items = inpack.items;
   var data = inpack.data;

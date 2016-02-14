@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Property}
  */
@@ -14,13 +14,13 @@ visflow.PropertyMapping = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.Port({
+    'in': new visflow.Port({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -49,13 +49,15 @@ visflow.PropertyMapping.prototype.PANEL_TEMPLATE =
   './src/property/property-mapping/property-mapping-panel.html';
 
 /** @inheritDoc */
-visflow.PropertyMapping.prototype.DEFAULT_OPTIONS = {
-  // Property to be mapped.
-  mapping: 'color',
-  // Selected color scale.
-  colorScaleId: 'redGreen',
-  // Mapping range for number type values.
-  numberRange: [0, 1]
+visflow.PropertyMapping.prototype.defaultOptions = function() {
+  return {
+    // Property to be mapped.
+    mapping: 'color',
+    // Selected color scale.
+    colorScaleId: 'redGreen',
+    // Mapping range for number type values.
+    numberRange: [0, 1]
+  };
 };
 
 /** @inheritDoc */
@@ -115,7 +117,7 @@ visflow.PropertyMapping.prototype.showEditableScale_ = function(scaleDiv,
         this.parameterChanged(source);
       }
     });
-  } else if (mappingType == 'number'){
+  } else if (mappingType == 'number') {
     var numberDiv = scaleDiv.children('#number').show();
     [
       {selector: '#min', index: 0},
@@ -166,7 +168,7 @@ visflow.PropertyMapping.prototype.initPanel = function(container) {
         selected: this.options.mapping,
         listTitle: 'Mapping'
       },
-      change: function (event, mapping) {
+      change: function(event, mapping) {
         this.options.mapping = mapping;
         this.showEditableScale_(container.find('#scale'), 'panel');
         this.parameterChanged('panel');
@@ -219,7 +221,7 @@ visflow.PropertyMapping.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.process = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   var items = inpack.items;
   var data = inpack.data;

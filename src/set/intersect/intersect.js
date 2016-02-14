@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Set}
  */
@@ -42,14 +42,16 @@ visflow.Intersect.prototype.process = function() {
   for (var i in inpacks) {
     var inpack = inpacks[i];
 
-    if (!outpack.data.matchDataFormat(inpack.data))
-      return visflow.error('cannot make intersection of two different types of datasets');
+    if (!outpack.data.matchDataFormat(inpack.data)) {
+      return visflow.error(
+        'cannot make intersection of two different types of datasets');
+    }
 
     for (var index in outpack.items) {
       var item = inpack.items[index];
       if (item != null) {
         // Merge rendering properties.
-        _(outpack.items[index].properties).extend(item.properties);
+        _.extend(outpack.items[index].properties, item.properties);
       } else {
         delete outpack.items[index];
       }

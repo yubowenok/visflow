@@ -5,12 +5,12 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Port.Params} params
  * @constructor
  * @extends {visflow.Port}
  */
 visflow.SelectionPort = function(params) {
-  var params = _.extend(
+  var paramsApplied = _.extend(
     {
       isInput: false,
       isConstants: false,
@@ -18,7 +18,7 @@ visflow.SelectionPort = function(params) {
     },
     params
   );
-  visflow.SelectionPort.base.constructor.call(this, params);
+  visflow.SelectionPort.base.constructor.call(this, paramsApplied);
 };
 
 visflow.utils.inherit(visflow.SelectionPort, visflow.MultiplePort);

@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {!Object} params
  * @constructor
  * @extends {visflow.Filter}
  */
@@ -14,13 +14,13 @@ visflow.Sampler = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.MultiplePort({
+    'in': new visflow.MultiplePort({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -49,37 +49,45 @@ visflow.Sampler.prototype.MIN_HEIGHT = 60;
 
 /**
  * Condition for sampling.
- * @private @const {!Array<{id: string, text: string}>}
+ * @return {!Array<{id: string, text: string}>}
+ * @private
  */
-visflow.Sampler.prototype.CONDITIONS_ = [
-  {id: 'first', text: 'First / Minimum'},
-  {id: 'last', text: 'Last / Maximum'},
-  {id: 'sampling', text: 'Random Sampling'}
-];
+visflow.Sampler.prototype.conditions_ = function() {
+  return [
+    {id: 'first', text: 'First / Minimum'},
+    {id: 'last', text: 'Last / Maximum'},
+    {id: 'sampling', text: 'Random Sampling'}
+  ];
+};
 
 /**
  * Modes for band limiting.
- * @private @const {!Array<{id: string, text: string}>}
+ * @return {!Array<{id: string, text: string}>}
+ * @private
  */
-visflow.Sampler.prototype.MODES_ = [
-  {id: 'count', text: 'Count'},
-  {id: 'percentage', text: 'Percentage'}
-];
+visflow.Sampler.prototype.modes_ = function() {
+  return [
+    {id: 'count', text: 'Count'},
+    {id: 'percentage', text: 'Percentage'}
+  ];
+};
 
 /** @inheritDoc */
-visflow.Sampler.prototype.DEFAULT_OPTIONS = {
-  // Dimension to be filtered on.
-  dim: 0,
-  // Filtering conditions, 'first', 'last' or 'sampling'.
-  condition: 'first',
-  // Filtering modes, 'count' or 'percentage'.
-  mode: 'count',
-  // Filtering count or percentage
-  number: 5,
-  // Group by dimension.
-  groupBy: '',
-  // Whether the values shall be uniqued before data items are filtered.
-  unique: false
+visflow.Sampler.prototype.defaultOptions = function() {
+  return {
+    // Dimension to be filtered on.
+    dim: 0,
+    // Filtering conditions, 'first', 'last' or 'sampling'.
+    condition: 'first',
+    // Filtering modes, 'count' or 'percentage'.
+    mode: 'count',
+    // Filtering count or percentage
+    number: 5,
+    // Group by dimension.
+    groupBy: '',
+    // Whether the values shall be uniqued before data items are filtered.
+    unique: false
+  };
 };
 
 /** @inheritDoc */
@@ -122,11 +130,11 @@ visflow.Sampler.prototype.initPanel = function(container) {
       constructor: visflow.Select,
       params: {
         container: container.find('#condition'),
-        list: this.CONDITIONS_,
+        list: this.conditions_(),
         selected: this.options.condition,
         listTitle: 'Condition'
       },
-      change: function (event, condition) {
+      change: function(event, condition) {
         this.options.condition = condition;
         this.parameterChanged();
       }
@@ -136,11 +144,11 @@ visflow.Sampler.prototype.initPanel = function(container) {
       constructor: visflow.Select,
       params: {
         container: container.find('#mode'),
-        list: this.MODES_,
+        list: this.modes_(),
         selected: this.options.mode,
         listTitle: 'Mode'
       },
-      change: function (event, mode) {
+      change: function(event, mode) {
         this.options.mode = mode;
         this.parameterChanged();
       }
@@ -155,7 +163,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
         accept: visflow.ValueType.INT,
         title: 'Number to Pass'
       },
-      change: function (event, number) {
+      change: function(event, number) {
         this.options.number = number;
         this.parameterChanged();
       }
@@ -168,7 +176,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
         value: this.options.unique,
         title: 'Unique Values'
       },
-      change: function (event, value) {
+      change: function(event, value) {
         this.options.unique = value;
         this.parameterChanged();
       }
@@ -203,7 +211,7 @@ visflow.Sampler.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.Sampler.prototype.process = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
@@ -221,7 +229,7 @@ visflow.Sampler.prototype.process = function() {
 
 /** @inheritDoc */
 visflow.Sampler.prototype.filter = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   var items = inpack.items;
   var data = inpack.data;
@@ -241,7 +249,7 @@ visflow.Sampler.prototype.filter = function() {
     });
 
     if (this.options.unique) {
-      colValues = _(colValues).uniq();
+      colValues = _.uniq(colValues);
     }
 
     var count = this.options.mode == 'count' ? this.options.number :
@@ -249,7 +257,7 @@ visflow.Sampler.prototype.filter = function() {
     count = Math.min(colValues.length, count);
 
     var acceptedVals = [];
-    switch(this.options.condition) {
+    switch (this.options.condition) {
       case 'first':
       case 'last':
         acceptedVals = colValues.slice(0, count);
@@ -257,10 +265,10 @@ visflow.Sampler.prototype.filter = function() {
       case 'sampling':
         var i = 0;
         var percentage = this.options.number / 100;
-        while(count > 0) {
+        while (count > 0) {
           if (i == colValues.length) {
             i = 0;
-            colValues = _(colValues).filter(function(val) {
+            colValues = _.filter(colValues, function(val) {
               return val != null;
             });
           }

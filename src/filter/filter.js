@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {!Object} params
  * @constructor
  * @extends {visflow.Node}
  */
@@ -29,6 +29,7 @@ visflow.utils.inherit(visflow.Filter, visflow.Node);
 
 /** @inheritDoc */
 visflow.Filter.prototype.MIN_HEIGHT = 95;
+/** @inheritDoc */
 visflow.Filter.prototype.MAX_HEIGHT = 95;
 
 /** @protected @const {string} */

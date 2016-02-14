@@ -8,9 +8,9 @@
 /**
  * @param {{
  *   container: !jQuery,
- *   color: string=,
- *   title: string=,
- *   disabled: boolean=
+ *   color: (string|undefined),
+ *   title: (string|undefined),
+ *   disabled: (boolean|undefined)
  * }} params
  *     container: Container of the VisFlow ColorPicker.
  *     value: Initial value of the ColorPicker.
@@ -23,11 +23,11 @@ visflow.ColorPicker = function(params) {
   /** @private {?string} */
   this.title_ = params.title != null ? params.title : null;
 
-  /** @private {?(string|number)} */
+  /** @private {?string} */
   this.color_ = params.color != null ? params.color : null;
 
-  /** @private {?boolean} */
-  this.disabled_ = params.disabled;
+  /** @private {boolean} */
+  this.disabled_ = !!params.disabled;
 
   this.container_.load(this.TEMPLATE_, function() {
     this.init_();
@@ -74,6 +74,7 @@ visflow.ColorPicker.prototype.init_ = function() {
 
 /**
  * Handles color change.
+ * @param {jQuery.colorpicker.Event} event
  * @private
  */
 visflow.ColorPicker.prototype.change_ = function(event) {

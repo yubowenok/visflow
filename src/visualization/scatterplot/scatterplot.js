@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param {Object} params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -18,19 +18,19 @@ visflow.Scatterplot = function(params) {
   /** @type {!d3.scale} */
   this.yScale = d3.scale.linear();
 
-  /** @type {string} */
+  /** @type {visflow.ScaleType} */
   this.xScaleType;
-  /** @type {string */
+  /** @type {visflow.ScaleType} */
   this.yScaleType;
 
   /**
    * SVG group for points.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgPoints_;
   /**
    * SVG group for axes.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgAxes_;
 
@@ -63,34 +63,40 @@ visflow.Scatterplot.prototype.PANEL_TEMPLATE =
     './src/visualization/scatterplot/scatterplot-panel.html';
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.DEFAULT_OPTIONS = {
-  // X dimension.
-  xDim: 0,
-  // Y dimension.
-  yDim: 0,
-  // Show x-axis ticks.
-  xTicks: true,
-  // Show y-axis ticks.
-  yTicks: true,
-  // Margin percentage of x.
-  xMargin: 0.1,
-  // Margin percentage of y.
-  yMargin: 0.1
+visflow.Scatterplot.prototype.defaultOptions = function() {
+  return {
+    // X dimension.
+    xDim: 0,
+      // Y dimension.
+      yDim: 0,
+    // Show x-axis ticks.
+    xTicks: true,
+    // Show y-axis ticks.
+    yTicks: true,
+    // Margin percentage of x.
+    xMargin: 0.1,
+    // Margin percentage of y.
+    yMargin: 0.1
+  };
 };
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.defaultProperties = {
-  color: '#333',
-  border: 'black',
-  width: 1,
-  size: 3,
-  opacity: 1
+visflow.Scatterplot.prototype.defaultProperties = function() {
+  return {
+    color: '#333',
+    border: 'black',
+    width: 1,
+    size: 3,
+    opacity: 1
+  };
 };
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.selectedProperties = {
-  color: 'white',
-  border: '#6699ee'
+visflow.Scatterplot.prototype.selectedProperties = function() {
+  return {
+    color: 'white',
+    border: '#6699ee'
+  };
 };
 
 /** @inheritDoc */
@@ -165,8 +171,8 @@ visflow.Scatterplot.prototype.showSelection = function() {
  * @private
  */
 visflow.Scatterplot.prototype.updateBottomMargin_ = function() {
-  this.bottomMargin_ = this.PLOT_MARGINS.bottom +
-    (this.options.xTicks ? this.TICKS_HEIGHT_ : 0);
+  this.bottomMargin_ = this.plotMargins().bottom +
+    (this.options.xTicks ? this.TICKS_HEIGHT : 0);
 };
 
 /**
@@ -178,7 +184,7 @@ visflow.Scatterplot.prototype.updateLeftMargin_ = function() {
   if (tempShow) {
     this.content.show();
   }
-  this.leftMargin_ = this.PLOT_MARGINS.left ;
+  this.leftMargin_ = this.plotMargins().left;
   if (this.options.yTicks) {
     this.drawYAxis_();
     var maxLength = 0;
@@ -310,7 +316,7 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
       }
     );
     if (index in this.selected) {
-      _(prop).extend(this.selectedProperties);
+      _.extend(prop, this.selectedProperties);
       for (var p in this.selectedMultiplier) {
         if (p in prop) {
           prop[p] *= this.selectedMultiplier[p];
@@ -332,7 +338,7 @@ visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
     .data(itemProps, _.getValue('index'));
   points.enter().append('circle')
     .attr('id', _.getValue('index'));
-  _(points.exit()).fadeOut();
+  _.fadeOut(points.exit());
 
   var updatedPoints = this.transitionFeasible() ? points.transition() : points;
   updatedPoints
@@ -362,7 +368,7 @@ visflow.Scatterplot.prototype.drawXAxis_ = function() {
     scaleType: this.xScaleType,
     classes: 'x axis',
     orient: 'bottom',
-    ticks: this.DEFAULT_TICKS_,
+    ticks: this.DEFAULT_TICKS,
     noTicks: !this.options.xTicks,
     transform: visflow.utils.getTransform([
       0,
@@ -371,8 +377,8 @@ visflow.Scatterplot.prototype.drawXAxis_ = function() {
     label: {
       text: data.dimensions[this.options.xDim],
       transform: visflow.utils.getTransform([
-        svgSize.width - this.PLOT_MARGINS.right,
-        -this.LABEL_OFFSET_
+        svgSize.width - this.plotMargins().right,
+        -this.LABEL_OFFSET
       ])
     }
   });
@@ -390,7 +396,7 @@ visflow.Scatterplot.prototype.drawYAxis_ = function() {
     scaleType: this.yScaleType,
     classes: 'y axis',
     orient: 'left',
-    ticks: this.DEFAULT_TICKS_,
+    ticks: this.DEFAULT_TICKS,
     noTicks: !this.options.yTicks,
     transform: visflow.utils.getTransform([
       this.leftMargin_,
@@ -399,8 +405,8 @@ visflow.Scatterplot.prototype.drawYAxis_ = function() {
     label: {
       text: data.dimensions[this.options.yDim],
       transform: visflow.utils.getTransform([
-        this.LABEL_OFFSET_,
-        this.PLOT_MARGINS.top
+        this.LABEL_OFFSET,
+        this.plotMargins().top
       ], 1, 90)
     }
   });
@@ -422,18 +428,20 @@ visflow.Scatterplot.prototype.prepareScales = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items,
       data = inpack.data;
+  var margins = this.plotMargins();
 
   this.updateBottomMargin_();
 
   var svgSize = this.getSVGSize();
   var yRange = [
     svgSize.height - this.bottomMargin_,
-    this.PLOT_MARGINS.top
+    margins.top
   ];
-  var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items, yRange, {
-    domainMargin: this.options.yMargin,
-    ordinalPadding: 1.0
-  });
+  var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
+    yRange, {
+      domainMargin: this.options.yMargin,
+      ordinalPadding: 1.0
+    });
   this.yScale = yScaleInfo.scale;
   this.yScaleType = yScaleInfo.type;
 
@@ -444,20 +452,21 @@ visflow.Scatterplot.prototype.prepareScales = function() {
 
   var xRange = [
     this.leftMargin_,
-    svgSize.width - this.PLOT_MARGINS.right
+    svgSize.width - margins.right
   ];
-  var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items, xRange, {
-    domainMargin: this.options.xMargin,
-    ordinalPadding: 1.0
-  });
+  var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items,
+    xRange, {
+      domainMargin: this.options.xMargin,
+      ordinalPadding: 1.0
+    });
   this.xScale = xScaleInfo.scale;
   this.xScaleType = xScaleInfo.type;
 };
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.transitionFeasible = function() {
-  return this.allowTransition_ &&
-    this.itemProps_.length < this.TRANSITION_ELEMENT_LIMIT_;
+  return this.allowTransition &&
+    this.itemProps_.length < this.TRANSITION_ELEMENT_LIMIT;
 };
 
 /**

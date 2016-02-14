@@ -28,10 +28,15 @@ visflow.Edge = function(params) {
   this.contextMenu();
 };
 
-/** @const {!Array<!visflow.contextMenu.Item>} */
-visflow.Edge.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
-];
+/**
+ * Returns the constant array of edge contextmenu items.
+ * @return {!Array<!visflow.contextMenu.Item>}
+ */
+visflow.Edge.prototype.contextMenuItems = function() {
+  return [
+    {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
+  ];
+};
 
 /**
  * Prepares contextMenu for the edge.
@@ -39,7 +44,7 @@ visflow.Edge.prototype.CONTEXTMENU_ITEMS = [
 visflow.Edge.prototype.contextMenu = function() {
   var contextMenu = new visflow.ContextMenu({
     container: this.container,
-    items: this.CONTEXTMENU_ITEMS
+    items: this.contextMenuItems()
   });
 
   $(contextMenu)
@@ -119,8 +124,8 @@ visflow.Edge.prototype.update = function() {
     up: wArrow,
     down: -wArrow - 5
   };
-  // edge segment has height, the anchor point is considered to be
-  // at the middle of the segment, we need to shift this biase when computing position
+  // Edge segment has height. The anchor point is considered to be at the middle
+  // of the segment. We need to shift this biase when computing position.
   sx -= hseg / 2;
   ex -= hseg / 2;
   sy -= hseg / 2;
@@ -200,13 +205,14 @@ visflow.Edge.prototype.update = function() {
         sourceYrange[1] >= targetYrange[0]) {
        // two nodes have intersecting y range, get around
        if (yDir == 'up') {
-         midy = targetYrange[0] - 20; // up is from human view (reversed screen coordinate)
+         // up is from human view (reversed screen coordinate)
+         midy = targetYrange[0] - 20;
        } else {
          midy = targetYrange[1] + 20;
        }
     } else {
-      midy = (Math.max(sourceYrange[0], targetYrange[0])
-      + Math.min(sourceYrange[1], targetYrange[1]))/2;
+      midy = (Math.max(sourceYrange[0], targetYrange[0]) +
+        Math.min(sourceYrange[1], targetYrange[1])) / 2;
     }
     // 2 turns
     var headWidth = Math.abs(midy - sy);
@@ -280,4 +286,12 @@ visflow.Edge.prototype.keyAction = function(key) {
     visflow.flow.deleteEdge(this);
     visflow.viewManager.clearEdgeHover();
   }
+};
+
+/**
+ * Gets the edge container.
+ * @return {!jQuery}
+ */
+visflow.Edge.prototype.getContainer = function() {
+  return this.container;
 };

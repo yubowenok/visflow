@@ -17,6 +17,7 @@ visflow.Box;
  * Initializes the utils. Creates underscore mixins.
  */
 visflow.utils.init = function() {
+  // This requires externs to be added for underscore.
   _.mixin({
     keySet: visflow.utils.keySet_,
     getValue: visflow.utils.getValue_,
@@ -26,14 +27,14 @@ visflow.utils.init = function() {
 
 /**
  * Gets event offset corresponding to a given element 'e'.
- * @param {!jQuery.event} event
- * @param {!jQuery} e
+ * @param {!jQuery.Event} event
+ * @param {!jQuery} element
  * @return {{left: number, top: number}} Offset computed.
  */
-visflow.utils.getOffset = function(event, e) {
-  var offset = e.offset();
-  var paddingLeft = parseInt(e.css('padding-left'));
-  var paddingTop = parseInt(e.css('padding-top'));
+visflow.utils.getOffset = function(event, element) {
+  var offset = element.offset();
+  var paddingLeft = parseInt(element.css('padding-left'), 10);
+  var paddingTop = parseInt(element.css('padding-top'), 10);
   return {
     left: event.pageX - offset.left - paddingLeft,
     top: event.pageY - offset.top - paddingTop
@@ -44,6 +45,7 @@ visflow.utils.getOffset = function(event, e) {
  * Gets the offset of an element 'e1' relative to another element 'e2'.
  * @param {!jQuery} e1
  * @param {!jQuery} e2
+ * @return {{left: number, top: number}}
  */
 visflow.utils.offset = function(e1, e2) {
   var offset1 = e1.offset(), offset2 = e2.offset();
@@ -56,6 +58,7 @@ visflow.utils.offset = function(e1, e2) {
 /**
  * Gets the offset of an element relative to '#main'.
  * @param {!jQuery} e
+ * @return {{left: number, top: number}}
  */
 visflow.utils.offsetMain = function(e) {
   return visflow.utils.offset(e, $('#main'));
@@ -65,6 +68,7 @@ visflow.utils.offsetMain = function(e) {
  * Checks whether a point is inside a box, 2D.
  * @param {!visflow.Point} point
  * @param {!visflow.Box} box
+ * @return {boolean}
  */
 visflow.utils.pointInBox = function(point, box) {
   return box.x1 <= point.x && point.x <= box.x2 &&
@@ -86,9 +90,11 @@ visflow.utils.randomString = function(len) {
  * @param {!Array<number>} p2
  * @param {!Array<number>} q1
  * @param {!Array<number>} q2
+ * @return {boolean}
  */
 visflow.utils.intersect = function(p1, p2, q1, q2) {
-  return this.twosides(p1, p2, q1, q2) && this.twosides(q1, q2, p1, p2);
+  return visflow.utils.twosides(p1, p2, q1, q2) &&
+    visflow.utils.twosides(q1, q2, p1, p2);
 };
 
 /**
@@ -129,14 +135,16 @@ visflow.utils.isColor = function(color) {
 
 /**
  * Compares array or number lexicographically.
- * @param {number|!Array<number>} a
- * @param {number|!Array<number>} b
+ * @param {number|string|!Array<number>} a
+ * @param {number|string|!Array<number>} b
  * @return {number} -1, 0, 1 for a < b, a = b and a > b.
  */
 visflow.utils.compare = function(a, b) {
   if (a instanceof Array) {
-    if (a.length != b.length)
-      return visflow.error('array length not match');
+    if (a.length != b.length) {
+      visflow.error('array length not match');
+      return a.length - b.length;
+    }
     for (var i = 0; i < a.length; i++) {
       if (a < b) return -1;
       else if (a > b) return 1;
@@ -152,11 +160,12 @@ visflow.utils.compare = function(a, b) {
 /**
  * Hashes a string.
  * @param {string} s
- * @return {number} Hash value between [0, 1000000007).
+ * @return {number} Hash value between [0, 1000000007), or -1 on error.
  */
-  visflow.utils.hashString = function(s) {
+visflow.utils.hashString = function(s) {
   if (typeof s != 'string') {
-    return visflow.error('x is not a string to hash');
+    visflow.error('x is not a string to hash');
+    return -1;
   }
   var a = 3, p = 1000000007;
   var result = 0;
@@ -204,18 +213,18 @@ visflow.utils.propertiesCompareKey = function(properties) {
     } else {
       result.push(p);
     }
-  }, this);
+  });
   return result;
 };
 
 /**
  * Compares two rendering property objects.
  * @param {!{
- *   properties: !Object
+ *   properties: !Object,
  *   propertiesKey: !Array<string|number>
  * }} a
  * @param {!{
- *   properties: !Object
+ *   properties: !Object,
  *   propertiesKey: !Array<string|number>
  * }} b
  * @return {number} -1, 0, 1 for a < b, a = b, a > b
@@ -245,14 +254,15 @@ visflow.utils.standardURL = function(url) {
 /**
  * Converts an array of string or object with string keys to a set with strings
  * as keys. The values will be set to all true.
- * @param {!Array<string>|!Object<*>} collection
- * @return {!Object<boolean>}
+ * @param {!Array<T>|!Object<T>} collection
+ * @return {!Object<T, boolean>}
+ * @template T
  * @private
  */
 visflow.utils.keySet_ = function(collection) {
   var obj = {};
   if (collection instanceof Array) {
-    collection.forEach(function (element) {
+    collection.forEach(function(element) {
       obj[element] = true;
     });
   } else {
@@ -277,7 +287,7 @@ visflow.utils.getValue_ = function(key) {
 
 /**
  * Fades out a D3 selection by opacity change.
- * @param {!d3.selection} obj
+ * @param {!d3} obj
  * @private
  */
 visflow.utils.fadeOut_ = function(obj) {
@@ -288,7 +298,7 @@ visflow.utils.fadeOut_ = function(obj) {
 
 /**
  * Makes 'child' class inherit 'base' class.
- * @param {*} child
+ * @param {Function} child
  * @param {*} base
  */
 visflow.utils.inherit = function(child, base) {
@@ -298,11 +308,11 @@ visflow.utils.inherit = function(child, base) {
 };
 
 // Extend sorting to support custom types.
-$.fn.dataTable.ext.type.order['data-size-pre'] = function (d) {
-  var unit = d.replace( /[\d\.\s]/g, '' ).toLowerCase();
+$.fn.dataTable.ext.type.order['data-size-pre'] = function(d) {
+  var unit = d.replace(/[\d\.\s]/g, '').toLowerCase();
   var base = 1000;
   var multiplier = 1;
-  switch(unit) {
+  switch (unit) {
     case 'mb':
       multiplier *= base;
     case 'kb':

@@ -10,7 +10,7 @@ visflow.upload = {};
 /** @private @const {string} */
 visflow.upload.TEMPLATE_ = './src/upload/upload-dialog.html';
 
-/** @private {?function} */
+/** @private {?Function} */
 visflow.upload.complete_ = null;
 
 /**
@@ -32,7 +32,7 @@ visflow.upload.dialog = function() {
 
 /**
  * Creates an upload dialog for the exported data.
- * @param {!visflow.Package}
+ * @param {!visflow.Package} pack
  */
 visflow.upload.export = function(pack) {
   visflow.upload.exportPackage_ = pack;
@@ -45,7 +45,7 @@ visflow.upload.export = function(pack) {
 /**
  * Adds a data upload complete callback which will be fired once after a
  * successful data load.
- * @param {function} complete
+ * @param {Function} complete
  */
 visflow.upload.setComplete = function(complete) {
   visflow.upload.complete_ = complete;
@@ -99,7 +99,7 @@ visflow.upload.initDialog_ = function(dialog) {
     }
 
     var formData = new FormData();
-    var name = dataName.val();
+    var name = /** @type {string} */(dataName.val());
     formData.append('name', name);
     formData.append('file', selectedFile);
 
@@ -156,7 +156,8 @@ visflow.upload.initExportDialog_ = function(dialog) {
     var name = dataName.val();
     $.post('./server/export.php', {
       name: name,
-      file: pack.data.file + '_' + CryptoJS.SHA1(name).toString().substr(0, 8),
+      file: pack.data.file + '_' + CryptoJS.SHA256(name)
+        .toString().substr(0, 8),
       data: csv
     }).done(function(res) {
         if (!res.success) {

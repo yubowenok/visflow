@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Node}
  */
@@ -14,13 +14,13 @@ visflow.ValueExtractor = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.Port({
+    'in': new visflow.Port({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -58,9 +58,11 @@ visflow.ValueExtractor.prototype.MAX_HEIGHT = 53;
 visflow.ValueExtractor.prototype.NO_DATA_STRING = 'No Data';
 
 /** @inheritDoc */
-visflow.ValueExtractor.prototype.DEFAULT_OPTIONS = {
-  // Dimensions from which to extract values.
-  dims: []
+visflow.ValueExtractor.prototype.defaultOptions = function() {
+  return {
+    // Dimensions from which to extract values.
+    dims: []
+  };
 };
 
 /** @inheritDoc */
@@ -154,7 +156,7 @@ visflow.ValueExtractor.prototype.process = function() {
     });
   }
 
-  _(allValues).allKeys().map(function(val) {
+  _.allKeys(allValues).map(function(val) {
     // insert each value into constants
     outpack.add(val);
   }, this);

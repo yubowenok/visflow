@@ -5,12 +5,18 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Set}
  */
 visflow.Union = function(params) {
   visflow.Union.base.constructor.call(this, params);
+
+  /**
+   * @type {!Array<!visflow.Port|!visflow.MultiplePort>}
+   * @override
+   */
+  this.ports;
 };
 
 visflow.utils.inherit(visflow.Union, visflow.Set);
@@ -51,7 +57,7 @@ visflow.Union.prototype.process = function() {
       var item = inpack.items[index];
       if (itemout != null) {
         // Merge rendering properties.
-        _(itemout.properties).extend(item.properties);
+        _.extend(itemout.properties, item.properties);
       } else {
         outpack.items[index] = {
           properties: _.extend({}, item.properties)

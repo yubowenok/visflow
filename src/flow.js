@@ -23,17 +23,68 @@ visflow.flow.visMode = false;
 visflow.flow.deserializing = false;
 
 /**
+ * Selected diagram nodes.
+ * @type {!Object<!visflow.Node>}
+ */
+visflow.flow.nodesSelected = {};
+
+/**
+ * Hovered diagram nodes.
+ * @type {!Object<!visflow.Node>}
+ */
+visflow.flow.nodesHovered = {};
+
+/**
+ * Selected diagram edge.
+ * @type {visflow.Edge}
+ */
+visflow.flow.edgeSelected = null;
+
+/**
+ * Diagram nodes.
+ * @type {!Object<!visflow.Node>}
+ */
+visflow.flow.nodes = {};
+
+/**
+ * Diagram edges.
+ * @type {!Object<!visflow.Edge>}
+ */
+visflow.flow.edges = {};
+
+/**
+ * Data sources in the diagram, which appear first in topological order.
+ * @type {!Array<!visflow.Node>}
+ */
+visflow.flow.dataSources = [];
+
+/**
+ * Default properties for non-vismode elements when vismode is on.
+ * @private @const {!Object}
+ */
+visflow.flow.VISMODE_ON_CSS_ = {
+  opacity: 0
+};
+
+/**
+ * Default properties for non-vismode elements when vismode is off.
+ * @private @const {!Object}
+ */
+visflow.flow.VISMODE_OFF_CSS_ = {
+  opacity: 1
+};
+
+/**
  * Initializes flow manager.
  */
 visflow.flow.init = function() {
-  this.resetFlow();
+  visflow.flow.resetFlow();
 };
 
 /**
  * Resets the loaded flow.
  */
 visflow.flow.resetFlow = function() {
-
   // Clear visMode.
   visflow.flow.visMode = false;
   visflow.menu.updateVisMode();
@@ -61,7 +112,7 @@ visflow.flow.resetFlow = function() {
 
 /**
  * Mapping from node type to node constructor.
- * @const @private {!Object<*>}
+ * @const @private {!Object<Function>}
  */
 visflow.flow.NODE_CONSTRUCTORS_ = {
   dataSource: visflow.DataSource,
@@ -95,7 +146,8 @@ visflow.flow.OBSOLETE_TYPES_ = {
 /**
  * Creates a node of given type.
  * @param {string} type
- * @param {Object} nodeSave Saved node data for de-serialization.
+ * @param {Object=} save Saved node data for de-serialization.
+ * @return {visflow.Node}
  */
 visflow.flow.createNode = function(type, save) {
   // Convert to camel case. HTML use dash separated strings.
@@ -109,38 +161,36 @@ visflow.flow.createNode = function(type, save) {
   }
 
   // Gets the node constructor.
-  if (!(type in this.NODE_CONSTRUCTORS_)) {
+  if (!(type in visflow.flow.NODE_CONSTRUCTORS_)) {
     visflow.error('unknown node type', type);
-    return;
+    return null;
   }
-  var nodeConstructor = this.NODE_CONSTRUCTORS_[type];
+  var nodeConstructor = visflow.flow.NODE_CONSTRUCTORS_[type];
 
-  _(params).extend({
-    id: ++this.nodeCounter,
+  _.extend(params, {
+    id: ++visflow.flow.nodeCounter,
     type: type,
     container: visflow.viewManager.createNodeContainer()
   });
   var newNode = new nodeConstructor(params);
-  $(newNode).on('visflow.ready',
-    /** @this {!visflow.Node} */
-    function() {
-      if (save) {
-        // If node is created from diagram loading, then de-serialize.
-        this.deserialize(save);
-        this.loadCss();
-      }
-      this.show();
-      this.focus();
-      if (save) {
-        // Node size might be de-serialized from save and a resize event must be
-        // explicitly fired in order to re-draw correctly.
-        this.resize();
-      }
-    }.bind(newNode));
+  $(newNode).on('visflow.ready', function() {
+    if (save) {
+      // If node is created from diagram loading, then de-serialize.
+      this.deserialize(save);
+      this.loadCss();
+    }
+    this.show();
+    this.focus();
+    if (save) {
+      // Node size might be de-serialized from save and a resize event must be
+      // explicitly fired in order to re-draw correctly.
+      this.resize();
+    }
+  }.bind(newNode));
 
-  this.nodes[newNode.id] = newNode;
+  visflow.flow.nodes[newNode.id] = newNode;
   if (type == 'dataSource' || type == 'valueMaker') {
-    this.dataSources.push(newNode);
+    visflow.flow.dataSources.push(newNode);
   }
   // Select newNode (exclusive) after node creation.
   visflow.flow.clearNodeSelection();
@@ -151,7 +201,7 @@ visflow.flow.createNode = function(type, save) {
 /**
  * Creates an edge in the flow from 'sourcePort' to 'targetPort'.
  * @param {!visflow.Port} sourcePort
- * @param targetPort
+ * @param {!visflow.Port} targetPort
  * @return {visflow.Edge}
  */
 visflow.flow.createEdge = function(sourcePort, targetPort) {
@@ -161,12 +211,12 @@ visflow.flow.createEdge = function(sourcePort, targetPort) {
   var con = sourcePort.connectable(targetPort);
 
   if (!con.connectable) {
-    visflow.tooltip.create(con.reason);
+    visflow.tooltip.create(/** @type {string} */(con.reason));
     return null;
   }
 
   var newedge = new visflow.Edge({
-    id: ++this.edgeCounter,
+    id: ++visflow.flow.edgeCounter,
     sourceNode: sourceNode,
     sourcePort: sourcePort,
     targetNode: targetNode,
@@ -178,7 +228,7 @@ visflow.flow.createEdge = function(sourcePort, targetPort) {
   sourcePort.connect(newedge);
   targetPort.connect(newedge);
 
-  this.edges[newedge.id] = newedge;
+  visflow.flow.edges[newedge.id] = newedge;
   return newedge;
 };
 
@@ -187,22 +237,15 @@ visflow.flow.createEdge = function(sourcePort, targetPort) {
  * @param {!visflow.Node} node
  */
 visflow.flow.deleteNode = function(node) {
-  for (var key in node.ports) {
-    var port = node.ports[key];
-    var connections = port.connections.slice();
-    // cannot use port.connections, because the length is changing
-    for (var i in connections) {
-      this.deleteEdge(connections[i]);
-    }
-  }
-  if (this.lastSelectedNode == node) {
-    this.lastSelectedNode = null;
+  node.removeEdges();
+  if (visflow.flow.lastSelectedNode == node) {
+    visflow.flow.lastSelectedNode = null;
   }
   // Must first clear then toggle false. Otherwise the panel will not get
   // correct left offset (as its width changes).
   visflow.optionPanel.close();
   node.remove();  // removes the container
-  delete this.nodes[node.id];
+  delete visflow.flow.nodes[node.id];
 };
 
 /**
@@ -227,7 +270,7 @@ visflow.flow.deleteEdge = function(edge) {
 
   // Remove the container
   edge.remove();
-  
+
   delete visflow.flow.edges[edge.id];
 };
 
@@ -235,6 +278,7 @@ visflow.flow.deleteEdge = function(edge) {
  * Checks if connecting 'sourceNode' to 'targetNode' will result in a cycle.
  * @param {!visflow.Node} sourceNode
  * @param {!visflow.Node} targetNode
+ * @return {boolean}
  */
 visflow.flow.cycleTest = function(sourceNode, targetNode) {
   var visited = {};
@@ -260,7 +304,7 @@ visflow.flow.cycleTest = function(sourceNode, targetNode) {
 
 /**
  * Propagates result starting from a given node.
- * @param {!visflow.Node} node
+ * @param {!(visflow.Node|Array<!visflow.Node>)} node
  */
 visflow.flow.propagate = function(node) {
   if (visflow.flow.deserializing) {
@@ -314,11 +358,11 @@ visflow.flow.serializeFlow = function() {
     nodes: [],
     edges: []
   };
-  for (var i in this.nodes) {
-    result.nodes.push(this.nodes[i].serialize());
+  for (var i in visflow.flow.nodes) {
+    result.nodes.push(visflow.flow.nodes[i].serialize());
   }
-  for (var i in this.edges) {
-    result.edges.push(this.edges[i].serialize());
+  for (var i in visflow.flow.edges) {
+    result.edges.push(visflow.flow.edges[i].serialize());
   }
   return result;
 };
@@ -328,7 +372,7 @@ visflow.flow.serializeFlow = function() {
  * @param {!Object} flow
  */
 visflow.flow.deserializeFlow = function(flow) {
-  this.clearFlow();
+  visflow.flow.clearFlow();
 
   visflow.flow.deserializing = true;  // temporarily switch off propagation
 
@@ -371,7 +415,7 @@ visflow.flow.deserializeFlow = function(flow) {
 
 /**
  * De-serializes the flow edges.
- * @param {!Object} flows
+ * @param {!Object} flow
  * @param {!Object<!visflow.Node>} hashes
  * @private
  */
@@ -379,35 +423,20 @@ visflow.flow.deserializeFlowEdges_ = function(flow, hashes) {
   flow.edges.forEach(function(edgeSaved) {
     var sourceNode = hashes[edgeSaved.sourceNodeHash],
       targetNode = hashes[edgeSaved.targetNodeHash];
-    var sourcePort = sourceNode.ports[edgeSaved.sourcePortId],
-      targetPort = targetNode.ports[edgeSaved.targetPortId];
+    var sourcePort = sourceNode.getPort(edgeSaved.sourcePortId),
+      targetPort = targetNode.getPort(edgeSaved.targetPortId);
 
     visflow.assert(sourceNode != null);
     visflow.assert(targetNode != null);
 
     if (targetPort == null) {
       visflow.error('old version found, port id may have changed');
-      targetPort = targetNode.ports['in'];
+      targetPort = targetNode.getPort('in');
     }
-    this.createEdge(sourcePort, targetPort);
-  }, this);
+    visflow.flow.createEdge(sourcePort, targetPort);
+  });
   visflow.flow.deserializing = false; // full propagation
-  this.propagate(this.dataSources);
-};
-
-/**
- * Default properties for non-vismode elements when vismode is on.
- * @private @const {!Object}
- */
-visflow.flow.VISMODE_ON_CSS_ = {
-  opacity: 0
-};
-/**
- * Default properties for non-vismode elements when vismode is off.
- * @private @const {!Object}
- */
-visflow.flow.VISMODE_OFF_CSS_ = {
-  opacity: 1
+  visflow.flow.propagate(visflow.flow.dataSources);
 };
 
 /**
@@ -417,29 +446,29 @@ visflow.flow.VISMODE_OFF_CSS_ = {
 visflow.flow.previewVisMode = function(state) {
   if (state) {
     // Save the css, as animation will move the nodes' positions.
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      node.container.stop(true, true);
+    for (var id in visflow.flow.nodes) {
+      var node = visflow.flow.nodes[id];
+      node.getContainer().stop(true, true);
       node.saveCss();
     }
 
-    for (var id in this.edges) {
-      var edge = this.edges[id];
-      edge.container
+    for (var id in visflow.flow.edges) {
+      var edge = visflow.flow.edges[id];
+      edge.getContainer()
         .stop(true, true)
         .animate(visflow.flow.VISMODE_ON_CSS_);
     }
-    for (var id in this.nodes){
-      var node = this.nodes[id];
-      if (node.options.visMode) {
+    for (var id in visflow.flow.nodes) {
+      var node = visflow.flow.nodes[id];
+      if (node.getOption('visMode')) {
         node.hidePorts();
-        node.container
+        node.getContainer()
           .stop(true)
           .animate(node.visCss, function() {
             // Enable visMode so that the view temporarily gets the correct
             // visMode size.
             visflow.flow.visMode = true;
-            if (this.options.minimized) {
+            if (this.getOption('minimized')) {
               this.backMinimized = true;
               this.setMinimized(false);
             }
@@ -447,39 +476,39 @@ visflow.flow.previewVisMode = function(state) {
             visflow.flow.visMode = false;
           }.bind(node));
       } else {
-        node.container
+        node.getContainer()
           .stop(true)
           .animate(visflow.flow.VISMODE_ON_CSS_);
       }
     }
   } else {
-    for (var id in this.edges) {
-      var edge = this.edges[id];
-      edge.container
+    for (var id in visflow.flow.edges) {
+      var edge = visflow.flow.edges[id];
+      edge.getContainer()
         .stop(true)
         .animate(visflow.flow.VISMODE_OFF_CSS_);
     }
-    for (var id in this.nodes){
-      var node = this.nodes[id];
-      if (node.options.visMode) {
+    for (var id in visflow.flow.nodes) {
+      var node = visflow.flow.nodes[id];
+      if (node.getOption('visMode')) {
         var css = node.css;
         if (node.backMinimized) {
           node.backMinimized = false;
-          css = _(css).pick('left', 'top');
+          css = _.pick(css, 'left', 'top');
           node.setMinimized(true);
-        } else if (node.options.minimized) {
+        } else if (node.getOption('minimized')) {
           // Already set minimized by toggleVisMode.
           continue;
         }
         node.showPorts();
-        node.container
+        node.getContainer()
           .stop(true)
           .animate(css, function() {
             this.updateContent();
             this.updatePorts();
           }.bind(node));
       } else {
-        node.container
+        node.getContainer()
           .stop(true)
           .animate(visflow.flow.VISMODE_OFF_CSS_);
       }
@@ -494,50 +523,50 @@ visflow.flow.toggleVisMode = function() {
   if (!visflow.flow.visMode) {
     // Do not save css as they have been saved in preview.
     visflow.flow.visMode = true;
-    for (var id in this.edges) {
-      var edge = this.edges[id];
-      edge.container
+    for (var id in visflow.flow.edges) {
+      var edge = visflow.flow.edges[id];
+      edge.getContainer()
         .stop(true)
         .animate(visflow.flow.VISMODE_ON_CSS_, edge.hide.bind(edge));
     }
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      if (node.options.visMode) {
-        node.container
+    for (var id in visflow.flow.nodes) {
+      var node = visflow.flow.nodes[id];
+      if (node.getOption('visMode')) {
+        node.getContainer()
           .stop(true)
           .animate(node.visCss, function() {
-            if (this.options.minimized) {
+            if (this.getOption('minimized')) {
               this.backMinimized = true;
               this.setMinimized(false);
             }
             this.updateContent();
           }.bind(node));
       } else {
-        node.container
+        node.getContainer()
           .stop(true)
           .animate(visflow.flow.VISMODE_ON_CSS_, node.hide.bind(node));
       }
     }
   } else {
     // First save the current configuration for vismode.
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      node.container.stop(true, true);
+    for (var id in visflow.flow.nodes) {
+      var node = visflow.flow.nodes[id];
+      node.getContainer().stop(true, true);
       node.saveCss();
     }
     // Then change flag.
     visflow.flow.visMode = false;
 
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      if (node.options.visMode) {
+    for (var id in visflow.flow.nodes) {
+      var node = visflow.flow.nodes[id];
+      if (node.getOption('visMode')) {
         var css = node.css;
         if (node.backMinimized) {
           node.backMinimized = false;
           node.setMinimized(true);
-          css = _(node.css).pick('left', 'top');
+          css = _.pick(node.css, 'left', 'top');
         }
-        node.container
+        node.getContainer()
           .stop(true)
           .animate(css, function() {
             this.showPorts();
@@ -546,21 +575,19 @@ visflow.flow.toggleVisMode = function() {
           }.bind(node));
       } else {
         node.show();
-        node.container
+        node.getContainer()
           .stop(true)
           .animate(visflow.flow.VISMODE_OFF_CSS_);
       }
     }
-    for (var id in this.edges) {
-      var edge = this.edges[id];
+    for (var id in visflow.flow.edges) {
+      var edge = visflow.flow.edges[id];
       edge.show();
-      edge.container
+      edge.getContainer()
         .stop(true)
         .animate(visflow.flow.VISMODE_OFF_CSS_);
     }
   }
-
-
   visflow.optionPanel.updateVisMode();
   visflow.nodePanel.updateVisMode();
   visflow.menu.updateVisMode();
@@ -572,7 +599,7 @@ visflow.flow.toggleVisMode = function() {
 visflow.flow.clearFlow = function() {
   // clear screen
   visflow.viewManager.clearFlowViews();
-  this.resetFlow();
+  visflow.flow.resetFlow();
   visflow.optionPanel.close();
 };
 
@@ -582,19 +609,19 @@ visflow.flow.clearFlow = function() {
  */
 visflow.flow.addEdgeSelection = function(edge) {
   // can only select a single edge at a time by hovering
-  this.edgeSelected = edge;
+  visflow.flow.edgeSelected = edge;
 };
 
 /**
  * Clears the edge seletion.
  */
 visflow.flow.clearEdgeSelection = function() {
-  this.edgeSelected = null;
+  visflow.flow.edgeSelected = null;
 };
 
 /**
  * Adds a list of nodes to the node selection.
- * @param {!Array<!visflow.Node>} nodes
+ * @param {!(Array<!visflow.Node>|Object<!visflow.Node>|visflow.Node)} nodes
  */
 visflow.flow.addNodeSelection = function(nodes) {
   var toAdd = {};
@@ -602,27 +629,27 @@ visflow.flow.addNodeSelection = function(nodes) {
     for (var i in nodes) {
       toAdd[nodes[i].id] = nodes[i];
     }
-  } else if (visflow.Node.prototype.isPrototypeOf(nodes)){
+  } else if (visflow.Node.prototype.isPrototypeOf(nodes)) {
     toAdd[nodes.id] = nodes;
   } else {
     toAdd = nodes;
   }
   for (var i in toAdd) {
     var node = toAdd[i];
-    this.nodesSelected[node.id] = node;
+    visflow.flow.nodesSelected[node.id] = node;
     node.container.addClass('selected');
-    this.lastSelectedNode = node;
+    visflow.flow.lastSelectedNode = node;
   }
 };
 
 /**
  * Clears the selection a set of nodes.
- * @param {!Array<!visflow.Node>} nodes
+ * @param {!Array<!visflow.Node>=} nodes
  */
 visflow.flow.clearNodeSelection = function(nodes) {
   var toClear = {};
   if (nodes == null) {
-    toClear = this.nodesSelected;
+    toClear = visflow.flow.nodesSelected;
   } else if (nodes instanceof Array) {
     for (var i in nodes) {
       var node = nodes[i];
@@ -634,10 +661,10 @@ visflow.flow.clearNodeSelection = function(nodes) {
   for (var i in toClear) {
     var node = toClear[i];
     node.container.removeClass('selected');
-    if (node == this.lastSelectedNode) {
-      this.lastSelectedNode = null;
+    if (node == visflow.flow.lastSelectedNode) {
+      visflow.flow.lastSelectedNode = null;
     }
-    delete this.nodesSelected[node.id];
+    delete visflow.flow.nodesSelected[node.id];
   }
 };
 
@@ -659,7 +686,7 @@ visflow.flow.addNodeHover = function(nodes) {
     for (var i in nodes) {
       toAdd[nodes[i].id] = nodes[i];
     }
-  } else if (visflow.Node.prototype.isPrototypeOf(nodes)){
+  } else if (visflow.Node.prototype.isPrototypeOf(nodes)) {
     toAdd[nodes.id] = nodes;
   } else {
     toAdd = nodes;
@@ -667,18 +694,18 @@ visflow.flow.addNodeHover = function(nodes) {
   for (var i in toAdd) {
     var node = toAdd[i];
     node.container.addClass('hover');
-    this.nodesHovered[node.id] = node;
+    visflow.flow.nodesHovered[node.id] = node;
   }
 };
 
 /**
  * Clears the hovering of a set of nodes.
- * @param {!Array<!visflow.Node>} nodes
+ * @param {!Array<!visflow.Node>=} nodes
  */
 visflow.flow.clearNodeHover = function(nodes) {
   var toClear = {};
   if (nodes == null) {
-    toClear = this.nodesHovered;
+    toClear = visflow.flow.nodesHovered;
   } else if (nodes instanceof Array) {
     for (var i in nodes) {
       var node = nodes[i];
@@ -690,28 +717,28 @@ visflow.flow.clearNodeHover = function(nodes) {
   for (var i in toClear) {
     var node = toClear[i];
     node.container.removeClass('hover');
-    delete this.nodesHovered[node.id];
+    delete visflow.flow.nodesHovered[node.id];
   }
 };
 
 /**
  * Gets the nodes currently inside the selection box (box has not yet been
- * released}.
- * @param {!Object} selectbox
+ * released).
+ * @param {{left: number, top: number, width: number, height: number}} selectbox
  * @return {!Array<!visflow.Node>}
  */
 visflow.flow.getNodesInSelectbox = function(selectbox) {
   var result = [];
-  for (var i in this.nodes) {
-    var container = this.nodes[i].container;
+  for (var i in visflow.flow.nodes) {
+    var container = visflow.flow.nodes[i].getContainer();
     var box1 = {
-      width: container.width(),
-      height: container.height(),
+      width: /** @type {number} */(container.width()),
+      height: /** @type {number} */(container.height()),
       left: container.position().left,
       top: container.position().top
     };
     if (visflow.viewManager.intersectBox(box1, selectbox)) {
-      result.push(this.nodes[i]);
+      result.push(visflow.flow.nodes[i]);
     }
   }
   return result;
@@ -721,26 +748,27 @@ visflow.flow.getNodesInSelectbox = function(selectbox) {
  * Adds the currently hovered nodes to selection.
  */
 visflow.flow.addHoveredToSelection = function() {
-  this.addNodeSelection(this.nodesHovered);
-  this.clearNodeHover();
+  visflow.flow.addNodeSelection(visflow.flow.nodesHovered);
+  visflow.flow.clearNodeHover();
 };
 
 /**
  * Moves a set of nodes by (dx, dy)
  * @param {number} dx
  * @param {number} dy
- * @param {!Array<!visflow.Node>} nodes
+ * @param {!Object<!visflow.Node>} nodes
  */
 visflow.flow.moveNodes = function(dx, dy, nodes) {
   for (var id in nodes) {
     var node = nodes[id];
-    if (visflow.flow.visMode && !node.options.visMode) {
+    if (visflow.flow.visMode && !node.getOption('visMode')) {
       // Prevent moving non-vismode nodes in vismode.
       continue;
     }
-    var x = node.container.position().left,
-        y = node.container.position().top;
-    node.container.css({
+    var container = node.getContainer();
+    var x = container.position().left,
+        y = container.position().top;
+    container.css({
       left: x + dx,
       top: y + dy
     });
@@ -754,16 +782,16 @@ visflow.flow.moveNodes = function(dx, dy, nodes) {
  * @return {boolean}
  */
 visflow.flow.isNodeSelected = function(node) {
-  return this.nodesSelected[node.id] != null;
+  return visflow.flow.nodesSelected[node.id] != null;
 };
 
 /**
  * Passes key actions to selected nodes and edge.
  * @param {string} key
- * @param {!jQuery.event} event
+ * @param {!jQuery.Event} event
  */
 visflow.flow.keyAction = function(key, event) {
-  switch(key) {
+  switch (key) {
     case 'ctrl+E':
       visflow.diagram.new();
       event.preventDefault();
@@ -778,13 +806,13 @@ visflow.flow.keyAction = function(key, event) {
       break;
     default:
       // Edge and node selection are exclusive.
-      if (this.edgeSelected == null) {
-        for (var id in this.nodesSelected) {
-          var node = this.nodesSelected[id];
+      if (visflow.flow.edgeSelected == null) {
+        for (var id in visflow.flow.nodesSelected) {
+          var node = visflow.flow.nodesSelected[id];
           node.keyAction(key, event);
         }
       } else {
-        this.edgeSelected.keyAction(key, event);
+        visflow.flow.edgeSelected.keyAction(key);
       }
   }
 };

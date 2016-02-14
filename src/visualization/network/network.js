@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -16,39 +16,39 @@ visflow.Network = function(params) {
    * Network has special in/out ports to handle nodes and edges separately.
    */
   this.ports = {
-    in: new visflow.Port({
+    'in': new visflow.Port({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false,
       text: 'input nodes'
     }),
-    inEdges: new visflow.Port({
+    'inEdges': new visflow.Port({
       node: this,
       id: 'inEdges',
       isInput: true,
       isConstants: false,
       text: 'input edges'
     }),
-    outs: new visflow.SelectionPort({
+    'outs': new visflow.SelectionPort({
       node: this,
       id: 'outs',
       text: 'selected nodes',
     }),
-    outsEdges: new visflow.SelectionPort({
+    'outsEdges': new visflow.SelectionPort({
       node: this,
       id: 'outsEdges',
       text: 'selected edges',
       fromPort: 'inEdges'
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
       isConstants: false,
       text: 'output nodes',
     }),
-    outEdges: new visflow.MultiplePort({
+    'outEdges': new visflow.MultiplePort({
       node: this,
       id: 'outEdges',
       isInput: false,
@@ -105,17 +105,17 @@ visflow.Network = function(params) {
 
   /**
    * SVG group for nodes.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgNodes_;
   /**
    * SVG group for edges.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgEdges_;
   /**
    * SVG group for node labels.
-   * @private {d3.selection}
+   * @private {d3}
    */
   this.svgNodeLabels_;
 };
@@ -131,62 +131,86 @@ visflow.Network.prototype.PANEL_TEMPLATE =
     './src/visualization/network/network-panel.html';
 
 /** @inheritDoc */
-visflow.Network.prototype.defaultProperties = {
-  color: '#555',
-  border: 'black',
-  width: 2,
-  size : 5
+visflow.Network.prototype.defaultProperties = function() {
+  return {
+    color: '#555',
+    border: 'black',
+    width: 2,
+    size: 5
+  };
 };
 
 /**
  * Default network related options.
- * @const {!Object}
+ * @return {!Object}
+ * @protected
  */
-visflow.Network.prototype.DEFAULT_OPTIONS = {
-  // Whether to show label.
-  nodeLabel: true,
-  // Which dimension is used as label.
-  labelBy: 0,
-  // D3 force-directed layout force charge.
-  charge: -10000,
-  // Node identifier corresponding to edges,
-  nodeIdBy: 0,
-  // Edge dimension used as source (node id).
-  sourceBy: 0,
-  // Edge dimension used as target (node id).
-  targetBy: 1,
-  // Whether navigation is enabled.
-  navigation: false
+visflow.Network.prototype.defaultOptions = function() {
+  return {
+    // Whether to show label.
+    nodeLabel: true,
+    // Which dimension is used as label.
+    labelBy: 0,
+    // D3 force-directed layout force charge.
+    charge: -10000,
+    // Node identifier corresponding to edges,
+    nodeIdBy: 0,
+    // Edge dimension used as source (node id).
+    sourceBy: 0,
+    // Edge dimension used as target (node id).
+    targetBy: 1,
+    // Whether navigation is enabled.
+    navigation: false
+  };
 };
 
 /**
  * Default properties for edges.
- * @protected {!Object<number|string>}
+ * @return {!Object<number|string>}
+ * @protected
  */
-visflow.Network.prototype.defaultEdgeProperties = {
-  width: 1.5,
-  color: '#333'
+visflow.Network.prototype.defaultEdgeProperties = function() {
+  return {
+    width: 1.5,
+    color: '#333'
+  };
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.selectedProperties = {
-  color: 'white',
-  border: '#6699ee'
+visflow.Network.prototype.selectedProperties = function() {
+  return {
+    color: 'white',
+    border: '#6699ee'
+  };
+};
+
+/**
+ * Rendering properties for selected edges.
+ * @return {{color: string}}
+ * @protected
+ */
+visflow.Network.prototype.selectedEdgeProperties = function() {
+  return {
+    color: '#6699ee'
+  };
 };
 
 /** @inheritDoc */
-visflow.Network.prototype.selectedEdgeProperties = {
-  color: '#6699ee'
+visflow.Network.prototype.selectedMultiplier = function() {
+  return {
+    size: 1.2,
+    width: 1.2
+  };
 };
 
-/** @inheritDoc */
-visflow.Network.prototype.selectedMultiplier = {
-  size: 1.2,
-  width: 1.2
+/**
+ * @return {!Array<number>}
+ * @private
+ */
+visflow.Network.prototype.zoomExtent_ = function() {
+  return [.01, 8];
 };
 
-/** @private @const {!Array<number>} */
-visflow.Network.prototype.ZOOM_EXTENT_ = [.01, 8];
 /** @private @const {number} */
 visflow.Network.prototype.NODE_LABEL_SIZE_ = 14;
 /** @private @const {number} */
@@ -206,16 +230,22 @@ visflow.Network.prototype.EDGE_CURVE_SHIFT_ = 0.1;
 
 
 /** @inheritDoc */
-visflow.Network.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'selectAll', text: 'Select All'},
-  {id: 'clearSelection', text: 'Clear Selection'},
-  {id: 'nodeLabel', text: 'Node Label'},
-  {id: 'navigation', text: 'Navigation'},
-  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
-  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-facetime-video'},
-  {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
-  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
-];
+visflow.Network.prototype.contextMenuItems = function() {
+  return [
+    {id: 'selectAll', text: 'Select All'},
+    {id: 'clearSelection', text: 'Clear Selection'},
+    {id: 'nodeLabel', text: 'Node Label'},
+    {id: 'navigation', text: 'Navigation'},
+    {id: 'minimize', text: 'Minimize',
+      icon: 'glyphicon glyphicon-resize-small'},
+    {id: 'visMode', text: 'Visualization Mode',
+      icon: 'glyphicon glyphicon-facetime-video'},
+    {id: 'panel', text: 'Control Panel',
+      icon: 'glyphicon glyphicon-th-list'},
+    {id: 'delete', text: 'Delete',
+      icon: 'glyphicon glyphicon-remove'}
+  ];
+};
 
 /** @inheritDoc */
 visflow.Network.prototype.init = function() {
@@ -228,7 +258,7 @@ visflow.Network.prototype.init = function() {
     .classed('labels render-group', true);
 
   this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(this.ZOOM_EXTENT_)
+    .scaleExtent(this.zoomExtent_())
     .on('zoom', this.zoom.bind(this));
   this.svg.call(this.zoom_);
 };
@@ -259,7 +289,7 @@ visflow.Network.prototype.initContextMenu = function() {
   visflow.Network.base.initContextMenu.call(this);
 
   $(this.contextMenu)
-    .on('visflow.navigation', this.toggleNavigation_.bind(this, null))
+    .on('visflow.navigation', this.toggleNavigation_.bind(this))
     .on('visflow.nodeLabel', this.toggleNodeLabel_.bind(this))
     .on('visflow.beforeOpen', function(event, menuContainer) {
       var nodeLabelIcon = menuContainer.find('#nodeLabel > i');
@@ -426,7 +456,7 @@ visflow.Network.prototype.drawNodes_ = function() {
   var nodes = this.svgNodes_.selectAll('circle')
     .data(this.nodeProps_, _.getValue('id'));
   nodes.enter().append('circle');
-  _(nodes.exit()).fadeOut();
+  _.fadeOut(nodes.exit());
 };
 
 /**
@@ -437,7 +467,7 @@ visflow.Network.prototype.drawNodeLabels_ = function() {
   var labels = this.svgNodeLabels_.selectAll('text')
     .data(this.nodeProps_, _.getValue('id'));
   labels.enter().append('text');
-  _(labels.exit()).fadeOut();
+  _.fadeOut(labels.exit());
 };
 
 /**
@@ -452,7 +482,7 @@ visflow.Network.prototype.drawEdges_ = function() {
     .classed('edge', true);
   edgesEntered.append('path')
     .classed('arrow', true);
-  _(edges.exit()).fadeOut();
+  _.fadeOut(edges.exit());
 };
 
 /**
@@ -534,7 +564,7 @@ visflow.Network.prototype.updateEdges_ = function() {
       visflow.vectors.multiplyVector(dm, this.NODE_SIZE_));
     var p2 = visflow.vectors.addVector(p1,
       visflow.vectors.multiplyVector(ds, this.EDGE_ARROW_LENGTH_));
-    var p3 = visflow.vectors.mirrorPoint(p2, p1, pm, 1);
+    var p3 = visflow.vectors.mirrorPoint(p2, p1, pm);
     return [p1, p2, p3];
   }.bind(this);
 
@@ -571,7 +601,7 @@ visflow.Network.prototype.applyProperties_ = function() {
       }
     );
     if (this.selected[index]) {
-      _(prop).extend(this.selectedProperties);
+      _.extend(prop, this.selectedProperties);
       this.multiplyProperties(prop, this.selectedMultiplier);
     }
     this.nodeProps_.push(prop);
@@ -591,7 +621,7 @@ visflow.Network.prototype.applyProperties_ = function() {
       }
     );
     if (this.selectedEdges[index]) {
-      _(prop).extend(this.selectedEdgeProperties);
+      _.extend(prop, this.selectedEdgeProperties);
       this.multiplyProperties(prop, this.selectedMultiplier);
     }
     this.edgeProps_.push(prop);
@@ -765,7 +795,7 @@ visflow.Network.prototype.processNodes_ = function() {
       this.nodes[index] = {};
     }
     var node = this.nodes[index];
-    _(node).extend({
+    _.extend(node, {
       index: index,
       label: data.values[index][this.options.labelBy]
     });
@@ -818,7 +848,7 @@ visflow.Network.prototype.processEdges_ = function() {
     }
 
     var edge = this.edges[index];
-    _(edge).extend({
+    _.extend(edge, {
       index: index,
       source: this.nodes[sourceIndex],
       target: this.nodes[targetIndex]
@@ -856,7 +886,7 @@ visflow.Network.prototype.validateNetwork = function() {
 /** @inheritDoc */
 visflow.Network.prototype.processSelection = function() {
   visflow.Network.base.processSelection.call(this); // process node selection
-  var inpack = this.ports['inEdges'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['inEdges'].pack);
   var outspack = this.ports['outsEdges'].pack;
   outspack.copy(inpack);
   outspack.filter(_.allKeys(this.selectedEdges));
@@ -869,7 +899,7 @@ visflow.Network.prototype.validateSelection = function() {
   visflow.Network.base.validateSelection.call(this); // clear selection of nodes
   var inpackEdges = this.ports['inEdges'].pack;
   for (var index in this.selectedEdges) { // clear selection of edges
-    if (inpackEdges.items[index] == null){
+    if (inpackEdges.items[index] == null) {
       delete this.selectedEdges[index];
     }
   }
@@ -877,8 +907,8 @@ visflow.Network.prototype.validateSelection = function() {
 
 /** @inheritDoc */
 visflow.Network.prototype.process = function() {
-  var inpackNodes = this.ports['in'].pack;
-  var inpackEdges = this.ports['inEdges'].pack;
+  var inpackNodes = /** @type {!visflow.Package} */(this.ports['in'].pack);
+  var inpackEdges = /** @type {!visflow.Package} */(this.ports['inEdges'].pack);
   var outpackNodes = this.ports['out'].pack;
   var outpackEdges = this.ports['outEdges'].pack;
   var outspackNodes = this.ports['outs'].pack;
@@ -900,8 +930,8 @@ visflow.Network.prototype.process = function() {
   }
 
   this.validateSelection();
-  if (this.lastDataId != inpackNodes.data.dataId
-    || this.lastEdgeDataId != inpackEdges.data.dataId) {
+  if (this.lastDataId != inpackNodes.data.dataId ||
+    this.lastEdgeDataId != inpackEdges.data.dataId) {
 
     this.dataChanged();
 
@@ -957,7 +987,7 @@ visflow.Network.prototype.dataChanged = function() {
   this.edges = {};
   var idDim = this.findLabelByDimension_();
   var edgeDims = this.findEdgeDimensions_();
-  _(this.options).extend({
+  _.extend(this.options, {
     labelBy: idDim,
     nodeIdBy: idDim,
     sourceBy: edgeDims.sourceBy,

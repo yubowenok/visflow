@@ -7,12 +7,12 @@
 /**
  * @param {{
  *   container: !jQuery,
- *   list: !Array<{id: string|number, text: string}>,
- *   selected: (string|number)=
- *   listTitle: string=,
- *   allowClear: boolean=,
- *   selectTitle: string=,
- *   opening: function: boolean
+ *   list: !Array<{id: (string|number), text: string}>,
+ *   selected: (string|number|undefined),
+ *   listTitle: (string|undefined),
+ *   allowClear: (boolean|undefined),
+ *   selectTitle: (string|undefined),
+ *   opening: function(): boolean
  * }} params
  *     container: Container of the select.
  *     list: Items for selection.
@@ -27,11 +27,11 @@
  * @constructor
  */
 visflow.Select = function(params) {
-  /** @private {!jQuery} */
-  this.container_ = params.container;
+  /** @protected {!jQuery} */
+  this.container = params.container;
 
-  /** @private {!Array<{id: string|number, text:string}> */
-  this.list_ = params.list.concat();
+  /** @protected {!Array<{id: (string|number), text: string}>} */
+  this.list = params.list.concat();
 
   /** @private {boolean} */
   this.allowClear_ = params.allowClear != null ? params.allowClear : false;
@@ -41,23 +41,23 @@ visflow.Select = function(params) {
     return;
   }
 
-  /** @private {!Array<string|number>} */
-  this.selected_ = params.selected != null ? params.selected : '';
+  /** @protected {string|number} */
+  this.selected = params.selected != null ? params.selected : '';
 
   /** @private {string} */
   this.listTitle_ = params.listTitle ? params.listTitle : '';
 
-  /** @private {string} */
-  this.selectTitle_ = params.selectTitle ? params.selectTitle: 'Select';
+  /** @protected {string} */
+  this.selectTitle = params.selectTitle ? params.selectTitle : 'Select';
 
-  /** @private {function: boolean} */
+  /** @private {function(): boolean} */
   this.opening_ = params.opening;
 
-  /** @private {select2} */
-  this.select2_;
+  /** @protected {?select2} */
+  this.select2;
 
-  this.container_.load(this.TEMPLATE_, function() {
-    this.init_();
+  this.container.load(this.TEMPLATE_, function() {
+    this.init();
   }.bind(this));
 };
 
@@ -66,23 +66,23 @@ visflow.Select.prototype.TEMPLATE_ = './src/unit/select/select.html';
 
 /**
  * Initializes the list title and add item select2.
- * @private
+ * @protected
  */
-visflow.Select.prototype.init_ = function() {
-  var title = this.container_.find('#title');
+visflow.Select.prototype.init = function() {
+  var title = this.container.find('#title');
   if (this.listTitle_) {
     title.text(this.listTitle_);
   } else {
     title.hide();
   }
 
-  this.select2_ = this.container_.find('select')
+  this.select2 = this.container.find('select')
     .select2({
-      data: this.list_,
+      data: this.list,
       allowClear: this.allowClear_,
-      placeholder: this.selectTitle_
+      placeholder: this.selectTitle
     });
-  this.select2_.val(this.selected_).trigger('change');
+  this.select2.val(this.selected).trigger('change');
 
   this.initEnd();
 };
@@ -92,26 +92,26 @@ visflow.Select.prototype.init_ = function() {
  * @protected
  */
 visflow.Select.prototype.initEnd = function() {
-  this.container_.find('.select2-container').css('width', '');
+  this.container.find('.select2-container').css('width', '');
 
-  this.select2_
-    .on('change', this.change_.bind(this))
+  this.select2
+    .on('change', this.change.bind(this))
     .on('select2:opening', function() {
       if (this.opening_) {
         return this.opening_();
       }
-    }.bind(this))
+    }.bind(this));
 };
 
 /**
  * Handles select2 change.
- * @private
+ * @protected
  */
-visflow.Select.prototype.change_ = function() {
-  var val = this.select2_.val();
-  if (this.selected_ !== val) {
-    this.selected_ = val;
-    this.signal_('change');
+visflow.Select.prototype.change = function() {
+  var val = /** @type {string} */(this.select2.val());
+  if (this.selected !== val) {
+    this.selected = val;
+    this.signal('change');
   }
 };
 
@@ -120,18 +120,18 @@ visflow.Select.prototype.change_ = function() {
  * @param {string} id
  */
 visflow.Select.prototype.select = function(id) {
-  this.selected_ = id;
+  this.selected = id;
   // Disable change_ callback to avoid event looping.
-  this.select2_.off('change', this.change_.bind(this));
-  this.select2_.val(id).trigger('change');
-  this.select2_.on('change', this.change_.bind(this));
+  this.select2.off('change', this.change.bind(this));
+  this.select2.val(id).trigger('change');
+  this.select2.on('change', this.change.bind(this));
 };
 
 /**
  * Fires an event.
  * @param {string} type
- * @private
+ * @protected
  */
-visflow.Select.prototype.signal_ = function(type) {
-  $(this).trigger('visflow.' + type, [this.selected_]);
+visflow.Select.prototype.signal = function(type) {
+  $(this).trigger('visflow.' + type, [this.selected]);
 };

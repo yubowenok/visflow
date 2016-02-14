@@ -14,17 +14,17 @@ visflow.Visualization = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.Port({
+    'in': new visflow.Port({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    outs: new visflow.SelectionPort({
+    'outs': new visflow.SelectionPort({
       node: this,
       id: 'outs'
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -34,19 +34,21 @@ visflow.Visualization = function(params) {
 
   /**
    * D3 selection of the svg container.
-   * @protected {d3.selection}
+   * @protected {d3}
    */
   this.svg;
 
   /**
    * Selected data items.
-   * @protected {!Object<number>}
+   * @protected {!Object<boolean>}
    */
   this.selected = {};
 
-  // Points of user brush.
-  /** @private {!Array<{x: number, y: number}>} */
-  this.brushPoints_ = [];
+  /**
+   * Points of user brush.
+   * @protected {!Array<{x: number, y: number}>}
+   */
+  this.brushPoints = [];
 
   /**
    * Last used dataset ID.
@@ -57,19 +59,26 @@ visflow.Visualization = function(params) {
   /**
    * Whether rendering should be using transition. When the view is resized,
    * the view shall be re-rendered without transition.
-   * @private {boolean}
+   * @protected {boolean}
    */
-  this.allowTransition_ = true;
+  this.allowTransition = true;
 
-  _(this.options).extend(this.VISUALIZATION_OPTIONS);
+  _.extend(this.options, this.visualizationOptions());
 };
 
 visflow.utils.inherit(visflow.Visualization, visflow.Node);
 
 /**
- * Plot name used for debugging and hint message.
- * @const {string}
+ * @typedef {{
+ *   left: number,
+ *   right: number,
+ *   top: number,
+ *   bottom: number
+ * }}
  */
+visflow.Visualization.Margins;
+
+/** @inheritDoc */
 visflow.Visualization.prototype.NODE_NAME = 'visualization';
 /** @inheritDoc */
 visflow.Visualization.prototype.TEMPLATE =
@@ -77,73 +86,95 @@ visflow.Visualization.prototype.TEMPLATE =
 
 /**
  * Visualization nodes specific options.
+ * @return {!Object}
  */
-visflow.Visualization.prototype.VISUALIZATION_OPTIONS = {
-  label: true,
-  visMode: true
+visflow.Visualization.prototype.visualizationOptions = function() {
+  return {
+    label: true,
+    visMode: true
+  };
 };
 
 /**
- * @const {!Array<{left: number, right: number, top: number, bottom: number}>}
+ * Returns the plot margins.
+ * @return {visflow.Visualization.Margins}
+ * @protected
  */
-visflow.Visualization.prototype.PLOT_MARGINS = {
-  left: 10,
-  right: 10,
-  top: 10,
-  bottom: 10
+visflow.Visualization.prototype.plotMargins = function() {
+  return {
+    left: 10,
+    right: 10,
+    top: 10,
+    bottom: 10
+  };
 };
 
 /**
- * Object for specifying default rendering properties.
- * @const {!Object<number|string>}
+ * Returns object for specifying default rendering properties.
+ * @return {!Object<number|string>}
+ * @protected
  */
-visflow.Visualization.prototype.defaultProperties = {
-  color: '#555',
-  border: 'black',
-  width: 1,
-  size: 3
+visflow.Visualization.prototype.defaultProperties = function() {
+  return {
+    color: '#555',
+    border: 'black',
+    width: 1,
+    size: 3
+  };
 };
 
 /**
  * These properties are shown when items are selected.
- * @const {!Object<number|string>}
+ * @return {!Object<number|string>}
+ * @protected
  */
-visflow.Visualization.prototype.selectedProperties = {
-  color: 'white',
-  border: '#6699ee'
+visflow.Visualization.prototype.selectedProperties = function() {
+  return {
+    color: 'white',
+    border: '#6699ee'
+  };
 };
 
 /**
  * Highlight effect for selected elements, using multiplier.
- * @const {!Object<number|string>}
+ * @return {!Object<number|string>}
+ * @protected
  */
-visflow.Visualization.prototype.selectedMultiplier = {
-  size: 1.2,
-  width: 1.2
+visflow.Visualization.prototype.selectedMultiplier = function() {
+  return {
+    size: 1.2,
+    width: 1.2
+  };
 };
 
 /** @inheritDoc */
-visflow.Visualization.prototype.CONTEXTMENU_ITEMS = [
-  {id: 'selectAll', text: 'Select All'},
-  {id: 'clearSelection', text: 'Clear Selection'},
-  {id: 'minimize', text: 'Minimize', icon: 'glyphicon glyphicon-resize-small'},
-  {id: 'visMode', text: 'Visualization Mode', icon: 'glyphicon glyphicon-facetime-video'},
-  {id: 'panel', text: 'Control Panel', icon: 'glyphicon glyphicon-th-list'},
-  {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
-];
+visflow.Visualization.prototype.contextMenuItems = function() {
+  return [
+    {id: 'selectAll', text: 'Select All'},
+    {id: 'clearSelection', text: 'Clear Selection'},
+    {id: 'minimize', text: 'Minimize',
+      icon: 'glyphicon glyphicon-resize-small'},
+    {id: 'visMode', text: 'Visualization Mode',
+      icon: 'glyphicon glyphicon-facetime-video'},
+    {id: 'panel', text: 'Control Panel',
+      icon: 'glyphicon glyphicon-th-list'},
+    {id: 'delete', text: 'Delete',
+      icon: 'glyphicon glyphicon-remove'}
+  ];
+};
 
-/** @private @const {number} */
-visflow.Visualization.prototype.LABEL_OFFSET_ = 5;
-/** @private @const {number} */
-visflow.Visualization.prototype.DEFAULT_TICKS_ = 5;
-/** @private @const {number} */
+/** @protected @const {number} */
+visflow.Visualization.prototype.LABEL_OFFSET = 5;
+/** @protected @const {number} */
+visflow.Visualization.prototype.DEFAULT_TICKS = 5;
+/** @protected @const {string} */
 visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
-/** @type @const {boolean} */
+/** @protected @const {number} */
+visflow.Visualization.prototype.TRANSITION_ELEMENT_LIMIT = 5000;
+/** @protected @const {number} */
+visflow.Visualization.prototype.TICKS_HEIGHT = 10;
+/** @protected @const {boolean} */
 visflow.Visualization.prototype.IS_VISUALIZATION = true;
-/** @private @const {number} */
-visflow.Visualization.prototype.TICKS_HEIGHT_ = 10;
-/** @private @const {number} */
-visflow.Visualization.prototype.TRANSITION_ELEMENT_LIMIT_ = 5000;
 
 /** @inheritDoc */
 visflow.Visualization.prototype.init = function() {
@@ -155,11 +186,11 @@ visflow.Visualization.prototype.init = function() {
 
 /**
  * Serializes the visualization node.
- * @returns {!Object}
+ * @return {!Object}
  */
 visflow.Visualization.prototype.serialize = function() {
   var result = visflow.Visualization.base.serialize.call(this);
-  _(result).extend({
+  _.extend(result, {
     selected: this.selected,
     lastDataId: this.lastDataId
   });
@@ -172,7 +203,7 @@ visflow.Visualization.prototype.serialize = function() {
 
 /**
  * Deserializes the visualization node.
- * @param save
+ * @param {!Object} save
  */
 visflow.Visualization.prototype.deserialize = function(save) {
   visflow.Visualization.base.deserialize.call(this, save);
@@ -186,7 +217,7 @@ visflow.Visualization.prototype.deserialize = function(save) {
     visflow.error('lastDataId not saved in visualization');
     this.lastDataId = 0;
   }
-  this.fillOptions(this.options, this.VISUALIZATION_OPTIONS);
+  this.fillOptions(this.options, this.visualizationOptions());
 };
 
 /**
@@ -230,11 +261,12 @@ visflow.Visualization.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.process = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   var outspack = this.ports['outs'].pack;
 
-  outpack.copy(inpack, true); // always pass data through
+  // always pass data through
+  outpack.copy(inpack, true);
 
   // During async data load, selection is first de-serialized to vis nodes
   // However the data have not reached this point.
@@ -273,7 +305,7 @@ visflow.Visualization.prototype.process = function() {
  * Processes the current user selection.
  */
 visflow.Visualization.prototype.processSelection = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outspack = this.ports['outs'].pack;
   outspack.copy(inpack);
   outspack.filter(_.allKeys(this.selected));
@@ -298,8 +330,8 @@ visflow.Visualization.prototype.validateSelection = function() {
  */
 visflow.Visualization.prototype.getSVGSize = function() {
   return {
-    width: this.content.width(),
-    height: this.content.height()
+    width: /** @type {number} */(this.content.width()),
+    height: /** @type {number} */(this.content.height())
   };
 };
 
@@ -347,8 +379,9 @@ visflow.Visualization.prototype.mousedown = function(event) {
     }
     // Left click triggers item selection.
     this.mouseMode = 'brush';
-    var pos = visflow.utils.getOffset(event, this.content);
-    this.brushPoints_ = [{x: pos.left, y: pos.top}];
+    var pos = visflow.utils.getOffset(event, /** @type {!jQuery} */(
+      this.content));
+    this.brushPoints = [{x: pos.left, y: pos.top}];
 
     this.container.draggable('disable');
   }
@@ -357,8 +390,9 @@ visflow.Visualization.prototype.mousedown = function(event) {
 /** @inheritDoc */
 visflow.Visualization.prototype.mousemove = function(event) {
   if (this.mouseMode == 'brush') {
-    var pos = visflow.utils.getOffset(event, this.content);
-    this.brushPoints_.push({x: pos.left, y: pos.top});
+    var pos = visflow.utils.getOffset(event, /** @type {!jQuery} */(
+      this.content));
+    this.brushPoints.push({x: pos.left, y: pos.top});
     this.drawBrush();
   }
   // Do not block mousemove, otherwise dragging may hang.
@@ -472,7 +506,7 @@ visflow.Visualization.prototype.drawLasso = function() {
     .interpolate('linear');
   this.svg.append('path')
     .classed('lasso', true)
-    .attr('d', line(this.brushPoints_));
+    .attr('d', line(this.brushPoints));
 };
 
 /**
@@ -484,8 +518,8 @@ visflow.Visualization.prototype.drawSelectBox = function() {
     box = this.svg.append('rect')
       .classed('selectbox', true);
   }
-  var startPos = _(this.brushPoints_).first();
-  var endPos = _(this.brushPoints_).last();
+  var startPos = _.first(this.brushPoints);
+  var endPos = _.last(this.brushPoints);
 
   var x1 = Math.min(startPos.x, endPos.x);
   var x2 = Math.max(startPos.x, endPos.x);
@@ -501,10 +535,16 @@ visflow.Visualization.prototype.drawSelectBox = function() {
 /**
  * Computes the select range box.
  * @param {boolean=} opt_ignoreEmpty
+ * @return {?{
+ *   x1: number,
+ *   y1: number,
+ *   x2: number,
+ *   y2: number
+ * }}
  */
 visflow.Visualization.prototype.getSelectBox = function(opt_ignoreEmpty) {
-  var startPos = _(this.brushPoints_).first();
-  var endPos = _(this.brushPoints_).last();
+  var startPos = _.first(this.brushPoints);
+  var endPos = _.last(this.brushPoints);
 
   if (opt_ignoreEmpty) {
     if (startPos.x == endPos.x && startPos.y == endPos.y) {
@@ -512,11 +552,10 @@ visflow.Visualization.prototype.getSelectBox = function(opt_ignoreEmpty) {
       return null;
     }
   }
-
   return {
     x1: Math.min(startPos.x, endPos.x),
-    x2: Math.max(startPos.x, endPos.x),
     y1: Math.min(startPos.y, endPos.y),
+    x2: Math.max(startPos.x, endPos.x),
     y2: Math.max(startPos.y, endPos.y)
   };
 };
@@ -543,14 +582,14 @@ visflow.Visualization.prototype.clearSelection = function() {
 /**
  * Renders an axis label.
  * @param {{
- *   svg: !d3.selection,
+ *   svg: !d3,
  *   scale: !d3.scale,
  *   scaleType: visflow.ScaleType,
  *   classes: string,
  *   orient: string,
  *   ticks: number,
  *   transform: string,
- *   noTicks: boolean
+ *   noTicks: (boolean|undefined),
  *   label: {
  *     text: string,
  *     transform: string
@@ -574,7 +613,7 @@ visflow.Visualization.prototype.drawAxis = function(params) {
   }
   axis.scale(params.scale.copy());
 
-  if(svg.empty()) {
+  if (svg.empty()) {
     svg = this.svgAxes_.append('g')
       .classed(params.classes, true);
   }
@@ -608,16 +647,16 @@ visflow.Visualization.prototype.resize = function() {
     this.updateSVGSize();
     if (!this.checkDataEmpty()) {
       this.prepareScales();
-      this.allowTransition_ = false;
+      this.allowTransition = false;
       this.updateContent();
-      this.allowTransition_ = true;
+      this.allowTransition = true;
     }
   }
 };
 
-/** @inheritDOc */
-visflow.Visualization.prototype.resizeStop = function(size) {
-  visflow.Visualization.base.resizeStop.call(this, size);
+/** @inheritDoc */
+visflow.Visualization.prototype.resizeStop = function() {
+  visflow.Visualization.base.resizeStop.call(this);
 };
 
 /**
@@ -636,10 +675,9 @@ visflow.Visualization.prototype.inputChanged = function() {};
  */
 visflow.Visualization.prototype.showSelection = function() {};
 
-/** @inheritDoc */
-visflow.Visualization.prototype.showOptions = function() {};
-
-/** @inheritDoc */
+/**
+ * Handles data change in visualization.
+ */
 visflow.Visualization.prototype.dataChanged = function() {};
 
 /**
@@ -653,7 +691,9 @@ visflow.Visualization.prototype.findPlotDimensions = function() {};
  * Transitions should not be applied when there are too many elements.
  * @return {boolean}
  */
-visflow.Visualization.prototype.transitionFeasible = function() {};
+visflow.Visualization.prototype.transitionFeasible = function() {
+  return true;
+};
 
 /**
  * Handles layout changes such as label visibility changes.

@@ -7,7 +7,7 @@ visflow.property = {};
 
 /**
  * Properties that can be mapped.
- * @protected @const {!Array<{id: string, text: string}>}
+ * @const {!Array<{id: string, text: string}>}
  */
 visflow.property.MAPPINGS = [
   {id: 'color', text: 'Color'},
@@ -19,7 +19,7 @@ visflow.property.MAPPINGS = [
 
 /**
  * Acceptable value mapping range.
- * @protected @const {!Object<!Array<number>>}
+ * @const {!Object<!Array<number>>}
  */
 visflow.property.MAPPING_RANGES = {
   size: [0, 10000],
@@ -29,7 +29,7 @@ visflow.property.MAPPING_RANGES = {
 
 /**
  * Scrolling delta for different types of properties.
- * @protected @const {!Object<number>}
+ * @const {!Object<number>}
  */
 visflow.property.SCROLL_DELTAS = {
   size: 0.5,
@@ -39,7 +39,7 @@ visflow.property.SCROLL_DELTAS = {
 
 /**
  * Mapping types for different properties.
- * @protected @const {!Object<string>}
+ * @const {!Object<string>}
  */
 visflow.property.MAPPING_TYPES = {
   color: 'color',
@@ -69,9 +69,10 @@ visflow.Property.prototype.NO_DATA_STRING = 'No Data';
  * Adjusts the numbers when mapping type has changed.
  * Different mappings have different number ranges.
  * @return {boolean} Whether the numbers are adjusted.
- * @private
  */
-visflow.Property.prototype.adjustNumbers = function() {};
+visflow.Property.prototype.adjustNumbers = function() {
+  return false;
+};
 
 /**
  * Handles interface parameter changes.

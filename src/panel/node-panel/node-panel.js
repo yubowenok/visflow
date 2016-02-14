@@ -9,15 +9,15 @@ visflow.nodePanel = {};
 
 /**
  * Node panel container.
- * @private {jQuery}
+ * @private {!jQuery}
  */
-visflow.nodePanel.container_;
+visflow.nodePanel.container_ = $();
 
 /**
  * Node panel hover area.
- * @private {jQuery}
+ * @private {!jQuery}
  */
-visflow.nodePanel.hoverArea_;
+visflow.nodePanel.hoverArea_ = $();
 
 /**
  * Node panel state.
@@ -101,7 +101,7 @@ visflow.nodePanel.getWidth_ = function() {
  */
 visflow.nodePanel.show_ = function() {
   var content = visflow.nodePanel.container_.find('.content');
-  content.load(this.TEMPLATE_, function() {
+  content.load(visflow.nodePanel.TEMPLATE_, function() {
     var width = visflow.nodePanel.getWidth_();
     visflow.nodePanel.container_.stop()
       .css({
@@ -159,19 +159,21 @@ visflow.nodePanel.initPanel_ = function() {
  * @private
  */
 visflow.nodePanel.initButton_ = function(button) {
-  var create = function (event) {
-    var node = visflow.flow.createNode(button.attr('id'));
+  var create = function() {
+    var node = visflow.flow.createNode(/** @type {string} */(
+      button.attr('id')));
 
     $(node).on('visflow.ready', function() {
-      node.container.css(_({
-        left: visflow.interaction.mouseX - node.container.width() / 2,
-        top: visflow.interaction.mouseY - node.container.height() / 2
-      }).extend(visflow.popupPanel.INIT_BUTTON_CSS_));
+      var container = node.getContainer();
+      container.css(_.extend({
+        left: visflow.interaction.mouseX - container.width() / 2,
+        top: visflow.interaction.mouseY - container.height() / 2
+      }, visflow.panel.INIT_BUTTON_CSS));
 
-      node.container.animate(visflow.popupPanel.FADE_IN_BUTTON_CSS_,
-        visflow.popupPanel.SHORT_TRANSITION_DURATION_,
+      container.animate(visflow.panel.FADE_IN_BUTTON_CSS,
+        visflow.panel.SHORT_TRANSITION_DURATION,
         function() {
-          $(this).css(visflow.popupPanel.BUTTON_CSS_);
+          container.css(visflow.panel.BUTTON_CSS);
         });
     });
 
@@ -182,21 +184,23 @@ visflow.nodePanel.initButton_ = function(button) {
 
   button.draggable({
     helper: 'clone',
-    start: function () {
+    start: function() {
       // Create a temporary droppable under #main so that we cannot drop
       // the button to panel.
-      var panelOffset = visflow.utils.offsetMain(this.container_);
+      var panelOffset = visflow.utils.offsetMain(
+        visflow.nodePanel.container_);
       $('<div></div>')
         .addClass('dropzone-temp')
         .css({
-          width: this.container_.width(),
-          height: this.container_.height(),
+          width: visflow.nodePanel.container_.width(),
+          height: visflow.nodePanel.container_.height(),
           left: panelOffset.left,
           top: panelOffset.top
         })
         .droppable({
           accept: '.panel-button',
-          greedy: true, // Prevent #main be dropped at the same time
+          // Prevent #main be dropped at the same time
+          greedy: true,
           tolerance: 'pointer'
         })
         .appendTo('#main');
@@ -206,11 +210,11 @@ visflow.nodePanel.initButton_ = function(button) {
         accept: '.panel-button',
         drop: create
       });
-    }.bind(this)
+    }
   });
 
-  button.click(function (event) {
-    create(event);
+  button.click(function() {
+    create();
   });
 };
 

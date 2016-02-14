@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Property}
  */
@@ -14,13 +14,13 @@ visflow.PropertyEditor = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    in: new visflow.Port({
+    'in': new visflow.Port({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -43,29 +43,41 @@ visflow.PropertyEditor.prototype.PANEL_TEMPLATE =
   './src/property/property-editor/property-editor-panel.html';
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.DEFAULT_OPTIONS = {
-  color: null,
-  border: null,
-  width: null,
-  size: null,
-  opacity: null
+visflow.PropertyEditor.prototype.defaultOptions = function() {
+  return {
+    color: null,
+    border: null,
+    width: null,
+    size: null,
+    opacity: null
+  };
 };
 
-/** @const {!Array<string>} */
-visflow.PropertyEditor.prototype.PROPERTIES_ = [
-  'color',
-  'border',
-  'width',
-  'size',
-  'opacity'
-];
+/**
+ * @return {!Array<string>}
+ * @private
+ */
+visflow.PropertyEditor.prototype.properties_ = function() {
+  return [
+    'color',
+    'border',
+    'width',
+    'size',
+    'opacity'
+  ];
+};
 
-/** @const {!Array<string>} */
-visflow.PropertyEditor.prototype.NUMBER_PROPERTIES_ = [
-  'width',
-  'size',
-  'opacity'
-];
+/**
+ * @return {!Array<string>}
+ * @private
+ */
+visflow.PropertyEditor.prototype.numericProperties_ = function() {
+  return [
+    'width',
+    'size',
+    'opacity'
+  ];
+};
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.serialize = function() {
@@ -92,7 +104,7 @@ visflow.PropertyEditor.prototype.initPanel = function(container) {
           this.options[info.property] = color;
           this.parameterChanged('panel');
         }
-      })
+      });
     }, this);
   [
     {selector: '#width', property: 'width', title: 'Width'},
@@ -135,7 +147,7 @@ visflow.PropertyEditor.prototype.showDetails = function() {
         container: this.content.find(info.selector),
         color: this.options[info.property]
       },
-      change: function (event, color) {
+      change: function(event, color) {
         this.options[info.property] = color;
         this.parameterChanged('node');
       }
@@ -167,12 +179,12 @@ visflow.PropertyEditor.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.process = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
   outpack.copy(inpack);
   var newItems = {};
   var setProps = {};
-  this.PROPERTIES_.forEach(function(p) {
+  this.properties_().forEach(function(p) {
     var value = this.options[p];
     if (value != null) {
       setProps[p] = value;
@@ -195,8 +207,8 @@ visflow.PropertyEditor.prototype.process = function() {
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.adjustNumbers = function() {
   var adjusted = false;
-  this.NUMBER_PROPERTIES_.forEach(function(prop) {
-    var value = this.options[prop];
+  this.numericProperties_().forEach(function(prop) {
+    var value = /** @type {number} */(this.options[prop]);
     var range = visflow.property.MAPPING_RANGES[prop];
     if (value < range[0]) {
       value = range[0];

@@ -5,7 +5,7 @@
 'use strict';
 
 /**
- * @param params
+ * @param {visflow.Node.Params} params
  * @constructor
  * @extends {visflow.Set}
  */
@@ -15,20 +15,20 @@ visflow.Minus = function(params) {
   /** @inheritDoc */
   this.ports = {
     // To be subtracted from
-    inx: new visflow.Port({
+    'inx': new visflow.Port({
       node: this,
       id: 'inx',
       isInput: true,
       isConstants: false
     }),
     // To subtract
-    in: new visflow.MultiplePort({
+    'in': new visflow.MultiplePort({
       node: this,
       id: 'in',
       isInput: true,
       isConstants: false
     }),
-    out: new visflow.MultiplePort({
+    'out': new visflow.MultiplePort({
       node: this,
       id: 'out',
       isInput: false,
@@ -46,8 +46,8 @@ visflow.Minus.prototype.NODE_NAME = 'Minus';
 
 /** @inheritDoc */
 visflow.Minus.prototype.process = function() {
-  var xpack = this.ports['inx'].pack;
-  var inpacks = this.ports['in'].packs;
+  var xpack = /** @type {!visflow.Package} */(this.ports['inx'].pack);
+  var inpacks = /** @type {!visflow.MultiplePort} */(this.ports['in']).packs;
   var outpack = this.ports['out'].pack;
 
   outpack.copy(xpack);  // pick the X pack, potentially empty
@@ -59,8 +59,10 @@ visflow.Minus.prototype.process = function() {
 
   for (var i in inpacks) {
     var inpack = inpacks[i];
-    if (!outpack.data.matchDataFormat(inpack.data))
-      return visflow.error('cannot make intersection of two different types of datasets');
+    if (!outpack.data.matchDataFormat(inpack.data)) {
+      return visflow.error(
+        'cannot make intersection of two different types of datasets');
+    }
 
     for (var index in inpack.items) {
       if (outpack.items[index] != null) {
