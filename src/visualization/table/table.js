@@ -2,8 +2,6 @@
  * @fileoverview VisFlow table visualization.
  */
 
-'use strict';
-
 /**
  * @param {Object} params
  * @constructor

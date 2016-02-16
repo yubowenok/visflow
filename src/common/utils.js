@@ -2,8 +2,6 @@
  * @fileoverview Utility functions for VisFlow.
  */
 
-'use strict';
-
 /** @const */
 visflow.utils = {};
 

@@ -2,8 +2,6 @@
  * @fileoverview VisFlow sampler module.
  */
 
-'use strict';
-
 /**
  * @param {!Object} params
  * @constructor

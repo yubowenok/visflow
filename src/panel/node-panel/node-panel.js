@@ -2,8 +2,6 @@
  * @fileoverview VisFlow panel for adding nodes.
  */
 
-'use strict';
-
 /** @const */
 visflow.nodePanel = {};
 

@@ -2,8 +2,6 @@
  * @fileoverview VisFlow checkbox unit.
  */
 
-'use strict';
-
 /**
  * @param {{
  *   container: !jQuery,

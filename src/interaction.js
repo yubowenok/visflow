@@ -2,8 +2,6 @@
  * @fileoverview Interaction manager tracking mouse actions.
  */
 
-'use strict';
-
 /** @const */
 visflow.interaction = {};
 

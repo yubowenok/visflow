@@ -2,8 +2,6 @@
  * @fileoverview VisFlow contain filter module.
  */
 
-'use strict';
-
 /**
  * @param {!Object} params
  * @constructor

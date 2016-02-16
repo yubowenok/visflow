@@ -83,7 +83,7 @@ visflow.diagram.load = function() {
 
         var confirm = dialog.find('#confirm').prop('disabled', true)
           .click(function() {
-            visflow.diagram.download_(fileName);
+            visflow.diagram.download(fileName);
           });
 
         var table = dialog.find('table');
@@ -118,9 +118,8 @@ visflow.diagram.new = function() {
 /**
  * Downloads a flow diagram file from the server.
  * @param {string} filename
- * @private
  */
-visflow.diagram.download_ = function(filename) {
+visflow.diagram.download = function(filename) {
   visflow.diagram.lastFilename = filename;
   $.post(visflow.diagram.LOAD_URL, {
     type: 'download',

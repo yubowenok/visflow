@@ -2,8 +2,6 @@
  * @fileoverview VisFlow editable list user interface.
  */
 
-'use strict';
-
 /**
  * @param {{
  *   container: !jQuery,

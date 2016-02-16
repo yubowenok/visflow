@@ -2,8 +2,6 @@
  * @fileoverview VisFlow tooltip.
  */
 
-'use strict';
-
 /** @const */
 visflow.tooltip = {};
 

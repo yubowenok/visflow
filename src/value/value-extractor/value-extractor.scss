@@ -1,0 +1,21 @@
+.visflow .node.value-extractor {
+  &.minimized {
+    height: 30px;
+    width: 50px;
+
+    > .icon {
+      background-image: url('/visflow/imgs/value-extractor-icon.png');
+      height: 30px;
+      width: 50px;
+    }
+  }
+
+  &.details {
+    height: 54px;
+    width: 120px;
+
+    #dim {
+      text-align: center;
+    }
+  }
+}

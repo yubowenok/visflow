@@ -1,12 +1,10 @@
-$white: #fff;
-$gray: #ccc;
-$trans-white: rgba(0, 0, 0, .175);
+@import 'src/common/colors';
 
 .visflow .visflow-tooltip {
   background: $white;
-  border: 1px solid $gray;
+  border: 1px solid $gray-c;
   border-radius: 4px;
-  box-shadow: 0 6px 12px $trans-white;
+  box-shadow: 0 6px 12px $trans-white-175;
   padding: 10px;
   position: absolute;
   z-index: 105;

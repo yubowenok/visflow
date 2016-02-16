@@ -2,10 +2,8 @@
  * @fileoverview VisFlow multiple port.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Port.Params} params
+ * @param {visflow.params.Port} params
  * @constructor
  * @extends {visflow.Port}
  */

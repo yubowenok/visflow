@@ -4,8 +4,6 @@
  * So FlowManager equivalently represent the graph itself.
  */
 
-'use strict';
-
 /** @const */
 visflow.flow = {};
 

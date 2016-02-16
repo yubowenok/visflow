@@ -2,8 +2,6 @@
  * @fileoverview Port of VisFlow node, used to transmit data.
  */
 
-'use strict';
-
 /**
  * @typedef {{
  *   node: !visflow.Node,
@@ -20,11 +18,11 @@
  *     isConstants: Whether the port accepts constants.
  *     fromPort: Port id from which this port gets the data from.
  */
-visflow.Port.Params;
+visflow.params.Port;
 
 /**
  * Port constructor.
- * @param {visflow.Port.Params} params
+ * @param {visflow.params.Port} params
  * @constructor
  */
 visflow.Port = function(params) {

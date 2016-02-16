@@ -2,10 +2,8 @@
  * @fileoverview VisFlow heatmap visualization.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  * @extends {visflow.Visualization}
  */

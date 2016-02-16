@@ -8,7 +8,7 @@ var gutil = require('gulp-util');
 var paths = require('./paths.js');
 
 gulp.task('lint-js', function(cb) {
-  return gulp.src(paths.src.concat(paths.dev))
+  return gulp.src(paths.srcDev)
     .pipe(gjslint({
       customReport: function(file, ss) {
         console.log(file, ss);
@@ -34,7 +34,8 @@ gulp.task('lint-gulp', function(cb) {
 /** @const {string} */
 var SELECTOR_FORMAT_IGNORES = [
   '`select2.*`',
-  '`dataTables.*`'
+  '`dataTables.*`',
+  '`paginate_button`'
 ];
 
 /**

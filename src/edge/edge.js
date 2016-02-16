@@ -2,8 +2,6 @@
  * @fileoverview visflow flow edge.
  */
 
-'use strict';
-
 /**
  * @param {!Object} params
  * @constructor

@@ -29,6 +29,8 @@ DataTables.prototype.column = function(arg) {};
  */
 DataTables.prototype.rows = function(arg) {};
 
+DataTables.prototype.destroy = function() {};
+
 /**
  * @typedef {!Array<!Object>}
  */

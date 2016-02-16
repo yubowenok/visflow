@@ -2,10 +2,8 @@
  * @fileoverview VisFlow line chart visualization.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -513,7 +511,7 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
             this.options.groupBy === '' ?
             '' : values[_.first(itemIndices)][this.options.groupBy]
       },
-      this.defaultProperties
+      this.defaultProperties()
     );
     itemIndices.forEach(function(index) {
       _.extend(prop, items[index].properties);
@@ -525,8 +523,8 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
     }, this);
 
     if (groupIndex in this.selectedGroups) {
-      _.extend(prop, this.selectedLineProperties);
-      this.multiplyProperties(prop, this.selectedMultiplier);
+      _.extend(prop, this.selectedLineProperties());
+      this.multiplyProperties(prop, this.selectedMultiplier());
     }
     prop.index = groupIndex;
     lineProps.push(prop);
@@ -548,7 +546,7 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
   for (var index in items) {
     var prop = _.extend(
       {},
-      this.defaultProperties,
+      this.defaultProperties(),
       items[index].properties,
       {
         index: index,
@@ -558,8 +556,8 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
       }
     );
     if (index in this.selected) {
-      _.extend(prop, this.selectedProperties);
-      this.multiplyProperties(prop, this.selectedMultiplier);
+      _.extend(prop, this.selectedProperties());
+      this.multiplyProperties(prop, this.selectedMultiplier());
     }
     itemProps.push(prop);
   }

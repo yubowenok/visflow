@@ -3,8 +3,6 @@
  * color.
  */
 
-'use strict';
-
 /**
  * @param {{
  *   container: !jQuery,

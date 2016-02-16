@@ -2,8 +2,6 @@
  * @fileoverview VisFlow color scale select user interface.
  */
 
-'use strict';
-
 /**
  * @param {{
  *   container: !jQuery

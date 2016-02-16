@@ -3,8 +3,6 @@
  * The original data in table format is immutable within the system.
  */
 
-'use strict';
-
 /**
  * @typedef {{
  *   dimensions: !Array<string>,

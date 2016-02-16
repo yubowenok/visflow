@@ -1,0 +1,43 @@
+@import 'src/common/colors';
+
+.visflow {
+  #edges {
+    position: absolute;
+  }
+
+  #edge-drawing {
+    position: absolute;
+    z-index: 1000; // over other elements
+  }
+
+  .edge {
+    z-index: -1;
+  }
+
+  .edge-segment {
+    background-color: $gray-7;
+    height: 3px;
+    position: absolute;
+    transform-origin: 1.5px 50%; // half height to make rotated lines appear connected
+    width: 100px;
+  }
+
+  .edge-segment-hover {
+    background-color: $dark-blue;
+    box-shadow: 0 0 0 5px $dark-blue;
+    z-index: -1;
+  }
+
+  .edge-arrow {
+    background: url('/visflow/imgs/edge-arrow.png') no-repeat center;
+    height: 9px;
+    position: absolute;
+    transform-origin: 0 50%;
+    width: 18px;
+  }
+
+  .edge-clone {
+    pointer-events: none;
+    z-index: 1000;
+  }
+}

@@ -1,0 +1,63 @@
+@import 'src/common/colors';
+
+#node-panel {
+  bottom: 25px;
+  height: auto;
+  left: -22px;
+  position: fixed;
+  top: 50px;
+  z-index: 102;
+
+  > .hover-area {
+    height: 100%;
+    position: absolute;
+    right: -20px;
+    width: 20px;
+  }
+
+  > #btn-toggle {
+    background-color: $trans-gray-230-75;
+    border: 1px solid $gray-c;
+    border-left: 0;
+    border-radius: 0 4px 4px 0;
+    cursor: default;
+    height: 120px;
+    position: absolute;
+    right: -20px;
+    width: 20px;
+
+    > span {
+      margin-left: -3px;
+    }
+  }
+
+  .content {
+    background-color: $trans-gray-230-75;
+    border: 1px solid $gray-c;
+    border-radius: 0 0 4px;
+    padding: 10px;
+    top: 0;
+  }
+
+  .square-icon {
+    height: 50px;
+    width: 50px;
+  }
+
+  .flat-icon {
+    height: 25px;
+    width: 50px;
+  }
+
+  .panel-button {
+    border: 1px solid $trans-black-0;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: $white;
+      border: 1px solid $gray-c;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  }
+}

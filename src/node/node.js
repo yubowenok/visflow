@@ -2,8 +2,6 @@
  * @fileoverview visflow node module.
  */
 
-'use strict';
-
 /**
  * @typedef {{
  *   id: string,
@@ -11,10 +9,10 @@
  *   container: !jQuery
  * }}
  */
-visflow.Node.Params;
+visflow.params.Node;
 
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  */
 visflow.Node = function(params) {
@@ -288,7 +286,7 @@ visflow.Node.prototype.serialize = function() {
 
 /**
  * Deserializes JSON to create a node.
- * @param {!visflow.Node.Save} save
+ * @param {!visflow.save.Node} save
  */
 visflow.Node.prototype.deserialize = function(save) {
   if (save.options == null) {
@@ -1194,7 +1192,7 @@ visflow.Node.prototype.removeEdges = function() {
 
 /**
  * Gets the list of dimensions used for select2.
- * @param {visflow.Data=} opt_data
+ * @param {(visflow.Data|visflow.TabularData)=} opt_data
  * @param {boolean=} opt_addIndex
  * @return {!Array<{id: number, text: string}>}
  */

@@ -2,15 +2,6 @@
  * @fileoverview VisFlow namespace. System entry.
  */
 
-'use strict';
-
-$(document).ready(function() {
-  visflow.init();
-  if (visflow.dev) {
-    visflow.dev.run();
-  }
-});
-
 /**
  * System kernel namespace.
  * @const

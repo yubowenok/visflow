@@ -2,8 +2,6 @@
  * @fileoverview Fixed top menu (navbar) for VisFlow.
  */
 
-'use strict';
-
 /** @const */
 visflow.menu = {};
 

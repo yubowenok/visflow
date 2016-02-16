@@ -2,10 +2,8 @@
  * @fileoverview VisFlow histogram visualization.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -350,17 +348,13 @@ visflow.Histogram.prototype.applyProperties_ = function() {
     bin.forEach(function(group) {
       var prop = _.extend(
         {},
-        this.defaultProperties,
+        this.defaultProperties(),
         group.originalProperties
       );
       var barId = bin.id + ',' + group.id;
       if (barId in this.selectedBars) {
-        _.extend(prop, this.selectedProperties);
-        for (var p in this.selectedMultiplier) {
-          if (p in prop) {
-            prop[p] *= this.selectedMultiplier[p];
-          }
-        }
+        _.extend(prop, this.selectedProperties());
+        this.multiplyProperties(prop, this.selectedMultiplier());
       }
       group.properties = prop;
     }, this);

@@ -2,8 +2,6 @@
  * @fileoverview VisFlow vector library.
  */
 
-'use strict';
-
 /** @const */
 visflow.vectors = {};
 

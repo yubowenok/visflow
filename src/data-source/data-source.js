@@ -2,15 +2,13 @@
  * @fileoverview VisFlow data source.
  */
 
-'use strict';
-
 /**
  * @typedef {!Object}
  */
-visflow.DataSource.Params;
+visflow.params.DataSource;
 
 /**
- * @param {visflow.DataSource.Params} params
+ * @param {visflow.params.DataSource} params
  * @constructor
  * @extends {visflow.Node}
  */
@@ -25,7 +23,7 @@ visflow.DataSource = function(params) {
 
   /**
    * Copy of parsed data, used for switching between non-crossing and crossing.
-   * @private {!Array<visflow.TabularData>}
+   * @private {!Array<?visflow.TabularData>}
    */
   this.rawData_ = [];
 
@@ -38,9 +36,9 @@ visflow.DataSource = function(params) {
 
   /**
    * Created DataTable.
-   * @private {DataTables}
+   * @private {DataTables|undefined}
    */
-  this.table_;
+  this.table_ = undefined;
 
   /** @inheritDoc */
   this.ports = {
@@ -117,7 +115,7 @@ visflow.DataSource.prototype.serialize = function() {
 visflow.DataSource.prototype.deserialize = function(save) {
   visflow.DataSource.base.deserialize.call(this, save);
 
-  save = /** @type {!visflow.DataSource.Save} */(save);
+  save = /** @type {!visflow.save.DataSource} */(save);
 
   if (save.dataSelected != null) {
     visflow.warning('older version data storage found, auto fixed');

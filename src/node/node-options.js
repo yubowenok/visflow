@@ -5,5 +5,5 @@
 /**
  * @constructor
  */
-visflow.Node.Options = function() {
+visflow.options.Node = function() {
 };

@@ -1,0 +1,35 @@
+#modal {
+  .file-section {
+    height: 30px;
+    margin-top: 15px;
+    position: relative;
+
+    #btn-file {
+      border-radius: 4px 0 0 4px;
+      float: left;
+    }
+
+    #file {
+      display: none;
+      position: absolute;
+      top: 0;
+    }
+
+    #file-display {
+      background: none;
+      border-left: 0;
+      border-radius: 0 4px 4px 0;
+      left: 101px;
+      overflow: hidden;
+      position: absolute;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: calc(100% - 101px);
+    }
+  }
+
+  .section {
+    margin-bottom: 5px;
+    margin-top: 5px;
+  }
+}

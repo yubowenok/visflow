@@ -1,0 +1,59 @@
+@import 'src/common/colors';
+
+.visflow .node.visualization {
+  &.details {
+    height: 300px;
+    width: 300px;
+  }
+
+  .axis {
+    text {
+      font-size: 11px;
+    }
+
+    line,
+    path {
+      fill: none;
+      shape-rendering: crispEdges;
+      stroke: $black;
+    }
+  }
+
+  svg {
+    background: $white;
+    height: 100%;
+    pointer-events: all;
+    width: 100%;
+  }
+
+  .selectbox {
+    fill: $dark-blue;
+    fill-opacity: .5;
+    pointer-events: none;
+    shape-rendering: crispEdges;
+    stroke: $gray-3;
+    stroke-width: 1px;
+  }
+
+  .lasso {
+    fill: none;
+    shape-rendering: crispEdges;
+    stroke: $dark-blue;
+    stroke-linecap: round;
+    stroke-width: 2px;
+  }
+
+  .vis-label {
+    font-size: 11px; // TODO(bowen): check if without !important this is oorrect
+    font-weight: bold;
+    text-anchor: middle;
+  }
+}
+
+// TODO(bowen): is this used?
+.visflow .visualization-message {
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
+  width: calc(100% - 10px);
+}

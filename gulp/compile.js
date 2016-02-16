@@ -3,6 +3,7 @@ var gulp = require('gulp');
 var del = require('del');
 var runSequence = require('run-sequence');
 var closureCompiler = require('gulp-closure-compiler');
+var concat = require('gulp-concat');
 
 var paths = require('./paths.js');
 
@@ -32,7 +33,7 @@ var compile = function(cb, src) {
   return gulp.src(src)
     .pipe(closureCompiler({
       compilerPath: compilerPath,
-      fileName: 'genotet.js',
+      fileName: 'visflow.js',
       compilerFlags: {
         jscomp_error: jscompErrors,
         jscomp_warning: jscompWarnings,
@@ -48,14 +49,26 @@ var compile = function(cb, src) {
     }));
 };
 
+// Virtual compilation: no output file is created.
+gulp.task('closure-compile-dev', function(cb) {
+  return compile(cb, paths.srcDev);
+});
+
 gulp.task('compile', function(cb) {
   return compile(cb, paths.src)
     .pipe(gulp.dest(paths.dist));
 });
 
+gulp.task('compile-concat', function() {
+  return gulp.src(paths.srcDev)
+    .pipe(concat('visflow.js'))
+    .pipe(gulp.dest(paths.dist));
+});
+
 gulp.task('compile-dev', function(cb) {
-  // Virtual compilation: no output file is created.
-  return compile(cb, paths.src.concat(paths.dev));
+  runSequence(
+    ['closure-compile-dev', 'compile-concat'],
+    cb);
 });
 
 gulp.task('compile-all', function(cb) {

@@ -2,8 +2,6 @@
  * @fileoverview VisFlow modal dialog.
  */
 
-'use strict';
-
 /** @const */
 visflow.dialog = {};
 

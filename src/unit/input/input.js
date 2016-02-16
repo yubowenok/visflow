@@ -2,8 +2,6 @@
  * @fileoverview VisFlow text input interface.
  */
 
-'use strict';
-
 /**
  * @param {{
  *   container: !jQuery,

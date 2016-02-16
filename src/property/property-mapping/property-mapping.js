@@ -2,10 +2,8 @@
  * @fileoverview VisFlow rendering property mapping module.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  * @extends {visflow.Property}
  */

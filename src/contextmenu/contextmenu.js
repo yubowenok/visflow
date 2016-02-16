@@ -2,8 +2,6 @@
  * @fileoverview VisFlow context menu.
  */
 
-'use strict';
-
 /**
  * Namespace for global call.
  * @const

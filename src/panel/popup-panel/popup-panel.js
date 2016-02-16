@@ -2,8 +2,6 @@
  * @fileoverview VisFlow popup panel.
  */
 
-'use strict';
-
 /** @const */
 visflow.popupPanel = {};
 

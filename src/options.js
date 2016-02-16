@@ -1,8 +1,6 @@
 /**
- * @fileoverview VisFlow system options.
+ * @fileoverview VisFlow system options and options namespace.
  */
-
-'use strict';
 
 /** @const */
 visflow.options = {};

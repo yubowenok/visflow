@@ -2,10 +2,8 @@
  * @fileoverview VisFlow network visualization.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -593,7 +591,7 @@ visflow.Network.prototype.applyProperties_ = function() {
     var node = this.nodes[index];
     var prop = _.extend(
       {},
-      this.defaultProperties,
+      this.defaultProperties(),
       items[index].properties,
       {
         id: 'n' + index,
@@ -601,8 +599,8 @@ visflow.Network.prototype.applyProperties_ = function() {
       }
     );
     if (this.selected[index]) {
-      _.extend(prop, this.selectedProperties);
-      this.multiplyProperties(prop, this.selectedMultiplier);
+      _.extend(prop, this.selectedProperties());
+      this.multiplyProperties(prop, this.selectedMultiplier());
     }
     this.nodeProps_.push(prop);
   }
@@ -612,7 +610,7 @@ visflow.Network.prototype.applyProperties_ = function() {
     var edge = this.edges[index];
     var prop = _.extend(
       {},
-      this.defaultEdgeProperties,
+      this.defaultEdgeProperties(),
       edgeItems[index].properties,
       {
         id: 'e' + index,
@@ -621,8 +619,8 @@ visflow.Network.prototype.applyProperties_ = function() {
       }
     );
     if (this.selectedEdges[index]) {
-      _.extend(prop, this.selectedEdgeProperties);
-      this.multiplyProperties(prop, this.selectedMultiplier);
+      _.extend(prop, this.selectedEdgeProperties());
+      this.multiplyProperties(prop, this.selectedMultiplier());
     }
     this.edgeProps_.push(prop);
   }

@@ -1,10 +1,4 @@
-$gray-7: #777;
-$gray-a: #aaa;
-$gray-b: #bbb;
-$gray-c: #ccc;
-$gray-f5: #f5f5f5;
-$gray-e8: #e8e8e8;
-$white: #fff;
+@import 'src/common/colors';
 
 .visflow .node {
   position: absolute;

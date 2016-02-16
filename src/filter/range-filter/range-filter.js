@@ -2,8 +2,6 @@
  * @fileoverview VisFlow range filter module.
  */
 
-'use strict';
-
 /**
  * @param {!Object} params
  * @constructor
@@ -195,21 +193,26 @@ visflow.RangeFilter.prototype.process = function() {
     {portId: 'inMin', index: 0},
     {portId: 'inMax', index: 1}
   ].forEach(function(info) {
-      var port = this.ports[info.portId];
-      var index = info.index;
-      var pack;
-      if (port.connected()) {
-        pack = port.pack;
-      } else if (this.options.typeInValue[index] != null) {
-        pack = new visflow.Constants(this.options.typeInValue[index]);
-      } else {
-        // Empty pack.
-        pack = port.pack;
-      }
-      packs[index] = pack;
+    var port = this.ports[info.portId];
+    var index = info.index;
+    var pack;
+    if (port.connected()) {
+      pack = port.pack;
+    } else if (this.options.typeInValue[index] != null) {
+      pack = new visflow.Constants(this.options.typeInValue[index]);
+    } else {
+      // Empty pack.
+      pack = port.pack;
+    }
+    packs[index] = pack;
 
-      this.value[index] = pack.getOne();
-    }, this);
+    var val = pack.getOne();
+    if (val == null) {
+      visflow.error('unexpected null value in package of ', this.label);
+    } else {
+      this.value[index] = val;
+    }
+  }, this);
 
   if (!packs[0].compatible(packs[1])) {
     visflow.warning('incompatible constant types in ', this.label);

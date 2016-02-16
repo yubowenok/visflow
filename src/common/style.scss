@@ -1,0 +1,73 @@
+// Z-index list:
+// tooltip - 1001
+// contextMenu - 1000
+// navbar (menu) - 106
+// message - 105
+// snapshot - 104
+// option panel - 103
+// node panel - 102
+// main selectbox - 100
+// main - 0
+
+@import 'src/common/colors';
+
+body {
+  overflow: hidden;
+}
+
+.visflow {
+  #message {
+    margin-top: 29px;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    z-index: 105;
+  }
+
+  .system-message {
+    margin-bottom: 0;
+    padding: 5px 15px;
+  }
+
+  #main {
+    height: 100%;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 0;
+  }
+
+  #selectbox {
+    background-color: $selectbox-background;
+    border: 1px solid $gray-3;
+    position: absolute;
+    shape-rendering: crispEdges;
+    z-index: 100;
+  }
+
+  .node-select {
+    width: 90%;
+  }
+
+  .disabled {
+    color: $gray-c;
+    pointer-events: none;
+  }
+
+  .input-node {
+    text-align: center;
+  }
+
+  .input-leadtext {
+    padding-right: 1em;
+  }
+
+  .navbar-fixed-top {
+    z-index: 106;
+  }
+
+  .text {
+    pointer-events: none;
+  }
+}

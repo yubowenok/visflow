@@ -14,7 +14,7 @@
  * }} params
  * @constructor
  */
-visflow.Node.Save = function(params) {
+visflow.save.Node = function(params) {
   /** @type {boolean|undefined} */
   this.visModeOn = params.visModeOn;
 

@@ -2,10 +2,8 @@
  * @fileoverview VisFlow scatterplot visualization.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  * @extends {visflow.Visualization}
  */
@@ -19,20 +17,20 @@ visflow.Scatterplot = function(params) {
   this.yScale = d3.scale.linear();
 
   /** @type {visflow.ScaleType} */
-  this.xScaleType;
+  this.xScaleType = visflow.ScaleType.UNKNOWN;
   /** @type {visflow.ScaleType} */
-  this.yScaleType;
+  this.yScaleType = visflow.ScaleType.UNKNOWN;
 
   /**
    * SVG group for points.
-   * @private {d3}
+   * @private {d3|undefined}
    */
-  this.svgPoints_;
+  this.svgPoints_ = undefined;
   /**
    * SVG group for axes.
-   * @private {d3}
+   * @private {d3|undefined}
    */
-  this.svgAxes_;
+  this.svgAxes_ = undefined;
 
   /**
    * Left margin computed based on the y Axis labels.
@@ -307,7 +305,7 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
   for (var index in items) {
     var prop = _.extend(
       {},
-      this.defaultProperties,
+      this.defaultProperties(),
       items[index].properties,
       {
         index: index,
@@ -316,12 +314,8 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
       }
     );
     if (index in this.selected) {
-      _.extend(prop, this.selectedProperties);
-      for (var p in this.selectedMultiplier) {
-        if (p in prop) {
-          prop[p] *= this.selectedMultiplier[p];
-        }
-      }
+      _.extend(prop, this.selectedProperties());
+      this.multiplyProperties(prop, this.selectedMultiplier());
     }
     itemProps.push(prop);
   }

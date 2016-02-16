@@ -2,8 +2,6 @@
  * @fileoverview VisFlow parallel coordinates visualization.
  */
 
-'use strict';
-
 /**
  * @param {!Object} params
  * @constructor
@@ -228,7 +226,7 @@ visflow.ParallelCoordinates.prototype.getItemProperties_ = function() {
   for (var index in items) {
     var prop = _.extend(
       {},
-      this.defaultProperties,
+      this.defaultProperties(),
       items[index].properties,
       {
         index: index,
@@ -236,12 +234,8 @@ visflow.ParallelCoordinates.prototype.getItemProperties_ = function() {
       }
     );
     if (index in this.selected) {
-      _.extend(prop, this.selectedProperties);
-      for (var p in this.selectedMultiplier) {
-        if (p in prop) {
-          prop[p] *= this.selectedMultiplier[p];
-        }
-      }
+      _.extend(prop, this.selectedProperties());
+      this.multiplyProperties(prop, this.selectedMultiplier());
     }
 
     this.options.dims.forEach(function(dim, dimIndex) {

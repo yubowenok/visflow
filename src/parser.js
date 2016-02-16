@@ -2,8 +2,6 @@
  * @fileoverview VisFlow data parser.
  */
 
-'use strict';
-
 /** @const */
 visflow.parser = {};
 

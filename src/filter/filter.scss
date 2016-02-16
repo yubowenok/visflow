@@ -1,0 +1,28 @@
+.visflow .node.filter {
+  &.details {
+    height: 95px;
+
+    #dim {
+      overflow: hidden;
+      text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .content > div {
+      margin-bottom: 3px;
+      margin-top: 3px;
+    }
+  }
+
+  &.minimized {
+    height: 30px;
+    width: 50px;
+
+    > .icon {
+      height: 30px;
+      width: 50px;
+    }
+  }
+}

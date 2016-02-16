@@ -2,8 +2,6 @@
  * @fileoverview VisFlow file upload.
  */
 
-'use strict';
-
 /** @const */
 visflow.upload = {};
 

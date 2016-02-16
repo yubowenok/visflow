@@ -12,7 +12,8 @@ visflow.scales = {};
 visflow.ScaleType = {
   NUMERICAL: 0,
   ORDINAL: 1,
-  TIME: 2
+  TIME: 2,
+  UNKNOWN: -1
 };
 
 /**

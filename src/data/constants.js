@@ -3,8 +3,6 @@
  * constants used for filtering.
  */
 
-'use strict';
-
 /**
  * @param {string=} opt_text Input to be parsed as constants.
  * @constructor

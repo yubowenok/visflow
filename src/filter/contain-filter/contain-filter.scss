@@ -1,0 +1,20 @@
+.visflow .node.contain-filter {
+  &.minimized > .icon {
+    background-image: url('/visflow/imgs/contain-icon.png');
+  }
+
+  &.details {
+    width: 150px;
+
+    #value input {
+      overflow: hidden;
+      text-align: center;
+      text-overflow: ellipsis;
+    }
+  }
+
+  #value input {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

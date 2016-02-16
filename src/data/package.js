@@ -4,8 +4,6 @@
  * It allows rendering properties to be added.
  */
 
-'use strict';
-
 /**
  * @param {visflow.Data=} data
  * @constructor

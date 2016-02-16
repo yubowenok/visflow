@@ -2,10 +2,8 @@
  * @fileoverview VisFlow set base module.
  */
 
-'use strict';
-
 /**
- * @param {visflow.Node.Params} params
+ * @param {visflow.params.Node} params
  * @constructor
  * @extends {visflow.Node}
  */

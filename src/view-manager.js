@@ -2,8 +2,6 @@
  * @fileoverview VisFlow view manager.
  */
 
-'use strict';
-
 /** @const */
 visflow.viewManager = {};
 

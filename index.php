@@ -15,7 +15,7 @@ if (!isset($_GET['diagram'])) {
 } else {
   echo str_replace(
     "visflow.test.run()",
-    "visflow.diagram.download_(\"".$_GET['diagram']."\")",
+    "visflow.diagram.download(\"".$_GET['diagram']."\")",
     $index
   );
 }

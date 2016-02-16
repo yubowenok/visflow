@@ -21,7 +21,7 @@ gulp.task('watch', function() {
 gulp.task('dev', ['lint', 'build-dev']);
 
 // Default task. Build with code minification.
-gulp.task('default', ['lint', 'compile']);
+gulp.task('default', ['lint', 'build']);
 
 // Do everything.
 gulp.task('all', function(cb) {
@@ -30,3 +30,4 @@ gulp.task('all', function(cb) {
     ['lint', 'compile-all'],
     cb);
 });
+gulp

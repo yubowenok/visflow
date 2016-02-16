@@ -2,8 +2,6 @@
  * @fileoverview VisFlow visualization base class.
  */
 
-'use strict';
-
 /**
  * @param {!Object} params
  * @constructor
