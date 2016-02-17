@@ -10,19 +10,10 @@
 visflow.Union = function(params) {
   visflow.Union.base.constructor.call(this, params);
 
-  /**
-   * @type {!Array<!visflow.Port|!visflow.MultiplePort>}
-   * @override
-   */
-  this.ports;
+  // Ports inherit set base settings.
 };
 
-visflow.utils.inherit(visflow.Union, visflow.Set);
-
-/** @inheritDoc */
-visflow.Union.prototype.NODE_CLASS = 'union';
-/** @inheritDoc */
-visflow.Union.prototype.NODE_NAME = 'Union';
+_.inherit(visflow.Union, visflow.Set);
 
 /** @inheritDoc */
 visflow.Union.prototype.process = function() {

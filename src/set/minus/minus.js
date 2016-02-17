@@ -35,12 +35,7 @@ visflow.Minus = function(params) {
   };
 };
 
-visflow.utils.inherit(visflow.Minus, visflow.Set);
-
-/** @inheritDoc */
-visflow.Minus.prototype.NODE_CLASS = 'minus';
-/** @inheritDoc */
-visflow.Minus.prototype.NODE_NAME = 'Minus';
+_.inherit(visflow.Minus, visflow.Set);
 
 /** @inheritDoc */
 visflow.Minus.prototype.process = function() {

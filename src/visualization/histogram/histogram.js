@@ -56,62 +56,8 @@ visflow.Histogram = function(params) {
   this.deserialized_ = false;
 };
 
-visflow.utils.inherit(visflow.Histogram, visflow.Visualization);
+_.inherit(visflow.Histogram, visflow.Visualization);
 
-/** @inheritDoc */
-visflow.Histogram.prototype.NODE_CLASS = 'histogram';
-/** @inheritDoc */
-visflow.Histogram.prototype.NODE_NAME = 'Histogram';
-/** @inheritDoc */
-visflow.Histogram.prototype.PANEL_TEMPLATE =
-    './src/visualization/histogram/histogram-panel.html';
-
-/** @inheritDoc */
-visflow.Histogram.prototype.defaultOptions = function() {
-  return {
-    // Number of histogram bins.
-    numBins: 10
-  };
-};
-
-/** @inheritDoc */
-visflow.Histogram.prototype.plotMargins = function() {
-  return {
-    left: 25,
-      right: 10,
-    top: 10,
-    bottom: 20
-  };
-};
-
-/** @private @const {number} */
-visflow.Histogram.prototype.Y_MARGIN_ = 0.1;
-/** @private @const {number} */
-visflow.Histogram.prototype.BAR_INTERVAL_ = 1;
-
-/** @inheritDoc */
-visflow.Histogram.prototype.defaultProperties = function() {
-  return {
-    color: '#555',
-    opacity: 1
-  };
-};
-
-/** @inheritDoc */
-visflow.Histogram.prototype.selectedProperties = function() {
-  return {
-    color: 'white',
-    border: '#6699ee',
-    width: 1.5
-  };
-};
-
-/** @inheritDoc */
-visflow.Histogram.prototype.selectedMultiplier = function() {
-  return {
-    width: 1.2
-  };
-};
 
 /** @inheritDoc */
 visflow.Histogram.prototype.init = function() {
@@ -507,48 +453,6 @@ visflow.Histogram.prototype.drawYAxis_ = function() {
 visflow.Histogram.prototype.drawBrush = function() {
   this.drawSelectBox();
 };
-
-/** @inheritDoc */
-visflow.Histogram.prototype.initPanel = function(container) {
-  var dimensionList = this.getDimensionList();
-  var units = [
-    {
-      constructor: visflow.Select,
-      params: {
-        container: container.find('#dim'),
-        list: dimensionList,
-        selected: this.dim,
-        listTitle: 'Distribution Dimension'
-      },
-      change: function(event, dim) {
-        this.dim = dim;
-        this.dimensionChanged();
-      }
-    },
-    {
-      constructor: visflow.Input,
-      params: {
-        container: container.find('#bins'),
-        value: this.options.numBins,
-        accept: visflow.ValueType.INT,
-        range: [1, 1000],
-        scrollDelta: 1,
-        title: 'Number of Bins'
-      },
-      change: function(event, value) {
-        this.options.numBins = value;
-        this.prepareScales();
-        this.show();
-
-        // Bins have changed, and previous selection do not apply.
-        this.selectedBars = {};
-        this.selected = {};
-      }
-    }
-  ];
-  this.initInterface(units);
-};
-
 
 /** @inheritDoc */
 visflow.Histogram.prototype.prepareScales = function() {

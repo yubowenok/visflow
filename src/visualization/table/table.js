@@ -22,9 +22,9 @@ visflow.Table = function(params) {
    * Table template. We store a copy of the table structure when the node HTML
    * template is loaded. Because we have to destroy table HTML when input data
    * is updated.
-   * @private {jQuery}
+   * @private {!jQuery}
    */
-  this.tableTemplate_;
+  this.tableTemplate_ = $();
 
   /**
    * Flag indicating the next select/deselect in the table shall be canceled as
@@ -34,55 +34,10 @@ visflow.Table = function(params) {
   this.cancelTableSelect_ = false;
 };
 
-visflow.utils.inherit(visflow.Table, visflow.Visualization);
+_.inherit(visflow.Table, visflow.Visualization);
 
-/** @inheritDoc */
-visflow.Table.prototype.TEMPLATE = './src/visualization/table/table.html';
-/** @inheritDoc */
-visflow.Table.prototype.PANEL_TEMPLATE =
-    './src/visualization/table/table-panel.html';
-/** @inheritDoc */
-visflow.Table.prototype.NODE_NAME = 'Table';
-/** @inheritDoc */
-visflow.Table.prototype.NODE_CLASS = 'table';
 
-/** @inheritDoc */
-visflow.Table.prototype.defaultOptions = function() {
-  return {
-    // pageLength of the dataTables
-    pageLength: 20
-  };
-};
 
-/** @inheritDoc */
-visflow.Table.prototype.MIN_WIDTH = 400;
-/** @inheritDoc */
-visflow.Table.prototype.MIN_HEIGHT = 150;
-/**
- * The height sum of the DataTable wrapping elements, including
- * - the search box row (35px)
- * - table scroll head (43px)
- * - the table header row (45px)
- * - the info row (41px).
- * - horizontal scrollBar (~12px)
- * @private {number}
- */
-visflow.Table.prototype.WRAPPER_HEIGHT_ = 35 + 43 + 41 + 12;
-
-/**
- * After DataTable is initialized, wait for this amount of time and then resize
- * the table columns. This is to give the columns enough time to recognize the
- * potentially existing vertical scroll bar, so that the columns can get correct
- * widths.
- * @private @const {number}
- */
-visflow.Table.prototype.COL_RESIZE_DELAY_ = 10;
-
-/**
- * Maximum number of dimensions by default shown.
- * @private
- */
-visflow.Table.prototype.DEFAULT_NUM_DIMENSIONS_ = 20;
 
 /** @inheritDoc */
 visflow.Table.prototype.init = function() {
@@ -241,30 +196,6 @@ visflow.Table.prototype.showDetails = function() {
 /** @inheritDoc */
 visflow.Table.prototype.drawBrush = function() {
   // Nothing
-};
-
-/** @inheritDoc */
-visflow.Table.prototype.initPanel = function(container) {
-  visflow.Table.base.initPanel.call(this, container);
-  var dimensionList = this.getDimensionList();
-
-  var units = [
-    {
-      constructor: visflow.EditableList,
-      params: {
-        container: container.find('#dims'),
-        list: dimensionList,
-        selected: this.dimensions,
-        listTitle: 'Dimensions',
-        addTitle: 'Add Dimension'
-      },
-      change: function(event, items) {
-        this.dimensions = items;
-        this.dimensionChanged();
-      }
-    }
-  ];
-  this.initInterface(units);
 };
 
 /**

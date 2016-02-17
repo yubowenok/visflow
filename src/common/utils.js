@@ -13,7 +13,8 @@ visflow.utils.init = function() {
   _.mixin({
     keySet: visflow.utils.keySet_,
     getValue: visflow.utils.getValue_,
-    fadeOut: visflow.utils.fadeOut_
+    fadeOut: visflow.utils.fadeOut_,
+    inherit: visflow.utils.inherit_
   });
 };
 
@@ -293,8 +294,9 @@ visflow.utils.fadeOut_ = function(obj) {
  * Makes 'child' class inherit 'base' class.
  * @param {Function} child
  * @param {*} base
+ * @private
  */
-visflow.utils.inherit = function(child, base) {
+visflow.utils.inherit_ = function(child, base) {
   child.prototype = Object.create(base.prototype);
   child.prototype.constructor = child;
   child.base = base.prototype;

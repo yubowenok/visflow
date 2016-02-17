@@ -27,7 +27,7 @@ visflow.Sampler = function(params) {
   };
 };
 
-visflow.utils.inherit(visflow.Sampler, visflow.Filter);
+_.inherit(visflow.Sampler, visflow.Filter);
 
 /** @inheritDoc */
 visflow.Sampler.prototype.TEMPLATE =

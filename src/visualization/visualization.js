@@ -70,7 +70,7 @@ visflow.Visualization = function(params) {
   this.options.extend(this.visualizationOptions());
 };
 
-visflow.utils.inherit(visflow.Visualization, visflow.Node);
+_.inherit(visflow.Visualization, visflow.Node);
 
 
 /** @inheritDoc */

@@ -23,7 +23,7 @@ visflow.Filter = function(params) {
   this.lastDataId = 0;
 };
 
-visflow.utils.inherit(visflow.Filter, visflow.Node);
+_.inherit(visflow.Filter, visflow.Node);
 
 /** @inheritDoc */
 visflow.Filter.prototype.MIN_HEIGHT = 95;

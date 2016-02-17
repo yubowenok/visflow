@@ -19,7 +19,7 @@ visflow.SelectionPort = function(params) {
   visflow.SelectionPort.base.constructor.call(this, paramsApplied);
 };
 
-visflow.utils.inherit(visflow.SelectionPort, visflow.MultiplePort);
+_.inherit(visflow.SelectionPort, visflow.MultiplePort);
 
 /** @inheritDoc */
 visflow.SelectionPort.prototype.setContainer = function(container) {

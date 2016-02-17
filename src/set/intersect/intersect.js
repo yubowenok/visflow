@@ -11,12 +11,7 @@ visflow.Intersect = function(params) {
   visflow.Intersect.base.constructor.call(this, params);
 };
 
-visflow.utils.inherit(visflow.Intersect, visflow.Set);
-
-/** @inheritDoc */
-visflow.Intersect.prototype.NODE_CLASS = 'intersect';
-/** @inheritDoc */
-visflow.Intersect.prototype.NODE_NAME = 'Intersect';
+_.inherit(visflow.Intersect, visflow.Set);
 
 /** @inheritDoc */
 visflow.Intersect.prototype.process = function() {

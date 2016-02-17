@@ -34,38 +34,12 @@ visflow.Set = function(params) {
   this.numConnections_ = 0;
 };
 
-visflow.utils.inherit(visflow.Set, visflow.Node);
-
-/** @inheritDoc */
-visflow.Set.prototype.RESIZABLE = false;
-/** @inheritDoc */
-visflow.Set.prototype.PANEL_TEMPLATE = './src/set/set-panel.html';
-
-/** @protected {number} */
-visflow.Set.prototype.MAX_LABEL_LENGTH = 9;
-
-/** @inheritDoc */
-visflow.Set.prototype.contextMenuItems = function() {
-  return [
-    {id: 'minimize', text: 'Minimize',
-      icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'panel', text: 'Control Panel',
-      icon: 'glyphicon glyphicon-th-list'},
-    {id: 'delete', text: 'Delete', icon:
-      'glyphicon glyphicon-remove'}
-  ];
-};
+_.inherit(visflow.Set, visflow.Node);
 
 /** @inheritDoc */
 visflow.Set.prototype.init = function() {
   visflow.Set.base.init.call(this);
   this.container.addClass('set');
-};
-
-/** @inheritDoc */
-visflow.Set.prototype.initPanelHeader = function(container) {
-  visflow.Set.base.initPanelHeader.call(this, container);
-  container.find('.panel-header').find('#vis-mode').hide();
 };
 
 /**

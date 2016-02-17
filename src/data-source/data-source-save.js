@@ -32,4 +32,4 @@ visflow.save.DataSource = function(params) {
   this.data = params.data;
 };
 
-visflow.utils.inherit(visflow.save.DataSource, visflow.save.Node);
+_.inherit(visflow.save.DataSource, visflow.save.Node);

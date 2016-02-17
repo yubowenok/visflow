@@ -3,11 +3,7 @@
  */
 
 /**
- * @param {{
- *   minimized: (boolean|undefined),
- *   label: (boolean|undefined),
- *   visMode: (boolean|undefined)
- * }} params
+ * @param {!Object} params
  * @constructor
  */
 visflow.options.Node = function(params) {
@@ -31,9 +27,15 @@ visflow.options.Node = function(params) {
 };
 
 /**
- * Extends the options itself by another options instance.
+ * Extends the options itself by another options instance. All values in options
+ * that are not 'undefined' will be overwriting the values in 'this' options.
+ * We distinguish 'undefined' from 'null' as 'null' may have special meanings.
  * @param {!visflow.options.Node} options
  */
 visflow.options.Node.prototype.extend = function(options) {
-  _.extend(this, options);
+  for (var key in options) {
+    if (options[key] !== undefined) {
+      this[key] = options[key];
+    }
+  }
 };

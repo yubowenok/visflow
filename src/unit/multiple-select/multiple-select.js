@@ -18,7 +18,7 @@ visflow.MultipleSelect = function(params) {
   visflow.MultipleSelect.base.constructor.call(this, params);
 };
 
-visflow.utils.inherit(visflow.MultipleSelect, visflow.Select);
+_.inherit(visflow.MultipleSelect, visflow.Select);
 
 /** @private @const {number} */
 visflow.MultipleSelect.prototype.REMOVE_DELAY_ = 0;

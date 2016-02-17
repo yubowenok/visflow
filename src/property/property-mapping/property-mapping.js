@@ -33,7 +33,7 @@ visflow.PropertyMapping = function(params) {
   this.dim = 0;
 };
 
-visflow.utils.inherit(visflow.PropertyMapping, visflow.Property);
+_.inherit(visflow.PropertyMapping, visflow.Property);
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.serialize = function() {

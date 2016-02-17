@@ -17,7 +17,7 @@ visflow.MultiplePort = function(params) {
   }
 };
 
-visflow.utils.inherit(visflow.MultiplePort, visflow.Port);
+_.inherit(visflow.MultiplePort, visflow.Port);
 
 /** @inheritDoc */
 visflow.MultiplePort.prototype.setContainer = function(container) {

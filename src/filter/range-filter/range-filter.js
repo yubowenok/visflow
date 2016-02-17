@@ -47,7 +47,7 @@ visflow.RangeFilter = function(params) {
   this.value = [];
 };
 
-visflow.utils.inherit(visflow.RangeFilter, visflow.Filter);
+_.inherit(visflow.RangeFilter, visflow.Filter);
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.TEMPLATE =

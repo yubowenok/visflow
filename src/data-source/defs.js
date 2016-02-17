@@ -31,16 +31,11 @@ visflow.DataSource.prototype.DATA_NAMES_LENGTH_ = 100;
 
 /** @inheritDoc */
 visflow.DataSource.prototype.defaultOptions = function() {
-  return {
-    // Whether to use data crossing.
+  return new visflow.options.DataSource({
     crossing: false,
-    // Dimensions used for crossing. -1 is index.
-    crossingKeys: [],
-    // Name for the attribute column in crossing.
     crossingName: 'attributes',
-    // Crossing attributes, in dimension indices.
+    crossingKeys: [],
     crossingAttrs: [],
-    // Whether to user server data set in the UI.
     useServerData: true
-  };
+  });
 };

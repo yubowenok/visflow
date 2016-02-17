@@ -28,3 +28,9 @@ _.getValue = function(attr) {};
  * @param {!d3} arg
  */
 _.fadeOut = function(arg) {};
+
+/**
+ * @param {Function} arg1
+ * @param {Function} arg2
+ */
+_.inherit = function(arg1, arg2) {};

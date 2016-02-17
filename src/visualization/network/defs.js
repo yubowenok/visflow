@@ -35,18 +35,8 @@ visflow.Network.prototype.EDGE_ARROW_LENGTH_ = 10;
 visflow.Network.prototype.EDGE_CURVE_SHIFT_ = 0.1;
 
 /** @inheritDoc */
-visflow.Network.prototype.defaultProperties = function() {
-  return {
-    color: '#555',
-    border: 'black',
-    width: 2,
-    size: 5
-  };
-};
-
-/** @inheritDoc */
 visflow.Network.prototype.defaultOptions = function() {
-  return {
+  return new visflow.options.Network({
     // Whether to show label.
     nodeLabel: true,
     // Which dimension is used as label.
@@ -61,6 +51,16 @@ visflow.Network.prototype.defaultOptions = function() {
     targetBy: 1,
     // Whether navigation is enabled.
     navigation: false
+  });
+};
+
+/** @inheritDoc */
+visflow.Network.prototype.defaultProperties = function() {
+  return {
+    color: '#555',
+    border: 'black',
+    width: 2,
+    size: 5
   };
 };
 

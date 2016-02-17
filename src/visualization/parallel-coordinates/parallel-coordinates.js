@@ -60,67 +60,7 @@ visflow.ParallelCoordinates = function(params) {
   };
 };
 
-visflow.utils.inherit(visflow.ParallelCoordinates, visflow.Visualization);
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.PANEL_TEMPLATE =
-    './src/visualization/parallel-coordinates/parallel-coordinates-panel.html';
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.NODE_CLASS = 'parallel-coordinates';
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.NODE_NAME = 'ParallelCoordinates';
-
-/**
- * Default number of dimension shown.
- * @private @const {number}
- */
-visflow.ParallelCoordinates.prototype.DEFAULT_NUM_DIMENSIONS_ = 7;
-
-/**
- * Axis label size.
- * @private @const {number}
- */
-visflow.ParallelCoordinates.prototype.LABEL_FONT_SIZE_ = 6.5;
-/**
- * Offset from the leftmost axis to the tick text.
- * @private @const {number}
- */
-visflow.ParallelCoordinates.prototype.AXIS_TICK_OFFSET_ = 8;
-/**
- * Y offset of the axes labels, to the plot bottom.
- * @private @const {number}
- */
-visflow.ParallelCoordinates.prototype.AXIS_LABEL_OFFSET_ = 5;
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.defaultOptions = function() {
-  return {
-    // Dimensions of parallel coordinates.
-    dims: [],
-      // Show axes ticks.
-      ticks: true,
-    // Show axis label.
-    axisLabel: true
-  };
-};
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.defaultProperties = function() {
-  return {
-    color: 'black',
-    size: 1,
-    fill: 'none',
-    opacity: 0.25
-  };
-};
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.selectedProperties = function() {
-  return {
-    color: '#6699ee',
-    opacity: 0.75
-  };
-};
+_.inherit(visflow.ParallelCoordinates, visflow.Visualization);
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.init = function() {
@@ -276,54 +216,6 @@ visflow.ParallelCoordinates.prototype.showSelection = function() {
   for (var index in this.selected) {
     svg.find('path#' + index).appendTo(svg);
   }
-};
-
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.initPanel = function(container) {
-  visflow.ParallelCoordinates.base.initPanel.call(this, container);
-  var dimensionList = this.getDimensionList();
-
-  var units = [
-    {
-      constructor: visflow.EditableList,
-      params: {
-        container: container.find('#dims'),
-        list: dimensionList,
-        selected: this.options.dims,
-        listTitle: 'Dimensions',
-        addTitle: 'Add Dimension'
-      },
-      change: function(event, items) {
-        this.options.dims = items;
-        this.dimensionChanged();
-      }
-    },
-    {
-      constructor: visflow.Checkbox,
-      params: {
-        container: container.find('#ticks'),
-        value: this.options.ticks,
-        title: 'Ticks'
-      },
-      change: function(event, value) {
-        this.options.ticks = value;
-        this.layoutChanged();
-      }
-    },
-    {
-      constructor: visflow.Checkbox,
-      params: {
-        container: container.find('#axis-label'),
-        value: this.options.axisLabel,
-        title: 'Axis Labels'
-      },
-      change: function(event, value) {
-        this.options.axisLabel = value;
-        this.layoutChanged();
-      }
-    }
-  ];
-  this.initInterface(units);
 };
 
 /**

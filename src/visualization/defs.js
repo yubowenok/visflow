@@ -54,7 +54,7 @@ visflow.Visualization.prototype.plotMargins = function() {
 
 /**
  * Returns object for specifying default rendering properties.
- * @return {!Object<number|string>}
+ * @return {visflow.Properties}
  * @protected
  */
 visflow.Visualization.prototype.defaultProperties = function() {
@@ -68,7 +68,7 @@ visflow.Visualization.prototype.defaultProperties = function() {
 
 /**
  * These properties are shown when items are selected.
- * @return {!Object<number|string>}
+ * @return {visflow.Properties}
  * @protected
  */
 visflow.Visualization.prototype.selectedProperties = function() {
@@ -80,7 +80,7 @@ visflow.Visualization.prototype.selectedProperties = function() {
 
 /**
  * Highlight effect for selected elements, using multiplier.
- * @return {!Object<number|string>}
+ * @return {visflow.Properties}
  * @protected
  */
 visflow.Visualization.prototype.selectedMultiplier = function() {

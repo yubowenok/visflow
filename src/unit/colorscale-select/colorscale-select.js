@@ -34,7 +34,7 @@ visflow.ColorScaleSelect = function(params) {
   }, this);
 };
 
-visflow.utils.inherit(visflow.ColorScaleSelect, visflow.Select);
+_.inherit(visflow.ColorScaleSelect, visflow.Select);
 
 /** @private @const {number} */
 visflow.ColorScaleSelect.prototype.GRADIENT_DELAY_ = 0;

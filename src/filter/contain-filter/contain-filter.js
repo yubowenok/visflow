@@ -40,7 +40,7 @@ visflow.ContainFilter = function(params) {
   this.value = [];
 };
 
-visflow.utils.inherit(visflow.ContainFilter, visflow.Filter);
+_.inherit(visflow.ContainFilter, visflow.Filter);
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.TEMPLATE =

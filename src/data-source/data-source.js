@@ -64,7 +64,7 @@ visflow.DataSource = function(params) {
   };
 };
 
-visflow.utils.inherit(visflow.DataSource, visflow.Node);
+_.inherit(visflow.DataSource, visflow.Node);
 
 
 /** @inheritDoc */

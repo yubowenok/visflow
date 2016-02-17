@@ -58,7 +58,7 @@ visflow.Property = function(params) {
   visflow.Property.base.constructor.call(this, params);
 };
 
-visflow.utils.inherit(visflow.Property, visflow.Node);
+_.inherit(visflow.Property, visflow.Node);
 
 /** @inheritDoc */
 visflow.Property.prototype.RESIZABLE = false;

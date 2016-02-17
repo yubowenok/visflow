@@ -27,7 +27,7 @@ visflow.PropertyEditor = function(params) {
   };
 };
 
-visflow.utils.inherit(visflow.PropertyEditor, visflow.Property);
+_.inherit(visflow.PropertyEditor, visflow.Property);
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.serialize = function() {

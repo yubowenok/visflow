@@ -27,8 +27,10 @@ var orderedSrc = [
 
   'src/data/*.js',
 
-  'src/node/**/*.js',
-  'src/edge/**/*.js',
+  'src/node/node.js',
+  'src/node/*.js',
+  'src/edge/edge.js',
+  'src/edge/*.js',
   'src/port/port.js',
   'src/port/*.js',
 

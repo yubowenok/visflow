@@ -19,12 +19,12 @@ visflow.PropertyMapping.prototype.PANEL_TEMPLATE =
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.defaultOptions = function() {
-  return {
+  return new visflow.options.PropertyMapping({
     // Property to be mapped.
     mapping: 'color',
     // Selected color scale.
     colorScaleId: 'redGreen',
     // Mapping range for number type values.
     numberRange: [0, 1]
-  };
+  });
 };

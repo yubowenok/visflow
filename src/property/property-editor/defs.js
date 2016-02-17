@@ -18,13 +18,13 @@ visflow.PropertyEditor.prototype.PANEL_TEMPLATE =
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.defaultOptions = function() {
-  return {
+  return new visflow.options.PropertyEditor({
     color: null,
     border: null,
     width: null,
     size: null,
     opacity: null
-  };
+  });
 };
 
 /**
