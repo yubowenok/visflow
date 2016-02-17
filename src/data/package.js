@@ -5,6 +5,13 @@
  */
 
 /**
+ * A collection of item ids to boolean values, indicating whether each element
+ * is present in the collection.
+ * @typedef {!Object<boolean>}
+ */
+visflow.ItemSet;
+
+/**
  * @param {visflow.Data=} data
  * @constructor
  */
@@ -21,7 +28,7 @@ visflow.Package = function(data) {
 
   /**
    * Item Ids.
-   * @type {!Object<*>}
+   * @type {visflow.ItemSet}
    */
   this.items = {};
 

@@ -642,7 +642,7 @@ visflow.flow.addNodeSelection = function(nodes) {
 
 /**
  * Clears the selection a set of nodes.
- * @param {!Array<!visflow.Node>=} nodes
+ * @param {(!Array<!visflow.Node>|!visflow.Node)=} nodes
  */
 visflow.flow.clearNodeSelection = function(nodes) {
   var toClear = {};
@@ -676,7 +676,7 @@ visflow.flow.backgroundClearSelection = function() {
 
 /**
  * Adds hovering to a set of nodes.
- * @param {!Array<!visflow.Node>} nodes
+ * @param {!Array<!visflow.Node>|!visflow.Node} nodes
  */
 visflow.flow.addNodeHover = function(nodes) {
   var toAdd = {};
@@ -698,7 +698,7 @@ visflow.flow.addNodeHover = function(nodes) {
 
 /**
  * Clears the hovering of a set of nodes.
- * @param {!Array<!visflow.Node>=} nodes
+ * @param {(!Array<!visflow.Node>|!visflow.Node)=} nodes
  */
 visflow.flow.clearNodeHover = function(nodes) {
   var toClear = {};

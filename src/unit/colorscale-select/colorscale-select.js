@@ -41,7 +41,7 @@ visflow.ColorScaleSelect.prototype.GRADIENT_DELAY_ = 0;
 
 /** @inheritDoc */
 visflow.ColorScaleSelect.prototype.init = function() {
-  visflow.ColorScaleSelect.base.init_.call(this);
+  visflow.ColorScaleSelect.base.init.call(this);
 
   this.container.children('.select').addClass('color-scale');
 

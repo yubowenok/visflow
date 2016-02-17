@@ -5,12 +5,6 @@
 /** @const */
 visflow.utils = {};
 
-/** @typedef {{x: number, y: number}} */
-visflow.Point;
-
-/** @typedef {{x1: number, y1: number, x2: number, y2: number}} */
-visflow.Box;
-
 /**
  * Initializes the utils. Creates underscore mixins.
  */
@@ -24,12 +18,12 @@ visflow.utils.init = function() {
 };
 
 /**
- * Gets event offset corresponding to a given element 'e'.
+ * Gets mouse event offset corresponding to a given element 'e'.
  * @param {!jQuery.Event} event
  * @param {!jQuery} element
- * @return {{left: number, top: number}} Offset computed.
+ * @return {visflow.Offset} Offset computed.
  */
-visflow.utils.getOffset = function(event, element) {
+visflow.utils.mouseOffset = function(event, element) {
   var offset = element.offset();
   var paddingLeft = parseInt(element.css('padding-left'), 10);
   var paddingTop = parseInt(element.css('padding-top'), 10);
@@ -43,7 +37,7 @@ visflow.utils.getOffset = function(event, element) {
  * Gets the offset of an element 'e1' relative to another element 'e2'.
  * @param {!jQuery} e1
  * @param {!jQuery} e2
- * @return {{left: number, top: number}}
+ * @return {visflow.Offset}
  */
 visflow.utils.offset = function(e1, e2) {
   var offset1 = e1.offset(), offset2 = e2.offset();
@@ -56,7 +50,7 @@ visflow.utils.offset = function(e1, e2) {
 /**
  * Gets the offset of an element relative to '#main'.
  * @param {!jQuery} e
- * @return {{left: number, top: number}}
+ * @return {visflow.Offset}
  */
 visflow.utils.offsetMain = function(e) {
   return visflow.utils.offset(e, $('#main'));
@@ -65,7 +59,7 @@ visflow.utils.offsetMain = function(e) {
 /**
  * Checks whether a point is inside a box, 2D.
  * @param {!visflow.Point} point
- * @param {!visflow.Box} box
+ * @param {visflow.Rect2Points} box
  * @return {boolean}
  */
 visflow.utils.pointInBox = function(point, box) {
@@ -84,10 +78,10 @@ visflow.utils.randomString = function(len) {
 
 /**
  * Checks if two segments [p1, p2] and [q1, q2] intersect.
- * @param {!Array<number>} p1
- * @param {!Array<number>} p2
- * @param {!Array<number>} q1
- * @param {!Array<number>} q2
+ * @param {visflow.Vector} p1
+ * @param {visflow.Vector} p2
+ * @param {visflow.Vector} q1
+ * @param {visflow.Vector} q2
  * @return {boolean}
  */
 visflow.utils.intersect = function(p1, p2, q1, q2) {
@@ -97,10 +91,10 @@ visflow.utils.intersect = function(p1, p2, q1, q2) {
 
 /**
  * Checks if q1, q2 are on two different sides of line (p1, p2).
- * @param {!Array<number>} p1
- * @param {!Array<number>} p2
- * @param {!Array<number>} q1
- * @param {!Array<number>} q2
+ * @param {visflow.Vector} p1
+ * @param {visflow.Vector} p2
+ * @param {visflow.Vector} q1
+ * @param {visflow.Vector} q2
  * @return {boolean} True if q1, q2 are on two different sides.
  */
 visflow.utils.twosides = function(p1, p2, q1, q2) {
@@ -156,7 +150,8 @@ visflow.utils.compare = function(a, b) {
 };
 
 /**
- * Hashes a string.
+ * Hashes a string using polynomial hash (rolling hash) with multiplier = 3,
+ * mod = 1000000007.
  * @param {string} s
  * @return {number} Hash value between [0, 1000000007), or -1 on error.
  */
@@ -176,10 +171,10 @@ visflow.utils.hashString = function(s) {
 
 /**
  * Combines translate and scale into a CSS transform string.
- * @param {!Array<number>} opt_translate Zoom translate.
+ * @param {visflow.Vector} opt_translate Zoom translate.
  * @param {number=} opt_scale Zoom scale.
  * @param {number=} opt_rotate Rotation degree.
- * @return {string} CSS string of the transform.
+ * @return {visflow.Transform} CSS string of the transform.
  */
 visflow.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
   var result = '';
@@ -197,7 +192,7 @@ visflow.utils.getTransform = function(opt_translate, opt_scale, opt_rotate) {
 
 /**
  * Gets an array as the compare key of rendering properties.
- * @param {!Object} properties
+ * @param {visflow.Properties} properties
  * @return {!Array<number|string>}
  */
 visflow.utils.propertiesCompareKey = function(properties) {
@@ -205,7 +200,7 @@ visflow.utils.propertiesCompareKey = function(properties) {
   ['color', 'border', 'width', 'opacity'].forEach(function(key) {
     var p = key in properties ? properties[key] : '';
     if (key == 'color') {
-      p = d3.rgb(p).hsl();
+      p = d3.rgb('' + p).hsl();
       p = [isNaN(p.h) ? 0 : p.h, isNaN(p.s) ? 0 : p.s, p.l];
       result = result.concat(p);
     } else {
@@ -218,11 +213,11 @@ visflow.utils.propertiesCompareKey = function(properties) {
 /**
  * Compares two rendering property objects.
  * @param {!{
- *   properties: !Object,
+ *   properties: visflow.Properties,
  *   propertiesKey: !Array<string|number>
  * }} a
  * @param {!{
- *   properties: !Object,
+ *   properties: visflow.Properties,
  *   propertiesKey: !Array<string|number>
  * }} b
  * @return {number} -1, 0, 1 for a < b, a = b, a > b
@@ -303,20 +298,4 @@ visflow.utils.inherit = function(child, base) {
   child.prototype = Object.create(base.prototype);
   child.prototype.constructor = child;
   child.base = base.prototype;
-};
-
-// Extend sorting to support custom types.
-$.fn.dataTable.ext.type.order['data-size-pre'] = function(d) {
-  var unit = d.replace(/[\d\.\s]/g, '').toLowerCase();
-  var base = 1000;
-  var multiplier = 1;
-  switch (unit) {
-    case 'mb':
-      multiplier *= base;
-    case 'kb':
-      multiplier *= base;
-    case 'b':
-      break;
-  }
-  return parseFloat(d) * multiplier;
 };

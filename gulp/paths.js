@@ -2,6 +2,7 @@
 
 var orderedSrc = [
   'src/visflow.js',
+  'src/common/defs.js',
   'src/common/*.js',
   'src/menu/*.js',
   'src/view-manager.js',
@@ -36,11 +37,16 @@ var orderedSrc = [
 
   'src/panel/**/*.js',
 
-  'src/data-source/**/*.js',
+  'src/data-source/data-source.js',
+  'src/data-source/*.js',
+
   'src/property/**/*.js',
   'src/set/**/*.js',
   'src/value/**/*.js',
   'src/filter/**/*.js',
+
+  'src/visualization/visualization.js',
+  'src/visualization/*.js',
   'src/visualization/**/*.js',
 
   'src/diagram.js',

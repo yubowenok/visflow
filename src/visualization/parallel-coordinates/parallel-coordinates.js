@@ -36,35 +36,28 @@ visflow.ParallelCoordinates = function(params) {
 
   /**
    * SVG group for polylines.
-   * @private {d3}
+   * @private {!d3|undefined}
    */
-  this.svgPolylines_;
-  /**
-   * SVG group for axes.
-   * @private {d3}
-   */
-  this.svgAxes_;
-  /**
-   * SVG group for drawing temporary axes, used to determine label sizes.
-   * @private {d3}
-   */
-  this.svgTempAxes_;
+  this.svgPolylines_ = undefined;
 
   /**
-   * Left margin computed based on the leftmost axis label.
-   * @private {number}
+   * SVG group for drawing temporary axes, used to determine label sizes.
+   * @private {!d3|undefined}
    */
-  this.leftMargin_ = 0;
+  this.svgTempAxes_ = undefined;
+
   /**
-   * Right margin computed based on the rightmost axis label.
-   * @private {number}
+   * @private {visflow.Margins}
    */
-  this.rightMargin_ = 0;
-  /**
-   * Bottom margin that depends on axis label visibility.
-   * @private {number}
-   */
-  this.bottomMargin_ = 0;
+  this.margins_ = {
+    // Left margin computed based on the leftmost axis label.
+    left: 0,
+    // Right margin computed based on the rightmost axis label.
+    right: 0,
+    // Bottom margin that depends on axis label visibility.
+    bottom: 0,
+    top: 0
+  };
 };
 
 visflow.utils.inherit(visflow.ParallelCoordinates, visflow.Visualization);
@@ -134,7 +127,7 @@ visflow.ParallelCoordinates.prototype.init = function() {
   visflow.ParallelCoordinates.base.init.call(this);
   this.svgPolylines_ = this.svg.append('g')
     .classed('polylines', true);
-  this.svgAxes_ = this.svg.append('g')
+  this.svgAxes = this.svg.append('g')
     .classed('axes', true);
   this.svgTempAxes_ = this.svg.append('g')
     .classed('axes', true);
@@ -347,7 +340,7 @@ visflow.ParallelCoordinates.prototype.drawAxes_ = function() {
     }} */(dimInfo);
     return dimInfo_.uniqId;
   });
-  var exitAxes = this.svgAxes_.selectAll('g.axis')
+  var exitAxes = this.svgAxes.selectAll('g.axis')
     .data(uniqIds, _.identity)
     .exit();
   _.fadeOut(exitAxes);
@@ -380,10 +373,10 @@ visflow.ParallelCoordinates.prototype.drawTempAxis_ = function(dimIndex,
   var allowTransition = this.allowTransition;
   this.allowTransition = false;
 
-  var svgAxes = this.svgAxes_;
-  this.svgAxes_ = this.svgTempAxes_;
+  var svgAxes = this.svgAxes;
+  this.svgAxes = this.svgTempAxes_;
   this.drawAxis_(dimIndex, opt_uniqId);
-  this.svgAxes_ = svgAxes;
+  this.svgAxes = svgAxes;
 
   if (opt_check) {
     opt_check();
@@ -418,13 +411,13 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
     .tickValues(this.options.ticks ? yScale.domain() : [])
     .scale(yScale);
 
-  var g = this.svgAxes_.select('#axis' + id);
+  var g = this.svgAxes.select('#axis' + id);
   var gTransform = visflow.utils.getTransform([
     this.xScale(dimIndex),
     0
   ]);
   if (g.empty()) {
-    g = this.svgAxes_.append('g').datum(id)
+    g = this.svgAxes.append('g').datum(id)
       .attr('id', 'axis' + id)
       .classed('axis', true)
       .attr('transform', gTransform);
@@ -468,7 +461,7 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   this.updateBottomMargin_();
 
   var yRange = [
-    svgSize.height - this.bottomMargin_,
+    svgSize.height - this.margins_.bottom,
     this.plotMargins().top
   ];
 
@@ -488,8 +481,8 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   this.xScale = d3.scale.linear()
     .domain([0, this.options.dims.length - 1])
     .range([
-      this.leftMargin_,
-      svgSize.width - this.rightMargin_
+      this.margins_.left,
+      svgSize.width - this.margins_.right
     ]);
 };
 
@@ -516,7 +509,7 @@ visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.updateBottomMargin_ = function() {
-  this.bottomMargin_ = this.plotMargins().bottom +
+  this.margins_.bottom = this.plotMargins().bottom +
     (this.options.axisLabel ? this.TICKS_HEIGHT : 0);
 };
 
@@ -527,8 +520,8 @@ visflow.ParallelCoordinates.prototype.updateBottomMargin_ = function() {
  */
 visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
   var margins = this.plotMargins();
-  this.leftMargin_ = margins.left;
-  this.rightMargin_ = margins.right;
+  this.margins_.left = margins.left;
+  this.margins_.right = margins.right;
 
   var leftLabelWidth = 0;
   var rightLabelWidth = 0;
@@ -555,9 +548,9 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
     }.bind(this));
   }
 
-  this.leftMargin_ += Math.max(leftLabelWidth / 2, maxLength +
+  this.margins_.left += Math.max(leftLabelWidth / 2, maxLength +
     this.AXIS_TICK_OFFSET_);
-  this.rightMargin_ += rightLabelWidth / 2;
+  this.margins_.right += rightLabelWidth / 2;
 };
 
 /** @inheritDoc */

@@ -31,7 +31,7 @@ visflow.Network = function(params) {
     'outs': new visflow.SelectionPort({
       node: this,
       id: 'outs',
-      text: 'selected nodes',
+      text: 'selected nodes'
     }),
     'outsEdges': new visflow.SelectionPort({
       node: this,
@@ -44,7 +44,7 @@ visflow.Network = function(params) {
       id: 'out',
       isInput: false,
       isConstants: false,
-      text: 'output nodes',
+      text: 'output nodes'
     }),
     'outEdges': new visflow.MultiplePort({
       node: this,
@@ -92,8 +92,8 @@ visflow.Network = function(params) {
   this.zoomTranslate_ = [0, 0];
   /** @private {number} */
   this.zoomScale_ = 1.0;
-  /** @private {d3.zoom} */
-  this.zoom_;
+  /** @private {?d3.zoom} */
+  this.zoom_ = null;
 
   /**
    * D3 force for graph layout.
@@ -103,19 +103,19 @@ visflow.Network = function(params) {
 
   /**
    * SVG group for nodes.
-   * @private {d3}
+   * @private {!d3|undefined}
    */
-  this.svgNodes_;
+  this.svgNodes_ = undefined;
   /**
    * SVG group for edges.
-   * @private {d3}
+   * @private {!d3|undefined}
    */
-  this.svgEdges_;
+  this.svgEdges_ = undefined;
   /**
    * SVG group for node labels.
-   * @private {d3}
+   * @private {!d3|undefined}
    */
-  this.svgNodeLabels_;
+  this.svgNodeLabels_ = undefined;
 };
 
 visflow.utils.inherit(visflow.Network, visflow.Visualization);

@@ -22,10 +22,8 @@ visflow.Histogram = function(params) {
    */
   this.histogramData_ = [];
 
-  /** @private {d3} */
-  this.svgHistogram_;
-  /** @private {d3} */
-  this.svgAxes_;
+  /** @private {d3|undefined} */
+  this.svgHistogram_ = undefined;
 
   /** @protected {!d3.scale} */
   this.xScale = d3.scale.linear();
@@ -36,12 +34,12 @@ visflow.Histogram = function(params) {
    * Distribution dimension type.
    * @protected {visflow.ScaleType}
    */
-  this.xScaleType;
+  this.xScaleType = visflow.ScaleType.UNKNOWN;
   /**
    * Mapping from [0, 1] to x screen coordinates.
-   * @protected {!d3.scale}
+   * @protected {!d3.scale|undefined}
    */
-  this.histogramScale;
+  this.histogramScale = undefined;
 
   /**
    * Selected histogram bars.
@@ -120,7 +118,7 @@ visflow.Histogram.prototype.init = function() {
   visflow.Histogram.base.init.call(this);
   this.svgHistogram_ = this.svg.append('g')
     .classed('histogram', true);
-  this.svgAxes_ = this.svg.append('g')
+  this.svgAxes = this.svg.append('g')
     .classed('axes', true);
 };
 
@@ -456,7 +454,7 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
   var data = this.ports['in'].pack.data;
   var margins = this.plotMargins();
   this.drawAxis({
-    svg: this.svgAxes_.select('.x.axis'),
+    svg: this.svgAxes.select('.x.axis'),
     scale: this.xScale,
     scaleType: visflow.ScaleType.NUMERICAL,
     classes: 'x axis',
@@ -485,7 +483,7 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
 visflow.Histogram.prototype.drawYAxis_ = function() {
   var margins = this.plotMargins();
   this.drawAxis({
-    svg: this.svgAxes_.select('.y.axis'),
+    svg: this.svgAxes.select('.y.axis'),
     scale: this.yScale,
     scaleType: visflow.ScaleType.NUMERICAL,
     classes: 'y axis',

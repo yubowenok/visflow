@@ -134,7 +134,7 @@ d3.prototype.text = function(text) {};
 d3.prototype.append = function(tag) {};
 
 /**
- * @param {!d3.zoom} arg
+ * @param {d3.zoom} arg
  */
 d3.prototype.call = function(arg) {};
 
@@ -289,10 +289,10 @@ d3.drag.prototype.on = function(event, handler) {};
 /** @const */
 d3.behavior = {};
 
-/** @return {!d3.zoom} */
+/** @return {d3.zoom} */
 d3.behavior.zoom = function() {};
 
-/** @return {!d3.drag} */
+/** @return {d3.drag} */
 d3.behavior.drag = function() {};
 
 /**

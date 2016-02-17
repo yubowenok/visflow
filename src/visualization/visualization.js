@@ -32,9 +32,15 @@ visflow.Visualization = function(params) {
 
   /**
    * D3 selection of the svg container.
-   * @protected {d3}
+   * @protected {d3|undefined}
    */
-  this.svg;
+  this.svg = undefined;
+
+  /**
+   * SVG group for axes.
+   * @protected {d3|undefined}
+   */
+  this.svgAxes = undefined;
 
   /**
    * Selected data items.
@@ -61,118 +67,11 @@ visflow.Visualization = function(params) {
    */
   this.allowTransition = true;
 
-  _.extend(this.options, this.visualizationOptions());
+  this.options.extend(this.visualizationOptions());
 };
 
 visflow.utils.inherit(visflow.Visualization, visflow.Node);
 
-/**
- * @typedef {{
- *   left: number,
- *   right: number,
- *   top: number,
- *   bottom: number
- * }}
- */
-visflow.Visualization.Margins;
-
-/** @inheritDoc */
-visflow.Visualization.prototype.NODE_NAME = 'visualization';
-/** @inheritDoc */
-visflow.Visualization.prototype.TEMPLATE =
-    './src/visualization/visualization.html';
-
-/**
- * Visualization nodes specific options.
- * @return {!Object}
- */
-visflow.Visualization.prototype.visualizationOptions = function() {
-  return {
-    label: true,
-    visMode: true
-  };
-};
-
-/**
- * Returns the plot margins.
- * @return {visflow.Visualization.Margins}
- * @protected
- */
-visflow.Visualization.prototype.plotMargins = function() {
-  return {
-    left: 10,
-    right: 10,
-    top: 10,
-    bottom: 10
-  };
-};
-
-/**
- * Returns object for specifying default rendering properties.
- * @return {!Object<number|string>}
- * @protected
- */
-visflow.Visualization.prototype.defaultProperties = function() {
-  return {
-    color: '#555',
-    border: 'black',
-    width: 1,
-    size: 3
-  };
-};
-
-/**
- * These properties are shown when items are selected.
- * @return {!Object<number|string>}
- * @protected
- */
-visflow.Visualization.prototype.selectedProperties = function() {
-  return {
-    color: 'white',
-    border: '#6699ee'
-  };
-};
-
-/**
- * Highlight effect for selected elements, using multiplier.
- * @return {!Object<number|string>}
- * @protected
- */
-visflow.Visualization.prototype.selectedMultiplier = function() {
-  return {
-    size: 1.2,
-    width: 1.2
-  };
-};
-
-/** @inheritDoc */
-visflow.Visualization.prototype.contextMenuItems = function() {
-  return [
-    {id: 'selectAll', text: 'Select All'},
-    {id: 'clearSelection', text: 'Clear Selection'},
-    {id: 'minimize', text: 'Minimize',
-      icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'visMode', text: 'Visualization Mode',
-      icon: 'glyphicon glyphicon-facetime-video'},
-    {id: 'panel', text: 'Control Panel',
-      icon: 'glyphicon glyphicon-th-list'},
-    {id: 'delete', text: 'Delete',
-      icon: 'glyphicon glyphicon-remove'}
-  ];
-};
-
-/** @protected @const {number} */
-visflow.Visualization.prototype.LABEL_OFFSET = 5;
-/** @protected @const {number} */
-visflow.Visualization.prototype.DEFAULT_TICKS = 5;
-/** @protected @const {string} */
-visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
-/** @protected @const {number} */
-visflow.Visualization.prototype.TRANSITION_ELEMENT_LIMIT = 5000;
-/** @protected @const {number} */
-visflow.Visualization.prototype.TICKS_HEIGHT = 10;
-/** @protected @const {boolean} */
-visflow.Visualization.prototype.IS_VISUALIZATION = true;
 
 /** @inheritDoc */
 visflow.Visualization.prototype.init = function() {
@@ -377,7 +276,7 @@ visflow.Visualization.prototype.mousedown = function(event) {
     }
     // Left click triggers item selection.
     this.mouseMode = 'brush';
-    var pos = visflow.utils.getOffset(event, /** @type {!jQuery} */(
+    var pos = visflow.utils.mouseOffset(event, /** @type {!jQuery} */(
       this.content));
     this.brushPoints = [{x: pos.left, y: pos.top}];
 
@@ -388,7 +287,7 @@ visflow.Visualization.prototype.mousedown = function(event) {
 /** @inheritDoc */
 visflow.Visualization.prototype.mousemove = function(event) {
   if (this.mouseMode == 'brush') {
-    var pos = visflow.utils.getOffset(event, /** @type {!jQuery} */(
+    var pos = visflow.utils.mouseOffset(event, /** @type {!jQuery} */(
       this.content));
     this.brushPoints.push({x: pos.left, y: pos.top});
     this.drawBrush();
@@ -428,8 +327,8 @@ visflow.Visualization.prototype.mouseleave = function(event) {
 
 /**
  * Multiplies the rendering properties by a set of multipliers.
- * @param {!Object} properties
- * @param {!Object} multiplier
+ * @param {visflow.Properties} properties
+ * @param {visflow.Multiplier} multiplier
  */
 visflow.Visualization.prototype.multiplyProperties = function(properties,
                                                               multiplier) {
@@ -533,12 +432,7 @@ visflow.Visualization.prototype.drawSelectBox = function() {
 /**
  * Computes the select range box.
  * @param {boolean=} opt_ignoreEmpty
- * @return {?{
- *   x1: number,
- *   y1: number,
- *   x2: number,
- *   y2: number
- * }}
+ * @return {?visflow.Rect2Points}
  */
 visflow.Visualization.prototype.getSelectBox = function(opt_ignoreEmpty) {
   var startPos = _.first(this.brushPoints);
@@ -612,7 +506,7 @@ visflow.Visualization.prototype.drawAxis = function(params) {
   axis.scale(params.scale.copy());
 
   if (svg.empty()) {
-    svg = this.svgAxes_.append('g')
+    svg = this.svgAxes.append('g')
       .classed(params.classes, true);
   }
   svg
