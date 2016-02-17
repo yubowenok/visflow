@@ -36,29 +36,6 @@ visflow.PropertyMapping = function(params) {
 visflow.utils.inherit(visflow.PropertyMapping, visflow.Property);
 
 /** @inheritDoc */
-visflow.PropertyMapping.prototype.NODE_CLASS = 'property-mapping';
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.NODE_NAME = 'Property Mapping';
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.TEMPLATE =
-    './src/property/property-mapping/property-mapping.html';
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.PANEL_TEMPLATE =
-  './src/property/property-mapping/property-mapping-panel.html';
-
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.defaultOptions = function() {
-  return {
-    // Property to be mapped.
-    mapping: 'color',
-    // Selected color scale.
-    colorScaleId: 'redGreen',
-    // Mapping range for number type values.
-    numberRange: [0, 1]
-  };
-};
-
-/** @inheritDoc */
 visflow.PropertyMapping.prototype.serialize = function() {
   var result = visflow.PropertyMapping.base.serialize.call(this);
 
@@ -138,44 +115,6 @@ visflow.PropertyMapping.prototype.showEditableScale_ = function(scaleDiv,
       }, this);
   }
   this.initInterface(units);
-};
-
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.initPanel = function(container) {
-  var units = [
-    {
-      constructor: visflow.Select,
-      params: {
-        container: container.find('#dim'),
-        list: this.getDimensionList(),
-        selected: this.dim,
-        listTitle: 'Dimension',
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
-          this.NO_DATA_STRING : null
-      },
-      change: function(event, dim) {
-        this.dim = dim;
-        this.parameterChanged('panel');
-      }
-    },
-    {
-      constructor: visflow.Select,
-      params: {
-        container: container.find('#mapping'),
-        list: visflow.property.MAPPINGS,
-        selected: this.options.mapping,
-        listTitle: 'Mapping'
-      },
-      change: function(event, mapping) {
-        this.options.mapping = mapping;
-        this.showEditableScale_(container.find('#scale'), 'panel');
-        this.parameterChanged('panel');
-      }
-    }
-  ];
-  this.initInterface(units);
-
-  this.showEditableScale_(container.find('#scale'), 'panel');
 };
 
 /** @inheritDoc */
