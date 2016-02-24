@@ -12,7 +12,6 @@ var visflow = {};
  * Initializes all visflow components.
  */
 visflow.init = function() {
-  visflow.utils.init();
   visflow.scales.init();
 
   visflow.menu.init();

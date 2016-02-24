@@ -14,13 +14,13 @@ visflow.options.Scatterplot = function(params) {
    * X Dimension.
    * @type {number}
    */
-  this.xDim = params.xDim != undefined ? params.xDim : 0;
+  this.xDim = params.xDim !== undefined ? params.xDim : 0;
 
   /**
    * Y dimension.
    * @type {number}
    */
-  this.yDim = params.yDim != undefined ? params.yDim : 0;
+  this.yDim = params.yDim !== undefined ? params.yDim : 0;
 
   /**
    * Show x-axis ticks.
@@ -38,13 +38,13 @@ visflow.options.Scatterplot = function(params) {
    * Margin percentage of x.
    * @type {number}
    */
-  this.xMargin = params.xMargin != undefined ? params.xMargin : 0.1;
+  this.xMargin = params.xMargin !== undefined ? params.xMargin : 0.1;
 
   /**
    * Margin percentage of y.
    * @type {number}
    */
-  this.yMargin = params.yMargin != undefined ? params.yMargin : 0.1;
+  this.yMargin = params.yMargin !== undefined ? params.yMargin : 0.1;
 };
 
 _.inherit(visflow.options.Scatterplot, visflow.options.Visualization);

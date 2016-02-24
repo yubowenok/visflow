@@ -42,7 +42,7 @@ visflow.Port = function(params) {
    * Descriptive text used as tooltip.
    * @private {string}
    */
-  this.text_ = params.text != undefined ? params.text : '';
+  this.text_ = params.text !== undefined ? params.text : '';
 
   /** @type {boolean} */
   this.isInput = !!params.isInput;
@@ -50,7 +50,7 @@ visflow.Port = function(params) {
   this.isConstants = !!params.isConstants;
 
   /** @type {string} */
-  this.fromPort = params.fromPort != undefined ? params.fromPort : 'in';
+  this.fromPort = params.fromPort !== undefined ? params.fromPort : 'in';
 
   /**
    * List of ports this port is connected to (edges).

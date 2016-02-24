@@ -14,41 +14,52 @@ var orderedSrc = [
   'src/parser.js',
 
   'src/save.js',
-  'src/node/node-save.js',
-  'src/**/*save.js',
+  'src/node/save.js',
+  'src/**/save.js',
 
   'src/options.js',
-  'src/node/node-options.js',
-  'src/**/*options.js',
+  'src/node/options.js',
+  'src/**/options.js',
 
   'src/params.js',
   'src/node/node-params.js',
-  'src/**/*params.js',
+  'src/**/params.js',
 
   'src/data/*.js',
 
-  'src/node/node.js',
+  'src/node/index.js',
   'src/node/*.js',
-  'src/edge/edge.js',
+  'src/edge/index.js',
   'src/edge/*.js',
-  'src/port/port.js',
-  'src/port/*.js',
+  'src/port/index.js',
+  'src/port/multiple-port/index.js',
+  'src/port/selection-port/index.js',
 
-  'src/unit/select/select.js',
+  'src/unit/select/index.js',
   'src/unit/**/*.js',
 
   'src/panel/**/*.js',
 
-  'src/data-source/data-source.js',
+  'src/data-source/index.js',
   'src/data-source/*.js',
 
-  'src/property/**/*.js',
-  'src/set/**/*.js',
-  'src/value/**/*.js',
+  'src/filter/index.js',
+  'src/filter/**/index.js',
   'src/filter/**/*.js',
 
-  'src/visualization/visualization.js',
-  'src/visualization/*.js',
+  'src/property/index.js',
+  'src/property/**/index.js',
+  'src/property/**/*.js',
+
+  'src/set/index.js',
+  'src/set/**/index.js',
+  'src/set/**/*.js',
+
+  'src/value/**/index.js',
+  'src/value/**/*.js',
+
+  'src/visualization/index.js',
+  'src/visualization/**/index.js',
   'src/visualization/**/*.js',
 
   'src/diagram.js',

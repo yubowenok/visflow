@@ -13,7 +13,7 @@ visflow.options.Table = function(params) {
    * pageLength of the dataTables
    * @type {number}
    */
-  this.pageLength = params.pageLength != undefined ? params.pageLength : 20;
+  this.pageLength = params.pageLength !== undefined ? params.pageLength : 20;
 };
 
 _.inherit(visflow.options.Table, visflow.options.Visualization);

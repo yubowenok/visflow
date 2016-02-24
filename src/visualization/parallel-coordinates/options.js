@@ -14,7 +14,7 @@ visflow.options.ParallelCoordinates = function(params) {
    * Dimensions of parallel coordinates.
    * @type {!Array<number>}
    */
-  this.dims = params.dims != undefined ? params.dims : [];
+  this.dims = params.dims !== undefined ? params.dims : [];
 
   /**
    * Show axes ticks.

@@ -14,13 +14,13 @@ visflow.options.LineChart = function(params) {
    * Series dimension.
    * @type {number}
    */
-  this.xDim = params.xDim != undefined ? params.xDim : visflow.data.INDEX_DIM;
+  this.xDim = params.xDim !== undefined ? params.xDim : visflow.data.INDEX_DIM;
 
   /**
    * Group by dimension, must be key.
    * @type {string}
    */
-  this.groupBy = params.groupBy != undefined ? params.groupBy : '';
+  this.groupBy = params.groupBy !== undefined ? params.groupBy : '';
 
   /**
    * Show points.
@@ -56,13 +56,13 @@ visflow.options.LineChart = function(params) {
    * X domain margin.
    * @type {number}
    */
-  this.xMargin = params.xMargin != undefined ? params.xMargin : 0.1;
+  this.xMargin = params.xMargin !== undefined ? params.xMargin : 0.1;
 
   /**
    * Y domain margin.
    * @type {number}
    */
-  this.yMargin = params.yMargin != undefined ? params.yMargin : 0.1;
+  this.yMargin = params.yMargin !== undefined ? params.yMargin : 0.1;
 };
 
 _.inherit(visflow.options.LineChart, visflow.options.Visualization);

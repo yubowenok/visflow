@@ -20,31 +20,31 @@ visflow.options.Network = function(params) {
    * Which dimension is used as label.
    * @type {number}
    */
-  this.labelBy = params.labelBy != undefined ? params.labelBy : 0;
+  this.labelBy = params.labelBy !== undefined ? params.labelBy : 0;
 
   /**
    * D3 force-directed layout force charge.
    * @type {number}
    */
-  this.charge = params.charge != undefined ? params.charge : -10000;
+  this.charge = params.charge !== undefined ? params.charge : -10000;
 
   /**
    * Node identifier used by edges.
    * @type {number}
    */
-  this.nodeIdBy = params.nodeIdBy != undefined ? params.nodeIdBy : 0;
+  this.nodeIdBy = params.nodeIdBy !== undefined ? params.nodeIdBy : 0;
 
   /**
    * Edge dimension used as source (node id).
    * @type {number}
    */
-  this.sourceBy = params.sourceBy != undefined ? params.sourceBy : 0;
+  this.sourceBy = params.sourceBy !== undefined ? params.sourceBy : 0;
 
   /**
    * Edge dimension used as target (node id).
    * @type {number}
    */
-  this.targetBy = params.targetBy != undefined ? params.targetBy : 1;
+  this.targetBy = params.targetBy !== undefined ? params.targetBy : 1;
 
   /**
    * Whether navigation is enabled.

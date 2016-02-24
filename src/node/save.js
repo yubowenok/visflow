@@ -3,15 +3,7 @@
  */
 
 /**
- * @param {{
- *   visModeOn: (boolean|undefined),
- *   labelOn: (boolean|undefined),
- *   detailsOn: (boolean|undefined),
- *   label: string,
- *   css: !Object<string|number>,
- *   visCss: !Object<string|number>,
- *   options: !Object
- * }} params
+ * @param {!Object} params
  * @constructor
  */
 visflow.save.Node = function(params) {

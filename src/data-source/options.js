@@ -20,21 +20,21 @@ visflow.options.DataSource = function(params) {
    * Name for the attribute column in crossing.
    * @type {string}
    */
-  this.crossingName = params.crossingName != undefined ?
+  this.crossingName = params.crossingName !== undefined ?
     params.crossingName : 'attributes';
 
   /**
    * Dimensions used for crossing. -1 is index (visflow.data.INDEX_DIM).
    * @type {!Array<number>}
    */
-  this.crossingKeys = params.crossingKeys != undefined ?
+  this.crossingKeys = params.crossingKeys !== undefined ?
     params.crossingKeys : [];
 
   /**
    * Crossing attributes, in dimension indices.
    * @type {!Array<number>}
    */
-  this.crossingAttrs = params.crossingAttrs != undefined ?
+  this.crossingAttrs = params.crossingAttrs !== undefined ?
     params.crossingAttrs : [];
 
   /**

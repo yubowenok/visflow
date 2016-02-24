@@ -13,18 +13,18 @@ visflow.options.PropertyMapping = function(params) {
   /**
    * @type {!Array<number>}
    */
-  this.numberRange = params.numberRange != undefined ?
+  this.numberRange = params.numberRange !== undefined ?
     params.numberRange : [0, 1];
 
   /**
    * @type {string}
    */
-  this.mapping = params.mapping != undefined ? params.mapping : 'color';
+  this.mapping = params.mapping !== undefined ? params.mapping : 'color';
 
   /**
    * @type {string}
    */
-  this.colorScaleId = params.colorScaleId != undefined ?
+  this.colorScaleId = params.colorScaleId !== undefined ?
     params.colorScaleId : 'redGreen';
 };
 

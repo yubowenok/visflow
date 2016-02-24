@@ -50,87 +50,11 @@ visflow.RangeFilter = function(params) {
 _.inherit(visflow.RangeFilter, visflow.Filter);
 
 /** @inheritDoc */
-visflow.RangeFilter.prototype.TEMPLATE =
-    './src/filter/range-filter/range-filter.html';
-/** @inheritDoc */
-visflow.RangeFilter.prototype.PANEL_TEMPLATE =
-    './src/filter/range-filter/range-filter-panel.html';
-/** @inheritDoc */
-visflow.RangeFilter.prototype.NODE_NAME = 'Range Filter';
-/** @inheritDoc */
-visflow.RangeFilter.prototype.NODE_CLASS = 'range-filter';
-
-/** @inheritDoc */
-visflow.RangeFilter.prototype.defaultOptions = function() {
-  return {
-    // Filtering dimensions.
-    dims: [],
-    // Filtering range values specified by directly typing in the input boxes.
-    // Type-in values are stored as strings.
-    typeInValue: []
-  };
-};
-
-/** @inheritDoc */
 visflow.RangeFilter.prototype.deserialize = function(save) {
   visflow.RangeFilter.base.deserialize.call(this, save);
   if (save.typeInValue) {
     this.options.typeInValue = save.typeInValue;
   }
-};
-
-/** @inheritDoc */
-visflow.RangeFilter.prototype.initPanel = function(container) {
-  var units = [
-    // Dimensions
-    {
-      constructor: visflow.MultipleSelect,
-      params: {
-        container: container.find('#dims'),
-        list: this.getDimensionList(),
-        selected: this.options.dims,
-        listTitle: 'Filtering Dimension(s)',
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
-          this.NO_DATA_STRING : null
-      },
-      change: function(event, dims) {
-        if (dims == null) {
-          dims = [];
-        }
-        this.options.dims = dims;
-        this.parameterChanged();
-      }
-    },
-    // Min Value
-    {
-      constructor: visflow.Input,
-      params: {
-        container: container.find('#min'),
-        value: this.value[0],
-        title: 'Min Value',
-        disabled: this.ports['inMin'].connected()
-      },
-      change: function(event, value) {
-        this.options.typeInValue[0] = '' + value;
-        this.parameterChanged();
-      }
-    },
-    // Max Value
-    {
-      constructor: visflow.Input,
-      params: {
-        container: container.find('#max'),
-        value: this.value[1],
-        title: 'Max Value',
-        disabled: this.ports['inMax'].connected()
-      },
-      change: function(event, value) {
-        this.options.typeInValue[1] = '' + value;
-        this.parameterChanged();
-      }
-    }
-  ];
-  this.initInterface(units);
 };
 
 /** @inheritDoc */

@@ -301,3 +301,8 @@ visflow.utils.inherit_ = function(child, base) {
   child.prototype.constructor = child;
   child.base = base.prototype;
 };
+
+/**
+ * Performs utils initialization.
+ */
+visflow.utils.init();

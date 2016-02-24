@@ -14,7 +14,7 @@ visflow.options.Histogram = function(params) {
    * Number of histogram bins.
    * @type {number}
    */
-  this.numBins = params.numBins != undefined ? params.numBins : 10;
+  this.numBins = params.numBins !== undefined ? params.numBins : 10;
 };
 
 _.inherit(visflow.options.Histogram, visflow.options.Visualization);
