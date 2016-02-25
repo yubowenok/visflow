@@ -81,13 +81,7 @@
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
-        <li><a id="alted" class="to-tooltip" data-placement="bottom" title="dragging mode">
-          <span class="btn btn-default"><i class="glyphicon glyphicon-move"></i></span>
-        </a></li>
-        <li><a id="vis-mode" class="to-tooltip" data-placement="bottom"  title="visualization mode">
-          <span class="btn btn-default"><i class="glyphicon glyphicon glyphicon-facetime-video"></i></span>
-        </a></li>
-        <li class="upload"><a id="upload">Upload Data</a></li>
+        <li class="login"><a id="login">Login</a></li>
       </ul>
     </div>
   </nav>
@@ -146,7 +140,6 @@
     <div class="content">
     </div>
   </div>
-
   <div id="node-panel">
     <button id="btn-toggle">
       <span class="glyphicon glyphicon-plus"></span>
@@ -156,7 +149,17 @@
     <div class="content">
     </div>
   </div>
-
   <div id="popup-panel" class="popup-panel" style="display: none;"></div>
+  <div id="tool-panel" class="tool-panel">
+    <a id="alted" class="btn btn-default btn-xs to-tooltip" title="dragging mode">
+      <i class="glyphicon glyphicon-move"></i>
+    </a>
+    <a id="vis-mode" class="btn btn-default btn-xs to-tooltip" title="visualization mode">
+      <i class="glyphicon glyphicon glyphicon-facetime-video"></i>
+    </a>
+    <a id="upload" class="btn btn-default btn-xs to-tooltip" title="upload data">
+      <i class="glyphicon glyphicon glyphicon-upload"></i>
+    </a>
+  </div>
 </body>
 </html>

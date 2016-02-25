@@ -38,41 +38,12 @@ visflow.menu.init = function() {
     visflow.options.toggleNodeLabel();
   });
 
-  // Alt hold
-  var alted = navbar.find('#alted');
-  alted.click(function() {
-    visflow.interaction.toggleAltHold();
-    visflow.menu.updateAlt();
-  });
-
-  // VisMode button
-  var visMode = navbar.find('#vis-mode');
-  visMode
-    .click(function() {
-      visflow.flow.toggleVisMode();
-    })
-    .on('mouseenter', function() {
-      if (!visflow.flow.visMode) {
-        visflow.flow.previewVisMode(true);
-      }
-    })
-    .on('mouseleave', function() {
-      if (!visflow.flow.visMode) {
-        visflow.flow.previewVisMode(false);
-      }
-    });
-
   var help = navbar.find('#help');
   help.find('#documentation').click(function() {
     visflow.documentation();
   });
   help.find('#about').click(function() {
     visflow.about();
-  });
-
-  var upload = navbar.find('#upload');
-  upload.click(function() {
-    visflow.upload.dialog();
   });
 
   navbar.find('.to-tooltip').tooltip({
@@ -87,7 +58,7 @@ visflow.menu.init = function() {
  * @private
  */
 visflow.menu.initUpdateHandlers_ = function() {
-  $(visflow.options).on('visflow.change', function(event, data) {
+  $(visflow.options).on('change.visflow', function(event, data) {
     var value = data.value;
     switch (data.type) {
       case 'nodeLabel':
@@ -99,25 +70,10 @@ visflow.menu.initUpdateHandlers_ = function() {
 };
 
 /**
- * Updates the visMode button active state.
+ * Updates the enabled/disabled state of the add node item in the menu.
  */
 visflow.menu.updateVisMode = function() {
   var navbar = $('.visflow > .navbar-fixed-top');
-  var visMode = navbar.find('#vis-mode');
-  visMode.children('.btn').toggleClass('active', visflow.flow.visMode);
   var addNode = navbar.find('#add-node');
   addNode.toggleClass('disabled', visflow.flow.visMode);
-};
-
-/**
- * Updates the alt button's active class to reflect the system's alted state.
- */
-visflow.menu.updateAlt = function() {
-  var alted = visflow.interaction.isAlted();
-  var btnAlt = $('.visflow > .navbar-fixed-top #alted > .btn');
-  if (alted) {
-    btnAlt.addClass('active');
-  } else {
-    btnAlt.removeClass('active');
-  }
 };

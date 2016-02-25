@@ -27,8 +27,6 @@ visflow.nodePanel.isOpen = false;
 visflow.nodePanel.TEMPLATE_ = './src/panel/node-panel/node-panel.html';
 /** @private @const {number} */
 visflow.nodePanel.TRANSITION_DURATION_ = 300;
-/** @private @const {number} */
-visflow.nodePanel.TOOLTIP_DELAY_ = 1000;
 
 /**
  * Initializes the node panel and its interaction.
@@ -45,20 +43,27 @@ visflow.nodePanel.init = function() {
   };
   container.find('#btn-toggle').mouseenter(showPanel);
   visflow.nodePanel.hoverArea_.mouseenter(showPanel);
+
+  visflow.nodePanel.initUpdateHandlers_();
 };
 
 /**
- * Shows the node panel.
+ * Creates event listeners for system events.
+ * @private
  */
-visflow.nodePanel.show = function() {
-  visflow.nodePanel.container_.show();
+visflow.nodePanel.initUpdateHandlers_ = function() {
+  $(visflow.flow).on('visMode.visflow', function() {
+    visflow.nodePanel.updateVisMode_();
+  });
 };
 
 /**
- * Hides the node panel, including the popup handle.
+ * Sets the visibility of the node panel.
+ * @param {boolean} visible
+ * @private
  */
-visflow.nodePanel.hide = function() {
-  visflow.nodePanel.container_.hide();
+visflow.nodePanel.setVisible_ = function(visible) {
+  visflow.nodePanel.container_.toggle(visible);
 };
 
 /**
@@ -142,7 +147,7 @@ visflow.nodePanel.hide_ = function() {
  */
 visflow.nodePanel.initPanel_ = function() {
   visflow.nodePanel.container_.find('.panel-button').tooltip({
-    delay: visflow.nodePanel.TOOLTIP_DELAY_
+    delay: visflow.panel.TOOLTIP_DELAY
   });
 
   visflow.nodePanel.container_.find('.panel-button')
@@ -161,7 +166,7 @@ visflow.nodePanel.initButton_ = function(button) {
     var node = visflow.flow.createNode(/** @type {string} */(
       button.attr('id')));
 
-    $(node).on('visflow.ready', function() {
+    $(node).on('ready.visflow', function() {
       var container = node.getContainer();
       container.css(_.extend({
         left: visflow.interaction.mouseX - container.width() / 2,
@@ -218,11 +223,8 @@ visflow.nodePanel.initButton_ = function(button) {
 
 /**
  * Shows/hides the node creation panel according to visMode on/off.
+ * @private
  */
-visflow.nodePanel.updateVisMode = function() {
-  if (visflow.flow.visMode) {
-    visflow.nodePanel.hide();
-  } else {
-    visflow.nodePanel.show();
-  }
+visflow.nodePanel.updateVisMode_ = function() {
+  visflow.nodePanel.setVisible_(!visflow.flow.visMode);
 };

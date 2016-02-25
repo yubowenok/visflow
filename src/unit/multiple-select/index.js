@@ -59,6 +59,6 @@ visflow.MultipleSelect.prototype.change = function() {
   var val = /** @type {string} */(this.select2.val());
   if (this.selected !== val) {
     this.selected = val;
-    this.signal('change');
+    visflow.signal(this, 'change', this.selected);
   }
 };

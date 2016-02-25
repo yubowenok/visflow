@@ -85,7 +85,7 @@ visflow.flow.init = function() {
 visflow.flow.resetFlow = function() {
   // Clear visMode.
   visflow.flow.visMode = false;
-  visflow.menu.updateVisMode();
+  visflow.signal(visflow.flow, 'visMode');
 
   // counters start from 1
   visflow.flow.nodeCounter = 0;
@@ -171,7 +171,7 @@ visflow.flow.createNode = function(type, save) {
     container: visflow.viewManager.createNodeContainer()
   });
   var newNode = new nodeConstructor(params);
-  $(newNode).on('visflow.ready', function() {
+  $(newNode).on('ready.visflow', function() {
     if (save) {
       // If node is created from diagram loading, then de-serialize.
       this.deserialize(save);
@@ -395,7 +395,7 @@ visflow.flow.deserializeFlow = function(flow) {
     }
     loadCount++;
     var newNode = visflow.flow.createNode(type, nodeSaved);
-    $(newNode).on('visflow.ready', function() {
+    $(newNode).on('ready.visflow', function() {
       loadCount--;
       if (loadCount == 0) {
         visflow.flow.deserializeFlowEdges_(flow, hashes);
@@ -586,9 +586,7 @@ visflow.flow.toggleVisMode = function() {
         .animate(visflow.flow.VISMODE_OFF_CSS_);
     }
   }
-  visflow.optionPanel.updateVisMode();
-  visflow.nodePanel.updateVisMode();
-  visflow.menu.updateVisMode();
+  visflow.signal(visflow.flow, 'visMode');
 };
 
 /**

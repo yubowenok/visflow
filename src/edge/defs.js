@@ -22,5 +22,5 @@ visflow.Edge.prototype.contextMenu = function() {
   });
 
   $(contextMenu)
-    .on('visflow.delete', this.delete.bind(this));
+    .on('delete.visflow', this.delete.bind(this));
 };

@@ -20,6 +20,7 @@ visflow.init = function() {
   visflow.optionPanel.init();
   visflow.nodePanel.init();
   visflow.popupPanel.init();
+  visflow.toolPanel.init();
   visflow.interaction.init();
 };
 
@@ -87,4 +88,14 @@ visflow.about = function() {
   visflow.dialog.create({
     template: './src/dialog/about.html'
   });
+};
+
+/**
+ * Signals a visflow event on the given object.
+ * @param {Object|string} obj
+ * @param {string} event
+ * @param {*=} data
+ */
+visflow.signal = function(obj, event, data) {
+  $(obj).trigger(event + '.visflow', [data]);
 };

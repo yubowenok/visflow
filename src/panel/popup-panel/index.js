@@ -27,9 +27,6 @@ visflow.popupPanel.MIN_TOP_ = 20;
 /** @private @const {number} */
 visflow.popupPanel.X_OFFSET_ = 20;
 
-/** @private @const {number} */
-visflow.popupPanel.TOOLTIP_DELAY_ = 1000;
-
 /** @private @const {!Object} */
 visflow.popupPanel.INIT_PANEL_CSS_ = {
   opacity: 0
@@ -101,7 +98,7 @@ visflow.popupPanel.initPanel_ = function() {
         visflow.panel.TRANSITION_DURATION);
 
   container.find('.panel-button').tooltip({
-    delay: visflow.popupPanel.TOOLTIP_DELAY_
+    delay: visflow.panel.TOOLTIP_DELAY
   });
 
   container.find('.panel-button')
@@ -120,7 +117,7 @@ visflow.popupPanel.initButton_ = function(button) {
     var node = visflow.flow.createNode(/** @type {string} */(
       button.attr('id')));
 
-    $(node).on('visflow.ready', function() {
+    $(node).on('ready.visflow', function() {
       var container = node.getContainer();
       container.css(_.extend({
         left: visflow.interaction.mouseX - container.width() / 2,

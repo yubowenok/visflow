@@ -19,19 +19,10 @@ visflow.options.toggleNodeLabel = function(opt_state) {
   var newState = opt_state != null ? opt_state : !visflow.options.nodeLabel;
   if (newState != visflow.options.nodeLabel) {
     visflow.options.nodeLabel = newState;
-    visflow.options.signal_('change', {
+
+    visflow.signal(visflow.options, 'change', {
       type: 'nodeLabel',
       value: newState
     });
   }
-};
-
-/**
- * Fires an event with given type and data.
- * @param {string} eventType
- * @param {*=} opt_data
- * @private
- */
-visflow.options.signal_ = function(eventType, opt_data) {
-  $(visflow.options).trigger('visflow.' + eventType, [opt_data]);
 };

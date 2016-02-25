@@ -51,8 +51,8 @@ visflow.Select = function(params) {
   /** @private {function(): boolean} */
   this.opening_ = params.opening;
 
-  /** @protected {?select2} */
-  this.select2;
+  /** @protected {select2|undefined} */
+  this.select2 = undefined;
 
   this.container.load(this.TEMPLATE_, function() {
     this.init();
@@ -109,7 +109,7 @@ visflow.Select.prototype.change = function() {
   var val = /** @type {string} */(this.select2.val());
   if (this.selected !== val) {
     this.selected = val;
-    this.signal('change');
+    visflow.signal(this, 'change', this.selected);
   }
 };
 
@@ -123,13 +123,4 @@ visflow.Select.prototype.select = function(id) {
   this.select2.off('change', this.change.bind(this));
   this.select2.val(id).trigger('change');
   this.select2.on('change', this.change.bind(this));
-};
-
-/**
- * Fires an event.
- * @param {string} type
- * @protected
- */
-visflow.Select.prototype.signal = function(type) {
-  $(this).trigger('visflow.' + type, [this.selected]);
 };

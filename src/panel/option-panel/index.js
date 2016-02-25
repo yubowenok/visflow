@@ -34,9 +34,6 @@ visflow.optionPanel.loadedNode_ = null;
  */
 visflow.optionPanel.container_ = null;
 
-/** @private @const {number} */
-visflow.optionPanel.TOOLTIP_DELAY_ = 1000;
-
 /**
  * Initializes the option panel.
  */
@@ -54,7 +51,19 @@ visflow.optionPanel.init = function() {
   });
 
   container.find('.to-tooltip').tooltip({
-    delay: visflow.optionPanel.TOOLTIP_DELAY_
+    delay: visflow.panel.TOOLTIP_DELAY
+  });
+
+  visflow.optionPanel.initUpdateHandlers_();
+};
+
+/**
+ * Creates event listeners for system events.
+ * @private
+ */
+visflow.optionPanel.initUpdateHandlers_ = function() {
+  $(visflow.flow).on('visMode.visflow', function() {
+    visflow.optionPanel.updateVisMode_();
   });
 };
 
@@ -168,9 +177,9 @@ visflow.optionPanel.update_ = function() {
           });
         }
         if (visflow.optionPanel.isOpen) {
-          visflow.optionPanel.signal_('opened');
+          visflow.signal(visflow.optionPanel, 'opened');
         } else {
-          visflow.optionPanel.signal_('closed');
+          visflow.signal(visflow.optionPanel, 'closed');
         }
       }
     });
@@ -216,9 +225,9 @@ visflow.optionPanel.close = function() {
   visflow.optionPanel.loadedNode_ = null;
   var clear = function() {
     visflow.optionPanel.clear_();
-    $(visflow.optionPanel).off('visflow.closed', clear);
+    $(visflow.optionPanel).off('closed.visflow', clear);
   };
-  $(visflow.optionPanel).on('visflow.closed', clear);
+  $(visflow.optionPanel).on('closed.visflow', clear);
 };
 
 /**
@@ -230,22 +239,10 @@ visflow.optionPanel.clear_ = function() {
 };
 
 /**
- * Signals a visflow event.
- * @param {string} eventType
+ * Shows/hides the panel header according to visMode on/off.
  * @private
  */
-visflow.optionPanel.signal_ = function(eventType) {
-  $(visflow.optionPanel).trigger('visflow.' + eventType);
-};
-
-/**
- * Shows/hides the panel header according to visMode on/off.
- */
-visflow.optionPanel.updateVisMode = function() {
+visflow.optionPanel.updateVisMode_ = function() {
   var header = $('#option-panel .node-panel.panel-header');
-  if (visflow.flow.visMode) {
-    header.hide();
-  } else {
-    header.show();
-  }
+  header.toggle(!visflow.flow.visMode);
 };

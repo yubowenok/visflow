@@ -88,15 +88,6 @@ visflow.ColorPicker.prototype.change_ = function(event) {
       this.container_.find('.input-group-addon').children('i')
         .css('background-color', '');
     }
-    this.signal_('change');
+    visflow.signal(this, 'change', this.color_);
   }
-};
-
-/**
- * Fires an event.
- * @param {string} type
- * @private
- */
-visflow.ColorPicker.prototype.signal_ = function(type) {
-  $(this).trigger('visflow.' + type, [this.color_]);
 };

@@ -16,12 +16,6 @@
   }
 
   .navbar-right {
-    li {
-      padding-left: 0;
-      padding-right: 0;
-      width: 80px;
-    }
-
     a {
       padding-left: 10px;
       padding-right: 10px;
@@ -36,10 +30,6 @@
         position: absolute;
         top: calc(50% - 6px);
       }
-    }
-
-    .upload {
-      width: 100px;
     }
 
     .btn {

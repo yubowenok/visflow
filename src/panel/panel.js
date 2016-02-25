@@ -29,3 +29,7 @@ visflow.panel.BUTTON_CSS = {
   zoom: '',
   opacity: ''
 };
+
+
+/** @const {number} */
+visflow.panel.TOOLTIP_DELAY = 1000;

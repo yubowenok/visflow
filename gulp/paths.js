@@ -22,7 +22,6 @@ var orderedSrc = [
   'src/**/options.js',
 
   'src/params.js',
-  'src/node/node-params.js',
   'src/**/params.js',
 
   'src/data/*.js',
@@ -38,6 +37,7 @@ var orderedSrc = [
   'src/unit/select/index.js',
   'src/unit/**/*.js',
 
+  'src/panel/panel.js',
   'src/panel/**/*.js',
 
   'src/data-source/index.js',

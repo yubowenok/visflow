@@ -88,7 +88,7 @@ visflow.ContextMenu.prototype.openMenu_ = function(event) {
       top: event.pageY
     });
   this.listItems_();
-  this.signal_('beforeOpen', this.contextMenu_);
+  visflow.signal(this, 'beforeOpen', this.contextMenu_);
 };
 
 /**
@@ -108,7 +108,7 @@ visflow.ContextMenu.prototype.listItems_ = function() {
       .click(function(event) {
         event.stopPropagation();
         this.contextMenu_.removeClass('open');
-        this.signal_(item.id);
+        visflow.signal(this, item.id);
       }.bind(this));
 
     $('<i></i>')
@@ -129,14 +129,3 @@ visflow.ContextMenu.prototype.listItems_ = function() {
       .appendTo(a);
   }, this);
 };
-
-/**
- * Signals a menu click event for the selected entry id.
- * @param {string} eventType
- * @param {*=} data
- * @private
- */
-visflow.ContextMenu.prototype.signal_ = function(eventType, data) {
-  $(this).trigger('visflow.' + eventType, [data]);
-};
-

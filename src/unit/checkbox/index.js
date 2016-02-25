@@ -64,18 +64,5 @@ visflow.Checkbox.prototype.toggle = function(opt_value) {
     return;
   }
   this.value_ = newValue;
-  this.signal_('change');
+  visflow.signal(this, 'change', this.value_);
 };
-
-
-/**
- * Fires an event.
- * @param {string} type
- * @private
- */
-visflow.Checkbox.prototype.signal_ = function(type) {
-  $(this).trigger('visflow.' + type, [this.value_]);
-};
-
-
-

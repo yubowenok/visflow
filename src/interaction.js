@@ -154,6 +154,7 @@ visflow.interaction.trackMousemove = function(opt_enabled) {
  */
 visflow.interaction.toggleAltHold = function() {
   visflow.interaction.altHold_ = !visflow.interaction.altHold_;
+  visflow.signal(visflow.interaction, 'alt');
 };
 
 /**
@@ -204,7 +205,7 @@ visflow.interaction.keyRelease = function(key) {
         break;
       case keyCodes.ALT:
         visflow.interaction.alted = false;
-        visflow.menu.updateAlt();
+        visflow.signal(visflow.interaction, 'alt');
         visflow.interaction.visualizationBlocking = true;
         visflow.interaction.mainContainer_.css('cursor', '');
         break;
@@ -294,7 +295,7 @@ visflow.interaction.keyPress = function(event) {
       break;
     case keyCodes.ALT:
       visflow.interaction.alted = true;
-      visflow.menu.updateAlt();
+      visflow.signal(visflow.interaction, 'alt');
       visflow.interaction.visualizationBlocking = false;
       break;
     case keyCodes.CTRL:
@@ -360,7 +361,7 @@ visflow.interaction.mainContextMenu_ = function() {
     items: visflow.interaction.MAIN_CONTEXTMENU_ITEMS_
   });
   $(contextMenu)
-    .on('visflow.addNode', function() {
+    .on('addNode.visflow', function() {
       visflow.popupPanel.show();
     });
 };

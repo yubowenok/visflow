@@ -137,7 +137,7 @@ visflow.Input.prototype.setValue_ = function(value) {
   }
   this.value_ = value;
   input.val('' + value);
-  this.signal_('change');
+  visflow.signal(this, 'change', this.value_);
 };
 
 /**
@@ -156,14 +156,4 @@ visflow.Input.prototype.enable = function() {
   var input = this.container_.find('input');
   input.prop('disabled', false);
   this.disabled_ = false;
-};
-
-
-/**
- * Fires an event.
- * @param {string} type
- * @private
- */
-visflow.Input.prototype.signal_ = function(type) {
-  $(this).trigger('visflow.' + type, [this.value_]);
 };

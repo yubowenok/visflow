@@ -79,19 +79,19 @@ visflow.EditableList.prototype.init_ = function() {
       return item.id;
     });
     this.createItems_();
-    this.signal_('change');
+    visflow.signal(this, 'change', this.selected_.slice());
   }.bind(this));
   this.container_.find('#clear').click(function() {
     this.selected_ = this.allowClear_ ? [] : this.selected_.slice(0, 1);
     this.createItems_();
-    this.signal_('change');
+    visflow.signal(this, 'change', this.selected_.slice());
   }.bind(this));
   this.container_.find('#sort').click(function() {
     this.selected_.sort(function(a, b) {
       return visflow.utils.compare(this.list_[a].text, this.list_[b].text);
     }.bind(this));
     this.createItems_();
-    this.signal_('change');
+    visflow.signal(this, 'change', this.selected_.slice());
   }.bind(this));
 
   select2.on('change', function() {
@@ -101,7 +101,7 @@ visflow.EditableList.prototype.init_ = function() {
       this.createItems_();
       select2.val('').trigger('change');
 
-      this.signal_('change');
+      visflow.signal(this, 'change', this.selected_.slice());
     }
   }.bind(this));
 
@@ -152,7 +152,7 @@ visflow.EditableList.prototype.deleteItem_ = function(id) {
 
   this.selected_.splice(index, 1);
   this.createItems_();
-  this.signal_('change');
+  visflow.signal(this, 'change', this.selected_.slice());
 };
 
 /**
@@ -172,14 +172,5 @@ visflow.EditableList.prototype.sortableChanged_ = function(event, ui) {
       $(ui.item).attr('id') : $(li).attr('id');
     this.selected_.push(id);
   }.bind(this));
-  this.signal_('change');
-};
-
-/**
- * Fires an event.
- * @param {string} type
- * @private
- */
-visflow.EditableList.prototype.signal_ = function(type) {
-  $(this).trigger('visflow.' + type, [this.selected_.concat()]);
+  visflow.signal(this, 'change', this.selected_.slice());
 };
