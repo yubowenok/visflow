@@ -62,7 +62,7 @@ visflow.optionPanel.init = function() {
  * @private
  */
 visflow.optionPanel.initUpdateHandlers_ = function() {
-  $(visflow.flow).on('visMode.visflow', function() {
+  $(visflow.flow).on('vf.visMode', function() {
     visflow.optionPanel.updateVisMode_();
   });
 };
@@ -225,9 +225,9 @@ visflow.optionPanel.close = function() {
   visflow.optionPanel.loadedNode_ = null;
   var clear = function() {
     visflow.optionPanel.clear_();
-    $(visflow.optionPanel).off('closed.visflow', clear);
+    $(visflow.optionPanel).off('vf.closed', clear);
   };
-  $(visflow.optionPanel).on('closed.visflow', clear);
+  $(visflow.optionPanel).on('vf.closed', clear);
 };
 
 /**

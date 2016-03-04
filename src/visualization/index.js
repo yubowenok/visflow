@@ -345,8 +345,8 @@ visflow.Visualization.prototype.multiplyProperties = function(properties,
 visflow.Visualization.prototype.initContextMenu = function() {
   visflow.Visualization.base.initContextMenu.call(this);
   $(this.contextMenu)
-    .on('selectAll.visflow', this.selectAll.bind(this))
-    .on('clearSelection.visflow', this.clearSelection.bind(this));
+    .on('vf.selectAll', this.selectAll.bind(this))
+    .on('vf.clearSelection', this.clearSelection.bind(this));
 };
 
 /**

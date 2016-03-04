@@ -6,7 +6,7 @@
  * @param {{
  *   container: !jQuery,
  *   list: !Array<{id: (string|number), text: string}>,
- *   selected: (string|number|undefined),
+ *   selected: (!Array<string|number>|undefined),
  *   listTitle: (string|undefined),
  *   allowClear: (boolean|undefined),
  *   selectTitle: (string|undefined)
@@ -16,6 +16,11 @@
  */
 visflow.MultipleSelect = function(params) {
   visflow.MultipleSelect.base.constructor.call(this, params);
+
+  /**
+   * @type {!Array<string|number>}
+   */
+  this.selected = params.selected !== undefined ? params.selected : [];
 };
 
 _.inherit(visflow.MultipleSelect, visflow.Select);
@@ -56,8 +61,9 @@ visflow.MultipleSelect.prototype.init = function() {
 
 /** @inheritDoc */
 visflow.MultipleSelect.prototype.change = function() {
-  var val = /** @type {string} */(this.select2.val());
-  if (this.selected !== val) {
+  var val = /** @type {!Array<string>} */(this.select2.val());
+  if (_.difference(this.selected, val).length ||
+    _.difference(val, this.selected).length) {
     this.selected = val;
     visflow.signal(this, 'change', this.selected);
   }

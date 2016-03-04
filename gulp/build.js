@@ -21,3 +21,10 @@ gulp.task('build-dev', function(cb) {
     ],
     cb);
 });
+
+// Build doc.
+gulp.task('build-doc', function(cb) {
+  runSequence(
+    'sass-doc',
+    cb);
+});

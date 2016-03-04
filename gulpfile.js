@@ -13,21 +13,22 @@ gulp.task('watch', function() {
     'index.html',
     paths.src,
     paths.scss,
+    paths.docScss,
+    paths.externs,
     paths.html
-  ], ['dev']);
+  ], ['build-dev', 'build-doc']);
 });
 
 // Dev task. Build without code minification.
-gulp.task('dev', ['lint', 'build-dev']);
+gulp.task('dev', ['lint', 'build-dev', 'build-doc']);
 
 // Default task. Build with code minification.
-gulp.task('default', ['lint', 'build']);
+gulp.task('default', ['lint', 'build', 'build-doc']);
 
 // Do everything.
 gulp.task('all', function(cb) {
   runSequence(
     'clean',
-    ['lint', 'compile-all'],
+    ['lint', 'compile-all', 'build-doc'],
     cb);
 });
-gulp

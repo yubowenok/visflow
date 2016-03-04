@@ -1,6 +1,12 @@
 <?php
 
-//header('Content-Type: text/html; charset=utf-8');
+include 'server/response.php';
+
+if($_SERVER['SERVER_PORT'] != 443) {
+  status(301);
+  header("Location: https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+  exit();
+}
 
 $index = file_get_contents("index.html");
 if (!isset($_GET['diagram'])) {

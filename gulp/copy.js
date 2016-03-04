@@ -10,4 +10,3 @@ gulp.task('copy', function() {
     .pipe(flatten())
     .pipe(gulp.dest(paths.dist + 'html'));
 });
-

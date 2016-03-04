@@ -18,9 +18,6 @@ function select2() {}
  */
 select2.Event = function(eventType, properties) {};
 
-/** @type {?} */
-select2.Event.prototype.params;
-
 /**
  * @param {Object=} opt_params
  * @return {!select2}
@@ -48,8 +45,8 @@ select2.prototype.on = function(arg, handler) {};
 select2.prototype.off = function(arg, handler) {};
 
 /**
- * @param {(string|number)=} val
- * @return {string|!select2}
+ * @param {(!Array<string>|string|number)=} val
+ * @return {!Array<string>|string|!select2}
  */
 select2.prototype.val = function(val) {};
 

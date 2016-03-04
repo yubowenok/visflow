@@ -38,6 +38,7 @@
   <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
   <script type="text/javascript" src="bower_components/crypto-js/crypto-js.js"></script>
   <script type="text/javascript" src="bower_components/moment/min/moment.min.js"></script>
+  <script type="text/javascript" src="bower_components/js-cookie/src/js.cookie.js"></script>
 
   <!-- visflow src -->
   <script type="text/javascript" src="dist/visflow.js"></script>
@@ -81,7 +82,10 @@
       </ul>
 
       <ul class="nav navbar-nav navbar-right">
-        <li class="login"><a id="login">Login</a></li>
+        <li><a class="logged-out" id="register">Register</a></li>
+        <li><a class="logged-out" id="login">Login</a></li>
+        <li><a class="logged-in" id="username">Username</a></li>
+        <li><a class="logged-in" id="logout">Logout</a></li>
       </ul>
     </div>
   </nav>

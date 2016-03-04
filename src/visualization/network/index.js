@@ -162,9 +162,9 @@ visflow.Network.prototype.initContextMenu = function() {
   visflow.Network.base.initContextMenu.call(this);
 
   $(this.contextMenu)
-    .on('navigation.visflow', this.toggleNavigation_.bind(this))
-    .on('nodeLabel.visflow', this.toggleNodeLabel_.bind(this))
-    .on('beforeOpen.visflow', function(event, menuContainer) {
+    .on('vf.navigation', this.toggleNavigation_.bind(this))
+    .on('vf.nodeLabel', this.toggleNodeLabel_.bind(this))
+    .on('vf.beforeOpen', function(event, menuContainer) {
       var nodeLabelIcon = menuContainer.find('#nodeLabel > i');
       if (this.options.nodeLabel) {
         nodeLabelIcon.addClass('glyphicon-ok');

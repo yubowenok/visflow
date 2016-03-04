@@ -145,7 +145,7 @@ visflow.Node = function(params) {
       this.interaction();
 
       // For callback.
-      $(this).trigger('ready.visflow');
+      $(this).trigger('vf.ready');
     }.bind(this);
 
     if (!this.TEMPLATE) {
@@ -584,12 +584,12 @@ visflow.Node.prototype.initContextMenu = function() {
   });
 
   $(this.contextMenu)
-    .on('delete.visflow', this.delete.bind(this))
-    .on('minimize.visflow', this.toggleMinimized.bind(this))
-    .on('panel.visflow', this.panel.bind(this))
-    .on('label.visflow', this.toggleLabel.bind(this))
-    .on('visMode.visflow', this.toggleVisMode.bind(this))
-    .on('beforeOpen.visflow', function(event, menuContainer) {
+    .on('vf.delete', this.delete.bind(this))
+    .on('vf.minimize', this.toggleMinimized.bind(this))
+    .on('vf.panel', this.panel.bind(this))
+    .on('vf.label', this.toggleLabel.bind(this))
+    .on('vf.visMode', this.toggleVisMode.bind(this))
+    .on('vf.beforeOpen', function(event, menuContainer) {
       var minimize = menuContainer.find('#minimize');
       if (this.options.minimized) {
         minimize.children('.glyphicon')
@@ -1035,7 +1035,7 @@ visflow.Node.prototype.initInterface = function(units) {
       opening: preventAltedOpen
     });
     $(new unit.constructor(unit.params))
-      .on('change.visflow', unit.change.bind(this));
+      .on('vf.change', unit.change.bind(this));
   }, this);
 };
 

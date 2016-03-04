@@ -52,7 +52,7 @@ visflow.nodePanel.init = function() {
  * @private
  */
 visflow.nodePanel.initUpdateHandlers_ = function() {
-  $(visflow.flow).on('visMode.visflow', function() {
+  $(visflow.flow).on('vf.visMode', function() {
     visflow.nodePanel.updateVisMode_();
   });
 };
@@ -166,7 +166,7 @@ visflow.nodePanel.initButton_ = function(button) {
     var node = visflow.flow.createNode(/** @type {string} */(
       button.attr('id')));
 
-    $(node).on('ready.visflow', function() {
+    $(node).on('vf.ready', function() {
       var container = node.getContainer();
       container.css(_.extend({
         left: visflow.interaction.mouseX - container.width() / 2,

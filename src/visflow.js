@@ -15,6 +15,7 @@ visflow.init = function() {
   visflow.scales.init();
 
   visflow.menu.init();
+  visflow.user.init();
   visflow.viewManager.init();
   visflow.flow.init();
   visflow.optionPanel.init();
@@ -78,7 +79,7 @@ visflow.assert = function(condition, opt_msg) {
  * Opens a documentation page.
  */
 visflow.documentation = function() {
-  window.open('documentation.html');
+  window.open('doc.html');
 };
 
 /**
@@ -97,5 +98,5 @@ visflow.about = function() {
  * @param {*=} data
  */
 visflow.signal = function(obj, event, data) {
-  $(obj).trigger(event + '.visflow', [data]);
+  $(obj).trigger('vf.' + event, [data]);
 };

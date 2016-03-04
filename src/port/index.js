@@ -236,15 +236,15 @@ visflow.Port.prototype.initContextMenu = function() {
   });
 
   $(contextMenu)
-    .on('disconnect.visflow', function() {
+    .on('vf.disconnect', function() {
       this.connections.concat().forEach(function(connection) {
         visflow.flow.deleteEdge(connection);
       });
     }.bind(this))
-    .on('export.visflow', function() {
+    .on('vf.export', function() {
       visflow.upload.export(/** @type {!visflow.Package} */(this.pack));
     }.bind(this))
-    .on('beforeOpen.visflow', function(event, menuContainer) {
+    .on('vf.beforeOpen', function(event, menuContainer) {
       if (this.isConstants) {
         menuContainer.find('#export').hide();
       }

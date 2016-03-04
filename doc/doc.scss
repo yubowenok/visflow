@@ -1,0 +1,87 @@
+@import 'src/common/colors';
+
+.visflow {
+  .navbar-nav > li > a,
+  .navbar-brand {
+    font-size: 1em;
+    height: 28px;
+    padding-bottom: 0;
+    padding-top: 4px;
+  }
+
+  .navbar {
+    min-height: 28px;
+    z-index: 0;
+
+    .dropdown-menu > li > a > i {
+      margin-right: 10px;
+    }
+  }
+
+  .navbar-fixed-top {
+    z-index: 100;
+
+    a:hover {
+      cursor: pointer;
+    }
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
+  #main {
+    margin-bottom: 40px;
+    margin-top: 40px;
+  }
+
+  .section {
+    margin-top: 15px;
+  }
+
+  .port {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    border: 1px solid $gray-c;
+    border-radius: 4px;
+    display: inline-block;
+    height: 15px;
+    margin-bottom: -2px;
+    margin-left: 2px;
+    margin-right: 2px;
+    width: 15px;
+
+    &.data {
+      background-color: $white;
+    }
+
+    &.constant {
+      background-color: $gray-e2;
+    }
+
+    &.single {
+      background-image: url('/visflow/imgs/port-single.png');
+    }
+
+    &.multiple {
+      background-image: url('/visflow/imgs/port-multiple.png');
+    }
+
+    &.selection {
+      background-image: url('/visflow/imgs/port-selection.png');
+    }
+  }
+
+  key {
+    border: 1px solid $gray-c;
+    border-radius: 4px;
+    box-shadow: 0 1px 0 $gray-c;
+    padding: 3px 12px;
+
+    &.hold {
+      background-color: $gray-e;
+      box-shadow: 0 -2px 0 $gray-c;
+    }
+  }
+}

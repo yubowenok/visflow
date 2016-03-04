@@ -46,6 +46,16 @@ visflow.menu.init = function() {
     visflow.about();
   });
 
+  var register = navbar.find('#register');
+  register.click(function() {
+    visflow.user.register();
+  });
+  var login = navbar.find('#login');
+  login.click(function() {
+    visflow.user.login();
+  });
+
+
   navbar.find('.to-tooltip').tooltip({
     delay: visflow.menu.TOOLTIP_DELAY_
   });
@@ -58,7 +68,7 @@ visflow.menu.init = function() {
  * @private
  */
 visflow.menu.initUpdateHandlers_ = function() {
-  $(visflow.options).on('change.visflow', function(event, data) {
+  $(visflow.options).on('vf.change', function(event, data) {
     var value = data.value;
     switch (data.type) {
       case 'nodeLabel':
@@ -67,6 +77,18 @@ visflow.menu.initUpdateHandlers_ = function() {
         break;
     }
   });
+
+  var navbar = $('.visflow > .navbar-fixed-top');
+  $(visflow.user)
+    .on('vf.login', function() {
+      navbar.find('.logged-in').show();
+      navbar.find('.logged-out').hide();
+      navbar.find('#username').text(visflow.user.account.username);
+    })
+    .on('vf.logout', function() {
+      navbar.find('.logged-out').show();
+      navbar.find('.logged-in').hide();
+    });
 };
 
 /**

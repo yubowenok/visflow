@@ -12,6 +12,7 @@ var orderedSrc = [
   'src/tooltip/*.js',
   'src/upload/*.js',
   'src/parser.js',
+  'src/user/*.js',
 
   'src/save.js',
   'src/node/save.js',
@@ -75,6 +76,9 @@ module.exports = {
   srcDev: orderedSrc.concat([
     'src/dev/**/*.js'
   ]),
+  docScss: [
+    'doc/doc.scss'
+  ],
   externs: [
     'src/externs/**/*.js'
   ],
@@ -82,7 +86,6 @@ module.exports = {
     'server/externs/*.js'
   ],
   scss: [
-    '!src/common/documentation.css',
     'src/**/*.scss',
     'src/**/*.css'
   ],

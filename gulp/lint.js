@@ -84,7 +84,7 @@ gulp.task('lint-scss', function(cb) {
         'critical warnings'));
     }
   };
-  return gulp.src(paths.scss)
+  return gulp.src(paths.scss.concat(paths.docScss))
     .pipe(scsslint({
       config: 'gulp/scss-lint.yml',
       customReport: reporterWrapper

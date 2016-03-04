@@ -361,7 +361,7 @@ visflow.interaction.mainContextMenu_ = function() {
     items: visflow.interaction.MAIN_CONTEXTMENU_ITEMS_
   });
   $(contextMenu)
-    .on('addNode.visflow', function() {
+    .on('vf.addNode', function() {
       visflow.popupPanel.show();
     });
 };
@@ -681,6 +681,6 @@ visflow.interaction.clickHandler = function(params) {
  */
 visflow.interaction.escHandler = function() {
   visflow.flow.clearNodeSelection();
-  visflow.popupPanel.close();
+  visflow.popupPanel.hide();
   visflow.dialog.close();
 };

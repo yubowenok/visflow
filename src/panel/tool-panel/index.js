@@ -54,10 +54,10 @@ visflow.toolPanel.init = function() {
  * @private
  */
 visflow.toolPanel.initUpdateHandlers_ = function() {
-  $(visflow.flow).on('visMode.visflow', function() {
+  $(visflow.flow).on('vf.visMode', function() {
     visflow.toolPanel.updateVisMode_();
   });
-  $(visflow.interaction).on('alt.visflow', function() {
+  $(visflow.interaction).on('vf.alt', function() {
     visflow.toolPanel.updateAlt_();
   });
 };

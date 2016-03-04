@@ -171,7 +171,7 @@ visflow.flow.createNode = function(type, save) {
     container: visflow.viewManager.createNodeContainer()
   });
   var newNode = new nodeConstructor(params);
-  $(newNode).on('ready.visflow', function() {
+  $(newNode).on('vf.ready', function() {
     if (save) {
       // If node is created from diagram loading, then de-serialize.
       this.deserialize(save);
@@ -395,7 +395,7 @@ visflow.flow.deserializeFlow = function(flow) {
     }
     loadCount++;
     var newNode = visflow.flow.createNode(type, nodeSaved);
-    $(newNode).on('ready.visflow', function() {
+    $(newNode).on('vf.ready', function() {
       loadCount--;
       if (loadCount == 0) {
         visflow.flow.deserializeFlowEdges_(flow, hashes);

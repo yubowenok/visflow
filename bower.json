@@ -30,6 +30,7 @@
     "mjolnic-bootstrap-colorpicker": "~2.3.0",
     "moment": "~2.10.6",
     "select2": "~4.0.0",
-    "underscore": "~1.8.2"
+    "underscore": "~1.8.2",
+    "js-cookie": "~2.1.0"
   }
 }

@@ -7,9 +7,9 @@ var autoprefixer = require('gulp-autoprefixer');
 
 var paths = require('./paths.js');
 
-var runSass = function(cb, compressed) {
-  return gulp.src(paths.scss)
-    .pipe(concat('visflow.scss')
+var runSass = function(cb, path, outputFile, compressed) {
+  return gulp.src(path)
+    .pipe(concat(outputFile)
       .on('error', function(err) {
         cb(err);
       }))
@@ -25,9 +25,13 @@ var runSass = function(cb, compressed) {
 };
 
 gulp.task('sass', function(cb) {
-  return runSass(cb, true);
+  return runSass(cb, paths.scss, 'visflow.css', true);
 });
 
 gulp.task('sass-dev', function(cb) {
-  return runSass(cb, false);
+  return runSass(cb, paths.scss, 'visflow.css', false);
+});
+
+gulp.task('sass-doc', function(cb) {
+  return runSass(cb, paths.docScss, 'doc.css', false);
 });
