@@ -60,6 +60,26 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
   $(visflow.interaction).on('vf.alt', function() {
     visflow.toolPanel.updateAlt_();
   });
+
+  $(visflow.user)
+    .on('vf.logout', function() {
+      visflow.toolPanel.container_.find('#upload')
+        .attr('disabled', true)
+        .attr('title', 'upload data (login required)')
+        .tooltip('destroy')
+        .tooltip({
+          delay: visflow.panel.TOOLTIP_DELAY
+        });
+    })
+    .on('vf.login', function() {
+      visflow.toolPanel.container_.find('#upload')
+        .attr('disabled', false)
+        .attr('title', 'upload data')
+        .tooltip('destroy')
+        .tooltip({
+          delay: visflow.panel.TOOLTIP_DELAY
+        });
+    });
 };
 
 /**

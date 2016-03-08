@@ -3,7 +3,7 @@
  */
 
 /**
- * @param {Object=} opt_params
+ * @param {(Object|string)=} opt_params
  */
 jQuery.prototype.tooltip = function(opt_params) {};
 

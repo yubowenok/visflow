@@ -23,6 +23,8 @@ visflow.user.REGISTER_URL_ = './server/register.php';
 /** @private @const {string} */
 visflow.user.LOGIN_URL_ = './server/login.php';
 /** @private @const {string} */
+visflow.user.LOGOUT_URL_ = './server/logout.php';
+/** @private @const {string} */
 visflow.user.AUTH_URL_ = './server/auth.php';
 
 /** @private @const {string} */
@@ -70,7 +72,15 @@ visflow.user.login = function() {
  * Logs out the current user.
  */
 visflow.user.logout = function() {
-
+  $.post(visflow.user.LOGOUT_URL_)
+    .done(function() {
+      visflow.dialog.close();
+      visflow.success('logout successful');
+      visflow.signal(visflow.user, 'logout');
+    }).fail(function(res) {
+      // text error response
+      visflow.error(res.responseText);
+    });
 };
 
 /**
@@ -163,10 +173,10 @@ visflow.user.registerDialog_ = function(dialog) {
         username: username_,
         password: password_,
         email: email_
-      }).done(function(res) {
-        //visflow.dialog.close();
+      }).done(function() {
+        visflow.dialog.close();
         visflow.success('registration successful');
-        console.log(res);
+        visflow.user.authenticate();
       }).fail(function(res) {
         // text error response
         visflow.user.alert(dialog, res.responseText);
@@ -181,5 +191,46 @@ visflow.user.registerDialog_ = function(dialog) {
  * @private
  */
 visflow.user.loginDialog_ = function(dialog) {
+  var btn = dialog.find('#confirm');
+  var username = dialog.find('#username');
+  var password = dialog.find('#password');
+  var alert = dialog.find('.alert');
+  btn.prop('disabled', true);
 
+  var fieldsComplete = function() {
+    var passwordNonEmpty = password.val() !== '';
+    var usernameNonEmpty = username.val() !== '';
+    return passwordNonEmpty && usernameNonEmpty;
+  };
+
+  var inputChanged = function(event) {
+    var complete = fieldsComplete();
+    if (event.which == visflow.interaction.keyCodes.ENTER && complete) {
+      // Attempt to submit
+      btn.trigger('click');
+    }
+    visflow.user.alert(dialog, '');
+    btn.prop('disabled', !complete);
+  };
+
+  dialog.find('input')
+    .keydown(inputChanged)
+    .change(inputChanged);
+
+  btn.click(function() {
+    var username_ = username.val();
+    var password_ = password.val();
+
+    $.post(visflow.user.LOGIN_URL_, {
+      username: username_,
+      password: password_,
+    }).done(function() {
+      visflow.dialog.close();
+      visflow.success('login successful');
+      visflow.user.authenticate();
+    }).fail(function(res) {
+      // text error response
+      visflow.user.alert(dialog, res.responseText);
+    });
+  });
 };

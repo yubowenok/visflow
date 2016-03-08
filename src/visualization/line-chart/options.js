@@ -17,6 +17,12 @@ visflow.options.LineChart = function(params) {
   this.xDim = params.xDim !== undefined ? params.xDim : visflow.data.INDEX_DIM;
 
   /**
+   * Value dimension.
+   * @type {number}
+   */
+  this.yDim = params.yDim !== undefined ? params.yDim : 0;
+
+  /**
    * Group by dimension, must be key.
    * @type {string}
    */

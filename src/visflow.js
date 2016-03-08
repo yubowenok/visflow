@@ -15,7 +15,6 @@ visflow.init = function() {
   visflow.scales.init();
 
   visflow.menu.init();
-  visflow.user.init();
   visflow.viewManager.init();
   visflow.flow.init();
   visflow.optionPanel.init();
@@ -23,6 +22,8 @@ visflow.init = function() {
   visflow.popupPanel.init();
   visflow.toolPanel.init();
   visflow.interaction.init();
+
+  visflow.user.init();
 };
 
 /** @private @const {number} */

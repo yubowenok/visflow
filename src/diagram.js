@@ -125,15 +125,11 @@ visflow.diagram.download = function(filename) {
     type: 'download',
     filename: filename
   }).done(function(data) {
-      if (data.status != 'success') {
-        visflow.error('failed to download diagram', data.msg);
-        return;
-      }
       visflow.flow.deserializeFlow(data.diagram);
       visflow.diagram.updateURL(filename);
     })
-    .fail(function() {
-      visflow.error('failed to download diagram (connection error)');
+    .fail(function(res) {
+      visflow.error('failed to download diagram', res.responseText);
     });
 };
 

@@ -54,7 +54,10 @@ visflow.menu.init = function() {
   login.click(function() {
     visflow.user.login();
   });
-
+  var logout = navbar.find('#logout');
+  logout.click(function() {
+    visflow.user.logout();
+  });
 
   navbar.find('.to-tooltip').tooltip({
     delay: visflow.menu.TOOLTIP_DELAY_
