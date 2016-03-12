@@ -1,11 +1,8 @@
 <?php
-header('Content-type: application/json');
 
-function abort($msg='') {
-  $response['msg'] = $msg;
-  echo json_encode($response);
-  exit();
-}
+include 'file.php';
+
+checkLogin();
 
 if (!isset($_POST['name']))
   abort('data name not set');
@@ -14,24 +11,14 @@ if (!isset($_FILES['file']))
 if ($_FILES['file']['size'] > 20 * 1024 * 1024)
   abort('file size should be no larger than 20M');
 
-if (!file_exists('data'))
-  mkdir('data', 0777, true);
-if (!file_exists('data-names'))
-  mkdir('data-names', 0777, true);
+$data_name = $_POST['name'];
+$file_name = basename($_FILES['file']['name']);
+$tmp_file = $_FILES['file']['tmp_name'];
 
-$filename = $_FILES['file']['name'];
+$error = saveUploadedData($file_name, $data_name, $tmp_file);
+if ($error != '')
+  abort($error);
 
-$saved_file = 'data/' . basename($filename);
-$name_file = 'data-names/' . $filename . '.name';
+status(200);
 
-$name_written = file_put_contents($name_file, $_POST['name']);
-if (!$name_written)
-  abort('failed to write name file');
-
-if (move_uploaded_file($_FILES['file']['tmp_name'], $saved_file)) {
-  $response['success'] = true;
-} else {
-  abort('failed to save file');
-}
-echo json_encode($response);
 ?>

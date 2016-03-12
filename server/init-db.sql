@@ -45,5 +45,18 @@ CREATE TABLE auth (
     ON UPDATE CASCADE
 );
 
+CREATE TABLE diagram (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  name VARCHAR(256) NOT NULL,
+  file_path VARCHAR(512) NOT NULL,
+  update_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  public BOOL DEFAULT false,
+  CONSTRAINT FOREIGN KEY (user_id)
+    REFERENCES visflow.user (id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
+
 INSERT INTO user (username, password, email) VALUES
-  ('visflow', 'ec975f0ba679cebcfabb0b023893850202ac0f5a9533a25a3fc5e6c2f0fe1cab', 'visflow@gmail.com');
+  ('visflow', 'ec975f0ba679cebcfabb0b023893850202ac0f5a9533a25a3fc5e6c2f0fe1cab', 'visflow.nyu@gmail.com');

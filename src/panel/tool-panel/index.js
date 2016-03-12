@@ -64,7 +64,7 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
   $(visflow.user)
     .on('vf.logout', function() {
       visflow.toolPanel.container_.find('#upload')
-        .attr('disabled', true)
+        .prop('disabled', true)
         .attr('title', 'upload data (login required)')
         .tooltip('destroy')
         .tooltip({
@@ -73,7 +73,7 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
     })
     .on('vf.login', function() {
       visflow.toolPanel.container_.find('#upload')
-        .attr('disabled', false)
+        .prop('disabled', false)
         .attr('title', 'upload data')
         .tooltip('destroy')
         .tooltip({

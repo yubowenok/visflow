@@ -63,7 +63,7 @@ var orderedSrc = [
   'src/visualization/**/index.js',
   'src/visualization/**/*.js',
 
-  'src/diagram.js',
+  'src/diagram/diagram.js',
   'src/flow.js',
   'src/launch.js',
   '!src/externs/**/*.js'

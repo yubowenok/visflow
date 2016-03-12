@@ -249,14 +249,13 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
         this.loadData(this.data.length - 1);
       }.bind(this));
 
-      $.get('./server/list-data.php')
+      $.get(visflow.url.LIST_DATA)
         .done(function(res) {
-          if (!res.success) {
-            visflow.error('cannot list server data:', res.msg);
-            return;
-          }
           var table = dialog.find('table');
-          this.listDataTable_(table, res.filelist);
+          if (this.table_) {
+            this.table_.destroy();
+          }
+          visflow.upload.listDataTable(table, res.filelist);
           table
             .on('select.dt', function() {
               dataName = table.find('tr.selected').children()
@@ -271,8 +270,8 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
               uploadable();
             });
         }.bind(this))
-        .fail(function() {
-          visflow.error('cannot list server data');
+        .fail(function(res) {
+          visflow.error('cannot list server data:', res.responseText);
         });
 
       dialog.find('.online #data-name').keyup(function(event) {
@@ -511,56 +510,4 @@ visflow.DataSource.prototype.process = function() {
   // Overwrite data object (to keep the same reference).
   $.extend(this.ports['out'].pack, new visflow.Package(data));
   visflow.flow.propagate(this);
-};
-
-/**
- * Shows a table with list of data sets stored on the server.
- * @param {!jQuery} table
- * @param {!Array<{filename: string, mtime: number}>} fileList
- * @private
- */
-visflow.DataSource.prototype.listDataTable_ = function(table, fileList) {
-  if (this.table_) {
-    this.table_.destroy();
-  }
-  this.table_ = table.DataTable({
-    data: fileList,
-    select: 'single',
-    pagingType: 'full',
-    pageLength: 5,
-    lengthMenu: [5, 10, 20],
-    order: [
-      [3, 'desc']
-    ],
-    columns: [
-      {title: 'Data Name', data: 'dataname'},
-      {title: 'File Name', data: 'filename'},
-      {title: 'Size', data: 'size'},
-      {title: 'Last Modified', data: 'mtime'}
-    ],
-    columnDefs: [
-      {
-        type: 'data-size',
-        // Size
-        render: function(size) {
-          var base = 1000;
-          if (size < base) {
-            return size + 'B';
-          } else if (size < base * base) {
-            return (size / base).toFixed(2) + 'KB';
-          } else {
-            return (size / base / base).toFixed(2) + 'MB';
-          }
-        },
-        targets: 2
-      },
-      {
-        // Last Modified
-        render: function(lastModified) {
-          return (new Date(lastModified)).toLocaleString();
-        },
-        targets: 3
-      }
-    ]
-  });
 };

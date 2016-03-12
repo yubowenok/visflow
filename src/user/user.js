@@ -17,6 +17,8 @@ visflow.user.account = null;
 visflow.user.REGISTER_TEMPLATE_ = './dist/html/register-dialog.html';
 /** @private @const {string} */
 visflow.user.LOGIN_TEMPLATE_ = './dist/html/login-dialog.html';
+/** @private @const {string} */
+visflow.user.PROFILE_TEMPLATE_ = './dist/html/profile-dialog.html';
 
 /** @private @const {string} */
 visflow.user.REGISTER_URL_ = './server/register.php';
@@ -66,6 +68,19 @@ visflow.user.login = function() {
     template: visflow.user.LOGIN_TEMPLATE_,
     complete: visflow.user.loginDialog_
   });
+};
+
+/**
+ * Shows the user profile dialog.
+ */
+visflow.user.profile = function() {
+  // TODO(bowen): add user profile edit
+  /*
+  visflow.dialog.create({
+    template: visflow.user.PROFILE_TEMPLATE_,
+    complete: visflow.user.profileDialog_
+  });
+  */
 };
 
 /**
@@ -223,7 +238,7 @@ visflow.user.loginDialog_ = function(dialog) {
 
     $.post(visflow.user.LOGIN_URL_, {
       username: username_,
-      password: password_,
+      password: password_
     }).done(function() {
       visflow.dialog.close();
       visflow.success('login successful');
@@ -233,4 +248,12 @@ visflow.user.loginDialog_ = function(dialog) {
       visflow.user.alert(dialog, res.responseText);
     });
   });
+};
+
+/**
+ * Sets up the dialog for user profile edit.
+ * @param {!jQuery} dialog
+ * @private
+ */
+visflow.user.profileDialog_ = function(dialog) {
 };
