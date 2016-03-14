@@ -26,7 +26,8 @@ visflow.Checkbox = function(params) {
 };
 
 /** @private @const {string} */
-visflow.Checkbox.prototype.TEMPLATE_ = './src/unit/checkbox/checkbox.html';
+visflow.Checkbox.prototype.TEMPLATE_ =
+  './dist/html/unit/checkbox/checkbox.html';
 
 /**
  * Initializes the checkbox.

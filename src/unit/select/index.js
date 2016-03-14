@@ -60,7 +60,7 @@ visflow.Select = function(params) {
 };
 
 /** @private @const {string} */
-visflow.Select.prototype.TEMPLATE_ = './src/unit/select/select.html';
+visflow.Select.prototype.TEMPLATE_ = './dist/html/unit/select/select.html';
 
 /**
  * Initializes the list title and add item select2.

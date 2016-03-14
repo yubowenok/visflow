@@ -12,20 +12,25 @@ visflow.diagram = {};
 visflow.diagram.lastFilename = 'myDiagram';
 
 /** @private @const {string} */
-visflow.diagram.NEW_DIALOG_ = './src/diagram/new-diagram.html';
+visflow.diagram.NEW_DIALOG_ = './dist/html/diagram/new-diagram.html';
 /** @private @const {string} */
-visflow.diagram.DELETE_DIALOG_ = './src/diagram/delete-diagram.html';
+visflow.diagram.DELETE_DIALOG_ = './dist/html/diagram/delete-diagram.html';
 /** @private @const {string} */
-visflow.diagram.SAVE_DIALOG_ = './src/diagram/save-diagram.html';
+visflow.diagram.SAVE_DIALOG_ = './dist/html/diagram/save-diagram.html';
 /** @private @const {string} */
-visflow.diagram.OVERWRITE_DIALOG_ = './src/diagram/overwrite-diagram.html';
+visflow.diagram.LOAD_DIALOG_ = './dist/html/diagram/load-diagram.html';
 /** @private @const {string} */
-visflow.diagram.LOAD_DIALOG_ = './src/diagram/load-diagram.html';
+visflow.diagram.OVERWRITE_DIALOG_ =
+  './dist/html/diagram/overwrite-diagram.html';
 
 /**
  * Saves the current flow.
  */
 visflow.diagram.save = function() {
+  if (!visflow.user.loggedIn()) {
+    visflow.user.login('you must login to save diagram');
+    return;
+  }
   $.post(visflow.url.LIST_DIAGRAM)
     .done(function(data) {
       var fileList = data.filelist;
@@ -149,6 +154,10 @@ visflow.diagram.delete = function(diagramName) {
  * @param {string} filename
  */
 visflow.diagram.download = function(filename) {
+  if (!visflow.user.loggedIn()) {
+    visflow.user.login('you must login to download a diagram');
+    return;
+  }
   visflow.diagram.lastFilename = filename;
   $.post(visflow.url.LOAD_DIAGRAM, {
     filename: filename

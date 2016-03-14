@@ -10,10 +10,10 @@ visflow.popupPanel.container_ = $();
 
 /** @private @const {string} */
 visflow.popupPanel.TEMPLATE_ =
-    './src/panel/popup-panel/popup-panel.html';
+    './dist/html/panel/popup-panel/popup-panel.html';
 /** @private @const {string} */
 visflow.popupPanel.COMPACT_TEMPLATE_ =
-    './src/panel/popup-panel/popup-panel-compact.html';
+    './dist/html/panel/popup-panel/popup-panel-compact.html';
 
 /** @private @const {number} */
 visflow.popupPanel.REVERT_DURATION_ = 100;

@@ -24,7 +24,7 @@ visflow.nodePanel.hoverArea_ = $();
 visflow.nodePanel.isOpen = false;
 
 /** @private @const {string} */
-visflow.nodePanel.TEMPLATE_ = './src/panel/node-panel/node-panel.html';
+visflow.nodePanel.TEMPLATE_ = './dist/html/panel/node-panel/node-panel.html';
 /** @private @const {number} */
 visflow.nodePanel.TRANSITION_DURATION_ = 300;
 

@@ -9,5 +9,5 @@ visflow.dev = {};
  * Executes a sequence of commands for development testing purpose.
  */
 visflow.dev.run = function() {
-  visflow.diagram.download('myDiagram');
+  //visflow.diagram.download('myDiagram');
 };

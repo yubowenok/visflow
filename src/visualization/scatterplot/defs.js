@@ -10,7 +10,7 @@ visflow.Scatterplot.prototype.NODE_NAME = 'Scatterplot';
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.PANEL_TEMPLATE =
-  './src/visualization/scatterplot/scatterplot-panel.html';
+  './dist/html/visualization/scatterplot/scatterplot-panel.html';
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.defaultOptions = function() {

@@ -10,18 +10,16 @@ if($_SERVER['SERVER_PORT'] != 443) {
 
 $index = file_get_contents("index.html");
 if (!isset($_GET['diagram'])) {
-  echo $index;
-  /*
   echo str_replace(
-    "visflow.test.run();",
+    "//vf.embed.js",
     "",
     $index
   );
-  */
 } else {
+  $diagram = $_GET['diagram'];
   echo str_replace(
-    "visflow.test.run()",
-    "visflow.diagram.download(\"".$_GET['diagram']."\")",
+    "//vf.embed.js",
+    "visflow.user.loginHook = function() { visflow.diagram.download('$diagram'); };",
     $index
   );
 }

@@ -10,7 +10,7 @@ visflow.Network.prototype.NODE_CLASS = 'network';
 
 /** @inheritDoc */
 visflow.Network.prototype.PANEL_TEMPLATE =
-  './src/visualization/network/network-panel.html';
+  './dist/html/visualization/network/network-panel.html';
 
 /** @private @const {number} */
 visflow.Network.prototype.NODE_LABEL_SIZE_ = 14;

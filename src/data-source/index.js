@@ -215,7 +215,7 @@ visflow.DataSource.prototype.updateActiveSections_ = function(dialog) {
  */
 visflow.DataSource.prototype.loadDataDialog_ = function() {
   visflow.dialog.create({
-    template: './src/data-source/select-data.html',
+    template: this.SELECT_DATA_TEMPLATE_,
     complete: function(dialog) {
 
       dialog.find('.to-tooltip').tooltip({

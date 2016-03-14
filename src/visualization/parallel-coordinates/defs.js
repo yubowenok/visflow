@@ -4,7 +4,7 @@
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.PANEL_TEMPLATE =
-  './src/visualization/parallel-coordinates/parallel-coordinates-panel.html';
+  './dist/html/visualization/parallel-coordinates/parallel-coordinates-panel.html';
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.NODE_CLASS = 'parallel-coordinates';

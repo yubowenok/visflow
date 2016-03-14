@@ -6,7 +6,7 @@
 visflow.Set.prototype.RESIZABLE = false;
 
 /** @inheritDoc */
-visflow.Set.prototype.PANEL_TEMPLATE = './src/set/set-panel.html';
+visflow.Set.prototype.PANEL_TEMPLATE = './dist/html/set/set-panel.html';
 
 /** @protected {number} */
 visflow.Set.prototype.MAX_LABEL_LENGTH = 9;

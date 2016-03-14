@@ -4,10 +4,10 @@
 
 /** @inheritDoc */
 visflow.ContainFilter.prototype.TEMPLATE =
-  './src/filter/contain-filter/contain-filter.html';
+  './dist/html/filter/contain-filter/contain-filter.html';
 /** @inheritDoc */
 visflow.ContainFilter.prototype.PANEL_TEMPLATE =
-  './src/filter/contain-filter/contain-filter-panel.html';
+  './dist/html/filter/contain-filter/contain-filter-panel.html';
 /** @inheritDoc */
 visflow.ContainFilter.prototype.NODE_NAME = 'Contain Filter';
 /** @inheritDoc */

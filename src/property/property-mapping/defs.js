@@ -10,11 +10,11 @@ visflow.PropertyMapping.prototype.NODE_NAME = 'Property Mapping';
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.TEMPLATE =
-  './src/property/property-mapping/property-mapping.html';
+  './dist/html/property/property-mapping/property-mapping.html';
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.PANEL_TEMPLATE =
-  './src/property/property-mapping/property-mapping-panel.html';
+  './dist/html/property/property-mapping/property-mapping-panel.html';
 
 
 /** @inheritDoc */

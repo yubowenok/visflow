@@ -65,6 +65,8 @@ var orderedSrc = [
 
   'src/diagram/diagram.js',
   'src/flow.js',
+  'src/welcome/welcome.js',
+
   'src/launch.js',
   '!src/externs/**/*.js'
 ];
@@ -76,6 +78,9 @@ module.exports = {
   srcDev: orderedSrc.concat([
     'src/dev/**/*.js'
   ]),
+  docJs: [
+    'doc/doc.js'
+  ],
   docScss: [
     'doc/doc.scss'
   ],

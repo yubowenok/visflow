@@ -9,11 +9,16 @@ visflow.DataSource.prototype.NODE_CLASS = 'data-source';
 visflow.DataSource.prototype.NODE_NAME = 'Data Source';
 
 /** @inheritDoc */
-visflow.DataSource.prototype.TEMPLATE = './src/data-source/data-source.html';
+visflow.DataSource.prototype.TEMPLATE =
+  './dist/html/data-source/data-source.html';
 
 /** @inheritDoc */
 visflow.DataSource.prototype.PANEL_TEMPLATE =
-  './src/data-source/data-source-panel.html';
+  './dist/html/data-source/data-source-panel.html';
+
+/** @private @const {string} */
+visflow.DataSource.prototype.SELECT_DATA_TEMPLATE_ =
+  './dist/html/data-source/select-data.html';
 
 /** @inheritDoc */
 visflow.DataSource.prototype.MIN_HEIGHT = 40;

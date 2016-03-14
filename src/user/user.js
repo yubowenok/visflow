@@ -14,11 +14,11 @@ visflow.user = {};
 visflow.user.account = null;
 
 /** @private @const {string} */
-visflow.user.REGISTER_TEMPLATE_ = './dist/html/register-dialog.html';
+visflow.user.REGISTER_TEMPLATE_ = './dist/html/user/register-dialog.html';
 /** @private @const {string} */
-visflow.user.LOGIN_TEMPLATE_ = './dist/html/login-dialog.html';
+visflow.user.LOGIN_TEMPLATE_ = './dist/html/user/login-dialog.html';
 /** @private @const {string} */
-visflow.user.PROFILE_TEMPLATE_ = './dist/html/profile-dialog.html';
+visflow.user.PROFILE_TEMPLATE_ = './dist/html/user/profile-dialog.html';
 
 /** @private @const {string} */
 visflow.user.REGISTER_URL_ = './server/register.php';
@@ -44,6 +44,21 @@ visflow.user.MIN_USERNAME_LENGTH_ = 6;
 visflow.user.MIN_PASSWORD_LENGTH_ = 8;
 
 /**
+ * Callback function that will be called after the user logs in.
+ * @type {?function()}
+ */
+visflow.user.loginHook = function() {
+  if (visflow.user.loggedIn()) {
+    var diagram = location.search.split('diagram=')[1];
+    if (diagram !== undefined) {
+      visflow.diagram.download(diagram);
+    }
+  } else {
+    visflow.welcome.init();
+  }
+};
+
+/**
  * Initializes user settings.
  */
 visflow.user.init = function() {
@@ -62,11 +77,15 @@ visflow.user.register = function() {
 
 /**
  * Shows a login dialog.
+ * @param {string=} message
  */
-visflow.user.login = function() {
+visflow.user.login = function(message) {
   visflow.dialog.create({
     template: visflow.user.LOGIN_TEMPLATE_,
-    complete: visflow.user.loginDialog_
+    complete: visflow.user.loginDialog_,
+    params: {
+      message: message
+    }
   });
 };
 
@@ -81,6 +100,14 @@ visflow.user.profile = function() {
     complete: visflow.user.profileDialog_
   });
   */
+};
+
+/**
+ * Checks whether the user has logged in.
+ * @return {boolean}
+ */
+visflow.user.loggedIn = function() {
+  return visflow.user.account != null;
 };
 
 /**
@@ -110,9 +137,11 @@ visflow.user.authenticate = function() {
           username: username
         };
         visflow.signal(visflow.user, 'login');
+        visflow.user.callLoginHook();
       })
       .fail(function() {
         visflow.signal(visflow.user, 'logout');
+        visflow.user.callLoginHook();
       });
   } else {
     visflow.signal(visflow.user, 'logout');
@@ -120,17 +149,31 @@ visflow.user.authenticate = function() {
 };
 
 /**
- * Displays an alert message in the dialog.
+ * Displays an error message in the dialog.
  * @param {!jQuery} dialog
  * @param {string} text
  */
-visflow.user.alert = function(dialog, text) {
-  var alert = dialog.find('.alert');
+visflow.user.error = function(dialog, text) {
+  var error = dialog.find('.error');
   if (text === '') {
-    alert.hide();
+    error.hide();
     return;
   }
-  alert.show().text(text);
+  error.show().text(text);
+};
+
+/**
+ * Displays a warning message in the dialog.
+ * @param {!jQuery} dialog
+ * @param {string} text
+ */
+visflow.user.warning = function(dialog, text) {
+  var warning = dialog.find('.warning');
+  if (text === '') {
+    warning.hide();
+    return;
+  }
+  warning.show().text(text);
 };
 
 /**
@@ -144,7 +187,7 @@ visflow.user.registerDialog_ = function(dialog) {
   var password = dialog.find('#password');
   var repeatPassword = dialog.find('#repeat-password');
   var email = dialog.find('#email');
-  var alert = dialog.find('.alert');
+  var error = dialog.find('.error');
   btn.prop('disabled', true);
 
   var fieldsComplete = function() {
@@ -157,7 +200,7 @@ visflow.user.registerDialog_ = function(dialog) {
   };
 
   var inputChanged = function() {
-    visflow.user.alert(dialog, '');
+    visflow.user.error(dialog, '');
     btn.prop('disabled', !fieldsComplete());
   };
 
@@ -170,17 +213,17 @@ visflow.user.registerDialog_ = function(dialog) {
     var password_ = password.val();
     var email_ = email.val();
     if (password_ !== repeatPassword.val()) {
-      visflow.user.alert(dialog, 'passwords mismatch');
+      visflow.user.error(dialog, 'passwords mismatch');
     } else if (!RegExp(visflow.user.EMAIL_REGEX_).test(email_)) {
-      visflow.user.alert(dialog, 'invalid email address');
+      visflow.user.error(dialog, 'invalid email address');
     } else if (!RegExp(visflow.user.USERNAME_REGEX_).test(username_)) {
-      visflow.user.alert(dialog, 'username may only contain lowercase ' +
+      visflow.user.error(dialog, 'username may only contain lowercase ' +
         'letters, digits and underscores');
     } else if (username_.length < visflow.user.MIN_USERNAME_LENGTH_) {
-      visflow.user.alert(dialog, 'username length must be at least ' +
+      visflow.user.error(dialog, 'username length must be at least ' +
         visflow.user.MIN_USERNAME_LENGTH_);
     } else if (password_.length < visflow.user.MIN_PASSWORD_LENGTH_) {
-      visflow.user.alert(dialog, 'password length must be at least ' +
+      visflow.user.error(dialog, 'password length must be at least ' +
         visflow.user.MIN_PASSWORD_LENGTH_);
     } else {
       // all conditions match
@@ -194,7 +237,7 @@ visflow.user.registerDialog_ = function(dialog) {
         visflow.user.authenticate();
       }).fail(function(res) {
         // text error response
-        visflow.user.alert(dialog, res.responseText);
+        visflow.user.error(dialog, res.responseText);
       });
     }
   });
@@ -203,13 +246,28 @@ visflow.user.registerDialog_ = function(dialog) {
 /**
  * Sets up the dialog for user login.
  * @param {!jQuery} dialog
+ * @param {{
+ *   message: string
+ * }=} params
  * @private
  */
-visflow.user.loginDialog_ = function(dialog) {
+visflow.user.loginDialog_ = function(dialog, params) {
   var btn = dialog.find('#confirm');
   var username = dialog.find('#username');
   var password = dialog.find('#password');
-  var alert = dialog.find('.alert');
+  var error = dialog.find('.error');
+
+  if (params !== undefined) {
+    if (params.message) {
+      visflow.user.warning(dialog, params.message);
+    }
+  }
+
+  dialog.find('#register')
+    .click(function() {
+      visflow.user.register();
+    });
+
   btn.prop('disabled', true);
 
   var fieldsComplete = function() {
@@ -224,7 +282,7 @@ visflow.user.loginDialog_ = function(dialog) {
       // Attempt to submit
       btn.trigger('click');
     }
-    visflow.user.alert(dialog, '');
+    visflow.user.error(dialog, '');
     btn.prop('disabled', !complete);
   };
 
@@ -245,9 +303,19 @@ visflow.user.loginDialog_ = function(dialog) {
       visflow.user.authenticate();
     }).fail(function(res) {
       // text error response
-      visflow.user.alert(dialog, res.responseText);
+      visflow.user.error(dialog, res.responseText);
     });
   });
+};
+
+/**
+ * Executes the login hook and sets the hook to null.
+ */
+visflow.user.callLoginHook = function() {
+  if (visflow.user.loginHook != null) {
+    visflow.user.loginHook();
+    visflow.user.loginHook = null;
+  }
 };
 
 /**

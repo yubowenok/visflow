@@ -3,11 +3,11 @@
  */
 
 /** @inheritDoc */
-visflow.Table.prototype.TEMPLATE = './src/visualization/table/table.html';
+visflow.Table.prototype.TEMPLATE = './dist/html/visualization/table/table.html';
 
 /** @inheritDoc */
 visflow.Table.prototype.PANEL_TEMPLATE =
-  './src/visualization/table/table-panel.html';
+  './dist/html/visualization/table/table-panel.html';
 
 /** @inheritDoc */
 visflow.Table.prototype.NODE_NAME = 'Table';

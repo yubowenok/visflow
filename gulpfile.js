@@ -12,7 +12,9 @@ gulp.task('watch', function() {
   gulp.watch([
     'index.html',
     paths.src,
+    paths.srcDev,
     paths.scss,
+    paths.docJs,
     paths.docScss,
     paths.externs,
     paths.html

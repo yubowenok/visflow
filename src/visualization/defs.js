@@ -7,7 +7,7 @@ visflow.Visualization.prototype.NODE_NAME = 'visualization';
 
 /** @inheritDoc */
 visflow.Visualization.prototype.TEMPLATE =
-  './src/visualization/visualization.html';
+  './dist/html/visualization/visualization.html';
 
 /** @protected @const {number} */
 visflow.Visualization.prototype.LABEL_OFFSET = 5;

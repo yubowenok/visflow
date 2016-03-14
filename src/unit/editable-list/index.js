@@ -55,7 +55,7 @@ visflow.EditableList = function(params) {
 
 /** @private @const {string} */
 visflow.EditableList.prototype.TEMPLATE_ =
-    './src/unit/editable-list/editable-list.html';
+    './dist/html/unit/editable-list/editable-list.html';
 
 /**
  * Initializes the list title and add item select2.

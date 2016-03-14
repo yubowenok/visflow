@@ -4,10 +4,10 @@
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.TEMPLATE =
-  './src/filter/range-filter/range-filter.html';
+  './dist/html/filter/range-filter/range-filter.html';
 /** @inheritDoc */
 visflow.RangeFilter.prototype.PANEL_TEMPLATE =
-  './src/filter/range-filter/range-filter-panel.html';
+  './dist/html/filter/range-filter/range-filter-panel.html';
 /** @inheritDoc */
 visflow.RangeFilter.prototype.NODE_NAME = 'Range Filter';
 /** @inheritDoc */

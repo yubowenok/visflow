@@ -37,7 +37,7 @@ visflow.ColorPicker = function(params) {
  * @private @const {string}
  */
 visflow.ColorPicker.prototype.TEMPLATE_ =
-    './src/unit/colorpicker/colorpicker.html';
+    './dist/html/unit/colorpicker/colorpicker.html';
 
 /** @private @const {number} */
 visflow.ColorPicker.prototype.X_OFFSET_ = -50;

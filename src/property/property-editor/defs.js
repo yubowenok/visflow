@@ -10,11 +10,11 @@ visflow.PropertyEditor.prototype.NODE_NAME = 'Property Editor';
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.TEMPLATE =
-  './src/property/property-editor/property-editor.html';
+  './dist/html/property/property-editor/property-editor.html';
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.PANEL_TEMPLATE =
-  './src/property/property-editor/property-editor-panel.html';
+  './dist/html/property/property-editor/property-editor-panel.html';
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.defaultOptions = function() {

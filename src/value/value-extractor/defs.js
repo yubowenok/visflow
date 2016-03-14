@@ -10,11 +10,11 @@ visflow.ValueExtractor.prototype.NODE_CLASS = 'value-extractor';
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.TEMPLATE =
-  './src/value/value-extractor/value-extractor.html';
+  './dist/html/value/value-extractor/value-extractor.html';
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.PANEL_TEMPLATE =
-  './src/value/value-extractor/value-extractor-panel.html';
+  './dist/html/value/value-extractor/value-extractor-panel.html';
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.MIN_WIDTH = 120;

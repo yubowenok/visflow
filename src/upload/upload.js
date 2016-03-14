@@ -6,9 +6,9 @@
 visflow.upload = {};
 
 /** @private @const {string} */
-visflow.upload.TEMPLATE_ = './src/upload/upload-data.html';
+visflow.upload.TEMPLATE_ = './dist/html/upload/upload-data.html';
 /** @private @const {string} */
-visflow.upload.DELETE_CONFIRMATION_ = './src/upload/delete-data.html';
+visflow.upload.DELETE_CONFIRMATION_ = './dist/html/upload/delete-data.html';
 
 /** @private {?Function} */
 visflow.upload.complete_ = null;
@@ -52,7 +52,7 @@ visflow.upload.delete = function(params) {
  * @param {!visflow.Package} pack
  */
 visflow.upload.export = function(pack) {
-  if (visflow.user.account == null) {
+  if (!visflow.user.loggedIn()) {
     visflow.warning('you must login to export data');
     return;
   }

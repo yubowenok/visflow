@@ -4,10 +4,10 @@
 
 /** @inheritDoc */
 visflow.Sampler.prototype.TEMPLATE =
-  './src/filter/sampler/sampler.html';
+  './dist/html/filter/sampler/sampler.html';
 /** @inheritDoc */
 visflow.Sampler.prototype.PANEL_TEMPLATE =
-  './src/filter/sampler/sampler-panel.html';
+  './dist/html/filter/sampler/sampler-panel.html';
 /** @inheritDoc */
 visflow.Sampler.prototype.NODE_NAME = 'Sampler';
 /** @inheritDoc */

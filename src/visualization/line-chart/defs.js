@@ -10,7 +10,7 @@ visflow.LineChart.prototype.NODE_NAME = 'Line Chart';
 
 /** @inheritDoc */
 visflow.LineChart.prototype.PANEL_TEMPLATE =
-  './src/visualization/line-chart/line-chart-panel.html';
+  './dist/html/visualization/line-chart/line-chart-panel.html';
 
 /** @inheritDoc */
 visflow.LineChart.prototype.defaultOptions = function() {

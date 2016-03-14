@@ -10,7 +10,7 @@ visflow.Heatmap.prototype.NODE_CLASS = 'heatmap';
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.PANEL_TEMPLATE =
-  './src/visualization/heatmap/heatmap-panel.html';
+  './dist/html/visualization/heatmap/heatmap-panel.html';
 
 /** @private @const {number} */
 visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;

@@ -8,7 +8,7 @@ var gutil = require('gulp-util');
 var paths = require('./paths.js');
 
 gulp.task('lint-js', function(cb) {
-  return gulp.src(paths.srcDev)
+  return gulp.src(paths.srcDev.concat(paths.docJs))
     .pipe(gjslint({
       customReport: function(file, ss) {
         console.log(file, ss);

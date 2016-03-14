@@ -10,7 +10,7 @@ visflow.Histogram.prototype.NODE_NAME = 'Histogram';
 
 /** @inheritDoc */
 visflow.Histogram.prototype.PANEL_TEMPLATE =
-  './src/visualization/histogram/histogram-panel.html';
+  './dist/html/visualization/histogram/histogram-panel.html';
 
 /** @private @const {number} */
 visflow.Histogram.prototype.Y_MARGIN_ = 0.1;

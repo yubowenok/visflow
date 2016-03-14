@@ -10,11 +10,11 @@ visflow.ValueMaker.prototype.NODE_CLASS = 'value-maker';
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.TEMPLATE =
-  './src/value/value-maker/value-maker.html';
+  './dist/html/value/value-maker/value-maker.html';
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.PANEL_TEMPLATE =
-  './src/value/value-maker/value-maker-panel.html';
+  './dist/html/value/value-maker/value-maker-panel.html';
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.MIN_WIDTH = 120;
