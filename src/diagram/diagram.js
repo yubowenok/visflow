@@ -27,7 +27,7 @@ visflow.diagram.OVERWRITE_DIALOG_ =
  * Saves the current flow.
  */
 visflow.diagram.save = function() {
-  if (!visflow.user.loggedIn()) {
+  if (!visflow.user.writePermission()) {
     visflow.user.login('you must login to save diagram');
     return;
   }
@@ -251,7 +251,9 @@ visflow.diagram.listTable_ = function(table, fileList) {
       {
         render: function() {
           return '<span class="btn btn-default btn-xs glyphicon ' +
-            'glyphicon-trash"></span>';
+            'glyphicon-trash' + (
+              visflow.user.writePermission() ? '' : 'disabled'
+            ) + '"></span>';
         },
         targets: 2
       }

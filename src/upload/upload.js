@@ -26,6 +26,11 @@ visflow.upload.exportPackage_ = null;
  * upload.
  */
 visflow.upload.dialog = function() {
+  if (!visflow.user.writePermission()) {
+    visflow.warning('you must login to upload data');
+    visflow.dialog.close();
+    return;
+  }
   visflow.dialog.create({
     template: visflow.upload.TEMPLATE_,
     complete: visflow.upload.initUploadDialog_
@@ -40,6 +45,11 @@ visflow.upload.dialog = function() {
  * }} params
  */
 visflow.upload.delete = function(params) {
+  if (!visflow.user.writePermission()) {
+    visflow.warning('you must login to delete data');
+    visflow.dialog.close();
+    return;
+  }
   visflow.dialog.create({
     template: visflow.upload.DELETE_CONFIRMATION_,
     complete: visflow.upload.initDeleteConfirmation_,
@@ -52,7 +62,7 @@ visflow.upload.delete = function(params) {
  * @param {!visflow.Package} pack
  */
 visflow.upload.export = function(pack) {
-  if (!visflow.user.loggedIn()) {
+  if (!visflow.user.writePermission()) {
     visflow.warning('you must login to export data');
     return;
   }
@@ -269,7 +279,9 @@ visflow.upload.listDataTable = function(table, fileList) {
       {
         render: function() {
           return '<span class="btn btn-default btn-xs glyphicon ' +
-            'glyphicon-trash"></span>';
+            'glyphicon-trash' + (
+              visflow.user.writePermission() ? '' : 'disabled'
+            ) + '"></span>';
         },
         targets: 4
       }

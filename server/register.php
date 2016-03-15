@@ -30,6 +30,8 @@ if (strlen($username) < $min_username_length)
 if (strlen($password) < $min_password_length)
   abort('password too short');
 
+if (!preg_match('/[0-9a-z_]+/', $username))
+  abort('invalid username');
 if (!filter_var($email, FILTER_VALIDATE_EMAIL))
   abort('invalid email address');
 

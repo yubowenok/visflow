@@ -92,10 +92,17 @@ visflow.menu.initUpdateHandlers_ = function() {
       navbar.find('.logged-in').show();
       navbar.find('.logged-out').hide();
       navbar.find('#username').text(visflow.user.account.username);
+
+      if (visflow.user.writePermission()) {
+        navbar.find('#save').removeClass('disabled');
+      }
+      navbar.find('#load').removeClass('disabled');
     })
     .on('vf.logout', function() {
       navbar.find('.logged-out').show();
       navbar.find('.logged-in').hide();
+
+      navbar.find('#save, #load').addClass('disabled');
     });
 };
 

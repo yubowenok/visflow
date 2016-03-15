@@ -38,4 +38,8 @@ visflow.welcome.initWelcome_ = function(dialog) {
     .click(function() {
       visflow.user.login();
     });
+  dialog.find('#try-demo')
+    .click(function() {
+      visflow.user.loginDemo();
+    });
 };

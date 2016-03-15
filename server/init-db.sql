@@ -59,4 +59,5 @@ CREATE TABLE diagram (
 );
 
 INSERT INTO user (username, password, email) VALUES
-  ('visflow', 'ec975f0ba679cebcfabb0b023893850202ac0f5a9533a25a3fc5e6c2f0fe1cab', 'visflow.nyu@gmail.com');
+  ('visflow', 'ec975f0ba679cebcfabb0b023893850202ac0f5a9533a25a3fc5e6c2f0fe1cab', 'visflow.nyu@gmail.com'),
+  ('demo', '2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea', 'visflow.nyu@gmail.com');

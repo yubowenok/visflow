@@ -61,17 +61,23 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
     visflow.toolPanel.updateAlt_();
   });
 
+  var disableUpload = function() {
+    visflow.toolPanel.container_.find('#upload')
+      .prop('disabled', true)
+      .attr('title', 'upload data (login required)')
+      .tooltip('destroy')
+      .tooltip({
+        delay: visflow.panel.TOOLTIP_DELAY
+      });
+  };
+
   $(visflow.user)
-    .on('vf.logout', function() {
-      visflow.toolPanel.container_.find('#upload')
-        .prop('disabled', true)
-        .attr('title', 'upload data (login required)')
-        .tooltip('destroy')
-        .tooltip({
-          delay: visflow.panel.TOOLTIP_DELAY
-        });
-    })
+    .on('vf.logout', disableUpload)
     .on('vf.login', function() {
+      if (!visflow.user.writePermission()) {
+        disableUpload();
+        return;
+      }
       visflow.toolPanel.container_.find('#upload')
         .prop('disabled', false)
         .attr('title', 'upload data')

@@ -90,6 +90,22 @@ visflow.user.login = function(message) {
 };
 
 /**
+ * Logins in the demo account.
+ */
+visflow.user.loginDemo = function() {
+  $.post(visflow.user.LOGIN_URL_, {
+    username: 'demo',
+    password: 'demo'
+  }).done(function() {
+    visflow.dialog.close();
+    visflow.success('working in demo mode');
+    visflow.user.authenticate();
+  }).fail(function(res) {
+    visflow.error(res.responseText);
+  });
+};
+
+/**
  * Shows the user profile dialog.
  */
 visflow.user.profile = function() {
@@ -108,6 +124,14 @@ visflow.user.profile = function() {
  */
 visflow.user.loggedIn = function() {
   return visflow.user.account != null;
+};
+
+/**
+ * Checks whether the user can upload data or save diagram.
+ * @return {boolean}
+ */
+visflow.user.writePermission = function() {
+  return visflow.user.loggedIn() && visflow.user.account.username != 'demo';
 };
 
 /**
@@ -271,9 +295,14 @@ visflow.user.loginDialog_ = function(dialog, params) {
     }
   }
 
+  // Shortcut links
   dialog.find('#register')
     .click(function() {
       visflow.user.register();
+    });
+  dialog.find('#try-demo')
+    .click(function() {
+      visflow.user.loginDemo();
     });
 
   btn.prop('disabled', true);
