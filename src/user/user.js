@@ -137,14 +137,16 @@ visflow.user.authenticate = function() {
           username: username
         };
         visflow.signal(visflow.user, 'login');
-        visflow.user.callLoginHook();
       })
       .fail(function() {
         visflow.signal(visflow.user, 'logout');
+      })
+      .always(function() {
         visflow.user.callLoginHook();
       });
   } else {
     visflow.signal(visflow.user, 'logout');
+    visflow.user.callLoginHook();
   }
 };
 
