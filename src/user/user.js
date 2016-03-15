@@ -195,7 +195,13 @@ visflow.user.registerDialog_ = function(dialog) {
   var fieldsComplete = function() {
     var passwordsMatch = password.val() === repeatPassword.val();
     var passwordNonEmpty = password.val() !== '';
+    var repeatPasswordNonempty = repeatPassword.val() !== '';
     var usernameNonEmpty = username.val() !== '';
+
+    if (passwordNonEmpty && repeatPasswordNonempty && !passwordsMatch) {
+      visflow.user.error(dialog, 'passwords do not match');
+    }
+
     var emailNonEmpty = email.val() !== '';
     return passwordsMatch && passwordNonEmpty && usernameNonEmpty &&
         emailNonEmpty;
