@@ -255,7 +255,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
           if (this.table_) {
             this.table_.destroy();
           }
-          visflow.upload.listDataTable(table, res.filelist);
+          this.table_ = visflow.upload.listDataTable(table, res.filelist);
           table
             .on('select.dt', function() {
               dataName = table.find('tr.selected').children()

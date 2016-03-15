@@ -8,8 +8,9 @@ include 'config.php';
 function checkDir($dir)
 {
   global $base_path;
-  if (!file_exists($base_path . $dir))
-    mkdir($dir, 0700, true);
+	$full_path = $base_path . $dir;
+  if (!file_exists($full_path))
+    mkdir($full_path, 0755, true);
 }
 
 function updateDataDB($file_name, $data_name, $file_path, $file_size)
@@ -52,7 +53,7 @@ function saveUploadedData($file_name, $data_name, $tmp_file)
   checkDir($dir);
 
   if (!move_uploaded_file($tmp_file, $full_path))
-    return 'failed to move uploaded file';
+    abort('failed to move uploaded file');
 
   $file_size = filesize($full_path);
   updateDataDB($file_name, $data_name, $file_path, $file_size);
