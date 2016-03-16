@@ -19,6 +19,7 @@ visflow.options.RangeFilter = function(params) {
   /**
    * Filtering range values specified by directly typing in the input boxes.
    * Type-in values are stored as strings.
+   * @type {!Array<string|null>}
    */
   this.typeInValue = params.typeInValue !== undefined ? params.typeInValue : [];
 };

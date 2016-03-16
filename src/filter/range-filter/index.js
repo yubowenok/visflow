@@ -42,7 +42,7 @@ visflow.RangeFilter = function(params) {
 
   /**
    * Filtering range applied.
-   * @protected {!Array<number|string>}
+   * @protected {!Array<null|number|string>}
    */
   this.value = [];
 };
@@ -130,12 +130,7 @@ visflow.RangeFilter.prototype.process = function() {
     }
     packs[index] = pack;
 
-    var val = pack.getOne();
-    if (val == null) {
-      visflow.error('unexpected null value in package of ', this.label);
-    } else {
-      this.value[index] = val;
-    }
+    this.value[index] = pack.getOne();
   }, this);
 
   if (!packs[0].compatible(packs[1])) {
