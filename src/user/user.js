@@ -21,7 +21,7 @@ visflow.user.LOGIN_TEMPLATE_ = './dist/html/user/login-dialog.html';
 visflow.user.PROFILE_TEMPLATE_ = './dist/html/user/profile-dialog.html';
 
 /** @private @const {string} */
-visflow.user.USERNAME_REGEX_ = '[a-z0-9_]+';
+visflow.user.USERNAME_REGEX_ = '^[a-z0-9_]+$';
 /** @private @const {string} */
 visflow.user.EMAIL_REGEX_ =
   '^(([^<>()[\\]\\\\.,;:\\s@"]+(\\.[^<>()[\\]\\\\.,;:\\s@"]+)' +
