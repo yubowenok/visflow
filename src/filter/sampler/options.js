@@ -21,13 +21,14 @@ visflow.options.Sampler = function(params) {
    * Filtering conditions: 'first', 'last' or 'sampling'.
    * @type {string}
    */
-  this.condition = params.condition !== undefined ? params.condition : 'first';
+  this.condition = params.condition !== undefined ?
+    params.condition : 'sampling';
 
   /**
    * Filtering modes, 'count' or 'percentage'.
    * @type {string}
    */
-  this.mode = params.mode !== undefined ? params.mode : 'count';
+  this.mode = params.mode !== undefined ? params.mode : 'percentage';
 
   /**
    * Filtering count or percentage.

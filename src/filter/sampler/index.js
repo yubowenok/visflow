@@ -75,7 +75,6 @@ visflow.Sampler.prototype.process = function() {
 visflow.Sampler.prototype.filter = function() {
   var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
-  var items = inpack.items;
   var data = inpack.data;
 
   var itemGroups = inpack.groupItems(this.options.groupBy);

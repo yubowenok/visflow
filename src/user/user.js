@@ -21,15 +21,6 @@ visflow.user.LOGIN_TEMPLATE_ = './dist/html/user/login-dialog.html';
 visflow.user.PROFILE_TEMPLATE_ = './dist/html/user/profile-dialog.html';
 
 /** @private @const {string} */
-visflow.user.REGISTER_URL_ = './server/register.php';
-/** @private @const {string} */
-visflow.user.LOGIN_URL_ = './server/login.php';
-/** @private @const {string} */
-visflow.user.LOGOUT_URL_ = './server/logout.php';
-/** @private @const {string} */
-visflow.user.AUTH_URL_ = './server/auth.php';
-
-/** @private @const {string} */
 visflow.user.USERNAME_REGEX_ = '[a-z0-9_]+';
 /** @private @const {string} */
 visflow.user.EMAIL_REGEX_ =
@@ -93,7 +84,7 @@ visflow.user.login = function(message) {
  * Logins in the demo account.
  */
 visflow.user.loginDemo = function() {
-  $.post(visflow.user.LOGIN_URL_, {
+  $.post(visflow.url.LOGIN, {
     username: 'demo',
     password: 'demo'
   }).done(function() {
@@ -109,13 +100,10 @@ visflow.user.loginDemo = function() {
  * Shows the user profile dialog.
  */
 visflow.user.profile = function() {
-  // TODO(bowen): add user profile edit
-  /*
   visflow.dialog.create({
     template: visflow.user.PROFILE_TEMPLATE_,
     complete: visflow.user.profileDialog_
   });
-  */
 };
 
 /**
@@ -138,7 +126,7 @@ visflow.user.writePermission = function() {
  * Logs out the current user.
  */
 visflow.user.logout = function() {
-  $.post(visflow.user.LOGOUT_URL_)
+  $.post(visflow.url.LOGOUT)
     .done(function() {
       visflow.dialog.close();
       visflow.success('logout successful');
@@ -155,7 +143,7 @@ visflow.user.logout = function() {
 visflow.user.authenticate = function() {
   var sessionId = Cookies.get('PHPSESSID');
   if (sessionId !== undefined) {
-    $.post(visflow.user.AUTH_URL_)
+    $.post(visflow.url.AUTH)
       .done(function(username) {
         visflow.user.account = {
           username: username
@@ -208,21 +196,20 @@ visflow.user.warning = function(dialog, text) {
  * @private
  */
 visflow.user.registerDialog_ = function(dialog) {
-  var btn = dialog.find('#confirm');
+  var confirm = dialog.find('#confirm').prop('disabled', true);
   var username = dialog.find('#username');
   var password = dialog.find('#password');
   var repeatPassword = dialog.find('#repeat-password');
   var email = dialog.find('#email');
   var error = dialog.find('.error');
-  btn.prop('disabled', true);
 
   var fieldsComplete = function() {
     var passwordsMatch = password.val() === repeatPassword.val();
     var passwordNonEmpty = password.val() !== '';
-    var repeatPasswordNonempty = repeatPassword.val() !== '';
+    var repeatPasswordNonEmpty = repeatPassword.val() !== '';
     var usernameNonEmpty = username.val() !== '';
 
-    if (passwordNonEmpty && repeatPasswordNonempty && !passwordsMatch) {
+    if (passwordNonEmpty && repeatPasswordNonEmpty && !passwordsMatch) {
       visflow.user.error(dialog, 'passwords do not match');
     }
 
@@ -233,20 +220,18 @@ visflow.user.registerDialog_ = function(dialog) {
 
   var inputChanged = function() {
     visflow.user.error(dialog, '');
-    btn.prop('disabled', !fieldsComplete());
+    confirm.prop('disabled', !fieldsComplete());
   };
 
   dialog.find('input')
     .keydown(inputChanged)
     .change(inputChanged);
 
-  btn.click(function() {
+  confirm.click(function() {
     var username_ = username.val();
     var password_ = password.val();
     var email_ = email.val();
-    if (password_ !== repeatPassword.val()) {
-      visflow.user.error(dialog, 'passwords mismatch');
-    } else if (!RegExp(visflow.user.EMAIL_REGEX_).test(email_)) {
+    if (!RegExp(visflow.user.EMAIL_REGEX_).test(email_)) {
       visflow.user.error(dialog, 'invalid email address');
     } else if (!RegExp(visflow.user.USERNAME_REGEX_).test(username_)) {
       visflow.user.error(dialog, 'username may only contain lowercase ' +
@@ -259,7 +244,7 @@ visflow.user.registerDialog_ = function(dialog) {
         visflow.user.MIN_PASSWORD_LENGTH_);
     } else {
       // all conditions match
-      $.post(visflow.user.REGISTER_URL_, {
+      $.post(visflow.url.REGISTER, {
         username: username_,
         password: password_,
         email: email_
@@ -331,7 +316,7 @@ visflow.user.loginDialog_ = function(dialog, params) {
     var username_ = username.val();
     var password_ = password.val();
 
-    $.post(visflow.user.LOGIN_URL_, {
+    $.post(visflow.url.LOGIN, {
       username: username_,
       password: password_
     }).done(function() {
@@ -346,6 +331,68 @@ visflow.user.loginDialog_ = function(dialog, params) {
 };
 
 /**
+ * Sets up the dialog for user profile edit.
+ * @param {!jQuery} dialog
+ * @private
+ */
+visflow.user.profileDialog_ = function(dialog) {
+  var confirm = dialog.find('#confirm').prop('disabled', true);
+  var oldPassword = dialog.find('#old-password');
+  var password = dialog.find('#password');
+  var repeatPassword = dialog.find('#repeat-password');
+  var email = dialog.find('#email');
+  var error = dialog.find('.error');
+
+  var fieldsComplete = function() {
+    var oldPasswordNonEmpty = oldPassword.val() !== '';
+    var passwordsMatch = password.val() === repeatPassword.val();
+    var passwordNonEmpty = password.val() !== '';
+    var repeatPasswordNonEmpty = repeatPassword.val() !== '';
+    var emailNonEmpty = email.val() !== '';
+
+    if (passwordNonEmpty && repeatPasswordNonEmpty && !passwordsMatch) {
+      visflow.user.error(dialog, 'passwords do not match');
+    }
+
+    return oldPasswordNonEmpty && ((passwordNonEmpty && passwordsMatch) ||
+      emailNonEmpty);
+  };
+
+  var inputChanged = function() {
+    visflow.user.error(dialog, '');
+    confirm.prop('disabled', !fieldsComplete());
+  };
+
+  dialog.find('input')
+    .keydown(inputChanged)
+    .change(inputChanged);
+
+  confirm.click(function() {
+    var oldPassword_ = oldPassword.val();
+    var password_ = password.val();
+    var email_ = email.val();
+    if (email_ !== '' && !RegExp(visflow.user.EMAIL_REGEX_).test(email_)) {
+      visflow.user.error(dialog, 'invalid email address');
+    } else if (password_ !== '' &&
+      password_.length < visflow.user.MIN_PASSWORD_LENGTH_) {
+      visflow.user.error(dialog, 'password length must be at least ' +
+        visflow.user.MIN_PASSWORD_LENGTH_);
+    } else {
+      $.post(visflow.url.PROFILE, {
+        oldPassword: oldPassword_,
+        password: password_,
+        email: email_
+      }).done(function() {
+        visflow.dialog.close();
+        visflow.success('profile updated');
+      }).fail(function(res) {
+        visflow.user.error(dialog, res.responseText);
+      });
+    }
+  });
+};
+
+/**
  * Executes the login hook and sets the hook to null.
  */
 visflow.user.callLoginHook = function() {
@@ -353,12 +400,4 @@ visflow.user.callLoginHook = function() {
     visflow.user.loginHook();
     visflow.user.loginHook = null;
   }
-};
-
-/**
- * Sets up the dialog for user profile edit.
- * @param {!jQuery} dialog
- * @private
- */
-visflow.user.profileDialog_ = function(dialog) {
 };

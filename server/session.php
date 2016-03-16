@@ -9,6 +9,13 @@ function checkLogin()
     abort('login required');
 }
 
+if($_SERVER['SERVER_PORT'] != 443)
+{
+  // must query over https
+  status(403);
+  exit();
+}
+
 connectDB();
 
 session_start([

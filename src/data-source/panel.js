@@ -95,7 +95,6 @@ visflow.DataSource.prototype.createPanelDataList_ = function(container) {
   var hasData = false;
   this.rawData_.forEach(function(rawData, dataIndex) {
     if (rawData == null) {
-      visflow.error('null rawData to be listed');
       return;
     }
     hasData = true;

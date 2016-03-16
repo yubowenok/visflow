@@ -184,7 +184,7 @@ visflow.Network.prototype.initContextMenu = function() {
 visflow.Network.prototype.mousedown = function(event) {
   if (event.which == visflow.interaction.keyCodes.LEFT_MOUSE) {
     // Left click potentially triggers navigation.
-    if (this.options.navigation) {
+    if (this.options.navigation && !visflow.interaction.isAlted()) {
       this.mouseMode = 'navigation';
       this.container.draggable('disable');
     } else {

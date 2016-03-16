@@ -1,15 +1,7 @@
 <?php
 
 include 'mysql.php';
-
-$min_username_length = 6;
-$min_password_length = 8;
-
-if($_SERVER['SERVER_PORT'] != 443)
-{
-  status(403);
-  exit();
-}
+include 'config.php';
 
 if (!isset($_POST['username']))
   abort('username not set');

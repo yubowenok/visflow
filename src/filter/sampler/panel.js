@@ -10,7 +10,8 @@ visflow.Sampler.prototype.initPanel = function(container) {
       constructor: visflow.Select,
       params: {
         container: container.find('#group-by'),
-        list: this.getDimensionList(null, true),
+        list: this.getDimensionList(null),
+        allowClear: true,
         selected: this.options.groupBy,
         listTitle: 'Group By',
         selectTitle: this.ports['in'].pack.data.isEmpty() ?

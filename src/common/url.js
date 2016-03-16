@@ -24,3 +24,14 @@ visflow.url.LOAD_DIAGRAM = './server/load-diagram.php';
 visflow.url.SAVE_DIAGRAM = './server/save-diagram.php';
 /** @const {string} */
 visflow.url.DELETE_DIAGRAM = './server/delete-diagram.php';
+
+/** @const {string} */
+visflow.url.REGISTER = './server/register.php';
+/** @const {string} */
+visflow.url.LOGIN = './server/login.php';
+/** @const {string} */
+visflow.url.LOGOUT = './server/logout.php';
+/** @const {string} */
+visflow.url.AUTH = './server/auth.php';
+/** @const {string} */
+visflow.url.PROFILE = './server/profile.php';
