@@ -64,7 +64,7 @@ INSERT INTO user (username, password, email) VALUES
 
 INSERT INTO data (user_id, name, file_name, file_path, size) VALUES
   (2, 'car', 'car.csv', 'data/demo/car.csv', 21372),
-  (2, 'car (mds)', 'car_mds.csv', 'data/demo/car_mds.csv', 50429)
+  (2, 'car (mds)', 'car_mds.csv', 'data/demo/car_mds.csv', 50429),
   (2, 'network nodes', 'regnet_nodes.csv', 'data/demo/regnet_nodes.csv', 21335),
   (2, 'network edges', 'regnet_edges.csv', 'data/demo/regnet_edges.csv', 123461),
   (2, 'expression matrix', 'rnaseq.csv', 'data/demo/rnaseq.csv', 67284);

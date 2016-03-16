@@ -19,26 +19,29 @@ then
 fi
 done < "config.php"
 
+demo_data=$base_path$data_path'demo/'
+demo_diagram=$base_path$diagram_path'demo/'
+
 if [ ! -d "$base_path$data_path" ]
 then
   mkdir -m 755 "$base_path$data_path"
 fi
-if [ ! -d "$base_path$data_pathdemo" ]
+if [ ! -d "$demo_data" ]
 then
-  mkdir -m 755 "$base_path$data_pathdemo"
+  mkdir -m 755 "$demo_data"
 fi
 
 if [ ! -d "$base_path$diagram_path" ]
 then
   mkdir -m 755 "$base_path$diagram_path"
 fi
-if [ ! -d "$base_path$diagram_pathdemo" ]
+if [ ! -d "$demo_diagram" ]
 then
-  mkdir -m 755 "$base_path$diagram_pathdemo"
+  mkdir -m 755 "$demo_diagram"
 fi
 
 curl -L -o demo.zip https://www.dropbox.com/s/44hxoxpe6mtufhy/visflow-demo-data.zip?dl=0
 unzip demo.zip -d demo
 
-cp -R demo/data/* "$base_path$data_pathdemo"
-cp -R demo/diagrams/* "$base_path$diagram_pathdemo"
+cp -R demo/data/* "$demo_data"
+cp -R demo/diagrams/* "$demo_diagram"
