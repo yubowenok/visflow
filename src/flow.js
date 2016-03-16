@@ -669,7 +669,7 @@ visflow.flow.clearNodeSelection = function(nodes) {
  */
 visflow.flow.backgroundClearSelection = function() {
   visflow.flow.clearNodeSelection();
-  visflow.optionPanel.close();
+  visflow.optionPanel.toggle(false);
 };
 
 /**

@@ -13,6 +13,8 @@ visflow.url.UPLOAD = './server/upload.php';
 visflow.url.EXPORT = './server/export.php';
 /** @const {string} */
 visflow.url.DELETE_DATA = './server/delete-data.php';
+/** @const {string} */
+visflow.url.GET_DATA = './server/get-data.php';
 
 /** @const {string} */
 visflow.url.LIST_DIAGRAM = './server/list-diagram.php';

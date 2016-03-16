@@ -218,7 +218,7 @@ visflow.optionPanel.load = function(template, complete) {
 };
 
 /**
- * Closes the option panel.
+ * Closes the option panel, and clears the panel contents.
  */
 visflow.optionPanel.close = function() {
   visflow.optionPanel.toggle(false);
@@ -235,6 +235,7 @@ visflow.optionPanel.close = function() {
  * @private
  */
 visflow.optionPanel.clear_ = function() {
+  visflow.optionPanel.loadedNode_ = null;
   visflow.optionPanel.container_.find('.content').children('*').remove();
 };
 

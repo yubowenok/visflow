@@ -336,10 +336,9 @@ visflow.interaction.keyPress = function(event) {
           if (visflow.optionPanel.isOpen) {
             visflow.optionPanel.toggle(false);
           } else {
+            visflow.optionPanel.toggle(true);
             if (visflow.flow.lastSelectedNode) {
               visflow.flow.lastSelectedNode.panel();
-            } else {
-              visflow.optionPanel.toggle(true);
             }
           }
           break;

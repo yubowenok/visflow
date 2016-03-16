@@ -8,7 +8,7 @@ include 'config.php';
 function checkDir($dir)
 {
   global $base_path;
-	$full_path = $base_path . $dir;
+  $full_path = $base_path . $dir;
   if (!file_exists($full_path))
     mkdir($full_path, 0755, true);
 }
@@ -57,6 +57,24 @@ function saveUploadedData($file_name, $data_name, $tmp_file)
 
   $file_size = filesize($full_path);
   updateDataDB($file_name, $data_name, $file_path, $file_size);
+}
+
+function getData($file_name)
+{
+  global $user_id, $username, $data_path, $base_path;
+  checkLogin();
+
+  $row = getOneDB("SELECT id, file_path FROM data WHERE user_id=%d AND file_name='%s'",
+                 array($user_id, $file_name));
+  if (!$row)
+    abort('data requested does not exist');
+
+  $data_id = $row['id'];
+  $full_path = $base_path . $row['file_path'];
+  $contents = file_get_contents($full_path);
+  if ($contents == false)
+    abort('unable to get data contents');
+  return $contents;
 }
 
 function deleteData($file_name)
@@ -121,7 +139,10 @@ function loadDiagram($diagram_name)
   if (!is_readable($full_path))
     abort('diagram file not readable');
 
-  return json_decode(file_get_contents($full_path));
+  $contents = file_get_contents($full_path);
+  if ($contents == false)
+    abort('unable to get diagram contents');
+  return json_decode($contents);
 }
 
 function deleteDiagram($diagram_name)

@@ -927,7 +927,7 @@ visflow.Node.prototype.panel = function() {
     return;
   }
 
-  if (visflow.optionPanel.loadedNode() == this) {
+  if (visflow.optionPanel.isOpen && visflow.optionPanel.loadedNode() == this) {
     this.updatePanel(visflow.optionPanel.contentContainer());
     return;
   }

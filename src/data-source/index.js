@@ -341,7 +341,8 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
     }
     counter++;
     var url = data.isServerData ?
-      './server/data/' + data.file : visflow.utils.standardURL(data.file);
+      visflow.url.GET_DATA + '?fileName=' + data.file :
+      visflow.utils.standardURL(data.file);
 
     var duplicateData = visflow.data.duplicateData(data);
     if (duplicateData != null) {

@@ -131,7 +131,7 @@ visflow.user.loggedIn = function() {
  * @return {boolean}
  */
 visflow.user.writePermission = function() {
-  return visflow.user.loggedIn() && visflow.user.account.username != 'demo';
+  return visflow.user.loggedIn();//&& visflow.user.account.username != 'demo';
 };
 
 /**
