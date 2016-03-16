@@ -368,9 +368,8 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
         --counter;
         complete();
       }.bind(this))
-      .fail(function(res, msg, error) {
-        visflow.error('cannot get data', msg,
-          error.toString().substr(0, this.ERROR_LENGTH));
+      .fail(function(res) {
+        visflow.error('cannot get data:', res.responseText);
 
         --counter;
         complete();
