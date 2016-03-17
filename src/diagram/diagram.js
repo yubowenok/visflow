@@ -178,29 +178,39 @@ visflow.diagram.download = function(id) {
  */
 visflow.diagram.saveDialog_ = function(dialog, params) {
   var fileList = params.fileList;
-  var diagramInfos = {};
+  var diagramIdInfos = {};
+  var diagramNameInfos = {}; // only contains user's own diagrams
   fileList.forEach(function(diagramInfo) {
-    diagramInfos[diagramInfo.id] = diagramInfo;
+    diagramIdInfos[diagramInfo.id] = diagramInfo;
+    if (diagramInfo.owner === '') {
+      diagramNameInfos[diagramInfo.name] = diagramInfo;
+    }
   });
 
-  var nameInput = dialog.find('#diagram-name')
-    .val(visflow.diagram.lastDiagram.name);
   var diagramName = visflow.diagram.lastDiagram.name;
   var diagramId = visflow.diagram.lastDiagram.id;
+  var isOwner = diagramId == -1 || diagramIdInfos[diagramId].owner === '';
+  var nameInput = dialog.find('#diagram-name')
+    .val(visflow.diagram.lastDiagram.name)
+    .prop('disabled', !isOwner);
 
   var confirm = dialog.find('#confirm');
   var shareWith = dialog.find('#share-with')
     .val(visflow.diagram.lastDiagram.shareWith)
-    .prop('disabled', diagramId == -1 || diagramInfos[diagramId].owner !== '');
+    .prop('disabled', !isOwner);
+
+  var saveReady = function() {
+    confirm.prop('disabled', diagramName === '');
+  };
 
   nameInput.on('keyup', function() {
-    diagramName = $(this).val();
-    confirm.prop('disabled', $(this).val() == '');
+    diagramName = nameInput.val();
+    saveReady();
   });
 
   confirm.click(function(event) {
     var shareWith_ = /** @type {string} */(shareWith.val());
-    if (diagramId in diagramInfos) {
+    if (!isOwner || (isOwner && diagramName in diagramNameInfos)) {
       // Another modal will be loaded immediately.
       // So we prevent modal close here.
       event.stopPropagation();
@@ -219,18 +229,29 @@ visflow.diagram.saveDialog_ = function(dialog, params) {
     }
   });
 
-  var table = dialog.find('table');
-  visflow.diagram.listTable_(table, fileList);
-  table.on('select.dt', function(event, dt, type, tableIndices) {
-    var index = _.first(tableIndices);
-    var info = fileList[index];
+  var dt = visflow.diagram.listTable_(dialog.find('table'), fileList);
+  if (diagramId != -1) {
+    dt.rows(function(index, data) {
+      return data.id == diagramId;
+    }).select();
+  }
+  dt.on('select.dt', function(event, dt, type, tableIndices) {
+    var info = /** @type {DataTables} */(dt).row(tableIndices[0]).data();
     diagramId = info.id;
     diagramName = info.name;
-    shareWith.prop('disabled', info.owner !== '');
-
+    isOwner = diagramIdInfos[diagramId].owner === '';
     // reflect selected diagram info
-    nameInput.val(diagramName);
-    shareWith.val(info.shareWith);
+    nameInput.val(diagramName)
+      .prop('disabled', !isOwner);
+    shareWith.val(info.shareWith)
+      .prop('disabled', !isOwner);
+    saveReady();
+  }).on('deselect.dt', function() {
+    diagramId = -1;
+    isOwner = true;
+    nameInput.prop('disabled', !isOwner);
+    shareWith.prop('disabled', !isOwner).val('');
+    saveReady();
   });
 };
 
@@ -305,6 +326,7 @@ visflow.diagram.uploadOverwrite_ = function(diagramInfo) {
  * Shows a table with list of diagrams saved on server.
  * @param {!jQuery} table
  * @param {!Array<visflow.diagram.Info>} fileList
+ * @return {DataTables}
  * @private
  */
 visflow.diagram.listTable_ = function(table, fileList) {
@@ -312,7 +334,7 @@ visflow.diagram.listTable_ = function(table, fileList) {
   fileList.forEach(function(info) {
     diagramInfo[info.id] = info;
   });
-  table.DataTable({
+  return table.DataTable({
     data: fileList,
     select: 'single',
     pagingType: 'full',

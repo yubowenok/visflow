@@ -54,17 +54,29 @@ queryDB("DELETE FROM share_diagram WHERE diagram_id=%d",
        array($diagram_id));
 // insert share_diagram entries
 foreach ($share_user_ids as $share_user_id)
+{
+  if ($share_user_id == $diagram_author_id)
+    continue;
   queryDB("INSERT IGNORE INTO share_diagram (diagram_id, user_id) VALUES (%d, %d)",
          array($diagram_id, $share_user_id));
+}
+
 // insert share_data entries, share associated data with all shared-with users
 foreach ($flow->data as $data_id)
 {
+  $data_author_id = getOneDB("SELECT user_id FROM data WHERE id=%d",
+                     array($data_id))['user_id'];
   foreach ($share_user_ids as $share_user_id)
+  {
+    // If a shared user uses his/her own data in a shared diagram,
+    // then do not share this data with this shared user.
+    if ($data_author_id == $share_user_id)
+      continue;
     queryDB("INSERT IGNORE INTO share_data (data_id, user_id) VALUES (%d, %d)",
            array($data_id, $share_user_id));
-
-  $data_author_id = queryDB("SELECT user_id FROM data WHERE id=%d",
-                     array($data_id))['user_id'];
+  }
+  // If a shared user uses his/her own data in a shared diagram,
+  // then share this dataset with diagram owner.
   if ($diagram_author_id != $data_author_id)
     queryDB("INSERT IGNORE INTO share_data (data_id, user_id) VALUES (%d, %d)",
            array($data_id, $diagram_author_id));
@@ -75,7 +87,8 @@ contentType('json');
 $response = array(
   'id' => $diagram_id,
   'name' => $diagram_name,
-  'shareWith' => getDiagramShareWith($diagram_id)
+  'shareWith' => getDiagramShareWith($diagram_id),
+  'user_id' => $share_user_ids,
 );
 echo json_encode($response);
 

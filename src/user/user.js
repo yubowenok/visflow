@@ -39,12 +39,13 @@ visflow.user.MIN_PASSWORD_LENGTH_ = 8;
  * @type {?function()}
  */
 visflow.user.loginHook = function() {
-  if (visflow.user.loggedIn()) {
-    var diagramId = location.search.split('diagram=')[1];
-    if (diagramId !== undefined) {
-      visflow.diagram.download(+diagramId);
+  var diagramId = location.search.split('diagram=')[1];
+  if (diagramId !== undefined) {
+    visflow.diagram.download(+diagramId);
+    if (visflow.user.loggedIn()) {
+      visflow.user.loginHook = null;
     }
-  } else {
+  } else if (!visflow.user.loggedIn()) {
     visflow.welcome.init();
   }
 };
@@ -406,6 +407,5 @@ visflow.user.profileDialog_ = function(dialog) {
 visflow.user.callLoginHook = function() {
   if (visflow.user.loginHook != null) {
     visflow.user.loginHook();
-    visflow.user.loginHook = null;
   }
 };

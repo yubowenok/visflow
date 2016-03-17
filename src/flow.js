@@ -368,6 +368,7 @@ visflow.flow.serializeFlow = function() {
       });
     }
   }
+  result.data = _.unique(result.data);
   for (var i in visflow.flow.edges) {
     result.edges.push(visflow.flow.edges[i].serialize());
   }

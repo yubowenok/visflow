@@ -27,25 +27,35 @@ if ($data_id != -1)
 
 if (isset($_FILES['file']))
 {
-  if ($_FILES['file']['size'] > 20 * 1000000)
-    abort('file size should be no larger than 20M');
-  $file_name = basename($_FILES['file']['name']);
+  if ($_FILES['file']['size'] > $max_data_size)
+    abort('file size should be no larger than '.$max_data_size_str);
   $tmp_file = $_FILES['file']['tmp_name'];
 
   $data_id = saveUploadedData($data_id, $file_name, $data_name, $tmp_file);
 }
+else if (isset($_POST['data']))
+{
+  $data = $_POST['data'];
+  if (strlen($data) > $max_data_size)
+    abort('data size should be no larger than '.$max_data_size_str);
+  $data_id = savePostedData($data_id, $file_name, $data_name, $data);
+}
 else
 {
-  queryDB("UPDATE data SET name='%s' WHERE id=%d",
-         array($data_name, $data_id));
+  queryDB("UPDATE data SET name='%s', upload_time=FROM_UNIXTIME(%d) WHERE id=%d",
+         array($data_name, time(), $data_id));
 }
 
+$data_author_id = getOneDB("SELECT user_id FROM data WHERE id=%d",
+                          array($data_id));
 // clear previous share_data entries
 queryDB("DELETE FROM share_data WHERE data_id=%d",
        array($data_id));
 // insert share_data entries
 foreach ($share_user_ids as $share_user_id)
 {
+  if ($share_user_id == $data_author_id)
+    continue;
   queryDB("INSERT IGNORE INTO share_data (data_id, user_id) VALUES (%d, %d)",
          array($data_id, $share_user_id));
 }

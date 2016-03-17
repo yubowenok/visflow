@@ -1,7 +1,8 @@
 #modal {
   .file-section {
     height: 30px;
-    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-top: 7.5px;
     position: relative;
 
     #btn-file {
@@ -40,5 +41,9 @@
   .hint {
     font-size: 11px;
     margin-left: 5px;
+  }
+
+  .dataTables_wrapper td {
+    padding: 5px 10px;
   }
 }

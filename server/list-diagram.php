@@ -19,12 +19,15 @@ while ($row = mysql_fetch_assoc($result))
   ));
 }
 
-$result = queryDB("SELECT username, diagram_id, name, UNIX_TIMESTAMP(update_time) AS update_time FROM "
+$result = queryDB("SELECT username, user_id, diagram_id, name, UNIX_TIMESTAMP(update_time) AS update_time FROM "
                   ."(((SELECT diagram_id FROM share_diagram WHERE user_id=%d) AS T LEFT JOIN diagram ON T.diagram_id=diagram.id) "
                   ."LEFT JOIN user ON user_id=user.id)",
                  array($user_id));
 while ($row = mysql_fetch_assoc($result))
 {
+  if ($row['user_id'] == $user_id)
+    // incorrect share_diagram entry, ignore
+    continue;
   array_push($diagram_list, array(
     'id' => $row['diagram_id'],
     'name' => $row['name'],

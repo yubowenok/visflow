@@ -43,7 +43,7 @@ visflow.toolPanel.init = function() {
 
   var upload = container.find('#upload');
   upload.click(function() {
-    visflow.upload.dialog();
+    visflow.upload.upload();
   });
 
   visflow.toolPanel.initUpdateHandlers_();

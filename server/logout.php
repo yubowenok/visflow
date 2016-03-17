@@ -18,8 +18,8 @@ $row = getOneDB("SELECT id, user_id, UNIX_TIMESTAMP(end_time) as end_time FROM a
 if (!$row)
   fail();
 
-$result = queryDB("DELETE FROM auth WHERE session_id='%s'",
-                 array($session_id));
+queryDB("DELETE FROM auth WHERE session_id='%s'",
+        array($session_id));
 session_destroy();
 status(200);
 

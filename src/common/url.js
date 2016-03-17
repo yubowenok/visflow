@@ -10,7 +10,7 @@ visflow.url.LIST_DATA = './server/list-data.php';
 /** @const {string} */
 visflow.url.UPLOAD_DATA = './server/upload-data.php';
 /** @const {string} */
-visflow.url.EXPORT_DATA = './server/export-data.php';
+visflow.url.POST_DATA = './server/post-data.php';
 /** @const {string} */
 visflow.url.DELETE_DATA = './server/delete-data.php';
 /** @const {string} */

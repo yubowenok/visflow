@@ -25,32 +25,15 @@ function updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size)
   }
   else
   {
-    queryDB("UPDATE data SET name='%s', size=%d, upload_time=FROM_UNIXTIME(%d) WHERE id=%d",
-           array($data_name, $file_size, time(), $data_id));
+    queryDB("UPDATE data SET name='%s', file_name='%s', file_path='%s', size=%d, upload_time=FROM_UNIXTIME(%d) WHERE id=%d",
+           array($data_name, $file_name, $file_path, $file_size, time(), $data_id));
     return $data_id;
   }
 }
 
-function savePostedData($data_id, $file_name, $data_name, $data)
+function saveDataUsername($data_id)
 {
-  global $username, $data_path, $base_path;
-
-  $dir = $data_path . $username . '/';
-  $file_path = $dir . $file_name;
-  $full_path = $base_path . $file_path;
-  checkDir($dir);
-
-  if (!file_put_contents($full_path, $data))
-    abort('unable to write posted data');
-
-  $file_size = filesize($full_path);
-  return updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size);
-}
-
-function saveUploadedData($data_id, $file_name, $data_name, $tmp_file)
-{
-  global $data_path, $base_path;
-
+  global $username;
   $data_username = '';
   if ($data_id == -1)
     // create new data under the current user
@@ -59,17 +42,40 @@ function saveUploadedData($data_id, $file_name, $data_name, $tmp_file)
     $data_username = getOneDB("SELECT username FROM ((SELECT user_id FROM data WHERE id=%d) AS T LEFT JOIN user "
                                  ."ON T.user_id = user.id)",
                                 array($data_id))['username'];
+  return $data_username;
+}
 
+function saveDataPaths($data_username, $file_name)
+{
+  global $data_path, $base_path;
   $dir = $data_path . $data_username . '/';
   $file_path = $dir . $file_name;
   $full_path = $base_path . $file_path;
   checkDir($dir);
+  return array(
+    'file_path' => $file_path,
+    'full_path' => $full_path,
+  );
+}
 
+function savePostedData($data_id, $file_name, $data_name, $data)
+{
+  $paths = saveDataPaths(saveDataUsername($data_id), $file_name);
+  $full_path = $paths['full_path'];
+  if (!file_put_contents($full_path, $data))
+    abort('unable to write posted data');
+  $file_size = filesize($full_path);
+  return updateDataDB($data_id, $file_name, $data_name, $paths['file_path'], $file_size);
+}
+
+function saveUploadedData($data_id, $file_name, $data_name, $tmp_file)
+{
+  $paths = saveDataPaths(saveDataUsername($data_id), $file_name);
+  $full_path = $paths['full_path'];
   if (!move_uploaded_file($tmp_file, $full_path))
     abort('failed to move uploaded file');
   $file_size = filesize($full_path);
-
-  return updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size);
+  return updateDataDB($data_id, $file_name, $data_name, $paths['file_path'], $file_size);
 }
 
 function getData($data_id)
@@ -228,8 +234,6 @@ function getShareWithUsernames($share_with)
                 array($username));
     if (!$row)
       abort('username "'.$username.'" does not exist');
-    if ($row['id'] == $user_id)
-      continue;
     array_push($user_ids, $row['id']);
   }
   return $user_ids;

@@ -106,6 +106,7 @@ visflow.DataSource.prototype.deserialize = function(save) {
       this.loadData();
     }
   }.bind(this);
+  var converting = counter;
   this.data.forEach(function(dataInfo) {
     // backward compatibility, finding data id with data names
     if (isNaN(parseInt(dataInfo.id, 10))) {
@@ -122,6 +123,10 @@ visflow.DataSource.prototype.deserialize = function(save) {
       });
     }
   });
+  if (!converting) {
+    // New version of diagram. Start loading data directly.
+    this.loadData();
+  }
 };
 
 /** @inheritDoc */
@@ -203,10 +208,7 @@ visflow.DataSource.prototype.showDataList = function() {
 visflow.DataSource.prototype.updateCrossing_ = function() {
   if (visflow.optionPanel.isOpen) {
     var panelContainer = visflow.optionPanel.contentContainer();
-    if (!this.options.crossing) {
-      panelContainer.find('#crossing-section').hide();
-    }
-    panelContainer.find('#crossing-section').show();
+    panelContainer.find('#crossing-section').toggle(this.options.crossing);
   }
   this.process();
 };
@@ -343,7 +345,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
       dialog.find('#btn-upload').click(function(event) {
         event.stopPropagation();
         visflow.upload.setComplete(this.loadDataDialog_.bind(this));
-        visflow.upload.dialog();
+        visflow.upload.upload();
       }.bind(this));
     }.bind(this)
   });
