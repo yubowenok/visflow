@@ -8,7 +8,7 @@
  *   dataFile: (string|undefined),
  *   dataName: (string|undefined),
  *   useServerData: (boolean|undefined),
- *   data: !Array<{file: string, name: string, isServerData: boolean}>
+ *   data: !Array<visflow.data.Info>
  * }} params
  * @constructor
  * @extends {visflow.save.Node}
@@ -28,7 +28,7 @@ visflow.save.DataSource = function(params) {
   /** @type {boolean|undefined} */
   this.useServerData = params.useServerData;
 
-  /** @type {!Array<{file: string, name: string, isServerData: boolean}>} */
+  /** @type {!Array<visflow.data.Info>} */
   this.data = params.data;
 };
 

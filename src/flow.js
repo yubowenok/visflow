@@ -77,6 +77,8 @@ visflow.flow.VISMODE_OFF_CSS_ = {
  */
 visflow.flow.init = function() {
   visflow.flow.resetFlow();
+
+  $(visflow.upload).on('vf.uploaded', visflow.flow.updateDataSources_);
 };
 
 /**
@@ -354,10 +356,17 @@ visflow.flow.serializeFlow = function() {
   var result = {
     timestamp: (new Date()).getTime(),
     nodes: [],
-    edges: []
+    edges: [],
+    data: []
   };
   for (var i in visflow.flow.nodes) {
-    result.nodes.push(visflow.flow.nodes[i].serialize());
+    var node = visflow.flow.nodes[i];
+    result.nodes.push(node.serialize());
+    if (node.getClass() == 'data-source') {
+      node.data.forEach(function(dataInfo) {
+        result.data.push(+dataInfo.id);
+      });
+    }
   }
   for (var i in visflow.flow.edges) {
     result.edges.push(visflow.flow.edges[i].serialize());
@@ -821,4 +830,14 @@ visflow.flow.updateNodeLabels = function() {
     var node = visflow.flow.nodes[id];
     node.showLabel();
   }
+};
+
+/**
+ * Updates the data source data names/files when new data is uploaded.
+ * @private
+ */
+visflow.flow.updateDataSources_ = function() {
+  visflow.flow.dataSources.forEach(function(node) {
+    node.showDataList();
+  });
 };

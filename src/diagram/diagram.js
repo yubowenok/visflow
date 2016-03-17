@@ -6,10 +6,29 @@
 visflow.diagram = {};
 
 /**
- * Last used diagram name.
- * @type {string}
+ * Last used diagram info.
+ * @type {{
+ *   id: number,
+ *   name: string,
+ *   shareWith: string
+ * }}
  */
-visflow.diagram.lastFilename = 'myDiagram';
+visflow.diagram.lastDiagram = {
+  id: -1,
+  name: 'myDiagram',
+  shareWith: ''
+};
+
+/**
+ * @typedef {{
+ *   id: number,
+ *   name: string,
+ *   mtime: number,
+ *   owner: string,
+ *   shareWith: string
+ * }}
+ */
+visflow.diagram.Info;
 
 /** @private @const {string} */
 visflow.diagram.NEW_DIALOG_ = './dist/html/diagram/new-diagram.html';
@@ -33,39 +52,12 @@ visflow.diagram.save = function() {
   }
   $.post(visflow.url.LIST_DIAGRAM)
     .done(function(data) {
-      var fileList = data.filelist;
-      var fileNames = _.keySet(fileList.map(function(file) {
-        return file.filename;
-      }));
-
+      var fileList = data;
       visflow.dialog.create({
         template: visflow.diagram.SAVE_DIALOG_,
-        complete: function(dialog) {
-          var input = dialog.find('input').val(visflow.diagram.lastFilename);
-          var confirm = dialog.find('#confirm');
-
-          input.on('keyup', function() {
-            confirm.prop('disabled', $(this).val() == '');
-          });
-          confirm.click(function(event) {
-            var fileName = input.val();
-            if (fileName in fileNames) {
-              // Another modal will be loaded immediately.
-              // So we prevent modal close here.
-              event.stopPropagation();
-
-              visflow.diagram.uploadOverwrite_(fileName);
-            } else {
-              visflow.diagram.upload_(fileName);
-            }
-          });
-
-          var table = dialog.find('table');
-          visflow.diagram.listTable_(table, fileList);
-          table.on('select.dt', function() {
-            var fileName = table.find('tr.selected').children().first().text();
-            input.val(fileName);
-          });
+        complete: visflow.diagram.saveDialog_,
+        params: {
+          fileList: fileList
         }
       });
     })
@@ -74,32 +66,29 @@ visflow.diagram.save = function() {
     });
 };
 
-
 /**
  * Loads a saved flow diagram.
  */
 visflow.diagram.load = function() {
   $.post(visflow.url.LIST_DIAGRAM)
     .done(function(data) {
-      var data_ = /** @type {{
-        filelist: !Array<{filename: string, mtime: number}>
-      }} */(data);
-      var fileList = data_.filelist;
+      var fileList = data;
 
       visflow.dialog.create({
         template: visflow.diagram.LOAD_DIALOG_,
         complete: function(dialog) {
-          var fileName = visflow.diagram.lastFilename;
+          var diagramId = visflow.diagram.lastDiagram.id;
 
           var confirm = dialog.find('#confirm').prop('disabled', true)
             .click(function() {
-              visflow.diagram.download(fileName);
+              visflow.diagram.download(diagramId);
             });
 
           var table = dialog.find('table');
           visflow.diagram.listTable_(table, fileList);
-          table.on('select.dt', function() {
-            fileName = table.find('tr.selected').children().first().text();
+          table.on('select.dt', function(event, dt, type, tableIndices) {
+            var index = _.first(tableIndices);
+            diagramId = fileList[index].id;
             confirm.prop('disabled', false);
           });
         }
@@ -118,8 +107,12 @@ visflow.diagram.new = function() {
     template: visflow.diagram.NEW_DIALOG_,
     complete: function(dialog) {
       dialog.find('#confirm').click(function() {
-        visflow.diagram.lastFilename = 'myDiagram';
-        visflow.diagram.updateURL('myDiagram');
+        visflow.diagram.lastDiagram = {
+          id: -1,
+          name: 'myDiagram',
+          shareWith: ''
+        };
+        visflow.diagram.updateURL(-1);
         visflow.flow.clearFlow();
       });
     }
@@ -128,16 +121,17 @@ visflow.diagram.new = function() {
 
 /**
  * Deletes a flow diagram.
- * @param {string} diagramName
+ * @param {number} diagramId
+ * @param {number} diagramName
  */
-visflow.diagram.delete = function(diagramName) {
+visflow.diagram.delete = function(diagramId, diagramName) {
   visflow.dialog.create({
     template: visflow.diagram.DELETE_DIALOG_,
     complete: function(dialog) {
       dialog.find('.diagram-name').text(diagramName);
       dialog.find('#confirm').click(function() {
         $.post(visflow.url.DELETE_DIAGRAM, {
-          diagramName: diagramName
+          id: diagramId
         }).done(function() {
             visflow.success('diagram deleted:', diagramName);
           })
@@ -151,19 +145,23 @@ visflow.diagram.delete = function(diagramName) {
 
 /**
  * Downloads a flow diagram file from the server.
- * @param {string} filename
+ * @param {number} id
  */
-visflow.diagram.download = function(filename) {
+visflow.diagram.download = function(id) {
   if (!visflow.user.loggedIn()) {
     visflow.user.login('you must login to download a diagram');
     return;
   }
-  visflow.diagram.lastFilename = filename;
   $.post(visflow.url.LOAD_DIAGRAM, {
-    filename: filename
+    id: id
   }).done(function(data) {
+      visflow.diagram.lastDiagram = {
+        id: data.id,
+        name: data.name,
+        shareWith: data.shareWith
+      };
       visflow.flow.deserializeFlow(data.diagram);
-      visflow.diagram.updateURL(filename);
+      visflow.diagram.updateURL(id);
     })
     .fail(function(res) {
       visflow.error('failed to download diagram:', res.responseText);
@@ -171,18 +169,94 @@ visflow.diagram.download = function(filename) {
 };
 
 /**
- * Uploads the current flow to server and saves it as 'filename'.
- * @param {string} filename
+ * Sets up the save diagram dialog.
+ * @param {!jQuery} dialog
+ * @param {{
+ *   fileList: !Array<visflow.diagram.Info>
+ * }} params
  * @private
  */
-visflow.diagram.upload_ = function(filename) {
-  visflow.diagram.lastFilename = filename;
+visflow.diagram.saveDialog_ = function(dialog, params) {
+  var fileList = params.fileList;
+  var diagramInfos = {};
+  fileList.forEach(function(diagramInfo) {
+    diagramInfos[diagramInfo.id] = diagramInfo;
+  });
+
+  var nameInput = dialog.find('#diagram-name')
+    .val(visflow.diagram.lastDiagram.name);
+  var diagramName = visflow.diagram.lastDiagram.name;
+  var diagramId = visflow.diagram.lastDiagram.id;
+
+  var confirm = dialog.find('#confirm');
+  var shareWith = dialog.find('#share-with')
+    .val(visflow.diagram.lastDiagram.shareWith)
+    .prop('disabled', diagramId == -1 || diagramInfos[diagramId].owner !== '');
+
+  nameInput.on('keyup', function() {
+    diagramName = $(this).val();
+    confirm.prop('disabled', $(this).val() == '');
+  });
+
+  confirm.click(function(event) {
+    var shareWith_ = /** @type {string} */(shareWith.val());
+    if (diagramId in diagramInfos) {
+      // Another modal will be loaded immediately.
+      // So we prevent modal close here.
+      event.stopPropagation();
+
+      visflow.diagram.uploadOverwrite_({
+        id: diagramId,
+        name: diagramName,
+        shareWith: shareWith_
+      });
+    } else {
+      visflow.diagram.upload_({
+        id: -1,
+        name: diagramName,
+        shareWith: shareWith_
+      });
+    }
+  });
+
+  var table = dialog.find('table');
+  visflow.diagram.listTable_(table, fileList);
+  table.on('select.dt', function(event, dt, type, tableIndices) {
+    var index = _.first(tableIndices);
+    var info = fileList[index];
+    diagramId = info.id;
+    diagramName = info.name;
+    shareWith.prop('disabled', info.owner !== '');
+
+    // reflect selected diagram info
+    nameInput.val(diagramName);
+    shareWith.val(info.shareWith);
+  });
+};
+
+/**
+ * Uploads the current flow to server and saves it as 'filename'.
+ * @param {{
+ *   id: number,
+ *   name: string,
+ *   shareWith: string
+ * }} diagramInfo
+ * @private
+ */
+visflow.diagram.upload_ = function(diagramInfo) {
   $.post(visflow.url.SAVE_DIAGRAM, {
-    filename: filename,
+    id: diagramInfo.id,
+    name: diagramInfo.name,
+    shareWith: diagramInfo.shareWith,
     flow: JSON.stringify(visflow.flow.serializeFlow())
-  }).done(function() {
-      visflow.success('diagram upload successful:', filename);
-      visflow.diagram.updateURL(filename);
+  }).done(function(info) {
+      visflow.diagram.lastDiagram = {
+        id: info.id,
+        name: info.name,
+        shareWith: info.shareWith
+      };
+      visflow.success('diagram saved:', info.name);
+      visflow.diagram.updateURL(info.id);
     })
     .fail(function(res) {
       visflow.error('failed to save diagram:', res.responseText);
@@ -192,28 +266,35 @@ visflow.diagram.upload_ = function(filename) {
 /**
  * Updates the window URL without refreshing the page to reflect the new diagram
  * name.
- * @param {string} name
+ * @param {number} id
  */
-visflow.diagram.updateURL = function(name) {
+visflow.diagram.updateURL = function(id) {
+  if (id == null || id == -1) {
+    visflow.error('invalid diagram id received at updateURL');
+  }
   if (history.pushState) {
     var url = window.location.protocol + '//' + window.location.host +
-      window.location.pathname + '?diagram=' + name;
+      window.location.pathname + '?diagram=' + id;
     window.history.pushState({path: url}, '', url);
   }
 };
 
 /**
  * Asks for confirmation about overwriting diagram file.
- * @param {string} fileName
+ * @param {{
+ *   id: number,
+ *   name: string,
+ *   shareWith: string
+ * }} diagramInfo
  * @private
  */
-visflow.diagram.uploadOverwrite_ = function(fileName) {
+visflow.diagram.uploadOverwrite_ = function(diagramInfo) {
   visflow.dialog.create({
     template: visflow.diagram.OVERWRITE_DIALOG_,
     complete: function(dialog) {
-      dialog.find('label').text(fileName);
+      dialog.find('label').text(diagramInfo.name);
       dialog.find('#confirm').click(function() {
-        visflow.diagram.upload_(fileName);
+        visflow.diagram.upload_(diagramInfo);
       });
     }
   });
@@ -223,10 +304,14 @@ visflow.diagram.uploadOverwrite_ = function(fileName) {
 /**
  * Shows a table with list of diagrams saved on server.
  * @param {!jQuery} table
- * @param {!Array<{filename: string, mtime: number}>} fileList
+ * @param {!Array<visflow.diagram.Info>} fileList
  * @private
  */
 visflow.diagram.listTable_ = function(table, fileList) {
+  var diagramInfo = {};
+  fileList.forEach(function(info) {
+    diagramInfo[info.id] = info;
+  });
   table.DataTable({
     data: fileList,
     select: 'single',
@@ -237,9 +322,10 @@ visflow.diagram.listTable_ = function(table, fileList) {
       [1, 'desc']
     ],
     columns: [
-      {title: 'File Name', data: 'filename'},
+      {title: 'File Name', data: 'name'},
       {title: 'Last Modified', data: 'mtime'},
-      {title: '', data: 'filename'}
+      {title: 'Owner', data: 'owner'},
+      {title: '', data: 'id'}
     ],
     columnDefs: [
       {
@@ -249,13 +335,19 @@ visflow.diagram.listTable_ = function(table, fileList) {
         targets: 1
       },
       {
-        render: function() {
-          return '<span class="btn btn-default btn-xs glyphicon ' +
-            'glyphicon-trash' + (
-              visflow.user.writePermission() ? '' : 'disabled'
-            ) + '"></span>';
+        render: function(diagramId) {
+          return [
+            '<span class="btn btn-default btn-xs glyphicon glyphicon-trash ',
+            !visflow.user.writePermission() ||
+              diagramInfo[diagramId].owner !== '' ? 'disabled' : '',
+            '" ',
+            'diagram-id="',
+            diagramId,
+            '">',
+            '</span>'
+          ].join('');
         },
-        targets: 2
+        targets: 3
       }
     ],
     drawCallback: function() {
@@ -264,9 +356,8 @@ visflow.diagram.listTable_ = function(table, fileList) {
       table.find('tr .glyphicon-trash')
         .off('click')
         .click(function(event) {
-          var tr = $(event.target).closest('tr');
-          var diagramName = tr.children('td:nth-child(1)').text();
-          visflow.diagram.delete(/** @type {string} */(diagramName));
+          var diagramId = $(event.target).attr('diagram-id');
+          visflow.diagram.delete(+diagramId, diagramInfo[diagramId].name);
           event.stopPropagation();
         });
     }

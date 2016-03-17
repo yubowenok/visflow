@@ -1137,3 +1137,11 @@ visflow.Node.prototype.getContainer = function() {
 visflow.Node.prototype.getOption = function(key) {
   return this.options[key];
 };
+
+/**
+ * Gets the node class.
+ * @return {string}
+ */
+visflow.Node.prototype.getClass = function() {
+  return this.NODE_CLASS;
+};

@@ -40,13 +40,21 @@ visflow.user.MIN_PASSWORD_LENGTH_ = 8;
  */
 visflow.user.loginHook = function() {
   if (visflow.user.loggedIn()) {
-    var diagram = location.search.split('diagram=')[1];
-    if (diagram !== undefined) {
-      visflow.diagram.download(diagram);
+    var diagramId = location.search.split('diagram=')[1];
+    if (diagramId !== undefined) {
+      visflow.diagram.download(+diagramId);
     }
   } else {
     visflow.welcome.init();
   }
+};
+
+/**
+ * Gets the current logged-in username.
+ * @return {string}
+ */
+visflow.user.currentUsername = function() {
+  return visflow.user.account != null ? visflow.user.account.username : '';
 };
 
 /**

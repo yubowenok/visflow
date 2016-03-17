@@ -4,19 +4,79 @@ include 'file.php';
 
 checkLogin();
 
-if (!isset($_POST['filename']))
-  abort('filename not set');
+if (!isset($_POST['id']))
+  abort('diagram id not set');
+if (!isset($_POST['name']))
+  abort('diagram name not set');
 if (!isset($_POST['flow']))
   abort('flow not set');
+if (!isset($_POST['shareWith']))
+  abort('shareWith not set');
 
-$filename = $_POST['filename'];
-$flow = $_POST['flow'];
+$flow = json_decode($_POST['flow']);
+if ($flow == null)
+  abort('cannot decode flow diagram json');
 
-if (json_decode($flow) != null)
-  saveDiagram($filename, $flow);
-else
-  abort('flow diagram cannot be decoded');
+$share_user_ids = getShareWithUsernames($_POST['shareWith']);
+
+$diagram_id = $_POST['id'];
+$diagram_name = $_POST['name'];
+if ($diagram_id == -1 && countDB("SELECT id FROM diagram WHERE user_id=%d AND name='%s'",
+                                array($user_id, $diagram_name)))
+  abort('attempt to save new diagram but duplicate diagram name found');
+
+$row = getOneDB("SELECT name, user_id FROM diagram WHERE id=%d",
+               array($diagram_id));
+
+if ($row)
+{
+  // not new diagram, check privilege
+  $row = getOneDB("SELECT user_id FROM diagram WHERE id=%d",
+              array($diagram_id));
+  if (!$row)
+    abort('diagram id is not -1, but the diagram does not exist');
+  if ($row['user_id'] != $user_id)
+  {
+    if (!countDB("SELECT * FROM share_diagram WHERE diagram_id=%d AND user_id=%d",
+                array($diagram_id, $user_id)))
+      abort('you cannot write to a diagram that is not shared with you');
+  }
+}
+
+$diagram_id = saveDiagram($diagram_id, $diagram_name, $_POST['flow']);
+$diagram_row = getOneDB("SELECT user_id, name FROM diagram WHERE id=%d",
+                        array($diagram_id));
+$diagram_name = $diagram_row['name'];
+$diagram_author_id = $diagram_row['user_id'];
+
+// clear previous share_diagram entries
+queryDB("DELETE FROM share_diagram WHERE diagram_id=%d",
+       array($diagram_id));
+// insert share_diagram entries
+foreach ($share_user_ids as $share_user_id)
+  queryDB("INSERT IGNORE INTO share_diagram (diagram_id, user_id) VALUES (%d, %d)",
+         array($diagram_id, $share_user_id));
+// insert share_data entries, share associated data with all shared-with users
+foreach ($flow->data as $data_id)
+{
+  foreach ($share_user_ids as $share_user_id)
+    queryDB("INSERT IGNORE INTO share_data (data_id, user_id) VALUES (%d, %d)",
+           array($data_id, $share_user_id));
+
+  $data_author_id = queryDB("SELECT user_id FROM data WHERE id=%d",
+                     array($data_id))['user_id'];
+  if ($diagram_author_id != $data_author_id)
+    queryDB("INSERT IGNORE INTO share_data (data_id, user_id) VALUES (%d, %d)",
+           array($data_id, $diagram_author_id));
+}
 
 status(200);
+contentType('json');
+$response = array(
+  'id' => $diagram_id,
+  'name' => $diagram_name,
+  'shareWith' => getDiagramShareWith($diagram_id)
+);
+echo json_encode($response);
 
 ?>

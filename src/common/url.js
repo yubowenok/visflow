@@ -8,13 +8,19 @@ visflow.url = {};
 /** @const {string} */
 visflow.url.LIST_DATA = './server/list-data.php';
 /** @const {string} */
-visflow.url.UPLOAD = './server/upload.php';
+visflow.url.UPLOAD_DATA = './server/upload-data.php';
 /** @const {string} */
-visflow.url.EXPORT = './server/export.php';
+visflow.url.EXPORT_DATA = './server/export-data.php';
 /** @const {string} */
 visflow.url.DELETE_DATA = './server/delete-data.php';
 /** @const {string} */
 visflow.url.GET_DATA = './server/get-data.php';
+/**
+ * Search for a dataset with given file name created by the current user.
+ * (backward compatibility)
+ * @const {string}
+ */
+visflow.url.DATA_ID = './server/data-id.php';
 
 /** @const {string} */
 visflow.url.LIST_DIAGRAM = './server/list-diagram.php';

@@ -19,7 +19,7 @@ if (!isset($_GET['diagram'])) {
   $diagram = $_GET['diagram'];
   echo str_replace(
     "//vf.embed.js",
-    "visflow.user.loginHook = function() { visflow.diagram.download('$diagram'); };",
+    "visflow.user.loginHook = function() { visflow.diagram.download($diagram); };",
     $index
   );
 }

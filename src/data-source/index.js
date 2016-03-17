@@ -3,21 +3,10 @@
  */
 
 /**
+ * TODO(bowen): use params typedefs?
  * @typedef {!Object}
  */
 visflow.params.DataSource;
-
-/**
- * @typedef {{
- *   name: string,
- *   file: string,
- *   isServerData: boolean
- * }}
- *   name: Data name.
- *   file: File location. If it is online data, then this is the URL.
- *   isServerData: Whether the data is on the server.
- */
-visflow.DataSpec;
 
 /**
  * @param {visflow.params.DataSource} params
@@ -29,7 +18,7 @@ visflow.DataSource = function(params) {
 
   /**
    * Data array.
-   * @type {!Array<visflow.DataSpec>}
+   * @type {!Array<visflow.data.Info>}
    */
   this.data = [];
 
@@ -84,21 +73,55 @@ visflow.DataSource.prototype.deserialize = function(save) {
     visflow.warning('older version data storage found, auto fixed');
     save.dataFile = save.dataSelected;
     save.data = [
-      {file: save.dataSelected, name: 'data name', isServerData: true}
+      {
+        id: '',
+        name: 'data name',
+        file: save.dataSelected,
+        isServerData: true
+      }
     ];
   }
   if (save.data == null) {
     save.data = [
       {
-        file: save.dataFile,
+        id: '',
         name: save.dataName,
+        file: save.dataFile,
         isServerData: save.useServerData
       }
     ];
   }
   this.data = save.data;
-  // Start loading data.
-  this.loadData();
+
+  var counter = 0;
+  this.data.forEach(function(dataInfo) {
+    if (isNaN(parseInt(dataInfo.id, 10))) {
+      counter++;
+    }
+  });
+  // Check whether all older version data has been converted.
+  var convertComplete = function() {
+    if (!counter) {
+      // Start loading data.
+      this.loadData();
+    }
+  }.bind(this);
+  this.data.forEach(function(dataInfo) {
+    // backward compatibility, finding data id with data names
+    if (isNaN(parseInt(dataInfo.id, 10))) {
+      $.post(visflow.url.DATA_ID, {
+        fileName: dataInfo.file
+      }).done(function(id) {
+        dataInfo.id = id;
+      }).fail(function(res) {
+        visflow.error('data for older version diagram not found:',
+          res.responseText);
+      }).always(function() {
+        counter--;
+        convertComplete();
+      });
+    }
+  });
 };
 
 /** @inheritDoc */
@@ -144,14 +167,33 @@ visflow.DataSource.prototype.showNodeDataList_ = function() {
 
 /**
  * Shows the data list both in panel and in node.
- * @private
  */
-visflow.DataSource.prototype.showDataList_ = function() {
-  if (visflow.optionPanel.isOpen) {
-    this.createPanelDataList_(visflow.optionPanel.contentContainer());
-  }
-  // Show data list in node.
-  this.showNodeDataList_();
+visflow.DataSource.prototype.showDataList = function() {
+  $.post(visflow.url.LIST_DATA)
+    .done(function(dataList) {
+      var dataInfos = {};
+      dataList.forEach(function(dataInfo) {
+        dataInfos[dataInfo.id] = dataInfo;
+      });
+      this.data.forEach(function(dataInfo) {
+        if (dataInfo.id in dataInfos) {
+          var info = dataInfos[dataInfo.id];
+          dataInfo.name = info.name;
+          dataInfo.file = info.file;
+        } else {
+          visflow.error('data used not listed:', dataInfo.id, dataInfo.name,
+            dataInfo.file);
+        }
+      });
+      if (visflow.optionPanel.isOpen) {
+        this.createPanelDataList_(visflow.optionPanel.contentContainer());
+      }
+      // Show data list in node.
+      this.showNodeDataList_();
+    }.bind(this))
+    .fail(function(res) {
+      visflow.error('cannot retrieve data list:', res.responseText);
+    });
 };
 
 /**
@@ -224,47 +266,50 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 
       var select = dialog.find('select');
 
-      var dataFile = '';
+      var dataId = '';
       var dataName = '';
-      var dataURL = '';
+      var dataFile = '';
       var confirm = dialog.find('#confirm');
 
       // Checks whether upload options have been all set.
       var uploadable = function() {
         var allSet;
         if (this.options.useServerData) {
-          allSet = dataFile !== '' && dataName !== '';
+          allSet = dataId !== '' && dataName !== '';
         } else {
-          allSet = dataURL !== '' && dataName !== '';
+          allSet = dataFile !== '' && dataName !== '';
         }
         confirm.prop('disabled', !allSet);
       }.bind(this);
 
       confirm.click(function() {
         this.data.push({
+          id: this.options.useServerData ? dataId : dataFile,
           name: dataName,
-          file: this.options.useServerData ? dataFile : dataURL,
+          file: dataFile,
           isServerData: this.options.useServerData
         });
         this.loadData(this.data.length - 1);
       }.bind(this));
 
       $.get(visflow.url.LIST_DATA)
-        .done(function(res) {
+        .done(function(dataList) {
           var table = dialog.find('table');
           if (this.table_) {
             this.table_.destroy();
           }
-          this.table_ = visflow.upload.listDataTable(table, res.filelist);
+          this.table_ = visflow.upload.listDataTable(table, dataList);
           table
-            .on('select.dt', function() {
-              dataName = table.find('tr.selected').children()
-                .first().text();
-              dataFile = table.find('tr.selected').children()
-                .first().next().text();
+            .on('select.dt', function(event, dt, type, tableIndices) {
+              var data = /** @type {DataTables} */(dt)
+                .row(tableIndices[0]).data();
+              dataId = data.id;
+              dataName = data.name;
+              dataFile = data.file;
               uploadable();
             })
             .on('deselect.dt', function() {
+              dataId = '';
               dataName = '';
               dataFile = '';
               uploadable();
@@ -279,7 +324,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
         uploadable();
       }.bind(this));
       dialog.find('.online #url').keyup(function(event) {
-        dataURL = $(event.target).val();
+        dataFile = $(event.target).val();
         uploadable();
       }.bind(this));
 
@@ -311,7 +356,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 visflow.DataSource.prototype.clearData_ = function() {
   this.data = [];
   this.rawData_ = [];
-  this.showDataList_();
+  this.showDataList();
   this.process();
 };
 
@@ -341,7 +386,7 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
     }
     counter++;
     var url = data.isServerData ?
-      visflow.url.GET_DATA + '?fileName=' + data.file :
+      visflow.url.GET_DATA + '?id=' + data.id :
       visflow.utils.standardURL(data.file);
 
     var duplicateData = visflow.data.duplicateData(data);
@@ -456,6 +501,7 @@ visflow.DataSource.prototype.process = function() {
 
   if (firstDataIndex == null) {
     this.useEmptyData_();
+    this.showDataList();
     return;
   }
 
@@ -467,7 +513,7 @@ visflow.DataSource.prototype.process = function() {
     $.extend({}, this.rawData_[firstDataIndex]));
   finalData.values = values;
 
-  this.showDataList_();
+  this.showDataList();
 
   // Apply crossing.
   if (this.options.crossing) {

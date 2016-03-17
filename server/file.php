@@ -13,22 +13,27 @@ function checkDir($dir)
     mkdir($full_path, 0755, true);
 }
 
-function updateDataDB($file_name, $data_name, $file_path, $file_size)
+function updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size)
 {
   global $user_id;
-  if (countDB("SELECT * FROM data WHERE user_id=%d AND file_name='%s'",
-             array($user_id, $file_name)))
-    queryDB("UPDATE data SET name='%s', size=%d, upload_time=FROM_UNIXTIME(%d) WHERE user_id=%d AND file_name='%s'",
-           array($data_name, $file_size, time(), $user_id, $file_name));
-  else
+  if ($data_id == -1)
+  {
     queryDB("INSERT INTO data (user_id, name, file_name, file_path, size) VALUES (%d, '%s', '%s', '%s', %d)",
             array($user_id, $data_name, $file_name, $file_path, $file_size));
+    $row = getOneDB("SELECT LAST_INSERT_ID() AS id", array());
+    return $row['id'];
+  }
+  else
+  {
+    queryDB("UPDATE data SET name='%s', size=%d, upload_time=FROM_UNIXTIME(%d) WHERE id=%d",
+           array($data_name, $file_size, time(), $data_id));
+    return $data_id;
+  }
 }
 
-function savePostedData($file_name, $data_name, $data)
+function savePostedData($data_id, $file_name, $data_name, $data)
 {
-  global $user_id, $username, $data_path, $base_path;
-  checkLogin();
+  global $username, $data_path, $base_path;
 
   $dir = $data_path . $username . '/';
   $file_path = $dir . $file_name;
@@ -39,37 +44,43 @@ function savePostedData($file_name, $data_name, $data)
     abort('unable to write posted data');
 
   $file_size = filesize($full_path);
-  updateDataDB($file_name, $data_name, $file_path, $file_size);
+  return updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size);
 }
 
-function saveUploadedData($file_name, $data_name, $tmp_file)
+function saveUploadedData($data_id, $file_name, $data_name, $tmp_file)
 {
-  global $user_id, $username, $data_path, $base_path;
-  checkLogin();
+  global $data_path, $base_path;
 
-  $dir = $data_path . $username . '/';
+  $data_username = '';
+  if ($data_id == -1)
+    // create new data under the current user
+    $data_username = $username;
+  else
+    $data_username = getOneDB("SELECT username FROM ((SELECT user_id FROM data WHERE id=%d) AS T LEFT JOIN user "
+                                 ."ON T.user_id = user.id)",
+                                array($data_id))['username'];
+
+  $dir = $data_path . $data_username . '/';
   $file_path = $dir . $file_name;
   $full_path = $base_path . $file_path;
   checkDir($dir);
 
   if (!move_uploaded_file($tmp_file, $full_path))
     abort('failed to move uploaded file');
-
   $file_size = filesize($full_path);
-  updateDataDB($file_name, $data_name, $file_path, $file_size);
+
+  return updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size);
 }
 
-function getData($file_name)
+function getData($data_id)
 {
-  global $user_id, $username, $data_path, $base_path;
-  checkLogin();
+  global $base_path;
 
-  $row = getOneDB("SELECT id, file_path FROM data WHERE user_id=%d AND file_name='%s'",
-                 array($user_id, $file_name));
+  $row = getOneDB("SELECT file_path FROM data WHERE id=%d",
+                 array($data_id));
   if (!$row)
-    abort('data requested does not exist');
+    abort('internal server error - data requested does not exist');
 
-  $data_id = $row['id'];
   $full_path = $base_path . $row['file_path'];
   $contents = file_get_contents($full_path);
   if ($contents == false)
@@ -77,42 +88,67 @@ function getData($file_name)
   return $contents;
 }
 
-function deleteData($file_name)
+function deleteData($data_id)
 {
-  global $user_id, $username, $data_path, $base_path;
-  checkLogin();
+  global $base_path;
 
-  $row = getOneDB("SELECT id, file_path FROM data WHERE user_id=%d AND file_name='%s'",
-                 array($user_id, $file_name));
+  $row = getOneDB("SELECT file_path FROM data WHERE id=%d",
+                 array($data_id));
   if (!$row)
-    abort('data to be deleted does not exist');
+    abort('internal server error - data to be deleted does not exist');
 
-  $data_id = $row['id'];
   $full_path = $base_path . $row['file_path'];
-  if (!unlink($full_path))
+  if (!@unlink($full_path))
     abort('cannot unlink data');
   queryDB("DELETE FROM data WHERE id=%d",
          array($data_id));
 }
 
-function updateDiagramDB($diagram_name, $file_path)
+function getDataShareWith($data_id)
 {
-  global $user_id;
-  if (countDB("SELECT name FROM diagram WHERE user_id=%d AND name='%s'",
-             array($user_id, $diagram_name)))
-    queryDB("UPDATE diagram SET update_time=FROM_UNIXTIME(%d) WHERE user_id=%d AND name='%s'",
-           array(time(), $user_id, $diagram_name));
-  else
-    queryDB("INSERT INTO diagram (user_id, name, file_path) VALUES (%d, '%s', '%s')",
-            array($user_id, $diagram_name, $file_path));
+  $result = queryDB("SELECT username FROM ((SELECT user_id FROM share_data WHERE data_id=%d) AS T LEFT JOIN "
+                    ."user ON T.user_id=user.id)",
+                    array($data_id));
+  $usernames = array();
+  while ($row = mysql_fetch_assoc($result))
+  {
+    array_push($usernames, $row['username']);
+  }
+  return join(', ', $usernames);
 }
 
-function saveDiagram($diagram_name, $diagram)
+function updateDiagramDB($diagram_id, $diagram_name, $file_path)
 {
-  global $user_id, $username, $diagram_path, $base_path;
-  checkLogin();
+  global $user_id;
+  if ($diagram_id == -1)
+  {
+    queryDB("INSERT INTO diagram (user_id, name, file_path) VALUES (%d, '%s', '%s')",
+            array($user_id, $diagram_name, $file_path));
+    $row = getOneDB("SELECT LAST_INSERT_ID() AS id", array());
+    return $row['id'];
+  }
+  else
+  {
+    queryDB("UPDATE diagram SET update_time=FROM_UNIXTIME(%d) WHERE id=%d",
+           array(time(), $diagram_id));
+    return $diagram_id;
+  }
+}
 
-  $dir = $diagram_path . $username . '/';
+function saveDiagram($diagram_id, $diagram_name, $diagram)
+{
+  global $username, $diagram_path, $base_path;
+
+  $diagram_username = '';
+  if ($diagram_id == -1)
+    // create new diagram under the current user
+    $diagram_username = $username;
+  else
+    $diagram_username = getOneDB("SELECT username FROM ((SELECT user_id FROM diagram WHERE id=%d) AS T LEFT JOIN user "
+                                 ."ON T.user_id = user.id)",
+                                array($diagram_id))['username'];
+
+  $dir = $diagram_path . $diagram_username . '/';
   $file_path = $dir . $diagram_name;
   $full_path = $base_path . $file_path;
   checkDir($dir);
@@ -121,18 +157,17 @@ function saveDiagram($diagram_name, $diagram)
   if (!fwrite($file, $diagram))
     abort('cannot write to diagram file, no write permission');
 
-  updateDiagramDB($diagram_name, $file_path);
+  return updateDiagramDB($diagram_id, $diagram_name, $file_path);
 }
 
-function loadDiagram($diagram_name)
+function loadDiagram($diagram_id)
 {
-  global $user_id, $username, $diagram_path, $base_path;
-  checkLogin();
+  global $base_path;
 
-  $row = getOneDB("SELECT file_path FROM diagram WHERE user_id=%d AND name='%s'",
-                    array($user_id, $diagram_name));
+  $row = getOneDB("SELECT file_path FROM diagram WHERE id=%d",
+                    array($diagram_id));
   if (!$row)
-    abort('diagram does not exist');
+    abort('internal server error - diagram to be loaded does not exist');
 
   $file_path = $row['file_path'];
   $full_path = $base_path . $file_path;
@@ -145,22 +180,59 @@ function loadDiagram($diagram_name)
   return json_decode($contents);
 }
 
-function deleteDiagram($diagram_name)
+function deleteDiagram($diagram_id)
 {
-  global $user_id, $username, $diagram_path, $base_path;
-  checkLogin();
+  global $diagram_path, $base_path;
 
-  $row = getOneDB("SELECT id, file_path FROM diagram WHERE user_id=%d AND name='%s'",
-                 array($user_id, $diagram_name));
+  $row = getOneDB("SELECT username, file_path FROM ((SELECT user_id, file_path FROM diagram WHERE id=%d) AS T LEFT JOIN "
+                  ."user ON T.user_id=user.id)",
+                 array($diagram_id));
   if (!$row)
-    abort('diagram to be deleted does not exist');
+    abort('internal server error - diagram to be deleted does not exist');
 
-  $diagram_id = $row['id'];
   $full_path = $base_path . $row['file_path'];
-  if (!unlink($full_path))
+  if (!@unlink($full_path))
     abort('cannot unlink diagram');
   queryDB("DELETE FROM diagram WHERE id=%d",
          array($diagram_id));
+}
+
+function getDiagramShareWith($diagram_id)
+{
+  $result = queryDB("SELECT username FROM ((SELECT user_id FROM share_diagram WHERE diagram_id=%d) AS T LEFT JOIN "
+                    ."user ON T.user_id=user.id)",
+                    array($diagram_id));
+  $usernames = array();
+  while ($row = mysql_fetch_assoc($result))
+  {
+    array_push($usernames, $row['username']);
+  }
+  return join(', ', $usernames);
+}
+
+// convert shareWith usernames to user ids
+function getShareWithUsernames($share_with)
+{
+  if (preg_match('/^\s*$/', $share_with))
+    return array();
+  if (!preg_match('/^([a-z0-9_]+,\s*)*[a-z0-9_]+$/', $share_with))
+    abort('shareWith must be comma separated usernames');
+
+  global $user_id;
+
+  $usernames = preg_split('/,\s+/', $share_with);
+  $user_ids = array();
+  foreach ($usernames as $username)
+  {
+    $row = getOneDB("SELECT id FROM user WHERE username='%s'",
+                array($username));
+    if (!$row)
+      abort('username "'.$username.'" does not exist');
+    if ($row['id'] == $user_id)
+      continue;
+    array_push($user_ids, $row['id']);
+  }
+  return $user_ids;
 }
 
 ?>

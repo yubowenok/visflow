@@ -24,6 +24,12 @@ jQuery.prototype.dataTable;
 DataTables.prototype.column = function(arg) {};
 
 /**
+ * @param {number} arg
+ * @return {!DataTables.Api}
+ */
+DataTables.prototype.row = function(arg) {};
+
+/**
  * @param {(string|Object)=} arg
  * @return {!DataTables.Api}
  */
@@ -49,6 +55,11 @@ DataTables.Api.prototype.visible = function(arg) {};
 DataTables.Api.prototype.select = function() {};
 
 DataTables.Api.prototype.deselect = function() {};
+
+/**
+ * @return {*}
+ */
+DataTables.Api.prototype.data = function() {};
 
 /**
  * @typedef {Object}

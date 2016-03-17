@@ -36,6 +36,34 @@ visflow.data.INDEX_DIM = -1;
 visflow.data.INDEX_TEXT = '[index]';
 
 /**
+ * @typedef {{
+ *   id: number,
+ *   name: string,
+ *   file: string,
+ *   isServerData: boolean
+ * }}
+ *   id: Data id used by the server.
+ *   name: Data name.
+ *   file: Data file name.
+ *   isServerData: Whether the data is on the server.
+ */
+visflow.data.Info;
+
+/**
+ * Listed data info by the server.
+ * @typedef {{
+ *   id: number,
+ *   name: string,
+ *   file: string,
+ *   mtime: number,
+ *   size: number,
+ *   shareWith: string,
+ *   owner: string
+ * }}
+ */
+visflow.data.ListInfo;
+
+/**
  * Data references by their hashes. When same datasets are loaded, the same
  * data object is re-used to save memory.
  * @type {!Object<!visflow.Data>}
@@ -51,30 +79,18 @@ visflow.data.hashToData = {};
 visflow.data.infoHashToRawData = {};
 
 /**
- * Returns a hash of data loading info, including name, file and isServer.
+ * Returns a hash that uniquely identifies a dataset.
  * If the hash value matches, the data should be the same.
- * @param {!{
- *   name: string,
- *   file: string,
- *   isServerData: boolean
- * }} dataInfo
+ * @param {visflow.data.Info} dataInfo
  * @return {string}
  */
 visflow.data.infoHash = function(dataInfo) {
-  return CryptoJS.SHA256([
-    dataInfo.name,
-    dataInfo.file,
-    dataInfo.isServerData
-  ].join(',')).toString();
+  return dataInfo.isServerData ? '' + dataInfo.id : dataInfo.file;
 };
 
 /**
  * Checks for duplicate data.
- * @param {!{
- *   name: string,
- *   file: string,
- *   isServerData: boolean
- * }} dataInfo
+ * @param {visflow.data.Info} dataInfo
  * @return {?visflow.TabularData} null if no duplicate, and the duplicate data
  *   otherwise.
  */
@@ -88,11 +104,7 @@ visflow.data.duplicateData = function(dataInfo) {
 
 /**
  * Registers the raw data.
- * @param {!{
- *   name: string,
- *   file: string,
- *   isServerData: boolean
- * }} dataInfo
+ * @param {visflow.data.Info} dataInfo
  * @param {visflow.TabularData} data
  */
 visflow.data.registerRawData = function(dataInfo, data) {
