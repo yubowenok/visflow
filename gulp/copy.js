@@ -10,7 +10,14 @@ gulp.task('copy', function() {
     .pipe(gulp.dest(paths.dist + 'html'));
 });
 
-gulp.task('copy-doc', function() {
+gulp.task('copy-doc-js', function() {
   return gulp.src(paths.docJs)
     .pipe(gulp.dest(paths.dist));
 });
+
+gulp.task('copy-doc-imgs', function() {
+  return gulp.src(paths.docImgs)
+    .pipe(gulp.dest(paths.dist + 'doc'));
+});
+
+gulp.task('copy-doc', ['copy-doc-js', 'copy-doc-imgs']);

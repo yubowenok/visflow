@@ -7,7 +7,8 @@ var paths = require('./paths.js');
 // Dist directory structure
 var dirs = [
   'dist',
-  'dist/html'
+  'dist/html',
+  'dist/doc'
 ];
 
 gulp.task('clean', function() {

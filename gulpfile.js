@@ -21,6 +21,14 @@ gulp.task('watch', function() {
   ], ['build-dev']);
 });
 
+gulp.task('watch-doc', function() {
+  gulp.watch([
+    'doc.html',
+    paths.docJs,
+    paths.docScss
+  ], ['build-doc']);
+});
+
 // Dev task. Build without code minification.
 gulp.task('dev', ['lint', 'build-dev', 'build-doc']);
 

@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Help - VisFlow Visual Analytics System Builder</title>
+  <title>Visflow Documentation</title>
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 
   <!-- jquery -->
@@ -27,65 +27,268 @@
   <div id="main" class="container-fluid">
     <div class="col-xs-2 sidebar">
       <ul class="nav nav-sidebar">
-        <li><a href="#introduction">Introduction</a></li>
-        <li><a href="#flow-diagram">Flow Diagram</a></li>
-        <li><a href="#diagram-editing">Diagram Editing</a></li>
-        <li><a href="#shortcuts">Shortcuts</a></li>
+        <li>
+          <a href="#getting-started">Getting Started</a>
+          <ul class="nav nav-lv2">
+            <li><a href="#intro-video">1-Minute Intro Video</a></li>
+            <li><a href="#gs-load-data">Load Data</a></li>
+            <li><a href="#gs-create-a-plot">Create A Plot</a></li>
+            <li><a href="#gs-forward-selection">Forward Selection</a></li>
+            <li><a href="#gs-highlight-selection">Highlight Selection</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#introduction">Introduction</a>
+        </li>
+        <li>
+          <a href="#flow-diagram">Flow Diagram</a>
+          <ul class="nav nav-lv2">
+            <li><a href="#fd-nodes">Nodes</a></li>
+            <li><a href="#fd-ports">Ports</a></li>
+            <li><a href="#fd-edges">Edges</a></li>
+            <li><a href="#fd-subsets">Subset</a></li>
+            <li><a href="#fd-constants">Constants</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#data">Data</a>
+          <ul class="nav nav-lv2">
+            <li><a href="#d-tabular-data">Tabular Data</a></li>
+            <li><a href="#d-data-crossing">Data Crossing</a></li>
+            <li><a href="#d-upload-data">Upload Data</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#diagram-editing">Diagram Editing</a>
+          <ul class="nav nav-lv2">
+            <li><a href="#de-create-diagram">Create Diagram</a></li>
+            <li><a href="#de-edit-diagram">Edit Diagram</a></li>
+            <li><a href="#de-saveload-diagram">Save/Load Diagram</a></li>
+            <li><a href="#de-visualization-mode">Visualization Mode</a></li>
+            <li><a href="#de-share-diagram">Share Diagram</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#node-types">Node Types</a>
+          <ul class="nav nav-lv2">
+            <li><a href="#nt-datasource">Data Source</a></li>
+            <li><a href="#nt-visualization">Visualization</a></li>
+            <li><a href="#nt-filter">Filter</a></li>
+            <li><a href="#nt-value-generator">Value Generator</a></li>
+            <li><a href="#nt-set-operation">Set Operation</a></li>
+            <li><a href="#nt-property-binder">Property Binder</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#shortcuts">Shortcuts</a>
+          <ul class="nav nav-lv2">
+            <li><a href="#sc-system">System</a></li>
+            <li><a href="#sc-diagram-editing">Diagram Editing</a></li>
+            <li><a href="#sc-visualization">Visualization</a></li>
+          </ul>
+        </li>
       </ul>
     </div>
     <div id="main" class="col-xs-offset-2 col-xs-10">
       <div class="section">
-        <h2 id="introduction">Introduction</h2>
+        <h2 id="getting-started">Getting Started</h2>
+        <hr>
+        <p>
+          Visflow is a framework that allows you to fast launch data analyses in the web.
+          Watch the short intro video to see <a href="#intro-video">how it works</a>.
+        </p>
+        <div>
+          <a id="intro-video" class="anchor"></a>
+          <h4>1-Minute Intro Video... Coming Soon :)</h4>
+          <video width="640" controls>
+            <source src="video/.mp4" type="video/mp4"/>
+          </video>
+        </div>
+        <hr>
+        <table>
+          <tr>
+            <td>
+              <a id="gs-load-data" class="anchor"></a>
+              <h3>Load Data</h3>
+              <p>Login with <i>demo mode</i> to take a quick glance at Visflow!</p>
+              <p>
+                Loading data into Visflow is as simple as dragging a DataSource<icon class="data-source"></icon> onto the canvas and add a dataset to the DataSource.
+                A few sample datasets have already been prepared for you under the demo.
+              </p>
+            </td>
+            <td>
+              <video width="320" controls>
+                <source src="video/load-data.mp4" type="video/mp4"/>
+              </video>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a id="gs-create-a-plot" class="anchor"></a>
+              <h3>Create a Plot</h3>
+              <p>
+                Drag a plot (in this case we use a Scatterplot<icon class="scatterplot"></icon> onto the canvas and then connect
+                the output of the DataSource<icon class="data-source"></icon> to the input of the Scatterplot.
+                You may change the dimensions and other options of the Scatterplot in the control panel on the right.
+              </p>
+            </td>
+            <td>
+              <video width="320" controls>
+                <source src="video/create-a-plot.mp4" type="video/mp4"/>
+              </video>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a id="gs-forward-selection" class="anchor"></a>
+              <h3>Forward Selection</h3>
+              <p>
+                Interactive selection in a plot can be forwarded to another node for detailed exploration.
+                We connect the Selection Port<port class="selection"></port> to a Table<icon class="table"></icon> to observe
+                the attributes of the selected data items.
+              </p>
+              <p>
+                You may press shortcut <key>A</key> to call out the node creation panel.
+                More shortcuts can be found <a href="#shortcuts">here</a>!
+              </p>
+            </td>
+            <td>
+              <video width="320" controls>
+                <source src="video/forward-selection.mp4" type="video/mp4"/>
+              </video>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a id="gs-highlight-selection" class="anchor"></a>
+              <h3>Highlight Selection</h3>
+              <p>
+                Visflow lets you bind rendering properties to data items so that you can identify interesting subset of the input data.
+              </p>
+              <p>
+                Connect the selection port of the Scatterplot<icon class="scatterplot"></icon> to a PropertyEditor<icon class="property-editor"></icon> that
+                sets the rendering property of its input data items.
+                Here we give the selected data items a red color.
+                Rendering properties can be adjusted on-the-fly within Visflow.
+                To compare the selected items with the whole dataset, we use a Union<icon class="union"></icon> set operation to combine the selected items
+                with the original dataset forwarded via <port class="multiple"></port>.
+                We render the unified result in a new Scatterplot.
+              </p>
+            </td>
+            <td>
+              <video width="320" controls>
+                <source src="video/highlight-selection.mp4" type="video/mp4"/>
+              </video>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <a id="introduction" class="anchor"></a>
+        <h2>Introduction</h2>
         <hr>
         <p>VisFlow is a tool that enables creation of visual analytics system for tabular data based on flow diagram editing.</p>
         <p>The <i>flow diagram</i> in VisFlow defines the querying and filtering logic of the visual analytics system.</p>
-        <p>VisFlow works with tabular data, and it treats table each table row as a meaningful data <i>item</i> (entity).</p>
-        <p>Featuring easy plotting and interactive filtering, VisFlow facilitates visual analytics on tabular data sets in an easy-to-use web environment,
+        <p>VisFlow works with tabular data. Each table row is considered to be a meaningful data <i>item</i> (entity).</p>
+        <p>Featuring easy plotting, interactive filtering and highlighting, VisFlow facilitates visual analytics on tabular datasets in an simple-to-use web environment,
           without a hassle of query programming and system engineering.</p>
       </div>
 
       <div class="section">
-        <h2 id="flow-diagram">Flow Diagram</h2>
+        <a id="flow-diagram" class="anchor"></a>
+        <h2>Flow Diagram</h2>
         <hr>
-        <p>A flow diagram defines how a VisFlow system works. A diagram consists of nodes and directed edges,
+        <p>A flow diagram defines how VisFlow system works. A diagram consists of nodes and directed edges,
           and is topologically a directed acyclic graph (DAG).</p>
+        <a id="fd-nodes" class="anchor"></a>
         <h3>Nodes</h3>
         <p>A node is a primitive component for specific tasks. For example, a <i>Data Source</i> node loads the a tabular data set
           and a <i>Visualization</i> node presents a plot.</p>
         <p>Items enter a node as the node's input. The node produces a set of processed/filtered items as its output.</p>
         <p>Data enters and leaves a node via its <i>ports</i>.</p>
 
+        <a id="fd-ports" class="anchor"></a>
         <h3>Ports</h3>
-        <p>A node has ports located on its boundaries.</p>
-        <p>The <i>input ports</i> on the left of a node defines the input the node accepts.
-          The <i>output ports</i> on the right of a node defines what a node produces for its successors.
+        <p>
+          A node has ports located on its boundaries.
+          The <i>input ports</i> on the left of a node defines the input the node accepts.
+          The <i>output ports</i> on the right of a node defines what a node produces for its
         </p>
-        <p>The <i>connectivity</i> of a port is either <i>single</i><span class="port single"></span> or <i>multiple</i><span class="port multiple"></span>.
-          A single port can be connected with at most one edge, while a multiple port does not have such restriction.</p>
-        <p>A port that outputs selected data items is a <i>selection port</i><span class="port selection"></span>.</p>
-        <p>A port that accepts data items is a <i>data port</i> (with white background <span class="port data"></span>).
-          Otherwise it accepts constants values and is a <i>constant port</i> (with gray background <span class="port constant"></span>).</p>
+        <p>
+          The <i>connectivity</i> of a port is either <i>single</i><port class="single"></port> or <i>multiple</i><port class="multiple"></port>.
+          A single port can be connected with at most one edge, while a multiple port does not have such restriction.
+        </p>
+        <p>
+          A port that outputs selected data items is a <i>selection port</i><port class="selection"></port>.</p>
+        <p>A port that accepts data items is a <i>data port</i> (with white background <port class="data"></port>).
+          Otherwise it accepts constants values and is a <i>constant port</i> (with gray background <port class="constant"></port>).</p>
         <p>Ports are connected by <i>edges</i>.</p>
 
+        <a id="fd-edges" class="anchor"></a>
         <h3>Edges</h3>
         <p>Edges define how data items are transferred and processed across the nodes.</p>
         <p>Each edge connects two ports, and goes from the output port to an input port.</p>
 
-        <h3>Data Items</h3>
-        <p>Tabular data rows are considered to be <i>items</i> across VisFlow.</p>
-        <p>Items are transferred between components through data ports.</p>
+        <a id="fd-subsets" class="anchor"></a>
+        <h3>Subsets</h3>
+        <p>
+          Tabular data rows are considered to be <i>data items</i> across VisFlow.
+          Items are transmitted between components through data ports.
+          Each transmitted group of data items is a <i>subset</i> of the input tabular dataset.
+        </p>
 
+        <a id="fd-constants" class="anchor"></a>
         <h3>Constants</h3>
-        <p>Constants are a set of constant values, either specified by a user or extracted from tabular data.</p>
-        <p>Constants can be used to filter items in a node <i>filter</i>, e.g. a <i>Range Filter</i> accepts two constants that define
-          a query range.</p>
-        <p>Constants are transferred between components through constant ports.</p>
+        <p>
+          Constants are a set of constant values, either specified by a user or extracted from tabular data.
+          Constants can be used to filter items in a node <i>filter</i>, e.g. a <i>Range Filter</i><icon class="range-filter"></icon>
+          accepts two constants that define a query range.
+          Constants are transmitted between components through constant ports<port class="constant"></port>.
+        </p>
+      </div>
+
+      <div class="section">
+        <a id="data" class="anchor"></a>
+        <h2>Data</h2>
+        <hr>
+        <a id="d-tabular-data" class="anchor"></a>
+        <h3>Tabular Data</h3>
+        <p>
+          The tabular data applied in Visflow gives information of data items on a set of dimensions (attributes).
+          It matches the entity-relationship database table definition.
+          Table rows are considered to be unique data items in Visflow.
+          Table (a) below illustrates a sample Visflow input table, which includes a data snippet from the
+          <a href="http://data.worldbank.org/topic/health" target="_blank">World Bank Data</a>.
+        </p>
+        <img width="400" src="dist/doc/tabular.png">
+
+        <a id="d-data-crossing" class="anchor"></a>
+        <h3>Data Crossing</h3>
+        <p>
+          To facilitate series data analyses, Visflow supports a special type of operation on its input table called <i>Data Crossing</i>,
+          which takes a set of primary key attributes and a set of dimensions, and transforms the input table into rows of series points.
+          Dimension names are written in an attribute column, and the original table values are stored in a third column.
+          Table (b) above shows data crossing of table (a) using "Country" as the primary key, and the years as the dimensions.
+        </p>
+        <p>
+          After data crossing, table (b) can be applied in LineChart<icon class="line-chart"></icon> series visualization.
+        </p>
+
+        <a id="d-upload-data" class="anchor"></a>
+        <h3>Upload Data</h3>
+        <p>
+          To upload custom data to Visflow, open the upload data dialog by clicking the upload data button on the tool panel,
+          and then choose a local file to upload.
+          <img src="dist/doc/toolpanel-upload.png">
+        </p>
       </div>
 
       <div class="section">
         <h2 id="diagram-editing">Diagram Editing</h2>
         <hr>
-        <h3>Creation</h3>
+        <a id="de-create-diagram" class="anchor"></a>
+        <h3>Create Diagram</h3>
         <p>To create a node, in the menu <i>Edit > Add Node</i> to call out the <i>Node Panel</i>.
           Then choose a node type. Alternatively, an in-place node creation panel can be called using hotkey <key>A</key>.
           Drag a node from the panel to any place you would like to place the node.
@@ -93,7 +296,8 @@
         <p>To create an edge, drag from an output port to an input port. You may also drop
           an edge onto the center of the node and VisFlow will automatically search for the first connectable port.</p>
 
-        <h3>Editing</h3>
+        <a id="de-edit-diagram" class="anchor"></a>
+        <h3>Edit Diagram</h3>
         <p>Node properties can be set in the option panel on the right. By default the option panel pops up when a node is clicked.</p>
         <p>Click a node to select it. Drag a node to re-position it. Hold <key>Alt</key> to drag a box and range-select multiple nodes at a time.
           All selected nodes can be interacted with together.</p>
@@ -102,14 +306,230 @@
           Hold <key>Alt</key> when dragging to interact with the underlying node.</p>
         <p>Pan navigation is supported on the background.</p>
 
-        <h3>Save / Load</h3>
+        <a id="de-saveload-diagram" class="anchor"></a>
+        <h3>Save / Load Diagram</h3>
         <p>In the menu <i>Diagram > New / Save / Load</i> to create a new diagram, save the current diagram or load a previously
           saved diagram from the server.</p>
+
+        <a id="de-visualization-mode" class="anchor"></a>
+        <h3>Visualization Mode (VisMode)</h3>
+        <p>
+          Visflow features <i>Visualization Mode (VisMode)</i>, in which only selected nodes (typically visualizations) are shown and the other diagram
+        details are hidden. The following illustrates a VisMode system and its corresponding flow diagram.
+        </p>
+        <img width="50%" src="dist/doc/vismode.png">
+        <p>
+          To toggle VisMode, press the VisMode button on the tool panel.
+          <img src="dist/doc/toolpanel-vismode.png">
+        </p>
+
+        <a id="de-share-diagram" class="anchor"></a>
+        <h3>Share Diagram</h3>
+        <p>
+          Visflow allows you to share a diagram with other users so as to support collaboration.
+          In the save diagram dialog, simply enters the users you want to share the diagram with in the "share with".
+          The users you listed will be able to view and edit your shared diagram.
+          Your uploaded data associated with the shared diagram will be automatically shared with those users as well.
+        </p>
+        <img src="dist/doc/share.png" class="bordered">
       </div>
 
       <div class="section">
-        <h2 id="shortcuts">Shortcuts</h2>
+        <a id="node-types" class="anchor"></a>
+        <h2>Node Types</h2>
         <hr>
+
+        <a id="nt-datasource" class="anchor"></a>
+        <h3>Data Source</h3>
+        <p>
+          DataSources<icon class="data-source"></icon> are the only type of nodes that load tabular data from data files.
+          They do not have input ports.
+          A data source may load one or more tables of the same type.
+          If multiple tables are loaded, they are combined and considered to be a single larger table throughout the system.
+        </p>
+        <p>
+          A data source can be set to perform <i>data crossing</i> operation for its input table and output the transformed table instead.
+          Data crossing is useful for plotting series data.
+        </p>
+
+        <a id="nt-visualization" class="anchor"></a>
+        <h3>Visualization</h3>
+        <p>
+          Visualizations provide plots of data subsets.
+          Plots are embedded in-situ in the visualization nodes by default.
+          Interactive selection are forwarded from visualizations via a selection port<port class="selection"></port>.
+        </p>
+        <p>Visflow currently supports the following types of visualizations:</p>
+        <table id="visualization-list" class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Visualization Name</th>
+              <th>Icon</th>
+              <th>Description</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Table</td>
+              <td><icon class="table"></icon></td>
+              <td>Lists the data items and their attributes values in a table.</td>
+              <td><img src="dist/doc/table.png"></td>
+            </tr>
+            <tr>
+              <td>Scatterplot</td>
+              <td><icon class="scatterplot"></icon></td>
+              <td>Renders a 2-dimensional scatterplot.</td>
+              <td><img src="dist/doc/scatterplot.png"></td>
+            </tr>
+            <tr>
+              <td>Heatmap</td>
+              <td><icon class="heatmap"></icon></td>
+              <td>
+                Renders a heatmap. Since heatmap has its own color encoding for attribute values, rendering properties of data items are reflected by the row labels'
+                rendering styles instead.
+              </td>
+              <td><img src="dist/doc/heatmap.png"></td>
+            </tr>
+            <tr>
+            <td>Histogram</td>
+            <td><icon class="histogram"></icon></td>
+            <td>
+              Renders a histogram.
+            </td>
+            <td><img src="dist/doc/histogram.png"></td>
+            </tr>
+            <tr>
+              <td>Parallel Coordinates</td>
+              <td><icon class="parallel-coordinates"></icon></td>
+              <td>
+                Renders a parallel coordinates plot.
+              </td>
+              <td><img src="dist/doc/parallel-coordinates.png"></td>
+            </tr>
+            <tr>
+              <td>Network</td>
+              <td><icon class="network"></icon></td>
+              <td>
+                Renders a network. A network has two input ports, one for the nodes and one for the edges.
+                Correspondingly, there are four output ports, for the selection and forwarding of nodes and edges respectively.
+              </td>
+              <td><img src="dist/doc/network.png"></td>
+            </tr>
+            <tr>
+              <td>Line Chart</td>
+              <td><icon class="line-chart"></icon></td>
+              <td>
+                Renders a line chart for series data. The input data must contain a dimension that contains no duplicates as the series dimension.
+                There can optionally exist a <i>group attribute</i> so that table rows of a same group describe a single series, and there can be multiple
+                series among the input data.
+              </td>
+              <td><img src="dist/doc/line-chart.png"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <a id="nt-filter" class="anchor"></a>
+        <h3>Filter</h3>
+        <p>
+          Filters examine attribute values of data items and perform attribute filtering.
+          Visflow has three types of filters.
+        </p>
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>Filter Name</th>
+            <th>Icon</th>
+            <th>Description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>Contain Filter</td>
+            <td><icon class="contain-filter"></icon></td>
+            <td>
+              Passes through only the items with an attribute value equal to some given value.
+              Contain filter supports multiple filtering dimensions with a same value to be contained.
+            </td>
+          </tr>
+          <tr>
+            <td>Range Filter</td>
+            <td><icon class="range-filter"></icon></td>
+            <td>
+              Passes through only the items with an attribute value within a given value range.
+              Range filter supports multiple filtering dimensions with a same filtering value range.
+            </td>
+          </tr>
+          <tr>
+            <td>Sampler</td>
+            <td><icon class="sampler"></icon></td>
+            <td>
+              Samples the input data items.
+              Sampler has three sampling criterion, min/max (as min/max band-passing filter) or random sampling.
+              A sampler can be set to output an exact count of sampled items, or a smaller subset with with a given size percentage of the input subset.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <a id="nt-value-generator" class="anchor"></a>
+        <h3>Value Generator</h3>
+        <p>
+          Value generator produces constants that can be used for filtering.
+        </p>
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>Value Generator Name</th>
+            <th>Icon</th>
+            <th>Description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>Value Maker</td>
+            <td><icon class="value-maker"></icon></td>
+            <td>
+              Produces constants input by the user.
+            </td>
+          </tr>
+          <tr>
+            <td>Value Extractor</td>
+            <td><icon class="value-extractor"></icon></td>
+            <td>
+              Extracts constants from the attribute values of its input subset.
+              Value Extractor can be used to relate two heterogeneous datasets.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <a id="nt-set-operation" class="anchor"></a>
+        <h3>Set Operation</h3>
+        <p>
+          Set operations allow subset manipulation.
+          Visflow has three set operations: Union<icon class="union"></icon>, Intersect<icon class="intersect"></icon> and Minus<icon class="minus"></icon>.
+          Set operations accept multiple inputs (except for Minus which has a dedicated input port for the subset to be subtracted from).
+          The rendering properties of Union and Intersect output will be the unified rendering properties of all its input,
+          while the input connected later will override the rendering properties retrieved from previously connected inputs upon a conflict.
+        </p>
+
+        <a id="nt-property-binder" class="anchor"></a>
+        <h3>Property Binder</h3>
+        <p>
+          Property binder lets you assign rendering properties to data items.
+          Property Editor<icon class="property-editor"></icon> directly sets the rendering properties of its input.
+          Propert Mapping<icon class="property-mapping"></icon> encodes the attribute values of its input by a user selected rendering property
+          (color, border color, size, border width, opacity).
+        </p>
+      </div>
+
+      <div class="section">
+        <a id="shortcuts" class="anchor"></a>
+        <h2>Shortcuts</h2>
+        <hr>
+
+        <a id="sc-system" class="anchor"></a>
         <h3>System</h3>
         <table class="table table-bordered table-striped">
           <colgroup>
@@ -131,6 +551,7 @@
           </tbody>
         </table>
 
+        <a id="sc-diagram-editing" class="anchor"></a>
         <h3>Diagram Editing</h3>
         <table class="table table-bordered table-striped">
           <colgroup>
@@ -167,6 +588,7 @@
           </tbody>
         </table>
 
+        <a id="sc-visualization" class="anchor"></a>
         <h3>Visualization</h3>
         <table class="table table-bordered table-striped">
           <colgroup>

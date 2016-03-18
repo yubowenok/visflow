@@ -84,6 +84,9 @@ module.exports = {
   docScss: [
     'doc/doc.scss'
   ],
+  docImgs: [
+    'doc/*.png'
+  ],
   externs: [
     'src/externs/**/*.js'
   ],
