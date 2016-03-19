@@ -87,7 +87,7 @@ visflow.Table.prototype.showDetails = function() {
   var rows = [];
   var columns = [
     // Data item index column.
-    {title: '#'}
+    {title: ''}
   ].concat(this.dimensions.map(function(dim) {
     return {title: data.dimensions[dim]};
   }));
@@ -111,6 +111,7 @@ visflow.Table.prototype.showDetails = function() {
         '"></span>'
       ].join(' ');
     },
+    orderable: false,
     targets: 0
   }];
   this.dimensions.forEach(function(dim, dimIndex) {
@@ -132,6 +133,7 @@ visflow.Table.prototype.showDetails = function() {
       stateSave: true,
       columns: columns,
       scrollX: true,
+      order: [],
       pagingType: 'full',
       select: true,
       pageLength: this.options.pageLength,
@@ -157,7 +159,7 @@ visflow.Table.prototype.showDetails = function() {
         return 'Page ' + (pageInfo.page + 1) + '/' + pageInfo.pages;
       }
     });
-  this.dataTable.column(0).visible(true); // overwrite stateSave
+  this.dataTable.column(0).visible(this.options.propCol);
   this.dataTable.rows('.sel').select();
 
   this.updateScrollBodyHeight_();

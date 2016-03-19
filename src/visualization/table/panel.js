@@ -21,6 +21,18 @@ visflow.Table.prototype.initPanel = function(container) {
         this.dimensions = items;
         this.dimensionChanged();
       }
+    },
+    {
+      constructor: visflow.Checkbox,
+      params: {
+        container: container.find('#prop-col'),
+        value: this.options.propCol,
+        title: 'Property Column'
+      },
+      change: function(event, value) {
+        this.options.propCol = value;
+        this.layoutChanged();
+      }
     }
   ];
   this.initInterface(units);

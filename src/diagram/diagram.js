@@ -112,7 +112,7 @@ visflow.diagram.new = function() {
           name: 'myDiagram',
           shareWith: ''
         };
-        visflow.diagram.updateURL(-1);
+        visflow.diagram.updateURL(-1, 'myDiagram');
         visflow.flow.clearFlow();
       });
     }
@@ -161,7 +161,7 @@ visflow.diagram.download = function(id) {
         shareWith: data.shareWith
       };
       visflow.flow.deserializeFlow(data.diagram);
-      visflow.diagram.updateURL(id);
+      visflow.diagram.updateURL(id, data.name);
     })
     .fail(function(res) {
       visflow.error('failed to download diagram:', res.responseText);
@@ -277,7 +277,7 @@ visflow.diagram.upload_ = function(diagramInfo) {
         shareWith: info.shareWith
       };
       visflow.success('diagram saved:', info.name);
-      visflow.diagram.updateURL(info.id);
+      visflow.diagram.updateURL(info.id, info.name);
     })
     .fail(function(res) {
       visflow.error('failed to save diagram:', res.responseText);
@@ -287,17 +287,18 @@ visflow.diagram.upload_ = function(diagramInfo) {
 /**
  * Updates the window URL without refreshing the page to reflect the new diagram
  * name.
- * @param {number} id
+ * @param {number} id Diagram id.
+ * @param {string} name Diagram name.
  */
-visflow.diagram.updateURL = function(id) {
-  if (id == null || id == -1) {
-    visflow.error('invalid diagram id received at updateURL');
-  }
-  if (history.pushState) {
+visflow.diagram.updateURL = function(id, name) {
+  var nullId = id == null || id == -1;
+  var nullName = name == null || name === '';
+  if (!nullId && history.pushState) {
     var url = window.location.protocol + '//' + window.location.host +
       window.location.pathname + '?diagram=' + id;
     window.history.pushState({path: url}, '', url);
   }
+  document.title = 'Visflow' +  (nullName ? '' : ' - ' + name);
 };
 
 /**

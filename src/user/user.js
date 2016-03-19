@@ -35,6 +35,12 @@ visflow.user.MIN_USERNAME_LENGTH_ = 6;
 visflow.user.MIN_PASSWORD_LENGTH_ = 8;
 
 /**
+ * Keywords contained in logout session expired message.
+ * @private @const {string}
+ */
+visflow.user.LOGOUT_EXPIRED_MSG_ = 'session expired';
+
+/**
  * Callback function that will be called after the user logs in.
  * @type {?function()}
  */
@@ -141,8 +147,13 @@ visflow.user.logout = function() {
       visflow.success('logout successful');
       visflow.signal(visflow.user, 'logout');
     }).fail(function(res) {
-      // text error response
-      visflow.error(res.responseText);
+      var error = res.responseText;
+      if (error.match(visflow.user.LOGOUT_EXPIRED_MSG_) != null) {
+        visflow.warning('session expired');
+        visflow.signal(visflow.user, 'logout');
+      } else {
+        visflow.error(error);
+      }
     });
 };
 

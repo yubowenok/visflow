@@ -49,6 +49,7 @@ visflow.Table.prototype.DEFAULT_NUM_DIMENSIONS_ = 20;
 /** @inheritDoc */
 visflow.Table.prototype.defaultOptions = function() {
   return new visflow.options.Table({
-    pageLength: 20
+    pageLength: 20,
+    propCol: false
   });
 };
