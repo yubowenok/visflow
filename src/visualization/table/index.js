@@ -100,7 +100,19 @@ visflow.Table.prototype.showDetails = function() {
     rows.push(row);
   }
 
-  var columnDefs = [];
+  var columnDefs = [{
+    render: function(index) {
+      return [
+        '<span class="table-prop" style="',
+        items[index].properties.color !== undefined ?
+          'background-color: ' + items[index].properties.color + ';' : '',
+        items[index].properties.border !== undefined ?
+          'border: 1px solid ' + items[index].properties.border + ';' : '',
+        '"></span>'
+      ].join(' ');
+    },
+    targets: 0
+  }];
   this.dimensions.forEach(function(dim, dimIndex) {
     if (data.dimensionTypes[dim] == visflow.ValueType.TIME) {
       columnDefs.push({
@@ -145,7 +157,7 @@ visflow.Table.prototype.showDetails = function() {
         return 'Page ' + (pageInfo.page + 1) + '/' + pageInfo.pages;
       }
     });
-  this.dataTable.column(0).visible(false);
+  this.dataTable.column(0).visible(true); // overwrite stateSave
   this.dataTable.rows('.sel').select();
 
   this.updateScrollBodyHeight_();
