@@ -153,7 +153,7 @@ visflow.upload.uploadDialog_ = function(dialog, params) {
   var dataFile = '';
   var prevDataName = '';
   var prevDataFile = '';
-  var isOwner = false;
+  var isOwner = true;
 
   // Checks if all required fields are filled.
   var uploadReady = function() {
@@ -225,6 +225,14 @@ visflow.upload.uploadDialog_ = function(dialog, params) {
     if (!isOwner || (isOwner && dataName in dataNameInfos)) {
       // another dialog prompts immediately
       event.stopPropagation();
+
+      if (isOwner && dataName in dataNameInfos && dataId == -1) {
+        var info = dataNameInfos[dataName];
+        dataId = info.id;
+        prevDataName = info.name;
+        prevDataFile = info.file;
+        formData.set('id', dataId);
+      }
 
       // update previous data
       visflow.upload.overwriteDialog_({

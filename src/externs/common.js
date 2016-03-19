@@ -17,3 +17,9 @@ Element.prototype.getBBox = function() {};
  * @return {*}
  */
 FormData.prototype.get = function(key) {};
+
+/**
+ * @param {string} key
+ * @param {*} val
+ */
+FormData.prototype.set = function(key, val) {};

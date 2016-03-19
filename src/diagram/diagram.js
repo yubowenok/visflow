@@ -215,6 +215,10 @@ visflow.diagram.saveDialog_ = function(dialog, params) {
       // So we prevent modal close here.
       event.stopPropagation();
 
+      if (isOwner && diagramName in diagramNameInfos && diagramId == -1) {
+        diagramId = diagramNameInfos[diagramName].id;
+      }
+
       visflow.diagram.uploadOverwrite_({
         id: diagramId,
         name: diagramName,

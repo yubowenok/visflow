@@ -145,15 +145,18 @@ visflow.user.logout = function() {
     .done(function() {
       visflow.dialog.close();
       visflow.success('logout successful');
-      visflow.signal(visflow.user, 'logout');
-    }).fail(function(res) {
+    })
+    .fail(function(res) {
       var error = res.responseText;
       if (error.match(visflow.user.LOGOUT_EXPIRED_MSG_) != null) {
         visflow.warning('session expired');
-        visflow.signal(visflow.user, 'logout');
       } else {
         visflow.error(error);
       }
+    })
+    .always(function() {
+      visflow.user.account = null;
+      visflow.signal(visflow.user, 'logout');
     });
 };
 
@@ -171,6 +174,7 @@ visflow.user.authenticate = function() {
         visflow.signal(visflow.user, 'login');
       })
       .fail(function() {
+        visflow.user.account = null;
         visflow.signal(visflow.user, 'logout');
       })
       .always(function() {
