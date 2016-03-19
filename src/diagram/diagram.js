@@ -302,7 +302,7 @@ visflow.diagram.updateURL = function(id, name) {
       window.location.pathname + '?diagram=' + id;
     window.history.pushState({path: url}, '', url);
   }
-  document.title = 'Visflow' +  (nullName ? '' : ' - ' + name);
+  document.title = 'Visflow' + (nullName ? '' : ' - ' + name);
 };
 
 /**

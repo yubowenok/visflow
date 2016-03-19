@@ -88,7 +88,7 @@ visflow.documentation = function() {
  */
 visflow.about = function() {
   visflow.dialog.create({
-    template: './dist/html/dialog/about.html'
+    template: './dist/html/about/about.html'
   });
 };
 
