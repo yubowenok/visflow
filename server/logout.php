@@ -6,7 +6,7 @@ function fail()
 {
   status(401);
   contentType('text');
-  echo 'already logged-out';
+  echo 'session expired: already logged-out';
   session_destroy();
   exit();
 }
