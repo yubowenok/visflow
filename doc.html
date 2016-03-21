@@ -55,9 +55,9 @@
             <li><a href="#fd-nodes">Nodes</a></li>
             <li><a href="#fd-ports">Ports</a></li>
             <li><a href="#fd-edges">Edges</a></li>
-            <li><a href="#fd-subsets">Subset</a></li>
-            <li><a href="#fd-rendering-properties">Rendering Properties</a></li>
+            <li><a href="#fd-subsets">Subsets</a></li>
             <li><a href="#fd-constants">Constants</a></li>
+            <li><a href="#fd-rendering-properties">Rendering Properties</a></li>
             <li><a href="#fd-subset-flow-model">Subset Flow Model</a></li>
           </ul>
         </li>
@@ -394,6 +394,17 @@
           and then choose a local file to upload.
           <img src="dist/doc/toolpanel-upload.png">
         </p>
+        <p>
+          Visflow currently supports standard CSV data.
+          A tabular dataset to be loaded with <i>D</i> dimensions and <i>N</i> data items (rows) will look as follows:
+          <pre>
+dimension_name_1,dimension_name_2,...,dimension_name_D
+item1_value_1,item1_value_2,...,item1_value_D
+item2_value_1,item2_value_2,...,item2_value_D
+...
+itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
+          Visflow will automatically recognize the value types for each column, and render the column values correspondingly in the plots.
+        </p>
       </div>
 
       <div class="section">
@@ -541,7 +552,7 @@
             </tr>
             <tr>
               <td>
-                <a id="nt-histogram" class="anchor"></a>
+                <a id="nt-heatmap" class="anchor"></a>
                 Heatmap
               </td>
               <td><icon class="heatmap"></icon></td>
@@ -556,7 +567,6 @@
                   Since a heatmap has its own color encoding for attribute values, rendering properties of data items are reflected by the row labels'
                   rendering styles (font color) instead.
                 </p>
-
               </td>
               <td><img src="dist/doc/heatmap.png"></td>
             </tr>
@@ -842,7 +852,7 @@
           <tbody>
           <tr>
             <td>
-              <a id="#nt-property-editor" class="anchor"></a>
+              <a id="nt-property-editor" class="anchor"></a>
               Property Editor
             </td>
             <td><icon class="property-editor"></icon></td>
@@ -854,7 +864,7 @@
           </tr>
           <tr>
             <td>
-              <a id="#nt-property-mapping" class="anchor"></a>
+              <a id="nt-property-mapping" class="anchor"></a>
               Property Mapping
             </td>
             <td><icon class="property-mapping"></icon></td>
