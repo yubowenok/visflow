@@ -103,19 +103,19 @@ visflow.Network = function(params) {
 
   /**
    * SVG group for nodes.
-   * @private {!d3|undefined}
+   * @private {!d3}
    */
-  this.svgNodes_ = undefined;
+  this.svgNodes_ = _.d3();
   /**
    * SVG group for edges.
-   * @private {!d3|undefined}
+   * @private {!d3}
    */
-  this.svgEdges_ = undefined;
+  this.svgEdges_ = _.d3();
   /**
    * SVG group for node labels.
-   * @private {!d3|undefined}
+   * @private {!d3}
    */
-  this.svgNodeLabels_ = undefined;
+  this.svgNodeLabels_ = _.d3();
 };
 
 _.inherit(visflow.Network, visflow.Visualization);
@@ -365,6 +365,8 @@ visflow.Network.prototype.drawEdges_ = function() {
 visflow.Network.prototype.updateNodes_ = function() {
   var nodes = this.svgNodes_.selectAll('circle');
   nodes
+    .attr('bound', _.getValue('bound'))
+    .attr('selected', _.getValue('selected'))
     .attr('transform', function(prop) {
       return visflow.utils.getTransform([
         prop.node.x,
@@ -401,7 +403,10 @@ visflow.Network.prototype.updateNodeLabels_ = function() {
  * @private
  */
 visflow.Network.prototype.updateEdges_ = function() {
-  var edges = this.svgEdges_.selectAll('g');
+  var edges = this.svgEdges_.selectAll('g')
+    .attr('bound', _.getValue('bound'))
+    .attr('selected', _.getValue('selected'));
+
   // Create a shifted point around the middle of the edge to be the control
   // point of the edge's curve.
   var getShiftPoint = function(ps, pt) {
@@ -473,7 +478,11 @@ visflow.Network.prototype.applyProperties_ = function() {
         node: node
       }
     );
-    if (this.selected[index]) {
+    if (!$.isEmptyObject(items[index].properties)) {
+      prop.bound = true;
+    }
+    if (index in this.selected) {
+      prop.selected = true;
       _.extend(prop, this.selectedProperties());
       this.multiplyProperties(prop, this.selectedMultiplier());
     }
@@ -493,7 +502,11 @@ visflow.Network.prototype.applyProperties_ = function() {
         target: edge.target
       }
     );
-    if (this.selectedEdges[index]) {
+    if (!$.isEmptyObject(edgeItems[index].properties)) {
+      prop.bound = true;
+    }
+    if (index in this.selectedEdges) {
+      prop.selected = true;
       _.extend(prop, this.selectedEdgeProperties());
       this.multiplyProperties(prop, this.selectedMultiplier());
     }
@@ -504,13 +517,11 @@ visflow.Network.prototype.applyProperties_ = function() {
 /** @inheritDoc */
 visflow.Network.prototype.showSelection = function() {
   var svgNodes = $(this.svgNodes_.node());
-  for (var index in this.selected) {
-    svgNodes.find('#n' + index).appendTo(svgNodes);
-  }
+  svgNodes.children('circle[bound]').appendTo(svgNodes);
+  svgNodes.children('circle[selected]').appendTo(svgNodes);
   var svgEdges = $(this.svgEdges_.node());
-  for (var index in this.selectedEdges) {
-    svgEdges.find('#e' + index).appendTo(svgEdges);
-  }
+  svgEdges.children('g[bound]').appendTo(svgEdges);
+  svgEdges.children('g[selected]').appendTo(svgEdges);
 };
 
 /** @inheritDoc */

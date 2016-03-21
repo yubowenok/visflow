@@ -36,15 +36,15 @@ visflow.ParallelCoordinates = function(params) {
 
   /**
    * SVG group for polylines.
-   * @private {!d3|undefined}
+   * @private {!d3}
    */
-  this.svgPolylines_ = undefined;
+  this.svgPolylines_ = _.d3();
 
   /**
    * SVG group for drawing temporary axes, used to determine label sizes.
-   * @private {!d3|undefined}
+   * @private {!d3}
    */
-  this.svgTempAxes_ = undefined;
+  this.svgTempAxes_ = _.d3();
 
   /**
    * @private {visflow.Margins}
@@ -166,7 +166,11 @@ visflow.ParallelCoordinates.prototype.getItemProperties_ = function() {
         points: []
       }
     );
+    if (!$.isEmptyObject(items[index].properties)) {
+      prop.bound = true;
+    }
     if (index in this.selected) {
+      prop.selected = true;
       _.extend(prop, this.selectedProperties());
       this.multiplyProperties(prop, this.selectedMultiplier());
     }
@@ -199,6 +203,11 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
     .y(function(point) {
       return this.yScales[point[0]](point[1]);
     }.bind(this));
+
+  lines
+    .attr('bound', _.getValue('bound'))
+    .attr('selected', _.getValue('selected'));
+
   var updatedLines = this.allowTransition ? lines.transition() : lines;
   updatedLines
     .attr('d', function(prop) {
@@ -213,9 +222,8 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
 visflow.ParallelCoordinates.prototype.showSelection = function() {
   // Change position of tag to make them appear on top.
   var svg = $(this.svgPolylines_.node());
-  for (var index in this.selected) {
-    svg.find('path#' + index).appendTo(svg);
-  }
+  svg.children('path[bound]').appendTo(svg);
+  svg.children('path[selected]').appendTo(svg);
 };
 
 /**

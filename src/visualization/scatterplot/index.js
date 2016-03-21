@@ -110,9 +110,8 @@ visflow.Scatterplot.prototype.showDetails = function() {
 visflow.Scatterplot.prototype.showSelection = function() {
   // Change position of tag to make them appear on top.
   var svg = $(this.svgPoints_.node());
-  for (var index in this.selected) {
-    svg.children('circle#' + index).appendTo(svg);
-  }
+  svg.children('circle[bound]').appendTo(svg);
+  svg.children('circle[selected]').appendTo(svg);
 };
 
 /**
@@ -174,7 +173,11 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
         y: values[index][this.options.yDim]
       }
     );
+    if (!$.isEmptyObject(items[index].properties)) {
+      prop.bound = true;
+    }
     if (index in this.selected) {
+      prop.selected = true;
       _.extend(prop, this.selectedProperties());
       this.multiplyProperties(prop, this.selectedMultiplier());
     }
@@ -194,6 +197,10 @@ visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
   points.enter().append('circle')
     .attr('id', _.getValue('index'));
   _.fadeOut(points.exit());
+
+  points
+    .attr('bound', _.getValue('bound'))
+    .attr('selected', _.getValue('selected'));
 
   var updatedPoints = this.transitionFeasible() ? points.transition() : points;
   updatedPoints

@@ -31,10 +31,15 @@
           <a href="#getting-started">Getting Started</a>
           <ul class="nav nav-lv2">
             <li><a href="#intro-video">1-Minute Intro Video</a></li>
-            <li><a href="#gs-load-data">Load Data</a></li>
-            <li><a href="#gs-create-a-plot">Create A Plot</a></li>
-            <li><a href="#gs-forward-selection">Forward Selection</a></li>
-            <li><a href="#gs-highlight-selection">Highlight Selection</a></li>
+            <li>
+              <a href="#gs-tutorial">Tutorial</a>
+              <ul class="nav nav-lv3">
+                <li><a href="#gs-load-data">Load Data</a></li>
+                <li><a href="#gs-create-a-plot">Create A Plot</a></li>
+                <li><a href="#gs-forward-selection">Forward Selection</a></li>
+                <li><a href="#gs-highlight-selection">Highlight Selection</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li>
@@ -95,7 +100,8 @@
         <hr>
         <p>
           Visflow is a framework that allows you to fast launch data analyses in the web.
-          Watch the short intro video to see <a href="#intro-video">how it works</a>.
+          Watch the short intro video to see <a href="#intro-video">how it works</a>,
+          and follow the <a href="#gs-tutorial">tutorial steps</a> to start your visualization and analysis.
         </p>
         <div>
           <a id="intro-video" class="anchor"></a>
@@ -105,11 +111,15 @@
           </video>
         </div>
         <hr>
-        <table>
+        <a id="gs-tutorial" class="anchor"></a>
+        <h3>Tutorial</h3>
+        <hr>
+        <table class="tutorial-table">
+          <tbody>
           <tr>
             <td>
               <a id="gs-load-data" class="anchor"></a>
-              <h3>Load Data</h3>
+              <h4>Load Data</h4>
               <p>Login with <i>demo mode</i> to take a quick glance at Visflow!</p>
               <p>
                 Loading data into Visflow is as simple as dragging a DataSource<icon class="data-source"></icon> onto the canvas and add a dataset to the DataSource.
@@ -125,7 +135,7 @@
           <tr>
             <td>
               <a id="gs-create-a-plot" class="anchor"></a>
-              <h3>Create a Plot</h3>
+              <h4>Create a Plot</h4>
               <p>
                 Drag a plot (in this case we use a Scatterplot<icon class="scatterplot"></icon> onto the canvas and then connect
                 the output of the DataSource<icon class="data-source"></icon> to the input of the Scatterplot.
@@ -141,7 +151,7 @@
           <tr>
             <td>
               <a id="gs-forward-selection" class="anchor"></a>
-              <h3>Forward Selection</h3>
+              <h4>Forward Selection</h4>
               <p>
                 Interactive selection in a plot can be forwarded to another node for detailed exploration.
                 We connect the Selection Port<port class="selection"></port> to a Table<icon class="table"></icon> to observe
@@ -161,7 +171,7 @@
           <tr>
             <td>
               <a id="gs-highlight-selection" class="anchor"></a>
-              <h3>Highlight Selection</h3>
+              <h4>Highlight Selection</h4>
               <p>
                 Visflow lets you bind rendering properties to data items so that you can identify interesting subset of the input data.
               </p>
@@ -181,6 +191,7 @@
               </video>
             </td>
           </tr>
+          </tbody>
         </table>
       </div>
 

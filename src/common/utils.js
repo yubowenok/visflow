@@ -14,7 +14,8 @@ visflow.utils.init = function() {
     keySet: visflow.utils.keySet_,
     getValue: visflow.utils.getValue_,
     fadeOut: visflow.utils.fadeOut_,
-    inherit: visflow.utils.inherit_
+    inherit: visflow.utils.inherit_,
+    d3: visflow.utils.d3_
   });
 };
 
@@ -221,7 +222,7 @@ visflow.utils.propertiesCompareKey = function(properties) {
  *   properties: visflow.Properties,
  *   propertiesKey: !Array<string|number>
  * }} b
- * @return {number} -1, 0, 1 for a < b, a = b, a > b
+ * @return {number} -1, 0, 1 for a < b, a = b, a > b.
  */
 visflow.utils.propertiesCompare = function(a, b) {
   if (!('propertiesKey' in a)) {
@@ -288,6 +289,15 @@ visflow.utils.fadeOut_ = function(obj) {
   obj.transition()
     .style('opacity', 0)
     .remove();
+};
+
+/**
+ * Returns an empty d3 selection.
+ * @return {!d3}
+ * @private
+ */
+visflow.utils.d3_ = function() {
+  return d3.select('--none');
 };
 
 /**

@@ -296,7 +296,11 @@ visflow.Histogram.prototype.applyProperties_ = function() {
         group.originalProperties
       );
       var barId = bin.id + ',' + group.id;
+      if (!$.isEmptyObject(group.originalProperties)) {
+        prop.bound = true;
+      }
       if (barId in this.selectedBars) {
+        prop.selected = true;
         _.extend(prop, this.selectedProperties());
         this.multiplyProperties(prop, this.selectedMultiplier());
       }
@@ -312,6 +316,7 @@ visflow.Histogram.prototype.showDetails = function() {
   }
   this.applyProperties_();
   this.drawHistogram_();
+  this.showSelection();
   this.drawAxes_();
 };
 
@@ -343,23 +348,34 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     var range = this.histogramScale.range();
     barWidth = range[1] - range[0];
   }
-  var bars = bins.selectAll('rect').data(_.identity); // use the bar group array
+  var bars = bins.selectAll('rect')
+    .data(_.identity, function(group) { // use the bar group array
+      return group.id;
+    });
   var groupTransform = function(group) {
     return visflow.utils.getTransform([
       this.BAR_INTERVAL_,
       Math.floor(this.yScale(group.y + group.dy))
     ]);
   }.bind(this);
-  bars.enter().append('rect')
-    .style('opacity', 0)
-    .attr('id', _.getValue('id'))
-    .attr('transform', groupTransform);
-  _.fadeOut(bars.exit());
+
+  // Gets the property values of the bar groups.
   var getPropertiesValue = function(key) {
     return function(obj) {
       return obj.properties[this];
     }.bind(key);
   };
+
+  bars.enter().append('rect')
+    .style('opacity', 0)
+    .attr('id', _.getValue('id'))
+    .attr('transform', groupTransform);
+  _.fadeOut(bars.exit());
+
+  bars
+    .attr('bound', getPropertiesValue('bound'))
+    .attr('selected', getPropertiesValue('selected'));
+
   var updatedBars = this.allowTransition ? bars.transition() : bars;
   updatedBars
     .attr('transform', groupTransform)
@@ -375,11 +391,13 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.showSelection = function() {
-  var svg = $(this.svg.node());
-  for (var id in this.selectedBars) {
-    var barId = id.split(',').index;
-    svg.find('#b' + barId).appendTo(svg);
-  }
+  var svg = $(this.svgHistogram_.node());
+  svg.find('rect[bound]').each(function(index, element) {
+    $(element).appendTo($(element).closest('g'));
+  });
+  svg.find('rect[selected]').each(function(index, element) {
+    $(element).appendTo($(element).closest('g'));
+  });
 };
 
 /**

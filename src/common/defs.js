@@ -54,7 +54,7 @@ visflow.Offset;
 visflow.Vector;
 
 /**
- * @typedef {!Object<string|number>}
+ * @typedef {!Object<string|number|boolean>}
  */
 visflow.Properties;
 

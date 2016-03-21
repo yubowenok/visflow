@@ -19,7 +19,7 @@ _.keySet = function(array) {};
 
 /**
  * @param {string} attr
- * @return {Function}
+ * @return {function(!d3, *): *}
  */
 _.getValue = function(attr) {};
 
@@ -34,3 +34,8 @@ _.fadeOut = function(arg) {};
  * @param {Function} arg2
  */
 _.inherit = function(arg1, arg2) {};
+
+/**
+ * @return {!d3}
+ */
+_.d3 = function() {};

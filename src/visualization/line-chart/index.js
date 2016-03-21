@@ -29,14 +29,14 @@ visflow.LineChart = function(params) {
 
   /**
    * SVG group for points.
-   * @private {!d3|undefined}
+   * @private {!d3}
    */
-  this.svgPoints_ = undefined;
+  this.svgPoints_ = _.d3();
   /**
    * SVG group for the line.
-   * @private {!d3|undefined}
+   * @private {!d3}
    */
-  this.svgLines_ = undefined;
+  this.svgLines_ = _.d3();
 
   /**
    * Selected group indices.
@@ -241,9 +241,8 @@ visflow.LineChart.prototype.showDetails = function() {
 /** @inheritDoc */
 visflow.LineChart.prototype.showSelection = function() {
   var svg = $(this.svgLines_.node());
-  for (var index in this.selectedGroups) {
-    svg.find('path#' + index).appendTo(svg);
-  }
+  svg.children('path[bound]').appendTo(svg);
+  svg.children('path[selected]').appendTo(svg);
 };
 
 /**
@@ -268,6 +267,8 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
       },
       this.defaultProperties()
     );
+
+    var bound = false;
     itemIndices.forEach(function(index) {
       _.extend(prop, items[index].properties);
       prop.points.push([
@@ -275,9 +276,18 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
             +index : values[index][this.options.xDim],
         values[index][this.options.yDim]
       ]);
+
+      if (!bound && !$.isEmptyObject(items[index].properties)) {
+        bound = true;
+      }
     }, this);
 
+    if (bound) {
+      prop.bound = true;
+    }
+
     if (groupIndex in this.selectedGroups) {
+      prop.selected = true;
       _.extend(prop, this.selectedLineProperties());
       this.multiplyProperties(prop, this.selectedMultiplier());
     }
@@ -310,7 +320,11 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
         y: values[index][this.options.yDim]
       }
     );
+    if (!$.isEmptyObject(items[index].properties)) {
+      prop.bound = true;
+    }
     if (index in this.selected) {
+      prop.selected = true;
       _.extend(prop, this.selectedProperties());
       this.multiplyProperties(prop, this.selectedMultiplier());
     }
@@ -368,6 +382,10 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
   points.enter().append('circle');
   _.fadeOut(points.exit());
 
+  points
+    .attr('bound', _.getValue('bound'))
+    .attr('selected', _.getValue('selected'));
+
   var updatedPoints = this.transitionFeasible() ? points.transition() : points;
   updatedPoints
     .attr('cx', function(point) {
@@ -411,6 +429,10 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
   if (this.options.curve) {
     line.interpolate('basis');
   }
+
+  lines
+    .attr('bound', _.getValue('bound'))
+    .attr('selected', _.getValue('selected'));
 
   var updatedLines = this.transitionFeasible() ? lines.transition() : lines;
   updatedLines

@@ -21,6 +21,11 @@ d3.select = function(arg) {};
 d3.selectAll = function(arg) {};
 
 /**
+ * @return {!d3}
+ */
+d3.none = function() {};
+
+/**
  * @param {!Array<T>|T} arg
  * @param {...T} args
  * @return <T>
@@ -97,7 +102,7 @@ d3.prototype.data = function(arg, opt_mapping) {};
 
 /**
  * @param {string} classes
- * @param {function(!d3, number): boolean|boolean} val
+ * @param {(Function|boolean)=} val
  * @return {boolean}
  */
 d3.prototype.classed = function(classes, val) {};
