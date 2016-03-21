@@ -26,8 +26,15 @@
   .navbar-brand {
     font-size: 1em;
     height: 28px;
+    line-height: 28px;
     padding-bottom: 0;
     padding-top: 4px;
+  }
+
+  .navbar-right {
+    a > .glyphicon {
+      margin-right: 5px;
+    }
   }
 
   .navbar {

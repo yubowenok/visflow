@@ -19,8 +19,12 @@
   <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand bold" href="#">VisFlow Documentation</a>
-        <a class="navbar-brand bold" href=".">Back to Visflow</a>
+        <a class="navbar-brand" href="#">VisFlow Documentation</a>
+      </div>
+      <div class="navbar-right">
+        <a class="btn btn-primary" href=".">
+          <i class="glyphicon glyphicon-circle-arrow-left"></i>Back to Visflow
+        </a>
       </div>
     </div>
   </nav>
@@ -52,7 +56,9 @@
             <li><a href="#fd-ports">Ports</a></li>
             <li><a href="#fd-edges">Edges</a></li>
             <li><a href="#fd-subsets">Subset</a></li>
+            <li><a href="#fd-rendering-properties">Rendering Properties</a></li>
             <li><a href="#fd-constants">Constants</a></li>
+            <li><a href="#fd-subset-flow-model">Subset Flow Model</a></li>
           </ul>
         </li>
         <li>
@@ -77,18 +83,55 @@
           <a href="#node-types">Node Types</a>
           <ul class="nav nav-lv2">
             <li><a href="#nt-datasource">Data Source</a></li>
-            <li><a href="#nt-visualization">Visualization</a></li>
-            <li><a href="#nt-filter">Filter</a></li>
-            <li><a href="#nt-value-generator">Value Generator</a></li>
-            <li><a href="#nt-set-operation">Set Operation</a></li>
-            <li><a href="#nt-property-binder">Property Binder</a></li>
+            <li>
+              <a href="#nt-visualization">Visualization</a>
+              <ul class="nav nav-lv3">
+                <li><a href="#nt-table">Table</a></li>
+                <li><a href="#nt-scatterplot">Scatterplot</a></li>
+                <li><a href="#nt-heatmap">Heatmap</a></li>
+                <li><a href="#nt-histogram">Histogram</a></li>
+                <li><a href="#nt-parallel-coordinates">Parallel Coordinates</a></li>
+                <li><a href="#nt-network">Network</a></li>
+                <li><a href="#nt-line-chart">Line Chart</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#nt-filter">Filter</a>
+              <ul class="nav nav-lv3">
+                <li><a href="#nt-contain-filter">Contain Filter</a></li>
+                <li><a href="#nt-range-filter">Range Filter</a></li>
+                <li><a href="#nt-sampler">Sampler</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#nt-value-generator">Value Generator</a>
+              <ul class="nav nav-lv3">
+                <li><a href="#nt-value-maker">Value Maker</a></li>
+                <li><a href="#nt-value-extractor">Value Extractor</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#nt-set-operation">Set Operation</a>
+              <ul class="nav nav-lv3">
+                <li><a href="#nt-union">Union</a></li>
+                <li><a href="#nt-intersect">Intersect</a></li>
+                <li><a href="#nt-minus">Minus</a></li>
+              </ul>
+            </li>
+            <li>
+              <a href="#nt-property-binder">Property Binder</a>
+              <ul class="nav nav-lv3">
+                <li><a href="#nt-property-editor">Property Editor</a></li>
+                <li><a href="#nt-property-mapping">Property Mapping</a></li>
+              </ul>
+            </li>
           </ul>
         </li>
         <li>
           <a href="#shortcuts">Shortcuts</a>
           <ul class="nav nav-lv2">
-            <li><a href="#sc-system">System</a></li>
-            <li><a href="#sc-diagram-editing">Diagram Editing</a></li>
+            <li><a href="#sc-diagram">Diagram</a></li>
+            <li><a href="#sc-editing">Editing</a></li>
             <li><a href="#sc-visualization">Visualization</a></li>
           </ul>
         </li>
@@ -105,9 +148,9 @@
         </p>
         <div>
           <a id="intro-video" class="anchor"></a>
-          <h4>1-Minute Intro Video... Coming Soon :)</h4>
+          <h4>1-Minute Intro Video</h4>
           <video width="640" controls>
-            <source src="video/.mp4" type="video/mp4"/>
+            <source src="video/intro.mp4" type="video/mp4"/>
           </video>
         </div>
         <hr>
@@ -199,63 +242,121 @@
         <a id="introduction" class="anchor"></a>
         <h2>Introduction</h2>
         <hr>
-        <p>VisFlow is a tool that enables creation of visual analytics system for tabular data based on flow diagram editing.</p>
-        <p>The <i>flow diagram</i> in VisFlow defines the querying and filtering logic of the visual analytics system.</p>
-        <p>VisFlow works with tabular data. Each table row is considered to be a meaningful data <i>item</i> (entity).</p>
-        <p>Featuring easy plotting, interactive filtering and highlighting, VisFlow facilitates visual analytics on tabular datasets in an simple-to-use web environment,
-          without a hassle of query programming and system engineering.</p>
+        <p>
+          VisFlow is a web-based framework that enables creation of interactive visualizations for tabular data based on flow diagram editing.
+          The <a href="#flow-diagram">flow diagrams</a> of VisFlow defines the system behaviors, including querying and analytics logic.
+          Visflow employs a special type of flow model, called the <a href="#fd-subset-flow-model">subset flow model</a>.
+        </p>
+        <p>
+          Featuring easy plotting, interactive filtering and highlighting, VisFlow facilitates visualization and data analysis
+          in an simple-to-use web environment, without the hassle of query programming and system engineering.
+        </p>
       </div>
 
       <div class="section">
         <a id="flow-diagram" class="anchor"></a>
         <h2>Flow Diagram</h2>
         <hr>
-        <p>A flow diagram defines how VisFlow system works. A diagram consists of nodes and directed edges,
-          and is topologically a directed acyclic graph (DAG).</p>
+        <p>
+          A flow diagram defines how the VisFlow system works.
+          A diagram consists of nodes and directed edges, and is topologically a directed acyclic graph (DAG).
+          The diagrams in Visflow follow the <a href="#fd-subset-flow-model">subset flow model</a>.
+        </p>
         <a id="fd-nodes" class="anchor"></a>
         <h3>Nodes</h3>
-        <p>A node is a primitive component for specific tasks. For example, a <i>Data Source</i> node loads the a tabular data set
-          and a <i>Visualization</i> node presents a plot.</p>
-        <p>Items enter a node as the node's input. The node produces a set of processed/filtered items as its output.</p>
-        <p>Data enters and leaves a node via its <i>ports</i>.</p>
+        <p>
+          A node is a primitive component for specific tasks.
+          For example, a DataSource<icon class="data-source"></icon> node loads the a tabular data set
+          and a <a href="#nt-visualization">Visualization</a> node presents a plot.
+        </p>
+        <p>
+          Each node optionally accepts data and produces output data.
+          Data enters and leaves a node via its <a href="#fd-ports">ports</a>.
+        </p>
 
         <a id="fd-ports" class="anchor"></a>
         <h3>Ports</h3>
         <p>
           A node has ports located on its boundaries.
           The <i>input ports</i> on the left of a node defines the input the node accepts.
-          The <i>output ports</i> on the right of a node defines what a node produces for its
+          The <i>output ports</i> on the right of a node defines what a node produces for its downflow nodes.
+          Ports are connected by <a href="#fd-edges">edges</a>.
         </p>
         <p>
           The <i>connectivity</i> of a port is either <i>single</i><port class="single"></port> or <i>multiple</i><port class="multiple"></port>.
           A single port can be connected with at most one edge, while a multiple port does not have such restriction.
         </p>
         <p>
-          A port that outputs selected data items is a <i>selection port</i><port class="selection"></port>.</p>
-        <p>A port that accepts data items is a <i>data port</i> (with white background <port class="data"></port>).
-          Otherwise it accepts constants values and is a <i>constant port</i> (with gray background <port class="constant"></port>).</p>
-        <p>Ports are connected by <i>edges</i>.</p>
+          A port that outputs selected data items is a <i>selection port</i><port class="selection"></port>.
+          <a href="#nt-visualization">Visualization nodes</a> have selection ports.
+        </p>
+        <p>
+          A port that accepts data <a href="#fd-subsets">subsets</a> is a <i>data port</i> (with white background <port class="data"></port>).
+          Otherwise it accepts <a href="#fd-constants">constants</a> and is a <i>constant port</i> (with gray background <port class="constant"></port>).
+        </p>
 
         <a id="fd-edges" class="anchor"></a>
         <h3>Edges</h3>
-        <p>Edges define how data items are transferred and processed across the nodes.</p>
-        <p>Each edge connects two ports, and goes from the output port to an input port.</p>
+        <p>
+          Edges define how data items are transmitted and processed across the nodes.
+          Each edge connects two ports, and goes from the output port of an upflow node to an input port of a downflow node.
+        </p>
 
         <a id="fd-subsets" class="anchor"></a>
         <h3>Subsets</h3>
         <p>
-          Tabular data rows are considered to be <i>data items</i> across VisFlow.
-          Items are transmitted between components through data ports.
-          Each transmitted group of data items is a <i>subset</i> of the input tabular dataset.
+          Tabular data rows are considered to be meaningful <i>data items</i> across VisFlow.
+          Items are transmitted between components through data ports in groups.
+          Each transmitted group of data items is therefore a <i>subset</i> of the input tabular dataset.
         </p>
 
         <a id="fd-constants" class="anchor"></a>
         <h3>Constants</h3>
         <p>
-          Constants are a set of constant values, either specified by a user or extracted from tabular data.
-          Constants can be used to filter items in a node <i>filter</i>, e.g. a <i>Range Filter</i><icon class="range-filter"></icon>
-          accepts two constants that define a query range.
+          Constants are a set of constant values, either specified by a user or extracted from the data attributes.
+          Constants can be used to perform data filtering in <a href="#nt-filter">filter</a> nodes.
+          For example, a <i>Range Filter</i><icon class="range-filter"></icon>
+          accepts two constants that define an attribute filtering range.
           Constants are transmitted between components through constant ports<port class="constant"></port>.
+        </p>
+
+        <a id="fd-rendering-properties" class="anchor"></a>
+        <h3>Rendering Properties</h3>
+        <p>
+          Data items can be assigned rendering properties within Visflow.
+          The rendering properties are transmitted along with the data items and can be modified by nodes within the flow.
+          The <a href="#nt-visualization">visualization</a> nodes in Visflow respect the rendering properties associated with the data items.
+        </p>
+        <p>
+          Five types of rendering properties are supported in Visflow:
+          <ul>
+            <li>Color: The filling color of the rendered shape.</li>
+            <li>Border: The color of the rendered shape's border.</li>
+            <li>Width: The width of the rendered shape's border.</li>
+            <li>Size: The size of the rendered shape.</li>
+            <li>Opacity: The opacity of the rendered element.</li>
+          </ul>
+          Note that not all visualizations have corresponding rendering for all the five types of rendering properties.
+          For example, the heatmap<icon class="heatmap"></icon> does not support <i>size</i> properties.
+        </p>
+
+        <a id="fd-subset-flow-model" class="anchor"></a>
+        <h3>Subset Flow Model</h3>
+        <p>
+          The flow diagrams in Visflow follow the subset flow model.
+          The subset flow model defines that all input/output data of the nodes must be a subset of rows of some original input tabular data of the system.
+          Because of the subset relations defined, within Visflow we are able to uniquely identify a data item and assign rendering property to it,
+          so that it can be rendered in a uniform style across nodes.
+        </p>
+        <p>
+          The subset flow model restricts data modification within the system.
+          For example, we cannot use a node to add a data column to the table, because by doing so we create new table rows that do not belong to any of the
+          system input tables.
+          This would cause ambiguity in assigning rendering properties and disallow selection highlighting and subset identification.
+          Despite certain loss of data processing power, the subset flow model has the advantages of reducing the flow diagram complexity,
+          and making subset tracking and comparisons easier.
+          Preferably, data can be processed and modified outside the Visflow system,
+          while visflow is more suitable for quick-start post-processing data visualization and analysis.
         </p>
       </div>
 
@@ -272,7 +373,7 @@
           Table (a) below illustrates a sample Visflow input table, which includes a data snippet from the
           <a href="http://data.worldbank.org/topic/health" target="_blank">World Bank Data</a>.
         </p>
-        <img width="400" src="dist/doc/tabular.png">
+        <img width="360" src="dist/doc/tabular.png">
 
         <a id="d-data-crossing" class="anchor"></a>
         <h3>Data Crossing</h3>
@@ -300,39 +401,63 @@
         <hr>
         <a id="de-create-diagram" class="anchor"></a>
         <h3>Create Diagram</h3>
-        <p>To create a node, in the menu <i>Edit > Add Node</i> to call out the <i>Node Panel</i>.
-          Then choose a node type. Alternatively, an in-place node creation panel can be called using hotkey <key>A</key>.
-          Drag a node from the panel to any place you would like to place the node.
+        <p>
+          To create a node, in the menu <i>Edit > Add Node</i> to call out the <i>Node Panel</i>.
+          Alternatively, you may click the node creation panel tab marked with <i class="glyphicon glyphicon-plus"></i> on the left.
+          An in-place node creation panel can be called using the shortcut <key>A</key>.
         </p>
-        <p>To create an edge, drag from an output port to an input port. You may also drop
-          an edge onto the center of the node and VisFlow will automatically search for the first connectable port.</p>
+        <p>
+          Within the node creation panel, choose a node type and then
+          drag-and-drop a node from the panel to the canvas.
+        </p>
+        <p>
+          To create an edge, drag from an output port to an input port (or vice versa).
+          You may also drop an edge onto a node and VisFlow will automatically search for the first connectable port.
+        </p>
 
         <a id="de-edit-diagram" class="anchor"></a>
         <h3>Edit Diagram</h3>
-        <p>Node properties can be set in the option panel on the right. By default the option panel pops up when a node is clicked.</p>
-        <p>Click a node to select it. Drag a node to re-position it. Hold <key>Alt</key> to drag a box and range-select multiple nodes at a time.
-          All selected nodes can be interacted with together.</p>
-        <p>Right-click on nodes, edges or ports to open context menu.</p>
-        <p>Within Visualizations, mouse interactions are by default brushing in the plots.
-          Hold <key>Alt</key> when dragging to interact with the underlying node.</p>
-        <p>Pan navigation is supported on the background.</p>
+        <p>
+          Node properties can be set in the option panel on the right.
+          By default the option panel pops up when a node is clicked.
+        </p>
+        <p>
+          Click a node to select it.
+          Drag a node to re-position it.
+          Right-click on nodes, edges or ports to open the context menu.
+        </p>
+        <p>
+          Hold <key>Alt</key> to box-select multiple nodes at a time.
+          All selected nodes can be re-positioned together.
+        </p>
+        <p>
+          Within Visualizations, mouse interactions are by default interactive selections.
+          Hold <key>Alt</key> to re-position the underlying visualization node.
+        </p>
+        <p>
+          Click on the canvas to pan and navigate.
+        </p>
+
 
         <a id="de-saveload-diagram" class="anchor"></a>
         <h3>Save / Load Diagram</h3>
-        <p>In the menu <i>Diagram > New / Save / Load</i> to create a new diagram, save the current diagram or load a previously
-          saved diagram from the server.</p>
+        <p>
+          In the menu <i>Diagram > New/Save/Load</i> to create a new diagram, save the current diagram or load a previously
+          saved diagram from the server.
+        </p>
 
         <a id="de-visualization-mode" class="anchor"></a>
         <h3>Visualization Mode (VisMode)</h3>
         <p>
           Visflow features <i>Visualization Mode (VisMode)</i>, in which only selected nodes (typically visualizations) are shown and the other diagram
-        details are hidden. The following illustrates a VisMode system and its corresponding flow diagram.
+          details are hidden. The following illustrates a VisMode system and its corresponding flow diagram.
+          Nodes can be set to be visible/invisible in VisMode via context menu or the option panel.
         </p>
-        <img width="50%" src="dist/doc/vismode.png">
         <p>
           To toggle VisMode, press the VisMode button on the tool panel.
           <img src="dist/doc/toolpanel-vismode.png">
         </p>
+        <img width="50%" src="dist/doc/vismode.png">
 
         <a id="de-share-diagram" class="anchor"></a>
         <h3>Share Diagram</h3>
@@ -368,8 +493,12 @@
         <p>
           Visualizations provide plots of data subsets.
           Plots are embedded in-situ in the visualization nodes by default.
-          Interactive selection are forwarded from visualizations via a selection port<port class="selection"></port>.
+          Interactively selected data items are sent out via the visualization selection port<port class="selection"></port>.
+          Each visualization node additionally has a forwarding (multiple) port<port class="multiple"></port> that outputs all its input data.
+          This is for the convenience of getting upflow data.
         </p>
+        <img src="dist/doc/visualization-ports.png" width="500">
+
         <p>Visflow currently supports the following types of visualizations:</p>
         <table id="visualization-list" class="table table-bordered table-striped">
           <thead>
@@ -382,58 +511,120 @@
           </thead>
           <tbody>
             <tr>
-              <td>Table</td>
+              <td>
+                <a id="nt-table" class="anchor"></a>
+                Table
+              </td>
               <td><icon class="table"></icon></td>
-              <td>Lists the data items and their attributes values in a table.</td>
+              <td>
+                <p>
+                  Lists the data items and their attributes values in a table.
+                </p>
+                <p>
+                  The first column of the table reflects the rendering properties of the data items (color and border).
+                </p>
+              </td>
               <td><img src="dist/doc/table.png"></td>
             </tr>
             <tr>
-              <td>Scatterplot</td>
+              <td>
+                <a id="nt-scatterplot" class="anchor"></a>
+                Scatterplot
+              </td>
               <td><icon class="scatterplot"></icon></td>
-              <td>Renders a 2-dimensional scatterplot.</td>
+              <td>
+                <p>
+                  Renders a 2-dimensional scatterplot. Axes dimensions can be adjusted in the option panel.
+                </p>
+              </td>
               <td><img src="dist/doc/scatterplot.png"></td>
             </tr>
             <tr>
-              <td>Heatmap</td>
+              <td>
+                <a id="nt-histogram" class="anchor"></a>
+                Heatmap
+              </td>
               <td><icon class="heatmap"></icon></td>
               <td>
-                Renders a heatmap. Since heatmap has its own color encoding for attribute values, rendering properties of data items are reflected by the row labels'
-                rendering styles instead.
+                <p>
+                  Renders a heatmap.
+                  Dimensions to be plotted as heatmap columns and their order can be adjusted in the option panel.
+                  One dimension can be used for labeling the heatmap rows.
+                  The heatmap color scales can be chosen in the option panel.
+                </p>
+                <p>
+                  Since a heatmap has its own color encoding for attribute values, rendering properties of data items are reflected by the row labels'
+                  rendering styles (font color) instead.
+                </p>
+
               </td>
               <td><img src="dist/doc/heatmap.png"></td>
             </tr>
             <tr>
-            <td>Histogram</td>
+            <td>
+              <a id="nt-histogram" class="anchor"></a>
+              Histogram
+            </td>
             <td><icon class="histogram"></icon></td>
             <td>
-              Renders a histogram.
+              <p>
+                Renders a histogram.
+                The histogram assigns the data items to a suggested number of bins.
+              </p>
+              <p>
+                Data items with
+              </p>
             </td>
             <td><img src="dist/doc/histogram.png"></td>
             </tr>
             <tr>
-              <td>Parallel Coordinates</td>
+              <td>
+                <a id="nt-parallel-coordinates" class="anchor"></a>
+                Parallel Coordinates
+              </td>
               <td><icon class="parallel-coordinates"></icon></td>
               <td>
-                Renders a parallel coordinates plot.
+                <p>
+                  Renders a parallel coordinates plot. Dimensions to be plotted and their order can be adjusted in the option panel.
+                </p>
               </td>
               <td><img src="dist/doc/parallel-coordinates.png"></td>
             </tr>
             <tr>
-              <td>Network</td>
+              <td>
+                <a id="nt-network" class="anchor"></a>
+                Network
+              </td>
               <td><icon class="network"></icon></td>
               <td>
-                Renders a network. A network has two input ports, one for the nodes and one for the edges.
-                Correspondingly, there are four output ports, for the selection and forwarding of nodes and edges respectively.
+                <p>
+                  Renders a network. A network has two input ports, one for the nodes and one for the edges.
+                  Correspondingly, there are four output ports, for the selection and forwarding of nodes and edges respectively.
+                  One dimension can be used for labeling the network nodes.
+                </p>
+                <p>
+                  The Network node has navigation interaction mode.
+                  When navigation is on, you may pan and zoom (by mousewheel) the network.
+                  When navigation is off, you may interactively select nodes and edges in the network.
+                </p>
               </td>
               <td><img src="dist/doc/network.png"></td>
             </tr>
             <tr>
-              <td>Line Chart</td>
+              <td>
+                <a id="nt-line-chart" class="anchor"></a>
+                Line Chart
+              </td>
               <td><icon class="line-chart"></icon></td>
               <td>
-                Renders a line chart for series data. The input data must contain a dimension that contains no duplicates as the series dimension.
-                There can optionally exist a <i>group attribute</i> so that table rows of a same group describe a single series, and there can be multiple
-                series among the input data.
+                <p>
+                  Renders a line chart for series data. The input data must contain a dimension that contains no duplicates as the series dimension.
+                  The LineChart will sort the data items by their attribute values of the series dimension, and treat the data items as data points on the series.
+                </p>
+                <p>
+                  There can optionally exist a <i>group-by dimension</i> so that table rows of a same group describe a single series, and there can be multiple
+                  series among the input data.
+                </p>
               </td>
               <td><img src="dist/doc/line-chart.png"></td>
             </tr>
@@ -456,28 +647,70 @@
           </thead>
           <tbody>
           <tr>
-            <td>Contain Filter</td>
+            <td>
+              <a id="nt-contain-filter" class="anchor"></a>
+              Contain Filter
+            </td>
             <td><icon class="contain-filter"></icon></td>
             <td>
-              Passes through only the items with an attribute value equal to some given value.
-              Contain filter supports multiple filtering dimensions with a same value to be contained.
+              <p>
+                Passes through only the items with an attribute value that is equal to a given value, or contains the given value as a substring.
+                The given value can be specified as a regular expression.
+                Contain filter supports multiple filtering dimensions, in which case the same filtering value is used on every filtering dimension selected.
+              </p>
+              <p>
+                The filtering value is set using constants, which can either be entered directly in the Contain Filter's input box, or passed in via
+                the constant port.
+              </p>
             </td>
           </tr>
           <tr>
-            <td>Range Filter</td>
+            <td>
+              <a id="nt-range-filter" class="anchor"></a>
+              Range Filter
+            </td>
             <td><icon class="range-filter"></icon></td>
             <td>
-              Passes through only the items with an attribute value within a given value range.
-              Range filter supports multiple filtering dimensions with a same filtering value range.
+              <p>
+                Passes through only the items with an attribute value within a given value range.
+                If the range values are strings, then the comparison is by the string's lexicographical order.
+                Range filter supports multiple filtering dimensions, in which case the same filtering value is used on every filtering dimension selected.
+              </p>
+              <p>
+                The filtering range is set using constants, which can either be entered directly in the Range Filter's input boxes, or passed in via
+                the constant ports.
+              </p>
             </td>
           </tr>
           <tr>
-            <td>Sampler</td>
+            <td>
+              <a id="nt-sampler" class="anchor"></a>
+              Sampler
+            </td>
             <td><icon class="sampler"></icon></td>
             <td>
-              Samples the input data items.
-              Sampler has three sampling criterion, min/max (as min/max band-passing filter) or random sampling.
-              A sampler can be set to output an exact count of sampled items, or a smaller subset with with a given size percentage of the input subset.
+              <p>
+                Samples the input data items by their attribute values on a <i>filtering dimension</i> and produces a smaller subset.
+              </p>
+              <p>
+                Sampler has three sampling conditions, minimum/maximum or random sampling.
+                The minimum/maximum condition works like band-limiting filter.
+                The random sampling condition randomly selects items from the input.
+              </p>
+              <p>
+                Sampler has two sampling modes, count and percentage.
+                A "number to pass" value is specified, say <i>X</i>.
+                With the "count" mode, the sampler outputs exactly <i>X</i> items.
+                For example, when <i>X = 5</i> and the sampling condition is minimum, then the sampler outputs the 5 smallest items.
+                With the "percentage" mode, the sampler outputs <i>X</i> percent of the input items.
+                For example, when <i>X = 5</i> and the sampling condition is random sampling, then the sampler outputs 5% of the input items.
+              </p>
+              <p>
+                Sampler can be set to consider only unique attribute values.
+                If <i>X = 5</i>, the sampling condition is random sampling, and the mode is count, then the sampler outputs the 5 items with distinct
+                attribute values on the filtering dimension.
+                This is useful when you are particularly interested in the distinct values of some dimension.
+              </p>
             </td>
           </tr>
           </tbody>
@@ -498,18 +731,25 @@
           </thead>
           <tbody>
           <tr>
-            <td>Value Maker</td>
+            <td>
+              <a id="nt-value-maker" class="anchor"></a>
+              Value Maker
+            </td>
             <td><icon class="value-maker"></icon></td>
             <td>
-              Produces constants input by the user.
+              Produces constants entered manually by the user.
             </td>
           </tr>
           <tr>
-            <td>Value Extractor</td>
+            <td>
+              <a id="nt-value-extractor" class="anchor"></a>
+              Value Extractor
+            </td>
             <td><icon class="value-extractor"></icon></td>
             <td>
-              Extracts constants from the attribute values of its input subset.
+              Extracts constants from the attribute values of its data items.
               Value Extractor can be used to relate two heterogeneous datasets.
+              For example, we can extract the ids of data items from one dataset and then use those names to filter the data items from another dataset.
             </td>
           </tr>
           </tbody>
@@ -519,20 +759,114 @@
         <h3>Set Operation</h3>
         <p>
           Set operations allow subset manipulation.
-          Visflow has three set operations: Union<icon class="union"></icon>, Intersect<icon class="intersect"></icon> and Minus<icon class="minus"></icon>.
-          Set operations accept multiple inputs (except for Minus which has a dedicated input port for the subset to be subtracted from).
-          The rendering properties of Union and Intersect output will be the unified rendering properties of all its input,
-          while the input connected later will override the rendering properties retrieved from previously connected inputs upon a conflict.
+          Visflow has three set operations:
         </p>
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>Set Operation Name</th>
+            <th>Icon</th>
+            <th>Description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>
+              <a id="nt-union" class="anchor"></a>
+              Union
+            </td>
+            <td><icon class="union"></icon></td>
+            <td>
+              <p>
+                Unifies the input subsets.
+              </p>
+              <p>
+                The Union node accepts multiple inputs.
+                The rendering properties of the inputs will be combined.
+                The latter connected input will override the previously connected inputs' rendering properties upon a conflict.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a id="nt-intersect" class="anchor"></a>
+              Intersect
+            </td>
+            <td><icon class="intersect"></icon></td>
+            <td>
+              <p>
+                Outputs the intersection of the input subsets.
+              </p>
+              <p>
+                The Intersect node accepts multiple inputs.
+                The rendering properties of the inputs will be combined for the items in the intersection.
+                The latter connected input will override the previously connected inputs' rendering properties upon a conflict.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a id="nt-minus" class="anchor"></a>
+              Minus
+            </td>
+            <td><icon class="minus"></icon></td>
+            <td>
+              <p>
+                Subtracts the input subset(s) <i>Y</i> from the input subset <i>X</i>.
+              </p>
+              <p>
+                The subset to be subtracted from, i.e. <i>X</i>, may only be one subset, while the other subsets <i>Y</i>'s can be multiple subsets
+                <i>Y<sub>1</sub>, Y<sub>2</sub>, ..., Y<sub>n</sub></i>, in which case the output subset is <i>X - Y<sub>1</sub> - Y<sub>2</sub> - ... - Y<sub>n</sub></i>.
+              </p>
+              <p>
+                The rendering properties associated with <i>X</i> will be used for the output rendering properties.
+              </p>
+            </td>
+          </tr>
+          </tbody>
+        </table>
 
         <a id="nt-property-binder" class="anchor"></a>
         <h3>Property Binder</h3>
         <p>
-          Property binder lets you assign rendering properties to data items.
-          Property Editor<icon class="property-editor"></icon> directly sets the rendering properties of its input.
-          Propert Mapping<icon class="property-mapping"></icon> encodes the attribute values of its input by a user selected rendering property
-          (color, border color, size, border width, opacity).
+          Property binder lets you assign <a href="#fd-rendering-properties">rendering properties</a> to the data items.
         </p>
+        <table class="table table-bordered table-striped">
+          <thead>
+          <tr>
+            <th>Set Operation Name</th>
+            <th>Icon</th>
+            <th>Description</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td>
+              <a id="#nt-property-editor" class="anchor"></a>
+              Property Editor
+            </td>
+            <td><icon class="property-editor"></icon></td>
+            <td>
+              <p>
+                Directly sets the rendering properties of its input.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <a id="#nt-property-mapping" class="anchor"></a>
+              Property Mapping
+            </td>
+            <td><icon class="property-mapping"></icon></td>
+            <td>
+              <p>
+                Encodes the attribute values of its input by a user selected rendering property type.
+                For example, you may encode <i>mpg</i> of cars to the rendering property <i>color</i>.
+              </p>
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="section">
@@ -540,8 +874,8 @@
         <h2>Shortcuts</h2>
         <hr>
 
-        <a id="sc-system" class="anchor"></a>
-        <h3>System</h3>
+        <a id="sc-diagram" class="anchor"></a>
+        <h3>Diagram</h3>
         <table class="table table-bordered table-striped">
           <colgroup>
             <col width="20%">
@@ -553,6 +887,9 @@
           </tr>
           </thead>
           <tbody>
+          <tr>
+            <td><key>Ctrl</key> + <key>E</key></td><td>New Diagram</td>
+          </tr>
           <tr>
             <td><key>Ctrl</key> + <key>S</key></td><td>Save Diagram</td>
           </tr>
@@ -562,8 +899,8 @@
           </tbody>
         </table>
 
-        <a id="sc-diagram-editing" class="anchor"></a>
-        <h3>Diagram Editing</h3>
+        <a id="sc-editing" class="anchor"></a>
+        <h3>Editing</h3>
         <table class="table table-bordered table-striped">
           <colgroup>
             <col width="20%">
@@ -576,25 +913,32 @@
           </thead>
           <tbody>
           <tr>
-            <td><key>A</key></td><td>Call the popup panel for adding nodes</td>
+            <td><key>A</key></td>
+            <td>Call the node creation panel</td>
           </tr>
           <tr>
-            <td><key>L</key></td><td>Toggle the node label</td>
+            <td><key>L</key></td>
+            <td>Toggle the node label of the selected node(s)</td>
           </tr>
           <tr>
-            <td><key>M</key></td><td>Minimize/expand the node</td>
+            <td><key>M</key></td>
+            <td>Minimize/expand the selected node(s)</td>
           </tr>
           <tr>
-            <td><key>P</key></td><td>Toggle the option panel for the selected node</td>
+            <td><key>P</key></td>
+            <td>Toggle the visibility of the option panel</td>
           </tr>
           <tr>
-            <td><key>V</key></td><td>Toggle the visualization mode</td>
+            <td><key>V</key></td>
+            <td>Toggle the visualization mode of the selected node(s)</td>
           </tr>
           <tr>
-            <td><key class="hold">Shift</key></td><td>Add node(s) to the current node selection</td>
+            <td><key class="hold">Shift</key></td>
+            <td>Add node(s) to the current node selection</td>
           </tr>
           <tr>
-            <td><key>Delete</key> / <key>Ctrl</key> + <key>X</key></td><td>Delete the selected node(s) / edge</td>
+            <td><key>Delete</key> / <key>Ctrl</key> + <key>X</key></td>
+            <td>Delete the selected node(s) / edge</td>
           </tr>
           </tbody>
         </table>
@@ -613,27 +957,25 @@
           </thead>
           <tbody>
           <tr>
-            <td><key>Ctrl</key> + <key>A</key></td><td>Call the popup panel for adding nodes</td>
+            <td><key>Ctrl</key> + <key>A</key></td>
+            <td>Select all items in the visualization</td>
           </tr>
           <tr>
-            <td><key>Ctrl</key> + <key>Shift</key> + <key>A</key></td><td>De-select all items in the node</td>
+            <td><key>Ctrl</key> + <key>Shift</key> + <key>A</key></td>
+            <td>De-select all items in the vsiualization</td>
           </tr>
           <tr>
-            <td><key class="hold">Shift</key><td>Add items to the current item selection</td>
+            <td><key class="hold">Shift</key>
+            <td>Add items to the current item selection</td>
           </tr>
           <tr>
-            <td><key>N</key></td><td><i>(network only)</i> Toggle navigation mode</td>
+            <td><key>N</key></td>
+            <td><i>(network only)</i> Turn on/off the network navigation</p></td>
           </tr>
           </tbody>
         </table>
       </div>
     </div>
-
-
-
   </div>
-  <footer>
-    <hr>
-  </footer>
 </body>
 </html>

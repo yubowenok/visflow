@@ -36,6 +36,10 @@
   .section {
     margin-bottom: 5px;
     margin-top: 5px;
+
+    &.separated {
+      margin-top: 20px;
+    }
   }
 
   .hint {
@@ -45,5 +49,15 @@
 
   .dataTables_wrapper td {
     padding: 5px 10px;
+  }
+
+  .nav {
+    a {
+      color: $black;
+
+      > .glyphicon {
+        margin-right: 5px;
+      }
+    }
   }
 }
