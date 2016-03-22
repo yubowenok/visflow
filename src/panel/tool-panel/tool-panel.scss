@@ -1,0 +1,17 @@
+@import 'src/common/colors';
+
+#tool-panel {
+  background-color: $trans-black-05;
+  border: 1px solid $gray-c;
+  border-radius: 4px;
+  left: calc(50% - 57px);
+  padding: 5px 10px;
+  position: absolute;
+  top: 40px;
+  width: 114px;
+
+  button {
+    background: none;
+    margin: 0 2px;
+  }
+}

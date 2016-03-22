@@ -2,8 +2,6 @@
  * @fileoverview VisFlow data parser.
  */
 
-'use strict';
-
 /** @const */
 visflow.parser = {};
 
@@ -16,7 +14,8 @@ visflow.ValueType = {
   INT: 1,
   FLOAT: 2,
   TIME: 3,
-  STRING: 4
+  STRING: 4,
+  ERROR: -1
 };
 
 /**
@@ -37,8 +36,8 @@ visflow.ValueTypeName = {
  * @param {string} text
  * @param {Array=} opt_ignoredTypes
  * @return {{
- *   type: visflow.ValueType,
- *   value: number|string
+ *   type: !visflow.ValueType,
+ *   value: (number|string)
  * }}
  */
 visflow.parser.checkToken = function(text, opt_ignoredTypes) {
@@ -60,7 +59,7 @@ visflow.parser.checkToken = function(text, opt_ignoredTypes) {
   if (!(visflow.ValueType.INT in ignored) && res && res[0] === text) {
     return {
       type: visflow.ValueType.INT,
-      value: parseInt(text)
+      value: parseInt(text, 10)
     };
   }
   if (!(visflow.ValueType.FLOAT in ignored) && Number(text) == text) {
@@ -83,18 +82,23 @@ visflow.parser.checkToken = function(text, opt_ignoredTypes) {
     };
   }
   visflow.error('none of the value types matched', text);
+  return {
+    type: visflow.ValueType.ERROR,
+    value: ''
+  };
 };
 
 /**
  * Tokenizes the input value to form a value of chosen type.
  * @param {string} value
  * @param {visflow.ValueType=} opt_type
+ * @return {number|string}
  */
 visflow.parser.tokenize = function(value, opt_type) {
   var type = opt_type == null ?
       visflow.parser.checkToken(value).type : opt_type;
   if (value === '') {
-    switch(type) {
+    switch (type) {
       case visflow.ValueType.INT:
       case visflow.ValueType.FLOAT:
       case visflow.ValueType.TIME:
@@ -103,22 +107,24 @@ visflow.parser.tokenize = function(value, opt_type) {
         return '';
     }
   }
-  switch(type) {
+  switch (type) {
     case visflow.ValueType.INT:
-      return parseInt(value);
+      return parseInt(value, 10);
     case visflow.ValueType.FLOAT:
       return parseFloat(value);
     case visflow.ValueType.TIME:
       return new Date(value).getTime();
     case visflow.ValueType.STRING:
       return '' + value;
+    default:
+      return '';
   }
 };
 
 /**
  * Parses a csv string and generates the TabularData.
  * @param {string} csv
- * @return {!visflow.TabularData}
+ * @return {visflow.TabularData}
  */
 visflow.parser.csv = function(csv) {
   var headerLine;
@@ -137,7 +143,7 @@ visflow.parser.csv = function(csv) {
 
   var values = d3.dsv(delimiter).parseRows(csv);
   var dimensions = values.splice(0, 1)[0];
-  if (_(dimensions).last() === '') {
+  if (_.last(dimensions) === '') {
     // In case there is a delimiter in the end.
     dimensions.pop();
   }
@@ -148,7 +154,7 @@ visflow.parser.csv = function(csv) {
     var colInfo = visflow.parser.typingColumn(values, dimIndex);
     dimensionTypes.push(colInfo.type);
     dimensionDuplicate.push(colInfo.duplicate);
-  }.bind(this));
+  });
 
   var data = {
     dimensions: dimensions,
@@ -158,7 +164,7 @@ visflow.parser.csv = function(csv) {
   };
   var typeHash = visflow.parser.dataTypeHash(data);
   var dataHash = visflow.parser.dataHash(data);
-  return _(data).extend({
+  return _.extend(data, {
     type: typeHash,
     hash: dataHash
   });
@@ -205,8 +211,9 @@ visflow.parser.typingColumn = function(values, colIndex) {
 
 /**
  * Converts visflow tabular data to csv.
- * @param {!visflow.TabularData} data
+ * @param {!visflow.Data} data
  * @param {Object} opt_items
+ * @return {string}
  */
 visflow.parser.tabularToCSV = function(data, opt_items) {
   var lines = [data.dimensions.join(',')];
@@ -220,14 +227,14 @@ visflow.parser.tabularToCSV = function(data, opt_items) {
 
 /**
  * Crosses the data on the given key dimensions.
- * @param {!visflow.TabularData} data
+ * @param {visflow.TabularData} data
  * @param {!Array<number>} dims
  * @param {!Array<number>} attrs
  * @param {string} name Column name for the attributes.
- * @return {!{
+ * @return {{
  *   success: boolean,
- *   msg: string,
- *   data: visflow.TabularData
+ *   msg: (string|undefined),
+ *   data: ?visflow.TabularData
  * }}
  */
 visflow.parser.cross = function(data, dims, attrs, name) {
@@ -241,10 +248,10 @@ visflow.parser.cross = function(data, dims, attrs, name) {
       } else {
         vals.push(row[dim]);
       }
-    }, this);
+    });
     keys.push(vals);
     keysSorted.push(vals);
-  }, this);
+  });
 
   // Check duplicates
   keysSorted.sort(visflow.utils.compare);
@@ -252,12 +259,11 @@ visflow.parser.cross = function(data, dims, attrs, name) {
     if (visflow.utils.compare(keysSorted[i], keysSorted[i - 1]) == 0) {
       return {
         success: false,
-        msg: 'duplicated keys not allowed for data crossing'
+        msg: 'duplicated keys not allowed for data crossing',
+        data: null
       };
     }
   }
-
-  var keyDims = _.keySet(dims);
 
   var dimensions = [];
   var dimensionTypes = [];
@@ -284,25 +290,25 @@ visflow.parser.cross = function(data, dims, attrs, name) {
         data.dimensions[dim],
         data.values[index][dim]
       ]));
-    }, this);
-  }, this);
+    });
+  });
   // Value column.
   var colInfo = visflow.parser.typingColumn(values, dims.length + 1);
   dimensions.push('value');
   dimensionTypes.push(colInfo.type);
   dimensionDuplicate.push(colInfo.duplicate);
 
-  var data = {
+  var resultData = {
     dimensions: dimensions,
     dimensionTypes: dimensionTypes,
     dimensionDuplicate: dimensionDuplicate,
     values: values
   };
-  var typeHash = visflow.parser.dataTypeHash(data);
-  var dataHash = visflow.parser.dataHash(data);
+  var typeHash = visflow.parser.dataTypeHash(resultData);
+  var dataHash = visflow.parser.dataHash(resultData);
   return {
     success: true,
-    data: _(data).extend({
+    data: _.extend(resultData, {
       type: typeHash,
       hash: dataHash
     })
@@ -311,7 +317,9 @@ visflow.parser.cross = function(data, dims, attrs, name) {
 
 /**
  * Computes the hash value of the dimensions.
- * @param {!visflow.TabularData} data
+ * @param {{
+ *   dimensions: !Array<string>
+ * }} data
  * @return {string}
  */
 visflow.parser.dataTypeHash = function(data) {
@@ -320,7 +328,10 @@ visflow.parser.dataTypeHash = function(data) {
 
 /**
  * Computes the hash value for the entire dataset.
- * @param {!visflow.TabularData} data
+ * @param {{
+ *   dimensions: !Array<string>,
+ *   values: !Array<!Array<string|number>>
+ * }} data
  * @return {string}
  */
 visflow.parser.dataHash = function(data) {

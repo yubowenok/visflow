@@ -2,8 +2,6 @@
  * @fileoverview Fixed top menu (navbar) for VisFlow.
  */
 
-'use strict';
-
 /** @const */
 visflow.menu = {};
 
@@ -40,30 +38,6 @@ visflow.menu.init = function() {
     visflow.options.toggleNodeLabel();
   });
 
-  // Alt hold
-  var alted = navbar.find('#alted');
-  alted.click(function() {
-    visflow.interaction.toggleAltHold();
-    visflow.menu.updateAlt();
-  });
-
-  // VisMode button
-  var visMode = navbar.find('#vis-mode');
-  visMode
-    .click(function() {
-      visflow.flow.toggleVisMode();
-    })
-    .on('mouseenter', function() {
-      if (!visflow.flow.visMode) {
-        visflow.flow.previewVisMode(true);
-      }
-    })
-    .on('mouseleave', function() {
-      if (!visflow.flow.visMode) {
-        visflow.flow.previewVisMode(false);
-      }
-    });
-
   var help = navbar.find('#help');
   help.find('#documentation').click(function() {
     visflow.documentation();
@@ -72,10 +46,23 @@ visflow.menu.init = function() {
     visflow.about();
   });
 
-  var upload = navbar.find('#upload');
-  upload.click(function() {
-    visflow.upload.dialog();
+  var register = navbar.find('#register');
+  register.click(function() {
+    visflow.user.register();
   });
+  var login = navbar.find('#login');
+  login.click(function() {
+    visflow.user.login();
+  });
+  var logout = navbar.find('#logout');
+  logout.click(function() {
+    visflow.user.logout();
+  });
+  var username = navbar.find('#username');
+  username.click(function() {
+    visflow.user.profile();
+  });
+
 
   navbar.find('.to-tooltip').tooltip({
     delay: visflow.menu.TOOLTIP_DELAY_
@@ -89,37 +76,41 @@ visflow.menu.init = function() {
  * @private
  */
 visflow.menu.initUpdateHandlers_ = function() {
-  $(visflow.options).on('visflow.change', function(event, data) {
+  $(visflow.options).on('vf.change', function(event, data) {
     var value = data.value;
-    switch(data.type) {
+    switch (data.type) {
       case 'nodeLabel':
         $('#options #show-node-label > i').toggleClass('glyphicon-ok', value);
         visflow.flow.updateNodeLabels();
         break;
     }
   });
+
+  var navbar = $('.visflow > .navbar-fixed-top');
+  $(visflow.user)
+    .on('vf.login', function() {
+      navbar.find('.logged-in').show();
+      navbar.find('.logged-out').hide();
+      navbar.find('#username').text(visflow.user.account.username);
+
+      if (visflow.user.writePermission()) {
+        navbar.find('#save').removeClass('disabled');
+      }
+      navbar.find('#load').removeClass('disabled');
+    })
+    .on('vf.logout', function() {
+      navbar.find('.logged-out').show();
+      navbar.find('.logged-in').hide();
+
+      navbar.find('#save, #load').addClass('disabled');
+    });
 };
 
 /**
- * Updates the visMode button active state.
+ * Updates the enabled/disabled state of the add node item in the menu.
  */
 visflow.menu.updateVisMode = function() {
   var navbar = $('.visflow > .navbar-fixed-top');
-  var visMode = navbar.find('#vis-mode');
-  visMode.children('.btn').toggleClass('active', visflow.flow.visMode);
   var addNode = navbar.find('#add-node');
   addNode.toggleClass('disabled', visflow.flow.visMode);
-};
-
-/**
- * Updates the alt button's active class to reflect the system's alted state.
- */
-visflow.menu.updateAlt = function() {
-  var alted = visflow.interaction.isAlted();
-  var btnAlt = $('.visflow > .navbar-fixed-top #alted > .btn');
-  if (alted) {
-    btnAlt.addClass('active');
-  } else {
-    btnAlt.removeClass('active');
-  }
 };

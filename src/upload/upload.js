@@ -2,171 +2,434 @@
  * @fileoverview VisFlow file upload.
  */
 
-'use strict';
-
 /** @const */
 visflow.upload = {};
 
 /** @private @const {string} */
-visflow.upload.TEMPLATE_ = './src/upload/upload-dialog.html';
+visflow.upload.TEMPLATE_ = './dist/html/upload/upload-data.html';
+/** @private @const {string} */
+visflow.upload.DELETE_DIALOG_ = './dist/html/upload/delete-data.html';
+/** @private @const {string} */
+visflow.upload.OVERWRITE_DIALOG_ =
+  './dist/html/upload/overwrite-data.html';
 
-/** @private {?function} */
+/** @private {?Function} */
 visflow.upload.complete_ = null;
-
-/**
- * CSV to be exported.
- * @private {visflow.Package}
- */
-visflow.upload.exportPackage_;
 
 /**
  * Creates an upload dialog that allows the user to select local file for
  * upload.
  */
-visflow.upload.dialog = function() {
-  visflow.dialog.create({
-    template: visflow.upload.TEMPLATE_,
-    complete: visflow.upload.initDialog_
-  });
+visflow.upload.upload = function() {
+  if (!visflow.user.writePermission()) {
+    visflow.warning('you must login to upload data');
+    visflow.dialog.close();
+    return;
+  }
+  $.get(visflow.url.LIST_DATA)
+    .done(function(dataList) {
+      visflow.dialog.create({
+        template: visflow.upload.TEMPLATE_,
+        complete: visflow.upload.uploadDialog_,
+        params: {
+          dataList: dataList
+        }
+      });
+    })
+    .fail(function(res) {
+      visflow.error('cannot list server data:', res.responseText);
+    });
 };
 
 /**
  * Creates an upload dialog for the exported data.
- * @param {!visflow.Package}
+ * @param {!visflow.Package} pack
  */
 visflow.upload.export = function(pack) {
-  visflow.upload.exportPackage_ = pack;
+  if (!visflow.user.writePermission()) {
+    visflow.warning('you must login to export data');
+    return;
+  }
+  $.get(visflow.url.LIST_DATA)
+    .done(function(dataList) {
+      visflow.dialog.create({
+        template: visflow.upload.TEMPLATE_,
+        complete: visflow.upload.exportDialog_,
+        params: {
+          dataList: dataList,
+          pack: pack
+        }
+      });
+    })
+    .fail(function(res) {
+      visflow.error('cannot list server data:', res.responseText);
+    });
+};
+
+/**
+ * Creates a delete data confirmation dialog.
+ * @param {{
+ *   id: number,
+ *   name: string,
+ *   file: string
+ * }} params
+ */
+visflow.upload.delete = function(params) {
+  if (!visflow.user.writePermission()) {
+    visflow.warning('you must login to delete data');
+    visflow.dialog.close();
+    return;
+  }
   visflow.dialog.create({
-    template: visflow.upload.TEMPLATE_,
-    complete: visflow.upload.initExportDialog_
+    template: visflow.upload.DELETE_DIALOG_,
+    complete: visflow.upload.deleteDialog_,
+    params: params
   });
 };
 
 /**
  * Adds a data upload complete callback which will be fired once after a
  * successful data load.
- * @param {function} complete
+ * @param {Function} complete
  */
 visflow.upload.setComplete = function(complete) {
   visflow.upload.complete_ = complete;
 };
 
 /**
- * Initializes the data upload dialog.
- * @param {!jQuery} dialog
+ * Uploads/updates a dataset.
+ * @param {FormData} formData
  * @private
  */
-visflow.upload.initDialog_ = function(dialog) {
+visflow.upload.upload_ = function(formData) {
+  $.ajax({
+    url: visflow.url.UPLOAD_DATA,
+    type: 'POST',
+    data: formData,
+    enctype: 'multipart/form-data',
+    processData: false,
+    contentType: false
+  }).done(function() {
+      visflow.success('data updated:', formData.get('name'),
+        '(' + formData.get('fileName') + ')');
+      if (visflow.upload.complete_ != null) {
+        visflow.upload.complete_();
+      }
+      visflow.upload.complete_ = null;
+      visflow.signal(visflow.upload, 'uploaded');
+    })
+    .fail(function(res) {
+      visflow.error('failed to update data:', res.responseText);
+      visflow.upload.complete_ = null;
+    });
+};
+
+/**
+ * Initializes the data upload dialog.
+ * @param {!jQuery} dialog
+ * @param {{
+ *   dataList: !Array<visflow.data.ListInfo>,
+ *   data: (string|undefined),
+ *   defaultDataName: (string|undefined),
+ *   defaultFileName: (string|undefined)
+ * }} params
+ * @private
+ */
+visflow.upload.uploadDialog_ = function(dialog, params) {
+  var dataList = params.dataList;
+  var dataIdInfos = {};
+  var dataNameInfos = {}; // contain only owned data
+  dataList.forEach(function(dataInfo) {
+    dataIdInfos[dataInfo.id] = dataInfo;
+    if (dataInfo.owner === '') {
+      dataNameInfos[dataInfo.name] = dataInfo;
+    }
+  });
+
   var selectedFile = null;
-
-  var file = dialog.find('#file');
-  var dataName = dialog.find('#data-name');
-  var btnUpload = dialog.find('#confirm').prop('disabled', true);
-  var btnFile = dialog.find('#btn-file');
-  var fileDisplay = dialog.find('#file-display');
-
-  btnFile.click(function() {
-    file.trigger('click');
-  });
-  fileDisplay.click(function() {
-    file.trigger('click');
-  });
+  var dataId = -1;
+  var dataName = params.defaultDataName !== undefined ?
+    params.defaultDataName : '';
+  var dataFile = '';
+  var prevDataName = '';
+  var prevDataFile = '';
+  var isOwner = true;
 
   // Checks if all required fields are filled.
   var uploadReady = function() {
-    var name = dataName.val();
-    return name && selectedFile;
+    confirm.prop('disabled', dataName === '' ||
+      (isOwner && !selectedFile && (dataId == -1 ||
+      dataIdInfos[dataId].shareWith == shareWith.val())) ||
+      (!isOwner && !selectedFile));
   };
+
+  var file = dialog.find('#file');
+  var nameInput = dialog.find('#data-name')
+    .val(dataName)
+    .keyup(function() {
+      dataName = nameInput.val();
+      uploadReady();
+    });
+  var fileDisplay = dialog.find('#file-display')
+    .click(function() {
+      file.trigger('click');
+    });
+  dialog.find('#btn-file')
+    .click(function() {
+      file.trigger('click');
+    });
+  var shareWith = dialog.find('#share-with')
+    .keyup(function() {
+      uploadReady();
+    });
+  var confirm = dialog.find('#confirm')
+    .prop('disabled', params.data === undefined);
 
   file.change(function(event) {
     if (event.target.files[0] != null) {
       selectedFile = event.target.files[0];
+      dataFile = selectedFile.name;
+
       fileDisplay.text(selectedFile.name);
-      if (dataName.val() === '') {
-        dataName.val(selectedFile.name);
+      if (dataName === '') {
+        dataName = selectedFile.name;
+        nameInput.val(dataName);
       }
     }
-    btnUpload.prop('disabled', !uploadReady());
-  });
-  dataName.keyup(function() {
-    btnUpload.prop('disabled', !uploadReady());
+    uploadReady();
   });
 
-  btnUpload.click(function(event) {
+  confirm.click(function(event) {
     if (visflow.upload.complete_ != null) {
       // complete_ callback may show another modal immediately.
       event.stopPropagation();
     }
 
-    var formData = new FormData();
-    var name = dataName.val();
-    formData.append('name', name);
-    formData.append('file', selectedFile);
+    var fileName = params.defaultFileName !== undefined ?
+      params.defaultFileName : dataFile;
+    if (!isOwner) {
+      fileName = dataIdInfos[dataId].file;
+    }
 
-    $.ajax({
-      url: './server/upload.php',
-      type: 'POST',
-      data: formData,
-      enctype: 'multipart/form-data',
-      processData: false,
-      contentType: false
-    }).done(function(res) {
-        if (!res.success) {
-          visflow.error('failed to upload data:', res.msg);
-          return;
-        }
-        visflow.success('data uploaded:', name,
-          '(' + selectedFile.name + ')');
-        if (visflow.upload.complete_ != null) {
-          visflow.upload.complete_();
-        }
-        visflow.upload.complete_ = null;
-      })
-      .fail(function(res, msg, error) {
-        visflow.error('failed to upload data', msg, error);
-        visflow.upload.complete_ = null;
+    var formData = new FormData();
+    formData.append('id', dataId);
+    formData.append('name', dataName);
+    formData.append('fileName', fileName);
+    formData.append('shareWith', /** @type {string} */(shareWith.val()));
+    if (params.data) {
+      formData.append('data', params.data);
+    } else {
+      formData.append('file', selectedFile);
+    }
+
+    if (!isOwner || (isOwner && dataName in dataNameInfos)) {
+      // another dialog prompts immediately
+      event.stopPropagation();
+
+      if (isOwner && dataName in dataNameInfos && dataId == -1) {
+        var info = dataNameInfos[dataName];
+        dataId = info.id;
+        prevDataName = info.name;
+        prevDataFile = info.file;
+        formData.set('id', dataId);
+      }
+
+      // update previous data
+      visflow.upload.overwriteDialog_({
+        prevDataName: prevDataName,
+        prevDataFile: prevDataFile,
+        formData: formData
       });
+    } else {
+      // upload new data
+      visflow.upload.upload_(formData);
+    }
+  });
+
+  var dt = visflow.upload.listDataTable(dialog.find('table'), dataList);
+  dt.on('select.dt', function(event, dt, type, tableIndices) {
+    var dataInfo = /** @type {DataTables} */(dt).row(tableIndices[0]).data();
+    dataId = dataInfo.id;
+    prevDataName = dataName = dataInfo.name;
+    prevDataFile = dataFile = dataInfo.file;
+    isOwner = dataInfo.owner === '';
+    nameInput
+      .val(dataName)
+      .prop('disabled', !isOwner);
+    shareWith
+      .val(dataInfo.shareWith)
+      .prop('disabled', !isOwner);
+    uploadReady();
+  }).on('deselect.dt', function() {
+    dataId = -1;
+    isOwner = true;
+    nameInput.prop('disabled', !isOwner);
+    shareWith.prop('disabled', !isOwner).val('');
+    uploadReady();
   });
 };
 
 /**
- * Initializes the data export dialog that has special features over the normal
+ * Sets up the export dialog that has special features over the normal
  * upload dialog.
  * @param {!jQuery} dialog
+ * @param {{
+ *   dataList: !Array<visflow.data.ListInfo>,
+ *   pack: !visflow.Package
+ * }} params
  * @private
  */
-visflow.upload.initExportDialog_ = function(dialog) {
-  var btnUpload = dialog.find('#confirm');
-  var pack = visflow.upload.exportPackage_;
+visflow.upload.exportDialog_ = function(dialog, params) {
+  var confirm = dialog.find('#confirm');
+  var pack = params.pack;
 
   dialog.find('#btn-file').prop('disabled', true);
   dialog.find('#file-display').addClass('disabled')
     .text('(exported from ' + pack.data.file + ')');
 
-  var dataName = dialog.find('#data-name')
-    .val(pack.data.name + ' (' + visflow.utils.randomString(4) + ')');
+  var defaultDataName = pack.data.name + ' (' + visflow.utils.randomString(4) +
+    ')';
   var csv = visflow.parser.tabularToCSV(pack.data, pack.items);
-
-  dataName.keyup(function() {
-    // Checks if all required fields are filled.
-    btnUpload.prop('disabled', !dataName.val());
+  _.extend(params, {
+    defaultDataName: defaultDataName,
+    defaultFileName: pack.data.file + '_' + CryptoJS.SHA256(defaultDataName)
+      .toString().substr(0, 8),
+    data: csv
   });
+  visflow.upload.uploadDialog_(dialog, params);
+};
 
-  btnUpload.click(function() {
-    var name = dataName.val();
-    $.post('./server/export.php', {
-      name: name,
-      file: pack.data.file + '_' + CryptoJS.SHA1(name).toString().substr(0, 8),
-      data: csv
-    }).done(function(res) {
-        if (!res.success) {
-          visflow.error('failed to upload data:', res.msg);
-          return;
-        }
-        visflow.success('data uploaded:', name);
-      })
-      .fail(function(res, msg, error) {
-        visflow.error('failed to export data', msg, error);
+/**
+ * Asks for confirmation about overwriting an existing dataset.
+ * @param {{
+ *   prevDataName: string,
+ *   prevDataFile: string,
+ *   formData: FormData
+ * }} params
+ * @private
+ */
+visflow.upload.overwriteDialog_ = function(params) {
+  var formData = params.formData;
+  visflow.dialog.create({
+    template: visflow.upload.OVERWRITE_DIALOG_,
+    complete: function(dialog) {
+      dialog.find('label.new').text(formData.get('name') + ' (' +
+        formData.get('fileName') + ')');
+      dialog.find('label.old').text(params.prevDataName + ' (' +
+        params.prevDataFile + ')');
+      dialog.find('#confirm').click(function() {
+        visflow.upload.upload_(formData);
       });
+    }
+  });
+};
+
+/**
+ * Sets up the data delete confirmation.
+ * @param {!jQuery} dialog
+ * @param {{
+ *   id: number,
+ *   name: string,
+ *   file: string
+ * }} params
+ * @private
+ */
+visflow.upload.deleteDialog_ = function(dialog, params) {
+  dialog.find('.data-name').text(params.name);
+  dialog.find('.file-name').text(params.file);
+  dialog.find('#confirm').click(function() {
+    $.post(visflow.url.DELETE_DATA, {
+      id: params.id
+    }).done(function() {
+        visflow.success('data deleted:', params.name);
+      })
+      .fail(function(res) {
+        visflow.error('failed to delete data:', res.responseText);
+      });
+  });
+};
+
+/**
+ * Shows a table with list of data sets stored on the server.
+ * @param {!jQuery} table
+ * @param {!Array<visflow.data.ListInfo>} dataList
+ * @return {DataTables}
+ */
+visflow.upload.listDataTable = function(table, dataList) {
+  var dataInfo = {};
+  dataList.forEach(function(info) {
+    dataInfo[info.id] = info;
+  });
+  return table.DataTable({
+    data: dataList,
+    select: 'single',
+    pagingType: 'full',
+    pageLength: 5,
+    lengthMenu: [5, 10, 20],
+    order: [
+      [3, 'desc']
+    ],
+    columns: [
+      {title: 'Name', data: 'name'},
+      {title: 'File', data: 'file'},
+      {title: 'Size', data: 'size'},
+      {title: 'Last Modified', data: 'mtime'},
+      {title: 'Owner', data: 'owner'},
+      {title: '', data: 'id'}
+    ],
+    columnDefs: [
+      {
+        type: 'data-size',
+        // Size
+        render: function(size) {
+          var base = 1000;
+          if (size < base) {
+            return size + 'B';
+          } else if (size < base * base) {
+            return (size / base).toFixed(2) + 'KB';
+          } else {
+            return (size / base / base).toFixed(2) + 'MB';
+          }
+        },
+        targets: 2
+      },
+      {
+        // Last Modified
+        render: function(lastModified) {
+          return (new Date(lastModified)).toLocaleString();
+        },
+        targets: 3
+      },
+      {
+        render: function(dataId) {
+          return [
+            '<span class="btn btn-default btn-xs glyphicon glyphicon-trash ',
+            !visflow.user.writePermission() ||
+            dataInfo[dataId].owner !== '' ? 'disabled' : '',
+            '" ',
+            'data-id="',
+            dataId,
+            '">',
+            '</span>'
+          ].join('');
+        },
+        targets: 5
+      }
+    ],
+    drawCallback: function() {
+      // The event handler still exists on the same element, when it is redrawn
+      // by search (the element persists). Therefore we need to off the handler.
+      table.find('tr .glyphicon-trash')
+        .off('click')
+        .click(function(event) {
+          var dataId = +$(event.target).attr('data-id');
+          visflow.upload.delete({
+            id: dataId,
+            name: dataInfo[dataId].name,
+            file: dataInfo[dataId].file
+          });
+          event.stopPropagation();
+        });
+    }
   });
 };

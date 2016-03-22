@@ -1,0 +1,48 @@
+@import 'src/common/colors';
+
+.visflow {
+  #vis-mode .icon-vismode {
+    background-image: url('/visflow/imgs/vismode-icon.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+
+    display: inline-block;
+    height: 20px;
+    left: calc(50% - 10px);
+    position: absolute;
+    top: calc(50% - 9px);
+    width: 20px;
+  }
+
+  .navbar-right {
+    a {
+      padding-left: 10px;
+      padding-right: 10px;
+
+      > span {
+        height: 20px;
+        width: 100%;
+      }
+
+      .glyphicon {
+        left: calc(50% - 7px);
+        position: absolute;
+        top: calc(50% - 6px);
+      }
+    }
+
+    .btn {
+      color: $gray-8;
+
+      &.active {
+        color: $black;
+      }
+    }
+  }
+
+  .navbar-nav .dropdown-menu .hotkey {
+    font-size: .7em;
+    margin-left: 10px;
+  }
+}

@@ -1,0 +1,70 @@
+@import 'src/common/colors';
+
+.popup-panel {
+  background: $trans-gray-224-5;
+  border: 1px solid $gray-c;
+  border-radius: 10px;
+  display: inline-block;
+  padding: 5px;
+  position: absolute;
+  width: 540px;
+  z-index: 103;
+
+  hr {
+    border-color: $gray-c;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .panel-button {
+    display: inline-block;
+    padding: 3px;
+    vertical-align: top;
+    width: 45px;
+
+    &:hover > img {
+      background-color: $white;
+      border: 1px solid $gray-c;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    &:disabled {
+      opacity: .5;
+    }
+  }
+
+  .square-icon {
+    height: 45px;
+    width: 45px;
+  }
+
+  .flat-icon {
+    height: 22.5px;
+    width: 45px;
+  }
+
+  &.compact {
+    width: 210px;
+  }
+
+  * > p {
+    background: linear-gradient(to right, $trans-white-75, $trans-white-0, 10%);
+    border-radius: 5px;
+    font-size: 1em;
+    font-weight: bold;
+    margin: 10px 0 5px;
+    padding: 5px;
+  }
+
+  .text {
+    text-align: center;
+    width: 100%;
+  }
+}
+
+.dropzone-temp {
+  position: absolute;
+  top: 100%;
+  width: 100%;
+}

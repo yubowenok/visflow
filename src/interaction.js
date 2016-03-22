@@ -2,8 +2,6 @@
  * @fileoverview Interaction manager tracking mouse actions.
  */
 
-'use strict';
-
 /** @const */
 visflow.interaction = {};
 
@@ -31,9 +29,14 @@ visflow.interaction.mouseY = 0;
 /** @private @const {number} */
 visflow.interaction.MOVE_DELTA_ = 50;
 
-/** @private {!Array<!visflow.contextMenu.Item>} */
+/** @private {!Array<visflow.contextMenu.Item>} */
 visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
-  {id: 'addNode', text: 'Add Node', icon: 'glyphicon glyphicon-plus', hotKey: 'A'}
+  {
+    id: 'addNode',
+    text: 'Add Node',
+    icon: 'glyphicon glyphicon-plus',
+    hotKey: 'A'
+  }
 ];
 
 /** @private {!jQuery} */
@@ -49,6 +52,13 @@ visflow.interaction.mouseMode = '';
 visflow.interaction.altHold_ = false;
 
 /**
+ * @type {{
+ *   port: (!visflow.Port|undefined)
+ * }}
+ */
+visflow.interaction.dragstartParams = {};
+
+/**
  * Initializes the interaction manager.
  */
 visflow.interaction.init = function() {
@@ -57,15 +67,16 @@ visflow.interaction.init = function() {
   visflow.interaction.dragstartPos = [0, 0];
   visflow.interaction.draglastPos = [0, 0];
   visflow.interaction.dragstopPos = [0, 0];
-  visflow.interaction.dragstartPara = {};
-  visflow.interaction.dragstopPara = {};
+
+  visflow.interaction.dragstartParams = {};
+  visflow.interaction.dragstopParams = {};
   visflow.interaction.dropPossible = false;
 
   visflow.interaction.mousedownPos = [0, 0];
   visflow.interaction.mouseupPos = [0, 0];
   visflow.interaction.mouselastPos = [0, 0];
 
-  visflow.interaction.mainContainer_ =  $('#main');
+  visflow.interaction.mainContainer_ = $('#main');
 
   visflow.interaction.selectbox = {
     x1: 0,
@@ -79,7 +90,6 @@ visflow.interaction.init = function() {
   visflow.interaction.interaction();
   visflow.interaction.contextMenuClickOff();
   visflow.interaction.systemMessageClickOff();
-
 };
 
 /**
@@ -130,7 +140,7 @@ visflow.interaction.trackMousemove = function(opt_enabled) {
   var enabled = opt_enabled == null ? true : opt_enabled;
   var main = $('#main');
   if (enabled) {
-    main.mousemove(function(event){
+    main.mousemove(function(event) {
       visflow.interaction.mouseX = event.pageX;
       visflow.interaction.mouseY = event.pageY;
     });
@@ -144,16 +154,17 @@ visflow.interaction.trackMousemove = function(opt_enabled) {
  */
 visflow.interaction.toggleAltHold = function() {
   visflow.interaction.altHold_ = !visflow.interaction.altHold_;
+  visflow.signal(visflow.interaction, 'alt');
 };
 
 /**
  * Checks if a given key is pressed.
- * @param {visflow.interaction.keyCodes}
+ * @param {visflow.interaction.keyCodes} key
  * @return {boolean}
  */
 visflow.interaction.isPressed = function(key) {
   var keyCodes = visflow.interaction.keyCodes;
-  switch(key) {
+  switch (key) {
     case keyCodes.ALT:
       return visflow.interaction.isAlted();
     case keyCodes.SHIFT:
@@ -178,21 +189,23 @@ visflow.interaction.isAlted = function() {
  * Handles key release event, called after a shift/ctrl terminating event (e.g.
  * node drag). If not called, browser might fail to capture shift/ctrl release
  * and the two keys would be considered pressed forever.
+ * @param {visflow.interaction.keyCodes|
+ *   !Array<visflow.interaction.keyCodes>} key
  */
 visflow.interaction.keyRelease = function(key) {
   if (!(key instanceof Array)) {
     key = [key];
   }
-  key.forEach(function(key){
+  key.forEach(function(key) {
     var keyCodes = visflow.interaction.keyCodes;
-    switch(key) {
+    switch (key) {
       case keyCodes.SHIFT:
         visflow.interaction.shifted = false;
         visflow.interaction.mainContainer_.css('cursor', '');
         break;
       case keyCodes.ALT:
         visflow.interaction.alted = false;
-        visflow.menu.updateAlt();
+        visflow.signal(visflow.interaction, 'alt');
         visflow.interaction.visualizationBlocking = true;
         visflow.interaction.mainContainer_.css('cursor', '');
         break;
@@ -200,42 +213,43 @@ visflow.interaction.keyRelease = function(key) {
         visflow.interaction.ctrled = false;
         break;
     }
-  }, this);
+  });
 };
 
 /**
  * Prepares global interaction handlers.
  */
 visflow.interaction.interaction = function() {
-  this.jqselectbox = $('#selectbox');
-  this.jqselectbox.hide();
+  visflow.interaction.jqselectbox = $('#selectbox');
+  visflow.interaction.jqselectbox.hide();
   visflow.interaction.mainContainer_
     .mousedown(function(event) {
       if ($(event.target).is('#main')) {
-        this.mousedownHandler({
+        visflow.interaction.mousedownHandler({
           type: 'background',
           event: event
         });
       }
-    }.bind(this))
+    })
     .mousemove(function(event) {
-      this.mousemoveHandler({
+      visflow.interaction.mousemoveHandler({
         type: 'background',
         event: event
       });
-    }.bind(this))
+    })
     .mouseup(function(event) {
-      this.mouseupHandler({
+      visflow.interaction.mouseupHandler({
         type: 'background',
         event: event
       });
-    }.bind(this));
+    });
 
   $(document).keydown(function(event) {
     visflow.interaction.keyPress(event);
   });
   $(document).keyup(function(event) {
-    visflow.interaction.keyRelease(event.keyCode);
+    visflow.interaction.keyRelease(/** @type {visflow.interaction.keyCodes} */(
+      event.keyCode));
   });
 
   $(document).mousewheel(function(event) {
@@ -249,7 +263,8 @@ visflow.interaction.interaction = function() {
 
 /**
  * Handles global key press event.
- * @private
+ * @param {!jQuery.Event} event
+ * @return {boolean}
  */
 visflow.interaction.keyPress = function(event) {
   var code = event.keyCode;
@@ -260,7 +275,7 @@ visflow.interaction.keyPress = function(event) {
   }
 
   var keyCodes = visflow.interaction.keyCodes;
-  switch(code) {
+  switch (code) {
     case keyCodes.UP:
     case keyCodes.DOWN:
     case keyCodes.LEFT:
@@ -280,7 +295,7 @@ visflow.interaction.keyPress = function(event) {
       break;
     case keyCodes.ALT:
       visflow.interaction.alted = true;
-      visflow.menu.updateAlt();
+      visflow.signal(visflow.interaction, 'alt');
       visflow.interaction.visualizationBlocking = false;
       break;
     case keyCodes.CTRL:
@@ -301,7 +316,7 @@ visflow.interaction.keyPress = function(event) {
       if (visflow.interaction.alted) {
         key = 'alt+' + key;
       }
-      switch(key) {
+      switch (key) {
         case 'A':
           event.pageX = visflow.interaction.mouseX;
           event.pageY = visflow.interaction.mouseY;
@@ -321,23 +336,18 @@ visflow.interaction.keyPress = function(event) {
           if (visflow.optionPanel.isOpen) {
             visflow.optionPanel.toggle(false);
           } else {
+            visflow.optionPanel.toggle(true);
             if (visflow.flow.lastSelectedNode) {
               visflow.flow.lastSelectedNode.panel();
-            } else {
-              visflow.optionPanel.toggle(true);
             }
           }
           break;
         default:
-          if (visflow.viewManager.getPopupPanelName() == 'add') {
-            // Further filtering popup entries
-            visflow.viewManager.filterAddPanel(key);
-          } else {
-            // Not global interaction event, pass to flow.
-            visflow.flow.keyAction(key, event);
-          }
+          // Not global interaction event, pass to flow.
+          visflow.flow.keyAction(key, event);
       }
   }
+  return true;
 };
 
 /**
@@ -350,7 +360,7 @@ visflow.interaction.mainContextMenu_ = function() {
     items: visflow.interaction.MAIN_CONTEXTMENU_ITEMS_
   });
   $(contextMenu)
-    .on('visflow.addNode', function() {
+    .on('vf.addNode', function() {
       visflow.popupPanel.show();
     });
 };
@@ -358,14 +368,15 @@ visflow.interaction.mainContextMenu_ = function() {
 /**
  * Handles mouse down event.
  * @param {!Object} params
+ * @return {boolean}
  */
 visflow.interaction.mousedownHandler = function(params) {
   var type = params.type,
       event = params.event;
-  this.mousedownPos = [event.pageX, event.pageY];
-  this.mouselastPos = [event.pageX, event.pageY];
+  visflow.interaction.mousedownPos = [event.pageX, event.pageY];
+  visflow.interaction.mouselastPos = [event.pageX, event.pageY];
 
-  if (this.mouseMode != '') {
+  if (visflow.interaction.mouseMode != '') {
     return true;
   }
   if (event.which == visflow.interaction.keyCodes.RIGHT_MOUSE) {
@@ -374,16 +385,17 @@ visflow.interaction.mousedownHandler = function(params) {
 
   if (type == 'background') {
     if (!visflow.interaction.alted) {
-      this.mouseMode = 'pan';
+      visflow.interaction.mouseMode = 'pan';
       visflow.interaction.mainContainer_.css('cursor', 'move');
     } else {
-      this.selectbox.x1 = event.pageX;
-      this.selectbox.y1 = event.pageY;
-      this.mouseMode = 'selectbox';
+      visflow.interaction.selectbox.x1 = event.pageX;
+      visflow.interaction.selectbox.y1 = event.pageY;
+      visflow.interaction.mouseMode = 'selectbox';
     }
   } else if (type == 'node') {
-    this.mouseMode = 'node';
+    visflow.interaction.mouseMode = 'node';
   }
+  return true;
 };
 
 /**
@@ -397,25 +409,25 @@ visflow.interaction.mousemoveHandler = function(params) {
   //  return;
 
   if (type == 'background') {
-    if (this.mouseMode == 'pan') {
-      var dx = event.pageX - this.mouselastPos[0],
-          dy = event.pageY - this.mouselastPos[1];
+    if (visflow.interaction.mouseMode == 'pan') {
+      var dx = event.pageX - visflow.interaction.mouselastPos[0],
+          dy = event.pageY - visflow.interaction.mouselastPos[1];
       visflow.flow.moveNodes(dx, dy, visflow.flow.nodes);
-    }
-    else if (this.mouseMode == 'selectbox') {
-      this.selectbox.x2 = event.pageX;
-      this.selectbox.y2 = event.pageY;
-      var w = Math.abs(this.selectbox.x2 - this.selectbox.x1),
-          h = Math.abs(this.selectbox.y2 - this.selectbox.y1),
-          l = Math.min(this.selectbox.x1, this.selectbox.x2),
-          t = Math.min(this.selectbox.y1, this.selectbox.y2);
+    } else if (visflow.interaction.mouseMode == 'selectbox') {
+      var selectbox = visflow.interaction.selectbox;
+      selectbox.x2 = event.pageX;
+      selectbox.y2 = event.pageY;
+      var w = Math.abs(selectbox.x2 - selectbox.x1),
+          h = Math.abs(selectbox.y2 - selectbox.y1),
+          l = Math.min(selectbox.x1, selectbox.x2),
+          t = Math.min(selectbox.y1, selectbox.y2);
       var box = {
           width: w,
           height: h,
           left: l,
           top: t
       };
-      this.jqselectbox
+      visflow.interaction.jqselectbox
         .css(box)
         .show();
       var hovered = visflow.flow.getNodesInSelectbox(box);
@@ -423,7 +435,7 @@ visflow.interaction.mousemoveHandler = function(params) {
       visflow.flow.addNodeHover(hovered);
     }
   }
-  this.mouselastPos = [event.pageX, event.pageY];
+  visflow.interaction.mouselastPos = [event.pageX, event.pageY];
 };
 
 /**
@@ -433,37 +445,40 @@ visflow.interaction.mousemoveHandler = function(params) {
 visflow.interaction.mouseupHandler = function(params) {
   var type = params.type,
       event = params.event;
-  this.mouseupPos = [event.pageX, event.pageY];
-  var dx = this.mouseupPos[0] - this.mousedownPos[0],
-      dy = this.mousedownPos[1] - this.mousedownPos[1];
-  this.mouseMoved = Math.abs(dx) + Math.abs(dy) > 0;
+  visflow.interaction.mouseupPos = [event.pageX, event.pageY];
+  var dx = visflow.interaction.mouseupPos[0] -
+    visflow.interaction.mousedownPos[0];
+  var dy = visflow.interaction.mousedownPos[1] -
+    visflow.interaction.mousedownPos[1];
+  visflow.interaction.mouseMoved = Math.abs(dx) + Math.abs(dy) > 0;
 
-  if (this.mouseMode == 'selectbox') {
-    this.jqselectbox.hide();
+  if (visflow.interaction.mouseMode == 'selectbox') {
+    visflow.interaction.jqselectbox.hide();
     if (visflow.interaction.alted) {  // not panning, then selecting
-      if (!this.shifted) {
+      if (!visflow.interaction.shifted) {
         visflow.flow.clearNodeSelection();
       }
       visflow.flow.addHoveredToSelection();
     }
   } else {
     if (type == 'background') {
-      if (this.mouseMode == 'pan') {
-        if (!this.mouseMoved) {
+      if (visflow.interaction.mouseMode == 'pan') {
+        if (!visflow.interaction.mouseMoved) {
           // mouse not moved for select box
           // trigger empty click
-          this.clickHandler({
+          visflow.interaction.clickHandler({
             type: 'empty',
             event: event
           });
         }
         visflow.interaction.mainContainer_.css('cursor', '');
-      } else if (this.mouseMode == 'selectbox') {
-        // TODO(bowen): what is this?
       }
+      // TODO(bowen): what is this?
+      // else if (visflow.interaction.mouseMode == 'selectbox') {
+      // }
     } else if (type == 'node') {
-      if (!this.mouseMoved) {
-        if (!this.shifted) {
+      if (!visflow.interaction.mouseMoved) {
+        if (!visflow.interaction.shifted) {
           visflow.flow.clearNodeSelection();
         }
         visflow.flow.addNodeSelection(params.node);
@@ -483,29 +498,29 @@ visflow.interaction.mouseupHandler = function(params) {
   visflow.viewManager.clearEdgeHover();
   visflow.popupPanel.hide();
 
-  this.mouseMode = '';
+  visflow.interaction.mouseMode = '';
 };
 
 /**
  * Handles drag start event.
- * @param params
+ * @param {{type: string, event: !jQuery.Event}} params
  */
 visflow.interaction.dragstartHandler = function(params) {
   var type = params.type,
       event = params.event;
 
-  this.dragstartPara = params;
+  visflow.interaction.dragstartParams = params;
   if (type == 'port') {
-    this.mouseMode = 'port';
+    visflow.interaction.mouseMode = 'port';
     var jqtarget = $(params.event.target);
     var offset = visflow.utils.offsetMain(jqtarget);
     var x = offset.left + jqtarget.outerWidth() / 2,
         y = offset.top + jqtarget.outerHeight() / 2;
-    this.dragstartPos = [x, y];
-    this.dropPossible = true;
+    visflow.interaction.dragstartPos = [x, y];
+    visflow.interaction.dropPossible = true;
   }
   else if (type == 'node') {
-    this.mouseMode = 'node';
+    visflow.interaction.mouseMode = 'node';
     visflow.interaction.mainContainer_.css('cursor', 'move');
 
     if (visflow.flow.isNodeSelected(params.node)) {
@@ -516,33 +531,37 @@ visflow.interaction.dragstartHandler = function(params) {
       visflow.flow.addNodeSelection(params.node);
     }
   }
-  this.draglastPos = [event.pageX, event.pageY];
+  visflow.interaction.draglastPos = [event.pageX, event.pageY];
 };
 
 /**
  * Handles dragging movement event.
- * @param params
+ * @param {{type: string, event: !jQuery.Event}} params
  */
 visflow.interaction.dragmoveHandler = function(params) {
   var type = params.type,
       event = params.event;
-  this.dragstopPos = [params.event.pageX, params.event.pageY];
+  visflow.interaction.dragstopPos = [params.event.pageX, params.event.pageY];
 
-  if (this.mouseMode != type) {
+  if (visflow.interaction.mouseMode != type) {
     return;
   }
 
   if (type == 'port') {
-    var dx = this.dragstopPos[0] - this.dragstartPos[0],
-        dy = this.dragstopPos[1] - this.dragstartPos[1];
+    var dx = visflow.interaction.dragstopPos[0] -
+      visflow.interaction.dragstartPos[0];
+    var dy = visflow.interaction.dragstopPos[1] -
+      visflow.interaction.dragstartPos[1];
 
     var jqsegment = $('#edge-drawing > .edge-segment'),
         jqarrow = $('#edge-drawing > .edge-arrow');
     var hseg = 3,
         harrow = 9;
 
-    var pos = params.port.isInput ? this.dragstopPos : this.dragstartPos,
-        rpos = !params.port.isInput ? this.dragstopPos : this.dragstartPos;
+    var pos = params.port.isInput ? visflow.interaction.dragstopPos :
+      visflow.interaction.dragstartPos;
+    var rpos = !params.port.isInput ? visflow.interaction.dragstopPos :
+      visflow.interaction.dragstartPos;
     if (params.port.isInput) {
       dx = -dx;
       dy = -dy;
@@ -560,11 +579,11 @@ visflow.interaction.dragmoveHandler = function(params) {
     jqsegment
       .css({
         width: length,
-        transform: 'rotate('+ angle +'rad)'
+        transform: 'rotate(' + angle + 'rad)'
       });
     jqarrow
       .css({
-        transform: 'rotate('+ angle +'rad)'
+        transform: 'rotate(' + angle + 'rad)'
       });
     jqarrow
       .css({
@@ -573,50 +592,47 @@ visflow.interaction.dragmoveHandler = function(params) {
       });
 
     $('#edge-drawing').show();
-  }
-  else if (type == 'node') {
-    var dx = event.pageX - this.draglastPos[0],
-        dy = event.pageY - this.draglastPos[1];
+  } else if (type == 'node') {
+    var dx = event.pageX - visflow.interaction.draglastPos[0],
+        dy = event.pageY - visflow.interaction.draglastPos[1];
 
     // The dragged node is moving together (with more offset).
     // The more offset will be reset immediately by jquery draggable however.
 
     // delta & nodes
     visflow.flow.moveNodes(dx, dy, visflow.flow.nodesSelected);
-    this.draglastPos = [event.pageX, event.pageY];
+    visflow.interaction.draglastPos = [event.pageX, event.pageY];
   }
 };
 
 /**
  * Handles drag stop event.
- * @param params
+ * @param {{type: string, event: !jQuery.Event}} params
  */
 visflow.interaction.dragstopHandler = function(params) {
   var type = params.type;
   var event = params.event;
-  this.dragstopPara = params;
-  this.dragstopPos = [event.pageX, event.pageY];
+  visflow.interaction.dragstopParams = params;
+  visflow.interaction.dragstopPos = [event.pageX, event.pageY];
   if (type == 'port') {
     $('#edge-drawing').hide();
-  }
-  else if (type == 'node'){
+  } else if (type == 'node') {
     visflow.interaction.mainContainer_.css('cursor', '');
   }
-  this.mouseMode = '';
+  visflow.interaction.mouseMode = '';
 };
 
 /**
  * Handles drop event.
- * @param params
+ * @param {{type: string, event: !jQuery.Event}} params
  */
 visflow.interaction.dropHandler = function(params) {
-  var type = params.type,
-      event = params.event;
+  var type = params.type;
 
-  if (this.dropPossible) {
+  if (visflow.interaction.dropPossible) {
     if (type == 'port') {
       // connect ports
-      var port1 = this.dragstartPara.port,
+      var port1 = visflow.interaction.dragstartParams.port,
           port2 = params.port;
       if (port1.isInput) {
         // always connect from out to in, swap
@@ -626,7 +642,7 @@ visflow.interaction.dropHandler = function(params) {
       }
       visflow.flow.createEdge(port1, port2);
     } else if (type == 'node') {
-      var port1 = this.dragstartPara.port,
+      var port1 = visflow.interaction.dragstartParams.port,
           port2 = params.node.firstConnectable(port1);
       if (port2 != null) {
         if (port1.isInput) {
@@ -641,13 +657,14 @@ visflow.interaction.dropHandler = function(params) {
         visflow.tooltip.create('No connectable port available');
       }
     }
-    this.dropPossible = false; // prevent dropped on overlapping droppable
+    // prevent dropped on overlapping droppable
+    visflow.interaction.dropPossible = false;
   }
 };
 
 /**
  * Handles mouse clicks.
- * @param params
+ * @param {{type: string, event: !jQuery.Event}} params
  */
 visflow.interaction.clickHandler = function(params) {
   var type = params.type;
@@ -663,6 +680,6 @@ visflow.interaction.clickHandler = function(params) {
  */
 visflow.interaction.escHandler = function() {
   visflow.flow.clearNodeSelection();
-  visflow.popupPanel.close();
+  visflow.popupPanel.hide();
   visflow.dialog.close();
 };

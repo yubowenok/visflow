@@ -3,8 +3,6 @@
  * The original data in table format is immutable within the system.
  */
 
-'use strict';
-
 /**
  * @typedef {{
  *   dimensions: !Array<string>,
@@ -12,6 +10,8 @@
  *   dimensionDuplicate: !Array<boolean>,
  *   values: !Array<!Array<string|number>>,
  *   type: string,
+ *   name: string,
+ *   file: string,
  *   hash: string
  * }}
  */
@@ -36,6 +36,34 @@ visflow.data.INDEX_DIM = -1;
 visflow.data.INDEX_TEXT = '[index]';
 
 /**
+ * @typedef {{
+ *   id: number,
+ *   name: string,
+ *   file: string,
+ *   isServerData: boolean
+ * }}
+ *   id: Data id used by the server.
+ *   name: Data name.
+ *   file: Data file name.
+ *   isServerData: Whether the data is on the server.
+ */
+visflow.data.Info;
+
+/**
+ * Listed data info by the server.
+ * @typedef {{
+ *   id: number,
+ *   name: string,
+ *   file: string,
+ *   mtime: number,
+ *   size: number,
+ *   shareWith: string,
+ *   owner: string
+ * }}
+ */
+visflow.data.ListInfo;
+
+/**
  * Data references by their hashes. When same datasets are loaded, the same
  * data object is re-used to save memory.
  * @type {!Object<!visflow.Data>}
@@ -46,37 +74,25 @@ visflow.data.hashToData = {};
  * Raw data references by the hashed values of their loading info, i.e. name,
  * file and isServerData. It is considered not possible to duplicate if all
  * these three entries match.
- * @type {!Object<!visflow.TabularData>}
+ * @type {!Object<visflow.TabularData>}
  */
 visflow.data.infoHashToRawData = {};
 
 /**
- * Returns a hash of data loading info, including name, file and isServer.
+ * Returns a hash that uniquely identifies a dataset.
  * If the hash value matches, the data should be the same.
- * @param {!{
- *   name: string,
- *   file: string,
- *   isServerData: boolean
- * }} dataInfo
+ * @param {visflow.data.Info} dataInfo
  * @return {string}
  */
 visflow.data.infoHash = function(dataInfo) {
-  return CryptoJS.SHA256([
-    dataInfo.name,
-    dataInfo.file,
-    dataInfo.isServerData
-  ].join(',')).toString();
+  return dataInfo.isServerData ? '' + dataInfo.id : dataInfo.file;
 };
 
 /**
  * Checks for duplicate data.
- * @param {!{
- *   name: string,
- *   file: string,
- *   isServerData: boolean
- * }} dataInfo
- * @return {visflow.TabularData} null if no duplicate,
- *     and the duplicate data otherwise.
+ * @param {visflow.data.Info} dataInfo
+ * @return {?visflow.TabularData} null if no duplicate, and the duplicate data
+ *   otherwise.
  */
 visflow.data.duplicateData = function(dataInfo) {
   var infoHash = visflow.data.infoHash(dataInfo);
@@ -88,12 +104,8 @@ visflow.data.duplicateData = function(dataInfo) {
 
 /**
  * Registers the raw data.
- * @param {!{
- *   name: string,
- *   file: string,
- *   isServerData: boolean
- * }} dataInfo
- * @param {!visflow.TabularData} data
+ * @param {visflow.data.Info} dataInfo
+ * @param {visflow.TabularData} data
  */
 visflow.data.registerRawData = function(dataInfo, data) {
   var infoHash = visflow.data.infoHash(dataInfo);
@@ -117,14 +129,14 @@ visflow.data.registerData = function(data) {
   }
 };
 
-
 /**
- * @param {visflow.TabularData} data
+ * @param {visflow.TabularData=} data
  * @constructor
+ * @extends {visflow.TabularData}
  */
 visflow.Data = function(data) {
   if (data == null) {
-    _(this).extend({  // empty data object
+    _.extend(this, {  // empty data object
       dimensions: [],
       dimensionTypes: [],
       dimensionDuplicate: [],
@@ -140,17 +152,26 @@ visflow.Data = function(data) {
     return;
   }
 
-  [
+  /** @const {!Array<string>} */
+  var DATA_ATTRS = [
     'type',
     'dimensions',
     'dimensionTypes',
     'dimensionDuplicate',
     'hash'
-  ].forEach(function(key) {
+  ];
+
+  DATA_ATTRS.forEach(function(key) {
     if (data[key] == null) {
       visflow.error(key, 'not found in data');
     }
   });
+
+  /**
+   * Data id assigned by the running system instance.
+   * @type {number}
+   */
+  this.dataId = data.dataId;
 
   /**
    * Type of data. It will be a hash value of the data's dimensions and
@@ -158,37 +179,44 @@ visflow.Data = function(data) {
    * @type {string}
    */
   this.type = data.type;
+
   /**
    * Name of the data.
    * @type {string}
    */
   this.name = data.name;
+
   /**
    * File information, usually the file name.
    * If the data is from online sources, then the value is 'online'.
    * @type {string}
    */
   this.file = data.file;
+
   /**
    * List of dimensions.
    * @type {!Array<string>}
    */
   this.dimensions = data.dimensions;
+
   /**
    * Dimension types: int, float, string.
-   * @type {!Array<string>}
+   * @type {!Array<visflow.ValueType>}
    */
   this.dimensionTypes = data.dimensionTypes;
+
   /**
    * Whether the dimension contains duplicate values.
    * @type {!Array<boolean>}
    */
   this.dimensionDuplicate = data.dimensionDuplicate;
+
   /**
    * Hash id of the data, computed from all values inside the data.
    * @type {string}
    */
   this.hash = data.hash;
+
   /**
    * Data attribute values.
    * @type {!Array<!Array<number|string>>}

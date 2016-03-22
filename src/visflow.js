@@ -2,8 +2,6 @@
  * @fileoverview VisFlow namespace. System entry.
  */
 
-'use strict';
-
 /**
  * System kernel namespace.
  * @const
@@ -14,7 +12,6 @@ var visflow = {};
  * Initializes all visflow components.
  */
 visflow.init = function() {
-  visflow.utils.init();
   visflow.scales.init();
 
   visflow.menu.init();
@@ -23,25 +20,30 @@ visflow.init = function() {
   visflow.optionPanel.init();
   visflow.nodePanel.init();
   visflow.popupPanel.init();
+  visflow.toolPanel.init();
   visflow.interaction.init();
+
+  visflow.user.init();
 };
+
+/** @private @const {number} */
+visflow.MESSAGE_DURATION_ = 2000;
 
 /**
  * Displays a user visible error message.
+ * @param {...} args
  */
-visflow.error = function() {
+visflow.error = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
   $('#error').text(msg).parent().slideDown();
 };
 
-/** @const {number} */
-visflow.MESSAGE_DURATION_ = 2000;
-
 /**
  * Displays a user visible warning message.
+ * @param {...} args
  */
-visflow.warning = function() {
+visflow.warning = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
   $('#warning').text(msg).parent()
@@ -52,8 +54,9 @@ visflow.warning = function() {
 
 /**
  * Displays a user visible success message.
+ * @param {...} args
  */
-visflow.success = function() {
+visflow.success = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
   $('#success').text(msg).parent()
@@ -65,7 +68,7 @@ visflow.success = function() {
 /**
  * Asserts a condition. If false then panick.
  * @param {boolean} condition
- * @param {string} opt_msg
+ * @param {string=} opt_msg
  */
 visflow.assert = function(condition, opt_msg) {
   if (!condition) {
@@ -77,7 +80,7 @@ visflow.assert = function(condition, opt_msg) {
  * Opens a documentation page.
  */
 visflow.documentation = function() {
-  window.open('documentation.html');
+  window.open('doc.html');
 };
 
 /**
@@ -85,6 +88,16 @@ visflow.documentation = function() {
  */
 visflow.about = function() {
   visflow.dialog.create({
-    template: './src/dialog/about.html'
+    template: './dist/html/about/about.html'
   });
+};
+
+/**
+ * Signals a visflow event on the given object.
+ * @param {Object|string} obj
+ * @param {string} event
+ * @param {*=} data
+ */
+visflow.signal = function(obj, event, data) {
+  $(obj).trigger('vf.' + event, [data]);
 };

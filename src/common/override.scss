@@ -1,0 +1,121 @@
+// Override library and user agent settings.
+
+@import 'src/common/colors';
+
+// Bootstrap navbar
+.visflow {
+  .navbar-nav > li > a,
+  .navbar-brand {
+    font-size: 1em;
+    height: 28px;
+    padding-bottom: 0; // TODO(bowen): !important?
+    padding-top: 4px; // TODO(bowen): !important?
+  }
+
+  .navbar {
+    min-height: 28px; // TODO(bowen): !important?
+    z-index: 0;
+
+    .dropdown-menu > li > a > i {
+      margin-right: 10px;
+    }
+  }
+
+  .navbar-fixed-top a:hover {
+    cursor: pointer;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
+  // For bootstrap tooltip
+  .tooltip {
+    z-index: 1001;
+  }
+}
+
+// Make select2 look like bootstrap select.
+.select2-container {
+  .select2-selection--single {
+    height: inherit;
+
+    .select2-selection__rendered {
+      box-shadow: inset 0 1px 1px $trans-black-075;
+      line-height: 1.42857143;
+      padding-bottom: 6px;
+      padding-top: 6px;
+    }
+  }
+
+  &.select2-container--default {
+    .select2-selection--single {
+      .select2-selection__arrow {
+        color: $black;
+        height: 100%;
+        right: 7px;
+
+        b {
+          border-color: $gray-3 transparent transparent;
+          border-width: 4px 4px 0;
+        }
+      }
+
+      .select2-selection__clear {
+        font-size: 20px;
+        line-height: 20px;
+        margin-right: 10px;
+      }
+    }
+
+    .select2-selection--multiple {
+      border-color: $gray-c;
+      box-shadow: inset 0 1px 1px $trans-black-075;
+
+      .select2-selection__choice {
+        background-color: $white;
+      }
+    }
+
+    &.select2-container--focus .select2-selection--multiple {
+      border-color: $gray-a;
+    }
+  }
+
+  .select2-selection.select2-selection--single {
+    border-color: $gray-c;
+  }
+}
+
+// jQuery-UI
+
+// Hides grip-se
+.ui-icon-gripsmall-diagonal-se {
+  opacity: 0;
+}
+
+.ui-resizable-sw,
+.ui-resizable-nw,
+.ui-resizable-ne {
+  transform: scale(2);
+}
+
+.ui-resizable-se {
+  transform: scale(1.5);
+}
+
+// User agent
+th {
+  // user agent may default to bold
+  font-weight: normal;
+}
+
+div {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+// DataTables
+.dataTables_wrapper .dataTables_length select.form-control {
+  cursor: pointer;
+}

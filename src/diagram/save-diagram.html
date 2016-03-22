@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <button type="button" class="close" data-dismiss="modal">&times;</button>
+  <h4 class="modal-title">Save Diagram</h4>
+</div>
+<div class="modal-body">
+  <div class="error alert alert-danger" style="display: none;"></div>
+  <div class="section">
+    <label>Diagram Name: </label>
+    <input id="diagram-name" class="form-control"/>
+  </div>
+  <div class="section">
+    <label>Share With: </label>
+    <span class="hint">(sharing the diagram automatically shares its associated datasets with the listed users)</span>
+    <input id="share-with" class="form-control" title="comma separated usernames"/>
+  </div>
+  <hr>
+  <table class="table table-striped table-bordered" width="100%">
+    <thead></thead>
+    <tbody></tbody>
+  </table>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-default" data-dismiss="modal">Cancel</button>
+  <button id="confirm" class="btn btn-primary" data-dismiss="modal">Save</button>
+</div>

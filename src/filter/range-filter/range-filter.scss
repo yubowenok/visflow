@@ -1,0 +1,38 @@
+.visflow .node.range-filter {
+  &.minimized > .icon {
+    background-image: url('/visflow/imgs/range-icon.png');
+  }
+
+  &.details {
+    width: 190px;
+
+    #range {
+      > span {
+        display: inline-block;
+      }
+
+      // Fix unknown vertical offset
+      .offset {
+        position: relative;
+        top: -7px;
+      }
+    }
+
+    #min,
+    #max {
+      div {
+        display: inline-block;
+      }
+
+      .input {
+        width: calc((100% - 30px) / 2);
+      }
+
+      input {
+        font-size: .95em;
+        padding: 6px;
+        text-align: center;
+      }
+    }
+  }
+}

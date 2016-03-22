@@ -1,0 +1,10 @@
+.visflow .node.sampler {
+  &.minimized > .icon {
+    background-image: url('/visflow/imgs/sampler-icon.png');
+  }
+
+  &.details {
+    height: 60px;
+    width: 120px;
+  }
+}

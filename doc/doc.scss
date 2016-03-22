@@ -1,0 +1,268 @@
+@import 'src/common/colors';
+
+@mixin embed-icon($width, $height, $hover-width, $hover-height, $margin: 5px) {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: $width - $margin $height - $margin;
+  border: 1px solid $gray-c;
+  border-radius: 4px;
+  display: inline-block;
+  height: $height;
+  margin-bottom: -2px;
+  margin-left: 2px;
+  margin-right: 2px;
+  width: $width;
+
+  &:hover {
+    background-size: $hover-width $hover-height;
+    height: $hover-height;
+    width: $hover-width;
+  }
+}
+
+
+.visflow {
+  .navbar-nav > li > a,
+  .navbar-brand {
+    font-size: 1em;
+    height: 28px;
+    line-height: 28px;
+    padding-bottom: 0;
+    padding-top: 4px;
+  }
+
+  .navbar-right {
+    a > .glyphicon {
+      margin-right: 5px;
+    }
+  }
+
+  .navbar {
+    min-height: 28px;
+    z-index: 0;
+
+    .dropdown-menu > li > a > i {
+      margin-right: 10px;
+    }
+  }
+
+  .navbar-fixed-top {
+    z-index: 100;
+
+    a:hover {
+      cursor: pointer;
+    }
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
+  #main {
+    margin-bottom: 40px;
+    margin-top: 20px;
+  }
+
+  .section {
+    margin-top: 15px;
+  }
+
+  h2 {
+    padding-top: 20px;
+  }
+
+  .anchor {
+    display: block;
+    position: relative;
+    top: -50px;
+    visibility: hidden;
+  }
+
+  port {
+    @include embed-icon(20px, 20px, 30px, 30px);
+
+    &.data {
+      background-color: $white;
+    }
+
+    &.constant {
+      background-color: $gray-e2;
+    }
+
+    &.single {
+      background-image: url('/visflow/imgs/port-single.png');
+    }
+
+    &.multiple {
+      background-image: url('/visflow/imgs/port-multiple.png');
+    }
+
+    &.selection {
+      background-image: url('/visflow/imgs/port-selection.png');
+    }
+
+  }
+
+  key {
+    border: 1px solid $gray-c;
+    border-radius: 4px;
+    box-shadow: 0 1px 0 $gray-c;
+    line-height: 30px;
+    padding: 3px 12px;
+
+    &.hold {
+      background-color: $gray-e;
+      box-shadow: 0 -2px 0 $gray-c;
+    }
+  }
+
+  icon {
+    @include embed-icon(30px, 30px, 50px, 50px);
+
+    @mixin flat() {
+      @include embed-icon(40px, 20px, 60px, 30px);
+    }
+
+    &.data-source {
+      background-image: url('/visflow/imgs/datasource-icon.png');
+    }
+
+    &.scatterplot {
+      background-image: url('/visflow/imgs/scatterplot-icon.png');
+    }
+
+    &.heatmap {
+      background-image: url('/visflow/imgs/heatmap-icon.png');
+    }
+
+    &.histogram {
+      background-image: url('/visflow/imgs/histogram-icon.png');
+    }
+
+    &.parallel-coordinates {
+      background-image: url('/visflow/imgs/parallelcoordinates-icon.png');
+    }
+
+    &.network {
+      background-image: url('/visflow/imgs/network-icon.png');
+    }
+
+    &.line-chart {
+      background-image: url('/visflow/imgs/line-chart-icon.png');
+    }
+
+    &.table {
+      background-image: url('/visflow/imgs/table-icon.png');
+    }
+
+    &.union {
+      @include flat();
+      background-image: url('/visflow/imgs/union-icon.png');
+    }
+
+    &.intersect {
+      @include flat();
+      background-image: url('/visflow/imgs/intersect-icon.png');
+    }
+
+    &.minus {
+      @include flat();
+      background-image: url('/visflow/imgs/minus-icon.png');
+    }
+
+    &.value-maker {
+      @include flat();
+      background-image: url('/visflow/imgs/value-maker-icon.png');
+    }
+
+    &.value-extractor {
+      @include flat();
+      background-image: url('/visflow/imgs/value-extractor-icon.png');
+    }
+
+    &.property-editor {
+      background-image: url('/visflow/imgs/property-editor-icon.png');
+    }
+
+    &.property-mapping {
+      background-image: url('/visflow/imgs/property-mapping-icon.png');
+    }
+
+    &.contain-filter {
+      @include flat();
+      background-image: url('/visflow/imgs/contain-icon.png');
+    }
+
+    &.range-filter {
+      @include flat();
+      background-image: url('/visflow/imgs/range-icon.png');
+    }
+
+    &.sampler {
+      @include flat();
+      background-image: url('/visflow/imgs/sampler-icon.png');
+    }
+  }
+
+  #visualization-list {
+    img {
+      width: 250px;
+    }
+  }
+
+  .sidebar {
+    border-right: 1px solid $gray-e;
+    bottom: 0;
+    display: block;
+    left: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 20px;
+    position: fixed;
+    top: 51px;
+    z-index: 1000;
+
+    li {
+      list-style: none;
+
+      a {
+        color: $gray-3;
+        padding: 5px 2.5px;
+      }
+    }
+
+    .nav {
+      a:hover {
+        background-color: $white;
+        border: 1px solid $gray-a;
+        border-radius: 4px;
+      }
+    }
+
+    .nav-lv2 {
+      font-size: 13px;
+      padding-left: 20px;
+    }
+
+    .nav-lv3 {
+      font-size: 12px;
+      padding-left: 20px;
+    }
+  }
+
+  .bordered {
+    border: 1px solid $gray-e;
+    border-radius: 4px;
+  }
+
+  .tutorial-table {
+    td {
+      padding: 0 10px;
+      vertical-align: top;
+
+      h3 {
+        margin-top: 0;
+      }
+    }
+  }
+}
