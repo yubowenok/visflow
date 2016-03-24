@@ -1,5 +1,5 @@
 /**
- * @fileoverview Launch Visflow.
+ * @fileoverview Launch VisFlow.
  */
 
 $(document).ready(function() {
