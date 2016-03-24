@@ -9,15 +9,15 @@ while read line
 do
 if [[ $line =~ $base_regex ]]
 then
-  base_path=`echo $line | sed 's/$base_path = //' | sed 's/['\'';]//g'`
+  base_path=`echo $line | sed 's/base_path = //'`
 elif [[ $line =~ $data_regex ]]
 then
-  data_path=`echo $line | sed 's/$data_path = //' | sed 's/['\'';]//g'`
+  data_path=`echo $line | sed 's/data_path = //'`
 elif [[ $line =~ $diagram_regex ]]
 then
-  diagram_path=`echo $line | sed 's/$diagram_path = //' | sed 's/['\'';]//g'`
+  diagram_path=`echo $line | sed 's/diagram_path = //'`
 fi
-done < "config.php"
+done < "config"
 
 demo_data=$base_path$data_path'demo/'
 demo_diagram=$base_path$diagram_path'demo/'

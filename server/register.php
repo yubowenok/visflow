@@ -1,7 +1,7 @@
 <?php
 
 include 'mysql.php';
-include 'config.php';
+include 'common.php';
 
 if (!isset($_POST['username']))
   abort('username not set');
@@ -52,7 +52,7 @@ $session_id = session_id();
 
 $result = queryDB("SELECT id FROM user WHERE username='%s'",
             array($username));
-$user_id = mysql_fetch_assoc($result)['id'];
+$user_id = $result->fetch_assoc()['id'];
 
 // add auth session
 $end_time = date_timestamp_get(date_create()) + 3600; // +1 hour

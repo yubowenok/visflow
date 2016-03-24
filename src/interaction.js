@@ -40,10 +40,10 @@ visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
 ];
 
 /** @private {!jQuery} */
-visflow.interaction.mainContainer_;
+visflow.interaction.mainContainer_ = $();
 
-/** @type {visflow.ContextMenu} */
-visflow.interaction.contextMenu;
+/** @type {visflow.ContextMenu|undefined} */
+visflow.interaction.contextMenu = undefined;
 
 /** @type {string} */
 visflow.interaction.mouseMode = '';
@@ -57,6 +57,22 @@ visflow.interaction.altHold_ = false;
  * }}
  */
 visflow.interaction.dragstartParams = {};
+
+/** @type {visflow.Vector} */
+visflow.interaction.dragstartPos = [];
+/** @type {visflow.Vector} */
+visflow.interaction.draglastPos = [];
+/** @type {visflow.Vector} */
+visflow.interaction.dragstopPos = [];
+/** @type {visflow.Vector} */
+visflow.interaction.mousedownPos = [];
+/** @type {visflow.Vector} */
+visflow.interaction.mouseupPos = [];
+/** @type {visflow.Vector} */
+visflow.interaction.mouselastPos = [];
+
+/** @type {boolean} */
+visflow.interaction.dropPossible = false;
 
 /**
  * Initializes the interaction manager.
@@ -575,7 +591,6 @@ visflow.interaction.dragmoveHandler = function(params) {
     }
     var length = Math.sqrt(dx * dx + dy * dy) - 10;
     var angle = Math.atan2(dy, dx);
-    //console.log(angle);
     jqsegment
       .css({
         width: length,

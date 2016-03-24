@@ -3,7 +3,7 @@
 // Provides data/diagram file writing/reading functions.
 
 include 'session.php';
-include 'config.php';
+include 'common.php';
 
 function checkDir($dir)
 {
@@ -34,7 +34,6 @@ function updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size)
 function saveDataUsername($data_id)
 {
   global $username;
-  $data_username = '';
   if ($data_id == -1)
     // create new data under the current user
     $data_username = $username;
@@ -116,7 +115,7 @@ function getDataShareWith($data_id)
                     ."user ON T.user_id=user.id)",
                     array($data_id));
   $usernames = array();
-  while ($row = mysql_fetch_assoc($result))
+  while ($row = $result->fetch_assoc())
   {
     array_push($usernames, $row['username']);
   }
@@ -145,7 +144,6 @@ function saveDiagram($diagram_id, $diagram_name, $diagram)
 {
   global $username, $diagram_path, $base_path;
 
-  $diagram_username = '';
   if ($diagram_id == -1)
     // create new diagram under the current user
     $diagram_username = $username;
@@ -178,7 +176,7 @@ function loadDiagram($diagram_id)
   $file_path = $row['file_path'];
   $full_path = $base_path . $file_path;
   if (!is_readable($full_path))
-    abort('diagram file not readable');
+    abort('diagram file not readable' . $full_path);
 
   $contents = file_get_contents($full_path);
   if ($contents == false)
@@ -188,7 +186,7 @@ function loadDiagram($diagram_id)
 
 function deleteDiagram($diagram_id)
 {
-  global $diagram_path, $base_path;
+  global $base_path;
 
   $row = getOneDB("SELECT username, file_path FROM ((SELECT user_id, file_path FROM diagram WHERE id=%d) AS T LEFT JOIN "
                   ."user ON T.user_id=user.id)",
@@ -209,7 +207,7 @@ function getDiagramShareWith($diagram_id)
                     ."user ON T.user_id=user.id)",
                     array($diagram_id));
   $usernames = array();
-  while ($row = mysql_fetch_assoc($result))
+  while ($row = $result->fetch_assoc())
   {
     array_push($usernames, $row['username']);
   }

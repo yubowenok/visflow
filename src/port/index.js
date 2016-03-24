@@ -322,7 +322,7 @@ visflow.Port.prototype.interaction = function() {
     .droppable({
       hoverClass: 'hover',
       tolerance: 'pointer',
-      accept: this.isInput ? '.port-out' : '.port-in',
+      accept: this.isInput ? '.port.right' : '.port.left',
       greedy: true,
       drop: function(event) {
         visflow.interaction.dropHandler({

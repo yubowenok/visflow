@@ -3,48 +3,46 @@ include 'response.php';
 
 function connectDB()
 {
-  $db = mysql_connect('localhost', 'visflow', 'visflow');
-  if (!$db)
-    exit('cannot connect to db: ' . mysql_error());
-
-  $db_selected = mysql_select_db('visflow', $db);
-  if (!$db_selected)
-    exit('cannot use visflow db: ' . mysql_error());
-
-  return $db;
+  global $db;
+  $db = new mysqli('localhost', 'visflow', 'visflow', 'visflow');
+  if ($db->connect_errno)
+    abort('cannot connect to db: ' . $db->connect_error);
 }
 
 function escStr($str)
 {
-  return mysql_real_escape_string($str);
+  global $db;
+  return $db->real_escape_string($str);
 }
 
 function queryDB($query, $args)
 {
+  global $db;
   $query = vsprintf($query, $args);
-  $result = mysql_query($query);
+  $result = $db->query($query);
   if (!$result)
-    abort('db query error: ' . mysql_error());
+    abort('db query error: ' . $db->error);
   return $result;
 }
 
 function getOneDB($query, $args)
 {
   $result = queryDB($query, $args);
-  if (!mysql_num_rows($result))
+  if (!$result->num_rows)
     return false;
-  return mysql_fetch_assoc($result);
+  return $result->fetch_assoc();
 }
 
 function countDB($query, $args)
 {
   $result = queryDB($query, $args);
-  return mysql_num_rows($result);
+  return $result->num_rows;
 }
 
-function closeDB($db)
+function closeDB()
 {
-  mysql_close($db);
+  global $db;
+  $db->close();
 }
 
 ?>

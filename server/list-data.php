@@ -6,7 +6,7 @@ $result = queryDB("SELECT id, name, file_name, UNIX_TIMESTAMP(upload_time) as up
                  array($user_id));
 
 $data_list = array();
-while ($row = mysql_fetch_assoc($result))
+while ($row = $result->fetch_assoc())
 {
   array_push($data_list, array(
     'id' => $row['id'],
@@ -23,7 +23,7 @@ $result = queryDB("SELECT username, user_id, data_id, name, file_name, UNIX_TIME
                 ."(((SELECT data_id FROM share_data WHERE user_id=%d) AS T LEFT JOIN data ON T.data_id=data.id) "
                 ."LEFT JOIN user ON user_id=user.id)",
                array($user_id));
-while ($row = mysql_fetch_assoc($result))
+while ($row = $result->fetch_assoc())
 {
   if ($row['user_id'] == $user_id)
     // incorrect share_data entry, ignore
