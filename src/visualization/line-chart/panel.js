@@ -45,7 +45,7 @@ visflow.LineChart.prototype.initPanel = function(container) {
       },
       change: function(event, dim) {
         this.options.groupBy = dim;
-        this.inputChanged();
+        this.dimensionChanged();
       }
     },
     {

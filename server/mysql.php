@@ -21,11 +21,11 @@ function queryDB($query, $args)
 {
   global $db;
 	if ($db == null)
-		abort('no db connection');
+    abort('no db connection');
 
 	foreach ($args as &$value) {
-	  if (is_string($value))
-		  $value = escStr($value);
+    if (is_string($value))
+      $value = escStr($value);
 	}
   $query = vsprintf($query, $args);
   $result = $db->query($query);
