@@ -1,0 +1,21 @@
+@mixin col-wrap($width) {
+  max-width: $width;
+  word-wrap: break-word;
+}
+
+.file-upload {
+  .table td {
+    &.col-name,
+    &.col-file {
+      @include col-wrap(120px);
+    }
+
+    &.col-date {
+      @include col-wrap(90px);
+    }
+
+    &.col-owner {
+      @include col-wrap(100px);
+    }
+  }
+}

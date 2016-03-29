@@ -49,9 +49,9 @@ visflow.ParallelCoordinates.prototype.defaultOptions = function() {
 visflow.ParallelCoordinates.prototype.defaultProperties = function() {
   return {
     color: 'black',
-    size: 1,
+    width: 2,
     fill: 'none',
-    opacity: 0.25
+    opacity: 0.15
   };
 };
 

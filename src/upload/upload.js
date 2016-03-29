@@ -389,11 +389,11 @@ visflow.upload.listDataTable = function(table, dataList) {
       [3, 'desc']
     ],
     columns: [
-      {title: 'Name', data: 'name'},
-      {title: 'File', data: 'file'},
+      {title: 'Name', data: 'name', className: 'col-name'},
+      {title: 'File', data: 'file', className: 'col-file'},
       {title: 'Size', data: 'size'},
-      {title: 'Last Modified', data: 'mtime'},
-      {title: 'Owner', data: 'owner'},
+      {title: 'Last Modified', data: 'mtime', className: 'col-date'},
+      {title: 'Owner', data: 'owner', className: 'col-owner'},
       {title: '', data: 'id'}
     ],
     columnDefs: [

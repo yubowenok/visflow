@@ -19,7 +19,7 @@ visflow.ContainFilter = function(params) {
       isInput: true,
       isConstants: true
     }),
-    'in': new visflow.MultiplePort({
+    'in': new visflow.Port({
       node: this,
       id: 'in',
       isInput: true,

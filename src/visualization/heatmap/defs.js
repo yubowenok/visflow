@@ -62,6 +62,7 @@ visflow.Heatmap.prototype.defaultProperties = function() {
 visflow.Heatmap.prototype.selectedProperties = function() {
   return {
     border: '#6699ee',
+    color: '#333',
     width: 1.5
   };
 };
