@@ -29,7 +29,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL))
 
 $password = hash('sha256', $password);
 
-$db = connectDB();
+connectDB();
 
 // check for existing username
 if (countDB("SELECT * FROM user WHERE username='%s'",
