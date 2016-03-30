@@ -533,7 +533,7 @@ visflow.Histogram.prototype.findPlotDimension = function() {
 
 /**
  * This overrides the default as data items are different in terms of histogram.
- * @override
+ * @inheritDoc
  */
 visflow.Histogram.prototype.selectAll = function() {
   // Here we only select bars.
