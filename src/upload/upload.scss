@@ -1,10 +1,7 @@
-@mixin col-wrap($width) {
-  max-width: $width;
-  word-wrap: break-word;
-}
+@import 'src/common/utils';
 
-.file-upload {
-  .table td {
+.data-list {
+  td {
     &.col-name,
     &.col-file {
       @include col-wrap(120px);

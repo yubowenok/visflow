@@ -332,8 +332,8 @@ visflow.upload.overwriteDialog_ = function(params) {
   visflow.dialog.create({
     template: visflow.upload.OVERWRITE_DIALOG_,
     complete: function(dialog) {
-      dialog.find('label.new').text(formParams.name + ' (' +
-        formParams.fileName + ')');
+      //dialog.find('label.new').text(formParams.name + ' (' +
+      //  formParams.fileName + ')');
       dialog.find('label.old').text(params.prevDataName + ' (' +
         params.prevDataFile + ')');
       dialog.find('#confirm').click(function() {
