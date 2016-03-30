@@ -5,7 +5,12 @@ var flatten = require('gulp-flatten');
 
 var paths = require('./paths.js');
 
-gulp.task('copy', function() {
+gulp.task('copy-imgs', function() {
+  return gulp.src(paths.imgs)
+    .pipe(gulp.dest(paths.dist + 'imgs'));
+});
+
+gulp.task('copy-html', function() {
   return gulp.src(paths.html)
     .pipe(gulp.dest(paths.dist + 'html'));
 });
@@ -19,5 +24,7 @@ gulp.task('copy-doc-imgs', function() {
   return gulp.src(paths.docImgs)
     .pipe(gulp.dest(paths.dist + 'doc'));
 });
+
+gulp.task('copy', ['copy-imgs', 'copy-html']);
 
 gulp.task('copy-doc', ['copy-doc-js', 'copy-doc-imgs']);

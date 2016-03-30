@@ -90,15 +90,15 @@
     }
 
     &.single {
-      background-image: url('/visflow/imgs/port-single.png');
+      background-image: url('./imgs/port-single.png');
     }
 
     &.multiple {
-      background-image: url('/visflow/imgs/port-multiple.png');
+      background-image: url('./imgs/port-multiple.png');
     }
 
     &.selection {
-      background-image: url('/visflow/imgs/port-selection.png');
+      background-image: url('./imgs/port-selection.png');
     }
 
   }
@@ -125,83 +125,83 @@
     }
 
     &.data-source {
-      background-image: url('/visflow/imgs/datasource-icon.png');
+      background-image: url('./imgs/datasource-icon.png');
     }
 
     &.scatterplot {
-      background-image: url('/visflow/imgs/scatterplot-icon.png');
+      background-image: url('./imgs/scatterplot-icon.png');
     }
 
     &.heatmap {
-      background-image: url('/visflow/imgs/heatmap-icon.png');
+      background-image: url('./imgs/heatmap-icon.png');
     }
 
     &.histogram {
-      background-image: url('/visflow/imgs/histogram-icon.png');
+      background-image: url('./imgs/histogram-icon.png');
     }
 
     &.parallel-coordinates {
-      background-image: url('/visflow/imgs/parallelcoordinates-icon.png');
+      background-image: url('./imgs/parallelcoordinates-icon.png');
     }
 
     &.network {
-      background-image: url('/visflow/imgs/network-icon.png');
+      background-image: url('./imgs/network-icon.png');
     }
 
     &.line-chart {
-      background-image: url('/visflow/imgs/line-chart-icon.png');
+      background-image: url('./imgs/line-chart-icon.png');
     }
 
     &.table {
-      background-image: url('/visflow/imgs/table-icon.png');
+      background-image: url('./imgs/table-icon.png');
     }
 
     &.union {
       @include flat();
-      background-image: url('/visflow/imgs/union-icon.png');
+      background-image: url('./imgs/union-icon.png');
     }
 
     &.intersect {
       @include flat();
-      background-image: url('/visflow/imgs/intersect-icon.png');
+      background-image: url('./imgs/intersect-icon.png');
     }
 
     &.minus {
       @include flat();
-      background-image: url('/visflow/imgs/minus-icon.png');
+      background-image: url('./imgs/minus-icon.png');
     }
 
     &.value-maker {
       @include flat();
-      background-image: url('/visflow/imgs/value-maker-icon.png');
+      background-image: url('./imgs/value-maker-icon.png');
     }
 
     &.value-extractor {
       @include flat();
-      background-image: url('/visflow/imgs/value-extractor-icon.png');
+      background-image: url('./imgs/value-extractor-icon.png');
     }
 
     &.property-editor {
-      background-image: url('/visflow/imgs/property-editor-icon.png');
+      background-image: url('./imgs/property-editor-icon.png');
     }
 
     &.property-mapping {
-      background-image: url('/visflow/imgs/property-mapping-icon.png');
+      background-image: url('./imgs/property-mapping-icon.png');
     }
 
     &.contain-filter {
       @include flat();
-      background-image: url('/visflow/imgs/contain-icon.png');
+      background-image: url('./imgs/contain-icon.png');
     }
 
     &.range-filter {
       @include flat();
-      background-image: url('/visflow/imgs/range-icon.png');
+      background-image: url('./imgs/range-icon.png');
     }
 
     &.sampler {
       @include flat();
-      background-image: url('/visflow/imgs/sampler-icon.png');
+      background-image: url('./imgs/sampler-icon.png');
     }
   }
 

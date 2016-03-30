@@ -78,6 +78,9 @@ module.exports = {
   srcDev: orderedSrc.concat([
     'src/dev/**/*.js'
   ]),
+  imgs: [
+    'imgs/**/*',
+  ],
   docJs: [
     'doc/doc.js'
   ],
