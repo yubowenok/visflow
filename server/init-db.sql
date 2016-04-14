@@ -110,7 +110,7 @@ INSERT INTO user (username, password, email) VALUES
   ('visflow', 'ec975f0ba679cebcfabb0b023893850202ac0f5a9533a25a3fc5e6c2f0fe1cab', 'visflow.nyu@gmail.com'),
   ('demo', '2a97516c354b68848cdbd8f54a226a0a55b21ed138e207ad6c5cbb9c00aa5aea', 'visflow.nyu@gmail.com');
 
-INSERT INTO data (user_id, name, file_name, file_path, size) VALUES,
+INSERT INTO data (user_id, name, file_name, file_path, size) VALUES
   (1, 'car', 'car.csv', 'data/visflow/car.csv', 21372),
   (2, 'car', 'car.csv', 'data/demo/car.csv', 21372),
   (2, 'car (mds)', 'car_mds.csv', 'data/demo/car_mds.csv', 50429),

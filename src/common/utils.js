@@ -310,7 +310,7 @@ visflow.utils.fadeOut_ = function(obj) {
  * @private
  */
 visflow.utils.d3_ = function() {
-  return d3.select('--none');
+  return d3.select('#empty-selection');
 };
 
 /**
