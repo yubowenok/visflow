@@ -98,20 +98,27 @@ visflow.upload.setComplete = function(complete) {
 
 /**
  * Uploads/updates a dataset.
- * @param {FormData} formData
+ * @param {{
+ *   id: number,
+ *   name: string,
+ *   fileName: string,
+ *   shareWith: string,
+ *   file: (undefined|Blob),
+ *   data: (undefined|string)
+ * }} formParams
  * @private
  */
-visflow.upload.upload_ = function(formData) {
+visflow.upload.upload_ = function(formParams) {
   $.ajax({
     url: visflow.url.UPLOAD_DATA,
     type: 'POST',
-    data: formData,
+    data: visflow.utils.formData(formParams),
     enctype: 'multipart/form-data',
     processData: false,
     contentType: false
   }).done(function() {
-      visflow.success('data updated:', formData.get('name'),
-        '(' + formData.get('fileName') + ')');
+      visflow.success('data updated:', formParams.name,
+        '(' + formParams.fileName + ')');
       if (visflow.upload.complete_ != null) {
         visflow.upload.complete_();
       }
@@ -137,17 +144,22 @@ visflow.upload.upload_ = function(formData) {
  */
 visflow.upload.uploadDialog_ = function(dialog, params) {
   var dataList = params.dataList;
+  /** @type {!Object<number, visflow.data.ListInfo>} */
   var dataIdInfos = {};
-  var dataNameInfos = {}; // contain only owned data
+  /** @type {!Object<visflow.data.ListInfo>} */
+  var fileNameInfos = {}; // contain only owned data
   dataList.forEach(function(dataInfo) {
     dataIdInfos[dataInfo.id] = dataInfo;
     if (dataInfo.owner === '') {
-      dataNameInfos[dataInfo.name] = dataInfo;
+      fileNameInfos[dataInfo.file] = dataInfo;
     }
   });
 
+  /** @type {?Blob} */
   var selectedFile = null;
+  /** @type {number} */
   var dataId = -1;
+  /** @type {string} */
   var dataName = params.defaultDataName !== undefined ?
     params.defaultDataName : '';
   var dataFile = '';
@@ -167,7 +179,7 @@ visflow.upload.uploadDialog_ = function(dialog, params) {
   var nameInput = dialog.find('#data-name')
     .val(dataName)
     .keyup(function() {
-      dataName = nameInput.val();
+      dataName = /** @type {string} */(nameInput.val());
       uploadReady();
     });
   var fileDisplay = dialog.find('#file-display')
@@ -211,38 +223,38 @@ visflow.upload.uploadDialog_ = function(dialog, params) {
       fileName = dataIdInfos[dataId].file;
     }
 
-    var formData = new FormData();
-    formData.append('id', dataId);
-    formData.append('name', dataName);
-    formData.append('fileName', fileName);
-    formData.append('shareWith', /** @type {string} */(shareWith.val()));
+    var formParams = {
+      id: dataId,
+      name: dataName,
+      fileName: fileName,
+      shareWith: /** @type {string} */(shareWith.val())
+    };
     if (params.data) {
-      formData.append('data', params.data);
+      formParams.data = params.data;
     } else {
-      formData.append('file', selectedFile);
+      formParams.file = selectedFile;
     }
 
-    if (!isOwner || (isOwner && dataName in dataNameInfos)) {
+    if (!isOwner || (isOwner && fileName in fileNameInfos)) {
       // another dialog prompts immediately
       event.stopPropagation();
 
-      if (isOwner && dataName in dataNameInfos && dataId == -1) {
-        var info = dataNameInfos[dataName];
-        dataId = info.id;
+      if (isOwner && dataName in fileNameInfos && dataId == -1) {
+        var info = fileNameInfos[dataName];
         prevDataName = info.name;
         prevDataFile = info.file;
-        formData.set('id', dataId);
+        formParams.id = info.id;
       }
 
       // update previous data
       visflow.upload.overwriteDialog_({
         prevDataName: prevDataName,
         prevDataFile: prevDataFile,
-        formData: formData
+        formParams: formParams
       });
     } else {
       // upload new data
-      visflow.upload.upload_(formData);
+      visflow.upload.upload_(formParams);
     }
   });
 
@@ -304,21 +316,28 @@ visflow.upload.exportDialog_ = function(dialog, params) {
  * @param {{
  *   prevDataName: string,
  *   prevDataFile: string,
- *   formData: FormData
+ *   formParams: {
+ *     id: number,
+ *     name: string,
+ *     fileName: string,
+ *     shareWith: string,
+ *     file: (undefined|Blob),
+ *     data: (undefined|string)
+ *   }
  * }} params
  * @private
  */
 visflow.upload.overwriteDialog_ = function(params) {
-  var formData = params.formData;
+  var formParams = params.formParams;
   visflow.dialog.create({
     template: visflow.upload.OVERWRITE_DIALOG_,
     complete: function(dialog) {
-      dialog.find('label.new').text(formData.get('name') + ' (' +
-        formData.get('fileName') + ')');
+      //dialog.find('label.new').text(formParams.name + ' (' +
+      //  formParams.fileName + ')');
       dialog.find('label.old').text(params.prevDataName + ' (' +
         params.prevDataFile + ')');
       dialog.find('#confirm').click(function() {
-        visflow.upload.upload_(formData);
+        visflow.upload.upload_(formParams);
       });
     }
   });
@@ -370,11 +389,11 @@ visflow.upload.listDataTable = function(table, dataList) {
       [3, 'desc']
     ],
     columns: [
-      {title: 'Name', data: 'name'},
-      {title: 'File', data: 'file'},
+      {title: 'Name', data: 'name', className: 'col-name'},
+      {title: 'File', data: 'file', className: 'col-file'},
       {title: 'Size', data: 'size'},
-      {title: 'Last Modified', data: 'mtime'},
-      {title: 'Owner', data: 'owner'},
+      {title: 'Last Modified', data: 'mtime', className: 'col-date'},
+      {title: 'Owner', data: 'owner', className: 'col-owner'},
       {title: '', data: 'id'}
     ],
     columnDefs: [

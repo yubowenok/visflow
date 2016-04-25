@@ -45,7 +45,7 @@
   }
 
   .port-icon {
-    background-image: url('/visflow/imgs/port-single.png');
+    background-image: url('./imgs/port-single.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: 15px;
@@ -55,10 +55,10 @@
     width: 15px;
 
     &.multiple {
-      background-image: url('/visflow/imgs/port-multiple.png');
+      background-image: url('./imgs/port-multiple.png');
 
       &.selection {
-        background-image: url('/visflow/imgs/port-selection.png');
+        background-image: url('./imgs/port-selection.png');
       }
     }
   }

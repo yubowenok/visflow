@@ -1,0 +1,4 @@
+@mixin col-wrap($width) {
+  max-width: $width;
+  word-wrap: break-word;
+}

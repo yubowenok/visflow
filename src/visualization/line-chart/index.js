@@ -657,3 +657,27 @@ visflow.LineChart.prototype.inputChanged = function() {
   this.itemProps_ = this.getItemProperties_();
   this.lineProps_ = this.getLineProperties_();
 };
+
+/**
+ * This overrides the default as line chart has groups.
+ * @inheritDoc
+ */
+visflow.LineChart.prototype.selectAll = function() {
+  // Repeat getting selected items as we need to update the properties.
+  var items = this.ports['in'].pack.items;
+  this.selected = _.keySet(items);
+  this.selectedGroups = _.keySet(_.range(0, this.lineProps_.length));
+  this.itemProps_ = this.getItemProperties_();
+  this.lineProps_ = this.getLineProperties_();
+  // Parent class will select primitive data items, and update the rendering.
+  visflow.LineChart.base.selectAll.call(this);
+};
+
+/** @inheritDoc */
+visflow.LineChart.prototype.clearSelection = function() {
+  this.selected = {};
+  this.selectedGroups = {};
+  this.itemProps_ = this.getItemProperties_();
+  this.lineProps_ = this.getLineProperties_();
+  visflow.LineChart.base.clearSelection.call(this);
+};

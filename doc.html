@@ -23,7 +23,7 @@
       </div>
       <div class="navbar-right">
         <a class="btn btn-primary" href=".">
-          <i class="glyphicon glyphicon-circle-arrow-left"></i>Back to Visflow
+          <i class="glyphicon glyphicon-circle-arrow-left"></i>Back to VisFlow
         </a>
       </div>
     </div>
@@ -142,7 +142,7 @@
         <h2 id="getting-started">Getting Started</h2>
         <hr>
         <p>
-          Visflow is a framework that allows you to fast launch data analyses in the web.
+          VisFlow is a framework that allows you to fast launch data analyses in the web.
           Watch the short intro video to see <a href="#intro-video">how it works</a>,
           and follow the <a href="#gs-tutorial">tutorial steps</a> to start your visualization and analysis.
         </p>
@@ -163,9 +163,9 @@
             <td>
               <a id="gs-load-data" class="anchor"></a>
               <h4>Load Data</h4>
-              <p>Login with <i>demo mode</i> to take a quick glance at Visflow!</p>
+              <p>Login with <i>demo mode</i> to take a quick glance at VisFlow!</p>
               <p>
-                Loading data into Visflow is as simple as dragging a DataSource<icon class="data-source"></icon> onto the canvas and add a dataset to the DataSource.
+                Loading data into VisFlow is as simple as dragging a DataSource<icon class="data-source"></icon> onto the canvas and add a dataset to the DataSource.
                 A few sample datasets have already been prepared for you under the demo.
               </p>
             </td>
@@ -216,13 +216,13 @@
               <a id="gs-highlight-selection" class="anchor"></a>
               <h4>Highlight Selection</h4>
               <p>
-                Visflow lets you bind rendering properties to data items so that you can identify interesting subset of the input data.
+                VisFlow lets you bind rendering properties to data items so that you can identify interesting subset of the input data.
               </p>
               <p>
                 Connect the selection port of the Scatterplot<icon class="scatterplot"></icon> to a PropertyEditor<icon class="property-editor"></icon> that
                 sets the rendering property of its input data items.
                 Here we give the selected data items a red color.
-                Rendering properties can be adjusted on-the-fly within Visflow.
+                Rendering properties can be adjusted on-the-fly within VisFlow.
                 To compare the selected items with the whole dataset, we use a Union<icon class="union"></icon> set operation to combine the selected items
                 with the original dataset forwarded via <port class="multiple"></port>.
                 We render the unified result in a new Scatterplot.
@@ -245,7 +245,7 @@
         <p>
           VisFlow is a web-based framework that enables creation of interactive visualizations for tabular data based on flow diagram editing.
           The <a href="#flow-diagram">flow diagrams</a> of VisFlow defines the system behaviors, including querying and analytics logic.
-          Visflow employs a special type of flow model, called the <a href="#fd-subset-flow-model">subset flow model</a>.
+          VisFlow employs a special type of flow model, called the <a href="#fd-subset-flow-model">subset flow model</a>.
         </p>
         <p>
           Featuring easy plotting, interactive filtering and highlighting, VisFlow facilitates visualization and data analysis
@@ -260,7 +260,7 @@
         <p>
           A flow diagram defines how the VisFlow system works.
           A diagram consists of nodes and directed edges, and is topologically a directed acyclic graph (DAG).
-          The diagrams in Visflow follow the <a href="#fd-subset-flow-model">subset flow model</a>.
+          The diagrams in VisFlow follow the <a href="#fd-subset-flow-model">subset flow model</a>.
         </p>
         <a id="fd-nodes" class="anchor"></a>
         <h3>Nodes</h3>
@@ -323,12 +323,12 @@
         <a id="fd-rendering-properties" class="anchor"></a>
         <h3>Rendering Properties</h3>
         <p>
-          Data items can be assigned rendering properties within Visflow.
+          Data items can be assigned rendering properties within VisFlow.
           The rendering properties are transmitted along with the data items and can be modified by nodes within the flow.
-          The <a href="#nt-visualization">visualization</a> nodes in Visflow respect the rendering properties associated with the data items.
+          The <a href="#nt-visualization">visualization</a> nodes in VisFlow respect the rendering properties associated with the data items.
         </p>
         <p>
-          Five types of rendering properties are supported in Visflow:
+          Five types of rendering properties are supported in VisFlow:
           <ul>
             <li>Color: The filling color of the rendered shape.</li>
             <li>Border: The color of the rendered shape's border.</li>
@@ -343,9 +343,9 @@
         <a id="fd-subset-flow-model" class="anchor"></a>
         <h3>Subset Flow Model</h3>
         <p>
-          The flow diagrams in Visflow follow the subset flow model.
+          The flow diagrams in VisFlow follow the subset flow model.
           The subset flow model defines that all input/output data of the nodes must be a subset of rows of some original input tabular data of the system.
-          Because of the subset relations defined, within Visflow we are able to uniquely identify a data item and assign rendering property to it,
+          Because of the subset relations defined, within VisFlow we are able to uniquely identify a data item and assign rendering property to it,
           so that it can be rendered in a uniform style across nodes.
         </p>
         <p>
@@ -355,7 +355,7 @@
           This would cause ambiguity in assigning rendering properties and disallow selection highlighting and subset identification.
           Despite certain loss of data processing power, the subset flow model has the advantages of reducing the flow diagram complexity,
           and making subset tracking and comparisons easier.
-          Preferably, data can be processed and modified outside the Visflow system,
+          Preferably, data can be processed and modified outside the VisFlow system,
           while visflow is more suitable for quick-start post-processing data visualization and analysis.
         </p>
       </div>
@@ -367,10 +367,10 @@
         <a id="d-tabular-data" class="anchor"></a>
         <h3>Tabular Data</h3>
         <p>
-          The tabular data applied in Visflow gives information of data items on a set of dimensions (attributes).
+          The tabular data applied in VisFlow gives information of data items on a set of dimensions (attributes).
           It matches the entity-relationship database table definition.
-          Table rows are considered to be unique data items in Visflow.
-          Table (a) below illustrates a sample Visflow input table, which includes a data snippet from the
+          Table rows are considered to be unique data items in VisFlow.
+          Table (a) below illustrates a sample VisFlow input table, which includes a data snippet from the
           <a href="http://data.worldbank.org/topic/health" target="_blank">World Bank Data</a>.
         </p>
         <img width="360" src="dist/doc/tabular.png">
@@ -378,7 +378,7 @@
         <a id="d-data-crossing" class="anchor"></a>
         <h3>Data Crossing</h3>
         <p>
-          To facilitate series data analyses, Visflow supports a special type of operation on its input table called <i>Data Crossing</i>,
+          To facilitate series data analyses, VisFlow supports a special type of operation on its input table called <i>Data Crossing</i>,
           which takes a set of primary key attributes and a set of dimensions, and transforms the input table into rows of series points.
           Dimension names are written in an attribute column, and the original table values are stored in a third column.
           Table (b) above shows data crossing of table (a) using "Country" as the primary key, and the years as the dimensions.
@@ -390,12 +390,12 @@
         <a id="d-upload-data" class="anchor"></a>
         <h3>Upload Data</h3>
         <p>
-          To upload custom data to Visflow, open the upload data dialog by clicking the upload data button on the tool panel,
+          To upload custom data to VisFlow, open the upload data dialog by clicking the upload data button on the tool panel,
           and then choose a local file to upload.
           <img src="dist/doc/toolpanel-upload.png">
         </p>
         <p>
-          Visflow currently supports standard CSV data.
+          VisFlow currently supports standard CSV data.
           A tabular dataset to be loaded with <i>D</i> dimensions and <i>N</i> data items (rows) will look as follows:
           <pre>
 dimension_name_1,dimension_name_2,...,dimension_name_D
@@ -403,7 +403,7 @@ item1_value_1,item1_value_2,...,item1_value_D
 item2_value_1,item2_value_2,...,item2_value_D
 ...
 itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
-          Visflow will automatically recognize the value types for each column, and render the column values correspondingly in the plots.
+          VisFlow will automatically recognize the value types for each column, and render the column values correspondingly in the plots.
         </p>
       </div>
 
@@ -460,7 +460,7 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
         <a id="de-visualization-mode" class="anchor"></a>
         <h3>Visualization Mode (VisMode)</h3>
         <p>
-          Visflow features <i>Visualization Mode (VisMode)</i>, in which only selected nodes (typically visualizations) are shown and the other diagram
+          VisFlow features <i>Visualization Mode (VisMode)</i>, in which only selected nodes (typically visualizations) are shown and the other diagram
           details are hidden. The following illustrates a VisMode system and its corresponding flow diagram.
           Nodes can be set to be visible/invisible in VisMode via context menu or the option panel.
         </p>
@@ -473,7 +473,7 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
         <a id="de-share-diagram" class="anchor"></a>
         <h3>Share Diagram</h3>
         <p>
-          Visflow allows you to share a diagram with other users so as to support collaboration.
+          VisFlow allows you to share a diagram with other users so as to support collaboration.
           In the save diagram dialog, simply enters the users you want to share the diagram with in the "share with".
           The users you listed will be able to view and edit your shared diagram.
           Your uploaded data associated with the shared diagram will be automatically shared with those users as well.
@@ -510,7 +510,7 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
         </p>
         <img src="dist/doc/visualization-ports.png" width="500">
 
-        <p>Visflow currently supports the following types of visualizations:</p>
+        <p>VisFlow currently supports the following types of visualizations:</p>
         <table id="visualization-list" class="table table-bordered table-striped">
           <thead>
             <tr>
@@ -645,7 +645,7 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
         <h3>Filter</h3>
         <p>
           Filters examine attribute values of data items and perform attribute filtering.
-          Visflow has three types of filters.
+          VisFlow has three types of filters.
         </p>
         <table class="table table-bordered table-striped">
           <thead>
@@ -769,7 +769,7 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
         <h3>Set Operation</h3>
         <p>
           Set operations allow subset manipulation.
-          Visflow has three set operations:
+          VisFlow has three set operations:
         </p>
         <table class="table table-bordered table-striped">
           <thead>

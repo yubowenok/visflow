@@ -1,4 +1,6 @@
-## VisFlow - Web-based Workflow Framework for Visual Analytics of Tabular Data
+## VisFlow - Web-based Visualization Framework for Tabular Data with Subset Flow Model
+
+[![Build Status](https://travis-ci.org/yubowenok/visflow.svg?branch=master)](https://travis-ci.org/yubowenok/visflow)
 
 VisFlow is a tool that enables creation of visual analytics system for tabular data based on flow diagram editing.
 This tool works as a user end application and makes transparent the underlying work of data processing, filtering and rendering.

@@ -206,6 +206,7 @@ visflow.Heatmap.prototype.getItemProperties_ = function() {
       prop.border = colorScaleInfo.contrastColor != null ?
         colorScaleInfo.contrastColor : selectedProperties.border;
       prop.labelBorder = selectedProperties.border;
+      prop.labelColor = selectedProperties.color;
       prop.width = selectedProperties.width;
     } else {
       if (items[index].properties.color != null) {

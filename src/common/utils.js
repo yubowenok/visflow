@@ -247,6 +247,19 @@ visflow.utils.standardURL = function(url) {
 };
 
 /**
+ * Creates a FormData object with the parameters specified in formParams.
+ * @param {!Object<Blob|null|string>} formParams
+ * @return {FormData}
+ */
+visflow.utils.formData = function(formParams) {
+  var formData = new FormData();
+  for (var key in formParams) {
+    formData.append(key, formParams[key]);
+  }
+  return formData;
+};
+
+/**
  * Converts an array of string or object with string keys to a set with strings
  * as keys. The values will be set to all true.
  * @param {!Array<T>|!Object<T>} collection
@@ -297,7 +310,7 @@ visflow.utils.fadeOut_ = function(obj) {
  * @private
  */
 visflow.utils.d3_ = function() {
-  return d3.select('--none');
+  return d3.select('#empty-selection');
 };
 
 /**

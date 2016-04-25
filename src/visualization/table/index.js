@@ -217,7 +217,9 @@ visflow.Table.prototype.drawBrush = function() {
  * @private
  */
 visflow.Table.prototype.updateScrollBodyHeight_ = function() {
-  var height = this.container.height() - this.WRAPPER_HEIGHT_;
+  var height = this.container.height() -
+    this.container.find('.dataTables_scrollHead').height() -
+    this.WRAPPER_HEIGHT_;
   this.content.find('.dataTables_scrollBody')
     .css('max-height', height)
     .css('height', height);

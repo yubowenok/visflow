@@ -15,9 +15,15 @@ if (!$row)
   abort('data to get does not exist');
 if ($row['user_id'] != $user_id)
 {
+  $access = 0;
   // other's data
-  if (!countDB("SELECT * FROM share_data WHERE data_id=%d AND user_id=%d",
+  if (countDB("SELECT * FROM share_data WHERE data_id=%d AND user_id=%d",
               array($data_id, $user_id)))
+    $access++;
+  if (countDB("SELECT * FROM sample_data WHERE data_id=%d",
+              array($data_id)));
+    $access++;
+  if (!$access)
     abort('requested data is not shared with you');
 }
 
