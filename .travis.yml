@@ -4,7 +4,7 @@ node_js:
 
 before_script:
   - npm install -g gulp
-  - rvm install ruby-2.2.3
+  - rvm install ruby
   - gem install scss_lint
 
 script:

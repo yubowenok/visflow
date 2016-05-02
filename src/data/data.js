@@ -21,12 +21,6 @@ visflow.TabularData;
 visflow.data = {};
 
 /**
- * Counter to set process based dataIds.
- * @type {number}
- */
-visflow.data.counter = 0;
-
-/**
  * Dimension index of item table index.
  * @const {number}
  */
@@ -34,6 +28,9 @@ visflow.data.INDEX_DIM = -1;
 
 /** @const {string} */
 visflow.data.INDEX_TEXT = '[index]';
+
+/** @const {string} */
+visflow.data.EMPTY_DATA_ID = 'empty';
 
 /**
  * @typedef {{
@@ -121,12 +118,7 @@ visflow.data.registerData = function(data) {
     visflow.error('attempt register null/empty data');
     return;
   }
-  if (!(data.hash in visflow.data.hashToData)) {
-    visflow.data.hashToData[data.hash] = data;
-    data.dataId = ++visflow.data.counter;
-  } else {
-    data.dataId = visflow.data.hashToData[data.hash].dataId;
-  }
+  visflow.data.hashToData[data.hash] = data;
 };
 
 /**
@@ -141,7 +133,7 @@ visflow.Data = function(data) {
       dimensionTypes: [],
       dimensionDuplicate: [],
       values: [],
-      dataId: 0,
+      dataId: visflow.data.EMPTY_DATA_ID,
       type: ''
     });
     return;
@@ -169,9 +161,10 @@ visflow.Data = function(data) {
 
   /**
    * Data id assigned by the running system instance.
-   * @type {number}
+   * Use hash value as data id to identify data changes.
+   * @type {string}
    */
-  this.dataId = data.dataId;
+  this.dataId = data.hash;
 
   /**
    * Type of data. It will be a hash value of the data's dimensions and

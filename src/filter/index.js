@@ -18,9 +18,9 @@ visflow.Filter = function(params) {
 
   /**
    * Last processed data id. By default it is empty data.
-   * @protected {number}
+   * @protected {string}
    */
-  this.lastDataId = 0;
+  this.lastDataId = visflow.data.EMPTY_DATA_ID;
 };
 
 _.inherit(visflow.Filter, visflow.Node);
@@ -51,7 +51,7 @@ visflow.Filter.prototype.deserialize = function(save) {
   visflow.Filter.base.deserialize.call(this, save);
   this.lastDataId = save.lastDataId;
   if (this.lastDataId == null) {
-    this.lastDataId = 0;
+    this.lastDataId = visflow.data.EMPTY_DATA_ID;
     visflow.warning('filter lastDataId not saved');
   }
 };

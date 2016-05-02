@@ -83,9 +83,9 @@ visflow.Network = function(params) {
 
   /**
    * Last data id for edges.
-   * @protected {number}
+   * @protected {string}
    */
-  this.lastEdgeDataId = 0;
+  this.lastEdgeDataId = visflow.data.EMPTY_DATA_ID;
 
   // Navigation state.
   /** @private {!Array<number>} */

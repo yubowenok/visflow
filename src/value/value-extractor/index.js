@@ -27,10 +27,10 @@ visflow.ValueExtractor = function(params) {
   };
 
   /**
-   * Last applied data id. Default is empty data (0).
-   * @protected {number}
+   * Last applied data id. Default is empty data.
+   * @protected {string}
    */
-  this.lastDataId = 0;
+  this.lastDataId = visflow.data.EMPTY_DATA_ID;
 };
 
 _.inherit(visflow.ValueExtractor, visflow.Node);
