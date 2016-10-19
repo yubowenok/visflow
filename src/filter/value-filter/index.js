@@ -1,5 +1,5 @@
 /**
- * @fileoverview VisFlow contain filter module.
+ * @fileoverview VisFlow Value Filter module.
  */
 
 /**
@@ -7,8 +7,8 @@
  * @constructor
  * @extends {visflow.Filter}
  */
-visflow.ContainFilter = function(params) {
-  visflow.ContainFilter.base.constructor.call(this, params);
+visflow.ValueFilter = function(params) {
+  visflow.ValueFilter.base.constructor.call(this, params);
 
   /** @inheritDoc */
   this.ports = {
@@ -40,19 +40,19 @@ visflow.ContainFilter = function(params) {
   this.value = [];
 };
 
-_.inherit(visflow.ContainFilter, visflow.Filter);
+_.inherit(visflow.ValueFilter, visflow.Filter);
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.deserialize = function(save) {
-  visflow.ContainFilter.base.deserialize.call(this, save);
+visflow.ValueFilter.prototype.deserialize = function(save) {
+  visflow.ValueFilter.base.deserialize.call(this, save);
   if (save.typeInValue) {
     this.options.typeInValue = save.typeInValue;
   }
 };
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.showDetails = function() {
-  visflow.ContainFilter.base.showDetails.call(this);
+visflow.ValueFilter.prototype.showDetails = function() {
+  visflow.ValueFilter.base.showDetails.call(this);
 
   var units = [
     // Dimension
@@ -91,7 +91,7 @@ visflow.ContainFilter.prototype.showDetails = function() {
 };
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.process = function() {
+visflow.ValueFilter.prototype.process = function() {
   var port = this.ports['inVal'];
   var pack;
   if (port.connected()) {
@@ -121,7 +121,7 @@ visflow.ContainFilter.prototype.process = function() {
 };
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.filter = function() {
+visflow.ValueFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
   var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;

@@ -1,9 +1,9 @@
 /**
- * @fileoverview Contain filter panel functions.
+ * @fileoverview Value filter panel functions.
  */
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.initPanel = function(container) {
+visflow.ValueFilter.prototype.initPanel = function(container) {
   var units = [
     // Dimension
     {

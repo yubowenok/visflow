@@ -1,5 +1,5 @@
 /**
- * @fileoverview Container filter options.
+ * @fileoverview Value filter options.
  */
 
 /**
@@ -7,8 +7,8 @@
  * @extends {visflow.options.Node}
  * @constructor
  */
-visflow.options.ContainFilter = function(params) {
-  visflow.options.ContainFilter.base.constructor.call(this, params);
+visflow.options.ValueFilter = function(params) {
+  visflow.options.ValueFilter.base.constructor.call(this, params);
 
   /**
    * Dimensions to be filtered on.
@@ -44,4 +44,4 @@ visflow.options.ContainFilter = function(params) {
     params.typeInValue : null;
 };
 
-_.inherit(visflow.options.ContainFilter, visflow.options.Node);
+_.inherit(visflow.options.ValueFilter, visflow.options.Node);
