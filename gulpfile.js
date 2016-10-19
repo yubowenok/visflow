@@ -38,7 +38,9 @@ gulp.task('default', ['lint', 'build', 'build-doc']);
 // Do everything.
 gulp.task('all', function(cb) {
   runSequence(
-    'clean',
+    'dist',
     ['lint', 'compile-all', 'build-doc'],
+    'dist',
+    'build',
     cb);
 });

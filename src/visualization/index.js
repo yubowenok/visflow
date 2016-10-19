@@ -55,10 +55,10 @@ visflow.Visualization = function(params) {
   this.brushPoints = [];
 
   /**
-   * Last used dataset ID.
-   * @protected {number}
+   * Last used dataset ID. Default is empty data.
+   * @protected {string}
    */
-  this.lastDataId = 0;  // Default: empty data
+  this.lastDataId = visflow.data.EMPTY_DATA_ID;
 
   /**
    * Whether rendering should be using transition. When the view is resized,
@@ -112,7 +112,7 @@ visflow.Visualization.prototype.deserialize = function(save) {
   this.lastDataId = save.lastDataId;
   if (this.lastDataId == null) {
     visflow.error('lastDataId not saved in visualization');
-    this.lastDataId = 0;
+    this.lastDataId = visflow.data.EMPTY_DATA_ID;
   }
   this.fillOptions(this.options, this.visualizationOptions());
 };
