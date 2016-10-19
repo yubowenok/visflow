@@ -41,10 +41,11 @@ var compile = function(cb, src) {
         externs: externs,
         output_wrapper: '(function(){%output%}).call(window);'
       }
-    }).on('error', function() {
+    }).on('error', function(err) {
       del([
         'visflow.js'
       ]);
+      cb(err);
     }));
 };
 
