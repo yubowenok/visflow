@@ -1,21 +1,21 @@
 /**
- * @fileoverview Contain filter defs.
+ * @fileoverview Value filter defs.
  */
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.TEMPLATE =
-  './dist/html/filter/contain-filter/contain-filter.html';
+visflow.ValueFilter.prototype.TEMPLATE =
+  './dist/html/filter/value-filter/value-filter.html';
 /** @inheritDoc */
-visflow.ContainFilter.prototype.PANEL_TEMPLATE =
-  './dist/html/filter/contain-filter/contain-filter-panel.html';
+visflow.ValueFilter.prototype.PANEL_TEMPLATE =
+  './dist/html/filter/value-filter/value-filter-panel.html';
 /** @inheritDoc */
-visflow.ContainFilter.prototype.NODE_NAME = 'Contain Filter';
+visflow.ValueFilter.prototype.NODE_NAME = 'Value Filter';
 /** @inheritDoc */
-visflow.ContainFilter.prototype.NODE_CLASS = 'contain-filter';
+visflow.ValueFilter.prototype.NODE_CLASS = 'value-filter';
 
 /** @inheritDoc */
-visflow.ContainFilter.prototype.defaultOptions = function() {
-  return new visflow.options.ContainFilter({
+visflow.ValueFilter.prototype.defaultOptions = function() {
+  return new visflow.options.ValueFilter({
     // Dimensions to be filtered on.
     dims: [],
     // Whether input is treated as normal text or regex.

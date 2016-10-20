@@ -120,7 +120,7 @@ visflow.flow.NODE_CONSTRUCTORS_ = {
   minus: visflow.Minus,
   union: visflow.Union,
   range: visflow.RangeFilter,
-  contain: visflow.ContainFilter,
+  value: visflow.ValueFilter,
   sampler: visflow.Sampler,
   valueExtractor: visflow.ValueExtractor,
   valueMaker: visflow.ValueMaker,
@@ -140,7 +140,8 @@ visflow.flow.NODE_CONSTRUCTORS_ = {
  * @const @private {!Object<string>}
  */
 visflow.flow.OBSOLETE_TYPES_ = {
-  bandLimiter: 'sampler'
+  bandLimiter: 'sampler',
+  contain: 'value'
 };
 
 /**

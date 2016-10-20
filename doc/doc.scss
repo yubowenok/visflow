@@ -189,14 +189,14 @@
       background-image: url('./imgs/property-mapping-icon.png');
     }
 
-    &.contain-filter {
+    &.value-filter {
       @include flat();
-      background-image: url('./imgs/contain-icon.png');
+      background-image: url('./imgs/value-filter-icon.png');
     }
 
     &.range-filter {
       @include flat();
-      background-image: url('./imgs/range-icon.png');
+      background-image: url('./imgs/range-filter-icon.png');
     }
 
     &.sampler {
