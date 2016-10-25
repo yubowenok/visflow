@@ -8,11 +8,12 @@ visflow.welcome = {};
 /** @private @const {string} */
 visflow.welcome.TEMPLATE_ = './dist/html/welcome/welcome.html';
 
+
 /**
  * Launches the system welcome.
  */
 visflow.welcome.init = function() {
-  if (!visflow.user.loggedIn()) {
+  if (!visflow.user.loggedIn() || visflow.isMobile()) {
     visflow.dialog.create({
       template: visflow.welcome.TEMPLATE_,
       complete: visflow.welcome.initWelcome_
@@ -20,12 +21,14 @@ visflow.welcome.init = function() {
   }
 };
 
+
 /**
  * Initializes the welcome dialog.
  * @param {!jQuery} dialog
  * @private
  */
 visflow.welcome.initWelcome_ = function(dialog) {
+  dialog.find('#is-mobile').toggle(visflow.isMobile());
   dialog.find('#get-started')
     .click(function() {
       visflow.documentation();

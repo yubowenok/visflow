@@ -27,6 +27,8 @@ visflow.nodePanel.isOpen = false;
 visflow.nodePanel.TEMPLATE_ = './dist/html/panel/node-panel/node-panel.html';
 /** @private @const {number} */
 visflow.nodePanel.TRANSITION_DURATION_ = 300;
+/** @private @const {number} */
+visflow.nodePanel.INIT_DELAY_ = 300;
 
 /**
  * Initializes the node panel and its interaction.
@@ -45,6 +47,9 @@ visflow.nodePanel.init = function() {
   visflow.nodePanel.hoverArea_.mouseenter(showPanel);
 
   visflow.nodePanel.initUpdateHandlers_();
+  // Set correct panel with on system init
+  visflow.nodePanel.show_();
+  setTimeout(visflow.nodePanel.hide_, visflow.nodePanel.INIT_DELAY_);
 };
 
 /**

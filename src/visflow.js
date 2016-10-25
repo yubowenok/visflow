@@ -29,6 +29,15 @@ visflow.init = function() {
 /** @private @const {number} */
 visflow.MESSAGE_DURATION_ = 2000;
 
+
+/**
+ * Tests if the client is using mobile device.
+ * @return {boolean}
+ */
+visflow.isMobile = function() {
+  return isMobile.phone || isMobile.tablet;
+};
+
 /**
  * Displays a user visible error message.
  * @param {...} args
