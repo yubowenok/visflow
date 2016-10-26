@@ -32,7 +32,6 @@
     "select2": "~4.0.0",
     "underscore": "~1.8.2",
     "js-cookie": "~2.1.0",
-    "jquery-ui-touch-punch": "*",
-    "isMobile": "^0.4.1"
+    "jquery-ui-touch-punch": "*"
   }
 }
