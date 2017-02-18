@@ -1,41 +1,9 @@
-// Override library and user agent settings.
+//
+// Make select2 look like bootstrap select.
+//
 
 @import 'src/common/colors';
 
-// Bootstrap navbar
-.visflow {
-  .navbar-nav > li > a,
-  .navbar-brand {
-    font-size: 1em;
-    height: 28px;
-    padding-bottom: 0; // TODO(bowen): !important?
-    padding-top: 4px; // TODO(bowen): !important?
-  }
-
-  .navbar {
-    min-height: 28px; // TODO(bowen): !important?
-    z-index: 0;
-
-    .dropdown-menu > li > a > i {
-      margin-right: 10px;
-    }
-  }
-
-  .navbar-fixed-top a:hover {
-    cursor: pointer;
-  }
-
-  .bold {
-    font-weight: bold;
-  }
-
-  // For bootstrap tooltip
-  .tooltip {
-    z-index: 1001;
-  }
-}
-
-// Make select2 look like bootstrap select.
 .select2-container {
   .select2-selection--single {
     height: inherit;
@@ -85,37 +53,4 @@
   .select2-selection.select2-selection--single {
     border-color: $gray-c;
   }
-}
-
-// jQuery-UI
-
-// Hides grip-se
-.ui-icon-gripsmall-diagonal-se {
-  opacity: 0;
-}
-
-.ui-resizable-sw,
-.ui-resizable-nw,
-.ui-resizable-ne {
-  transform: scale(2);
-}
-
-.ui-resizable-se {
-  transform: scale(1.5);
-}
-
-// User agent
-th {
-  // user agent may default to bold
-  font-weight: normal;
-}
-
-div {
-  -webkit-user-drag: none;
-  user-select: none;
-}
-
-// DataTables
-.dataTables_wrapper .dataTables_length select.form-control {
-  cursor: pointer;
 }

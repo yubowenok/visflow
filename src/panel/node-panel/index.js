@@ -26,9 +26,9 @@ visflow.nodePanel.isOpen = false;
 /** @private @const {string} */
 visflow.nodePanel.TEMPLATE_ = './dist/html/panel/node-panel/node-panel.html';
 /** @private @const {number} */
-visflow.nodePanel.TRANSITION_DURATION_ = 300;
+visflow.nodePanel.TRANSITION_DURATION_ = 50;
 /** @private @const {number} */
-visflow.nodePanel.INIT_DELAY_ = 300;
+visflow.nodePanel.INIT_DELAY_ = 50;
 
 /**
  * Initializes the node panel and its interaction.
@@ -43,8 +43,8 @@ visflow.nodePanel.init = function() {
       visflow.nodePanel.toggle(true);
     }
   };
-  container.find('#btn-toggle').mouseenter(showPanel);
-  visflow.nodePanel.hoverArea_.mouseenter(showPanel);
+  //container.find('#btn-toggle').mouseenter(showPanel);
+  //visflow.nodePanel.hoverArea_.mouseenter(showPanel);
 
   visflow.nodePanel.initUpdateHandlers_();
   // Set correct panel with on system init
@@ -76,6 +76,9 @@ visflow.nodePanel.setVisible_ = function(visible) {
  * @param {boolean=} opt_state Whether the panel shall be open.
  */
 visflow.nodePanel.toggle = function(opt_state) {
+  // TODO(bowen): Completely disable node panel toggle.
+  return;
+  /*
   var newState;
   if (opt_state == null) {
     newState = !visflow.nodePanel.isOpen;
@@ -91,6 +94,7 @@ visflow.nodePanel.toggle = function(opt_state) {
       visflow.nodePanel.hide_();
     }
   }
+  */
 };
 
 /**
@@ -108,6 +112,7 @@ visflow.nodePanel.getWidth_ = function() {
  * @private
  */
 visflow.nodePanel.show_ = function() {
+  // TODO(bowen): Completely disable node panel show.
   var content = visflow.nodePanel.container_.find('.content');
   content.load(visflow.nodePanel.TEMPLATE_, function() {
     var width = visflow.nodePanel.getWidth_();
@@ -129,6 +134,9 @@ visflow.nodePanel.show_ = function() {
  * @private
  */
 visflow.nodePanel.hide_ = function() {
+  // TODO(bowen): Completely disable node panel hide.
+  return;
+  /*
   var content = visflow.nodePanel.container_.find('.content');
   var width = visflow.nodePanel.getWidth_();
   visflow.nodePanel.container_.stop()
@@ -143,6 +151,7 @@ visflow.nodePanel.hide_ = function() {
 
       }
     });
+    */
 };
 
 

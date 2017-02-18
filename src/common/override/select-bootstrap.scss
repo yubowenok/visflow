@@ -1,0 +1,11 @@
+//
+// Override datatables.net-select-bs/select.bootstrap.min.css
+//
+@import 'src/common/colors';
+
+table.dataTable tbody {
+  > tr.selected,
+  > tr > .selected {
+    background-color: $theme-color-light;
+  }
+}

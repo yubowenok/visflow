@@ -14,11 +14,18 @@
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css"/>
   <!-- bootstrap -->
   <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <!--
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
+  -->
+  <!-- dependency css built from libraries -->
+  <link rel="stylesheet" href="dist/css/visflow_deps.css"/>
+
   <!-- bootstrap switch -->
   <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
+  <!--
   <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
+  -->
   <!-- select2 -->
   <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
@@ -46,10 +53,10 @@
 
   <!-- visflow src -->
   <script type="text/javascript" src="dist/visflow.js"></script>
-  <link rel="stylesheet" href="dist/visflow.css"/>
+  <link rel="stylesheet" href="dist/css/visflow.css"/>
 </head>
 <body class="visflow">
-  <nav class="navbar navbar-inverse navbar-fixed-top">
+  <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand bold">VisFlow</a>
@@ -101,20 +108,18 @@
     </div>
   </div>
 
-  <div id="message" class="container-fluid">
-    <div class="row">
-      <div class="system-message alert alert-success" style="display:none">
-        <button class="close">&times;</button>
-        <div id="success">Success info displayed here</div>
-      </div>
-      <div class="system-message alert alert-warning" style="display:none">
-        <button class="close">&times;</button>
-        <div id="warning">Warning displayed here</div>
-      </div>
-      <div class="system-message alert alert-danger" style="display:none">
-        <button class="close">&times;</button>
-        <div id="error">Error displayed here</div>
-      </div>
+  <div id="message">
+    <div class="system-message alert alert-success" style="display:none">
+      <button class="close">&times;</button>
+      <div id="success">Success info displayed here</div>
+    </div>
+    <div class="system-message alert alert-warning" style="display:none">
+      <button class="close">&times;</button>
+      <div id="warning">Warning displayed here</div>
+    </div>
+    <div class="system-message alert alert-danger" style="display:none">
+      <button class="close">&times;</button>
+      <div id="error">Error displayed here</div>
     </div>
   </div>
 
@@ -149,11 +154,13 @@
     </div>
   </div>
   <div id="node-panel">
+    <!--
     <button id="btn-toggle">
       <span class="glyphicon glyphicon-plus"></span>
     </button>
     <div class="hover-area">
     </div>
+    -->
     <div class="content">
     </div>
   </div>
@@ -163,10 +170,14 @@
       <i class="glyphicon glyphicon-move"></i>
     </button>
     <button id="vis-mode" class="btn btn-default btn-xs to-tooltip" title="visualization mode" data-placement="bottom">
-      <i class="glyphicon glyphicon glyphicon-facetime-video"></i>
+      <i class="glyphicon glyphicon-facetime-video"></i>
     </button>
     <button id="upload" class="btn btn-default btn-xs to-tooltip" title="upload data" data-placement="right">
-      <i class="glyphicon glyphicon glyphicon-upload"></i>
+      <i class="glyphicon glyphicon-upload"></i>
+    </button>
+    <button id="mic" class="btn btn-default btn-xs to-tooltip" title="speak command" data-placement="right">
+      <i class="microphone" alt="Icons made by http://www.freepik.com from http://www.flaticon.com CC 3.0 BY"></i>
+      <i class="glyphicon glyphicon-asterisk invisible"></i>
     </button>
   </div>
 </body>
