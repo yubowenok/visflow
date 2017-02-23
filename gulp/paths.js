@@ -93,9 +93,6 @@ module.exports = {
   externs: [
     'src/externs/**/*.js'
   ],
-  serverExterns: [
-    'server/externs/*.js'
-  ],
   scss: [
     'src/**/*.scss',
     'src/**/*.css'

@@ -202,7 +202,7 @@ visflow.utils.propertiesCompareKey = function(properties) {
   ['color', 'border', 'width', 'opacity'].forEach(function(key) {
     var p = key in properties ? properties[key] : '';
     if (key == 'color') {
-      p = d3.rgb('' + p).hsl();
+      p = d3.hsl(d3.rgb('' + p));
       p = [isNaN(p.h) ? 0 : p.h, isNaN(p.s) ? 0 : p.s, p.l];
       result = result.concat(p);
     } else {

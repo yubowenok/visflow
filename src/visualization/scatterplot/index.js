@@ -11,10 +11,10 @@ visflow.Scatterplot = function(params) {
   visflow.Scatterplot.base.constructor.call(this, params);
 
   // Rendering scales.
-  /** @type {!d3.scale} */
-  this.xScale = d3.scale.linear();
-  /** @type {!d3.scale} */
-  this.yScale = d3.scale.linear();
+  /** @type {d3.Scale} */
+  this.xScale = d3.scaleLinear();
+  /** @type {d3.Scale} */
+  this.yScale = d3.scaleLinear();
 
   /** @type {visflow.ScaleType} */
   this.xScaleType = visflow.ScaleType.UNKNOWN;
@@ -194,11 +194,12 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
 visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
   var points = this.svgPoints_.selectAll('circle')
     .data(itemProps, _.getValue('index'));
-  points.enter().append('circle')
-    .attr('id', _.getValue('index'));
+
   _.fadeOut(points.exit());
 
-  points
+  points = points.enter().append('circle')
+    .attr('id', _.getValue('index'))
+    .merge(points)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 

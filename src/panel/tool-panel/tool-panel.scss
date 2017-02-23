@@ -18,11 +18,11 @@
   }
 
   .microphone {
-    width: $font-size;
-    height: $font-size;
     background: transparent url('./imgs/microphone.png') center no-repeat;
     background-size: $font-size;
+    height: $font-size;
     margin-top: 1.5px;
     position: absolute;
+    width: $font-size;
   }
 }

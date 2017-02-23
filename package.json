@@ -4,7 +4,7 @@
   "description": "web-based dataflow framework for visual analytics of tabular data",
   "main": "gulpfile.js",
   "dependencies": {
-    "bower": "^1.7.7",
+    "bower": "^1.7.7"
   },
   "devDependencies": {
     "del": "^2.2.0",
@@ -17,10 +17,10 @@
     "gulp-flatten": "^0.2.0",
     "gulp-gjslint": "^0.1.5",
     "gulp-html-replace": "^1.5.5",
-    "gulp-less": "^3.3.0"
+    "gulp-less": "^3.3.0",
     "gulp-run": "^1.6.12",
     "gulp-sass": "^2.2.0",
-    "gulp-scss-lint": "^0.3.9",
+    "gulp-scss-lint": "^0.4.0",
     "gulp-scss-lint-stylish2": "^2.0.2",
     "gulp-util": "^3.0.8",
     "require-dir": "^0.3.0",

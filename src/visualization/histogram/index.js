@@ -25,10 +25,10 @@ visflow.Histogram = function(params) {
   /** @private {d3|undefined} */
   this.svgHistogram_ = undefined;
 
-  /** @protected {!d3.scale} */
-  this.xScale = d3.scale.linear();
-  /** @protected {!d3.scale} */
-  this.yScale = d3.scale.linear();
+  /** @protected {d3.Scale} */
+  this.xScale = d3.scaleLinear();
+  /** @protected {d3.Scale} */
+  this.yScale = d3.scaleLinear();
 
   /**
    * Distribution dimension type.
@@ -37,7 +37,7 @@ visflow.Histogram = function(params) {
   this.xScaleType = visflow.ScaleType.UNKNOWN;
   /**
    * Mapping from [0, 1] to x screen coordinates.
-   * @protected {!d3.scale|undefined}
+   * @protected {d3.Scale|undefined}
    */
   this.histogramScale = undefined;
 
@@ -123,8 +123,8 @@ visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
 
   // Check bins and get items
   this.histogramData_.forEach(function(bin) {
-    var xl = this.histogramScale(bin.x);
-    var xr = this.histogramScale(bin.x + bin.dx);
+    var xl = this.histogramScale(bin.x0);
+    var xr = this.histogramScale(bin.x1);
     if (xl > box.x2 || xr < box.x1) {
       return;
     }
@@ -202,10 +202,10 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
     });
   }
 
-  var histogram = d3.layout.histogram()
+  var histogram = d3.histogram()
     .value(_.getValue('value'))
-    .bins(bins)
-    .range(range);
+    .thresholds(bins)
+    .domain(range);
   this.histogramData_ = histogram(values);
 };
 
@@ -222,7 +222,7 @@ visflow.Histogram.prototype.createHistogramScale_ = function() {
     margins.left,
     svgSize.width - margins.right
   ];
-  this.histogramScale = d3.scale.linear()
+  this.histogramScale = d3.scaleLinear()
     .domain(this.xScaleType == visflow.ScaleType.NUMERICAL ?
         this.xScale.domain() : [0, this.xScale.domain().length - 1])
     .range(range);
@@ -239,7 +239,8 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
 
   this.histogramData_.forEach(function(bin, index) {
     // Copy d3 histogram coordinates.
-    var barProp = _.pick(bin, 'x', 'y', 'dx');
+    var barProp = /** @type {{x0: number, x1: number, length: number}} */(
+      _.pick(bin, 'x0', 'x1', 'length'));
 
     var sorted = bin.map(function(itemInfo) {
       return {
@@ -253,6 +254,7 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
     // We will re-append sorted bar groups below.
     bin.length = 0;
     bin.id = 'b' + index;
+    bin.y = barProp.length; // Read length from d3 generated histogram bin.
 
     var y = 0, groupCount = 0;
     for (var j = 0; j < sorted.length; j++) {
@@ -266,10 +268,10 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
       }
       var group = {
         id: 'g' + (++groupCount),
-        x: barProp.x,
+        x: barProp.x0,
         y: y,
         dy: k - j,
-        dx: barProp.dx,
+        dx: barProp.x1 - barProp.x0,
         // Original properties are kept intact during rendering.
         originalProperties: sorted[j].properties,
         // Properties can be modified based on whether bars are selected.
@@ -325,33 +327,33 @@ visflow.Histogram.prototype.showDetails = function() {
  * @private
  */
 visflow.Histogram.prototype.drawHistogram_ = function() {
+  var binTransform = function(bin) {
+    return visflow.utils.getTransform([this.histogramScale(bin.x0), 0]);
+  }.bind(this);
+
   var bins = this.svgHistogram_.selectAll('g')
     .data(this.histogramData_);
 
-  var binTransform = function(bin) {
-    return visflow.utils.getTransform([this.histogramScale(bin.x), 0]);
-  }.bind(this);
-  bins.enter().append('g')
+  _.fadeOut(bins.exit());
+
+  bins = bins.enter().append('g')
     .attr('id', _.getValue('id'))
     .style('opacity', 0)
-    .attr('transform', binTransform);
-  _.fadeOut(bins.exit());
+    .attr('transform', binTransform)
+    .merge(bins);
 
   var updatedBins = this.allowTransition ? bins.transition() : bins;
   updatedBins
     .attr('transform', binTransform)
     .style('opacity', 1);
 
-  var barWidth = this.histogramScale(this.histogramData_[0].dx) -
-      this.histogramScale(0) - this.BAR_INTERVAL_;
+  var barWidth = this.histogramScale(this.histogramData_[0].x1 -
+      this.histogramData_[0].x0) - this.histogramScale(0) - this.BAR_INTERVAL_;
   if (barWidth < 0) {
     var range = this.histogramScale.range();
     barWidth = range[1] - range[0];
   }
-  var bars = bins.selectAll('rect')
-    .data(_.identity, function(group) { // use the bar group array
-      return group.id;
-    });
+
   var groupTransform = function(group) {
     return visflow.utils.getTransform([
       this.BAR_INTERVAL_,
@@ -366,20 +368,27 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     }.bind(key);
   };
 
-  bars.enter().append('rect')
-    .style('opacity', 0)
-    .attr('id', _.getValue('id'))
-    .attr('transform', groupTransform);
+  var bars = bins.selectAll('rect')
+    .data(_.identity, function(group) { // use the bar group array
+      return group.id;
+    });
+
   _.fadeOut(bars.exit());
 
-  bars
+  bars = bars.enter().append('rect')
+    .style('opacity', 0)
+    .attr('id', _.getValue('id'))
+    .attr('transform', groupTransform)
+    .merge(bars)
     .attr('bound', getPropertiesValue('bound'))
     .attr('selected', getPropertiesValue('selected'));
 
   var updatedBars = this.allowTransition ? bars.transition() : bars;
   updatedBars
     .attr('transform', groupTransform)
-    .attr('width', barWidth)
+    .attr('width', function(group) {
+      return this.histogramScale(group.dx) - this.histogramScale(0);
+    }.bind(this))
     .attr('height', function(group) {
       return Math.ceil(this.yScale(0) - this.yScale(group.dy));
     }.bind(this))
@@ -492,7 +501,7 @@ visflow.Histogram.prototype.prepareScales = function() {
 
   this.prepareHistogram_();
 
-  this.yScale = d3.scale.linear()
+  this.yScale = d3.scaleLinear()
     .domain([
       0,
       d3.max(this.histogramData_, _.getValue('y')) * (1 + this.Y_MARGIN_)

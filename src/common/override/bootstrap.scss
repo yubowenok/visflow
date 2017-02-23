@@ -42,3 +42,14 @@
 .tooltip {
   z-index: 1002;
 }
+
+.alert {
+  left: 35%;
+  position: relative;
+  width: 30%;
+}
+
+button.close {
+  position: relative;
+  top: -3px;
+}

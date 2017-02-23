@@ -3,6 +3,7 @@
 //
 @import 'src/common/colors';
 
+// scss-lint:disable SelectorFormat
 table.dataTable tbody {
   > tr.selected,
   > tr > .selected {

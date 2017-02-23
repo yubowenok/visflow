@@ -141,7 +141,7 @@ visflow.parser.csv = function(csv) {
     delimiter = ',';
   }
 
-  var values = d3.dsv(delimiter).parseRows(csv);
+  var values = d3.dsvFormat(delimiter).parseRows(csv);
   var dimensions = values.splice(0, 1)[0];
   if (_.last(dimensions) === '') {
     // In case there is a delimiter in the end.

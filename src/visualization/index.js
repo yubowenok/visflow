@@ -397,10 +397,9 @@ visflow.Visualization.prototype.selectItems = function() {
  * Renders the selection range as lasso stroke.
  */
 visflow.Visualization.prototype.drawLasso = function() {
-  var line = d3.svg.line()
+  var line = d3.line()
     .x(_.getValue('x'))
-    .y(_.getValue('y'))
-    .interpolate('linear');
+    .y(_.getValue('y'));
   this.svg.append('path')
     .classed('lasso', true)
     .attr('d', line(this.brushPoints));
@@ -475,7 +474,7 @@ visflow.Visualization.prototype.clearSelection = function() {
  * Renders an axis label.
  * @param {{
  *   svg: !d3,
- *   scale: !d3.scale,
+ *   scale: d3.Scale,
  *   scaleType: visflow.ScaleType,
  *   classes: string,
  *   orient: string,
@@ -490,9 +489,24 @@ visflow.Visualization.prototype.clearSelection = function() {
  */
 visflow.Visualization.prototype.drawAxis = function(params) {
   var svg = params.svg;
-  var axis = d3.svg.axis()
-    .orient(params.orient)
-    .ticks(params.ticks)
+  var axis;
+  switch (params.orient) {
+    case 'top':
+      axis = d3.axisTop();
+      break;
+    case 'bottom':
+      axis = d3.axisBottom();
+      break;
+    case 'left':
+      axis = d3.axisLeft();
+      break;
+    case 'right':
+      axis = d3.axisRight();
+      break;
+    default:
+      console.error('unknown axis orient');
+  }
+  axis.ticks(params.ticks)
     .tickFormat(function(value) {
       if (params.scaleType == visflow.ScaleType.TIME) {
         return moment(new Date(value)).format(this.TIME_FORMAT);
