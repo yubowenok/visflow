@@ -595,8 +595,10 @@ visflow.Node.prototype.initContextMenu = function() {
         minimize.children('.glyphicon')
           .addClass('glyphicon-resize-full')
           .removeClass('glyphicon-resize-small');
-        minimize.children('span')
+        minimize.children('span:first')
           .text('Maximize');
+        minimize.children('span:last')
+          .text('(M)');
       }
       if (visflow.flow.visMode) {
         minimize.hide();

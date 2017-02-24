@@ -19,9 +19,6 @@ function isMobile(){
   return false;
 }
 
-if (isMobile())
-  echo '<h1>Sorry, but we currently do not support mobile devices.</h1>';
-else
-  echo file_get_contents('index.html');
+echo file_get_contents('index.html');
 
 ?>
