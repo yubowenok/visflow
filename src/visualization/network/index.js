@@ -395,7 +395,7 @@ visflow.Network.prototype.updateNodeLabels_ = function() {
     .text(this.options.nodeLabel ? function(prop) {
       return prop.node.label;
     } : '')
-    .style('font-size', visflow.DEFAULT_FONT_SIZE / this.zoomScale_)
+    .style('font-size', visflow.const.DEFAULT_FONT_SIZE / this.zoomScale_)
     .attr('transform', function(prop) {
       return visflow.utils.getTransform([
         prop.node.x + this.NODE_LABEL_OFFSET_X_,
@@ -733,12 +733,7 @@ visflow.Network.prototype.process = function() {
 };
 
 /** @private @const {number} */
-visflow.Network.prototype.FORCE_GRAVITY_ = 0.5;
-/** @private @const {number} */
 visflow.Network.prototype.FORCE_FRICTION_ = 0.25;
-/** @private @const {number} */
-visflow.Network.prototype.FORCE_LINK_DISTANCE_ = 30;
-
 
 /**
  * Prepares and starts the force layout.
@@ -750,34 +745,13 @@ visflow.Network.prototype.startForce_ = function() {
 
   this.force_ = d3.forceSimulation(_.toArray(this.nodes))
     .force('link', d3.forceLink(_.toArray(this.edges))
-      .distance(this.FORCE_LINK_DISTANCE_))
-    .force('charge', d3.forceManyBody()) //this.options.charge
+      .distance(this.options.distance))
+    .force('charge', d3.forceManyBody())
     .force('center', d3.forceCenter(
       svgSize.width / 2, svgSize.height / 2))
     .velocityDecay(this.FORCE_FRICTION_)
     .on('tick', this.updateNetwork_.bind(this));
 
-  /*
-  d3.select(this.svg.node())
-    .call(d3.drag()
-      .container(this.svg)
-      .subject(function() {
-        return this.force_.find(d3.event.x, d3.event.y);
-      }.bind(this))
-      .on('start', function() {
-        console.log(d3.event.subject);
-      }));
-      */
-      //.on('drag', dragged)
-      //.on('end', dragended));
-
-
-  /*
-  this.force_.drag()
-    .on('dragstart', function(node) {
-      d3.select(this).classed('fixed', node.fixed = true);
-    });
-*/
   this.force_.restart();
 };
 

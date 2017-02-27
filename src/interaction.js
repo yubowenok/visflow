@@ -106,6 +106,11 @@ visflow.interaction.init = function() {
   visflow.interaction.interaction();
   visflow.interaction.contextMenuClickOff();
   visflow.interaction.systemMessageClickOff();
+
+  /** @type {!visflow.Edge} */
+  visflow.interaction.edgeDrawing = new visflow.Edge({
+    container: $('#edge-drawing')
+  });
 };
 
 /**
@@ -240,7 +245,7 @@ visflow.interaction.interaction = function() {
   visflow.interaction.jqselectbox.hide();
   visflow.interaction.mainContainer_
     .mousedown(function(event) {
-      if ($(event.target).is('#main')) {
+      if ($(event.target).is('#edge-drawing')) {
         visflow.interaction.mousedownHandler({
           type: 'background',
           event: event
@@ -511,7 +516,7 @@ visflow.interaction.mouseupHandler = function(params) {
     visflow.interaction.keyRelease(visflow.interaction.keyCodes.SHIFT);
   }
 
-  visflow.viewManager.clearEdgeHover();
+  //visflow.viewManager.clearEdgeHover();
   visflow.popupPanel.hide();
 
   visflow.interaction.mouseMode = '';
@@ -569,15 +574,21 @@ visflow.interaction.dragmoveHandler = function(params) {
     var dy = visflow.interaction.dragstopPos[1] -
       visflow.interaction.dragstartPos[1];
 
+    var pos = params.port.isInput ? visflow.interaction.dragstopPos :
+      visflow.interaction.dragstartPos;
+    var rpos = !params.port.isInput ? visflow.interaction.dragstopPos :
+      visflow.interaction.dragstartPos;
+
+    visflow.interaction.edgeDrawing.show();
+    visflow.interaction.edgeDrawing
+      .drawLinear(pos[0], pos[1], rpos[0], rpos[1]);
+    /*
     var jqsegment = $('#edge-drawing > .edge-segment'),
         jqarrow = $('#edge-drawing > .edge-arrow');
     var hseg = 3,
         harrow = 9;
 
-    var pos = params.port.isInput ? visflow.interaction.dragstopPos :
-      visflow.interaction.dragstartPos;
-    var rpos = !params.port.isInput ? visflow.interaction.dragstopPos :
-      visflow.interaction.dragstartPos;
+
     if (params.port.isInput) {
       dx = -dx;
       dy = -dy;
@@ -607,6 +618,7 @@ visflow.interaction.dragmoveHandler = function(params) {
       });
 
     $('#edge-drawing').show();
+    */
   } else if (type == 'node') {
     var dx = event.pageX - visflow.interaction.draglastPos[0],
         dy = event.pageY - visflow.interaction.draglastPos[1];
@@ -630,7 +642,7 @@ visflow.interaction.dragstopHandler = function(params) {
   visflow.interaction.dragstopParams = params;
   visflow.interaction.dragstopPos = [event.pageX, event.pageY];
   if (type == 'port') {
-    $('#edge-drawing').hide();
+    visflow.interaction.edgeDrawing.hide();
   } else if (type == 'node') {
     visflow.interaction.mainContainer_.css('cursor', '');
   }

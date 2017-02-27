@@ -1,3 +1,5 @@
+@import 'src/common/common';
+
 .visflow .node.range-filter {
   &.minimized > .icon {
     background-image: url('./imgs/range-filter-icon.png');
@@ -25,12 +27,12 @@
       }
 
       .input {
-        width: calc((100% - 30px) / 2);
+        width: calc((100% - 24px) / 2);
       }
 
       input {
         font-size: .95em;
-        padding: 6px;
+        padding: $padding-large;
         text-align: center;
       }
     }

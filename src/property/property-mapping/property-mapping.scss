@@ -1,15 +1,16 @@
+@import 'src/common/common';
+
 .visflow .node.property-mapping {
   &.minimized > .icon {
     background-image: url('./imgs/property-mapping-icon.png');
   }
 
   &.details {
-    height: 145px;
+    height: 120px + 2 * $padding;
     width: 150px;
 
     .content > div {
-      margin-bottom: 3px;
-      margin-top: 3px;
+      margin-top: $margin;
     }
 
     #number {

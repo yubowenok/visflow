@@ -1,3 +1,5 @@
+@import 'src/common/common';
+
 .visflow .node.value-maker {
   &.minimized {
     height: 30px;
@@ -11,8 +13,12 @@
   }
 
   &.details {
-    height: 54px;
+    height: 31px + 2 * $padding;
     width: 120px;
+
+    .content > div {
+      margin-top: $margin;
+    }
 
     input {
       font-size: .95em;

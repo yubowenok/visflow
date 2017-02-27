@@ -73,9 +73,10 @@ d3.prototype.merge = function(arg) {};
 d3.prototype.filter = function(selector) {};
 
 /**
+ * @param {*=} arg
  * @return {!d3}
  */
-d3.prototype.transition = function() {};
+d3.prototype.transition = function(arg) {};
 
 /**
  * @param {*} arg
@@ -143,3 +144,5 @@ d3.prototype.node = function() {};
  * @param {Function} handler
  */
 d3.prototype.each = function(event, handler) {};
+
+d3.prototype.interrupt = function() {};

@@ -18,15 +18,56 @@ visflow.Edge = function(params) {
   this.targetPort = params.targetPort;
 
   /**
-   * Edge container.
+   * Edge parent container.
    * @protected {!jQuery}
    */
   this.container = params.container;
 
+  /**
+   * Edge container.
+   * @type {d3}
+   */
+  this.svg = d3.select(this.container[0]).append('g');
+
+  /**
+   * Edge path.
+   * @type {!d3}
+   */
+  this.path = this.svg.append('path')
+    .classed('segment', true);
+
+  /**
+   * Edge arrow path.
+   * @type {!d3}
+   */
+  this.arrow = this.svg.append('path')
+    .classed('arrow', true);
+
   this.contextMenu();
+
+  // right-click menu
+  this.svg
+    .on('mouseenter', function() {
+      // Prevent drag interference
+      if (visflow.interaction.mouseMode != '' || visflow.flow.visMode) {
+        return;
+      }
+      visflow.flow.addEdgeSelection(this);
+      this.addHover();
+    }.bind(this))
+    .on('mouseleave', function() {
+      visflow.flow.clearEdgeSelection();
+      this.removeHover();
+    }.bind(this));
 };
 
-/**
+/** @private @const {number} */
+visflow.Edge.prototype.ARROW_SIZE_PX_ = 18;
+
+/** @private @const {number} */
+visflow.Edge.prototype.ARROW_OFFSET_PX_ = 6;
+
+ /**
  * Serializes the edge into JSON.
  * @return {!Object}
  */
@@ -42,46 +83,33 @@ visflow.Edge.prototype.serialize = function() {
 };
 
 /**
- * Shows the edge.
+ * Updates the edge.
  */
-visflow.Edge.prototype.show = function() {
-  // clear before drawing
-  this.container.children().remove();
-
+visflow.Edge.prototype.update = function() {
   if (visflow.flow.visMode) {
-    return; // not showing edges in vis mode
+    this.hide(); // not showing edges in vis mode
+    return;
   }
-
-  this.container.show();
-
-  this.arrow = $('<div></div>')
-    .addClass('edge-arrow')
-    .appendTo(this.container);
-
-  // right-click menu
-  var edge = this;
-
-  this.update();
-
-  this.container
-    .mouseenter(function() {
-      // Prevent drag interference
-      if (visflow.interaction.mouseMode != '' || visflow.flow.visMode) {
-        return;
-      }
-      visflow.flow.addEdgeSelection(edge);
-      visflow.viewManager.addEdgeHover(edge);
-    })
-    .mouseleave(function() {
-      visflow.flow.clearEdgeSelection();
-      visflow.viewManager.clearEdgeHover();
-    });
+  this.draw();
 };
 
 /**
- * Re-renders the edge.
+ * Draws a linear edge with given coordinates. This is used to show temporary
+ * edge being drawn.
+ * @param {number} sx
+ * @param {number} sy
+ * @param {number} ex
+ * @param {number} ey
  */
-visflow.Edge.prototype.update = function() {
+visflow.Edge.prototype.drawLinear = function(sx, sy, ex, ey) {
+  this.path.attr('d', d3.line()([[sx, sy], [ex, ey]]));
+  this.drawArrow([sx, sy], [ex, ey], true);
+};
+
+/**
+ * Re-renders the existing edge between two ports.
+ */
+visflow.Edge.prototype.draw = function() {
   var sourceOffset = visflow.utils.offsetMain(this.sourcePort.container);
   var targetOffset = visflow.utils.offsetMain(this.targetPort.container);
   var sx = sourceOffset.left + this.sourcePort.container.width() / 2;
@@ -89,80 +117,22 @@ visflow.Edge.prototype.update = function() {
   var ex = targetOffset.left + this.targetPort.container.width() / 2;
   var ey = targetOffset.top + this.targetPort.container.height() / 2;
 
-  // Draw edges in 2 or 3 segments, hacky auto-layout...
-  this.container.children().not('.edge-arrow').remove();
-
-  var hseg = 3,
-      hArrow = 7.5,
-      wArrow = 20;
-  var topOffset = {
-    up: wArrow,
-    down: -wArrow - 5
-  };
-  // Edge segment has height. The anchor point is considered to be at the middle
-  // of the segment. We need to shift this biase when computing position.
-  sx -= hseg / 2;
-  ex -= hseg / 2;
-  sy -= hseg / 2;
-  ey -= hseg / 2;
-  var yDir = ey > sy ? 'down' : 'up';
-  var yAngle = Math.atan2(ey - sy, 0);
+  var points = [[sx, sy]];
+  // Draw edges in 2 or 3 segments, hacky...
+  var wArrow = this.ARROW_SIZE_PX_;
+  var yDirDown = ey > sy;
   if (ex >= sx) {
     var headWidth = Math.max(0, (ex - sx) / 2 - wArrow);
-    var head = $('<div></div>')
-      .appendTo(this.container)
-      .addClass('edge-segment')
-      .css({
-        width: headWidth + hseg / 2,
-        left: sx,
-        top: sy
-      });
-
     var tailWidth = ex - sx - headWidth;
     if (tailWidth < wArrow && Math.abs(ey - sy) >= wArrow) {
       // tail too short, and sufficient y space
       headWidth = ex - sx;
       // go right and then up
-      if (head)
-        head.css('width', headWidth);
-      $('<div></div>')
-        .appendTo(this.container)
-        .addClass('edge-segment')
-        .css({
-          width: Math.abs(ey - sy) + hseg / 2,
-          left: sx + headWidth,
-          top: sy,
-          transform: 'rotate(' + yAngle + 'rad)'
-        });
-      this.arrow.css({
-        left: ex + hseg / 2,
-        top: ey + topOffset[yDir],
-        transform: 'rotate(' + yAngle + 'rad)'
-      });
+      points.push([sx + headWidth, sy]);
     } else {
       // go right, up, then right
-      $('<div></div>')
-        .appendTo(this.container)
-        .addClass('edge-segment')
-        .css({
-          width: Math.abs(ey - sy) + hseg / 2,
-          left: sx + headWidth,
-          top: sy,
-          transform: 'rotate(' + Math.atan2(ey - sy, 0) + 'rad)'
-        });
-      $('<div></div>')
-        .appendTo(this.container)
-        .addClass('edge-segment')
-        .css({
-          width: ex - sx - headWidth + hseg / 2,
-          left: sx + headWidth,
-          top: ey
-        });
-      this.arrow.css({
-        left: ex - wArrow,
-        top: ey + hseg / 2 - hArrow / 2,
-        transform: ''
-      });
+      points.push([sx + headWidth, sy]);
+      points.push([sx + headWidth, ey]);
     }
   } else {  // ex < ey
     var midy;
@@ -179,7 +149,7 @@ visflow.Edge.prototype.update = function() {
     if (sourceYrange[0] <= targetYrange[1] &&
         sourceYrange[1] >= targetYrange[0]) {
        // two nodes have intersecting y range, get around
-       if (yDir == 'up') {
+       if (!yDirDown) {
          // up is from human view (reversed screen coordinate)
          midy = targetYrange[0] - 20;
        } else {
@@ -190,58 +160,89 @@ visflow.Edge.prototype.update = function() {
         Math.min(sourceYrange[1], targetYrange[1])) / 2;
     }
     // 2 turns
-    var headWidth = Math.abs(midy - sy);
-    $('<div></div>')
-      .appendTo(this.container)
-      .addClass('edge-segment')
-      .css({
-        width: headWidth + hseg / 2,
-        left: sx,
-        top: sy,
-        transform: 'rotate(' + Math.atan2(midy - sy, 0) + 'rad)'
-      });
-    $('<div></div>')
-      .appendTo(this.container)
-      .addClass('edge-segment')
-      .css({
-        width: Math.abs(ex - sx) + hseg / 2,
-        left: sx,
-        top: midy,
-        transform: 'rotate(' + Math.atan2(0, ex - sx) + 'rad)'
-      });
-    var tailWidth = Math.abs(ey - midy);
-    $('<div></div>')
-      .appendTo(this.container)
-      .addClass('edge-segment')
-      .css({
-        width: tailWidth + hseg / 2,
-        left: ex,
-        top: midy,
-        transform: 'rotate(' + Math.atan2(ey - midy, 0) + 'rad)'
-      });
-    this.arrow.css({
-      left: ex + hseg / 2,
-      top: ey + topOffset[ey > midy ? 'down' : 'up'],
-      transform: 'rotate(' + Math.atan2(ey - midy, 0) + 'rad)'
-    });
+    points.push([sx, midy]);
+    points.push([ex, midy]);
   }
-
-  this.arrow.appendTo(this.container); // re-append to appear on top
+  var lastPoint = [ex, ey];
+  points.push(lastPoint);
+  var dAttr = d3.line().curve(d3.curveBundle.beta(1))(points);
+  this.path.attr('d', dAttr);
+  this.drawArrow(this.getArrowPreviousPoint_(dAttr), lastPoint);
 };
 
 /**
- * Removes an edge.
+ * Retrieves the previous point from the bezier curve d attribute to direct
+ * the arrow.
+ * @param {string} dAttr
+ * @return {visflow.Vector}
+ * @private
+ */
+visflow.Edge.prototype.getArrowPreviousPoint_ = function(dAttr) {
+  // Find all curve points and take the point a quarter to start of the last
+  // Bezier curve.
+  var curveCoords = dAttr.match(/^.*([,CLM].*,.*C(?:.*,.*)+)L.*$/)[1]
+    .split(/[C,]/)
+    .slice(1)
+    .map(function(val) { return +val; });
+  var xCoords = curveCoords.filter(
+    function(ele, index) { return index % 2 == 0; });
+  var yCoords = curveCoords.filter(
+    function(ele, index) { return index % 2 == 1; });
+  var bezierFunc = function(t, val) {
+    var ct = 1 - t;
+    return ct * ct * ct * val[0] + t * t * t * val[3] +
+      3 * ct * t * (ct * val[1] + t * val[2]);
+  };
+  return [bezierFunc(.6, xCoords), bezierFunc(.6, yCoords)];
+};
+
+/**
+ * Draws the arrow at the tip of each edge.
+ * @param {visflow.Vector} previousPoint
+ * @param {visflow.Vector} lastPoint
+ * @param {boolean=} noOffset
+ *     If set, draws the arrow without offset towards the port.
+ */
+visflow.Edge.prototype.drawArrow = function(previousPoint, lastPoint,
+                                            noOffset) {
+  var backVector = visflow.vectors.normalizeVector(
+    visflow.vectors.subtractVector(previousPoint, lastPoint));
+  previousPoint = visflow.vectors.addVector(lastPoint,
+    visflow.vectors.multiplyVector(backVector, this.ARROW_SIZE_PX_));
+  if (!noOffset) {
+    lastPoint = visflow.vectors.addVector(lastPoint,
+      visflow.vectors.multiplyVector(backVector, this.ARROW_OFFSET_PX_));
+  }
+
+  var perpNorm = visflow.vectors.perpendicularVector(backVector);
+  var pointLeft = visflow.vectors.addVector(previousPoint,
+    visflow.vectors.multiplyVector(perpNorm, this.ARROW_SIZE_PX_ / 4));
+  var pointRight = visflow.vectors.subtractVector(previousPoint,
+    visflow.vectors.multiplyVector(perpNorm, this.ARROW_SIZE_PX_ / 4));
+  var arrowPoints = [pointLeft, pointRight, lastPoint];
+  this.arrow.attr('d', d3.line().curve(d3.curveLinearClosed)(arrowPoints));
+};
+
+/**
+ * Removes an edge. Use with caution! May simply hide the edge.
  */
 visflow.Edge.prototype.remove = function() {
-  this.container.children().remove();
-  visflow.viewManager.removeEdgeView(this.container);
+  this.path.remove();
+  this.arrow.remove();
+};
+
+/**
+ * Shows the edge.
+ */
+visflow.Edge.prototype.show = function() {
+  this.svg.style('display', 'block');
 };
 
 /**
  * Hides the edge.
  */
 visflow.Edge.prototype.hide = function() {
-  this.container.hide();
+  this.svg.style('display', 'none');
 };
 
 
@@ -253,13 +254,27 @@ visflow.Edge.prototype.delete = function() {
 };
 
 /**
+ * Adds hovering effect.
+ */
+visflow.Edge.prototype.addHover = function() {
+  this.svg.classed('hover', true);
+};
+
+/**
+ * Removes hovering effect.
+ */
+visflow.Edge.prototype.removeHover = function() {
+  this.svg.classed('hover', false);
+};
+
+/**
  * Handles key action on edge.
  * @param {string} key
  */
 visflow.Edge.prototype.keyAction = function(key) {
   if (key == '.' || key == 'ctrl+X') {
     visflow.flow.deleteEdge(this);
-    visflow.viewManager.clearEdgeHover();
+    this.removeHover();
   }
 };
 
@@ -268,5 +283,5 @@ visflow.Edge.prototype.keyAction = function(key) {
  * @return {!jQuery}
  */
 visflow.Edge.prototype.getContainer = function() {
-  return this.container;
+  return $(this.svg.node());
 };

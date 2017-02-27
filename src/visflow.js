@@ -26,16 +26,6 @@ visflow.init = function() {
   visflow.user.init();
 };
 
-/** @private @const {number} */
-visflow.MESSAGE_DURATION_ = 2000;
-
-/** @private @const {number} */
-visflow.ALERT_TRANSITION_ = 50;
-
-/** @const {number} */
-visflow.DEFAULT_FONT_SIZE = 12;
-
-
 /**
  * Tests if the client is using mobile device.
  * @return {boolean}
@@ -51,7 +41,7 @@ visflow.isMobile = function() {
 visflow.error = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
-  $('#error').text(msg).parent().slideDown(visflow.ALERT_TRANSITION_);
+  $('#error').text(msg).parent().slideDown(visflow.const.ALERT_TRANSITION);
 };
 
 /**
@@ -62,9 +52,9 @@ visflow.warning = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
   $('#warning').text(msg).parent()
-    .slideDown(visflow.ALERT_TRANSITION_)
-    .delay(visflow.MESSAGE_DURATION_)
-    .slideUp(visflow.ALERT_TRANSITION_);
+    .slideDown(visflow.const.ALERT_TRANSITION)
+    .delay(visflow.const.MESSAGE_DURATION)
+    .slideUp(visflow.const.ALERT_TRANSITION);
 };
 
 /**
@@ -75,9 +65,9 @@ visflow.success = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
   $('#success').text(msg).parent()
-    .slideDown(visflow.ALERT_TRANSITION_)
-    .delay(visflow.MESSAGE_DURATION_)
-    .slideUp(visflow.ALERT_TRANSITION_);
+    .slideDown(visflow.const.ALERT_TRANSITION)
+    .delay(visflow.const.MESSAGE_DURATION)
+    .slideUp(visflow.const.ALERT_TRANSITION);
 };
 
 /**

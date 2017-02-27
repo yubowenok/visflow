@@ -33,6 +33,24 @@ d3.curveLinearClosed;
 /** @type {d3.Curve} */
 d3.curveBasis;
 
+/** @type {d3.Curve} */
+d3.curveBundle;
+
+/**
+ * @param {number} val
+ * @return {d3.Curve}
+ */
+d3.curveBundle.beta = function(val) {};
+
+/** @type {d3.Curve} */
+d3.curveCatmullRom;
+
+/**
+ * @param {number} val
+ * @return {d3.Curve}
+ */
+d3.curveCatmullRom.alpha = function(val) {};
+
 /**
  * @param {Function|number} arg
  */

@@ -11,9 +11,19 @@ $border-width: 1px;
 $border-width-large: 2px;
 
 $padding: 3px;
-$padding-large: 6px;
+$padding-large: 2 * $padding;
+$padding-extra-large: 4 * $padding;
+
+$margin: $padding;
+$margin-large: $padding-large;
+
+$navbar-height: 25px;
 
 $side-button-width: $font-size-small * 2;
+
+$multiple-select-height: 29px;
+
+$colorscale-select-height: 44px;
 
 @mixin col-wrap($width) {
   max-width: $width;

@@ -283,13 +283,15 @@ visflow.utils.keySet_ = function(collection) {
 
 /**
  * Provides a function that gets the value of a given key, from a given object.
+ * If suffix is given, then concat suffix at the end of the return value.
  * @param {string} key
+ * @param {string=} opt_suffix
  * @return {function(!Object): *}
  * @private
  */
-visflow.utils.getValue_ = function(key) {
+visflow.utils.getValue_ = function(key, opt_suffix) {
   return function(obj) {
-    return obj[this];
+    return opt_suffix ? obj[this] + opt_suffix : obj[this];
   }.bind(key);
 };
 

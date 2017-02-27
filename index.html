@@ -15,18 +15,11 @@
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css"/>
   <!-- bootstrap -->
   <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-  <!--
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
-  -->
   <!-- dependency css built from libraries -->
   <link rel="stylesheet" href="dist/css/visflow_deps.css"/>
 
   <!-- bootstrap switch -->
   <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
-  <!--
-  <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
-  -->
   <!-- select2 -->
   <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
@@ -133,15 +126,8 @@
     <div id="nodes"></div>
     <div id="hover"></div>
     <div id="selectbox"></div>
-    <div id="edge-drawing" style="display: none;">
-      <div id="edge-drawing-segment" class="edge-segment"></div>
-      <div id="edge-drawing-arrow" class="edge-arrow"></div>
-    </div>
-    <div id="edges">
-    </div>
-    <svg id="svg-edges">
-      <!-- TODO(bowen): render edges in a single underlying svg canvas -->
-    </svg>
+    <svg id="edges"></svg>
+    <svg id="edge-drawing"></svg>
   </div>
 
   <div id="option-panel">
@@ -151,8 +137,7 @@
     <button id="btn-pin" class="btn btn-default to-tooltip" data-placement="left" title="pin the control panel">
       <span class="glyphicon glyphicon-pushpin"></span>
     </button>
-    <div class="content">
-    </div>
+    <div class="content"></div>
   </div>
   <div id="node-panel">
     <!--
@@ -162,8 +147,7 @@
     <div class="hover-area">
     </div>
     -->
-    <div class="content">
-    </div>
+    <div class="content"></div>
   </div>
   <div id="popup-panel" class="popup-panel" style="display: none;"></div>
   <div id="tool-panel" class="tool-panel">

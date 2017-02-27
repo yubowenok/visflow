@@ -288,11 +288,11 @@ visflow.Port.prototype.interaction = function() {
     }.bind(this))
     .mouseenter(function() {
       this.connections.forEach(function(connection) {
-        visflow.viewManager.addEdgeHover(connection);
+        connection.addHover();
       });
     }.bind(this))
     .mouseleave(function() {
-      visflow.viewManager.clearEdgeHover();
+      visflow.flow.clearEdgeHover();
     }.bind(this))
     .draggable({
       helper: function() {

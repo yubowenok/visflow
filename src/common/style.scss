@@ -10,7 +10,7 @@
 // main selectbox - 100
 // main - 0
 
-@import 'src/common/colors';
+@import 'src/common/common';
 
 body {
   overflow: hidden;
@@ -37,16 +37,6 @@ body {
     position: absolute;
     width: 100%;
     z-index: 0;
-
-    #svg-edges {
-      height: 100%;
-      pointer-events: none;
-      width: 100%;
-
-      path {
-        pointer-events: auto;
-      }
-    }
   }
 
   #selectbox {

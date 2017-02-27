@@ -1,4 +1,4 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 #option-panel {
   bottom: 25px;
@@ -91,7 +91,7 @@
     }
 
     &.node-panel {
-      margin-bottom: 20px;
+      margin-bottom: $margin-large;
 
       > span > button {
         margin-right: 5px;

@@ -19,9 +19,10 @@ _.keySet = function(array) {};
 
 /**
  * @param {string} attr
+ * @param {string=} opt_suffix
  * @return {function(!d3, *): *}
  */
-_.getValue = function(attr) {};
+_.getValue = function(attr, opt_suffix) {};
 
 
 /**

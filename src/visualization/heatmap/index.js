@@ -282,7 +282,7 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
   var updatedRows = this.allowTransition ? rows.transition() : rows;
   updatedRows
     .style('stroke', _.getValue('border'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .attr('transform', function(row, index) {
       return visflow.utils.getTransform([0, this.yScale(index + 1)]);
     }.bind(this))
@@ -430,10 +430,10 @@ visflow.Heatmap.prototype.drawColLabels_ = function(svg) {
   var updatedLabels = this.allowTransition ? labels.transition() : labels;
   if (this.colLabelVerticalChanged_) {
     this.colLabelVerticalChanged_ = false;
-    var counter = updatedLabels[0].length;
-    updatedLabels = labels.transition()
-      .each('end', function() {
-        if ((--counter) == 0) {
+    var counter = updatedLabels.size(); //updatedLabels[0].length;
+    updatedLabels = updatedLabels.transition()
+      .on('end', function() {
+        if (--counter == 0) { // Will be fired for each element
           // Redraw after transition to keep up-to-date with resize.
           this.drawColLabels_(svg);
         }

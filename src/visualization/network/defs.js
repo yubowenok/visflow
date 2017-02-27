@@ -41,9 +41,9 @@ visflow.Network.prototype.defaultOptions = function() {
     nodeLabel: true,
     // Which dimension is used as label.
     labelBy: 0,
-    // D3 force-directed layout force charge.
-    charge: -10000,
-    // Node identifier corresponding to edges,
+    // D3 force-directed layout link distance.
+    distance: 30,
+    // Node identifier corresponding to edges.
     nodeIdBy: 0,
     // Edge dimension used as source (node id).
     sourceBy: 0,

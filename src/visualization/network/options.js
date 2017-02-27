@@ -23,10 +23,10 @@ visflow.options.Network = function(params) {
   this.labelBy = params.labelBy !== undefined ? params.labelBy : 0;
 
   /**
-   * D3 force-directed layout force charge.
+   * D3 force-directed layout link distance.
    * @type {number}
    */
-  this.charge = params.charge !== undefined ? params.charge : -10000;
+  this.distance = params.distance !== undefined ? params.distance : 30;
 
   /**
    * Node identifier used by edges.

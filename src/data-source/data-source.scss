@@ -1,5 +1,7 @@
 @import 'src/common/common';
 
+$data-source-height: 30px;
+
 .visflow .node.data-source {
   text-align: center;
 
@@ -12,11 +14,12 @@
   }
 
   &.details {
-    height: 40px;
+    height: $data-source-height;
     width: 120px;
 
     #data-name {
       cursor: default;
+      line-height: $data-source-height - $font-size / 2;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
