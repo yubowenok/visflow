@@ -13,6 +13,7 @@ var orderedSrc = [
   'src/upload/*.js',
   'src/parser.js',
   'src/user/*.js',
+  'src/nlp/**/*.js',
 
   'src/save.js',
   'src/node/save.js',

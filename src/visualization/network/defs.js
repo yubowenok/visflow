@@ -124,6 +124,8 @@ visflow.Network.prototype.contextMenuItems = function() {
       icon: 'glyphicon glyphicon-facetime-video'},
     {id: 'panel', text: 'Control Panel',
       icon: 'glyphicon glyphicon-th-list'},
+    {id: 'smartFlow', text: 'SmartFlow',
+      icon: 'glyphicon glyphicon-comment'},
     {id: 'delete', text: 'Delete',
       icon: 'glyphicon glyphicon-remove'}
   ];

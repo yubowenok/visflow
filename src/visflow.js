@@ -22,6 +22,7 @@ visflow.init = function() {
   visflow.popupPanel.init();
   visflow.toolPanel.init();
   visflow.interaction.init();
+  visflow.nlp.init();
 
   visflow.user.init();
 };

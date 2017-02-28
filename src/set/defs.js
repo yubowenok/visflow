@@ -18,6 +18,8 @@ visflow.Set.prototype.contextMenuItems = function() {
       icon: 'glyphicon glyphicon-resize-small'},
     {id: 'panel', text: 'Control Panel',
       icon: 'glyphicon glyphicon-th-list'},
+    {id: 'smartFlow', text: 'SmartFlow',
+      icon: 'glyphicon glyphicon-comment'},
     {id: 'delete', text: 'Delete', icon:
       'glyphicon glyphicon-remove'}
   ];

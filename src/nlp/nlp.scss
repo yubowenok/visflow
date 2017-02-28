@@ -1,0 +1,27 @@
+@import 'src/common/common';
+
+#nlp {
+  div {
+    background: $ui-background;
+    border: 1px solid $gray-c;
+    height: 125px;
+    padding: $padding $padding-large;
+    position: absolute;
+    width: 200px;
+    z-index: 1041;
+  }
+
+  label {
+    margin-bottom: 0;
+  }
+
+  textarea {
+    height: calc(100% - #{$font-size} - #{$padding} * 2 - #{$border-width});
+    resize: none;
+    width: 100%;
+  }
+}
+
+#nlp-backdrop {
+  opacity: .1;
+}

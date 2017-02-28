@@ -457,6 +457,7 @@ visflow.Visualization.prototype.getSelectBox = function(opt_ignoreEmpty) {
 visflow.Visualization.prototype.selectAll = function() {
   var items = this.ports['in'].pack.items;
   this.selected = _.keySet(items);
+  this.selectedChanged();
   this.show();
   this.pushflow();
 };
@@ -466,6 +467,7 @@ visflow.Visualization.prototype.selectAll = function() {
  */
 visflow.Visualization.prototype.clearSelection = function() {
   this.selected = {};
+  this.selectedChanged();
   this.show();
   this.pushflow();
 };
@@ -616,3 +618,8 @@ visflow.Visualization.prototype.dimensionChanged = function() {
   this.prepareScales();
   this.show();
 };
+
+/**
+ * Handles selection changes from shortcuts (selectAll and clearSelection).
+ */
+visflow.Visualization.prototype.selectedChanged = function() {};

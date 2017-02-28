@@ -291,7 +291,8 @@ visflow.interaction.keyPress = function(event) {
   var code = event.keyCode;
 
   // Avoid interfering with input and editable.
-  if ($(event.target).is('input, #node-label')) {
+  // TODO(bowen): Check interaction logic. Is it okay to do it globally?
+  if ($(event.target).is('input, #node-label, textarea')) {
     return true;
   }
 
@@ -433,6 +434,7 @@ visflow.interaction.mousemoveHandler = function(params) {
     if (visflow.interaction.mouseMode == 'pan') {
       var dx = event.pageX - visflow.interaction.mouselastPos[0],
           dy = event.pageY - visflow.interaction.mouselastPos[1];
+      visflow.nlp.cancel();
       visflow.flow.moveNodes(dx, dy, visflow.flow.nodes);
     } else if (visflow.interaction.mouseMode == 'selectbox') {
       var selectbox = visflow.interaction.selectbox;
@@ -452,6 +454,7 @@ visflow.interaction.mousemoveHandler = function(params) {
         .css(box)
         .show();
       var hovered = visflow.flow.getNodesInSelectbox(box);
+      visflow.nlp.cancel();
       visflow.flow.clearNodeHover();
       visflow.flow.addNodeHover(hovered);
     }
@@ -582,43 +585,6 @@ visflow.interaction.dragmoveHandler = function(params) {
     visflow.interaction.edgeDrawing.show();
     visflow.interaction.edgeDrawing
       .drawLinear(pos[0], pos[1], rpos[0], rpos[1]);
-    /*
-    var jqsegment = $('#edge-drawing > .edge-segment'),
-        jqarrow = $('#edge-drawing > .edge-arrow');
-    var hseg = 3,
-        harrow = 9;
-
-
-    if (params.port.isInput) {
-      dx = -dx;
-      dy = -dy;
-      jqsegment
-        .css('left', pos[0] - hseg / 2)
-        .css('top', pos[1] - hseg / 2);
-    } else {
-      jqsegment
-        .css('left', pos[0] - hseg / 2)
-        .css('top', pos[1] - hseg / 2);
-    }
-    var length = Math.sqrt(dx * dx + dy * dy) - 10;
-    var angle = Math.atan2(dy, dx);
-    jqsegment
-      .css({
-        width: length,
-        transform: 'rotate(' + angle + 'rad)'
-      });
-    jqarrow
-      .css({
-        transform: 'rotate(' + angle + 'rad)'
-      });
-    jqarrow
-      .css({
-        left: rpos[0] - 20 * Math.cos(angle),
-        top: rpos[1] - 20 * Math.sin(angle) - harrow / 2,
-      });
-
-    $('#edge-drawing').show();
-    */
   } else if (type == 'node') {
     var dx = event.pageX - visflow.interaction.draglastPos[0],
         dy = event.pageY - visflow.interaction.draglastPos[1];

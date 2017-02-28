@@ -669,3 +669,8 @@ visflow.Heatmap.prototype.dimensionChanged = function() {
   this.itemProps_ = this.getItemProperties_();
   visflow.Heatmap.base.dimensionChanged.call(this);
 };
+
+/** @inheritDoc */
+visflow.Heatmap.prototype.selectedChanged = function() {
+  this.itemProps_ = this.getItemProperties_();
+};

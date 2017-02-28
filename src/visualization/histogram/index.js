@@ -347,13 +347,6 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     .attr('transform', binTransform)
     .style('opacity', 1);
 
-  var barWidth = this.histogramScale(this.histogramData_[0].x1 -
-      this.histogramData_[0].x0) - this.histogramScale(0) - this.BAR_INTERVAL_;
-  if (barWidth < 0) {
-    var range = this.histogramScale.range();
-    barWidth = range[1] - range[0];
-  }
-
   var groupTransform = function(group) {
     return visflow.utils.getTransform([
       this.BAR_INTERVAL_,
@@ -387,7 +380,8 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
   updatedBars
     .attr('transform', groupTransform)
     .attr('width', function(group) {
-      return this.histogramScale(group.dx) - this.histogramScale(0);
+      return this.histogramScale(group.dx) - this.histogramScale(0) -
+        this.BAR_INTERVAL_;
     }.bind(this))
     .attr('height', function(group) {
       return Math.ceil(this.yScale(0) - this.yScale(group.dy));
@@ -549,7 +543,7 @@ visflow.Histogram.prototype.selectAll = function() {
   var data = this.histogramData_;
   for (var i = 0; i < data.length; i++) {
     for (var j = 0; j < data[i].length; j++) {
-      this.selectedBars[i + ',' + j] = true;
+      this.selectedBars[data[i].id + ',' + data[i][j].id] = true;
     }
   }
   // Parent class will select primitive data items, and update the rendering.

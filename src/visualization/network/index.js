@@ -856,3 +856,11 @@ visflow.Network.prototype.clearSelection = function() {
   this.selectedEdges = {};
   visflow.Network.base.clearSelection.call(this);
 };
+
+/** @inheritDoc */
+visflow.Network.prototype.selectAll = function() {
+  for (var index in this.edges) {
+    this.selectedEdges[index] = true;
+  }
+  visflow.Network.base.selectAll.call(this);
+};

@@ -589,6 +589,7 @@ visflow.Node.prototype.initContextMenu = function() {
     .on('vf.panel', this.panel.bind(this))
     .on('vf.label', this.toggleLabel.bind(this))
     .on('vf.visMode', this.toggleVisMode.bind(this))
+    .on('vf.smartFlow', this.smartFlowInput.bind(this))
     .on('vf.beforeOpen', function(event, menuContainer) {
       var minimize = menuContainer.find('#minimize');
       if (this.options.minimized) {
@@ -839,6 +840,10 @@ visflow.Node.prototype.keyAction = function(key, event) {
     case 'V':
       this.toggleVisMode();
       break;
+    case 'S':
+      event.preventDefault(); // Avoid 'S' typed into NLP input.
+      this.smartFlowInput();
+      break;
   }
 };
 
@@ -1026,7 +1031,7 @@ visflow.Node.prototype.initPanel = function(container) {};
  * }>} units
  */
 visflow.Node.prototype.initInterface = function(units) {
-  var preventAltedOpen = function(event) {
+  var preventAltedOpen = function() {
     if (visflow.interaction.isAlted()) {
       // When alt-ed, do not show list.
       return false;
@@ -1146,4 +1151,11 @@ visflow.Node.prototype.getOption = function(key) {
  */
 visflow.Node.prototype.getClass = function() {
   return this.NODE_CLASS;
+};
+
+/**
+ * Accepts SmartFlow input.
+ */
+visflow.Node.prototype.smartFlowInput = function() {
+  visflow.nlp.input();
 };

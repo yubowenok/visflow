@@ -468,3 +468,8 @@ visflow.ParallelCoordinates.prototype.dimensionChanged = function() {
 visflow.ParallelCoordinates.prototype.inputChanged = function() {
   this.itemProps_ = this.getItemProperties_();
 };
+
+/** @inheritDoc */
+visflow.ParallelCoordinates.prototype.selectedChanged = function() {
+  this.itemProps_ = this.getItemProperties_();
+};

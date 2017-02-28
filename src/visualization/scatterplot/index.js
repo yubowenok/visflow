@@ -373,3 +373,8 @@ visflow.Scatterplot.prototype.dimensionChanged = function() {
   this.itemProps_ = this.getItemProperties_();
   visflow.Scatterplot.base.dimensionChanged.call(this);
 };
+
+/** @inheritDoc */
+visflow.Scatterplot.prototype.selectedChanged = function() {
+  this.itemProps_ = this.getItemProperties_();
+};

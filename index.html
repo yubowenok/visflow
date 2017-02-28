@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>VisFlow</title>
   <meta name="description" content="VisFlow is a web-based visualization framework for tabular data with a subset flow model.">
-  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="shortcut icon" type="image/x-icon" href="./logo.png">
 
   <!-- npm components -->
   <!-- jquery -->
@@ -151,19 +151,21 @@
   </div>
   <div id="popup-panel" class="popup-panel" style="display: none;"></div>
   <div id="tool-panel" class="tool-panel">
-    <button id="alted" class="btn btn-default btn-xs to-tooltip" title="dragging mode" data-placement="left">
+    <button id="alted" class="btn btn-default btn-xs to-tooltip" title="Dragging Mode" data-placement="left">
       <i class="glyphicon glyphicon-move"></i>
     </button>
-    <button id="vis-mode" class="btn btn-default btn-xs to-tooltip" title="visualization mode" data-placement="bottom">
+    <button id="vis-mode" class="btn btn-default btn-xs to-tooltip" title="Visualization Mode" data-placement="bottom">
       <i class="glyphicon glyphicon-facetime-video"></i>
     </button>
-    <button id="upload" class="btn btn-default btn-xs to-tooltip" title="upload data" data-placement="right">
+    <button id="upload" class="btn btn-default btn-xs to-tooltip" title="Upload Data" data-placement="right">
       <i class="glyphicon glyphicon-upload"></i>
     </button>
-    <button id="mic" class="btn btn-default btn-xs to-tooltip" title="speak command" data-placement="right">
+    <button id="mic" class="btn btn-default btn-xs to-tooltip" title="Talk to SmartFlow (CTRL+T)" data-placement="right">
       <i class="microphone" alt="Icons made by http://www.freepik.com from http://www.flaticon.com CC 3.0 BY"></i>
       <i class="glyphicon glyphicon-asterisk invisible"></i>
     </button>
   </div>
+  <div id="nlp-backdrop" class="modal-backdrop" style="display: none"></div>
+  <div id="nlp"></div>
 </body>
 </html>
