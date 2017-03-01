@@ -1,4 +1,9 @@
 <?php
+/**
+ * Methods for connecting database.
+ *
+ * Typically this is included via 'session.php'.
+ */
 include 'response.php';
 
 $db = null;

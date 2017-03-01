@@ -20,12 +20,12 @@ visflow.nlp.init = function() {
       if (visflow.nlp.isProcessing) { // Wait for server response.
         return;
       }
-      visflow.nlp.cancel();
+      visflow.nlp.end();
     });
   $('#nlp').on('keyup', 'textarea', function(event) {
     if (event.keyCode == visflow.interaction.keyCodes.ESC) {
-      // Force cancel regardless of server response.
-      visflow.nlp.cancel();
+      // Force end regardless of server response.
+      visflow.nlp.end();
     } else if (event.keyCode == visflow.interaction.keyCodes.ENTER) {
       event.preventDefault();
       visflow.nlp.submit();
@@ -38,6 +38,7 @@ visflow.nlp.init = function() {
  */
 visflow.nlp.input = function() {
   visflow.nlp.isWaitingForInput = true;
+  visflow.contextMenu.hide();
 
   $('#nlp').children().remove();
 
@@ -64,8 +65,17 @@ visflow.nlp.submit = function() {
   visflow.nlp.isProcessing = true;
 
   var query = textarea.val();
-  console.log(query);
   // TODO(bowen): Send query to the server and wait for the response.
+
+  $.post(visflow.url.NLP, {
+    query: query
+  }).done(function(res) {
+      visflow.success('nlp posted:', res);
+      visflow.nlp.end();
+    })
+    .fail(function(res) {
+      visflow.error('failed to execute SmartFlow', res.responseText);
+    });
 };
 
 /**
@@ -77,9 +87,9 @@ visflow.nlp.backdrop = function(state) {
 };
 
 /**
- * Cancels the NLP input.
+ * Ends the NLP input.
  */
-visflow.nlp.cancel = function() {
+visflow.nlp.end = function() {
   $('#nlp').children().remove();
   visflow.nlp.backdrop(false);
   visflow.nlp.isWaitingForInput = false;

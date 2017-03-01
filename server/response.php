@@ -1,4 +1,9 @@
 <?php
+/**
+ * Methods for sending http responses.
+ *
+ * This shall be included via 'session.php' or 'file.php'.
+ */
 
 function status($code)
 {

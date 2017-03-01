@@ -379,10 +379,11 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
   }
   var points = this.svgPoints_.selectAll('circle')
     .data(itemProps, _.getValue('index'));
-  points.enter().append('circle');
+
   _.fadeOut(points.exit());
 
-  points
+  points = points.enter().append('circle')
+    .merge(points)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 

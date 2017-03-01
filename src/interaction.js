@@ -245,7 +245,7 @@ visflow.interaction.interaction = function() {
   visflow.interaction.jqselectbox.hide();
   visflow.interaction.mainContainer_
     .mousedown(function(event) {
-      if ($(event.target).is('#edge-drawing')) {
+      if ($(event.target).is('#edges')) {
         visflow.interaction.mousedownHandler({
           type: 'background',
           event: event
@@ -346,10 +346,10 @@ visflow.interaction.keyPress = function(event) {
             visflow.popupPanel.show(event, true);
           }
           break;
-        case 'shift+A':
-          event.pageX = visflow.interaction.mouseX;
-          event.pageY = visflow.interaction.mouseY;
-          visflow.popupPanel.show(event);
+        case 'shift+S':
+          // prevent 'S' from being entered into the nlp input
+          event.preventDefault();
+          visflow.nlp.input();
           break;
         case 'shift+V':
           visflow.flow.toggleVisMode();
@@ -434,7 +434,7 @@ visflow.interaction.mousemoveHandler = function(params) {
     if (visflow.interaction.mouseMode == 'pan') {
       var dx = event.pageX - visflow.interaction.mouselastPos[0],
           dy = event.pageY - visflow.interaction.mouselastPos[1];
-      visflow.nlp.cancel();
+      visflow.nlp.end();
       visflow.flow.moveNodes(dx, dy, visflow.flow.nodes);
     } else if (visflow.interaction.mouseMode == 'selectbox') {
       var selectbox = visflow.interaction.selectbox;
@@ -454,7 +454,7 @@ visflow.interaction.mousemoveHandler = function(params) {
         .css(box)
         .show();
       var hovered = visflow.flow.getNodesInSelectbox(box);
-      visflow.nlp.cancel();
+      visflow.nlp.end();
       visflow.flow.clearNodeHover();
       visflow.flow.addNodeHover(hovered);
     }

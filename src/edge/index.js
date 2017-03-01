@@ -19,15 +19,15 @@ visflow.Edge = function(params) {
 
   /**
    * Edge parent container.
-   * @protected {!jQuery}
+   * @private {!jQuery}
    */
-  this.container = params.container;
+  this.edgesContainer_ = params.container;
 
   /**
    * Edge container.
-   * @type {d3}
+   * @type {!d3}
    */
-  this.svg = d3.select(this.container[0]).append('g');
+  this.svg = d3.select(this.edgesContainer_[0]).append('g');
 
   /**
    * Edge path.
@@ -43,7 +43,7 @@ visflow.Edge = function(params) {
   this.arrow = this.svg.append('path')
     .classed('arrow', true);
 
-  this.contextMenu();
+  this.initContextMenu();
 
   // right-click menu
   this.svg
@@ -60,12 +60,6 @@ visflow.Edge = function(params) {
       this.removeHover();
     }.bind(this));
 };
-
-/** @private @const {number} */
-visflow.Edge.prototype.ARROW_SIZE_PX_ = 18;
-
-/** @private @const {number} */
-visflow.Edge.prototype.ARROW_OFFSET_PX_ = 6;
 
  /**
  * Serializes the edge into JSON.
@@ -284,4 +278,17 @@ visflow.Edge.prototype.keyAction = function(key) {
  */
 visflow.Edge.prototype.getContainer = function() {
   return $(this.svg.node());
+};
+
+/**
+ * Prepares contextMenu for the edge.
+ */
+visflow.Edge.prototype.initContextMenu = function() {
+  var contextMenu = new visflow.ContextMenu({
+    container: $(this.svg.node()),
+    items: this.contextMenuItems()
+  });
+
+  $(contextMenu)
+    .on('vf.delete', this.delete.bind(this));
 };

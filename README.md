@@ -10,11 +10,13 @@ For detailed introduction, refer to the [system documentation](https://visflow.o
 ### Installation
 VisFlow requires MySQL.
 Set data and diagram paths in _{visflow_directory}/server/config.php_.
+The data, diagram and nlp paths are relative to the base path.
 ```php
 <?php
 $base_path = '/data/visflow/';
 $data_path = 'data/';
 $diagram_path = 'diagrams/';
+$nlp_path = 'nlp/';
 ?>
 ```
 Note that the web server needs permission to write to the data and diagram paths.

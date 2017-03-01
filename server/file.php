@@ -1,17 +1,9 @@
 <?php
-
-// Provides data/diagram file writing/reading functions.
-
+/**
+ * Provides data/diagram file writing/reading functions.
+ */
 include 'session.php';
 include 'common.php';
-
-function checkDir($dir)
-{
-  global $base_path;
-  $full_path = $base_path . $dir;
-  if (!file_exists($full_path))
-    mkdir($full_path, 0755, true);
-}
 
 function updateDataDB($data_id, $file_name, $data_name, $file_path, $file_size)
 {
@@ -46,11 +38,10 @@ function saveDataUsername($data_id)
 
 function saveDataPaths($data_username, $file_name)
 {
-  global $data_path, $base_path;
-  $dir = $data_path . $data_username . '/';
+  $dir = DATA_PATH . $data_username . '/';
   $file_path = $dir . $file_name;
-  $full_path = $base_path . $file_path;
-  checkDir($dir);
+  $full_path = BASE_PATH . $file_path;
+  check_dir($dir);
   return array(
     'file_path' => $file_path,
     'full_path' => $full_path,
@@ -79,14 +70,12 @@ function saveUploadedData($data_id, $file_name, $data_name, $tmp_file)
 
 function getData($data_id)
 {
-  global $base_path;
-
   $row = getOneDB("SELECT file_path FROM data WHERE id=%d",
                  array($data_id));
   if (!$row)
     abort('internal server error - data requested does not exist');
 
-  $full_path = $base_path . $row['file_path'];
+  $full_path = BASE_PATH . $row['file_path'];
   $contents = file_get_contents($full_path);
   if ($contents == false)
     abort('unable to get data contents');
@@ -95,14 +84,12 @@ function getData($data_id)
 
 function deleteData($data_id)
 {
-  global $base_path;
-
   $row = getOneDB("SELECT file_path FROM data WHERE id=%d",
                  array($data_id));
   if (!$row)
     abort('internal server error - data to be deleted does not exist');
 
-  $full_path = $base_path . $row['file_path'];
+  $full_path = BASE_PATH . $row['file_path'];
   if (!@unlink($full_path))
     abort('cannot unlink data');
   queryDB("DELETE FROM data WHERE id=%d",
@@ -142,7 +129,7 @@ function updateDiagramDB($diagram_id, $diagram_name, $file_path)
 
 function saveDiagram($diagram_id, $diagram_name, $diagram)
 {
-  global $username, $diagram_path, $base_path;
+  global $username;
 
   if ($diagram_id == -1)
     // create new diagram under the current user
@@ -152,10 +139,10 @@ function saveDiagram($diagram_id, $diagram_name, $diagram)
                                  ."ON T.user_id = user.id)",
                                 array($diagram_id))['username'];
 
-  $dir = $diagram_path . $diagram_username . '/';
+  $dir = DIAGRAM_PATH . $diagram_username . '/';
   $file_path = $dir . $diagram_name;
-  $full_path = $base_path . $file_path;
-  checkDir($dir);
+  $full_path = BASE_PATH . $file_path;
+  check_dir($dir);
 
   $file = fopen($full_path, 'w');
   if (!fwrite($file, $diagram))
@@ -166,15 +153,13 @@ function saveDiagram($diagram_id, $diagram_name, $diagram)
 
 function loadDiagram($diagram_id)
 {
-  global $base_path;
-
   $row = getOneDB("SELECT file_path FROM diagram WHERE id=%d",
                     array($diagram_id));
   if (!$row)
     abort('internal server error - diagram to be loaded does not exist');
 
   $file_path = $row['file_path'];
-  $full_path = $base_path . $file_path;
+  $full_path = BASE_PATH . $file_path;
   if (!is_readable($full_path))
     abort('diagram file not readable' . $full_path);
 
@@ -186,15 +171,13 @@ function loadDiagram($diagram_id)
 
 function deleteDiagram($diagram_id)
 {
-  global $base_path;
-
   $row = getOneDB("SELECT username, file_path FROM ((SELECT user_id, file_path FROM diagram WHERE id=%d) AS T LEFT JOIN "
                   ."user ON T.user_id=user.id)",
                  array($diagram_id));
   if (!$row)
     abort('internal server error - diagram to be deleted does not exist');
 
-  $full_path = $base_path . $row['file_path'];
+  $full_path = BASE_PATH . $row['file_path'];
   if (!@unlink($full_path))
     abort('cannot unlink diagram');
   queryDB("DELETE FROM diagram WHERE id=%d",

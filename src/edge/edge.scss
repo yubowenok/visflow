@@ -10,6 +10,10 @@
     z-index: 1000;
   }
 
+  #edge-drawing {
+    pointer-events: none;
+  }
+
   #edges,
   #edge-drawing {
     height: 100%;
@@ -30,7 +34,7 @@
       }
     }
 
-    g > path.hover {
+    g.hover > path {
       stroke-width: 2px;
     }
   }

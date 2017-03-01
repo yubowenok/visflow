@@ -41,3 +41,6 @@ visflow.url.LOGOUT = './server/logout.php';
 visflow.url.AUTH = './server/auth.php';
 /** @const {string} */
 visflow.url.PROFILE = './server/profile.php';
+
+/** @const {string} */
+visflow.url.NLP = './server/nlp.php';
