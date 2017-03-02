@@ -42,7 +42,8 @@ visflow.isMobile = function() {
 visflow.error = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
-  $('#error').text(msg).parent().slideDown(visflow.const.ALERT_TRANSITION);
+  $('#error').text(msg).parent()
+    .slideDown(visflow.const.ALERT_TRANSITION_DURATION);
 };
 
 /**
@@ -53,9 +54,9 @@ visflow.warning = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
   $('#warning').text(msg).parent()
-    .slideDown(visflow.const.ALERT_TRANSITION)
+    .slideDown(visflow.const.ALERT_TRANSITION_DURATION)
     .delay(visflow.const.MESSAGE_DURATION)
-    .slideUp(visflow.const.ALERT_TRANSITION);
+    .slideUp(visflow.const.ALERT_TRANSITION_DURATION);
 };
 
 /**
@@ -66,9 +67,9 @@ visflow.success = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
   $('#success').text(msg).parent()
-    .slideDown(visflow.const.ALERT_TRANSITION)
+    .slideDown(visflow.const.ALERT_TRANSITION_DURATION)
     .delay(visflow.const.MESSAGE_DURATION)
-    .slideUp(visflow.const.ALERT_TRANSITION);
+    .slideUp(visflow.const.ALERT_TRANSITION_DURATION);
 };
 
 /**

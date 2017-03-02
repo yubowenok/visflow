@@ -57,11 +57,20 @@ visflow.Flow = function() {
    */
   this.dataSources = [];
 
-  /** @type {number} */
-  this.nodeCounter = 0;
+  /**
+   * Used to deserialize the diagram.
+   * @private {number}
+   */
+  this.nodeCounter_ = 0;
 
-  /** @type {number} */
-  this.edgeCounter = 0;
+  /**
+   * Used to deserialize the diagram.
+   * @private {number}
+   */
+  this.edgeCounter_ = 0;
+
+  /** @private {d3.ForceSimulation} */
+  this.force_ = null;
 };
 
 /**
@@ -104,8 +113,8 @@ visflow.Flow.prototype.resetFlow = function() {
   visflow.signal(visflow.flow, 'visMode');
 
   // counters start from 1
-  this.nodeCounter = 0;
-  this.edgeCounter = 0;
+  this.nodeCounter_ = 0;
+  this.edgeCounter_ = 0;
 
   this.dataSources = [];
 
@@ -190,7 +199,7 @@ visflow.Flow.prototype.createNode = function(type, save) {
   var nodeConstructor = constructors[type];
 
   _.extend(params, {
-    id: ++this.nodeCounter,
+    id: ++this.nodeCounter_,
     type: type,
     container: visflow.viewManager.createNodeContainer()
   });
@@ -238,7 +247,7 @@ visflow.Flow.prototype.createEdge = function(sourcePort, targetPort) {
   }
 
   var newedge = new visflow.Edge({
-    id: ++visflow.flow.edgeCounter,
+    id: ++visflow.flow.edgeCounter_,
     sourceNode: sourceNode,
     sourcePort: sourcePort,
     targetNode: targetNode,
@@ -795,14 +804,8 @@ visflow.Flow.prototype.moveNodes = function(dx, dy, nodes) {
       // Prevent moving non-vismode nodes in vismode.
       continue;
     }
-    var container = node.getContainer();
-    var x = container.position().left,
-        y = container.position().top;
-    container.css({
-      left: x + dx,
-      top: y + dy
-    });
-    node.updatePorts();
+    var box = node.getBoundingBox();
+    node.moveTo(box.left + dx, box.top + dy);
   }
 };
 

@@ -454,9 +454,9 @@ visflow.interaction.mousemoveHandler = function(params) {
         .css(box)
         .show();
       var hovered = visflow.flow.getNodesInSelectbox(box);
-      visflow.nlp.end();
       visflow.flow.clearNodeHover();
       visflow.flow.addNodeHover(hovered);
+      visflow.nlp.end();
     }
   }
   visflow.interaction.mouselastPos = [event.pageX, event.pageY];
@@ -663,7 +663,7 @@ visflow.interaction.clickHandler = function(params) {
   var type = params.type;
   if (type == 'empty') {
     visflow.flow.backgroundClearSelection();
-    visflow.nodePanel.toggle(false);
+    //visflow.nodePanel.toggle(false);
     $('input').blur();
   }
 };

@@ -19,7 +19,11 @@ $query_q = preg_replace('/\s+/', '+', $query);
 $cmd = "curl '" . NLP_URL . "$query_q'";
 
 $result_lines = [];
-exec($cmd, $result_lines);
+$return_int = 0;
+exec($cmd, $result_lines, $return_int);
+if ($return_int != 0) {
+  abort('NLP server unavailable');
+}
 $result = implode("\n", $result_lines);
 
 echo $result;

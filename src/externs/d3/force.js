@@ -19,6 +19,29 @@ d3.ForceSimulation.prototype.force = function(arg1, arg2) {};
 d3.ForceSimulation.prototype.velocityDecay = function(arg) {};
 
 /**
+ * @param {number=} arg
+ * @return {number}
+ */
+d3.ForceSimulation.prototype.alpha = function(arg) {};
+
+/**
+ * @param {number=} arg
+ * @return {number}
+ */
+d3.ForceSimulation.prototype.alphaMin = function(arg) {};
+
+/**
+ * @param {number} arg
+ * @return {number}
+ */
+d3.ForceSimulation.prototype.alphaDecay = function(arg) {};
+
+/**
+ * @param {Function} arg
+ */
+d3.ForceSimulation.prototype.tick = function(arg) {};
+
+/**
  * @param {number} x
  * @param {number} y
  */
@@ -27,6 +50,8 @@ d3.ForceSimulation.prototype.find = function(x, y) {};
 d3.ForceSimulation.prototype.stop = function() {};
 
 d3.ForceSimulation.prototype.restart = function() {};
+
+
 
 /** @typedef {Function} */
 d3.ForceLink;
@@ -43,7 +68,7 @@ d3.forceLink = function(links) {};
 d3.ForceLink.prototype.id = function(arg) {};
 
 /**
- * @param {number} arg
+ * @param {number|Function} arg
  */
 d3.ForceLink.prototype.distance = function(arg) {};
 
@@ -68,34 +93,53 @@ d3.ForceCenter;
  */
 d3.forceCenter = function(x, y) {};
 
+/** @typedef {Function} */
+d3.ForceCollide;
 
-// v3 below
-/**
- * @param {!Array<number>} arg
- */
-//d3.force.prototype.size = function(arg) {};
-
-/**
- * @param {!Array<*>} arg
- */
-//d3.force.prototype.nodes = function(arg) {};
+/** @return {d3.ForceCollide} */
+d3.forceCollide = function() {};
 
 /**
  * @param {number} arg
  */
-//d3.force.prototype.friction = function(arg) {};
+d3.ForceCollide.prototype.iterations = function(arg) {};
 
 /**
- * @param {number} arg
+ * @param {number|Function} arg
  */
-//d3.force.prototype.gravity = function(arg) {};
+d3.ForceCollide.prototype.radius = function(arg) {};
+
+
+// Positioning forces
+
+/** @typedef {Function} */
+d3.ForceX;
+
+/** @return {d3.ForceX} */
+d3.forceX = function() {};
 
 /**
- * @param {number} arg
+ * @param {number|function(): number} arg
  */
-//d3.force.prototype.linkDistance = function(arg) {};
+d3.ForceX.prototype.x = function(arg) {};
 
 /**
- * @return {!d3.Drag}
+ * @param {number|function(): number} arg
  */
-//d3.force.prototype.drag = function() {};
+d3.ForceX.prototype.strength = function(arg) {};
+
+/** @typedef {Function} */
+d3.ForceY;
+
+/** @return {d3.ForceX} */
+d3.forceY = function() {};
+
+/**
+ * @param {number|function(): number} arg
+ */
+d3.ForceY.prototype.y = function(arg) {};
+
+/**
+ * @param {number|function(): number} arg
+ */
+d3.ForceY.prototype.strength = function(arg) {};

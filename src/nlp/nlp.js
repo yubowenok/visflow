@@ -11,11 +11,14 @@ visflow.nlp.isWaitingForInput = false;
 /** @type {boolean} */
 visflow.nlp.isProcessing = false;
 
+/** @type {visflow.Node|undefined} */
+visflow.nlp.target = null;
+
 /**
  * Initializes NLP events.
  */
 visflow.nlp.init = function() {
-  $('#nlp-backdrop')
+  $('#backdrop')
     .mousedown(function() {
       if (visflow.nlp.isProcessing) { // Wait for server response.
         return;
@@ -35,10 +38,14 @@ visflow.nlp.init = function() {
 
 /**
  * Shows an input box for smart flow input.
+ * @param {(visflow.Node|undefined)=} opt_target
  */
-visflow.nlp.input = function() {
+visflow.nlp.input = function(opt_target) {
   visflow.nlp.isWaitingForInput = true;
   visflow.contextMenu.hide();
+
+  // If the input is global, search for a proper target.
+  visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget_();
 
   $('#nlp').children().remove();
 
@@ -53,7 +60,7 @@ visflow.nlp.input = function() {
     .addClass('form-control')
     .appendTo(div)
     .focus();
-  visflow.nlp.backdrop(true);
+  visflow.backdrop.toggle(true);
 };
 
 /**
@@ -64,26 +71,68 @@ visflow.nlp.submit = function() {
   textarea.prop('disabled', 'disabled');
   visflow.nlp.isProcessing = true;
 
-  var query = textarea.val();
+  var query = visflow.nlp.processQuery_(/** @type {string} */(textarea.val()));
   // TODO(bowen): Send query to the server and wait for the response.
 
   $.post(visflow.url.NLP, {
     query: query
   }).done(function(res) {
-      visflow.success('nlp posted:', res);
+      visflow.nlp.parseResponse_(res);
       visflow.nlp.end();
     })
     .fail(function(res) {
-      visflow.error('failed to execute SmartFlow', res.responseText);
+      visflow.error('failed to execute SmartFlow:', res.responseText);
     });
 };
 
 /**
- * Turns on off the backdrop.
- * @param {boolean} state
+ * Searches for a NLP target. Currently returns any of the data sources.
+ * @return {visflow.Node}
+ * @private
  */
-visflow.nlp.backdrop = function(state) {
-  $('#nlp-backdrop').toggle(state);
+visflow.nlp.findTarget_ = function() {
+  if (!visflow.flow.dataSources.length) {
+    // Empty diagram.
+    // TODO(bowen): find the last uploaded data and create a data source.
+    visflow.warning('Errh, first create a data source?');
+    return null;
+  }
+  return visflow.flow.dataSources[0];
+};
+
+/**
+ * Processes the NLP query. Puts in placeholders for chart types and dimensions.
+ * Removes stop words.
+ * @param {string} query
+ * @return {string}
+ * @private
+ */
+visflow.nlp.processQuery_ = function(query) {
+  console.log(visflow.nlp.target);
+  return query;
+};
+
+/**
+ * Parses the NLP response.
+ * @param {string} res HTML response of NLP query.
+ * @private
+ */
+visflow.nlp.parseResponse_ = function(res) {
+  if (res.match(/0 candidates/) != null) {
+    visflow.warning('Sorry, SmartFlow does not understand the query.');
+    return;
+  }
+  var matched = res.match(/Top value \{\n\s*\(string\s*(\S.*\S)\s*\)/);
+  if (matched == null) {
+    visflow.error('unexpected NLP response');
+    return;
+  }
+  var result = matched[1];
+  if (result[0] == '"') {
+    result = result.match(/"(.*)"/)[1]; // Remove string quotes
+  }
+  console.log(visflow.nlp.target);
+  console.log(result);
 };
 
 /**
@@ -91,6 +140,6 @@ visflow.nlp.backdrop = function(state) {
  */
 visflow.nlp.end = function() {
   $('#nlp').children().remove();
-  visflow.nlp.backdrop(false);
+  visflow.backdrop.toggle(false);
   visflow.nlp.isWaitingForInput = false;
 };

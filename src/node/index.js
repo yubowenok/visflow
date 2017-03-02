@@ -74,12 +74,6 @@ visflow.Node = function(params) {
   this.label = this.NODE_NAME + ' (' + this.id + ')';
 
   /**
-   * Position offset of node options panel.
-   * @protected {null}
-   */
-  this.optionsOffset = null;
-
-  /**
    * CSS state.
    * @type {!Object}
    */
@@ -204,6 +198,10 @@ visflow.Node.prototype.deserialize = function(save) {
 
   this.css = save.css;
   this.visCss = save.visCss;
+
+  // Adjust to new smaller node styling.
+  this.css.width = Math.min(this.css.width, this.MAX_WIDTH);
+  this.css.height = Math.min(this.css.height, this.MAX_HEIGHT);
 
   this.container.css(this.css);
 
@@ -1137,6 +1135,72 @@ visflow.Node.prototype.getContainer = function() {
 };
 
 /**
+ * Gets the location of the node (top, left).
+ * @return {{left: number, top: number}}
+ */
+visflow.Node.prototype.getCenter = function() {
+  var offset = visflow.utils.offsetMain(this.container);
+  var size = this.getSize();
+  return {
+    left: offset.left + size.width / 2,
+    top: offset.top + size.height / 2
+  };
+};
+
+/**
+ * Gets the size of the node container.
+ * @return {{width: number, height: number}}
+ */
+visflow.Node.prototype.getSize = function() {
+  var w = /** @type {number} */(this.container.outerWidth());
+  var h = /** @type {number} */(this.container.outerHeight());
+  return {width: w, height: h};
+};
+
+/**
+ * Gets the bounding box of the node container.
+ * @return {{left: number, top: number, width: number, height: number}}
+ */
+visflow.Node.prototype.getBoundingBox = function() {
+  var offset = this.container.position();
+  var size = this.getSize();
+  return {
+    left: offset.left,
+    top: offset.top,
+    width: size.width,
+    height: size.height
+  };
+};
+
+/**
+ * Moves the node to a given position.
+ * @param {number} left
+ * @param {number} top
+ */
+visflow.Node.prototype.moveTo = function(left, top) {
+  this.container.css({left: left, top: top});
+  this.updatePorts(); // Must redraw connections.
+};
+
+/**
+ * Moves the node to a given position with transition.
+ * @param {number} left
+ * @param {number} top
+ * @param {number=} opt_duration Transition duration
+ */
+visflow.Node.prototype.moveToWithTransition = function(left, top,
+                                                       opt_duration) {
+  var duration = opt_duration != undefined ?
+    opt_duration : visflow.const.DEFAULT_TRANSITION_DURATION;
+  this.container.animate({
+    left: left,
+    top: top
+  }, duration, function() {
+    this.updatePorts();
+  }.bind(this));
+};
+
+/**
  * Gets node option identified by key.
  * @param {string} key
  * @return {*}
@@ -1157,5 +1221,5 @@ visflow.Node.prototype.getClass = function() {
  * Accepts SmartFlow input.
  */
 visflow.Node.prototype.smartFlowInput = function() {
-  visflow.nlp.input();
+  visflow.nlp.input(this);
 };

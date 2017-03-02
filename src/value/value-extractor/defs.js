@@ -19,9 +19,9 @@ visflow.ValueExtractor.prototype.PANEL_TEMPLATE =
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.MIN_WIDTH = 120;
 /** @inheritDoc */
-visflow.ValueExtractor.prototype.MIN_HEIGHT = 53;
+visflow.ValueExtractor.prototype.MIN_HEIGHT = 45;
 /** @inheritDoc */
-visflow.ValueExtractor.prototype.MAX_HEIGHT = 53;
+visflow.ValueExtractor.prototype.MAX_HEIGHT = 45;
 
 /** @protected @const {string} */
 visflow.ValueExtractor.prototype.NO_DATA_STRING = 'No Data';

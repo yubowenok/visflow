@@ -12,9 +12,14 @@ visflow.Edge = function(params) {
     return;
   }
   this.id = params.id;
+
+  /** @type {!visflow.Node} */
   this.sourceNode = params.sourceNode;
+  /** @type {!visflow.Port} */
   this.sourcePort = params.sourcePort;
+  /** @type {!visflow.Node} */
   this.targetNode = params.targetNode;
+  /** @type {!visflow.Port} */
   this.targetPort = params.targetPort;
 
   /**
@@ -104,12 +109,20 @@ visflow.Edge.prototype.drawLinear = function(sx, sy, ex, ey) {
  * Re-renders the existing edge between two ports.
  */
 visflow.Edge.prototype.draw = function() {
+  var sourceCenter = this.sourcePort.getCenter();
+  var targetCenter = this.targetPort.getCenter();
+  /*
   var sourceOffset = visflow.utils.offsetMain(this.sourcePort.container);
   var targetOffset = visflow.utils.offsetMain(this.targetPort.container);
   var sx = sourceOffset.left + this.sourcePort.container.width() / 2;
   var sy = sourceOffset.top + this.sourcePort.container.height() / 2;
   var ex = targetOffset.left + this.targetPort.container.width() / 2;
   var ey = targetOffset.top + this.targetPort.container.height() / 2;
+  */
+  var sx = sourceCenter.left;
+  var sy = sourceCenter.top;
+  var ex = targetCenter.left;
+  var ey = targetCenter.top;
 
   var points = [[sx, sy]];
   // Draw edges in 2 or 3 segments, hacky...
@@ -130,16 +143,10 @@ visflow.Edge.prototype.draw = function() {
     }
   } else {  // ex < ey
     var midy;
-    var sourceNodeOffset = visflow.utils.offsetMain(this.sourceNode.container);
-    var targetNodeOffset = visflow.utils.offsetMain(this.targetNode.container);
-    var sourceYrange = [
-      sourceNodeOffset.top,
-      sourceNodeOffset.top + this.sourceNode.container.outerHeight()
-    ];
-    var targetYrange = [
-      targetNodeOffset.top,
-      targetNodeOffset.top + this.targetNode.container.outerHeight()
-    ];
+    var boxSource = this.sourceNode.getBoundingBox();
+    var boxTarget = this.targetNode.getBoundingBox();
+    var sourceYrange = [boxSource.top, boxSource.top + boxSource.height];
+    var targetYrange = [boxTarget.top, boxTarget.top + boxTarget.height];
     if (sourceYrange[0] <= targetYrange[1] &&
         sourceYrange[1] >= targetYrange[0]) {
        // two nodes have intersecting y range, get around

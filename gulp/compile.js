@@ -71,6 +71,9 @@ gulp.task('compile-dev', function(cb) {
     cb);
 });
 
+// Fast (fake) compile with only concatenation of sources.
+gulp.task('compile-dev-express', ['compile-concat']);
+
 gulp.task('compile-all', function(cb) {
   runSequence('compile', 'compile-dev', cb);
 });

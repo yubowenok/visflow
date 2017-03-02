@@ -70,10 +70,11 @@
             <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node<span class="hotkey">( A )</span></a></li>
           </ul>
         </li>
-        <li id="options" class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
+        <li id="view" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Views <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a id="show-node-label"><i class="glyphicon glyphicon-ok"></i>Show Node Labels</a></li>
+            <li><a id="show-node-panel"><i class="glyphicon glyphicon-ok"></i>Node Panel</a></li>
+            <li><a id="show-node-label"><i class="glyphicon glyphicon-ok"></i>Node Labels</a></li>
           </ul>
         </li>
         <li id="help" class="dropdown">
@@ -165,7 +166,10 @@
       <i class="glyphicon glyphicon-asterisk invisible"></i>
     </button>
   </div>
-  <div id="nlp-backdrop" class="modal-backdrop" style="display: none"></div>
+  <div id="backdrop" class="modal-backdrop" style="display: none"></div>
   <div id="nlp"></div>
+  <div id="progress" class="progress bottom" style="display: none">
+    <div class="progress-bar" role="progressbar">Loading VisFlow</div>
+  </div>
 </body>
 </html>

@@ -21,7 +21,7 @@ visflow.nodePanel.hoverArea_ = $();
  * Node panel state.
  * @type {boolean}
  */
-visflow.nodePanel.isOpen = false;
+visflow.nodePanel.isOpen = true;
 
 /** @private @const {string} */
 visflow.nodePanel.TEMPLATE_ = './dist/html/panel/node-panel/node-panel.html';
@@ -38,18 +38,20 @@ visflow.nodePanel.init = function() {
   visflow.nodePanel.container_ = container;
   visflow.nodePanel.hoverArea_ = container.children('.hover-area');
 
+  /*
   var showPanel = function() {
     if (!visflow.nodePanel.isOpen) {
       visflow.nodePanel.toggle(true);
     }
   };
-  //container.find('#btn-toggle').mouseenter(showPanel);
-  //visflow.nodePanel.hoverArea_.mouseenter(showPanel);
+  container.find('#btn-toggle').mouseenter(showPanel);
+  visflow.nodePanel.hoverArea_.mouseenter(showPanel);
+  */
 
   visflow.nodePanel.initUpdateHandlers_();
-  // Set correct panel with on system init
+  // Set correct panel width on system init
   visflow.nodePanel.show_();
-  setTimeout(visflow.nodePanel.hide_, visflow.nodePanel.INIT_DELAY_);
+  //setTimeout(visflow.nodePanel.hide_, visflow.nodePanel.INIT_DELAY_);
 };
 
 /**
@@ -76,16 +78,7 @@ visflow.nodePanel.setVisible_ = function(visible) {
  * @param {boolean=} opt_state Whether the panel shall be open.
  */
 visflow.nodePanel.toggle = function(opt_state) {
-  // TODO(bowen): Completely disable node panel toggle.
-  return;
-  /*
-  var newState;
-  if (opt_state == null) {
-    newState = !visflow.nodePanel.isOpen;
-  } else {
-    newState = opt_state;
-  }
-
+  var newState = opt_state == undefined ? !visflow.nodePanel.isOpen : opt_state;
   if (newState != visflow.nodePanel.isOpen) {
     visflow.nodePanel.isOpen = newState;
     if (newState) {
@@ -93,8 +86,11 @@ visflow.nodePanel.toggle = function(opt_state) {
     } else {
       visflow.nodePanel.hide_();
     }
+    visflow.signal(visflow.nodePanel, 'change', {
+      type: 'nodePanel',
+      value: newState
+    });
   }
-  */
 };
 
 /**
@@ -112,7 +108,6 @@ visflow.nodePanel.getWidth_ = function() {
  * @private
  */
 visflow.nodePanel.show_ = function() {
-  // TODO(bowen): Completely disable node panel show.
   var content = visflow.nodePanel.container_.find('.content');
   content.load(visflow.nodePanel.TEMPLATE_, function() {
     var width = visflow.nodePanel.getWidth_();
@@ -134,9 +129,6 @@ visflow.nodePanel.show_ = function() {
  * @private
  */
 visflow.nodePanel.hide_ = function() {
-  // TODO(bowen): Completely disable node panel hide.
-  return;
-  /*
   var content = visflow.nodePanel.container_.find('.content');
   var width = visflow.nodePanel.getWidth_();
   visflow.nodePanel.container_.stop()
@@ -151,7 +143,6 @@ visflow.nodePanel.hide_ = function() {
 
       }
     });
-    */
 };
 
 

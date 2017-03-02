@@ -10,10 +10,12 @@ var orderedSrc = [
   'src/contextmenu/*.js',
   'src/dialog/*.js',
   'src/tooltip/*.js',
+  'src/progress/*.js',
   'src/upload/*.js',
   'src/parser.js',
   'src/user/*.js',
-  'src/nlp/**/*.js',
+  'src/backdrop/*.js',
+  'src/nlp/*.js',
 
   'src/save.js',
   'src/node/save.js',
@@ -65,7 +67,7 @@ var orderedSrc = [
   'src/visualization/**/*.js',
 
   'src/diagram/diagram.js',
-  'src/flow.js',
+  'src/flow/**/*.js',
   'src/welcome/welcome.js',
 
   'src/launch.js',

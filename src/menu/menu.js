@@ -8,14 +8,30 @@ visflow.menu = {};
 /** @private @const {number} */
 visflow.menu.TOOLTIP_DELAY_ = 1000;
 
+/** @private @const {string} */
+visflow.menu.NAVBAR_SELECTOR_ = '.visflow > .navbar-fixed-top';
+
 /**
  * Initializes the menu.
  */
 visflow.menu.init = function() {
-  var navbar = $('.visflow > .navbar-fixed-top');
+  var navbar = $(visflow.menu.NAVBAR_SELECTOR_);
+  visflow.menu.initDiagramDropdown_();
+  visflow.menu.initEditDropdown_();
+  visflow.view.initViewsDropdown(navbar);
+  visflow.menu.initHelpDropdown_();
+  visflow.menu.initUserButtons_();
+  visflow.menu.initTooltips_();
 
-  // Diagram dropdown
-  var diagram = navbar.find('#diagram');
+  visflow.menu.initUpdateHandlers_();
+};
+
+/**
+ * Initializes diagram dropdown.
+ * @private
+ */
+visflow.menu.initDiagramDropdown_ = function() {
+  var diagram = $(visflow.menu.NAVBAR_SELECTOR_).find('#diagram');
   diagram.find('#new').click(function() {
     visflow.diagram.new();
   });
@@ -25,27 +41,39 @@ visflow.menu.init = function() {
   diagram.find('#load').click(function() {
     visflow.diagram.load();
   });
+};
 
-  // Edit dropdown
-  var edit = navbar.find('#edit');
+/**
+ * Initializes edit dropdown.
+ * @private
+ */
+visflow.menu.initEditDropdown_ = function() {
+  var edit = $(visflow.menu.NAVBAR_SELECTOR_).find('#edit');
   edit.find('#add-node').click(function() {
     visflow.nodePanel.toggle(true);
   });
+};
 
-  // Options
-  var options = navbar.find('#options');
-  options.find('#show-node-label').click(function() {
-    visflow.options.toggleNodeLabel();
-  });
-
-  var help = navbar.find('#help');
+/**
+ * Initializes help dropdown.
+ * @private
+ */
+visflow.menu.initHelpDropdown_ = function() {
+  var help = $(visflow.menu.NAVBAR_SELECTOR_).find('#help');
   help.find('#documentation').click(function() {
     visflow.documentation();
   });
   help.find('#about').click(function() {
     visflow.about();
   });
+};
 
+/**
+ * Initializes user registration and login menu items.
+ * @private
+ */
+visflow.menu.initUserButtons_ = function() {
+  var navbar = $(visflow.menu.NAVBAR_SELECTOR_);
   var register = navbar.find('#register');
   register.click(function() {
     visflow.user.register();
@@ -62,13 +90,16 @@ visflow.menu.init = function() {
   username.click(function() {
     visflow.user.profile();
   });
+};
 
-
-  navbar.find('.to-tooltip').tooltip({
+/**
+ * Initializes menu tooltips.
+ * @private
+ */
+visflow.menu.initTooltips_ = function() {
+  $(visflow.menu.NAVBAR_SELECTOR_).find('.to-tooltip').tooltip({
     delay: visflow.menu.TOOLTIP_DELAY_
   });
-
-  visflow.menu.initUpdateHandlers_();
 };
 
 /**
@@ -76,16 +107,6 @@ visflow.menu.init = function() {
  * @private
  */
 visflow.menu.initUpdateHandlers_ = function() {
-  $(visflow.options).on('vf.change', function(event, data) {
-    var value = data.value;
-    switch (data.type) {
-      case 'nodeLabel':
-        $('#options #show-node-label > i').toggleClass('glyphicon-ok', value);
-        visflow.flow.updateNodeLabels();
-        break;
-    }
-  });
-
   var navbar = $('.visflow > .navbar-fixed-top');
   $(visflow.user)
     .on('vf.login', function() {

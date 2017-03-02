@@ -70,6 +70,9 @@ visflow.Port = function(params) {
    * @type {visflow.Constants|visflow.Package}
    */
   this.pack = new this.packClass();
+
+  /** @type {!jQuery} */
+  this.container = $();
 };
 
 /** @protected @const {number} */
@@ -200,7 +203,7 @@ visflow.Port.prototype.disconnect = function(edge) {
  * @param {!jQuery} container
  */
 visflow.Port.prototype.setContainer = function(container) {
-  this.container = this.container = container;
+  this.container = container;
 
   this.container
     .attr('id', this.id)
@@ -224,14 +227,15 @@ visflow.Port.prototype.setContainer = function(container) {
     .addClass('background')
     .appendTo(this.container);
 
-  this.initContextMenu();
-  this.interaction();
+  this.initContextMenu_();
+  this.interaction_();
 };
 
 /**
  * Prepares the contextMenu for the port.
+ * @private
  */
-visflow.Port.prototype.initContextMenu = function() {
+visflow.Port.prototype.initContextMenu_ = function() {
   var contextMenu = new visflow.ContextMenu({
     container: this.container,
     items: this.contextMenuItems()
@@ -280,8 +284,9 @@ visflow.Port.prototype.info = function() {
 
 /**
  * Prepares the interaction of the port.
+ * @private
  */
-visflow.Port.prototype.interaction = function() {
+visflow.Port.prototype.interaction_ = function() {
   this.container
     .dblclick(function() {
       this.info();
@@ -342,4 +347,16 @@ visflow.Port.prototype.interaction = function() {
  */
 visflow.Port.prototype.changed = function() {
   return this.pack.changed;
+};
+
+/**
+ * Gets the center coordinates of the port.
+ * @return {{left: number, top: number}}
+ */
+visflow.Port.prototype.getCenter = function() {
+  var offset = visflow.utils.offsetMain(this.container);
+  return {
+    left: offset.left + this.container.width() / 2,
+    top: offset.top + this.container.height() / 2
+  };
 };
