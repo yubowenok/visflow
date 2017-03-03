@@ -1127,6 +1127,21 @@ visflow.Node.prototype.getPort = function(id) {
 };
 
 /**
+ * Gets input data.
+ * @return {!Array<visflow.Data>}
+ */
+visflow.Node.prototype.getInputData = function() {
+  var data = [];
+  for (var id in this.ports) {
+    var port = this.ports[id];
+    if (port.isInput && !port.isConstants) {
+      data.push(port.pack.data);
+    }
+  }
+  return data;
+};
+
+/**
  * Gets the container of the node.
  * @return {!jQuery}
  */

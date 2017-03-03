@@ -2,6 +2,7 @@
  * @fileoverview A (potentially filtered) copy of the original data.
  * The package maintains a list of references to the data table rows.
  * It allows rendering properties to be added.
+ * A package is the implementation of a data subset.
  */
 
 /**

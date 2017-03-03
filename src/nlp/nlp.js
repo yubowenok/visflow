@@ -38,7 +38,7 @@ visflow.nlp.init = function() {
 
 /**
  * Shows an input box for smart flow input.
- * @param {(visflow.Node|undefined)=} opt_target
+ * @param {(!visflow.Node|undefined)=} opt_target
  */
 visflow.nlp.input = function(opt_target) {
   visflow.nlp.isWaitingForInput = true;
@@ -91,6 +91,12 @@ visflow.nlp.submit = function() {
  * @private
  */
 visflow.nlp.findTarget_ = function() {
+  if (!$.isEmptyObject(visflow.flow.nodesSelected)) {
+    // If there is a selection, return any node selected.
+    for (var nodeId in visflow.flow.nodesSelected) {
+      return visflow.flow.nodes[nodeId];
+    }
+  }
   if (!visflow.flow.dataSources.length) {
     // Empty diagram.
     // TODO(bowen): find the last uploaded data and create a data source.
@@ -109,6 +115,10 @@ visflow.nlp.findTarget_ = function() {
  */
 visflow.nlp.processQuery_ = function(query) {
   console.log(visflow.nlp.target);
+  query = visflow.nlp.matchChartTypes_(query);
+  query = visflow.nlp.matchDimensions_(query, /** @type {!visflow.Node} */(
+    visflow.nlp.target));
+  console.log('matched query:', query);
   return query;
 };
 
@@ -131,8 +141,21 @@ visflow.nlp.parseResponse_ = function(res) {
   if (result[0] == '"') {
     result = result.match(/"(.*)"/)[1]; // Remove string quotes
   }
-  console.log(visflow.nlp.target);
-  console.log(result);
+
+  console.log('response:', result);
+  result = visflow.nlp.mapChartTypes_(result);
+  result = visflow.nlp.mapDimensions_(result);
+  console.log('result', result);
+  visflow.nlp.execute_(result);
+};
+
+/**
+ * Executes an NLP command.
+ * @param {string} command
+ * @private
+ */
+visflow.nlp.execute_ = function(command) {
+
 };
 
 /**

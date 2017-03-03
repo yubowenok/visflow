@@ -32,12 +32,15 @@ visflow.Flow.prototype.PADDING_NUM_ = 5;
 
 /**
  * Auto-adjusts flow diagram layout.
+ * @param {!Object<number>=} opt_fixedNodes
+ *     Nodes with Ids in this object will be fixed.
  */
-visflow.Flow.prototype.autoLayout = function() {
+visflow.Flow.prototype.autoLayout = function(opt_fixedNodes) {
   var nodes = [];
   var links = [];
   var nodeIndex = {};
   var indexCounter = 0;
+  var fixedNodes = opt_fixedNodes == undefined ? {} : opt_fixedNodes;
   for (var nodeId in this.nodes) {
     var node = this.nodes[nodeId];
     var size = node.getSize();
@@ -55,6 +58,10 @@ visflow.Flow.prototype.autoLayout = function() {
       height: size.height,
       size: Math.min(size.width, size.height) / 2
     };
+    if (nodeId in fixedNodes) {
+      newNode.fx = newNode.x;
+      newNode.fy = newNode.y;
+    }
     nodes.push(newNode);
     nodeIndex[node.id] = indexCounter++;
 

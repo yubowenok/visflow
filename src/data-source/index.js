@@ -559,3 +559,12 @@ visflow.DataSource.prototype.process = function() {
   $.extend(this.ports['out'].pack, new visflow.Package(data));
   visflow.flow.propagate(this);
 };
+
+/**
+ * Since data source does not have input, return the output data.
+ * @inheritDoc
+ */
+visflow.DataSource.prototype.getInputData = function() {
+  var port = this.ports['out'];
+  return [port.pack.data];
+};
