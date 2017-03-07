@@ -14,6 +14,7 @@ visflow.nlp.isProcessing = false;
 /** @type {visflow.Node|undefined} */
 visflow.nlp.target = null;
 
+
 /**
  * Initializes NLP events.
  */
@@ -75,7 +76,7 @@ visflow.nlp.submit = function() {
   // TODO(bowen): Send query to the server and wait for the response.
 
   $.post(visflow.url.NLP, {
-    query: query
+    query: escape(query)
   }).done(function(res) {
       visflow.nlp.parseResponse_(res);
       visflow.nlp.end();
@@ -103,7 +104,9 @@ visflow.nlp.findTarget_ = function() {
     visflow.warning('Errh, first create a data source?');
     return null;
   }
-  return visflow.flow.dataSources[0];
+  // Return the nearest node to the mouse position.
+  return visflow.flow.closestNode(visflow.interaction.mouseX,
+    visflow.interaction.mouseY);
 };
 
 /**
@@ -114,11 +117,11 @@ visflow.nlp.findTarget_ = function() {
  * @private
  */
 visflow.nlp.processQuery_ = function(query) {
-  console.log(visflow.nlp.target);
+  console.log('[target]', visflow.nlp.target);
   query = visflow.nlp.matchChartTypes_(query);
   query = visflow.nlp.matchDimensions_(query, /** @type {!visflow.Node} */(
     visflow.nlp.target));
-  console.log('matched query:', query);
+  console.log('[query]', query);
   return query;
 };
 
@@ -135,6 +138,7 @@ visflow.nlp.parseResponse_ = function(res) {
   var matched = res.match(/Top value \{\n\s*\(string\s*(\S.*\S)\s*\)/);
   if (matched == null) {
     visflow.error('unexpected NLP response');
+    console.log(res);
     return;
   }
   var result = matched[1];
@@ -142,20 +146,11 @@ visflow.nlp.parseResponse_ = function(res) {
     result = result.match(/"(.*)"/)[1]; // Remove string quotes
   }
 
-  console.log('response:', result);
-  result = visflow.nlp.mapChartTypes_(result);
-  result = visflow.nlp.mapDimensions_(result);
-  console.log('result', result);
-  visflow.nlp.execute_(result);
-};
-
-/**
- * Executes an NLP command.
- * @param {string} command
- * @private
- */
-visflow.nlp.execute_ = function(command) {
-
+  console.log('[response]', result);
+  var command = visflow.nlp.mapChartTypes_(result);
+  command = visflow.nlp.mapDimensions_(command);
+  console.log('[command]', command);
+  visflow.nlp.execute_(command, result);
 };
 
 /**

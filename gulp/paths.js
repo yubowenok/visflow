@@ -4,6 +4,8 @@ var orderedSrc = [
   'src/visflow.js',
   'src/common/defs.js',
   'src/common/*.js',
+  'src/history/history.js',
+  'src/history/*.js',
   'src/menu/*.js',
   'src/view-manager.js',
   'src/interaction.js',

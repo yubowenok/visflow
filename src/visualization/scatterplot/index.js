@@ -354,6 +354,38 @@ visflow.Scatterplot.prototype.findPlotDimensions = function() {
   };
 };
 
+/**
+ * Sets the X dimension of the scatterplot.
+ * @param {string} dim
+ */
+visflow.Scatterplot.prototype.setXDimension = function(dim) {
+  var data = this.ports['in'].pack.data;
+  this.options.xDim = data.dimensions.indexOf(dim);
+  this.dimensionChanged();
+};
+
+/**
+ * Sets the Y dimension of the scatterplot.
+ * @param {string} dim
+ */
+visflow.Scatterplot.prototype.setYDimension = function(dim) {
+  var data = this.ports['in'].pack.data;
+  this.options.yDim = data.dimensions.indexOf(dim);
+  this.dimensionChanged();
+};
+
+/** @inhertDoc */
+visflow.Scatterplot.prototype.setDimensions = function(dims) {
+  var data = this.ports['in'].pack.data;
+  if (dims.length >= 1) {
+    this.options.xDim = data.dimensions.indexOf(dims[0]);
+  }
+  if (dims.length >= 2) {
+    this.options.yDim = data.dimensions.indexOf(dims[1]);
+  }
+  this.dimensionChanged();
+};
+
 /** @inheritDoc */
 visflow.Scatterplot.prototype.dataChanged = function() {
   // When data is changed, scatterplot shall find two reasonable dimensions to

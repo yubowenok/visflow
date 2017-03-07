@@ -67,7 +67,9 @@
         <li id="edit" class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown">Edit <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node<span class="hotkey">( A )</span></a></li>
+            <li><a id="undo" class="disabled"><i class="glyphicon glyphicon-repeat" style="-webkit-transform: rotate(-90deg);"></i>Undo</a></li>
+            <li><a id="redo" class="disabled"><i class="glyphicon glyphicon-repeat"></i>Redo</a></li>
+            <li><a id="auto-layout"><i class="glyphicon glyphicon-th"></i>Auto Layout</a></li>
           </ul>
         </li>
         <li id="view" class="dropdown">
@@ -98,8 +100,7 @@
 
   <div id="modal" class="modal fade">
     <div class="modal-dialog">
-      <div class="modal-content">
-      </div>
+      <div class="modal-content"></div>
     </div>
   </div>
 
@@ -119,8 +120,7 @@
   </div>
 
   <div id="context-menu">
-    <ul class="dropdown-menu">
-    </ul>
+    <ul class="dropdown-menu"></ul>
   </div>
 
   <div id="main">
@@ -141,13 +141,6 @@
     <div class="content"></div>
   </div>
   <div id="node-panel">
-    <!--
-    <button id="btn-toggle">
-      <span class="glyphicon glyphicon-plus"></span>
-    </button>
-    <div class="hover-area">
-    </div>
-    -->
     <div class="content"></div>
   </div>
   <div id="popup-panel" class="popup-panel" style="display: none;"></div>
@@ -161,7 +154,7 @@
     <button id="upload" class="btn btn-default btn-xs to-tooltip" title="Upload Data" data-placement="right">
       <i class="glyphicon glyphicon-upload"></i>
     </button>
-    <button id="mic" class="btn btn-default btn-xs to-tooltip" title="Talk to SmartFlow (SHIFT+S)" data-placement="right">
+    <button id="mic" class="btn btn-default btn-xs to-tooltip" title="Talk to SmartFlow (SHIFT+V)" data-placement="right">
       <i class="microphone" alt="Icons made by http://www.freepik.com from http://www.flaticon.com CC 3.0 BY"></i>
       <i class="glyphicon glyphicon-asterisk invisible"></i>
     </button>

@@ -9,7 +9,7 @@ visflow.view = {};
  * Initializes view dropdown.
  * @param {!jQuery} navbar
  */
-visflow.view.initViewsDropdown = function(navbar) {
+visflow.view.initDropdown = function(navbar) {
   var view = navbar.find('#view');
   view.find('#show-node-label').click(function() {
     visflow.options.toggleNodeLabel(); // TODO(bowen): check visflow.options
@@ -18,7 +18,7 @@ visflow.view.initViewsDropdown = function(navbar) {
     visflow.nodePanel.toggle();
   });
 
-  visflow.view.initViewsListeners_();
+  visflow.view.initListeners_();
 };
 
 
@@ -26,7 +26,7 @@ visflow.view.initViewsDropdown = function(navbar) {
  * Initializes listeners for view dropdown.
  * @private
  */
-visflow.view.initViewsListeners_ = function() {
+visflow.view.initListeners_ = function() {
   // Change of nodePanel visibility
   $(visflow.nodePanel).on('vf.change', function(event, data) {
     var value = data.value;

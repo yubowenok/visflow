@@ -17,8 +17,8 @@ visflow.menu.NAVBAR_SELECTOR_ = '.visflow > .navbar-fixed-top';
 visflow.menu.init = function() {
   var navbar = $(visflow.menu.NAVBAR_SELECTOR_);
   visflow.menu.initDiagramDropdown_();
-  visflow.menu.initEditDropdown_();
-  visflow.view.initViewsDropdown(navbar);
+  visflow.edit.initDropdown(navbar);
+  visflow.view.initDropdown(navbar);
   visflow.menu.initHelpDropdown_();
   visflow.menu.initUserButtons_();
   visflow.menu.initTooltips_();
@@ -40,17 +40,6 @@ visflow.menu.initDiagramDropdown_ = function() {
   });
   diagram.find('#load').click(function() {
     visflow.diagram.load();
-  });
-};
-
-/**
- * Initializes edit dropdown.
- * @private
- */
-visflow.menu.initEditDropdown_ = function() {
-  var edit = $(visflow.menu.NAVBAR_SELECTOR_).find('#edit');
-  edit.find('#add-node').click(function() {
-    visflow.nodePanel.toggle(true);
   });
 };
 

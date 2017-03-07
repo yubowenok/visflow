@@ -36,6 +36,12 @@ visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
     text: 'Add Node',
     icon: 'glyphicon glyphicon-plus',
     hotKey: 'A'
+  },
+  {
+    id: 'smartFlow',
+    text: 'SmartFlow',
+    icon: 'glyphicon glyphicon-comment',
+    hotKey: 'S'
   }
 ];
 
@@ -384,6 +390,9 @@ visflow.interaction.mainContextMenu_ = function() {
   $(contextMenu)
     .on('vf.addNode', function() {
       visflow.popupPanel.show();
+    })
+    .on('vf.smartFlow', function() {
+      visflow.nlp.input();
     });
 };
 

@@ -7,8 +7,11 @@ cd smartflow/sempre
 screen java -cp libsempre/*:lib/* -ea edu.stanford.nlp.sempre.Main\
      -languageAnalyzer corenlp.CoreNLPAnalyzer\
      -Grammar.inPaths ../main.grammar\
+     -FeatureExtractor.featureDomains rule\
+     -Learner.maxTrainIters 3\
      -server true\
-     -Dataset.inPaths test:../test/plot.test
+     -Dataset.inPaths\
+       train:../data/plot.examples
 
 # Press Ctrl+A-D to detach the screen.
 # Now the server should be able to run http://localhost:8400/sempre

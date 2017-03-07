@@ -880,6 +880,32 @@ visflow.Flow.prototype.clearEdgeHover = function() {
 };
 
 /**
+ * Finds the closet node to the given (x, y) position.
+ * @param {number} x
+ * @param {number} y
+ * @return {visflow.Node}
+ */
+visflow.Flow.prototype.closestNode = function(x, y) {
+  var found = null;
+  var bestDistance = Infinity;
+  for (var id in this.nodes) {
+    var node = this.nodes[id];
+    if (!found) {
+      found = node;
+    } else {
+      var center = node.getCenter();
+      var distance = visflow.vectors.vectorLength([center.left - x,
+        center.top - y]);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        found = node;
+      }
+    }
+  }
+  return found;
+};
+
+/**
  * VisFlow flow diagram. Exactly one flow instance is maintained globally.
  * @type {?visflow.Flow}
  */

@@ -5,7 +5,8 @@
  */
 visflow.nlp.chartTypes_ = function() {
   return [
-    'scatteplot',
+    'table',
+    'scatterplot',
     'parallelCoodrinates',
     'histogram',
     'heatmap',
@@ -25,7 +26,7 @@ visflow.nlp.MATCH_THRESHOLD_ = .2;
 visflow.nlp.CHART_TYPE_PLACEHOLDER_ = 'chart_type';
 
 /** @private @const {string} */
-visflow.nlp.DIMENSION_PLACEHOLDER_ = 'dim_';
+visflow.nlp.DIMENSION_PLACEHOLDER_ = 'dim';
 
 /**
  * Matched chart types in the query string.
@@ -44,7 +45,8 @@ visflow.nlp.matchedDimensions_ = {};
 visflow.nlp.DELIMITER_REGEX_ = /[\s,;.]+/;
 
 /** @private @const {RegExp} */
-visflow.nlp.DIMENSION_PLACEHOLDER_REGEX_ = /^dim_\d+$/;
+visflow.nlp.DIMENSION_PLACEHOLDER_REGEX_ = /^dim\d+$/;
+
 
 /**
  * Computes the edit distance between input phrase "target" and a known
@@ -116,6 +118,9 @@ visflow.nlp.matchChartTypes_ = function(query) {
   // Match bigrams
   tokens = parsedTokens;
   parsedTokens = [];
+  if (tokens.length == 1) {
+    parsedTokens.push(tokens[0]);
+  }
   for (var i = 0; i < tokens.length - 1; i++) {
     var bigram = tokens[i] + tokens[i + 1];
     var matched = false;
@@ -158,31 +163,32 @@ visflow.nlp.matchDimensions_ = function(query, target) {
     var matched = false;
     for (var j = 0; j < dimensions.length; j++) {
       if (visflow.nlp.match(tokens[i], dimensions[j])) {
-        visflow.nlp.matchedDimensions_[visflow.nlp.DIMENSION_PLACEHOLDER_ +
-            (++dimensionCounter)] = dimensions[j];
+        visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
         matched = true;
         break;
       }
     }
     parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.DIMENSION_PLACEHOLDER_ + dimensionCounter);
+      visflow.nlp.DIMENSION_PLACEHOLDER_);
   }
   // Match bigrams
   tokens = parsedTokens;
   parsedTokens = [];
+  if (tokens.length == 1) {
+    parsedTokens.push(tokens[0]);
+  }
   for (var i = 0; i < tokens.length - 1; i++) {
     var bigram = tokens[i] + tokens[i + 1];
     var matched = false;
     for (var j = 0; j < dimensions.length; j++) {
       if (visflow.nlp.match(bigram, dimensions[j])) {
-        visflow.nlp.matchedDimensions_[visflow.nlp.DIMENSION_PLACEHOLDER_ +
-            (++dimensionCounter)] = dimensions[j];
+        visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
         matched = true;
         break;
       }
     }
     parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.DIMENSION_PLACEHOLDER_ + dimensionCounter);
+      visflow.nlp.DIMENSION_PLACEHOLDER_);
     if (matched) {
       i++; // Skip the next token if bigram matches.
     } else if (i == tokens.length - 2) { // Last bigram and not matched
@@ -220,9 +226,10 @@ visflow.nlp.mapChartTypes_ = function(command) {
  */
 visflow.nlp.mapDimensions_ = function(command) {
   var tokens = command.split(visflow.nlp.DELIMITER_REGEX_);
+  var dimensionCounter = 0;
   for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i].match(visflow.nlp.DIMENSION_PLACEHOLDER_REGEX_) != null) {
-      tokens[i] = visflow.nlp.matchedDimensions_[tokens[i]];
+    if (tokens[i] == visflow.nlp.DIMENSION_PLACEHOLDER_) {
+      tokens[i] = visflow.nlp.matchedDimensions_[dimensionCounter++];
     }
   }
   return tokens.join(' ');

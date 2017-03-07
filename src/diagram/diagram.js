@@ -61,8 +61,12 @@ visflow.diagram.save = function() {
         }
       });
     })
-    .fail(function() {
-      visflow.error('failed to get diagram list (connection error)');
+    .fail(function(res) {
+      if (res.responseText.match(/login/) != null) {
+        visflow.warning('please login to save diagrams');
+      } else {
+        visflow.error('failed to get diagram list (connection error)');
+      }
     });
 };
 
@@ -94,8 +98,12 @@ visflow.diagram.load = function() {
         }
       });
     })
-    .fail(function() {
-      visflow.error('failed to get diagram list (connection error)');
+    .fail(function(res) {
+      if (res.responseText.match(/login/) != null) {
+        visflow.warning('please login to load diagrams');
+      } else {
+        visflow.error('failed to get diagram list (connection error)');
+      }
     });
 };
 

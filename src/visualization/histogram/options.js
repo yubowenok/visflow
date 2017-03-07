@@ -11,6 +11,12 @@ visflow.options.Histogram = function(params) {
   visflow.options.Histogram.base.constructor.call(this, params);
 
   /**
+   * Distribution dimension.
+   * @type {number}
+   */
+  this.dim = params.dim !== undefined ? params.dim : 0;
+
+  /**
    * Number of histogram bins.
    * @type {number}
    */

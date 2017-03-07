@@ -79,7 +79,7 @@ d3.ForceManyBody;
 d3.forceManyBody = function() {};
 
 /**
- * @param {number} arg
+ * @param {number|Function} arg
  */
 d3.ForceManyBody.prototype.strength = function(arg) {};
 

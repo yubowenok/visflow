@@ -44,6 +44,9 @@ d3.Scale.prototype.padding = function(padding) {};
  */
 d3.Scale.prototype.round = function(round) {};
 
+/** @return {number} */
+d3.Scale.prototype.bandwidth = function() {};
+
 /**
  * @param {number=} padding
  */
@@ -58,36 +61,3 @@ d3.Scale.prototype.paddingOuter = function(padding) {};
  * @return {d3.Scale}
  */
 d3.Scale.prototype.copy = function() {};
-
-/**
- * v3
- * @return {d3.Scale}
- */
-//d3.Scale.category20 = function() {};
-
-/**
- * v3
- * @return {d3.Scale}
- */
-//d3.scale.linear = function() {};
-
-/**
- * v3
- * @param {!Array<number>=} range
- * @param {number=} padding
- */
-//d3.scale.prototype.rangeBands = function(range, padding) {};
-
-/**
- * v3
- * @param {!Array<number>=} range
- * @param {number=} padding
- */
-//d3.scale.prototype.rangeRoundBands = function(range, padding) {};
-
-/**
- * v3
- * @param {!Array<number>=} range
- * @param {number=} padding
- */
-//d3.scale.prototype.rangePoints = function(range, padding) {};

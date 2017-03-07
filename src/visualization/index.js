@@ -623,3 +623,9 @@ visflow.Visualization.prototype.dimensionChanged = function() {
  * Handles selection changes from shortcuts (selectAll and clearSelection).
  */
 visflow.Visualization.prototype.selectedChanged = function() {};
+
+/**
+ * Sets the dimensions to be visualized.
+ * @param {!Array<string>} dims
+ */
+visflow.Visualization.prototype.setDimensions = function(dims) {};

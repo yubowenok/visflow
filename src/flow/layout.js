@@ -3,9 +3,6 @@
  */
 
 /** @private @const {number} */
-visflow.Flow.prototype.DEFAULT_DISTANCE_ = 200;
-
-/** @private @const {number} */
 visflow.Flow.prototype.ALPHA_DECAY_ = .1;
 
 /** @private @const {number} */
@@ -24,6 +21,12 @@ visflow.Flow.prototype.FORCE_X_STRENGTH_ = .5;
 /** @private @const {number} */
 visflow.Flow.prototype.FORCE_Y_STRENGTH_ = .1;
 
+/** @private @const {number} */
+visflow.Flow.prototype.DEFAULT_CHARGE_ = -50;
+
+/** @private @const {number} */
+visflow.Flow.prototype.DEFAULT_MARGIN_ = 50;
+
 /**
  * Number of padded coordinates on one dimension.
  * @private @const {number}
@@ -32,15 +35,15 @@ visflow.Flow.prototype.PADDING_NUM_ = 5;
 
 /**
  * Auto-adjusts flow diagram layout.
- * @param {!Object<number>=} opt_fixedNodes
- *     Nodes with Ids in this object will be fixed.
+ * @param {!Object=} opt_movableNodes
+ *     Nodes with Ids in this object will not be fixed.
  */
-visflow.Flow.prototype.autoLayout = function(opt_fixedNodes) {
+visflow.Flow.prototype.autoLayout = function(opt_movableNodes) {
   var nodes = [];
   var links = [];
   var nodeIndex = {};
   var indexCounter = 0;
-  var fixedNodes = opt_fixedNodes == undefined ? {} : opt_fixedNodes;
+  var movableNodes = opt_movableNodes == undefined ? {} : opt_movableNodes;
   for (var nodeId in this.nodes) {
     var node = this.nodes[nodeId];
     var size = node.getSize();
@@ -58,7 +61,7 @@ visflow.Flow.prototype.autoLayout = function(opt_fixedNodes) {
       height: size.height,
       size: Math.min(size.width, size.height) / 2
     };
-    if (nodeId in fixedNodes) {
+    if (!(nodeId in movableNodes)) {
       newNode.fx = newNode.x;
       newNode.fy = newNode.y;
     }
@@ -87,34 +90,45 @@ visflow.Flow.prototype.autoLayout = function(opt_fixedNodes) {
   }
   for (var edgeId in this.edges) {
     var edge = this.edges[edgeId];
+    var boxSource = edge.sourceNode.getBoundingBox();
+    var boxTarget = edge.targetNode.getBoundingBox();
     var centerSource = edge.sourceNode.getCenter();
     var centerTarget = edge.targetNode.getCenter();
-    var distance = Math.min(visflow.vectors.vectorDistance(
+    var distance = visflow.vectors.vectorDistance(
         [centerSource.left, centerSource.top],
-        [centerTarget.left, centerTarget.top]) * .5, // Decay on the distance
-      this.DEFAULT_DISTANCE_);
-    var strength = 1 / Math.max(1, distance);
+        [centerTarget.left, centerTarget.top]);
+    var strength = Math.min(1, distance / 300);
+    var desiredDistance = ((boxSource.width + boxTarget.width) / 2 +
+        this.DEFAULT_MARGIN_);
     links.push({
       source: nodes[nodeIndex[edge.sourceNode.id]],
       target: nodes[nodeIndex[edge.targetNode.id]],
-      distance: distance,
+      distance: desiredDistance,
       strength: strength
     });
   }
 
+  var screenHeight = $('#main').height();
   this.force_ = d3.forceSimulation(nodes)
     .alphaDecay(this.ALPHA_DECAY_)
     .force('x', d3.forceX()
       .strength(this.FORCE_X_STRENGTH_)
       .x(_.getValue('ox')))
     .force('y', d3.forceY()
-      .strength(this.FORCE_Y_STRENGTH_)
+      .strength(function(node) {
+        // Prevent the nodes from moving vertically when they are too away
+        // from the vertical center.
+        return Math.max(this.FORCE_Y_STRENGTH_,
+          Math.min(1, Math.abs(node.y - screenHeight / 2) / screenHeight));
+      }.bind(this))
       .y(_.getValue('oy')))
     .force('link', d3.forceLink(links)
       .distance(_.getValue('distance'))
-      .strength(_.getValue('strength'))
-      .iterations(3))
-    .force('charge', d3.forceManyBody())
+      .strength(_.getValue('strength')))
+    .force('charge', d3.forceManyBody()
+      .strength(function(node) {
+        return this.DEFAULT_CHARGE_ * (node.baseNode == undefined ? 1 : 3);
+      }.bind(this)))
     .force('collide', d3.forceCollide().radius(_.getValue('size'))
       .iterations(this.COLLIDE_ITERATIONS_));
 

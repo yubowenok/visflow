@@ -11,12 +11,6 @@ visflow.Histogram = function(params) {
   visflow.Histogram.base.constructor.call(this, params);
 
   /**
-   * Distribution dimension.
-   * @protected {number}
-   */
-  this.dim = 0;
-
-  /**
    * Histogram data, created by assigning each item a bin.
    * @private {!Array}
    */
@@ -71,7 +65,7 @@ visflow.Histogram.prototype.init = function() {
 /** @inheritDoc */
 visflow.Histogram.prototype.serialize = function() {
   var result = visflow.Histogram.base.serialize.call(this);
-  result.dim = this.dim;
+  result.dim = this.options.dim;
   result.selectedBars = this.selectedBars;
   return result;
 };
@@ -79,10 +73,10 @@ visflow.Histogram.prototype.serialize = function() {
 /** @inheritDoc */
 visflow.Histogram.prototype.deserialize = function(save) {
   visflow.Histogram.base.deserialize.call(this, save);
-  this.dim = save.dim;
-  if (this.dim == null) {
+  this.options.dim = save.dim;
+  if (this.options.dim == null) {
     visflow.error('dimension not saved for histogram');
-    this.dim = 0;
+    this.options.dim = 0;
   }
 
   this.selectedBars = save.selectedBars;
@@ -186,26 +180,28 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
       bins = 1;
     }
   } else if (this.xScaleType == visflow.ScaleType.ORDINAL) {
-    range = [0, this.xScale.domain().length - 1];
-    ordinalMapping = this.xScale.copy()
-      .range(d3.range(this.xScale.domain().length));
-    // Ordinal data does not use ticks. It uses distinct string counts.
-    bins = this.xScale.domain().length;
+    var ordinals = this.xScale.domain();
+    bins = [];
+    for (var i = 0; i < ordinals.length; i++) {
+      bins.push(this.xScale(ordinals[i]));
+    }
+    bins.push(this.xScale(ordinals[ordinals.length - 1]) +
+      this.xScale.bandwidth());
+    range = this.xScale.range();
   }
 
   for (var index in items) {
-    var value = data.values[index][this.dim];
+    var value = data.values[index][this.options.dim];
     values.push({
       value: this.xScaleType == visflow.ScaleType.NUMERICAL ?
-          value : ordinalMapping(value),
+          value : this.xScale(value),
       index: index
     });
   }
-
   var histogram = d3.histogram()
     .value(_.getValue('value'))
     .thresholds(bins)
-    .domain(range);
+    .domain(range); // range
   this.histogramData_ = histogram(values);
 };
 
@@ -224,7 +220,7 @@ visflow.Histogram.prototype.createHistogramScale_ = function() {
   ];
   this.histogramScale = d3.scaleLinear()
     .domain(this.xScaleType == visflow.ScaleType.NUMERICAL ?
-        this.xScale.domain() : [0, this.xScale.domain().length - 1])
+        this.xScale.domain() : this.xScale.range())
     .range(range);
 };
 
@@ -433,7 +429,7 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
       svgSize.height - margins.bottom
     ]),
     label: {
-      text: data.dimensions[this.dim],
+      text: data.dimensions[this.options.dim],
       transform: visflow.utils.getTransform([
         svgSize.width - margins.right,
         -svgSize.height + margins.top + margins.bottom +
@@ -482,7 +478,7 @@ visflow.Histogram.prototype.prepareScales = function() {
   var data = inpack.data;
   var items = inpack.items;
   var margins = this.plotMargins();
-  var scaleInfo = visflow.scales.getScale(data, this.dim, items, [
+  var scaleInfo = visflow.scales.getScale(data, this.options.dim, items, [
       margins.left,
       svgSize.width - margins.right
     ], {
@@ -505,7 +501,7 @@ visflow.Histogram.prototype.prepareScales = function() {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.dataChanged = function() {
-  this.dim = this.findPlotDimension();
+  this.options.dim = this.findPlotDimension();
   this.selected = {};
   this.selectedBars = {};
 };
@@ -554,4 +550,13 @@ visflow.Histogram.prototype.selectAll = function() {
 visflow.Histogram.prototype.clearSelection = function() {
   this.selectedBars = {};
   visflow.Histogram.base.clearSelection.call(this);
+};
+
+/** @inheritDoc */
+visflow.Histogram.prototype.setDimensions = function(dims) {
+  var data = this.ports['in'].pack.data;
+  if (dims.length) {
+    this.options.dim = data.dimensions.indexOf(dims[0]);
+  }
+  this.dimensionChanged();
 };
