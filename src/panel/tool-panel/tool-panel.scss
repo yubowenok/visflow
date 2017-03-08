@@ -9,8 +9,12 @@
   z-index: 1001;
 
   button {
-    background: none;
+    background: $ui-background;
     margin: 0 1px;
+
+    &.active {
+      background: $gray-d;
+    }
   }
 
   .glyphicon.invisible {

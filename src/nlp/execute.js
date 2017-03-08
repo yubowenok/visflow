@@ -6,6 +6,9 @@ visflow.nlp.CommandType = {
   HIGHLIGHT_FILTER: 11,
   FILTER: 20,
 
+  AUTOLAYOUT: 50,
+  DELETE: 51,
+
   UNKNOWN: -1
 };
 
@@ -37,17 +40,45 @@ visflow.nlp.isHighlight_ = function(token) {
 };
 
 /**
+ * Checks if the root command is a util.
+ * @param {string} token
+ * @return {boolean}
+ * @private
+ */
+visflow.nlp.isUtil_ = function(token) {
+  return visflow.nlp.utilTypes_().indexOf(token) != -1;
+};
+
+/**
+ * Gets the util command type from a token.
+ * @param {string} token
+ * @return {visflow.nlp.CommandType}
+ * @private
+ */
+visflow.nlp.getUtilType_ = function(token) {
+  switch (token) {
+    case 'autolayout':
+      return visflow.nlp.CommandType.AUTOLAYOUT;
+    case 'delete':
+      return visflow.nlp.CommandType.DELETE;
+  }
+  return visflow.nlp.CommandType.UNKNOWN;
+};
+
+/**
  * Checks what type a command is.
  * @param {string} command
  * @return {visflow.nlp.CommandType}
  * @private
  */
 visflow.nlp.getCommandType_ = function(command) {
-  var tokens = command.split(/\s+/);
-  if (visflow.nlp.isChartType_(tokens[0])) {
+  var root = command.split(/\s+/)[0];
+  if (visflow.nlp.isChartType_(root)) {
     return visflow.nlp.CommandType.CHART;
-  } else if (visflow.nlp.isHighlight_(tokens[0])) {
+  } else if (visflow.nlp.isHighlight_(root)) {
     return visflow.nlp.CommandType.HIGHLIGHT;
+  } else if (visflow.nlp.isUtil_(root)) {
+    return visflow.nlp.getUtilType_(root);
   }
   return visflow.nlp.CommandType.UNKNOWN;
 };
@@ -73,6 +104,9 @@ visflow.nlp.execute_ = function(command, syntax) {
       break;
     case visflow.nlp.CommandType.FILTER:
       visflow.nlp.filter_(command);
+      break;
+    case visflow.nlp.CommandType.AUTOLAYOUT:
+      visflow.flow.autoLayoutAll();
       break;
   }
 };

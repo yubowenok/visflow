@@ -33,6 +33,7 @@
     "underscore": "~1.8.2",
     "js-cookie": "~2.1.0",
     "jquery-ui-touch-punch": "*",
-    "leaflet": "~1.0.3"
+    "leaflet": "~1.0.3",
+    "annyang": "^2.6.0"
   }
 }

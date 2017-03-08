@@ -16,6 +16,22 @@ visflow.nlp.chartTypes_ = function() {
 };
 
 /**
+ * Gets the util commands.
+ * @return {!Array<string>}
+ * @private
+ */
+visflow.nlp.utilTypes_ = function() {
+  return [
+    // autolayout
+    'autolayout',
+    'adjust',
+    'layout',
+
+    'delete'
+  ];
+};
+
+/**
  * Matching threshold for the edit distance.
  * Maximum allowed percentage of edit_distance/pattern_length.
  * @private @const {number}
@@ -45,7 +61,7 @@ visflow.nlp.matchedDimensions_ = {};
 visflow.nlp.DELIMITER_REGEX_ = /[\s,;.]+/;
 
 /** @private @const {RegExp} */
-visflow.nlp.DIMENSION_PLACEHOLDER_REGEX_ = /^dim\d+$/;
+visflow.nlp.AUTOLAYOUT_REGEX_ = /^.*layout.*$/;
 
 
 /**
@@ -151,8 +167,8 @@ visflow.nlp.matchChartTypes_ = function(query) {
  * @private
  */
 visflow.nlp.matchDimensions_ = function(query, target) {
-  var data = target.getInputData()[0]; // Currently only handles one input data
-  var dimensions = data.dimensions;
+  var dimensions = target.getDimensionList()
+    .map(function(dim) { return dim.text; });
   var dimensionCounter = 0;
   var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
 

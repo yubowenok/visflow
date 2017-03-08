@@ -11,4 +11,7 @@ visflow.backdrop = {};
  */
 visflow.backdrop.toggle = function(state) {
   $('#backdrop').toggle(state);
+  if (state) {
+    visflow.contextMenu.hide();
+  }
 };

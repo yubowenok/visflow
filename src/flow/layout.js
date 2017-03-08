@@ -148,13 +148,20 @@ visflow.Flow.prototype.autoLayout = function(opt_movableNodes) {
 };
 
 /**
+ * Auto layouts the whole diagram.
+ */
+visflow.Flow.prototype.autoLayoutAll = function() {
+  this.autoLayout(_.keySet(this.nodes));
+};
+
+/**
  * Updates the coordinates of the fixed points, relative to their anchor points.
  * @param {!Array<!Object>} nodes
  * @private
  */
 visflow.Flow.prototype.updateFixedPoints_ = function(nodes) {
   for (var i = 0; i < nodes.length; i++) {
-    if (nodes[i].baseNode != undefined) {
+    if (nodes[i].baseNode !== undefined) {
       nodes[i].x = nodes[i].baseNode.x + nodes[i].dx;
       nodes[i].y = nodes[i].baseNode.y + nodes[i].dy;
     }
@@ -168,7 +175,7 @@ visflow.Flow.prototype.updateFixedPoints_ = function(nodes) {
  */
 visflow.Flow.prototype.updateLayout_ = function(nodes) {
   for (var i = 0; i < nodes.length; i++) {
-    if (nodes[i].baseNode != undefined) {
+    if (nodes[i].baseNode !== undefined) {
       continue; // Skip fixed points
     }
     var id = nodes[i].id;

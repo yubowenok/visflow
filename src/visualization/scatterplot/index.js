@@ -374,7 +374,7 @@ visflow.Scatterplot.prototype.setYDimension = function(dim) {
   this.dimensionChanged();
 };
 
-/** @inhertDoc */
+/** @inheritDoc */
 visflow.Scatterplot.prototype.setDimensions = function(dims) {
   var data = this.ports['in'].pack.data;
   if (dims.length >= 1) {

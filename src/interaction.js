@@ -360,6 +360,9 @@ visflow.interaction.keyPress = function(event) {
         case 'shift+V':
           visflow.flow.toggleVisMode();
           break;
+        case 'shift+T':
+          visflow.nlp.toggleSpeech();
+          break;
         case 'P':
           if (visflow.optionPanel.isOpen) {
             visflow.optionPanel.toggle(false);

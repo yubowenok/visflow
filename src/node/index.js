@@ -1095,7 +1095,8 @@ visflow.Node.prototype.removeEdges = function() {
 };
 
 /**
- * Gets the list of dimensions used for select2.
+ * Gets the list of dimensions from the input data.
+ * This is used for select2 and NLP.
  * @param {(visflow.Data|visflow.TabularData)=} opt_data
  * @param {boolean=} opt_addIndex
  * @return {!Array<{id: number, text: string}>}
@@ -1205,7 +1206,7 @@ visflow.Node.prototype.moveTo = function(left, top) {
  */
 visflow.Node.prototype.moveToWithTransition = function(left, top,
                                                        opt_duration) {
-  var duration = opt_duration != undefined ?
+  var duration = opt_duration !== undefined ?
     opt_duration : visflow.const.DEFAULT_TRANSITION_DURATION;
   this.container.animate({
     left: left,

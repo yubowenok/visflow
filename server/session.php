@@ -8,7 +8,7 @@ function checkLogin()
 {
   global $user_id, $username;
   if ($user_id == -1 || $username == '')
-    abort('login required');
+    abort('login required', 401);
 }
 
 function clientIP()

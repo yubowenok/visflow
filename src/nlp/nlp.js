@@ -6,7 +6,7 @@
 visflow.nlp = {};
 
 /** @type {boolean} */
-visflow.nlp.isWaitingForInput = false;
+visflow.nlp.isWaitingForInput = false; // TODO(bowen): doesn't seem to be used?
 
 /** @type {boolean} */
 visflow.nlp.isProcessing = false;
@@ -19,6 +19,9 @@ visflow.nlp.target = null;
  * Initializes NLP events.
  */
 visflow.nlp.init = function() {
+  // Initializes annyang speech recognition.
+  visflow.nlp.initSpeech_();
+
   $('#backdrop')
     .mousedown(function() {
       if (visflow.nlp.isProcessing) { // Wait for server response.
@@ -32,7 +35,10 @@ visflow.nlp.init = function() {
       visflow.nlp.end();
     } else if (event.keyCode == visflow.interaction.keyCodes.ENTER) {
       event.preventDefault();
-      visflow.nlp.submit();
+      // Submit entered text query.
+      var textarea = $('#nlp textarea');
+      textarea.prop('disabled', 'disabled');
+      visflow.nlp.submit(/** @type {string} */(textarea.val()));
     }
   });
 };
@@ -43,7 +49,6 @@ visflow.nlp.init = function() {
  */
 visflow.nlp.input = function(opt_target) {
   visflow.nlp.isWaitingForInput = true;
-  visflow.contextMenu.hide();
 
   // If the input is global, search for a proper target.
   visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget_();
@@ -65,20 +70,29 @@ visflow.nlp.input = function(opt_target) {
 };
 
 /**
- * Submits NLP request to the server.
+ * Accepts NLP input from speech.
+ * @param {string} query
+ * @param {(!visflow.Node|undefined)=} opt_target
  */
-visflow.nlp.submit = function() {
-  var textarea = $('#nlp textarea');
-  textarea.prop('disabled', 'disabled');
-  visflow.nlp.isProcessing = true;
+visflow.nlp.speech = function(query, opt_target) {
+  // Search for a proper target.
+  visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget_();
+  visflow.nlp.submit(query);
+};
 
-  var query = visflow.nlp.processQuery_(/** @type {string} */(textarea.val()));
-  // TODO(bowen): Send query to the server and wait for the response.
+/**
+ * Submits NLP query to the server.
+ * @param {string} query
+ */
+visflow.nlp.submit = function(query) {
+  visflow.nlp.isProcessing = true;
+  var rawQuery = query;
+  query = visflow.nlp.processQuery_(query);
 
   $.post(visflow.url.NLP, {
     query: escape(query)
   }).done(function(res) {
-      visflow.nlp.parseResponse_(res);
+      visflow.nlp.parseResponse_(res, rawQuery);
       visflow.nlp.end();
     })
     .fail(function(res) {
@@ -128,11 +142,12 @@ visflow.nlp.processQuery_ = function(query) {
 /**
  * Parses the NLP response.
  * @param {string} res HTML response of NLP query.
+ * @param {string} query Query parsed.
  * @private
  */
-visflow.nlp.parseResponse_ = function(res) {
+visflow.nlp.parseResponse_ = function(res, query) {
   if (res.match(/0 candidates/) != null) {
-    visflow.warning('Sorry, SmartFlow does not understand the query.');
+    visflow.warning('Sorry, SmartFlow does not understand:', query);
     return;
   }
   var matched = res.match(/Top value \{\n\s*\(string\s*(\S.*\S)\s*\)/);

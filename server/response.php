@@ -37,9 +37,9 @@ function contentType($type)
   }
 }
 
-function abort($msg)
+function abort($msg, $code = 500)
 {
-  status(500);
+  status($code);
   contentType('text');
   echo $msg;
   exit();

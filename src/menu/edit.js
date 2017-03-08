@@ -14,7 +14,7 @@ visflow.edit.initDropdown = function(navbar) {
     visflow.history.redo();
   });
   edit.find('#auto-layout').click(function() {
-    visflow.flow.autoLayout(_.keySet(visflow.flow.nodes));
+    visflow.flow.autoLayoutAll();
   });
 
   visflow.edit.initListeners_(navbar);
