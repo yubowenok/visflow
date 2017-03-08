@@ -12,8 +12,8 @@ visflow.Edge.prototype.contextMenuItems = function() {
   ];
 };
 
-/** @private @const {number} */
-visflow.Edge.prototype.ARROW_SIZE_PX_ = 18;
+/** @protected @const {number} */
+visflow.Edge.ARROW_SIZE_PX = 18;
 
-/** @private @const {number} */
-visflow.Edge.prototype.ARROW_OFFSET_PX_ = 6;
+/** @protected @const {number} */
+visflow.Edge.ARROW_OFFSET_PX = 6;

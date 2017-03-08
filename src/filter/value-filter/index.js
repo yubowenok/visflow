@@ -129,7 +129,8 @@ visflow.ValueFilter.prototype.filter = function() {
   var data = inpack.data;
 
   var result = [];
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var matched = false;
     for (var dimIndex = 0; dimIndex < this.options.dims.length && !matched;
          dimIndex++) {

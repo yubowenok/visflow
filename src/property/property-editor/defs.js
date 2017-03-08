@@ -29,9 +29,9 @@ visflow.PropertyEditor.prototype.defaultOptions = function() {
 
 /**
  * @return {!Array<string>}
- * @private
+ * @protected
  */
-visflow.PropertyEditor.prototype.properties_ = function() {
+visflow.PropertyEditor.prototype.properties = function() {
   return [
     'color',
     'border',
@@ -43,9 +43,9 @@ visflow.PropertyEditor.prototype.properties_ = function() {
 
 /**
  * @return {!Array<string>}
- * @private
+ * @protected
  */
-visflow.PropertyEditor.prototype.numericProperties_ = function() {
+visflow.PropertyEditor.prototype.numericProperties = function() {
   return [
     'width',
     'size',

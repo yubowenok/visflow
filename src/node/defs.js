@@ -4,9 +4,9 @@
 
 /**
  * Node template common template file, containing the popup, background, etc.
- * @private {string}
+ * @protected {string}
  */
-visflow.Node.prototype.COMMON_TEMPLATE_ = './dist/html/node/node.html';
+visflow.Node.prototype.COMMON_TEMPLATE = './dist/html/node/node.html';
 
 /**
  * Node content template file.
@@ -16,9 +16,9 @@ visflow.Node.prototype.TEMPLATE = '';
 
 /**
  * Node control panel common template file, containing the panel header.
- * @private {string}
+ * @protected {string}
  */
-visflow.Node.prototype.COMMON_PANEL_TEMPLATE_ =
+visflow.Node.prototype.COMMON_PANEL_TEMPLATE =
   './dist/html/node/node-panel.html';
 
 /**

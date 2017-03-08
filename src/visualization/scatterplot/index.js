@@ -85,7 +85,8 @@ visflow.Scatterplot.prototype.selectItemsInBox_ = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
   var values = inpack.data.values;
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var point = {
       x: this.xScale(values[index][this.options.xDim]),
       y: this.yScale(values[index][this.options.yDim])
@@ -162,7 +163,8 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
   var values = inpack.data.values;
   var items = inpack.items;
   var itemProps = [];
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var prop = _.extend(
       {},
       this.defaultProperties(),
@@ -340,7 +342,7 @@ visflow.Scatterplot.prototype.transitionFeasible = function() {
 visflow.Scatterplot.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
   var chosen = [];
-  for (var i in data.dimensionTypes) {
+  for (var i = 0; i < data.dimensionTypes.length; i++) {
     if (data.dimensionTypes[i] != visflow.ValueType.STRING) {
       chosen.push(i);
     }
@@ -376,12 +378,18 @@ visflow.Scatterplot.prototype.setYDimension = function(dim) {
 
 /** @inheritDoc */
 visflow.Scatterplot.prototype.setDimensions = function(dims) {
-  var data = this.ports['in'].pack.data;
+  var dimensions = this.getDimensionNames();
   if (dims.length >= 1) {
-    this.options.xDim = data.dimensions.indexOf(dims[0]);
+    // If the plot already presents the dim, we swap the current xDim and yDim.
+    var newDim = dimensions.indexOf(dims[0]);
+    if (this.options.yDim == newDim) {
+      this.options.yDim = this.options.xDim;
+    }
+    this.options.xDim = newDim;
   }
   if (dims.length >= 2) {
-    this.options.yDim = data.dimensions.indexOf(dims[1]);
+    // Setting 2 dimensions is not ambiguous.
+    this.options.yDim = dimensions.indexOf(dims[1]);
   }
   this.dimensionChanged();
 };

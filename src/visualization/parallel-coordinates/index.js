@@ -156,7 +156,8 @@ visflow.ParallelCoordinates.prototype.getItemProperties_ = function() {
 
   // Data to be rendered.
   var itemProps = [];
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var prop = _.extend(
       {},
       this.defaultProperties(),
@@ -332,7 +333,7 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
     var label = g.select('.vis-label');
     var labelTransform = visflow.utils.getTransform([
       0,
-      svgSize.height - this.AXIS_LABEL_OFFSET_
+      svgSize.height - visflow.ParallelCoordinates.AXIS_LABEL_OFFSET
     ]);
     if (label.empty()) {
       label = g.append('text')
@@ -397,7 +398,7 @@ visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
     if (type == visflow.ValueType.STRING) {
       return;
     }
-    if (dims.length < this.DEFAULT_NUM_DIMENSIONS_) {
+    if (dims.length < visflow.ParallelCoordinates.DEFAULT_NUM_DIMENSIONS) {
       dims.push(index);
     }
   }, this);
@@ -449,7 +450,7 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
   }
 
   this.margins_.left += Math.max(leftLabelWidth / 2, maxLength +
-    this.AXIS_TICK_OFFSET_);
+    visflow.ParallelCoordinates.AXIS_TICK_OFFSET);
   this.margins_.right += rightLabelWidth / 2;
 };
 

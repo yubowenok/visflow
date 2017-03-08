@@ -30,12 +30,12 @@ visflow.PropertyMapping.prototype.initPanel = function(container) {
       },
       change: function(event, mapping) {
         this.options.mapping = mapping;
-        this.showEditableScale_(container.find('#scale'), 'panel');
+        this.showEditableScale(container.find('#scale'), 'panel');
         this.parameterChanged('panel');
       }
     }
   ];
   this.initInterface(units);
 
-  this.showEditableScale_(container.find('#scale'), 'panel');
+  this.showEditableScale(container.find('#scale'), 'panel');
 };

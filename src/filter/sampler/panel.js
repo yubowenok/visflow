@@ -43,7 +43,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
       constructor: visflow.Select,
       params: {
         container: container.find('#condition'),
-        list: this.conditions_(),
+        list: this.conditions(),
         selected: this.options.condition,
         listTitle: 'Condition'
       },
@@ -57,7 +57,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
       constructor: visflow.Select,
       params: {
         container: container.find('#mode'),
-        list: this.modes_(),
+        list: this.modes(),
         selected: this.options.mode,
         listTitle: 'Mode'
       },

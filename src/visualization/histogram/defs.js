@@ -12,11 +12,11 @@ visflow.Histogram.prototype.NODE_NAME = 'Histogram';
 visflow.Histogram.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/histogram/histogram-panel.html';
 
-/** @private @const {number} */
-visflow.Histogram.prototype.Y_MARGIN_ = 0.1;
+/** @const {number} */
+visflow.Histogram.Y_MARGIN = 0.1;
 
-/** @private @const {number} */
-visflow.Histogram.prototype.BAR_INTERVAL_ = 1;
+/** @const {number} */
+visflow.Histogram.BAR_INTERVAL = 1;
 
 /** @inheritDoc */
 visflow.Histogram.prototype.defaultOptions = function() {

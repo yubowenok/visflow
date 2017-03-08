@@ -95,7 +95,7 @@ visflow.EditableList.prototype.init_ = function() {
   }.bind(this));
 
   select2.on('change', function() {
-    var id = select2.val();
+    var id = /** @type {string} */(select2.val());
     if (id != '') {
       this.selected_.push(id);
       this.createItems_();
@@ -170,7 +170,7 @@ visflow.EditableList.prototype.sortableChanged_ = function(event, ui) {
   lis.each(function(index, li) {
     var id = $(li).hasClass('ui-sortable-placeholder') ?
       $(ui.item).attr('id') : $(li).attr('id');
-    this.selected_.push(id);
+    this.selected_.push(/** @type {string} */(id));
   }.bind(this));
   visflow.signal(this, 'change', this.selected_.slice());
 };

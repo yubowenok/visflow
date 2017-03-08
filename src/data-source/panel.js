@@ -4,13 +4,13 @@
 
 /** @inheritDoc */
 visflow.DataSource.prototype.initPanel = function(container) {
-  container.find('#add-data').click(this.loadDataDialog_.bind(this));
-  container.find('#clear-data').click(this.clearData_.bind(this));
+  container.find('#add-data').click(this.loadDataDialog.bind(this));
+  container.find('#clear-data').click(this.clearData.bind(this));
 
-  this.createPanelDataList_(container);
+  this.createPanelDataList(container);
 
-  var dimensionList = this.rawData_[0] != null ?
-    this.getDimensionList(this.rawData_[0], true) : [];
+  var dimensionList = this.rawData[0] != null ?
+    this.getDimensionList(this.rawData[0], true) : [];
 
   var units = [
     {
@@ -85,15 +85,14 @@ visflow.DataSource.prototype.initPanel = function(container) {
 /**
  * Creates a data list in the panel according to the currently loaded data.
  * @param {!jQuery} container
- * @private
  */
-visflow.DataSource.prototype.createPanelDataList_ = function(container) {
+visflow.DataSource.prototype.createPanelDataList = function(container) {
   var ul = container.find('#data-list ul');
   var template = container.find('#data-template');
   ul.children('li').remove();
 
   var hasData = false;
-  this.rawData_.forEach(function(rawData, dataIndex) {
+  this.rawData.forEach(function(rawData, dataIndex) {
     if (rawData == null) {
       return;
     }
@@ -103,7 +102,7 @@ visflow.DataSource.prototype.createPanelDataList_ = function(container) {
       .show()
       .appendTo(ul);
     li.children('.close').click(function() {
-      this.deleteData_(dataIndex);
+      this.deleteData(dataIndex);
       li.remove();
     }.bind(this));
 

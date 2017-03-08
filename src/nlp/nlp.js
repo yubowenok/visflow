@@ -14,32 +14,44 @@ visflow.nlp.isProcessing = false;
 /** @type {visflow.Node|undefined} */
 visflow.nlp.target = null;
 
+/** @type {boolean} */
+visflow.nlp.available = false;
 
 /**
  * Initializes NLP events.
  */
 visflow.nlp.init = function() {
-  // Initializes annyang speech recognition.
-  visflow.nlp.initSpeech_();
+  $.post(visflow.url.NLP, {
+    query: 'hello'
+  }).done(function() {
+    visflow.nlp.available = true;
 
-  $('#backdrop')
-    .mousedown(function() {
-      if (visflow.nlp.isProcessing) { // Wait for server response.
-        return;
+    // Initializes annyang speech recognition.
+    visflow.nlp.initSpeech();
+
+    $('#backdrop')
+      .mousedown(function() {
+        if (visflow.nlp.isProcessing) { // Wait for server response.
+          return;
+        }
+        visflow.nlp.end();
+      });
+
+    $('#nlp').on('keyup', 'textarea', function(event) {
+      if (event.keyCode == visflow.interaction.keyCodes.ESC) {
+        // Force end regardless of server response.
+        visflow.nlp.end();
+      } else if (event.keyCode == visflow.interaction.keyCodes.ENTER) {
+        event.preventDefault();
+        // Submit entered text query.
+        var textarea = $('#nlp textarea');
+        textarea.prop('disabled', 'disabled');
+        visflow.nlp.submit(/** @type {string} */(textarea.val()));
       }
-      visflow.nlp.end();
     });
-  $('#nlp').on('keyup', 'textarea', function(event) {
-    if (event.keyCode == visflow.interaction.keyCodes.ESC) {
-      // Force end regardless of server response.
-      visflow.nlp.end();
-    } else if (event.keyCode == visflow.interaction.keyCodes.ENTER) {
-      event.preventDefault();
-      // Submit entered text query.
-      var textarea = $('#nlp textarea');
-      textarea.prop('disabled', 'disabled');
-      visflow.nlp.submit(/** @type {string} */(textarea.val()));
-    }
+  }).fail(function() {
+    // Disable speech button when NLP is unavailable.
+    $(visflow.nlp.SPEECH_BUTTON_SELECTOR).prop('disabled', 'disabled');
   });
 };
 
@@ -51,7 +63,7 @@ visflow.nlp.input = function(opt_target) {
   visflow.nlp.isWaitingForInput = true;
 
   // If the input is global, search for a proper target.
-  visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget_();
+  visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget();
 
   $('#nlp').children().remove();
 
@@ -76,7 +88,7 @@ visflow.nlp.input = function(opt_target) {
  */
 visflow.nlp.speech = function(query, opt_target) {
   // Search for a proper target.
-  visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget_();
+  visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget();
   visflow.nlp.submit(query);
 };
 
@@ -103,9 +115,8 @@ visflow.nlp.submit = function(query) {
 /**
  * Searches for a NLP target. Currently returns any of the data sources.
  * @return {visflow.Node}
- * @private
  */
-visflow.nlp.findTarget_ = function() {
+visflow.nlp.findTarget = function() {
   if (!$.isEmptyObject(visflow.flow.nodesSelected)) {
     // If there is a selection, return any node selected.
     for (var nodeId in visflow.flow.nodesSelected) {
@@ -132,8 +143,8 @@ visflow.nlp.findTarget_ = function() {
  */
 visflow.nlp.processQuery_ = function(query) {
   console.log('[target]', visflow.nlp.target);
-  query = visflow.nlp.matchChartTypes_(query);
-  query = visflow.nlp.matchDimensions_(query, /** @type {!visflow.Node} */(
+  query = visflow.nlp.matchChartTypes(query);
+  query = visflow.nlp.matchDimensions(query, /** @type {!visflow.Node} */(
     visflow.nlp.target));
   console.log('[query]', query);
   return query;
@@ -162,10 +173,10 @@ visflow.nlp.parseResponse_ = function(res, query) {
   }
 
   console.log('[response]', result);
-  var command = visflow.nlp.mapChartTypes_(result);
-  command = visflow.nlp.mapDimensions_(command);
+  var command = visflow.nlp.mapChartTypes(result);
+  command = visflow.nlp.mapDimensions(command);
   console.log('[command]', command);
-  visflow.nlp.execute_(command, result);
+  visflow.nlp.execute(command, result);
 };
 
 /**

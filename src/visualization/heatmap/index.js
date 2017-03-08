@@ -11,12 +11,6 @@ visflow.Heatmap = function(params) {
   visflow.Heatmap.base.constructor.call(this, params);
 
   /**
-   * Selected dimensions to visualize in heatmap (columns).
-   * @protected {!Array<number>}
-   */
-  this.dimensions = [];
-
-  /**
    * Scale in column direction.
    * @protected {d3.Scale|undefined}
    */
@@ -107,7 +101,7 @@ visflow.Heatmap.prototype.init = function() {
 /** @inheritDoc */
 visflow.Heatmap.prototype.serialize = function() {
   var result = visflow.Heatmap.base.serialize.call(this);
-  result.dimensions = this.dimensions;
+  result.dimensions = this.options.dims;
   return result;
 };
 
@@ -115,10 +109,9 @@ visflow.Heatmap.prototype.serialize = function() {
 visflow.Heatmap.prototype.deserialize = function(save) {
   visflow.Heatmap.base.deserialize.call(this, save);
 
-  this.dimensions = save.dimensions;
-  if (this.dimensions == null) {
-    visflow.error('dimensions not saved for ' + this.NODE_NAME);
-    this.dimensions = [];
+  if (this.options.dims == null) {
+    // Try to deserialize from older version saves.
+    this.options.dims = save.dimensions || this.findPlotDimensions().dimensions;
   }
 };
 
@@ -175,12 +168,12 @@ visflow.Heatmap.prototype.getItemProperties_ = function() {
   // visflow.Scale information
   var colorScaleInfo = visflow.scales[this.options.colorScaleId];
   var colorScale = colorScaleInfo.scale;
-  var dimInfos = this.uniqueDimensions(this.dimensions);
+  var dimInfos = this.uniqueDimensions(this.options.dims);
 
   var itemProps = this.itemIndices_.map(function(index) {
     var prop = {
       index: index,
-      cells: this.dimensions.map(function(dim, dimIndex) {
+      cells: this.options.dims.map(function(dim, dimIndex) {
         var value = data.values[index][dim];
         return {
           color: colorScale(this.normalizeScales[dimIndex](value)),
@@ -328,14 +321,15 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(svg, itemProps, opt_temp) {
     return;
   }
   var cellHeight = opt_temp ? 0 : this.yScale(0) - this.yScale(1);
-  var clutter = opt_temp ? false : cellHeight < this.LABEL_FONT_SIZE_Y_;
+  var clutter = opt_temp ? false :
+    cellHeight < visflow.Heatmap.LABEL_FONT_SIZE_Y;
 
   // First clear potentially existing row clutter hint.
   svg.select('g').remove();
 
   var labelTransform = function(row, index) {
     return visflow.utils.getTransform([
-      this.leftMargin_ - this.ROW_LABEL_OFFSET_,
+      this.leftMargin_ - visflow.Heatmap.ROW_LABEL_OFFSET,
       opt_temp ? 0 : this.yScale(index + 1) + cellHeight / 2
     ]);
   }.bind(this);
@@ -372,10 +366,10 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(svg, itemProps, opt_temp) {
     svg.append('g')
       .append('text')
       .classed('vis-label', true)
-      .text(this.ROW_LABEL_CLUTTER_MSG_)
+      .text(visflow.Heatmap.ROW_LABEL_CLUTTER_MSG)
       .attr('transform', visflow.utils.getTransform([
-        this.leftMargin_ - this.ROW_LABEL_OFFSET_ -
-            this.ROW_LABEL_CLUTTER_OFFSET_,
+        this.leftMargin_ - visflow.Heatmap.ROW_LABEL_OFFSET -
+          visflow.Heatmap.ROW_LABEL_CLUTTER_OFFSET,
         this.yScale(midIndex + 1) + cellHeight / 2
       ], 1, 90));
   } else {
@@ -389,7 +383,7 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(svg, itemProps, opt_temp) {
  * @private
  */
 visflow.Heatmap.prototype.drawColLabels_ = function(svg) {
-  if (!this.options.colLabel || this.dimensions.length == 0) {
+  if (!this.options.colLabel || this.options.dims.length == 0) {
     _.fadeOut(svg.selectAll('*'));
     return;
   }
@@ -399,8 +393,8 @@ visflow.Heatmap.prototype.drawColLabels_ = function(svg) {
     svg.classed('vertical', true);
     labelTransform = function(dimInfo, dimIndex) {
       return visflow.utils.getTransform([
-        this.xScale(dimIndex + 0.5) + this.LABEL_FONT_SIZE_Y_ / 2,
-        this.topMargin_ - this.COL_LABEL_OFFSET_
+        this.xScale(dimIndex + 0.5) + visflow.Heatmap.LABEL_FONT_SIZE_Y / 2,
+        this.topMargin_ - visflow.Heatmap.COL_LABEL_OFFSET
       ], 1, -90);
     }.bind(this);
   } else {
@@ -408,13 +402,13 @@ visflow.Heatmap.prototype.drawColLabels_ = function(svg) {
     labelTransform = function(dimInfo, dimIndex) {
       return visflow.utils.getTransform([
         this.xScale(dimIndex + 0.5),
-        this.topMargin_ - this.COL_LABEL_OFFSET_
+        this.topMargin_ - visflow.Heatmap.COL_LABEL_OFFSET
       ]);
     }.bind(this);
   }
   var inpack = this.ports['in'].pack;
   var data = inpack.data;
-  var dimInfos = this.uniqueDimensions(this.dimensions);
+  var dimInfos = this.uniqueDimensions(this.options.dims);
 
   var labels = svg.selectAll('.vis-label')
     .data(dimInfos, _.getValue('uniqId'));
@@ -522,7 +516,7 @@ visflow.Heatmap.prototype.prepareXYScales_ = function() {
   var margins = this.plotMargins();
   var svgSize = this.getSVGSize();
   this.xScale = d3.scaleLinear()
-    .domain([0, this.dimensions.length])
+    .domain([0, this.options.dims.length])
     .range([this.leftMargin_, svgSize.width - margins.right]);
   this.yScale = d3.scaleLinear()
     .domain([0, this.itemIndices_.length])
@@ -538,7 +532,7 @@ visflow.Heatmap.prototype.prepareNormalizeScales_ = function() {
   var items = inpack.items;
   var data = inpack.data;
 
-  this.dimensions.forEach(function(dim, dimIndex) {
+  this.options.dims.forEach(function(dim, dimIndex) {
     var scaleInfo = visflow.scales.getScale(data, dim, items, [0, 1]);
     this.normalizeScales[dimIndex] = scaleInfo.scale;
   }, this);
@@ -558,7 +552,7 @@ visflow.Heatmap.prototype.updateLeftMargin_ = function() {
           maxWidth = Math.max(maxWidth, element.getBBox().width);
         });
     }.bind(this), 'row');
-    this.leftMargin_ += this.ROW_LABEL_OFFSET_ + maxWidth;
+    this.leftMargin_ += visflow.Heatmap.ROW_LABEL_OFFSET + maxWidth;
   }
 };
 
@@ -576,20 +570,21 @@ visflow.Heatmap.prototype.updateTopMargin_ = function() {
   if (this.options.colLabel) {
     var svgSize = this.getSVGSize();
     var colWidth = (svgSize.width - this.leftMargin_ - margins.right) /
-      this.dimensions.length;
-    var maxLength = d3.max(this.dimensions.map(function(dim) {
+      this.options.dims.length;
+    var maxLength = d3.max(this.options.dims.map(function(dim) {
       return data.dimensions[dim].length;
     }));
     if (maxLength == null) {
       maxLength = 0;
     }
     var oldVertical = this.colLabelVertical_;
-    if (colWidth < maxLength * this.LABEL_FONT_SIZE_X_) {
+    if (colWidth < maxLength * visflow.Heatmap.LABEL_FONT_SIZE_X) {
       this.colLabelVertical_ = true;
-      this.topMargin_ += this.LABEL_FONT_SIZE_X_ * maxLength;
+      this.topMargin_ += visflow.Heatmap.LABEL_FONT_SIZE_X * maxLength;
     } else {
       this.colLabelVertical_ = false;
-      this.topMargin_ += this.LABEL_FONT_SIZE_Y_ + this.COL_LABEL_OFFSET_;
+      this.topMargin_ += visflow.Heatmap.LABEL_FONT_SIZE_Y +
+        visflow.Heatmap.COL_LABEL_OFFSET;
     }
     if (this.colLabelVertical_ != oldVertical) {
       this.colLabelVerticalChanged_ = true;
@@ -626,6 +621,7 @@ visflow.Heatmap.prototype.prepareScales = function() {
  *   labelBy: number,
  *   dimensions: !Array<number>
  * }}
+ * @override
  */
 visflow.Heatmap.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
@@ -633,7 +629,7 @@ visflow.Heatmap.prototype.findPlotDimensions = function() {
   var labelBy = null;
   data.dimensionTypes.forEach(function(type, index) {
     if (type != visflow.ValueType.STRING) {
-      if (dimensions.length < this.DEFAULT_NUM_DIMENSION_) {
+      if (dimensions.length < visflow.Heatmap.DEFAULT_NUM_DIMENSION) {
         dimensions.push(index);
       }
     } else if (labelBy == null) {
@@ -656,7 +652,7 @@ visflow.Heatmap.prototype.inputChanged = function() {
 /** @inheritDoc */
 visflow.Heatmap.prototype.dataChanged = function() {
   var info = this.findPlotDimensions();
-  this.dimensions = info.dimensions;
+  this.options.dims = info.dimensions;
   this.options.labelBy = info.labelBy;
   // The previous sortBy corresponds to unknown dimension in new data set.
   // We choose to sort by nothing by default.

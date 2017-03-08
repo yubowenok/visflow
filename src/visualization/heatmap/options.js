@@ -11,6 +11,12 @@ visflow.options.Heatmap = function(params) {
   visflow.options.Heatmap.base.constructor.call(this, params);
 
   /**
+   * Selected dimensions to visualize in heatmap (columns).
+   * @type {!Array<number>}
+   */
+  this.dims = [];
+
+  /**
    * Id corresponding to the id of visflow.scales.
    * @type {string}
    */

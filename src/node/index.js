@@ -13,6 +13,7 @@ visflow.params.Node;
 
 /**
  * @param {visflow.params.Node} params
+ * @abstract
  * @constructor
  */
 visflow.Node = function(params) {
@@ -120,7 +121,7 @@ visflow.Node = function(params) {
   // classes.
   this.options.extend(this.defaultOptions());
 
-  this.container.load(this.COMMON_TEMPLATE_, function() {
+  this.container.load(this.COMMON_TEMPLATE, function() {
     this.container
       .addClass('node details')
       .addClass(this.NODE_CLASS)
@@ -191,6 +192,7 @@ visflow.Node.prototype.deserialize = function(save) {
     };
   }
 
+  // Merge saved node options with default options
   _.extend(this.options, save.options);
   this.fillOptions(this.options, this.defaultOptions());
 
@@ -621,9 +623,10 @@ visflow.Node.prototype.prepareDimensionList = function(ignoreTypes) {
   var dims = inpack.data.dimensions,
       dimTypes = inpack.data.dimensionTypes;
   var list = [];
-  for (var i in dims) {
-    if (ignoreTypes.indexOf(dimTypes[i]) != -1)
+  for (var i = 0; i < dims.length; i++) {
+    if (ignoreTypes.indexOf(dimTypes[i]) != -1) {
       continue;
+    }
     list.push({
       value: i,
       text: dims[i]
@@ -638,7 +641,7 @@ visflow.Node.prototype.prepareDimensionList = function(ignoreTypes) {
 visflow.Node.prototype.updateEdges = function() {
   for (var key in this.ports) {
     var port = this.ports[key];
-    for (var i in port.connections) {
+    for (var i = 0; i < port.connections.length; i++) {
       var edge = port.connections[i];
       edge.update();
     }
@@ -689,19 +692,19 @@ visflow.Node.prototype.updatePorts = function() {
   var portStep = this.PORT_HEIGHT + this.PORT_GAP;
   var inTopBase = (height - this.inPorts.length * portStep +
       this.PORT_GAP) / 2;
-  for (var i in this.inPorts) {
+  for (var i = 0; i < this.inPorts.length; i++) {
     var port = this.inPorts[i];
     port.container.css('top', inTopBase + i * portStep);
-    for (var j in port.connections) {
+    for (var j = 0; j < port.connections.length; j++) {
       port.connections[j].update();
     }
   }
   var outTopBase = (height - this.outPorts.length * portStep +
       this.PORT_GAP) / 2;
-  for (var i in this.outPorts) {
+  for (var i = 0; i < this.outPorts.length; i++) {
     var port = this.outPorts[i];
     port.container.css('top', outTopBase + i * portStep);
-    for (var j in port.connections) {
+    for (var j = 0; j < port.connections.length; j++) {
       port.connections[j].update();
     }
   }
@@ -736,7 +739,7 @@ visflow.Node.prototype.hide = function() {
  */
 visflow.Node.prototype.firstConnectable = function(port) {
   var ports = port.isInput ? this.outPorts : this.inPorts;
-  for (var i in ports) {
+  for (var i = 0; i < ports.length; i++) {
     var port2 = ports[i];
     if (port2.connectable(port).connectable) {
       return port2;
@@ -938,7 +941,7 @@ visflow.Node.prototype.panel = function() {
   }
 
   visflow.optionPanel.setLoadedNode(this);
-  visflow.optionPanel.load(this.COMMON_PANEL_TEMPLATE_, function(container) {
+  visflow.optionPanel.load(this.COMMON_PANEL_TEMPLATE, function(container) {
     this.initPanelHeader(container);
     // Load type specific node panel.
     if (this.PANEL_TEMPLATE != '') {
@@ -1088,7 +1091,7 @@ visflow.Node.prototype.removeEdges = function() {
     var port = this.ports[key];
     var connections = port.connections.slice();
     // cannot use port.connections, because the length is changing
-    for (var i in connections) {
+    for (var i = 0; i < connections.length; i++) {
       visflow.flow.deleteEdge(connections[i]);
     }
   }
@@ -1096,7 +1099,7 @@ visflow.Node.prototype.removeEdges = function() {
 
 /**
  * Gets the list of dimensions from the input data.
- * This is used for select2 and NLP.
+ * This is used for select2 input.
  * @param {(visflow.Data|visflow.TabularData)=} opt_data
  * @param {boolean=} opt_addIndex
  * @return {!Array<{id: number, text: string}>}
@@ -1116,6 +1119,14 @@ visflow.Node.prototype.getDimensionList = function(opt_data, opt_addIndex) {
     }].concat(result);
   }
   return result;
+};
+
+/**
+ * Gets the list of dimensions names the input data.
+ * @return {!Array<string>}
+ */
+visflow.Node.prototype.getDimensionNames = function() {
+  return this.ports['in'].pack.data.dimensions;
 };
 
 /**

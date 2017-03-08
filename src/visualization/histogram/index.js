@@ -190,7 +190,8 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
     range = this.xScale.range();
   }
 
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var value = data.values[index][this.options.dim];
     values.push({
       value: this.xScaleType == visflow.ScaleType.NUMERICAL ?
@@ -345,7 +346,7 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
 
   var groupTransform = function(group) {
     return visflow.utils.getTransform([
-      this.BAR_INTERVAL_,
+      visflow.Histogram.BAR_INTERVAL,
       Math.floor(this.yScale(group.y + group.dy))
     ]);
   }.bind(this);
@@ -377,7 +378,7 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     .attr('transform', groupTransform)
     .attr('width', function(group) {
       return this.histogramScale(group.dx) - this.histogramScale(0) -
-        this.BAR_INTERVAL_;
+        visflow.Histogram.BAR_INTERVAL;
     }.bind(this))
     .attr('height', function(group) {
       return Math.ceil(this.yScale(0) - this.yScale(group.dy));
@@ -494,7 +495,8 @@ visflow.Histogram.prototype.prepareScales = function() {
   this.yScale = d3.scaleLinear()
     .domain([
       0,
-      d3.max(this.histogramData_, _.getValue('y')) * (1 + this.Y_MARGIN_)
+      d3.max(this.histogramData_, _.getValue('y')) *
+        (1 + visflow.Histogram.Y_MARGIN)
     ])
     .range([svgSize.height - margins.bottom, margins.top]);
 };

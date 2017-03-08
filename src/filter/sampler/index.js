@@ -82,7 +82,8 @@ visflow.Sampler.prototype.filter = function() {
   var result = [];
   itemGroups.forEach(function(groupItems) {
     var colValues = [];
-    groupItems.forEach(function(index) {
+    groupItems.forEach(function(itemIndex) {
+      var index = +itemIndex;
       var val = this.options.dim == visflow.data.INDEX_DIM ?
         index : data.values[index][this.options.dim];
       colValues.push(val);
@@ -126,7 +127,8 @@ visflow.Sampler.prototype.filter = function() {
         break;
     }
     acceptedVals = _.keySet(acceptedVals);
-    groupItems.forEach(function(index) {
+    groupItems.forEach(function(itemIndex) {
+      var index = +itemIndex;
       var val = data.values[index][this.options.dim];
       if (val in acceptedVals) {
         result.push(index);

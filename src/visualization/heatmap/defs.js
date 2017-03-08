@@ -12,29 +12,29 @@ visflow.Heatmap.prototype.NODE_CLASS = 'heatmap';
 visflow.Heatmap.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/heatmap/heatmap-panel.html';
 
-/** @private @const {number} */
-visflow.Heatmap.prototype.ROW_LABEL_OFFSET_ = 10;
+/** @const {number} */
+visflow.Heatmap.ROW_LABEL_OFFSET = 10;
 
-/** @private @const {number} */
-visflow.Heatmap.prototype.COL_LABEL_OFFSET_ = 10;
+/** @const {number} */
+visflow.Heatmap.COL_LABEL_OFFSET = 10;
 
-/** @private @const {number} */
-visflow.Heatmap.prototype.ROW_LABEL_CLUTTER_OFFSET_ = 5;
+/** @const {number} */
+visflow.Heatmap.ROW_LABEL_CLUTTER_OFFSET = 5;
 
-/** @private @const {string} */
-visflow.Heatmap.prototype.ROW_LABEL_CLUTTER_MSG_ = '(too many labels to show)';
+/** @const {string} */
+visflow.Heatmap.ROW_LABEL_CLUTTER_MSG = '(too many labels to show)';
 
 /**
  * Default number of dimensions the heatmap would show.
- * @private
+ * @const {number}
  */
-visflow.Heatmap.prototype.DEFAULT_NUM_DIMENSION_ = 5;
+visflow.Heatmap.DEFAULT_NUM_DIMENSION = 5;
 
-/** @private @const {number} */
-visflow.Heatmap.prototype.LABEL_FONT_SIZE_X_ = 6;
+/** @const {number} */
+visflow.Heatmap.LABEL_FONT_SIZE_X = 6;
 
-/** @private @const {number} */
-visflow.Heatmap.prototype.LABEL_FONT_SIZE_Y_ = 9;
+/** @const {number} */
+visflow.Heatmap.LABEL_FONT_SIZE_Y = 9;
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.defaultOptions = function() {

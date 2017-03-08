@@ -7,12 +7,12 @@ var gutil = require('gulp-util');
 
 var paths = require('./paths.js');
 
+var gjslintFlags = ['--custom_jsdoc_tags abstract'];
+
 gulp.task('lint-js', function(cb) {
   return gulp.src(paths.srcDev.concat(paths.docJs))
     .pipe(gjslint({
-      customReport: function(file, ss) {
-        console.log(file, ss);
-      }
+      flags: gjslintFlags
     }))
     .pipe(gjslint.reporter('console'))
     .pipe(gjslint.reporter('fail'))

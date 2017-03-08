@@ -168,7 +168,8 @@ visflow.RangeFilter.prototype.filter = function() {
   var data = inpack.data;
 
   var result = [];
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var inRange = false;
     for (var dimIndex = 0; dimIndex < this.options.dims.length && !inRange;
          dimIndex++) {

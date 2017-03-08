@@ -25,8 +25,8 @@ visflow.nlp.DEFAULT_MARGIN_ = 150;
  * @private
  */
 visflow.nlp.isChartType_ = function(token) {
-  return visflow.nlp.chartTypes_().indexOf(token) != -1 ||
-    token == visflow.nlp.CHART_TYPE_PLACEHOLDER_;
+  return visflow.nlp.chartPrimitives().indexOf(token) != -1 ||
+    token == visflow.nlp.CHART_TYPE_PLACEHOLDER;
 };
 
 /**
@@ -46,7 +46,7 @@ visflow.nlp.isHighlight_ = function(token) {
  * @private
  */
 visflow.nlp.isUtil_ = function(token) {
-  return visflow.nlp.utilTypes_().indexOf(token) != -1;
+  return visflow.nlp.utilPrimitives().indexOf(token) != -1;
 };
 
 /**
@@ -87,9 +87,8 @@ visflow.nlp.getCommandType_ = function(command) {
  * Executes an NLP command.
  * @param {string} command Command with placeholders remapped.
  * @param {string} syntax Parsed structure of the command.
- * @private
  */
-visflow.nlp.execute_ = function(command, syntax) {
+visflow.nlp.execute = function(command, syntax) {
   var type = visflow.nlp.getCommandType_(command);
   var commandTokens = command.split(/\s+/);
   var syntaxTokens = syntax.split(/\s+/);
@@ -119,7 +118,7 @@ visflow.nlp.execute_ = function(command, syntax) {
  */
 visflow.nlp.chart_ = function(command, syntax) {
   var target = visflow.nlp.target;
-  var chartType = command[0] == visflow.nlp.CHART_TYPE_PLACEHOLDER_ ?
+  var chartType = command[0] == visflow.nlp.CHART_TYPE_PLACEHOLDER ?
     'scatterplot' : command[0]; // By default using scatterplot, may be TODO
   var node = visflow.flow.createNode(chartType);
   var box = target.getBoundingBox();
@@ -138,7 +137,7 @@ visflow.nlp.chart_ = function(command, syntax) {
 
     var dims = [];
     for (var j = 1; j < syntax.length &&
-        syntax[j] == visflow.nlp.DIMENSION_PLACEHOLDER_; j++) {
+        syntax[j] == visflow.nlp.DIMENSION_PLACEHOLDER; j++) {
       dims.push(command[j]);
     }
     if (dims.length) {

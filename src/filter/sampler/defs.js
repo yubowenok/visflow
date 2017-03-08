@@ -21,9 +21,9 @@ visflow.Sampler.prototype.MIN_HEIGHT = 45;
 /**
  * Condition for sampling.
  * @return {!Array<{id: string, text: string}>}
- * @private
+ * @protected
  */
-visflow.Sampler.prototype.conditions_ = function() {
+visflow.Sampler.prototype.conditions = function() {
   return [
     {id: 'first', text: 'First / Minimum'},
     {id: 'last', text: 'Last / Maximum'},
@@ -34,9 +34,9 @@ visflow.Sampler.prototype.conditions_ = function() {
 /**
  * Modes for band limiting.
  * @return {!Array<{id: string, text: string}>}
- * @private
+ * @protected
  */
-visflow.Sampler.prototype.modes_ = function() {
+visflow.Sampler.prototype.modes = function() {
   return [
     {id: 'count', text: 'Count'},
     {id: 'percentage', text: 'Percentage'}

@@ -88,13 +88,14 @@ visflow.PropertyEditor.prototype.process = function() {
   outpack.copy(inpack);
   var newItems = {};
   var setProps = {};
-  this.properties_().forEach(function(p) {
+  this.properties().forEach(function(p) {
     var value = this.options[p];
     if (value != null) {
       setProps[p] = value;
     }
   }, this);
-  for (var index in inpack.items) {
+  for (var itemIndex in inpack.items) {
+    var index = +itemIndex;
     var prop = _.extend(
       {},
       inpack.items[index].properties,
@@ -111,7 +112,7 @@ visflow.PropertyEditor.prototype.process = function() {
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.adjustNumbers = function() {
   var adjusted = false;
-  this.numericProperties_().forEach(function(prop) {
+  this.numericProperties().forEach(function(prop) {
     var value = /** @type {number} */(this.options[prop]);
     var range = visflow.property.MAPPING_RANGES[prop];
     if (value < range[0]) {

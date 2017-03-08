@@ -141,22 +141,22 @@ visflow.LineChart.prototype.initPanel = function(container) {
     }
   ];
   this.initInterface(units);
-  this.updateCollisionMessage_();
+  this.updateCollisionMessage();
 };
 
 /**
  * Updates the collision message in the panel.
- * @private
+ * @protected
  */
-visflow.LineChart.prototype.updateCollisionMessage_ = function() {
+visflow.LineChart.prototype.updateCollisionMessage = function() {
   if (!visflow.optionPanel.isOpen) {
     return;
   }
   var container = visflow.optionPanel.contentContainer();
   var collided = container.find('#collided');
-  if (this.xCollided_) {
+  if (this.xCollided) {
     collided.show();
-    collided.children('#msg').text(this.xCollidedMsg_);
+    collided.children('#msg').text(this.xCollidedMsg);
   } else {
     collided.hide();
   }

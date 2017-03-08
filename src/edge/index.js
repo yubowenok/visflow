@@ -126,7 +126,7 @@ visflow.Edge.prototype.draw = function() {
 
   var points = [[sx, sy]];
   // Draw edges in 2 or 3 segments, hacky...
-  var wArrow = this.ARROW_SIZE_PX_;
+  var wArrow = visflow.Edge.ARROW_SIZE_PX;
   var yDirDown = ey > sy;
   if (ex >= sx) {
     var headWidth = Math.max(0, (ex - sx) / 2 - wArrow);
@@ -209,17 +209,17 @@ visflow.Edge.prototype.drawArrow = function(previousPoint, lastPoint,
   var backVector = visflow.vectors.normalizeVector(
     visflow.vectors.subtractVector(previousPoint, lastPoint));
   previousPoint = visflow.vectors.addVector(lastPoint,
-    visflow.vectors.multiplyVector(backVector, this.ARROW_SIZE_PX_));
+    visflow.vectors.multiplyVector(backVector, visflow.Edge.ARROW_SIZE_PX));
   if (!noOffset) {
     lastPoint = visflow.vectors.addVector(lastPoint,
-      visflow.vectors.multiplyVector(backVector, this.ARROW_OFFSET_PX_));
+      visflow.vectors.multiplyVector(backVector, visflow.Edge.ARROW_OFFSET_PX));
   }
 
   var perpNorm = visflow.vectors.perpendicularVector(backVector);
   var pointLeft = visflow.vectors.addVector(previousPoint,
-    visflow.vectors.multiplyVector(perpNorm, this.ARROW_SIZE_PX_ / 4));
+    visflow.vectors.multiplyVector(perpNorm, visflow.Edge.ARROW_SIZE_PX / 4));
   var pointRight = visflow.vectors.subtractVector(previousPoint,
-    visflow.vectors.multiplyVector(perpNorm, this.ARROW_SIZE_PX_ / 4));
+    visflow.vectors.multiplyVector(perpNorm, visflow.Edge.ARROW_SIZE_PX / 4));
   var arrowPoints = [pointLeft, pointRight, lastPoint];
   this.arrow.attr('d', d3.line().curve(d3.curveLinearClosed)(arrowPoints));
 };

@@ -58,12 +58,12 @@ visflow.Network = function(params) {
 
   /**
    * References to node objects.
-   * @protected {!Object}
+   * @protected {!Object<number, !Object>}
    */
   this.nodes = {};
   /**
    * References to edge objects.
-   * @protected {!Object}
+   * @protected {!Object<number, !Object>}
    */
   this.edges = {};
 
@@ -78,7 +78,7 @@ visflow.Network = function(params) {
    */
   this.edgeProps_ = [];
 
-  /** @protected {!Object<boolean>} */
+  /** @protected {!Object<number, boolean>} */
   this.selectedEdges = {};
 
   /**
@@ -131,7 +131,7 @@ visflow.Network.prototype.init = function() {
     .classed('labels render-group', true);
 
   this.zoom_ = d3.zoom()
-    .scaleExtent(this.zoomExtent_())
+    .scaleExtent(visflow.Network.zoomExtent())
     .on('zoom', this.zoom.bind(this));
   this.svg.call(this.zoom_);
 
@@ -251,7 +251,8 @@ visflow.Network.prototype.selectItemsInBox_ = function() {
     this.selectedEdges = {};
   }
 
-  for (var index in this.nodes) {
+  for (var nodeIndex in this.nodes) {
+    var index = +nodeIndex;
     var node = this.nodes[index];
     var x = node.x;
     var y = node.y;
@@ -260,7 +261,8 @@ visflow.Network.prototype.selectItemsInBox_ = function() {
       this.selected[index] = true;
     }
   }
-  for (var index in this.edges) {
+  for (var edgeIndex in this.edges) {
+    var index = + edgeIndex;
     var edge = this.edges[index];
     var x1 = edge.source.x;
     var y1 = edge.source.y;
@@ -398,8 +400,8 @@ visflow.Network.prototype.updateNodeLabels_ = function() {
     .style('font-size', visflow.const.DEFAULT_FONT_SIZE / this.zoomScale_)
     .attr('transform', function(prop) {
       return visflow.utils.getTransform([
-        prop.node.x + this.NODE_LABEL_OFFSET_X_,
-        prop.node.y + this.NODE_LABEL_OFFSET_Y_
+        prop.node.x + visflow.Network.NODE_LABEL_OFFSET_X,
+        prop.node.y + visflow.Network.NODE_LABEL_OFFSET_Y
       ]);
     }.bind(this));
 };
@@ -421,7 +423,8 @@ visflow.Network.prototype.updateEdges_ = function() {
     d = visflow.vectors.perpendicularVector(d);
     d = visflow.vectors.normalizeVector(d);
     d = visflow.vectors.multiplyVector(d,
-      visflow.vectors.vectorDistance(ps, pt) * this.EDGE_CURVE_SHIFT_);
+      visflow.vectors.vectorDistance(ps, pt) *
+      visflow.Network.EDGE_CURVE_SHIFT);
     return visflow.vectors.addVector(m, d);
   }.bind(this);
 
@@ -448,10 +451,10 @@ visflow.Network.prototype.updateEdges_ = function() {
       visflow.vectors.subtractVector(pm, pt));
     var p1 = visflow.vectors.addVector(pt,
       visflow.vectors.multiplyVector(dm,
-        this.NODE_SIZE_ / this.zoomScale_));
+        visflow.Network.NODE_SIZE / this.zoomScale_));
     var p2 = visflow.vectors.addVector(p1,
       visflow.vectors.multiplyVector(ds,
-        this.EDGE_ARROW_LENGTH_ / this.zoomScale_));
+        visflow.Network.EDGE_ARROW_LENGTH / this.zoomScale_));
     var p3 = visflow.vectors.mirrorPoint(p2, p1, pm);
     return [p1, p2, p3];
   }.bind(this);
@@ -479,7 +482,8 @@ visflow.Network.prototype.updateEdges_ = function() {
 visflow.Network.prototype.applyProperties_ = function() {
   var items = this.ports['in'].pack.items;
   this.nodeProps_ = [];
-  for (var index in this.nodes) {
+  for (var nodeIndex in this.nodes) {
+    var index = +nodeIndex;
     var node = this.nodes[index];
     var prop = _.extend(
       {},
@@ -502,7 +506,8 @@ visflow.Network.prototype.applyProperties_ = function() {
   }
   var edgeItems = this.ports['inEdges'].pack.items;
   this.edgeProps_ = [];
-  for (var index in this.edges) {
+  for (var edgeIndex in this.edges) {
+    var index = +edgeIndex;
     var edge = this.edges[index];
     var prop = _.extend(
       {},
@@ -579,7 +584,8 @@ visflow.Network.prototype.processNodes_ = function() {
     return randValue;
   };
 
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     if (!(index in this.nodes)) {
       // Create an empty object for new node.
       this.nodes[index] = {};
@@ -607,7 +613,8 @@ visflow.Network.prototype.processEdges_ = function() {
   var nodeItems = inpackNodes.items;
   var nodeData = inpackNodes.data;
   var nodeIdToIndex = {};
-  for (var index in nodeItems) {
+  for (var itemIndex in nodeItems) {
+    var index = +itemIndex;
     var id = nodeData.values[index][this.options.nodeIdBy];
     nodeIdToIndex[id] = index;
   }
@@ -616,7 +623,8 @@ visflow.Network.prototype.processEdges_ = function() {
   var items = inpack.items;
   var data = inpack.data;
 
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var sourceId = data.values[index][this.options.sourceBy];
     var targetId = data.values[index][this.options.targetBy];
     var sourceIndex = nodeIdToIndex[sourceId];
@@ -653,7 +661,8 @@ visflow.Network.prototype.validateNetwork = function() {
   var inpackNodes = this.ports['in'].pack;
   var nodeItems = inpackNodes.items;
   var deletedNodes = {};
-  for (var index in this.nodes) {
+  for (var nodeIndex in this.nodes) {
+    var index = +nodeIndex;
     if (!(index in nodeItems)) {
       delete this.nodes[index];
       deletedNodes[index] = true;
@@ -662,7 +671,8 @@ visflow.Network.prototype.validateNetwork = function() {
 
   var inpackEdges = this.ports['inEdges'].pack;
   var edgeItems = inpackEdges.items;
-  for (var index in this.edges) {
+  for (var edgeIndex in this.edges) {
+    var index = +edgeIndex;
     var edge = this.edges[index];
     if (!(index in edgeItems) ||
         deletedNodes[edge.source.index] != null ||
@@ -688,7 +698,8 @@ visflow.Network.prototype.processSelection = function() {
 visflow.Network.prototype.validateSelection = function() {
   visflow.Network.base.validateSelection.call(this); // clear selection of nodes
   var inpackEdges = this.ports['inEdges'].pack;
-  for (var index in this.selectedEdges) { // clear selection of edges
+  for (var edgeIndex in this.selectedEdges) { // clear selection of edges
+    var index = +edgeIndex;
     if (inpackEdges.items[index] == null) {
       delete this.selectedEdges[index];
     }
@@ -859,8 +870,8 @@ visflow.Network.prototype.clearSelection = function() {
 
 /** @inheritDoc */
 visflow.Network.prototype.selectAll = function() {
-  for (var index in this.edges) {
-    this.selectedEdges[index] = true;
+  for (var edgeIndex in this.edges) {
+    this.selectedEdges[+edgeIndex] = true;
   }
   visflow.Network.base.selectAll.call(this);
 };

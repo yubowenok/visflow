@@ -50,14 +50,15 @@ visflow.Minus.prototype.process = function() {
     return;
   }
 
-  for (var i in inpacks) {
+  for (var i = 0; i < inpacks.length; i++) {
     var inpack = inpacks[i];
     if (!outpack.data.matchDataFormat(inpack.data)) {
       return visflow.error(
         'cannot make intersection of two different types of datasets');
     }
 
-    for (var index in inpack.items) {
+    for (var itemIndex in inpack.items) {
+      var index = +itemIndex;
       if (outpack.items[index] != null) {
         delete outpack.items[index];
       }

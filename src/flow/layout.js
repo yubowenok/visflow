@@ -109,7 +109,7 @@ visflow.Flow.prototype.autoLayout = function(opt_movableNodes) {
   }
 
   var screenHeight = $('#main').height();
-  this.force_ = d3.forceSimulation(nodes)
+  this.force = d3.forceSimulation(nodes)
     .alphaDecay(this.ALPHA_DECAY_)
     .force('x', d3.forceX()
       .strength(this.FORCE_X_STRENGTH_)
@@ -132,9 +132,9 @@ visflow.Flow.prototype.autoLayout = function(opt_movableNodes) {
     .force('collide', d3.forceCollide().radius(_.getValue('size'))
       .iterations(this.COLLIDE_ITERATIONS_));
 
-  var alphaDiff = this.force_.alpha() - this.force_.alphaMin();
-  this.force_.on('tick', function() {
-    var curAlphaDiff = this.force_.alpha() - this.force_.alphaMin();
+  var alphaDiff = this.force.alpha() - this.force.alphaMin();
+  this.force.on('tick', function() {
+    var curAlphaDiff = this.force.alpha() - this.force.alphaMin();
       if (curAlphaDiff <= 0) {
         visflow.progress.end();
       }
@@ -144,7 +144,7 @@ visflow.Flow.prototype.autoLayout = function(opt_movableNodes) {
     }.bind(this));
 
   visflow.progress.start('Adjusting layout', true);
-  this.force_.restart();
+  this.force.restart();
 };
 
 /**

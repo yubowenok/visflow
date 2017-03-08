@@ -8,7 +8,7 @@
 /**
  * A collection of item ids to boolean values, indicating whether each element
  * is present in the collection.
- * @typedef {!Object<boolean>}
+ * @typedef {!Object<number, boolean>}
  */
 visflow.ItemSet;
 
@@ -33,7 +33,7 @@ visflow.Package = function(data) {
    */
   this.items = {};
 
-  for (var index in data.values) {
+  for (var index = 0; index < data.values.length; index++) {
     // Create a rendering property object.
     this.items[index] = {
       properties: {}
@@ -53,7 +53,8 @@ visflow.Package.prototype.copy = function(pack, opt_shallow) {
   this.data = pack.data;
   if (!opt_shallow) {   // default deep copy
     this.items = {};
-    for (var index in pack.items) {
+    for (var itemIndex in pack.items) {
+      var index = +itemIndex;
       this.items[index] = {
         properties: _.extend({}, pack.items[index].properties)
       };
@@ -117,9 +118,10 @@ visflow.Package.prototype.groupItems = function(groupBy) {
   } else {
     var valueSet = {};
     var valueCounter = 0;
-    for (var index in this.items) {
+    for (var itemIndex in this.items) {
+      var index = +itemIndex;
       var val = groupBy == visflow.data.INDEX_DIM ?
-        index : this.data.values[index][groupBy];
+        index : this.data.values[index][+groupBy];
       var group = valueSet[val];
       if (group != null) {
         groups[group].push(index);

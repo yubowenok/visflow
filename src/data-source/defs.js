@@ -16,8 +16,8 @@ visflow.DataSource.prototype.TEMPLATE =
 visflow.DataSource.prototype.PANEL_TEMPLATE =
   './dist/html/data-source/data-source-panel.html';
 
-/** @private @const {string} */
-visflow.DataSource.prototype.SELECT_DATA_TEMPLATE_ =
+/** @protected @const {string} */
+visflow.DataSource.SELECT_DATA_TEMPLATE =
   './dist/html/data-source/select-data.html';
 
 /** @private @const {number} */
@@ -28,14 +28,14 @@ visflow.DataSource.prototype.MIN_HEIGHT = visflow.DataSource.HEIGHT_;
 /** @inheritDoc */
 visflow.DataSource.prototype.MAX_HEIGHT = visflow.DataSource.HEIGHT_;
 
-/** @private @const {number} */
-visflow.DataSource.prototype.DEFAULT_NUM_ATTRS_ = 1;
+/** @protected @const {number} */
+visflow.DataSource.DEFAULT_NUM_ATTRS = 1;
 
 /**
  * Maximum data names length shown in the node.
- * @private {number}
+ * @protected {number}
  */
-visflow.DataSource.prototype.DATA_NAMES_LENGTH_ = 100;
+visflow.DataSource.DATA_NAMES_LENGTH = 100;
 
 /** @inheritDoc */
 visflow.DataSource.prototype.defaultOptions = function() {

@@ -140,7 +140,7 @@ visflow.Port.prototype.connectable = function(port) {
       reason: 'cannot connect constant port with data port'
     });
   }
-  for (var i in this.connections) {
+  for (var i = 0; i < this.connections.length; i++) {
     var edge = this.connections[i];
     if (this.isInput && edge.sourcePort === port ||
         !this.isInput && edge.targetPort === port) {

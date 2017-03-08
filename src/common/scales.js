@@ -218,8 +218,8 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
       break;
     case visflow.ScaleType.ORDINAL:
       values = [];
-      for (var index in items) {
-        values.push(data.values[index][dim]);
+      for (var itemIndex in items) {
+        values.push(data.values[+itemIndex][dim]);
       }
       var uniqValues = _.uniq(values).sort();
 

@@ -69,8 +69,8 @@ visflow.Flow = function() {
    */
   this.edgeCounter_ = 0;
 
-  /** @private {d3.ForceSimulation} */
-  this.force_ = null;
+  /** @protected {d3.ForceSimulation} */
+  this.force = null;
 };
 
 /**
@@ -360,7 +360,7 @@ visflow.Flow.prototype.propagate = function(node) {
   if (visflow.Node.prototype.isPrototypeOf(node)) {
     traverse(node);
   } else if (node instanceof Array) {
-    for (var i in node) {
+    for (var i = 0; i < node.length; i++) {
       traverse(node[i]);
     }
   }
@@ -369,7 +369,7 @@ visflow.Flow.prototype.propagate = function(node) {
   for (var i = topo.length - 2; i >= 0; i--) {
     topo[i].update();
   }
-  for (var i in topo) {
+  for (var i = 0; i < topo.length; i++) {
     for (var j in topo[i].ports) {
       // Clear change flags for all in/out ports.
       topo[i].ports[j].pack.changed = false;
@@ -664,7 +664,7 @@ visflow.Flow.prototype.clearEdgeSelection = function() {
 visflow.Flow.prototype.addNodeSelection = function(nodes) {
   var toAdd = {};
   if (nodes instanceof Array) {
-    for (var i in nodes) {
+    for (var i = 0; i < nodes.length; i++) {
       toAdd[nodes[i].id] = nodes[i];
     }
   } else if (visflow.Node.prototype.isPrototypeOf(nodes)) {
@@ -689,7 +689,7 @@ visflow.Flow.prototype.clearNodeSelection = function(nodes) {
   if (nodes == null) {
     toClear = this.nodesSelected;
   } else if (nodes instanceof Array) {
-    for (var i in nodes) {
+    for (var i = 0; i < nodes.length; i++) {
       var node = nodes[i];
       toClear[node.id] = node;
     }
@@ -722,7 +722,7 @@ visflow.Flow.prototype.backgroundClearSelection = function() {
 visflow.Flow.prototype.addNodeHover = function(nodes) {
   var toAdd = {};
   if (nodes instanceof Array) {
-    for (var i in nodes) {
+    for (var i = 0; i < nodes.length; i++) {
       toAdd[nodes[i].id] = nodes[i];
     }
   } else if (visflow.Node.prototype.isPrototypeOf(nodes)) {
@@ -746,7 +746,7 @@ visflow.Flow.prototype.clearNodeHover = function(nodes) {
   if (nodes == null) {
     toClear = this.nodesHovered;
   } else if (nodes instanceof Array) {
-    for (var i in nodes) {
+    for (var i = 0; i < nodes.length; i++) {
       var node = nodes[i];
       toClear[node.id] = node;
     }

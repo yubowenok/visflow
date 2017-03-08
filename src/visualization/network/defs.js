@@ -12,27 +12,27 @@ visflow.Network.prototype.NODE_CLASS = 'network';
 visflow.Network.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/network/network-panel.html';
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_LABEL_SIZE_ = 14;
+/** @const {number} */
+visflow.Network.NODE_LABEL_SIZE = 14;
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_LABEL_OFFSET_X_ = 10;
+/** @const {number} */
+visflow.Network.NODE_LABEL_OFFSET_X = 10;
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_LABEL_OFFSET_Y_ =
-  visflow.Network.prototype.NODE_LABEL_SIZE_ / 2;
+/** @const {number} */
+visflow.Network.NODE_LABEL_OFFSET_Y =
+  visflow.Network.NODE_LABEL_SIZE / 2;
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_SIZE_ = 6;
+/** @const {number} */
+visflow.Network.NODE_SIZE = 6;
 
-/** @private @const {number} */
-visflow.Network.prototype.EDGE_ARROW_LENGTH_ = 10;
+/** @const {number} */
+visflow.Network.EDGE_ARROW_LENGTH = 10;
 
 /**
  * Shifting percentage of curved edge.
- * @private @const {number}
+ * @const {number}
  */
-visflow.Network.prototype.EDGE_CURVE_SHIFT_ = 0.1;
+visflow.Network.EDGE_CURVE_SHIFT = 0.1;
 
 /** @inheritDoc */
 visflow.Network.prototype.defaultOptions = function() {
@@ -105,9 +105,8 @@ visflow.Network.prototype.selectedMultiplier = function() {
 
 /**
  * @return {!Array<number>}
- * @private
  */
-visflow.Network.prototype.zoomExtent_ = function() {
+visflow.Network.zoomExtent = function() {
   return [.01, 8];
 };
 

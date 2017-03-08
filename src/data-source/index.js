@@ -24,9 +24,9 @@ visflow.DataSource = function(params) {
 
   /**
    * Copy of parsed data, used for switching between non-crossing and crossing.
-   * @private {!Array<?visflow.TabularData>}
+   * @protected {!Array<?visflow.TabularData>}
    */
-  this.rawData_ = [];
+  this.rawData = [];
 
   /**
    * Last used data type value. When this changed, we shall auto find the
@@ -139,17 +139,16 @@ visflow.DataSource.prototype.showDetails = function() {
 visflow.DataSource.prototype.interaction = function() {
   visflow.DataSource.base.interaction.call(this);
 
-  this.content.children('button').click(this.loadDataDialog_.bind(this));
+  this.content.children('button').click(this.loadDataDialog.bind(this));
 };
 
 /**
  * Deletes a dataset from the data list.
  * @param {number} dataIndex
- * @private
  */
-visflow.DataSource.prototype.deleteData_ = function(dataIndex) {
+visflow.DataSource.prototype.deleteData = function(dataIndex) {
   this.data.splice(dataIndex, 1);
-  this.rawData_.splice(dataIndex, 1);
+  this.rawData.splice(dataIndex, 1);
   this.process();
 };
 
@@ -163,8 +162,8 @@ visflow.DataSource.prototype.showNodeDataList_ = function() {
     this.data.map(function(data) {
       return data.name;
     }).join(', ');
-  if (text.length > this.DATA_NAMES_LENGTH_) {
-    text = text.substr(0, this.DATA_NAMES_LENGTH_ - 3) + '...';
+  if (text.length > visflow.DataSource.DATA_NAMES_LENGTH) {
+    text = text.substr(0, visflow.DataSource.DATA_NAMES_LENGTH - 3) + '...';
   }
   dataName.text(text).show();
   this.content.find('#data-error').hide();
@@ -191,7 +190,7 @@ visflow.DataSource.prototype.showDataList = function() {
         }
       });
       if (visflow.optionPanel.isOpen) {
-        this.createPanelDataList_(visflow.optionPanel.contentContainer());
+        this.createPanelDataList(visflow.optionPanel.contentContainer());
       }
       // Show data list in node.
       this.showNodeDataList_();
@@ -255,11 +254,10 @@ visflow.DataSource.prototype.updateActiveSections_ = function(dialog) {
 
 /**
  * Creates the load data dialog.
- * @private
  */
-visflow.DataSource.prototype.loadDataDialog_ = function() {
+visflow.DataSource.prototype.loadDataDialog = function() {
   visflow.dialog.create({
-    template: this.SELECT_DATA_TEMPLATE_,
+    template: visflow.DataSource.SELECT_DATA_TEMPLATE,
     complete: function(dialog) {
 
       dialog.find('.to-tooltip').tooltip({
@@ -344,7 +342,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 
       dialog.find('#btn-upload').click(function(event) {
         event.stopPropagation();
-        visflow.upload.setComplete(this.loadDataDialog_.bind(this));
+        visflow.upload.setComplete(this.loadDataDialog.bind(this));
         visflow.upload.upload();
       }.bind(this));
     }.bind(this)
@@ -353,11 +351,10 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 
 /**
  * Clears the currently loaded data.
- * @private
  */
-visflow.DataSource.prototype.clearData_ = function() {
+visflow.DataSource.prototype.clearData = function() {
   this.data = [];
-  this.rawData_ = [];
+  this.rawData = [];
   this.showDataList();
   this.process();
 };
@@ -369,7 +366,7 @@ visflow.DataSource.prototype.clearData_ = function() {
  */
 visflow.DataSource.prototype.loadData = function(opt_index) {
   if (opt_index != null) {
-    this.rawData_[opt_index] = null;
+    this.rawData[opt_index] = null;
   }
 
   var counter = 0;
@@ -382,7 +379,7 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
   }.bind(this);
   var hasAsyncLoad = false;
   this.data.forEach(function(data, dataIndex) {
-    if (this.rawData_[dataIndex]) {
+    if (this.rawData[dataIndex]) {
       // Skip already loaded data.
       return;
     }
@@ -393,7 +390,7 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
 
     var duplicateData = visflow.data.duplicateData(data);
     if (duplicateData != null) {
-      this.rawData_[dataIndex] = duplicateData;
+      this.rawData[dataIndex] = duplicateData;
       --counter;
       return;
     }
@@ -408,7 +405,7 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
 
         // Store a copy of parsed data, so that we can switch between crossing
         // and non-crossing.
-        this.rawData_[dataIndex] = result;
+        this.rawData[dataIndex] = result;
 
         visflow.data.registerRawData(data, result);
 
@@ -451,7 +448,7 @@ visflow.DataSource.prototype.findCrossingDims = function() {
   if (this.data.length == 0) {
     return [];
   }
-  var data = _.first(this.rawData_);
+  var data = _.first(this.rawData);
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] == visflow.ValueType.STRING &&
         !data.dimensionDuplicate[dim]) {
@@ -469,11 +466,11 @@ visflow.DataSource.prototype.findCrossingAttrs = function() {
   if (this.data.length == 0) {
     return [];
   }
-  var data = _.first(this.rawData_);
+  var data = _.first(this.rawData);
   var dims = [];
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] != visflow.ValueType.STRING) {
-      if (dims.length < this.DEFAULT_NUM_ATTRS_) {
+      if (dims.length < visflow.DataSource.DEFAULT_NUM_ATTRS) {
         dims.push(dim);
       }
     }
@@ -488,9 +485,9 @@ visflow.DataSource.prototype.process = function() {
   var values = [];
   var mismatched = {};
   var type;
-  var firstDataIndex = null;
-  this.rawData_.forEach(function(data, dataIndex) {
-    if (firstDataIndex == null) {
+  var firstDataIndex = -1;
+  this.rawData.forEach(function(data, dataIndex) {
+    if (firstDataIndex == -1) {
       firstDataIndex = dataIndex;
       type = data.type;
     } else if (data.type != type) { // Data type mismatch.
@@ -501,7 +498,7 @@ visflow.DataSource.prototype.process = function() {
     values = values.concat(data.values);
   });
 
-  if (firstDataIndex == null) {
+  if (firstDataIndex == -1) {
     this.useEmptyData_();
     this.showDataList();
     return;
@@ -509,10 +506,10 @@ visflow.DataSource.prototype.process = function() {
 
   for (var dataIndex in mismatched) {
     this.data.splice(dataIndex, 1);
-    this.rawData_.splice(dataIndex, 1);
+    this.rawData.splice(dataIndex, 1);
   }
   var finalData = /** @type {visflow.TabularData} */(
-    $.extend({}, this.rawData_[firstDataIndex]));
+    $.extend({}, this.rawData[firstDataIndex]));
   finalData.values = values;
 
   this.showDataList();

@@ -10,6 +10,12 @@
 visflow.options.Table = function(params) {
   visflow.options.Table.base.constructor.call(this, params);
   /**
+   * Selected dimensions to show in table.
+   * @type {!Array<number>}
+   */
+  this.dims = [];
+
+  /**
    * pageLength of the dataTables
    * @type {number}
    */

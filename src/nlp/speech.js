@@ -10,9 +10,14 @@ visflow.nlp.isSpeaking = false;
 
 /**
  * Initializes speech recognition.
- * @private
  */
-visflow.nlp.initSpeech_ = function() {
+visflow.nlp.initSpeech = function() {
+  if (!visflow.nlp.available) {
+    // If NLP service is unavailable, we disable the speech mic button.
+    $(visflow.nlp.SPEECH_BUTTON_SELECTOR).prop('disabled', 'dissabled');
+    return;
+  }
+
   // We are not using annyang's command recognition.
   // All commands are handled via "resultNoMatch" event.
   annyang.init({}, true);
@@ -94,13 +99,16 @@ visflow.nlp.toggleSpeakingEffect_ = function(state) {
  * @private
  */
 visflow.nlp.scoreSpeech_ = function(query) {
-  var target = visflow.nlp.findTarget_();
-  console.log(target);
+  var target = visflow.nlp.findTarget();
   var tokens = query.toLowerCase().split(/\s+/);
-  var known = _.keySet(visflow.nlp.chartTypes_()
-    .concat(visflow.nlp.utilTypes_())
-    .concat(target.getDimensionList().map(function(dim) { return dim.text; })));
-  console.log(known);
+
+  var chartTypeNames = visflow.nlp.chartTypes()
+    .map(function(type) { return type.name; });
+  var utilTypeNames = visflow.nlp.utilTypes()
+    .map(function(type) { return type.name; });
+  var dimensions = target.getDimensionNames();
+
+  var known = _.keySet(chartTypeNames.concat(utilTypeNames).concat(dimensions));
   var score = 0;
   for (var i = 0; i < tokens.length; i++) {
     if (tokens[i] in known) {

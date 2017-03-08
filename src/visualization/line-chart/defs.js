@@ -38,19 +38,19 @@ visflow.LineChart.prototype.defaultOptions = function() {
   });
 };
 
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_OFFSET_X_ = 10;
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_OFFSET_Y_ = 15;
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_MARGIN_RIGHT_ = 5;
+/** @const {number} */
+visflow.LineChart.LEGEND_OFFSET_X = 10;
+/** @const {number} */
+visflow.LineChart.LEGEND_OFFSET_Y = 15;
+/** @const {number} */
+visflow.LineChart.LEGEND_MARGIN_RIGHT = 5;
 /**
  * This includes the colorbox size.
- * @private @const {number}
+ * @const {number}
  */
-visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_X_ = 15;
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_Y_ = 10;
+visflow.LineChart.LEGEND_LABEL_OFFSET_X = 15;
+/** @const {number} */
+visflow.LineChart.LEGEND_LABEL_OFFSET_Y = 10;
 
 /** @inheritDoc */
 visflow.LineChart.prototype.defaultProperties = function() {

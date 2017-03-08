@@ -14,21 +14,21 @@ visflow.ParallelCoordinates.prototype.NODE_NAME = 'ParallelCoordinates';
 
 /**
  * Default number of dimension shown.
- * @private @const {number}
+ * @const {number}
  */
-visflow.ParallelCoordinates.prototype.DEFAULT_NUM_DIMENSIONS_ = 7;
+visflow.ParallelCoordinates.DEFAULT_NUM_DIMENSIONS = 7;
 
 /**
  * Offset from the leftmost axis to the tick text.
- * @private @const {number}
+ * @const {number}
  */
-visflow.ParallelCoordinates.prototype.AXIS_TICK_OFFSET_ = 8;
+visflow.ParallelCoordinates.AXIS_TICK_OFFSET = 8;
 
 /**
  * Y offset of the axes labels, to the plot bottom.
- * @private @const {number}
+ * @const {number}
  */
-visflow.ParallelCoordinates.prototype.AXIS_LABEL_OFFSET_ = 5;
+visflow.ParallelCoordinates.AXIS_LABEL_OFFSET = 5;
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.defaultOptions = function() {

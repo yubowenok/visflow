@@ -5,6 +5,7 @@
 /**
  * @param {!Object} params
  * @constructor
+ * @abstract
  * @extends {visflow.Node}
  */
 visflow.Visualization = function(params) {
@@ -44,7 +45,7 @@ visflow.Visualization = function(params) {
 
   /**
    * Selected data items.
-   * @protected {!Object<boolean>}
+   * @protected {!Object<number, boolean>}
    */
   this.selected = {};
 
@@ -214,7 +215,8 @@ visflow.Visualization.prototype.processSelection = function() {
  */
 visflow.Visualization.prototype.validateSelection = function() {
   var inpack = this.ports['in'].pack;
-  for (var index in this.selected) {
+  for (var itemIndex in this.selected) {
+    var index = +itemIndex;
     if (inpack.items[index] == null) {
       delete this.selected[index];
     }
@@ -590,9 +592,13 @@ visflow.Visualization.prototype.dataChanged = function() {};
 
 /**
  * Finds reasonable dimensions to show.
- * @return {*}
+ * @return {!Array<number>|!Object}
+ *   Usually this should return an array of dimension indices. Yet some plots
+ *   may return a compound dimension info object.
  */
-visflow.Visualization.prototype.findPlotDimensions = function() {};
+visflow.Visualization.prototype.findPlotDimensions = function() {
+  return [];
+};
 
 /**
  * Checks if transition should be applied.
@@ -628,4 +634,10 @@ visflow.Visualization.prototype.selectedChanged = function() {};
  * Sets the dimensions to be visualized.
  * @param {!Array<string>} dims
  */
-visflow.Visualization.prototype.setDimensions = function(dims) {};
+visflow.Visualization.prototype.setDimensions = function(dims) {
+  var dimensions = this.getDimensionNames();
+  this.options.dims = dims.map(function(name) {
+    return dimensions.indexOf(name);
+  });
+  this.dimensionChanged();
+};

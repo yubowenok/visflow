@@ -1,13 +1,34 @@
 /**
- * Gets the chart types supported by VisFlow.
- * @return {!Array<string>}
- * @private
+ * Gets the chart types names available.
+ * @return {!Array<{name: string, value: string}>}
  */
-visflow.nlp.chartTypes_ = function() {
+visflow.nlp.chartTypes = function() {
+  return [
+    {name: 'table', value: 'table'},
+    {name: 'scatterplot', value: 'scatterplot'},
+    {name: 'scp', value: 'scatterplot'},
+    {name: 'parallel coordinates', value: 'parallelCoordinates'},
+    {name: 'pcp', value: 'parallelCoordinates'},
+    {name: 'histogram', value: 'histogram'},
+    {name: 'distribution', value: 'histogram'},
+    {name: 'heatmap', value: 'heatmap'},
+    {name: 'color map', value: 'heatmap'},
+    {name: 'line chart', value: 'lineChart'},
+    {name: 'series', value: 'lineChart'},
+    {name: 'network', value: 'network'},
+    {name: 'topology', value: 'network'}
+  ];
+};
+
+/**
+ * Gets the primitive chart types supported.
+ * @return {!Array<string>}
+ */
+visflow.nlp.chartPrimitives = function() {
   return [
     'table',
     'scatterplot',
-    'parallelCoodrinates',
+    'parallelCoordinates',
     'histogram',
     'heatmap',
     'lineChart',
@@ -16,17 +37,26 @@ visflow.nlp.chartTypes_ = function() {
 };
 
 /**
- * Gets the util commands.
- * @return {!Array<string>}
- * @private
+ * Gets the util command names available.
+ * @return {!Array<{name: string, value: string}>}
  */
-visflow.nlp.utilTypes_ = function() {
+visflow.nlp.utilTypes = function() {
   return [
     // autolayout
-    'autolayout',
-    'adjust',
-    'layout',
+    {name: 'autolayout', value: 'autolayout'},
+    {name: 'layout', value: 'autolayout'},
 
+    {name: 'delete', value: 'delete'} // TODO(bowen)
+  ];
+};
+
+/**
+ * Gets the primitive util command types.
+ * @return {!Array<string>}
+ */
+visflow.nlp.utilPrimitives = function() {
+  return [
+    'autolayout',
     'delete'
   ];
 };
@@ -38,11 +68,18 @@ visflow.nlp.utilTypes_ = function() {
  */
 visflow.nlp.MATCH_THRESHOLD_ = .2;
 
-/** @private @const {string} */
-visflow.nlp.CHART_TYPE_PLACEHOLDER_ = 'chart_type';
+/** @const {string} */
+visflow.nlp.CHART_TYPE_PLACEHOLDER = 'chart_type';
 
-/** @private @const {string} */
-visflow.nlp.DIMENSION_PLACEHOLDER_ = 'dim';
+/** @const {string} */
+visflow.nlp.DIMENSION_PLACEHOLDER = 'dim';
+
+/** @private @const {RegExp} */
+visflow.nlp.DELIMITER_REGEX_ = /[\s,;.]+/;
+
+/** @private @const {RegExp} */
+visflow.nlp.AUTOLAYOUT_REGEX_ = /^.*layout.*$/;
+
 
 /**
  * Matched chart types in the query string.
@@ -56,12 +93,6 @@ visflow.nlp.matchedChartTypes_ = {};
  * @private {!Object<string>}
  */
 visflow.nlp.matchedDimensions_ = {};
-
-/** @private @const {RegExp} */
-visflow.nlp.DELIMITER_REGEX_ = /[\s,;.]+/;
-
-/** @private @const {RegExp} */
-visflow.nlp.AUTOLAYOUT_REGEX_ = /^.*layout.*$/;
 
 
 /**
@@ -109,10 +140,9 @@ visflow.nlp.match = function(target, pattern) {
  * Matched chart types are stored in matchedChartTypes_.
  * @param {string} query
  * @return {string}
- * @private
  */
-visflow.nlp.matchChartTypes_ = function(query) {
-  var chartTypes = visflow.nlp.chartTypes_();
+visflow.nlp.matchChartTypes = function(query) {
+  var chartTypes = visflow.nlp.chartTypes();
   var chartTypeCounter = 0;
   var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
 
@@ -122,14 +152,15 @@ visflow.nlp.matchChartTypes_ = function(query) {
   for (var i = 0; i < tokens.length; i++) {
     var matched = false;
     for (var j = 0; j < chartTypes.length; j++) {
-      if (visflow.nlp.match(tokens[i], chartTypes[j])) {
-        visflow.nlp.matchedChartTypes_[chartTypeCounter++] = chartTypes[j];
+      if (visflow.nlp.match(tokens[i], chartTypes[j].name)) {
+        visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
+          chartTypes[j].value;
         matched = true;
         break;
       }
     }
     parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.CHART_TYPE_PLACEHOLDER_);
+      visflow.nlp.CHART_TYPE_PLACEHOLDER);
   }
   // Match bigrams
   tokens = parsedTokens;
@@ -141,14 +172,15 @@ visflow.nlp.matchChartTypes_ = function(query) {
     var bigram = tokens[i] + tokens[i + 1];
     var matched = false;
     for (var j = 0; j < chartTypes.length; j++) {
-      if (visflow.nlp.match(bigram, chartTypes[j])) {
-        visflow.nlp.matchedChartTypes_[chartTypeCounter++] = chartTypes[j];
+      if (visflow.nlp.match(bigram, chartTypes[j].name)) {
+        visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
+          chartTypes[j].value;
         matched = true;
         break;
       }
     }
     parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.CHART_TYPE_PLACEHOLDER_);
+      visflow.nlp.CHART_TYPE_PLACEHOLDER);
     if (matched) {
       i++; // Skip the next token if bigram matches.
     } else if (i == tokens.length - 2) { // Last bigram and not matched
@@ -164,11 +196,9 @@ visflow.nlp.matchChartTypes_ = function(query) {
  * @param {string} query
  * @param {!visflow.Node} target
  * @return {string}
- * @private
  */
-visflow.nlp.matchDimensions_ = function(query, target) {
-  var dimensions = target.getDimensionList()
-    .map(function(dim) { return dim.text; });
+visflow.nlp.matchDimensions = function(query, target) {
+  var dimensions = target.getDimensionNames();
   var dimensionCounter = 0;
   var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
 
@@ -185,7 +215,7 @@ visflow.nlp.matchDimensions_ = function(query, target) {
       }
     }
     parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.DIMENSION_PLACEHOLDER_);
+      visflow.nlp.DIMENSION_PLACEHOLDER);
   }
   // Match bigrams
   tokens = parsedTokens;
@@ -204,7 +234,7 @@ visflow.nlp.matchDimensions_ = function(query, target) {
       }
     }
     parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.DIMENSION_PLACEHOLDER_);
+      visflow.nlp.DIMENSION_PLACEHOLDER);
     if (matched) {
       i++; // Skip the next token if bigram matches.
     } else if (i == tokens.length - 2) { // Last bigram and not matched
@@ -218,13 +248,12 @@ visflow.nlp.matchDimensions_ = function(query, target) {
  * Maps the chart type placeholders back to the standard chart types.
  * @param {string} command
  * @return {string}
- * @private
  */
-visflow.nlp.mapChartTypes_ = function(command) {
+visflow.nlp.mapChartTypes = function(command) {
   var tokens = command.split(visflow.nlp.DELIMITER_REGEX_);
   var chartTypeCounter = 0;
   for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i] == visflow.nlp.CHART_TYPE_PLACEHOLDER_) {
+    if (tokens[i] == visflow.nlp.CHART_TYPE_PLACEHOLDER) {
       var chartType = visflow.nlp.matchedChartTypes_[chartTypeCounter++];
       // Unspecified chart_type's will be kept as is.
       // Defaults are chosen during execution.
@@ -238,13 +267,12 @@ visflow.nlp.mapChartTypes_ = function(command) {
  * Maps the dimension placeholders back to the dimension names.
  * @param {string} command
  * @return {string}
- * @private
  */
-visflow.nlp.mapDimensions_ = function(command) {
+visflow.nlp.mapDimensions = function(command) {
   var tokens = command.split(visflow.nlp.DELIMITER_REGEX_);
   var dimensionCounter = 0;
   for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i] == visflow.nlp.DIMENSION_PLACEHOLDER_) {
+    if (tokens[i] == visflow.nlp.DIMENSION_PLACEHOLDER) {
       tokens[i] = visflow.nlp.matchedDimensions_[dimensionCounter++];
     }
   }

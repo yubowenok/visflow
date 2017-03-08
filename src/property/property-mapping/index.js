@@ -69,9 +69,9 @@ visflow.PropertyMapping.prototype.deserialize = function(save) {
  * Shows a user editable scale for color or number.
  * @param {!jQuery} scaleDiv
  * @param {string} source 'panel' or 'node'.
- * @private
+ * @protected
  */
-visflow.PropertyMapping.prototype.showEditableScale_ = function(scaleDiv,
+visflow.PropertyMapping.prototype.showEditableScale = function(scaleDiv,
                                                                 source) {
   var mappingType = visflow.property.MAPPING_TYPES[this.options.mapping];
   scaleDiv.children('*').hide();
@@ -145,7 +145,7 @@ visflow.PropertyMapping.prototype.showDetails = function() {
       },
       change: function(event, mapping) {
         this.options.mapping = mapping;
-        this.showEditableScale_(this.content.find('#scale'), 'node');
+        this.showEditableScale(this.content.find('#scale'), 'node');
         this.parameterChanged('node');
       }
     }
@@ -153,7 +153,7 @@ visflow.PropertyMapping.prototype.showDetails = function() {
 
   this.initInterface(units);
 
-  this.showEditableScale_(this.content.find('#scale'), 'node');
+  this.showEditableScale(this.content.find('#scale'), 'node');
 };
 
 /** @inheritDoc */
@@ -181,7 +181,8 @@ visflow.PropertyMapping.prototype.process = function() {
   var isOrdinal = visflow.scales[this.options.colorScaleId].isOrdinal;
 
   var newItems = {};
-  for (var index in inpack.items) {
+  for (var itemIndex in inpack.items) {
+    var index = +itemIndex;
     var value = data.values[index][this.dim];
     var mappedDataValue;
     if (isOrdinal) {
