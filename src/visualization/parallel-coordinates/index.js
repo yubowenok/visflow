@@ -45,19 +45,6 @@ visflow.ParallelCoordinates = function(params) {
    * @private {!d3}
    */
   this.svgTempAxes_ = _.d3();
-
-  /**
-   * @private {visflow.Margins}
-   */
-  this.margins_ = {
-    // Left margin computed based on the leftmost axis label.
-    left: 0,
-    // Right margin computed based on the rightmost axis label.
-    right: 0,
-    // Bottom margin that depends on axis label visibility.
-    bottom: 0,
-    top: 0
-  };
 };
 
 _.inherit(visflow.ParallelCoordinates, visflow.Visualization);
@@ -362,7 +349,7 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   this.updateBottomMargin_();
 
   var yRange = [
-    svgSize.height - this.margins_.bottom,
+    svgSize.height - this.margins.bottom,
     this.plotMargins().top
   ];
 
@@ -382,8 +369,8 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   this.xScale = d3.scaleLinear()
     .domain([0, this.options.dims.length - 1])
     .range([
-      this.margins_.left,
-      svgSize.width - this.margins_.right
+      this.margins.left,
+      svgSize.width - this.margins.right
     ]);
 };
 
@@ -410,7 +397,7 @@ visflow.ParallelCoordinates.prototype.findPlotDimensions = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.updateBottomMargin_ = function() {
-  this.margins_.bottom = this.plotMargins().bottom +
+  this.margins.bottom = this.plotMargins().bottom +
     (this.options.axisLabel ? this.TICKS_HEIGHT : 0);
 };
 
@@ -421,8 +408,8 @@ visflow.ParallelCoordinates.prototype.updateBottomMargin_ = function() {
  */
 visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
   var margins = this.plotMargins();
-  this.margins_.left = margins.left;
-  this.margins_.right = margins.right;
+  this.margins.left = margins.left;
+  this.margins.right = margins.right;
 
   var leftLabelWidth = 0;
   var rightLabelWidth = 0;
@@ -449,9 +436,9 @@ visflow.ParallelCoordinates.prototype.updateLeftRightMargins_ = function() {
     }.bind(this));
   }
 
-  this.margins_.left += Math.max(leftLabelWidth / 2, maxLength +
+  this.margins.left += Math.max(leftLabelWidth / 2, maxLength +
     visflow.ParallelCoordinates.AXIS_TICK_OFFSET);
-  this.margins_.right += rightLabelWidth / 2;
+  this.margins.right += rightLabelWidth / 2;
 };
 
 /** @inheritDoc */

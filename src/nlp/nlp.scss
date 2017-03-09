@@ -4,10 +4,10 @@
   div {
     background: $ui-background;
     border: 1px solid $gray-c;
-    height: 150px;
+    height: 185px;
     padding: $padding $padding-large;
     position: absolute;
-    width: 240px;
+    width: 300px;
     z-index: 1041;
   }
 
@@ -16,6 +16,7 @@
   }
 
   textarea {
+    font-size: 20px;
     height: calc(100% - #{$font-size} - #{$padding} * 2 - #{$border-width});
     resize: none;
     width: 100%;

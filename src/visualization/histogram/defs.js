@@ -27,16 +27,6 @@ visflow.Histogram.prototype.defaultOptions = function() {
 };
 
 /** @inheritDoc */
-visflow.Histogram.prototype.plotMargins = function() {
-  return {
-    left: 25,
-    right: 10,
-    top: 10,
-    bottom: 20
-  };
-};
-
-/** @inheritDoc */
 visflow.Histogram.prototype.defaultProperties = function() {
   return {
     color: '#555',

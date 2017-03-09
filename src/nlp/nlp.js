@@ -91,6 +91,13 @@ visflow.nlp.input = function(opt_target) {
  * @param {(!visflow.Node|undefined)=} opt_target
  */
 visflow.nlp.speech = function(query, opt_target) {
+  if (visflow.nlp.isWaitingForInput) {
+    // If the NLP input box is open, then we direct the speech to the input box.
+    var textarea = $('#nlp textarea');
+    var text = textarea.val();
+    textarea.val((text !== '' ? text + ' ' : '') + query);
+    return;
+  }
   // Search for a proper target.
   visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget();
   visflow.nlp.submit(query);

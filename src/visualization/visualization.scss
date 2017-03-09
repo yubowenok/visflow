@@ -1,4 +1,4 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 .visflow .node.visualization {
   &.details {
@@ -49,12 +49,4 @@
     font-weight: bold;
     text-anchor: middle;
   }
-}
-
-// TODO(bowen): is this used?
-.visflow .visualization-message {
-  pointer-events: none;
-  position: absolute;
-  text-align: center;
-  width: calc(100% - 10px);
 }

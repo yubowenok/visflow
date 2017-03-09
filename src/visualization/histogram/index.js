@@ -214,10 +214,9 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
  */
 visflow.Histogram.prototype.createHistogramScale_ = function() {
   var svgSize = this.getSVGSize();
-  var margins = this.plotMargins();
   var range = [
-    margins.left,
-    svgSize.width - margins.right
+    this.margins.left,
+    svgSize.width - this.margins.right
   ];
   this.histogramScale = d3.scaleLinear()
     .domain(this.xScaleType == visflow.ScaleType.NUMERICAL ?
@@ -416,7 +415,6 @@ visflow.Histogram.prototype.drawAxes_ = function() {
 visflow.Histogram.prototype.drawXAxis_ = function() {
   var svgSize = this.getSVGSize();
   var data = this.ports['in'].pack.data;
-  var margins = this.plotMargins();
   this.drawAxis({
     svg: this.svgAxes.select('.x.axis'),
     scale: this.xScale,
@@ -427,13 +425,13 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
       this.xScale.domain() : this.options.numBins,
     transform: visflow.utils.getTransform([
       0,
-      svgSize.height - margins.bottom
+      svgSize.height - this.margins.bottom
     ]),
     label: {
       text: data.dimensions[this.options.dim],
       transform: visflow.utils.getTransform([
-        svgSize.width - margins.right,
-        -svgSize.height + margins.top + margins.bottom +
+        svgSize.width - this.margins.right,
+        -svgSize.height + this.margins.top + this.margins.bottom +
           this.LABEL_OFFSET
       ])
     }
@@ -445,7 +443,6 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
  * @private
  */
 visflow.Histogram.prototype.drawYAxis_ = function() {
-  var margins = this.plotMargins();
   this.drawAxis({
     svg: this.svgAxes.select('.y.axis'),
     scale: this.yScale,
@@ -454,14 +451,14 @@ visflow.Histogram.prototype.drawYAxis_ = function() {
     orient: 'left',
     ticks: this.DEFAULT_TICKS,
     transform: visflow.utils.getTransform([
-      margins.left,
+      this.margins.left,
       0
     ]),
     label: {
       text: '',
       transform: visflow.utils.getTransform([
         this.LABEL_OFFSET,
-        margins.top
+        this.margins.top
       ], 1, 90)
     }
   });
@@ -472,16 +469,75 @@ visflow.Histogram.prototype.drawBrush = function() {
   this.drawSelectBox();
 };
 
+/**
+ * Updates the left margin of the plot based on the longest label for y-axis.
+ * @private
+ */
+visflow.Histogram.prototype.updateLeftMargin_ = function() {
+  var tempShow = !this.content.is(':visible');
+  if (tempShow) {
+    this.content.show();
+  }
+  this.margins.left = this.plotMargins().left;
+  if (this.options.yTicks) {
+    this.drawYAxis_();
+    var maxLength = 0;
+    $(this.svgAxes.node())
+      .find('.y.axis > .tick > text')
+      .each(function(index, element) {
+        maxLength = Math.max(maxLength, element.getBBox().width);
+      });
+    // In case the input data is empty.
+    if (maxLength == 0) {
+      maxLength = 0;
+    }
+    this.margins.left += maxLength;
+  }
+  if (tempShow) {
+    this.content.hide();
+  }
+};
+
+/**
+ * Updates the bottom margin based on the xTicks.
+ * @private
+ */
+visflow.Histogram.prototype.updateBottomMargin_ = function() {
+  this.margins.bottom = this.plotMargins().bottom +
+    (this.options.xTicks ? this.TICKS_HEIGHT : 0);
+};
+
+
 /** @inheritDoc */
 visflow.Histogram.prototype.prepareScales = function() {
   var svgSize = this.getSVGSize();
   var inpack = this.ports['in'].pack;
   var data = inpack.data;
   var items = inpack.items;
-  var margins = this.plotMargins();
+
+  this.margins = this.plotMargins();
+
+  this.updateBottomMargin_();
+
+  this.yScale = d3.scaleLinear()
+    .domain([
+      0,
+      d3.max(this.histogramData_, _.getValue('y')) *
+      (1 + visflow.Histogram.Y_MARGIN)
+    ])
+    .range([
+      svgSize.height - this.margins.bottom,
+      this.margins.top
+    ]);
+
+  // Compute new left margin based on selected y dimension.
+  // xScale has to be created after yScale because the left margin depends on
+  // yScale's domain.
+  this.updateLeftMargin_();
+
   var scaleInfo = visflow.scales.getScale(data, this.options.dim, items, [
-      margins.left,
-      svgSize.width - margins.right
+      this.margins.left,
+      svgSize.width - this.margins.right
     ], {
       domainMargin: 0.15,
       ordinalRangeType: 'rangeBands',
@@ -491,14 +547,6 @@ visflow.Histogram.prototype.prepareScales = function() {
   this.xScaleType = scaleInfo.type;
 
   this.prepareHistogram_();
-
-  this.yScale = d3.scaleLinear()
-    .domain([
-      0,
-      d3.max(this.histogramData_, _.getValue('y')) *
-        (1 + visflow.Histogram.Y_MARGIN)
-    ])
-    .range([svgSize.height - margins.bottom, margins.top]);
 };
 
 /** @inheritDoc */

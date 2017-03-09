@@ -57,27 +57,17 @@ visflow.LineChart = function(params) {
   this.xCollidedMsg = '';
 
   /**
-   * @private {visflow.Margins}
-   */
-  this.margins_ = {
-    // Left margin computed based on the y Axis labels.
-    left: 0,
-    // Bottom margin that depends on whether xTicks are shown.
-    bottom: 0,
-    right: 0,
-    top: 0
-  };
-
-  /**
    * Line rendering properties.
    * @private {!Array}
    */
   this.lineProps_ = [];
+
   /**
    * Item rendering properties.
    * @private {!Array}
    */
   this.itemProps_ = [];
+
   /**
    * Index of item in the properties array.
    * @private {!Object<number>}
@@ -180,7 +170,7 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
  * @private
  */
 visflow.LineChart.prototype.updateBottomMargin_ = function() {
-  this.margins_.bottom = this.plotMargins().bottom +
+  this.margins.bottom = this.plotMargins().bottom +
     (this.options.xTicks ? this.TICKS_HEIGHT : 0);
 };
 
@@ -194,8 +184,8 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
   if (tempShow) {
     this.content.show();
   }
+  this.margins.left = this.plotMargins().left;
 
-  this.margins_.left = this.plotMargins().left;
   if (this.options.yTicks) {
     this.drawYAxis_();
     var maxLength = 0;
@@ -208,7 +198,7 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
     if (maxLength == 0) {
       maxLength = 0;
     }
-    this.margins_.left += maxLength;
+    this.margins.left += maxLength;
   }
 
   if (this.options.legends) {
@@ -219,7 +209,7 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
       .each(function(index, element) {
         maxLength = Math.max(maxLength, element.getBBox().width);
       });
-    this.margins_.left += maxLength + visflow.LineChart.LEGEND_LABEL_OFFSET_X +
+    this.margins.left += maxLength + visflow.LineChart.LEGEND_LABEL_OFFSET_X +
       visflow.LineChart.LEGEND_OFFSET_X + visflow.LineChart.LEGEND_MARGIN_RIGHT;
   }
 
@@ -511,7 +501,7 @@ visflow.LineChart.prototype.drawXAxis_ = function() {
     noTicks: !this.options.xTicks,
     transform: visflow.utils.getTransform([
       0,
-      svgSize.height - this.margins_.bottom
+      svgSize.height - this.margins.bottom
     ]),
     label: {
       text: data.dimensions[this.options.xDim],
@@ -538,7 +528,7 @@ visflow.LineChart.prototype.drawYAxis_ = function() {
     ticks: this.DEFAULT_TICKS,
     noTicks: !this.options.yTicks,
     transform: visflow.utils.getTransform([
-      this.margins_.left,
+      this.margins.left,
       0
     ]),
     label: {
@@ -573,7 +563,7 @@ visflow.LineChart.prototype.prepareScales = function() {
 
   var svgSize = this.getSVGSize();
   var yRange = [
-    svgSize.height - this.margins_.bottom,
+    svgSize.height - this.margins.bottom,
     margins.top
   ];
   var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
@@ -591,7 +581,7 @@ visflow.LineChart.prototype.prepareScales = function() {
   this.updateLeftMargin_();
 
   var xRange = [
-    this.margins_.left,
+    this.margins.left,
     svgSize.width - margins.right
   ];
   var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items,

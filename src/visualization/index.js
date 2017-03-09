@@ -62,6 +62,12 @@ visflow.Visualization = function(params) {
   this.lastDataId = visflow.data.EMPTY_DATA_ID;
 
   /**
+   * Margins of the plot in the four directions.
+   * @protected {visflow.Margins}
+   */
+  this.margins = this.plotMargins();
+
+  /**
    * Whether rendering should be using transition. When the view is resized,
    * the view shall be re-rendered without transition.
    * @protected {boolean}
