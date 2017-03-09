@@ -352,6 +352,9 @@ visflow.interaction.keyPress = function(event) {
             visflow.popupPanel.show(event, true);
           }
           break;
+        case 'shift+L':
+          visflow.flow.autoLayoutAll();
+          break;
         case 'shift+S':
           // prevent 'S' from being entered into the nlp input
           event.preventDefault();

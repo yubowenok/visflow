@@ -24,7 +24,7 @@ visflow.Visualization.prototype.TRANSITION_ELEMENT_LIMIT = 5000;
 /** @protected @const {number} */
 visflow.Visualization.prototype.TICKS_HEIGHT = 10;
 
-/** @protected @const {boolean} */
+/** @const {boolean} */
 visflow.Visualization.prototype.IS_VISUALIZATION = true;
 
 /**
@@ -74,7 +74,7 @@ visflow.Visualization.prototype.defaultProperties = function() {
 visflow.Visualization.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };
 

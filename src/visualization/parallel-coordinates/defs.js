@@ -52,7 +52,7 @@ visflow.ParallelCoordinates.prototype.defaultProperties = function() {
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.selectedProperties = function() {
   return {
-    color: '#6699ee',
+    color: visflow.const.SELECTED_COLOR,
     opacity: 0.75
   };
 };

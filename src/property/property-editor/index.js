@@ -135,10 +135,20 @@ visflow.PropertyEditor.prototype.parameterChanged = function(source) {
   this.pushflow();
   // If number range is adjusted, we need to redraw both node and panel as the
   // inputs may be out-of-date.
-  if (adjusted || source == 'panel') {
+  if (adjusted || source != 'node') {
     this.show();
   }
-  if (adjusted || source == 'node') {
+  if (adjusted || source != 'panel') {
     this.updatePanel(visflow.optionPanel.contentContainer());
   }
+};
+
+/**
+ * Sets a particular rendering property.
+ * @param {string} property
+ * @param {string|number} value
+ */
+visflow.PropertyEditor.prototype.setProperty = function(property, value) {
+  this.options[property] = value;
+  this.parameterChanged('external');
 };

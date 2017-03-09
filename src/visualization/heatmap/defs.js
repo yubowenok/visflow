@@ -61,7 +61,7 @@ visflow.Heatmap.prototype.defaultProperties = function() {
 /** @inheritDoc */
 visflow.Heatmap.prototype.selectedProperties = function() {
   return {
-    border: '#6699ee',
+    border: visflow.const.SELECTED_COLOR,
     color: '#333',
     width: 1.5
   };

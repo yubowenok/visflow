@@ -1228,6 +1228,22 @@ visflow.Node.prototype.moveToWithTransition = function(left, top,
 };
 
 /**
+ * Gets the input data port.
+ * @return {!visflow.Port}
+ */
+visflow.Node.prototype.getDataInPort = function() {
+  return this.getPort('in');
+};
+
+/**
+ * Gets the output data port.
+ * @return {!visflow.Port}
+ */
+visflow.Node.prototype.getDataOutPort = function() {
+  return this.getPort('out');
+};
+
+/**
  * Gets node option identified by key.
  * @param {string} key
  * @return {*}
@@ -1242,6 +1258,15 @@ visflow.Node.prototype.getOption = function(key) {
  */
 visflow.Node.prototype.getClass = function() {
   return this.NODE_CLASS;
+};
+
+/**
+ * Checks if the node's type matches the given type.
+ * @param {string} typeName
+ * @return {boolean}
+ */
+visflow.Node.prototype.matchType = function(typeName) {
+  return this.NODE_NAME.toLowerCase() == typeName.toLowerCase();
 };
 
 /**

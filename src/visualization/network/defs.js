@@ -80,7 +80,7 @@ visflow.Network.prototype.defaultEdgeProperties = function() {
 visflow.Network.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };
 
@@ -91,7 +91,7 @@ visflow.Network.prototype.selectedProperties = function() {
  */
 visflow.Network.prototype.selectedEdgeProperties = function() {
   return {
-    color: '#6699ee'
+    color: visflow.const.SELECTED_COLOR
   };
 };
 

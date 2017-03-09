@@ -48,7 +48,7 @@ visflow.Histogram.prototype.defaultProperties = function() {
 visflow.Histogram.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee',
+    border: visflow.const.SELECTED_COLOR,
     width: 1.5
   };
 };

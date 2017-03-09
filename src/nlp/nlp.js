@@ -60,6 +60,10 @@ visflow.nlp.init = function() {
  * @param {(!visflow.Node|undefined)=} opt_target
  */
 visflow.nlp.input = function(opt_target) {
+  if (!visflow.nlp.available) {
+    visflow.error('NLP service is currently unavailable');
+    return;
+  }
   visflow.nlp.isWaitingForInput = true;
 
   // If the input is global, search for a proper target.
@@ -130,8 +134,7 @@ visflow.nlp.findTarget = function() {
     return null;
   }
   // Return the nearest node to the mouse position.
-  return visflow.flow.closestNode(visflow.interaction.mouseX,
-    visflow.interaction.mouseY);
+  return visflow.flow.closestNodeToMouse();
 };
 
 /**

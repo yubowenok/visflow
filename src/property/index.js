@@ -76,8 +76,11 @@ visflow.Property.prototype.adjustNumbers = function() {
 
 /**
  * Handles interface parameter changes.
- * @param {string} source 'panel' or 'node', denoting where the user changes the
- *     input. We should not redraw the interface underlying user's current
- *     changes.
+ * @param {string} source 'panel' or 'node' or 'external'
+ *     'panel': change comes from user interaction in the panel
+ *     'node': change comes from user interaction in the node
+ *     'external': change comes from external control (e.g. NLP)
+ *     We should not redraw the interface underlying user's current changes to
+ *     avoid endless loops.
  */
 visflow.Property.prototype.parameterChanged = function(source) {};

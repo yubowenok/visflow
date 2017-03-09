@@ -19,3 +19,15 @@ visflow.const.PADDING = 3;
 
 /** @const {number} */
 visflow.const.DEFAULT_TRANSITION_DURATION = 50;
+
+/** @const {string} */
+visflow.const.THEME_COLOR = '#5a098f';
+
+/** @const {string} */
+visflow.const.THEME_COLOR_LIGHT = '#9460b7';
+
+/** @const {string} */
+visflow.const.THEME_COLOR_DARK = '#460570';
+
+/** @const {string} */
+visflow.const.SELECTED_COLOR = '#6699ee';

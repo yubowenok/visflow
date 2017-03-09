@@ -641,3 +641,11 @@ visflow.Visualization.prototype.setDimensions = function(dims) {
   });
   this.dimensionChanged();
 };
+
+/**
+ * Gets the data selection output port.
+ * @return {!visflow.Port}
+ */
+visflow.Visualization.prototype.getSelectionOutPort = function() {
+  return this.getPort('outs');
+};

@@ -84,6 +84,9 @@ visflow.Flow.prototype.visModeOnCss_ = function() {
   };
 };
 
+/** @private @const {number} */
+visflow.Flow.NEARBY_THRESHOLD_ = 300;
+
 /**
  * Default properties for non-vismode elements when vismode is off.
  * @return {!Object}
@@ -880,16 +883,27 @@ visflow.Flow.prototype.clearEdgeHover = function() {
 };
 
 /**
- * Finds the closet node to the given (x, y) position.
+ * Finds the closest node to the given (x, y) position.
  * @param {number} x
  * @param {number} y
+ * @param {{
+ *     type: (string|undefined)
+ *   }=} opt_condition
  * @return {visflow.Node}
  */
-visflow.Flow.prototype.closestNode = function(x, y) {
+visflow.Flow.prototype.closestNode = function(x, y, opt_condition) {
+  var condition = opt_condition !== undefined ? opt_condition : {};
   var found = null;
   var bestDistance = Infinity;
   for (var id in this.nodes) {
     var node = this.nodes[id];
+
+    if (condition.nodeName !== undefined &&
+      !node.matchType(condition.nodeName)) {
+      // Filter by node types.
+      continue;
+    }
+
     if (!found) {
       found = node;
     } else {
@@ -903,6 +917,41 @@ visflow.Flow.prototype.closestNode = function(x, y) {
     }
   }
   return found;
+};
+
+/**
+ * Finds the closest node to the mouse position
+ * @param {{
+ *     type: (string|undefined)
+ *   }=} opt_condition
+ * @return {visflow.Node}
+ */
+visflow.Flow.prototype.closestNodeToMouse = function(opt_condition) {
+  return this.closestNode(visflow.interaction.mouseX,
+    visflow.interaction.mouseY, opt_condition);
+};
+
+/**
+ * Finds the nodes near a given position (x, y).
+ * @param {number} x
+ * @param {number} y
+ * @param {number=} opt_desiredDistance
+ * @return {!Object<number, boolean>} A collection of nearby node ids.
+ */
+visflow.Flow.prototype.nearbyNodes = function(x, y, opt_desiredDistance) {
+  var desiredDistance = opt_desiredDistance !== undefined ?
+    opt_desiredDistance : visflow.Flow.NEARBY_THRESHOLD_;
+  var result = {};
+  for (var id in this.nodes) {
+    var node = this.nodes[id];
+    var center = node.getCenter();
+    var distance = visflow.vectors.vectorLength([center.left - x,
+      center.top - y]);
+    if (distance <= desiredDistance) {
+      result[id] = true;
+    }
+  }
+  return result;
 };
 
 /**

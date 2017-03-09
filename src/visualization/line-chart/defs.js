@@ -67,7 +67,7 @@ visflow.LineChart.prototype.defaultProperties = function() {
 visflow.LineChart.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };
 
@@ -80,7 +80,7 @@ visflow.LineChart.prototype.selectedProperties = function() {
  */
 visflow.LineChart.prototype.selectedLineProperties = function() {
   return {
-    color: '#6699ee',
+    color: visflow.const.SELECTED_COLOR,
     width: 2
   };
 };

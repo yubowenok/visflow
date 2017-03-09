@@ -45,6 +45,6 @@ visflow.Scatterplot.prototype.defaultProperties = function() {
 visflow.Scatterplot.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };
