@@ -18,52 +18,8 @@ visflow.nlp.CommandType = {
  */
 visflow.nlp.DEFAULT_MARGIN_ = 150;
 
-/**
- * Checks if a root command is a chart type.
- * @param {string} token
- * @return {boolean}
- * @private
- */
-visflow.nlp.isChartType_ = function(token) {
-  return visflow.nlp.chartPrimitives().indexOf(token) != -1 ||
-    token == visflow.nlp.CHART_TYPE_PLACEHOLDER;
-};
-
-/**
- * Checks if a root command is to highlight.
- * @param {string} token
- * @return {boolean}
- * @private
- */
-visflow.nlp.isHighlight_ = function(token) {
-  return token == 'highlight';
-};
-
-/**
- * Checks if the root command is a util.
- * @param {string} token
- * @return {boolean}
- * @private
- */
-visflow.nlp.isUtil_ = function(token) {
-  return visflow.nlp.utilPrimitives().indexOf(token) != -1;
-};
-
-/**
- * Gets the util command type from a token.
- * @param {string} token
- * @return {visflow.nlp.CommandType}
- * @private
- */
-visflow.nlp.getUtilType_ = function(token) {
-  switch (token) {
-    case 'autolayout':
-      return visflow.nlp.CommandType.AUTOLAYOUT;
-    case 'delete':
-      return visflow.nlp.CommandType.DELETE;
-  }
-  return visflow.nlp.CommandType.UNKNOWN;
-};
+/** @typedef {{token: string, syntax: string}} */
+visflow.nlp.CommandToken;
 
 /**
  * Checks what type a command is.
@@ -73,14 +29,18 @@ visflow.nlp.getUtilType_ = function(token) {
  */
 visflow.nlp.getCommandType_ = function(command) {
   var root = command.split(/\s+/)[0];
-  if (visflow.nlp.isChartType_(root)) {
-    return visflow.nlp.CommandType.CHART;
-  } else if (visflow.nlp.isHighlight_(root)) {
-    return visflow.nlp.CommandType.HIGHLIGHT;
-  } else if (visflow.nlp.isUtil_(root)) {
-    return visflow.nlp.getUtilType_(root);
+  switch (true) {
+    case visflow.nlp.isChartType(root):
+      return visflow.nlp.CommandType.CHART;
+    case visflow.nlp.isHighlight(root):
+      return visflow.nlp.CommandType.HIGHLIGHT;
+    case visflow.nlp.isFilter(root):
+      return visflow.nlp.CommandType.FILTER;
+    case visflow.nlp.isUtil(root):
+      return visflow.nlp.getUtilType(root);
+    default:
+      return visflow.nlp.CommandType.UNKNOWN;
   }
-  return visflow.nlp.CommandType.UNKNOWN;
 };
 
 /**
@@ -119,6 +79,8 @@ visflow.nlp.execute = function(command, syntax) {
  * once done.
  * @param {!Array<{type: string, x: number, y: number}>} nodeInfo
  * @param {Function=} callback
+ * @return {!Array<!visflow.Node>} Nodes created. This is used for cross-type
+ *     node creations and their post linkings.
  * @private
  */
 visflow.nlp.createNodes_ = function(nodeInfo, callback) {
@@ -141,34 +103,98 @@ visflow.nlp.createNodes_ = function(nodeInfo, callback) {
       }
     });
   });
+  return nodes;
+};
+
+/**
+ * Retrieves the sequence of filters at the beginning of the commands.
+ * @param {!Array<visflow.nlp.CommandToken>} commands
+ * @return {{
+ *   filters: !Array<visflow.nlp.CommandToken>,
+ *   remaining: !Array<visflow.nlp.CommandToken>
+ * }}
+ * @private
+ */
+visflow.nlp.retrieveFilters_ = function(commands) {
+  if (commands[0].token != visflow.nlp.Keyword.FILTER) {
+    console.error('not a filter command');
+    return {filters: [], remaining: []};
+  }
+  var filters = [commands[0]];
+  commands = commands.slice(1);
+  while (commands.length &&
+    commands[0].syntax == visflow.nlp.Keyword.DIMENSION) {
+
+    filters.push(commands[0]);
+    commands = commands.slice(1);
+
+    // More condition on the current dimension
+    while (commands.length >= 2 &&
+      (visflow.nlp.isComparison(commands[1].token) ||
+      visflow.nlp.isMatch(commands[1].token))) {
+      filters = filters.concat(commands.slice(0, 2));
+      commands = commands.slice(2);
+    }
+  }
+  return {
+    filters: filters,
+    remaining: commands
+  };
 };
 
 /**
  * Creates chart from NLP command.
- * @param {!Array<{token: string, syntax: string}>} commands
+ * @param {!Array<visflow.nlp.CommandToken>} commands
  * @private
  */
 visflow.nlp.chart_ = function(commands) {
   var target = visflow.nlp.target;
   // By default using scatterplot, may be TODO
-  var chartType = commands[0].token == visflow.nlp.CHART_TYPE_PLACEHOLDER ?
+  var chartType = commands[0].token == visflow.nlp.Keyword.CHART_TYPE ?
     'scatterplot' : commands[0].token;
+
+  commands = commands.slice(1);
+
+  // Check if it is selection
+  var isSelection = false;
+  if (commands.length && commands[0].token == visflow.nlp.Keyword.SELECTION) {
+    isSelection = true;
+    commands = commands.slice(1);
+    if (!target.IS_VISUALIZATION) {
+      visflow.error('node does not have selection to be highlighted');
+      return;
+    }
+  }
+
+  // Check if there is filter
+  var filter = null;
+  if (commands.length && commands[0].token == visflow.nlp.Keyword.FILTER) {
+    var splitCommands = visflow.nlp.retrieveFilters_(commands);
+    filter = visflow.nlp.filter_(splitCommands.filters)[0];
+    commands = splitCommands.remaining;
+    target = filter;
+  }
+
+  var dims = [];
+  for (var j = 0; j < commands.length &&
+  commands[j].syntax == visflow.nlp.Keyword.DIMENSION; j++) {
+    dims.push(commands[j].token);
+  }
 
   var box = target.getBoundingBox();
   var nodeX = box.left + box.width + visflow.nlp.DEFAULT_MARGIN_;
   var nodeY = box.top;
 
-  var dims = [];
-  for (var j = 1; j < commands.length &&
-  commands[j].syntax == visflow.nlp.DIMENSION_PLACEHOLDER; j++) {
-    dims.push(commands[j].token);
-  }
-
   visflow.nlp.createNodes_([
     {type: chartType, x: nodeX, y: nodeY}
   ], function(nodes) {
     var chart = nodes[0];
-    visflow.flow.createEdge(target.getDataOutPort(), chart.getDataInPort());
+    if (!isSelection) {
+      visflow.flow.createEdge(target.getDataOutPort(), chart.getDataInPort());
+    } else {
+      visflow.flow.createEdge(target.getSelectionOutPort(),
+        chart.getDataInPort());
+    }
     if (dims.length) {
       chart.setDimensions(dims);
     }
@@ -177,11 +203,12 @@ visflow.nlp.chart_ = function(commands) {
 
 /**
  * Expands diagram for highlighting from NLP command.
- * @param {!Array<{token: string, syntax: string}>} commands
+ * @param {!Array<visflow.nlp.CommandToken>} commands
  * @private
  */
 visflow.nlp.highlight_ = function(commands) {
-  if (commands[0].token != 'highlight' || commands[1].token != 'selection') {
+  if (commands[0].token != visflow.nlp.Keyword.HIGHLIGHT ||
+      commands[1].token != visflow.nlp.Keyword.SELECTION) {
     console.error('unexpected highlight command');
     return;
   }
@@ -190,7 +217,7 @@ visflow.nlp.highlight_ = function(commands) {
   var fromNode = visflow.nlp.target;
   if (commands.length && commands[0].token == 'of') {
     if (!commands[0] ||
-        commands[1].syntax != visflow.nlp.CHART_TYPE_PLACEHOLDER) {
+        commands[1].syntax != visflow.nlp.Keyword.CHART_TYPE) {
       console.error('unexpected highlight source');
       return;
     }
@@ -210,7 +237,7 @@ visflow.nlp.highlight_ = function(commands) {
 
   var chartType = 'scatterplot';
   if (commands.length &&
-    commands[0].syntax == visflow.nlp.CHART_TYPE_PLACEHOLDER) {
+    commands[0].syntax == visflow.nlp.Keyword.CHART_TYPE) {
     chartType = commands[0].token;
   }
 
@@ -239,9 +266,114 @@ visflow.nlp.highlight_ = function(commands) {
 
 /**
  * Creates filter from NLP command.
- * @param {!Array<{token: string, syntax: string}>} commands
+ * @param {!Array<visflow.nlp.CommandToken>} commands
+ * @return {!Array<!visflow.Node>} The list of nodes created
  * @private
  */
 visflow.nlp.filter_ = function(commands) {
+  if (commands[0].token != visflow.nlp.Keyword.FILTER) {
+    console.error('unexpected filter command');
+    return [];
+  }
+  commands = commands.slice(1);
 
+  var target = visflow.nlp.target;
+
+  /**
+   * List of dimension information. Each filter imposes constraint on one
+   * dimension. Multiple filters acting together should be handled by multiple
+   * filter nodes.
+   * @type {!Array<{
+   *   dim: number,
+   *   range: (Array<number>|undefined),
+   *   value: (string|undefined)
+   * }>}
+   */
+  var dimInfo = [];
+  while (commands.length) {
+    var dim = commands[0].token;
+    if (commands[0].syntax != visflow.nlp.Keyword.DIMENSION) {
+      console.error('unexpected dimension');
+      return [];
+    }
+    var info = {
+      dim: target.getDimensionNames().indexOf(dim),
+      range: [-Infinity, Infinity],
+      value: undefined
+    };
+
+    // Remove filter keyword
+    commands = commands.slice(1);
+
+    while (commands.length >= 2) {
+      var isRangeFilter = false;
+      var isValueFilter = false;
+      if (visflow.nlp.isComparison(commands[0].token)) {
+        isRangeFilter = true;
+      } else if (visflow.nlp.isMatch(commands[0].token)) {
+        isValueFilter = true;
+      } else {
+        // something like "dim >= 2 <= 3 [dim] >= 2"
+        // It means a new constraint or a trailing command has started.
+        // Therefore we break immediately.
+        break;
+      }
+      if (isRangeFilter && isValueFilter) {
+        console.warn('both range and match filter?');
+      }
+      if (isRangeFilter) {
+        var sign = commands[0].token;
+        var value = commands[1].token;
+        if (visflow.utils.isNumber(value)) {
+          value = +value;
+        }
+        if (sign == '<' || sign == '<=') {
+          info.range[1] = info.range[1] < value ? info.range[1] : value;
+        } else if (sign == '>' || sign == '>=') {
+          info.range[0] = info.range[0] > value ? info.range[0] : value;
+        } else if (sign == '=') {
+          info.range[0] = info.range[1] = value;
+        }
+      }
+      if (isValueFilter) {
+        info.value = commands[2].token;
+      }
+      commands = commands.slice(2);
+    }
+
+    dimInfo.push(info);
+  }
+
+  var box = target.getBoundingBox();
+  var margin = visflow.nlp.DEFAULT_MARGIN_ / 2; // half margin for smaller node
+  var nodeX = box.left + box.width;
+  var nodeY = box.top;
+
+  var nodesSpec = dimInfo.map(function(info, index) {
+    nodeX += margin;
+    return {
+      dim: info.dim,
+      type: info.value !== undefined ? 'value' : 'range',
+      x: nodeX + margin * (index + 1),
+      y: nodeY,
+      range: info.range,
+      value: info.value
+    };
+  });
+  return visflow.nlp.createNodes_(nodesSpec, function(filters) {
+    var lastNode = target;
+    filters.forEach(function(filter, index) {
+      var spec = nodesSpec[index];
+      visflow.flow.createEdge(lastNode.getDataOutPort(),
+        filter.getDataInPort());
+      if (spec.value !== undefined) {
+        filter.setValue(spec.dim, spec.value);
+      } else {
+        filter.setRange(spec.dim,
+          spec.range[0] == -Infinity ? null : spec.range[0],
+          spec.range[1] == Infinity ? null : spec.range[1]);
+      }
+      lastNode = filter;
+    });
+  });
 };

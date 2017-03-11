@@ -10,3 +10,8 @@ before_script:
 script:
   - gulp all
 
+cache:
+  directories:
+  - bower_components
+  - node_modules
+

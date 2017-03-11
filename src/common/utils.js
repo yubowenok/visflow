@@ -328,6 +328,15 @@ visflow.utils.inherit_ = function(child, base) {
 };
 
 /**
+ * Checks if a token is a numeric number.
+ * @param {string} token
+ * @return {boolean}
+ */
+visflow.utils.isNumber = function(token) {
+  return !isNaN(token);
+};
+
+/**
  * Performs utils initialization.
  */
 visflow.utils.init();

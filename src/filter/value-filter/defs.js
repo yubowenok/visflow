@@ -13,6 +13,18 @@ visflow.ValueFilter.prototype.NODE_NAME = 'Value Filter';
 /** @inheritDoc */
 visflow.ValueFilter.prototype.NODE_CLASS = 'value-filter';
 
+/** @enum {string} */
+visflow.ValueFilter.Mode = {
+  TEXT: 'text',
+  REGEX: 'regex'
+};
+
+/** @enum {string} */
+visflow.ValueFilter.Target = {
+  FULL: 'full',
+  SUBSTRING: 'substring'
+};
+
 /** @inheritDoc */
 visflow.ValueFilter.prototype.defaultOptions = function() {
   return new visflow.options.ValueFilter({
@@ -20,9 +32,9 @@ visflow.ValueFilter.prototype.defaultOptions = function() {
     dims: [],
     // Whether input is treated as normal text or regex.
     // 'text' or 'regex'.
-    mode: 'text',
+    mode: visflow.ValueFilter.Mode.TEXT,
     // Matching target. 'full' or 'substring'.
-    target: 'full',
+    target: visflow.ValueFilter.Target.FULL,
     // Whether to ignore cases in matching.
     ignoreCases: true,
     // Filtering value specified by directly typing in the input boxes.
@@ -30,3 +42,5 @@ visflow.ValueFilter.prototype.defaultOptions = function() {
     typeInValue: null
   });
 };
+
+

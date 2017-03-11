@@ -11,7 +11,7 @@ screen java -cp libsempre/*:lib/* -ea edu.stanford.nlp.sempre.Main\
      -Learner.maxTrainIters 3\
      -server true\
      -Dataset.inPaths\
-       train:../data/plot.examples
+       train:../data/train.examples
 
 # Press Ctrl+A-D to detach the screen.
 # Now the server should be able to run http://localhost:8400/sempre

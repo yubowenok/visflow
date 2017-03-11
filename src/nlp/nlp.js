@@ -167,7 +167,7 @@ visflow.nlp.processQuery_ = function(query) {
  * @private
  */
 visflow.nlp.parseResponse_ = function(res, query) {
-  if (res.match(/0 candidates/) != null) {
+  if (res.match(/: 0 candidates/) != null) {
     visflow.warning('Sorry, SmartFlow does not understand:', query);
     return;
   }

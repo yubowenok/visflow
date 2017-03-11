@@ -144,14 +144,15 @@ visflow.ValueFilter.prototype.filter = function() {
         if (this.options.ignoreCases) {
           pattern = pattern.toLowerCase();
         }
-        if (this.options.mode == 'regex') {
+        if (this.options.mode == visflow.ValueFilter.Mode.REGEX) {
           pattern = RegExp(pattern);
           var m = value.match(pattern);
           matched = m != null &&
-            (this.options.target == 'substring' || m[0] == value);
+            (this.options.target == visflow.ValueFilter.Target.SUBSTRING ||
+              m[0] == value);
         } else {
           // text matching
-          if (this.options.target == 'full') {
+          if (this.options.target == visflow.ValueFilter.Target.FULL) {
             matched = value === pattern;
           } else {
             matched = value.indexOf(pattern) != -1;
@@ -165,4 +166,15 @@ visflow.ValueFilter.prototype.filter = function() {
   }
   outpack.copy(inpack);
   outpack.filter(result);
+};
+
+/**
+ * Sets the filter-by value.
+ * @param {string} value
+ */
+visflow.ValueFilter.prototype.setValue = function(value) {
+  this.value = [value];
+  this.options.mode = visflow.ValueFilter.Mode.TEXT;
+  this.options.target = visflow.ValueFilter.Target.SUBSTRING;
+  this.parameterChanged();
 };

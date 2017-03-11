@@ -190,3 +190,26 @@ visflow.RangeFilter.prototype.filter = function() {
   outpack.copy(inpack);
   outpack.filter(result);
 };
+
+/**
+ * Sets the filter range.
+ * This sets typeInValue as if the user inputs in the node directly.
+ * This is only called by NLP and the node shall not have its constant ports
+ * connected.
+ * @param {number} dim
+ * @param {number|string|null} low
+ * @param {number|string|null} high
+ */
+visflow.RangeFilter.prototype.setRange = function(dim, low, high) {
+  this.options.dims = [dim];
+  // Note that typeInValues must be string
+  this.options.typeInValue[0] = low == null ? null : '' + low;
+  this.options.typeInValue[1] = high == null ? null : '' + high;
+  if (low != null && this.getPort('inMin').connected()) {
+    console.error('inMin port already connected while set');
+  }
+  if (high != null && this.getPort('inMax').connected()) {
+    console.error('inMax port already connected while set');
+  }
+  this.parameterChanged();
+};
