@@ -13,6 +13,9 @@ visflow.edit.initDropdown = function(navbar) {
   edit.find('#redo').click(function() {
     visflow.history.redo();
   });
+  edit.find('#minimize-non-vis').click(function() {
+    visflow.flow.minimizeNonVisualizations();
+  });
   edit.find('#auto-layout').click(function() {
     visflow.flow.autoLayoutAll();
   });

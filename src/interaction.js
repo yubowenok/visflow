@@ -366,6 +366,13 @@ visflow.interaction.keyPress = function(event) {
         case 'shift+T':
           visflow.nlp.toggleSpeech();
           break;
+        case 'shift+D':
+          // Debug only
+          for (var id in visflow.flow.nodesSelected) {
+            var node = visflow.flow.nodes[id];
+            console.log(node);
+          }
+          break;
         case 'P':
           if (visflow.optionPanel.isOpen) {
             visflow.optionPanel.toggle(false);

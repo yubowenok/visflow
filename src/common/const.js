@@ -31,3 +31,6 @@ visflow.const.THEME_COLOR_DARK = '#460570';
 
 /** @const {string} */
 visflow.const.SELECTED_COLOR = '#6699ee';
+
+/** @const {string} */
+visflow.const.HIGHLIGHT_COLOR = '#ff5757';

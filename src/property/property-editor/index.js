@@ -152,3 +152,33 @@ visflow.PropertyEditor.prototype.setProperty = function(property, value) {
   this.options[property] = value;
   this.parameterChanged('external');
 };
+
+/**
+ * Sets a group of rendering properties. This is equivalent to calling
+ * setProperty on each property respectively (but slightly more efficient as
+ * parameterChanged is only fired once).
+ * @param {!Object<string, (number|string)>} properties
+ *     If a value is '+' or '-', then increase or decrease the previous value.
+ */
+visflow.PropertyEditor.prototype.setProperties = function(properties) {
+  for (var property in properties) {
+    var value = properties[property];
+    if (value == '+' || value == '-') {
+      if (this.isColorProperty(value)) {
+        visflow.warning('cannot increase/decrease color');
+        continue;
+      }
+      if (this.options[property] == undefined) {
+        this.options[property] = this.defaultProperties()[property];
+      } else {
+        var preValue = this.options[property];
+        this.options[property] = value == '+' ?
+          preValue + visflow.property.SCROLL_DELTAS[property] :
+          preValue - visflow.property.SCROLL_DELTAS[property];
+      }
+    } else {
+      this.options[property] = value;
+    }
+  }
+  this.parameterChanged('external');
+};

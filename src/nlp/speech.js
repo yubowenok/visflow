@@ -85,7 +85,7 @@ visflow.nlp.toggleSpeakingEffect_ = function(state) {
   } else {
     button
       .css('opacity', 1)
-      .stop();
+      .stop(true);
   }
 };
 

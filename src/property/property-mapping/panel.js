@@ -10,13 +10,13 @@ visflow.PropertyMapping.prototype.initPanel = function(container) {
       params: {
         container: container.find('#dim'),
         list: this.getDimensionList(),
-        selected: this.dim,
+        selected: this.options.dim,
         listTitle: 'Dimension',
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
       },
       change: function(event, dim) {
-        this.dim = dim;
+        this.options.dim = dim;
         this.parameterChanged('panel');
       }
     },

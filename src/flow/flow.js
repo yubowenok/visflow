@@ -678,7 +678,7 @@ visflow.Flow.prototype.addNodeSelection = function(nodes) {
   for (var i in toAdd) {
     var node = toAdd[i];
     this.nodesSelected[node.id] = node;
-    node.container.addClass('selected');
+    node.toggleSelected(true);
     this.lastSelectedNode = node;
   }
 };
@@ -701,7 +701,7 @@ visflow.Flow.prototype.clearNodeSelection = function(nodes) {
   }
   for (var i in toClear) {
     var node = toClear[i];
-    node.container.removeClass('selected');
+    node.toggleSelected(false);
     if (node == this.lastSelectedNode) {
       this.lastSelectedNode = null;
     }
@@ -952,6 +952,18 @@ visflow.Flow.prototype.nearbyNodes = function(x, y, opt_desiredDistance) {
     }
   }
   return result;
+};
+
+/**
+ * Minimizes all the nodes that are not visualizations.
+ */
+visflow.Flow.prototype.minimizeNonVisualizations = function() {
+  for (var id in this.nodes) {
+    var node = this.nodes[id];
+    if (!node.IS_VISUALIZATION) {
+      node.setMinimized(true);
+    }
+  }
 };
 
 /**

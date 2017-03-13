@@ -62,6 +62,20 @@ visflow.nlp.utilPrimitives = function() {
 };
 
 /**
+ * Gets the supported rendering properties list.
+ * @return {!Array<string>}
+ */
+visflow.nlp.renderingPropertyPrimitives = function() {
+  return [
+    'color',
+    'border',
+    'width',
+    'size',
+    'opacity'
+  ];
+};
+
+/**
  * Matching threshold for the edit distance.
  * Maximum allowed percentage of edit_distance/pattern_length.
  * @private @const {number}
@@ -139,6 +153,15 @@ visflow.nlp.isFilter = function(token) {
 };
 
 /**
+ * Chekcs if a root command is a rendering property.
+ * @param {string} token
+ * @return {boolean}
+ */
+visflow.nlp.isRenderingProperty = function(token) {
+  return visflow.nlp.renderingPropertyPrimitives().indexOf(token) != -1;
+};
+
+/**
  * Checks if a token is a comparison.
  * @param {string} token
  * @return {boolean}
@@ -155,6 +178,18 @@ visflow.nlp.isComparison = function(token) {
  */
 visflow.nlp.isMatch = function(token) {
   return token == visflow.nlp.Keyword.MATCH;
+};
+
+/**
+ * Checks if a rendering property value is a mapping (a.k.a. a color scale id).
+ * @param {string} value
+ * @return {boolean}
+ */
+visflow.nlp.isMapProperty = function(value) {
+  var colorScales = visflow.scales.getColorScales().map(function(scale) {
+    return scale.id;
+  });
+  return colorScales.indexOf(value) != -1;
 };
 
 /**

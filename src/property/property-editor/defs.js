@@ -52,3 +52,15 @@ visflow.PropertyEditor.prototype.numericProperties = function() {
     'opacity'
   ];
 };
+
+/**
+ * When a property is not set, increase/decrease to this default value.
+ * @return {!Object<string, (number|string)>}
+ */
+visflow.PropertyEditor.prototype.defaultProperties = function() {
+  return {
+    width: 1,
+    size: 1,
+    opacity: 1
+  };
+};

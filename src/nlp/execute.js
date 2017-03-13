@@ -5,6 +5,7 @@ visflow.nlp.CommandType = {
   HIGHLIGHT: 10,
   HIGHLIGHT_FILTER: 11,
   FILTER: 20,
+  RENDERING_PROPERTY: 30,
 
   AUTOLAYOUT: 50,
   DELETE: 51,
@@ -38,6 +39,8 @@ visflow.nlp.getCommandType_ = function(command) {
       return visflow.nlp.CommandType.FILTER;
     case visflow.nlp.isUtil(root):
       return visflow.nlp.getUtilType(root);
+    case visflow.nlp.isRenderingProperty(root):
+      return visflow.nlp.CommandType.RENDERING_PROPERTY;
     default:
       return visflow.nlp.CommandType.UNKNOWN;
   }
@@ -67,6 +70,9 @@ visflow.nlp.execute = function(command, syntax) {
       break;
     case visflow.nlp.CommandType.FILTER:
       visflow.nlp.filter_(commands);
+      break;
+    case visflow.nlp.CommandType.RENDERING_PROPERTY:
+      visflow.nlp.renderingProperty_(commands);
       break;
     case visflow.nlp.CommandType.AUTOLAYOUT:
       visflow.flow.autoLayoutAll();
@@ -101,6 +107,7 @@ visflow.nlp.createNodes_ = function(nodeInfo, callback) {
         callback(nodes);
         visflow.flow.autoLayout(movable);
       }
+      visflow.flow.addNodeSelection(node);
     });
   });
   return nodes;
@@ -260,7 +267,7 @@ visflow.nlp.highlight_ = function(commands) {
     visflow.flow.createEdge(union.getDataOutPort(), chart.getDataInPort());
     visflow.flow.createEdge(target.getDataOutPort(), union.getDataInPort());
 
-    editor.setProperty('color', visflow.const.THEME_COLOR_LIGHT);
+    editor.setProperty('color', visflow.const.HIGHLIGHT_COLOR);
   });
 };
 
@@ -376,4 +383,164 @@ visflow.nlp.filter_ = function(commands) {
       lastNode = filter;
     });
   });
+};
+
+/**
+ * Creates rendering property setter from NLP command.
+ * @param {!Array<visflow.nlp.CommandToken>} commands
+ *     Commands should be pairs of (propery, value), e.g. "width 2 opacity .2".
+ * @return {!Array<!visflow.Node>} The list of nodes created
+ * @private
+ */
+visflow.nlp.renderingProperty_ = function(commands) {
+  var setProperties = {};
+  var mapProperties = {};
+  while (commands.length >= 2) {
+    var property = commands[0].token;
+    if (!visflow.nlp.isRenderingProperty(commands[0].token)) {
+      console.error('unexpected rendering property', commands[0].token);
+      return [];
+    }
+    var value = commands[1].token;
+    if (visflow.nlp.isMapProperty(value)) {
+      mapProperties[property] = {value: value};
+      if (commands.length < 3 ||
+        commands[2].syntax != visflow.nlp.Keyword.DIMENSION) {
+        console.error('expecting dim after map property');
+        return [];
+      }
+      mapProperties[property].dim = commands[2].token;
+      commands = commands.slice(3);
+    } else {
+      setProperties[property] = value;
+      commands = commands.slice(2);
+    }
+  }
+
+  var target = visflow.nlp.target;
+  if (target.IS_VISUALIZATION) {
+    return visflow.nlp.renderingPropertyOnVisualization_(setProperties,
+      mapProperties);
+  }
+
+  var box = target.getBoundingBox();
+  var margin = visflow.nlp.DEFAULT_MARGIN_ / 2; // half margin for smaller node
+  var nodeX = box.left + box.width;
+  var nodeY = box.top;
+  var specs = visflow.nlp.getNodeSpecsForRenderingProperties_(setProperties,
+    mapProperties);
+  specs.forEach(function(spec) {
+    nodeX += margin;
+    spec.x = nodeX;
+    spec.y = nodeY;
+  });
+
+  return visflow.nlp.createNodes_(specs, function(nodes) {
+    var lastNode = target;
+    nodes.forEach(function(node, index) {
+      var spec = specs[index];
+      visflow.flow.createEdge(lastNode.getDataOutPort(),
+        node.getDataInPort());
+      if (spec.type == 'propertyEditor') {
+        node.setProperties(spec.properties);
+      } else {
+        node.setMapping(target.getDimensionNames().indexOf(spec.dim),
+          spec.property, spec.value);
+      }
+      lastNode = node;
+    });
+  });
+};
+
+/**
+ * Adds rendering property setters before the visualization.
+ * @param {!Object<string, (number|string)>} setProperties
+ * @param {!Object<string, {dim: string, value: string}>} mapProperties
+ * @return {!Array<!visflow.Node>} The list of nodes created
+ * @private
+ */
+visflow.nlp.renderingPropertyOnVisualization_ = function(setProperties,
+                                                         mapProperties) {
+  var target = visflow.nlp.target;
+  var box = target.getBoundingBox();
+  var margin = visflow.nlp.DEFAULT_MARGIN_ / 2; // half margin for smaller node
+  var nodeX = box.left;
+  var nodeY = box.top;
+
+  var specs = visflow.nlp.getNodeSpecsForRenderingProperties_(setProperties,
+    mapProperties);
+  specs.forEach(function(spec) {
+    spec.x = nodeX;
+    spec.y = nodeY;
+    nodeX += margin;
+  });
+
+  return visflow.nlp.createNodes_(specs, function(nodes) {
+    var lastNode = null;
+    nodes.forEach(function(node, index) {
+      var spec = specs[index];
+      if (lastNode) {
+        visflow.flow.createEdge(lastNode.getDataOutPort(),
+          node.getDataInPort());
+      }
+      if (spec.type == 'propertyEditor') {
+        node.setProperties(spec.properties);
+      } else {
+        node.setMapping(target.getDimensionNames().indexOf(spec.dim),
+          spec.property, spec.value);
+      }
+      lastNode = node;
+    });
+
+    var inPort = target.getDataInPort();
+    var prevOutPort = inPort.connections.length ?
+      inPort.connections[0].sourcePort : null;
+    if (prevOutPort) {
+      visflow.flow.deleteEdge(inPort.connections[0]);
+      visflow.flow.createEdge(prevOutPort, nodes[0].getDataInPort());
+    }
+    visflow.flow.createEdge(lastNode.getDataOutPort(), inPort);
+    target.moveTo(nodeX + margin, nodeY);
+  });
+};
+
+/**
+ * Creates node specifications for rendering properties.
+ * @param {!Object<string, (number|string)>} setProperties
+ * @param {!Object<string, {dim: string, value: string}>} mapProperties
+ * @return {!Array<!Object>} Node specification.
+ * @private
+ */
+visflow.nlp.getNodeSpecsForRenderingProperties_ = function(setProperties,
+                                                           mapProperties) {
+  var target = visflow.nlp.target;
+  var specs = [];
+  if (!$.isEmptyObject(setProperties)) {
+    if (target instanceof visflow.PropertyEditor) {
+      // If the current target is already a property editor, we overwrite its
+      // set properties and return immediately.
+      target.setProperties(setProperties);
+      return [target];
+    } else {
+      // For all setProperties we only create one property editor, as it can
+      // set all properties altogether.
+      specs.push({
+        type: 'propertyEditor',
+        properties: setProperties
+      });
+    }
+  }
+  if (!$.isEmptyObject(mapProperties)) {
+    // For each mapping property we have to create one extra mapping node.
+    // This is because one property mapping handles mapping on one dimension.
+    for (var property in mapProperties) {
+      specs.push({
+        type: 'propertyMapping',
+        property: property,
+        value: mapProperties[property].value,
+        dim: mapProperties[property].dim
+      });
+    }
+  }
+  return specs;
 };

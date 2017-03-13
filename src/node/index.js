@@ -1270,6 +1270,31 @@ visflow.Node.prototype.matchType = function(typeName) {
 };
 
 /**
+ * Sets the selected state of the node. When selected, the node animates a
+ * selected effect.
+ * @param {boolean} state
+ */
+visflow.Node.prototype.toggleSelected = function(state) {
+  var background = this.container.children('.background');
+  this.container.toggleClass('selected', state);
+  if (state) {
+    var darkCss = {boxShadow: '1px 1px 24px #aaa'};
+    var lightCss = {boxShadow: '1px 1px 2px #aaa'};
+    var darker = function() {
+      background.animate(darkCss, lighter);
+    };
+    var lighter = function() {
+      background.animate(lightCss, darker);
+    };
+    background.animate(darkCss, lighter);
+  } else {
+    background
+      .css('box-shadow', '')
+      .stop(true);
+  }
+};
+
+/**
  * Accepts SmartFlow input.
  */
 visflow.Node.prototype.smartFlowInput = function() {
