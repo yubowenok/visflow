@@ -100,6 +100,7 @@ visflow.nlp.createNodes_ = function(nodeInfo, callback) {
 
     var newMovable = visflow.flow.nearbyNodes(info.x, info.y);
     _.extend(movable, newMovable);
+    movable[node.id] = true;
 
     $(node).on('vf.ready', function() {
       node.moveTo(info.x, info.y);

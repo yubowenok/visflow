@@ -69,6 +69,11 @@ visflow.nlp.input = function(opt_target) {
   // If the input is global, search for a proper target.
   visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget();
 
+  if (visflow.nlp.target == null) {
+    visflow.nlp.end();
+    return;
+  }
+
   $('#nlp').children().remove();
 
   var div = $('<div></div>')
@@ -100,6 +105,12 @@ visflow.nlp.speech = function(query, opt_target) {
   }
   // Search for a proper target.
   visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget();
+
+  if (visflow.nlp.target == null) {
+    visflow.nlp.end();
+    return;
+  }
+
   visflow.nlp.submit(query);
 };
 

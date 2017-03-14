@@ -565,3 +565,8 @@ visflow.DataSource.prototype.getInputData = function() {
   var port = this.ports['out'];
   return [port.pack.data];
 };
+
+/** @inheritDoc */
+visflow.DataSource.prototype.getDimensionNames = function() {
+  return this.ports['out'].pack.data.dimensions;
+};
