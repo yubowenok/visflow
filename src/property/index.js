@@ -50,6 +50,16 @@ visflow.property.MAPPING_TYPES = {
 };
 
 /**
+ * Checks if a property is color.
+ * @param {string|number} property
+ * @return {boolean}
+ */
+visflow.property.isColorProperty = function(property) {
+  return property == 'color' || property == 'border';
+};
+
+
+/**
  * @param {!Object} params
  * @constructor
  * @extends {visflow.Node}
@@ -84,13 +94,3 @@ visflow.Property.prototype.adjustNumbers = function() {
  *     avoid endless loops.
  */
 visflow.Property.prototype.parameterChanged = function(source) {};
-
-
-/**
- * Checks if a property is color.
- * @param {string|number} property
- * @return {boolean}
- */
-visflow.Property.prototype.isColorProperty = function(property) {
-  return property == 'color' || property == 'border';
-};

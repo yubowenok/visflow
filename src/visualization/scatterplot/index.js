@@ -201,10 +201,10 @@ visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
     .attr('cy', function(point) {
       return this.yScale(point.y);
     }.bind(this))
-    .attr('r', _.getValue('size'))
+    .attr('r', _.getValue('size', 'px'))
     .style('fill', _.getValue('color'))
     .style('stroke', _.getValue('border'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .style('opacity', _.getValue('opacity'));
 };
 

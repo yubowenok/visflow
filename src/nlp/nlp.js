@@ -38,10 +38,7 @@ visflow.nlp.init = function() {
       });
 
     $('#nlp').on('keyup', 'textarea', function(event) {
-      if (event.keyCode == visflow.interaction.keyCodes.ESC) {
-        // Force end regardless of server response.
-        visflow.nlp.end();
-      } else if (event.keyCode == visflow.interaction.keyCodes.ENTER) {
+      if (event.keyCode == visflow.interaction.keyCodes.ENTER) {
         event.preventDefault();
         // Submit entered text query.
         var textarea = $('#nlp textarea');
@@ -49,6 +46,13 @@ visflow.nlp.init = function() {
         visflow.nlp.submit(/** @type {string} */(textarea.val()));
       }
     });
+    $('#nlp, #backdrop').on('keyup', function(event) {
+      if (event.keyCode == visflow.interaction.keyCodes.ESC) {
+        // Force end regardless of server response.
+        visflow.nlp.end();
+      }
+    });
+
   }).fail(function() {
     // Disable speech button when NLP is unavailable.
     $(visflow.nlp.SPEECH_BUTTON_SELECTOR).prop('disabled', 'disabled');

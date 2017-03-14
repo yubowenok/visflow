@@ -181,15 +181,15 @@ visflow.nlp.isMatch = function(token) {
 };
 
 /**
- * Checks if a rendering property value is a mapping (a.k.a. a color scale id).
+ * Checks if a rendering property value is a color mapping (a.k.a. a color scale
+ * id).
  * @param {string} value
  * @return {boolean}
  */
-visflow.nlp.isMapProperty = function(value) {
-  var colorScales = visflow.scales.getColorScales().map(function(scale) {
+visflow.nlp.isColorScale = function(value) {
+  return visflow.scales.getColorScales().map(function(scale) {
     return scale.id;
-  });
-  return colorScales.indexOf(value) != -1;
+  }).indexOf(value) != -1;
 };
 
 /**

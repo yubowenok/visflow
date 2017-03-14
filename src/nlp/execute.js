@@ -19,6 +19,9 @@ visflow.nlp.CommandType = {
  */
 visflow.nlp.DEFAULT_MARGIN_ = 150;
 
+/** @private @const {number} */
+visflow.nlp.DEFAULT_MARGIN_SMALL_ = visflow.nlp.DEFAULT_MARGIN_ / 2;
+
 /** @typedef {{token: string, syntax: string}} */
 visflow.nlp.CommandToken;
 
@@ -92,7 +95,7 @@ visflow.nlp.execute = function(command, syntax) {
 visflow.nlp.createNodes_ = function(nodeInfo, callback) {
   var readyCounter = nodeInfo.length;
   var nodes = [];
-  var movable = {};
+  var movable = visflow.flow.nodesInScreen();
 
   nodeInfo.forEach(function(info) {
     var node = visflow.flow.createNode(info.type);
@@ -100,7 +103,7 @@ visflow.nlp.createNodes_ = function(nodeInfo, callback) {
 
     var newMovable = visflow.flow.nearbyNodes(info.x, info.y);
     _.extend(movable, newMovable);
-    movable[node.id] = true;
+    movable[+node.id] = true;
 
     $(node).on('vf.ready', function() {
       node.moveTo(info.x, info.y);
@@ -353,7 +356,7 @@ visflow.nlp.filter_ = function(commands) {
   }
 
   var box = target.getBoundingBox();
-  var margin = visflow.nlp.DEFAULT_MARGIN_ / 2; // half margin for smaller node
+  var margin = visflow.nlp.DEFAULT_MARGIN_SMALL_;
   var nodeX = box.left + box.width;
   var nodeY = box.top;
 
@@ -402,19 +405,33 @@ visflow.nlp.renderingProperty_ = function(commands) {
       console.error('unexpected rendering property', commands[0].token);
       return [];
     }
-    var value = commands[1].token;
-    if (visflow.nlp.isMapProperty(value)) {
+    commands = commands.slice(1);
+
+    var value = commands[0].token;
+    var needDim = false;
+    if (visflow.nlp.isColorScale(value)) {
       mapProperties[property] = {value: value};
-      if (commands.length < 3 ||
-        commands[2].syntax != visflow.nlp.Keyword.DIMENSION) {
+      commands = commands.slice(1);
+      needDim = true;
+    } else if (visflow.utils.isNumber(value) &&
+      visflow.utils.isNumber(commands[1].token)) {
+      // It is a value range, e.g. "size 2.0 3.0"
+      mapProperties[property] = {value: [+value, +commands[1].token]};
+      commands = commands.slice(2);
+      needDim = true;
+    } else {
+      // a set property, e.g. "width 2.0"
+      setProperties[property] = value;
+      commands = commands.slice(1);
+    }
+    if (needDim) {
+      if (!commands.length ||
+        commands[0].syntax != visflow.nlp.Keyword.DIMENSION) {
         console.error('expecting dim after map property');
         return [];
       }
-      mapProperties[property].dim = commands[2].token;
-      commands = commands.slice(3);
-    } else {
-      setProperties[property] = value;
-      commands = commands.slice(2);
+      mapProperties[property].dim = commands[0].token;
+      commands = commands.slice(1);
     }
   }
 
@@ -424,12 +441,13 @@ visflow.nlp.renderingProperty_ = function(commands) {
       mapProperties);
   }
 
-  var box = target.getBoundingBox();
-  var margin = visflow.nlp.DEFAULT_MARGIN_ / 2; // half margin for smaller node
-  var nodeX = box.left + box.width;
-  var nodeY = box.top;
   var specs = visflow.nlp.getNodeSpecsForRenderingProperties_(setProperties,
     mapProperties);
+
+  var box = target.getBoundingBox();
+  var margin = visflow.nlp.DEFAULT_MARGIN_SMALL_;
+  var nodeX = box.left + box.width;
+  var nodeY = box.top;
   specs.forEach(function(spec) {
     nodeX += margin;
     spec.x = nodeX;
@@ -456,20 +474,22 @@ visflow.nlp.renderingProperty_ = function(commands) {
 /**
  * Adds rendering property setters before the visualization.
  * @param {!Object<string, (number|string)>} setProperties
- * @param {!Object<string, {dim: string, value: string}>} mapProperties
+ * @param {!Object<string, {dim: string,
+ *     value: (string|number|!Array<number>)}>} mapProperties
  * @return {!Array<!visflow.Node>} The list of nodes created
  * @private
  */
 visflow.nlp.renderingPropertyOnVisualization_ = function(setProperties,
                                                          mapProperties) {
+  var specs = visflow.nlp.getNodeSpecsForRenderingProperties_(setProperties,
+    mapProperties);
+
   var target = visflow.nlp.target;
   var box = target.getBoundingBox();
-  var margin = visflow.nlp.DEFAULT_MARGIN_ / 2; // half margin for smaller node
+  var margin = visflow.nlp.DEFAULT_MARGIN_SMALL_;
   var nodeX = box.left;
   var nodeY = box.top;
 
-  var specs = visflow.nlp.getNodeSpecsForRenderingProperties_(setProperties,
-    mapProperties);
   specs.forEach(function(spec) {
     spec.x = nodeX;
     spec.y = nodeY;
@@ -508,7 +528,8 @@ visflow.nlp.renderingPropertyOnVisualization_ = function(setProperties,
 /**
  * Creates node specifications for rendering properties.
  * @param {!Object<string, (number|string)>} setProperties
- * @param {!Object<string, {dim: string, value: string}>} mapProperties
+ * @param {!Object<string, {dim: string,
+ *     value: (string|number|!Array<number>)}>} mapProperties
  * @return {!Array<!Object>} Node specification.
  * @private
  */

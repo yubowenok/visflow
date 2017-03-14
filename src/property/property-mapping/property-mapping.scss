@@ -14,7 +14,7 @@
     }
 
     #number {
-      margin-top: 10px;
+      margin-top: $padding-large;
 
       > .offset {
         top: 10px;
@@ -25,6 +25,7 @@
     #max {
       > div {
         display: inline-block;
+        width: calc(50% - #{$padding-extra-large});
       }
 
       input {
@@ -34,7 +35,6 @@
         text-align: center;
         text-overflow: ellipsis;
         white-space: nowrap;
-        width: 50px;
       }
     }
   }

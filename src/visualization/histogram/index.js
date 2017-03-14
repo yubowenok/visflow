@@ -350,10 +350,17 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     ]);
   }.bind(this);
 
-  // Gets the property values of the bar groups.
-  var getPropertiesValue = function(key) {
+  /**
+   * Gets the property values of the bar.
+   * @param {string} key
+   * @param {string=} opt_suffix
+   * @return {Function}
+   */
+  var getPropertiesValue = function(key, opt_suffix) {
+    var suffix = opt_suffix === undefined ? '' : opt_suffix;
     return function(obj) {
-      return obj.properties[this];
+      var value = obj.properties[this];
+      return value === undefined ? undefined : value + suffix;
     }.bind(key);
   };
 
@@ -384,7 +391,7 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
     }.bind(this))
     .style('fill', getPropertiesValue('color'))
     .style('stroke', getPropertiesValue('border'))
-    .style('stroke-width', getPropertiesValue('width'))
+    .style('stroke-width', getPropertiesValue('width', 'px'))
     .style('opacity', getPropertiesValue('opacity'));
 };
 

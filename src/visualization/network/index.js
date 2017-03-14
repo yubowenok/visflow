@@ -381,7 +381,7 @@ visflow.Network.prototype.updateNodes_ = function() {
     }.bind(this))
     .style('stroke', _.getValue('border'))
     .style('stroke-width', function(prop) {
-      return prop.width / this.zoomScale_;
+      return (prop.width / this.zoomScale_) + 'px';
     }.bind(this))
     .style('fill', _.getValue('color'))
     .style('opacity', _.getValue('opacity'));
@@ -432,7 +432,7 @@ visflow.Network.prototype.updateEdges_ = function() {
   edges.select('path.edge')
     .style('stroke', _.getValue('color'))
     .style('stroke-width', function(prop) {
-      return prop.width / this.zoomScale_;
+      return (prop.width / this.zoomScale_) + 'px';
     }.bind(this))
     .style('opacity', _.getValue('opacity'))
     .attr('d', function(edge) {
@@ -463,7 +463,7 @@ visflow.Network.prototype.updateEdges_ = function() {
   edges.select('path.arrow')
     .style('stroke', _.getValue('color'))
     .style('stroke-width', function(prop) {
-      return prop.width / this.zoomScale_;
+      return (prop.width / this.zoomScale_) + 'px';
     }.bind(this))
     .style('opacity', _.getValue('opacity'))
     .style('fill', _.getValue('color'))

@@ -920,6 +920,20 @@ visflow.Node.prototype.resize = function() {
 };
 
 /**
+ * Sets the size of the node.
+ * @param {?number=} opt_width
+ * @param {?number=} opt_height
+ */
+visflow.Node.prototype.setSize = function(opt_width, opt_height) {
+  if (opt_width) {
+    this.container.width(opt_width);
+  }
+  if (opt_height) {
+    this.container.height(opt_height);
+  }
+};
+
+/**
  * Handles resize stop event.
  */
 visflow.Node.prototype.resizeStop = function() {

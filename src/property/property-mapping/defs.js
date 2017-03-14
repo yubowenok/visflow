@@ -16,10 +16,11 @@ visflow.PropertyMapping.prototype.TEMPLATE =
 visflow.PropertyMapping.prototype.PANEL_TEMPLATE =
   './dist/html/property/property-mapping/property-mapping-panel.html';
 
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.MIN_HEIGHT = 126;
-/** @inheritDoc */
-visflow.PropertyMapping.prototype.MAX_HEIGHT = 126;
+/** @protected {number} */
+visflow.PropertyMapping.prototype.HEIGHT_COLORSCALE = 126;
+
+/** @protected {number} */
+visflow.PropertyMapping.prototype.HEIGHT_NUMSCALE = 108;
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.defaultOptions = function() {

@@ -164,7 +164,7 @@ visflow.PropertyEditor.prototype.setProperties = function(properties) {
   for (var property in properties) {
     var value = properties[property];
     if (value == '+' || value == '-') {
-      if (this.isColorProperty(value)) {
+      if (visflow.property.isColorProperty(value)) {
         visflow.warning('cannot increase/decrease color');
         continue;
       }

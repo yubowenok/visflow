@@ -203,7 +203,7 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
       return line(prop.points);
     })
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .style('opacity', _.getValue('opacity'));
 };
 

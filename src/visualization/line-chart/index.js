@@ -392,7 +392,7 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
     .attr('r', _.getValue('size'))
     .style('fill', _.getValue('color'))
     .style('stroke', _.getValue('border'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .style('opacity', _.getValue('opacity'));
 };
 
@@ -433,7 +433,7 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
   var updatedLines = this.transitionFeasible() ? lines.transition() : lines;
   updatedLines
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .style('opacity', _.getValue('opacity'))
     .attr('d', function(prop) {
       return line(prop.itemIndices);

@@ -135,6 +135,8 @@ visflow.PropertyMapping.prototype.showDetails = function() {
   this.initInterface(units);
 
   this.showEditableScale(this.content.find('#scale'), 'node');
+
+  this.updateSize_();
 };
 
 /** @inheritDoc */
@@ -212,6 +214,20 @@ visflow.PropertyMapping.prototype.parameterChanged = function(source) {
   }
   if (adjusted || source != 'panel') {
     this.updatePanel(visflow.optionPanel.contentContainer());
+    this.updateSize_();
+  }
+};
+
+/**
+ * Updates the node size based on the current interface shown (with or without
+ * color scale).
+ * @private
+ */
+visflow.PropertyMapping.prototype.updateSize_ = function() {
+  if (visflow.property.isColorProperty(this.options.mapping)) {
+    this.setSize(null, this.HEIGHT_COLORSCALE);
+  } else {
+    this.setSize(null, this.HEIGHT_NUMSCALE);
   }
 };
 
@@ -219,12 +235,13 @@ visflow.PropertyMapping.prototype.parameterChanged = function(source) {
  * Sets a mapping from the selected dimension to a mapping scheme.
  * @param {number} dim
  * @param {string} property
- * @param {string|!Array<number>} value
+ * @param {number|string|!Array<number>} value
  *     If value is an array
  */
 visflow.PropertyMapping.prototype.setMapping = function(dim, property, value) {
   this.options.dim = dim;
   this.options.mapping = property;
+  console.log(dim, property, value);
   if (value instanceof Array) {
     // numerical mapping
     this.options.numberRange = value;
@@ -234,3 +251,4 @@ visflow.PropertyMapping.prototype.setMapping = function(dim, property, value) {
   }
   this.parameterChanged('external');
 };
+

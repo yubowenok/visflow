@@ -955,6 +955,25 @@ visflow.Flow.prototype.nearbyNodes = function(x, y, opt_desiredDistance) {
 };
 
 /**
+ * Finds the nodes in the current screen.
+ * @return {!Object<number, boolean>} A collection of nodes inside the screen.
+ */
+visflow.Flow.prototype.nodesInScreen = function() {
+  var result = {};
+  var width = $('#main').width();
+  var height = $('#main').height();
+  for (var id in this.nodes) {
+    var node = this.nodes[id];
+    var box = node.getBoundingBox();
+    if ((box.left < width && box.left + box.width > 0) ||
+        (box.top < height && box.top + box.height > 0)) {
+      result[id] = true;
+    }
+  }
+  return result;
+};
+
+/**
  * Minimizes all the nodes that are not visualizations.
  */
 visflow.Flow.prototype.minimizeNonVisualizations = function() {
