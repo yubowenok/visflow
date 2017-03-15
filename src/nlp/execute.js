@@ -5,6 +5,7 @@ visflow.nlp.CommandType = {
   HIGHLIGHT: 10,
   HIGHLIGHT_FILTER: 11,
   FILTER: 20,
+  FIND: 21,
   RENDERING_PROPERTY: 30,
 
   AUTOLAYOUT: 50,
@@ -39,7 +40,7 @@ visflow.nlp.getCommandType_ = function(command) {
     case visflow.nlp.isHighlight(root):
       return visflow.nlp.CommandType.HIGHLIGHT;
     case visflow.nlp.isFilter(root):
-      return visflow.nlp.CommandType.FILTER;
+      return visflow.nlp.getFilterType(root);
     case visflow.nlp.isUtil(root):
       return visflow.nlp.getUtilType(root);
     case visflow.nlp.isRenderingProperty(root):
@@ -72,6 +73,7 @@ visflow.nlp.execute = function(command, syntax) {
       visflow.nlp.highlight_(commands);
       break;
     case visflow.nlp.CommandType.FILTER:
+    case visflow.nlp.CommandType.FIND:
       visflow.nlp.filter_(commands);
       break;
     case visflow.nlp.CommandType.RENDERING_PROPERTY:
@@ -87,29 +89,38 @@ visflow.nlp.execute = function(command, syntax) {
  * Batch creates a list of nodes at given positions, and adjusts their layout
  * once done.
  * @param {!Array<{type: string, x: number, y: number}>} nodeInfo
- * @param {Function=} callback
+ * @param {Function=} opt_callback
+ * @param {boolean=} opt_adjustLayout
  * @return {!Array<!visflow.Node>} Nodes created. This is used for cross-type
  *     node creations and their post linkings.
  * @private
  */
-visflow.nlp.createNodes_ = function(nodeInfo, callback) {
+visflow.nlp.createNodes_ = function(nodeInfo, opt_callback, opt_adjustLayout) {
   var readyCounter = nodeInfo.length;
   var nodes = [];
-  var movable = visflow.flow.nodesInScreen();
+  var movable = {};
+  movable[visflow.nlp.target.id] = true;
 
+  var directions = [[0, 0], [0, 1], [1, 0], [1, 1]];
   nodeInfo.forEach(function(info) {
     var node = visflow.flow.createNode(info.type);
     nodes.push(node);
 
-    var newMovable = visflow.flow.nearbyNodes(info.x, info.y);
-    _.extend(movable, newMovable);
     movable[+node.id] = true;
+    var box = node.getBoundingBox();
+    directions.forEach(function(delta) {
+      var newMovable = visflow.flow.nearbyNodes(info.x + delta[0] * box.width,
+        info.y + delta[1] * box.height);
+      _.extend(movable, newMovable);
+    });
 
     $(node).on('vf.ready', function() {
       node.moveTo(info.x, info.y);
-      if (--readyCounter == 0 && callback) {
-        callback(nodes);
-        visflow.flow.autoLayout(movable);
+      if (--readyCounter == 0 && opt_callback) {
+        opt_callback(nodes);
+        if (opt_adjustLayout !== false) {
+          visflow.flow.autoLayout(movable);
+        }
       }
       visflow.flow.addNodeSelection(node);
     });
@@ -141,8 +152,8 @@ visflow.nlp.retrieveFilters_ = function(commands) {
 
     // More condition on the current dimension
     while (commands.length >= 2 &&
-      (visflow.nlp.isComparison(commands[1].token) ||
-      visflow.nlp.isMatch(commands[1].token))) {
+      (visflow.nlp.isComparison(commands[0].token) ||
+      visflow.nlp.isMatch(commands[0].token))) {
       filters = filters.concat(commands.slice(0, 2));
       commands = commands.slice(2);
     }
@@ -162,7 +173,7 @@ visflow.nlp.chart_ = function(commands) {
   var target = visflow.nlp.target;
   // By default using scatterplot, may be TODO
   var chartType = commands[0].token == visflow.nlp.Keyword.CHART_TYPE ?
-    'scatterplot' : commands[0].token;
+    visflow.nlp.DEFAULT_CHART_TYPE : commands[0].token;
 
   commands = commands.slice(1);
 
@@ -181,9 +192,8 @@ visflow.nlp.chart_ = function(commands) {
   var filter = null;
   if (commands.length && commands[0].token == visflow.nlp.Keyword.FILTER) {
     var splitCommands = visflow.nlp.retrieveFilters_(commands);
-    filter = visflow.nlp.filter_(splitCommands.filters)[0];
+    filter = _.first(visflow.nlp.filter_(splitCommands.filters, true));
     commands = splitCommands.remaining;
-    target = filter;
   }
 
   var dims = [];
@@ -200,11 +210,13 @@ visflow.nlp.chart_ = function(commands) {
     {type: chartType, x: nodeX, y: nodeY}
   ], function(nodes) {
     var chart = nodes[0];
-    if (!isSelection) {
-      visflow.flow.createEdge(target.getDataOutPort(), chart.getDataInPort());
-    } else {
-      visflow.flow.createEdge(target.getSelectionOutPort(),
-        chart.getDataInPort());
+    var outPort = !isSelection ? target.getDataOutPort() :
+      target.getSelectionOutPort();
+    console.log(isSelection, outPort);
+    var inPort = !filter ? chart.getDataInPort() : filter.getDataInPort();
+    visflow.flow.createEdge(outPort, inPort);
+    if (filter) {
+      visflow.flow.createEdge(filter.getDataOutPort(), chart.getDataInPort());
     }
     if (dims.length) {
       chart.setDimensions(dims);
@@ -240,13 +252,13 @@ visflow.nlp.highlight_ = function(commands) {
     }
     commands = commands.slice(2);
   }
-  var target = /** @type {visflow.Visualization} */(visflow.nlp.target);
+  var target = visflow.nlp.target;
   if (!target.IS_VISUALIZATION) {
     visflow.error('node does not have selection to be highlighted');
     return;
   }
 
-  var chartType = 'scatterplot';
+  var chartType = visflow.nlp.DEFAULT_CHART_TYPE;
   if (commands.length &&
     commands[0].syntax == visflow.nlp.Keyword.CHART_TYPE) {
     chartType = commands[0].token;
@@ -278,16 +290,21 @@ visflow.nlp.highlight_ = function(commands) {
 /**
  * Creates filter from NLP command.
  * @param {!Array<visflow.nlp.CommandToken>} commands
+ * @param {boolean=} opt_noPlacement If set, create no edges and arrange on the
+ *     right of the target.
  * @return {!Array<!visflow.Node>} The list of nodes created
  * @private
  */
-visflow.nlp.filter_ = function(commands) {
-  if (commands[0].token != visflow.nlp.Keyword.FILTER) {
+visflow.nlp.filter_ = function(commands, opt_noPlacement) {
+  if (commands[0].token != visflow.nlp.Keyword.FILTER &&
+      commands[0].token != visflow.nlp.Keyword.FIND) {
     console.error('unexpected filter command');
     return [];
   }
+  var isFind = commands[0].token == visflow.nlp.Keyword.FIND;
   commands = commands.slice(1);
 
+  var noPlacement = !!opt_noPlacement;
   var target = visflow.nlp.target;
 
   /**
@@ -313,7 +330,7 @@ visflow.nlp.filter_ = function(commands) {
       value: undefined
     };
 
-    // Remove filter keyword
+    // Remove dimension
     commands = commands.slice(1);
 
     while (commands.length >= 2) {
@@ -330,7 +347,7 @@ visflow.nlp.filter_ = function(commands) {
         break;
       }
       if (isRangeFilter && isValueFilter) {
-        console.warn('both range and match filter?');
+        console.warn('both range and value filter?');
       }
       if (isRangeFilter) {
         var sign = commands[0].token;
@@ -355,28 +372,75 @@ visflow.nlp.filter_ = function(commands) {
     dimInfo.push(info);
   }
 
+  // If the node is visualization and we are filtering, then apply filter to the
+  // current visualization.
+  var connectUpflow = !isFind && target.IS_VISUALIZATION && !noPlacement;
+  // Apply filter to all the downflow nodes if the mode is not to find.
+  // Note that it is possible both connectUpflow and connectDownflow are false,
+  // in which case the node performs a "find" expansion, and we only create
+  // a list of filters after it.
+  var connectDownflow = !connectUpflow && !isFind;
+
   var box = target.getBoundingBox();
   var margin = visflow.nlp.DEFAULT_MARGIN_SMALL_;
-  var nodeX = box.left + box.width;
+  var nodeX = box.left + (connectUpflow ? 0 : box.width);
   var nodeY = box.top;
 
-  var nodesSpec = dimInfo.map(function(info, index) {
-    nodeX += margin;
+  var nodesSpec = dimInfo.map(function(info) {
+    nodeX += connectUpflow ? -margin : margin;
     return {
       dim: info.dim,
       type: info.value !== undefined ? 'value' : 'range',
-      x: nodeX + margin * (index + 1),
+      x: nodeX,
       y: nodeY,
       range: info.range,
       value: info.value
     };
   });
+
+  var downflowInPorts = [];
+  var upflowOutPorts = [];
+  if (connectUpflow) {
+    upflowOutPorts = visflow.flow.disconnectPort(target.getDataInPort());
+  } else if (connectDownflow) {
+    downflowInPorts = visflow.flow.disconnectPort(target.getDataOutPort());
+  }
+
   return visflow.nlp.createNodes_(nodesSpec, function(filters) {
-    var lastNode = target;
+    filters.forEach(function(filter, index) {
+      if (index > 0) {
+        // Chain the filters
+        visflow.flow.createEdge(filters[index - 1].getDataOutPort(),
+          filter.getDataInPort());
+      }
+    });
+    if (connectUpflow) {
+      // Connect upflow nodes to the first filter
+      upflowOutPorts.forEach(function(port) {
+        visflow.flow.createEdge(port, _.first(filters).getDataInPort());
+      });
+      // Connect last filter to the target
+      visflow.flow.createEdge(_.last(filters).getDataOutPort(),
+        target.getDataInPort());
+    }
+    if (connectDownflow) {
+      // Connect
+      var filterOut = _.last(filters).getDataOutPort();
+      downflowInPorts.forEach(function(port) {
+        visflow.flow.createEdge(filterOut, port);
+      });
+    }
+    if (!connectUpflow && !noPlacement) {
+      // If not connected to upflow, then usually target should be connected
+      // to the visualization, unless noPlacement is set and the connections
+      // are managed at outer layer.
+      visflow.flow.createEdge(target.getDataOutPort(),
+        _.first(filters).getDataInPort());
+    }
+    // Apply filter parameters once all connections are established.
+    // Otherwise values may fail to load.
     filters.forEach(function(filter, index) {
       var spec = nodesSpec[index];
-      visflow.flow.createEdge(lastNode.getDataOutPort(),
-        filter.getDataInPort());
       if (spec.value !== undefined) {
         filter.setValue(spec.dim, spec.value);
       } else {
@@ -384,7 +448,6 @@ visflow.nlp.filter_ = function(commands) {
           spec.range[0] == -Infinity ? null : spec.range[0],
           spec.range[1] == Infinity ? null : spec.range[1]);
       }
-      lastNode = filter;
     });
   });
 };

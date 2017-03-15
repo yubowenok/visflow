@@ -2,7 +2,7 @@
 
 # Script to launch the Sempre server with CoreNLP pre-loaded.
 
-cd smartflow/sempre
+cd flowsense/sempre
 
 screen java -cp libsempre/*:lib/* -ea edu.stanford.nlp.sempre.Main\
      -languageAnalyzer corenlp.CoreNLPAnalyzer\

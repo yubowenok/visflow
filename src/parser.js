@@ -259,7 +259,7 @@ visflow.parser.cross = function(data, dims, attrs, name) {
     if (visflow.utils.compare(keysSorted[i], keysSorted[i - 1]) == 0) {
       return {
         success: false,
-        msg: 'duplicated keys not allowed for data crossing',
+        msg: 'duplicated keys not allowed for data transpose',
         data: null
       };
     }

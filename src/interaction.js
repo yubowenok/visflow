@@ -38,8 +38,8 @@ visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
     hotKey: 'A'
   },
   {
-    id: 'smartFlow',
-    text: 'SmartFlow',
+    id: 'flowSense',
+    text: 'FlowSense',
     icon: 'glyphicon glyphicon-comment',
     hotKey: 'S'
   }
@@ -404,7 +404,7 @@ visflow.interaction.mainContextMenu_ = function() {
     .on('vf.addNode', function() {
       visflow.popupPanel.show();
     })
-    .on('vf.smartFlow', function() {
+    .on('vf.flowSense', function() {
       visflow.nlp.input();
     });
 };

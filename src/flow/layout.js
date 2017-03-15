@@ -33,6 +33,9 @@ visflow.Flow.prototype.DEFAULT_MARGIN_ = 50;
  */
 visflow.Flow.prototype.PADDING_NUM_ = 5;
 
+/** @private @const {number} */
+visflow.Flow.AUTOLAYOUT_TRANSITION_ = 1000;
+
 /**
  * Auto-adjusts flow diagram layout.
  * @param {!Object=} opt_movableNodes
@@ -137,13 +140,13 @@ visflow.Flow.prototype.autoLayout = function(opt_movableNodes) {
     var curAlphaDiff = this.force.alpha() - this.force.alphaMin();
       if (curAlphaDiff <= 0) {
         visflow.progress.end();
+        this.updateLayout_(nodes);
       }
       this.updateFixedPoints_(nodes);
-      this.updateLayout_(nodes);
       visflow.progress.setPercentage(1 - curAlphaDiff / alphaDiff);
     }.bind(this));
 
-  visflow.progress.start('Adjusting layout', true);
+  visflow.progress.start('Adjusting Layout', true);
   this.force.restart();
 };
 
@@ -179,7 +182,7 @@ visflow.Flow.prototype.updateLayout_ = function(nodes) {
       continue; // Skip fixed points
     }
     var id = nodes[i].id;
-    this.nodes[id].moveTo(nodes[i].x - nodes[i].width / 2,
-      nodes[i].y - nodes[i].height / 2); //WithTransition
+    this.nodes[id].moveToWithTransition(nodes[i].x - nodes[i].width / 2,
+      nodes[i].y - nodes[i].height / 2, visflow.Flow.AUTOLAYOUT_TRANSITION_);
   }
 };

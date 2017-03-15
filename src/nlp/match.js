@@ -89,6 +89,7 @@ visflow.nlp.Keyword = {
   HIGHLIGHT: 'highlight',
   SELECTION: 'selection',
   FILTER: 'filter',
+  FIND: 'find',
   MATCH: 'match',
   AUTOLAYOUT: 'autolayout',
   DELETE: 'delete'
@@ -99,6 +100,9 @@ visflow.nlp.DELIMITER_REGEX_ = /[\s,;]+/;
 
 /** @private @const {RegExp} */
 visflow.nlp.AUTOLAYOUT_REGEX_ = /^.*layout.*$/;
+
+/** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE = 'scatterplot';
 
 
 /**
@@ -144,12 +148,13 @@ visflow.nlp.isUtil = function(token) {
 };
 
 /**
- * Checks if a root command is to filter.
+ * Checks if a root command is to filter or find.
  * @param {string} token
  * @return {boolean}
  */
 visflow.nlp.isFilter = function(token) {
-  return token == visflow.nlp.Keyword.FILTER;
+  return token == visflow.nlp.Keyword.FILTER ||
+    token == visflow.nlp.Keyword.FIND;
 };
 
 /**
@@ -193,6 +198,22 @@ visflow.nlp.isColorScale = function(value) {
 };
 
 /**
+ * Gets the filter command type form a token.
+ * @param {string} token
+ * @return {visflow.nlp.CommandType}
+ */
+visflow.nlp.getFilterType = function(token) {
+  switch (token) {
+    case visflow.nlp.Keyword.FILTER:
+      return visflow.nlp.CommandType.FILTER;
+    case visflow.nlp.Keyword.FIND:
+      return visflow.nlp.CommandType.FIND;
+    default:
+      return visflow.nlp.CommandType.UNKNOWN;
+  }
+};
+
+/**
  * Gets the util command type from a token.
  * @param {string} token
  * @return {visflow.nlp.CommandType}
@@ -203,8 +224,9 @@ visflow.nlp.getUtilType = function(token) {
       return visflow.nlp.CommandType.AUTOLAYOUT;
     case visflow.nlp.Keyword.DELETE:
       return visflow.nlp.CommandType.DELETE;
+    default:
+      return visflow.nlp.CommandType.UNKNOWN;
   }
-  return visflow.nlp.CommandType.UNKNOWN;
 };
 
 
@@ -271,6 +293,12 @@ visflow.nlp.matchChartTypes = function(query) {
         matched = true;
         break;
       }
+      if (tokens[i] == visflow.nlp.Keyword.CHART_TYPE) {
+        visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
+          visflow.nlp.DEFAULT_CHART_TYPE;
+        matched = true;
+        break;
+      }
     }
     parsedTokens.push(!matched ? tokens[i] :
       visflow.nlp.Keyword.CHART_TYPE);
@@ -312,6 +340,9 @@ visflow.nlp.matchChartTypes = function(query) {
  */
 visflow.nlp.matchDimensions = function(query, target) {
   var dimensions = target.getDimensionNames();
+  if (!dimensions.length) {
+    dimensions = visflow.flow.getAllDimensionNames();
+  }
   var dimensionCounter = 0;
   var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
 
@@ -368,9 +399,9 @@ visflow.nlp.mapChartTypes = function(command) {
   for (var i = 0; i < tokens.length; i++) {
     if (tokens[i] == visflow.nlp.Keyword.CHART_TYPE) {
       var chartType = visflow.nlp.matchedChartTypes_[chartTypeCounter++];
-      // Unspecified chart_type's will be kept as is.
-      // Defaults are chosen during execution.
-      tokens[i] = chartType == undefined ? tokens[i] : chartType;
+      // Unspecified chart_type's will be replaced by default.
+      tokens[i] = chartType == undefined ?
+        visflow.nlp.DEFAULT_CHART_TYPE : chartType;
     }
   }
   return tokens.join(' ');

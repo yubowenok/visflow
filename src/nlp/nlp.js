@@ -1,5 +1,5 @@
 /**
- * @fileoverview VisFlow SmartFlow NLP extension.
+ * @fileoverview VisFlow FlowSense NLP extension.
  */
 
 /** @const */
@@ -26,9 +26,6 @@ visflow.nlp.init = function() {
   }).done(function() {
     visflow.nlp.available = true;
 
-    // Initializes annyang speech recognition.
-    visflow.nlp.initSpeech();
-
     $('#backdrop')
       .mousedown(function() {
         if (visflow.nlp.isProcessing) { // Wait for server response.
@@ -44,15 +41,19 @@ visflow.nlp.init = function() {
         var textarea = $('#nlp textarea');
         textarea.prop('disabled', 'disabled');
         visflow.nlp.submit(/** @type {string} */(textarea.val()));
+      } else if (event.keyCode == visflow.interaction.keyCodes.ESC) {
+        visflow.nlp.end();
       }
     });
-    $('#nlp, #backdrop').on('keyup', function(event) {
+    $('#backdrop').on('keyup', function(event) {
       if (event.keyCode == visflow.interaction.keyCodes.ESC) {
         // Force end regardless of server response.
         visflow.nlp.end();
       }
     });
 
+    // Initializes annyang speech recognition.
+    visflow.nlp.initSpeech();
   }).fail(function() {
     // Disable speech button when NLP is unavailable.
     $(visflow.nlp.SPEECH_BUTTON_SELECTOR).prop('disabled', 'disabled');
@@ -60,7 +61,7 @@ visflow.nlp.init = function() {
 };
 
 /**
- * Shows an input box for smart flow input.
+ * Shows an input box for FlowSense input.
  * @param {(!visflow.Node|undefined)=} opt_target
  */
 visflow.nlp.input = function(opt_target) {
@@ -86,7 +87,7 @@ visflow.nlp.input = function(opt_target) {
       top: visflow.interaction.mouseY
     })
     .appendTo('#nlp');
-  $('<label>SmartFlow</label>').appendTo(div);
+  $('<label>FlowSense</label>').appendTo(div);
   $('<textarea></textarea>')
     .addClass('form-control')
     .appendTo(div)
@@ -134,7 +135,7 @@ visflow.nlp.submit = function(query) {
       visflow.nlp.end();
     })
     .fail(function(res) {
-      visflow.error('failed to execute SmartFlow:', res.responseText);
+      visflow.error('failed to execute FlowSense:', res.responseText);
     });
 };
 
@@ -183,7 +184,7 @@ visflow.nlp.processQuery_ = function(query) {
  */
 visflow.nlp.parseResponse_ = function(res, query) {
   if (res.match(/: 0 candidates/) != null) {
-    visflow.warning('Sorry, SmartFlow does not understand:', query);
+    visflow.warning('Sorry, FlowSense does not understand:', query);
     return;
   }
   var matched = res.match(/Top value \{\n\s*\(string\s*(\S.*\S)\s*\)/);

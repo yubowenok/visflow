@@ -23,14 +23,15 @@ visflow.DataSource = function(params) {
   this.data = [];
 
   /**
-   * Copy of parsed data, used for switching between non-crossing and crossing.
+   * Copy of parsed data, used for switching between non-transpose and
+   * transpose.
    * @protected {!Array<?visflow.TabularData>}
    */
   this.rawData = [];
 
   /**
    * Last used data type value. When this changed, we shall auto find the
-   * crossing keys and attributes.
+   * transpose keys and attributes.
    * @private {number}
    */
   this.lastDataType_ = 0; // TODO(bowen): how is this used?
@@ -201,31 +202,31 @@ visflow.DataSource.prototype.showDataList = function() {
 };
 
 /**
- * Updates the data crossing option.
+ * Updates the data transpose option.
  * @private
  */
-visflow.DataSource.prototype.updateCrossing_ = function() {
+visflow.DataSource.prototype.updateTranspose_ = function() {
   if (visflow.optionPanel.isOpen) {
     var panelContainer = visflow.optionPanel.contentContainer();
-    panelContainer.find('#crossing-section').toggle(this.options.crossing);
+    panelContainer.find('#transpose-section').toggle(this.options.transpose);
   }
   this.process();
 };
 
 /**
- * Checks if there are duplicate attribute in crossing keys.
+ * Checks if there are duplicate attribute in transpose keys.
  * @private
  */
-visflow.DataSource.prototype.validateCrossingAttributes_ = function() {
-  var keys = _.keySet(this.options.crossingKeys);
+visflow.DataSource.prototype.validateTransposeAttributes_ = function() {
+  var keys = _.keySet(this.options.transposeKeys);
   var duplicate = false;
-  this.options.crossingAttrs.forEach(function(dim) {
+  this.options.transposeAttrs.forEach(function(dim) {
     if (dim in keys) {
       duplicate = true;
     }
   });
   if (duplicate) {
-    visflow.warning('crossing attribute duplicate in keys');
+    visflow.warning('transpose attribute duplicate in keys');
   }
 };
 
@@ -403,8 +404,8 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
         // CSV parser will report error itself.
         result = visflow.parser.csv(result);
 
-        // Store a copy of parsed data, so that we can switch between crossing
-        // and non-crossing.
+        // Store a copy of parsed data, so that we can switch between transpose
+        // and non-transpose.
         this.rawData[dataIndex] = result;
 
         visflow.data.registerRawData(data, result);
@@ -441,10 +442,10 @@ visflow.DataSource.prototype.useEmptyData_ = function(opt_isError) {
 };
 
 /**
- * Automatically finds a string dimension for crossing key.
+ * Automatically finds a string dimension for transpose key.
  * @return {!Array<number>} Dimension index.
  */
-visflow.DataSource.prototype.findCrossingDims = function() {
+visflow.DataSource.prototype.findTransposeDims = function() {
   if (this.data.length == 0) {
     return [];
   }
@@ -459,10 +460,10 @@ visflow.DataSource.prototype.findCrossingDims = function() {
 };
 
 /**
- * Automatically finds numerical attributes for crossing attibutes.
+ * Automatically finds numerical attributes for transpose attibutes.
  * @return {!Array<number>} Dimension index.
  */
-visflow.DataSource.prototype.findCrossingAttrs = function() {
+visflow.DataSource.prototype.findTransposeAttrs = function() {
   if (this.data.length == 0) {
     return [];
   }
@@ -514,17 +515,17 @@ visflow.DataSource.prototype.process = function() {
 
   this.showDataList();
 
-  // Apply crossing.
-  if (this.options.crossing) {
-    if (this.options.crossingKeys.length == 0) {
-      this.options.crossingKeys = this.findCrossingDims();
-      this.options.crossingAttrs = this.findCrossingAttrs();
+  // Apply transpose.
+  if (this.options.transpose) {
+    if (this.options.transposeKeys.length == 0) {
+      this.options.transposeKeys = this.findTransposeDims();
+      this.options.transposeAttrs = this.findTransposeAttrs();
     }
     var result = visflow.parser.cross(
       finalData,
-      this.options.crossingKeys,
-      this.options.crossingAttrs,
-      this.options.crossingName
+      this.options.transposeKeys,
+      this.options.transposeAttrs,
+      this.options.transposeName
     );
     if (!result.success) {
       visflow.error('failed to cross data:', result.msg);

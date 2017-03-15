@@ -90,7 +90,7 @@ visflow.Port.prototype.contextMenuItems = function() {
       icon: 'glyphicon glyphicon-minus-sign'},
     {id: 'export', text: 'Export Data',
       icon: 'glyphicon glyphicon-open'},
-    {id: 'smartFlow', text: 'SmartFlow',
+    {id: 'flowSense', text: 'FlowSense',
       icon: 'glyphicon glyphicon-comment'}
   ];
 };

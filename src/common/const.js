@@ -34,3 +34,6 @@ visflow.const.SELECTED_COLOR = '#6699ee';
 
 /** @const {string} */
 visflow.const.HIGHLIGHT_COLOR = '#ff5757';
+
+/** @const {string} */
+visflow.const.EDGE_CONTAINER_SELECTOR = '#edges';

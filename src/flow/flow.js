@@ -85,7 +85,7 @@ visflow.Flow.prototype.visModeOnCss_ = function() {
 };
 
 /** @private @const {number} */
-visflow.Flow.NEARBY_THRESHOLD_ = 300;
+visflow.Flow.NEARBY_THRESHOLD_ = 200;
 
 /**
  * Default properties for non-vismode elements when vismode is off.
@@ -309,6 +309,23 @@ visflow.Flow.prototype.deleteEdge = function(edge) {
 };
 
 /**
+ * Deletes all edges incident to this port.
+ * @return {!Array<!visflow.Port>} The ports that this port is currently
+ *     connected to.
+ * @param {!visflow.Port} port
+ */
+visflow.Flow.prototype.disconnectPort = function(port) {
+  // Must copy. Array will be changed during deletion!
+  var connections = port.connections.concat();
+  var ports = [];
+  connections.forEach(function(edge) {
+    ports.push(port.isInput ? edge.sourcePort : edge.targetPort);
+    visflow.flow.deleteEdge(edge);
+  });
+  return ports;
+};
+
+/**
  * Checks if connecting 'sourceNode' to 'targetNode' will result in a cycle.
  * @param {!visflow.Node} sourceNode
  * @param {!visflow.Node} targetNode
@@ -483,6 +500,8 @@ visflow.Flow.prototype.deserializeFlowEdges_ = function(flow, hashes) {
 
 /**
  * Previews the VisMode on/off effect.
+ * TODO(bowen): the visMode on/off codes are pretty messy now and should be
+ * refactored.
  * @param {boolean} state
  */
 visflow.Flow.prototype.previewVisMode = function(state) {
@@ -494,19 +513,17 @@ visflow.Flow.prototype.previewVisMode = function(state) {
       node.saveCss();
     }
 
-    for (var id in this.edges) {
-      var edge = this.edges[id];
-      edge.getContainer()
-        .stop(true, true)
-        .animate(this.visModeOnCss_());
-    }
+    $(visflow.const.EDGE_CONTAINER_SELECTOR)
+      .stop(true, true)
+      .animate(this.visModeOnCss_());
+
     var flow = this;
     for (var id in this.nodes) {
       var node = this.nodes[id];
       if (node.getOption('visMode')) {
         node.hidePorts();
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(node.visCss, function() {
             // Enable visMode so that the view temporarily gets the correct
             // visMode size.
@@ -515,22 +532,20 @@ visflow.Flow.prototype.previewVisMode = function(state) {
               this.backMinimized = true;
               this.setMinimized(false);
             }
-            this.updateContent();
+            this.show();
             flow.visMode = false;
           }.bind(node));
       } else {
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(this.visModeOnCss_());
       }
     }
   } else {
-    for (var id in this.edges) {
-      var edge = this.edges[id];
-      edge.getContainer()
-        .stop(true)
-        .animate(this.visModeOffCss_());
-    }
+    $(visflow.const.EDGE_CONTAINER_SELECTOR)
+      .stop(true)
+      .animate(this.visModeOffCss_());
+
     for (var id in this.nodes) {
       var node = this.nodes[id];
       if (node.getOption('visMode')) {
@@ -545,14 +560,14 @@ visflow.Flow.prototype.previewVisMode = function(state) {
         }
         node.showPorts();
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(css, function() {
             this.updateContent();
             this.updatePorts();
           }.bind(node));
       } else {
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(this.visModeOffCss_());
       }
     }
@@ -563,34 +578,33 @@ visflow.Flow.prototype.previewVisMode = function(state) {
  * Toggles the VisMode.
  */
 visflow.Flow.prototype.toggleVisMode = function() {
-  if (!this.visMode) {
+  if (!this.visMode) { // Turn visMode on.
     // Do not save css as they have been saved in preview.
     this.visMode = true;
-    for (var id in this.edges) {
-      var edge = this.edges[id];
-      edge.getContainer()
-        .stop(true)
-        .animate(this.visModeOnCss_(), edge.hide.bind(edge));
-    }
+
+    $(visflow.const.EDGE_CONTAINER_SELECTOR)
+      .stop(true, true)
+      .animate(this.visModeOnCss_());
+
     for (var id in this.nodes) {
       var node = this.nodes[id];
       if (node.getOption('visMode')) {
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(node.visCss, function() {
             if (this.getOption('minimized')) {
               this.backMinimized = true;
               this.setMinimized(false);
             }
-            this.updateContent();
+            this.show();
           }.bind(node));
       } else {
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(this.visModeOnCss_(), node.hide.bind(node));
       }
     }
-  } else {
+  } else { // Turn visMode off.
     // First save the current configuration for vismode.
     for (var id in this.nodes) {
       var node = this.nodes[id];
@@ -610,26 +624,21 @@ visflow.Flow.prototype.toggleVisMode = function() {
           css = _.pick(node.css, 'left', 'top');
         }
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(css, function() {
-            this.showPorts();
-            this.updatePorts();
-            this.updateContent();
+            this.show();
           }.bind(node));
       } else {
         node.show();
         node.getContainer()
-          .stop(true)
+          .stop(true, true)
           .animate(this.visModeOffCss_());
       }
     }
-    for (var id in this.edges) {
-      var edge = this.edges[id];
-      edge.show();
-      edge.getContainer()
-        .stop(true)
-        .animate(this.visModeOffCss_());
-    }
+
+    $(visflow.const.EDGE_CONTAINER_SELECTOR)
+      .stop(true, true)
+      .animate(this.visModeOffCss_());
   }
   visflow.signal(visflow.flow, 'visMode');
 };
@@ -983,6 +992,18 @@ visflow.Flow.prototype.minimizeNonVisualizations = function() {
       node.setMinimized(true);
     }
   }
+};
+
+/**
+ * Returns the dimension names in all the data sources.
+ * @return {!Array<string>}
+ */
+visflow.Flow.prototype.getAllDimensionNames = function() {
+  var names = [];
+  this.dataSources.forEach(function(node) {
+    names = names.concat(node.getDimensionNames());
+  });
+  return names;
 };
 
 /**

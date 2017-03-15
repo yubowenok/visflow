@@ -14,9 +14,9 @@ visflow.Sampler.prototype.NODE_NAME = 'Sampler';
 visflow.Sampler.prototype.NODE_CLASS = 'sampler';
 
 /** @inheritDoc */
-visflow.Sampler.prototype.MAX_HEIGHT = 45;
+visflow.Sampler.prototype.MAX_HEIGHT = 43;
 /** @inheritDoc */
-visflow.Sampler.prototype.MIN_HEIGHT = 45;
+visflow.Sampler.prototype.MIN_HEIGHT = 43;
 
 /**
  * Condition for sampling.

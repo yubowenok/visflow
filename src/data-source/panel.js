@@ -16,68 +16,68 @@ visflow.DataSource.prototype.initPanel = function(container) {
     {
       constructor: visflow.Checkbox,
       params: {
-        container: container.find('#crossing'),
-        value: this.options.crossing,
-        title: 'Crossing'
+        container: container.find('#transpose'),
+        value: this.options.transpose,
+        title: 'Transpose'
       },
       change: function(event, value) {
-        this.options.crossing = value;
-        this.updateCrossing_();
+        this.options.transpose = value;
+        this.updateTranspose_();
       }
     },
     {
       constructor: visflow.EditableList,
       params: {
-        container: container.find('#crossing-keys'),
+        container: container.find('#transpose-keys'),
         list: dimensionList,
         listTitle: 'Key(s)',
         addTitle: 'Add Dimension',
-        selected: this.options.crossingKeys,
+        selected: this.options.transposeKeys,
         allowClear: false
       },
       change: function(event, dims) {
-        this.options.crossingKeys = dims;
-        if (this.options.crossing) {
-          this.updateCrossing_();
+        this.options.transposeKeys = dims;
+        if (this.options.transpose) {
+          this.updateTranspose_();
         }
       }
     },
     {
       constructor: visflow.EditableList,
       params: {
-        container: container.find('#crossing-attrs'),
+        container: container.find('#transpose-attrs'),
         list: dimensionList,
         listTitle: 'Attributes',
         addTitle: 'Add Attribute',
-        selected: this.options.crossingAttrs,
+        selected: this.options.transposeAttrs,
         allowClear: true
       },
       change: function(event, attrs) {
-        this.options.crossingAttrs = attrs;
-        this.validateCrossingAttributes_();
-        if (this.options.crossing) {
-          this.updateCrossing_();
+        this.options.transposeAttrs = attrs;
+        this.validateTransposeAttributes_();
+        if (this.options.transpose) {
+          this.updateTranspose_();
         }
       }
     },
     {
       constructor: visflow.Input,
       params: {
-        container: container.find('#crossing-name'),
-        value: this.options.crossingName,
+        container: container.find('#transpose-name'),
+        value: this.options.transposeName,
         title: 'Attribute Column Name'
       },
       change: function(event, value) {
-        this.options.crossingName = value;
-        if (this.options.crossing) {
-          this.updateCrossing_();
+        this.options.transposeName = value;
+        if (this.options.transpose) {
+          this.updateTranspose_();
         }
       }
     }
   ];
   this.initInterface(units);
-  if (!this.options.crossing) {
-    container.find('#crossing-section').hide();
+  if (!this.options.transpose) {
+    container.find('#transpose-section').hide();
   }
 };
 

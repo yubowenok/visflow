@@ -40,10 +40,10 @@ visflow.DataSource.DATA_NAMES_LENGTH = 100;
 /** @inheritDoc */
 visflow.DataSource.prototype.defaultOptions = function() {
   return new visflow.options.DataSource({
-    crossing: false,
-    crossingName: 'attributes',
-    crossingKeys: [],
-    crossingAttrs: [],
+    transpose: false,
+    transposeName: 'attributes',
+    transposeKeys: [],
+    transposeAttrs: [],
     useServerData: true
   });
 };

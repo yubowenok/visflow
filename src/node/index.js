@@ -324,8 +324,6 @@ visflow.Node.prototype.updateContainer_ = function() {
  * Inheriting classes shall not remove again.
  */
 visflow.Node.prototype.show = function() {
-  //this.content.children().remove();
-
   if (!this.options.visMode && visflow.flow.visMode) {
     // do not show if hidden in vis mode
     return;
@@ -589,7 +587,7 @@ visflow.Node.prototype.initContextMenu = function() {
     .on('vf.panel', this.panel.bind(this))
     .on('vf.label', this.toggleLabel.bind(this))
     .on('vf.visMode', this.toggleVisMode.bind(this))
-    .on('vf.smartFlow', this.smartFlowInput.bind(this))
+    .on('vf.flowSense', this.flowSenseInput.bind(this))
     .on('vf.beforeOpen', function(event, menuContainer) {
       var minimize = menuContainer.find('#minimize');
       if (this.options.minimized) {
@@ -843,7 +841,7 @@ visflow.Node.prototype.keyAction = function(key, event) {
       break;
     case 'S':
       event.preventDefault(); // Avoid 'S' typed into NLP input.
-      this.smartFlowInput();
+      this.flowSenseInput();
       break;
   }
 };
@@ -1236,9 +1234,12 @@ visflow.Node.prototype.moveToWithTransition = function(left, top,
   this.container.animate({
     left: left,
     top: top
-  }, duration, function() {
-    this.updatePorts();
-  }.bind(this));
+  }, {
+    duration: duration,
+    step: function() {
+      this.updatePorts();
+    }.bind(this)
+  });
 };
 
 /**
@@ -1309,8 +1310,8 @@ visflow.Node.prototype.toggleSelected = function(state) {
 };
 
 /**
- * Accepts SmartFlow input.
+ * Accepts FlowSense input.
  */
-visflow.Node.prototype.smartFlowInput = function() {
+visflow.Node.prototype.flowSenseInput = function() {
   visflow.nlp.input(this);
 };
