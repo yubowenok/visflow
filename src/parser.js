@@ -6,14 +6,14 @@
 visflow.parser = {};
 
 /**
- * Value types.
+ * Value types, going from strictest to weakest typing.
  * @enum {number}
  */
 visflow.ValueType = {
   EMPTY: 0,
-  INT: 1,
-  FLOAT: 2,
-  TIME: 3,
+  TIME: 1,
+  INT: 2,
+  FLOAT: 3,
   STRING: 4,
   ERROR: -1
 };
@@ -24,9 +24,9 @@ visflow.ValueType = {
  */
 visflow.ValueTypeName = {
   0: 'empty',
-  1: 'int',
-  2: 'float',
-  3: 'time',
+  1: 'time',
+  2: 'int',
+  3: 'float',
   4: 'string'
 };
 
@@ -54,6 +54,13 @@ visflow.parser.checkToken = function(text, opt_ignoredTypes) {
     };
   }
 
+  if (!(visflow.ValueType.TIME in ignored) &&
+    visflow.utils.isProbablyDate(text)) {
+    return {
+      type: visflow.ValueType.TIME,
+      value: new Date(text).getTime()
+    };
+  }
   var res;
   res = text.match(/^-?[0-9]+/);
   if (!(visflow.ValueType.INT in ignored) && res && res[0] === text) {
@@ -66,13 +73,6 @@ visflow.parser.checkToken = function(text, opt_ignoredTypes) {
     return {
       type: visflow.ValueType.FLOAT,
       value: parseFloat(text)
-    };
-  }
-  var date = new Date(text);
-  if (!(visflow.ValueType.TIME in ignored) && date != 'Invalid Date') {
-    return {
-      type: visflow.ValueType.TIME,
-      value: date.getTime()
     };
   }
   if (!(visflow.ValueType.STRING in ignored)) {
@@ -181,7 +181,6 @@ visflow.parser.csv = function(csv) {
  * }}
  */
 visflow.parser.typingColumn = function(values, colIndex) {
-  var hasEmpty = false;
   var colType = visflow.ValueType.EMPTY;
   values.forEach(function(row) {
     var type = visflow.parser.checkToken(row[colIndex]).type;
@@ -226,7 +225,7 @@ visflow.parser.tabularToCSV = function(data, opt_items) {
 };
 
 /**
- * Crosses the data on the given key dimensions.
+ * Transposes the data on the given key dimensions.
  * @param {visflow.TabularData} data
  * @param {!Array<number>} dims
  * @param {!Array<number>} attrs
@@ -237,7 +236,7 @@ visflow.parser.tabularToCSV = function(data, opt_items) {
  *   data: ?visflow.TabularData
  * }}
  */
-visflow.parser.cross = function(data, dims, attrs, name) {
+visflow.parser.transpose = function(data, dims, attrs, name) {
   var keysSorted = [];
   var keys = [];
   data.values.forEach(function(row, index) {

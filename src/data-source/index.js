@@ -521,7 +521,7 @@ visflow.DataSource.prototype.process = function() {
       this.options.transposeKeys = this.findTransposeDims();
       this.options.transposeAttrs = this.findTransposeAttrs();
     }
-    var result = visflow.parser.cross(
+    var result = visflow.parser.transpose(
       finalData,
       this.options.transposeKeys,
       this.options.transposeAttrs,

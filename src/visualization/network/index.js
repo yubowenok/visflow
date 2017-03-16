@@ -166,21 +166,11 @@ visflow.Network.prototype.initContextMenu = function() {
   visflow.Network.base.initContextMenu.call(this);
 
   $(this.contextMenu)
-    .on('vf.navigation', this.toggleNavigation_.bind(this))
-    .on('vf.nodeLabel', this.toggleNodeLabel_.bind(this))
-    .on('vf.beforeOpen', function(event, menuContainer) {
-      var nodeLabelIcon = menuContainer.find('#nodeLabel > i');
-      if (this.options.nodeLabel) {
-        nodeLabelIcon.addClass('glyphicon-ok');
-      } else {
-        nodeLabelIcon.removeClass('glyphicon-ok');
-      }
-      var navigationIcon = menuContainer.find('#navigation > i');
-      if (this.options.navigation) {
-        navigationIcon.addClass('glyphicon-ok');
-      } else {
-        navigationIcon.removeClass('glyphicon-ok');
-      }
+    .on('vf.navigation', function() {
+      this.toggleNavigation_();
+    }.bind(this))
+    .on('vf.nodeLabel', function() {
+      this.toggleNodeLabel_();
     }.bind(this));
 };
 
@@ -220,6 +210,7 @@ visflow.Network.prototype.zoom = function() {
 /** @inheritDoc */
 visflow.Network.prototype.selectItems = function() {
   this.selectItemsInBox_();
+  visflow.Network.base.selectItems.call(this);
 };
 
 /**
@@ -275,8 +266,6 @@ visflow.Network.prototype.selectItemsInBox_ = function() {
       this.selectedEdges[index] = true;
     }
   }
-  this.show();
-  this.pushflow();
 };
 
 /** @inheritDoc */
@@ -845,10 +834,12 @@ visflow.Network.prototype.toggleNavigation_ = function(opt_value) {
 
 /**
  * Toggles node label visibility.
+ * @param {boolean=} opt_value
  * @private
  */
-visflow.Network.prototype.toggleNodeLabel_ = function() {
-  this.options.nodeLabel = !this.options.nodeLabel;
+visflow.Network.prototype.toggleNodeLabel_ = function(opt_value) {
+  this.options.nodeLabel = opt_value != null ? opt_value :
+      !this.options.nodeLabel;
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());
   }

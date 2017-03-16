@@ -337,6 +337,27 @@ visflow.utils.isNumber = function(token) {
 };
 
 /**
+ * Checks if a string is probably a date.
+ * @param {string} text
+ * @return {boolean}
+ */
+visflow.utils.isProbablyDate = function(text) {
+  // Strangely, recently implementation change of Date.parse()
+  // parses '10' into Mon Oct 01 2001 00:00:00 GMT-0400 (EDT) ???
+  // We handle those special exceptions.
+  // Make sure that text is not a number.
+  if (Number(text) == text) {
+    // TODO(bowen): we may want to double-check how to handle pure years like
+    // '2001', '1975', etc.
+    return false;
+  }
+  var date = new Date(text);
+  return date != 'Invalid Date' &&
+    date >= Date.parse('Jan 1 1970') &&
+    date <= Date.parse('Jan 1 2200');
+};
+
+/**
  * Performs utils initialization.
  */
 visflow.utils.init();

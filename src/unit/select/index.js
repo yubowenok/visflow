@@ -98,7 +98,13 @@ visflow.Select.prototype.initEnd = function() {
       if (this.opening_) {
         return this.opening_();
       }
-    }.bind(this));
+    }.bind(this))
+    .on('select2:unselect', function() {
+      // Prevent dropdown from hanging.
+      setTimeout(function() {
+        $('.select2-dropdown').remove();
+      }, 0);
+    });
 };
 
 /**

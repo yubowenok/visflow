@@ -25,9 +25,6 @@ visflow.MultipleSelect = function(params) {
 
 _.inherit(visflow.MultipleSelect, visflow.Select);
 
-/** @private @const {number} */
-visflow.MultipleSelect.prototype.REMOVE_DELAY_ = 0;
-
 /** @inheritDoc */
 visflow.MultipleSelect.prototype.init = function() {
   this.container.children('.select').addClass('multiple-select');
@@ -48,12 +45,12 @@ visflow.MultipleSelect.prototype.init = function() {
     });
   this.select2.val(this.selected).trigger('change');
 
-
   this.container.find('.select2-selection__choice__remove')
     .click(function() {
+      // Prevent dropdown from hanging.
       setTimeout(function() {
         $('.select2-dropdown').remove();
-      }, this.REMOVE_DELAY_);
+      }, 0);
     });
 
   this.initEnd();

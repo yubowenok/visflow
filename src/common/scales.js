@@ -208,11 +208,21 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
   var scale;
   switch (scaleType) {
     case visflow.ScaleType.NUMERICAL:
+      var minVal = d3.min(values);
+      var maxVal = d3.max(values);
+      var span = maxVal - minVal;
+      if (span == 0) {
+        span = 1; // Avoid single-point scale
+      }
+      scale = d3.scaleLinear()
+        .domain([minVal - span * domainMargin, maxVal + span * domainMargin])
+        .range(range);
+      break;
     case visflow.ScaleType.TIME:
       var minVal = d3.min(values);
       var maxVal = d3.max(values);
       var span = maxVal - minVal;
-      scale = d3.scaleLinear()
+      scale = d3.scaleTime()
         .domain([minVal - span * domainMargin, maxVal + span * domainMargin])
         .range(range);
       break;

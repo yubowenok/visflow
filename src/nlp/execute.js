@@ -212,7 +212,6 @@ visflow.nlp.chart_ = function(commands) {
     var chart = nodes[0];
     var outPort = !isSelection ? target.getDataOutPort() :
       target.getSelectionOutPort();
-    console.log(isSelection, outPort);
     var inPort = !filter ? chart.getDataInPort() : filter.getDataInPort();
     visflow.flow.createEdge(outPort, inPort);
     if (filter) {
@@ -476,7 +475,7 @@ visflow.nlp.renderingProperty_ = function(commands) {
       mapProperties[property] = {value: value};
       commands = commands.slice(1);
       needDim = true;
-    } else if (visflow.utils.isNumber(value) &&
+    } else if (commands.length >= 2 && visflow.utils.isNumber(value) &&
       visflow.utils.isNumber(commands[1].token)) {
       // It is a value range, e.g. "size 2.0 3.0"
       mapProperties[property] = {value: [+value, +commands[1].token]};

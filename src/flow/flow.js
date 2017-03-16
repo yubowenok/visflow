@@ -159,7 +159,8 @@ visflow.Flow.prototype.nodeConstructors_ = function() {
     histogram: visflow.Histogram,
     lineChart: visflow.LineChart,
     heatmap: visflow.Heatmap,
-    network: visflow.Network
+    network: visflow.Network,
+    map: visflow.Map
   };
 };
 

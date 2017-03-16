@@ -516,14 +516,7 @@ visflow.Visualization.prototype.drawAxis = function(params) {
     default:
       console.error('unknown axis orient');
   }
-  axis.ticks(params.ticks)
-    .tickFormat(function(value) {
-      if (params.scaleType == visflow.ScaleType.TIME) {
-        return moment(new Date(value)).format(this.TIME_FORMAT);
-      } else {
-        return value;
-      }
-    }.bind(this));
+  axis.ticks(params.ticks);
   if (params.noTicks) {
     axis.tickValues([]);
   }

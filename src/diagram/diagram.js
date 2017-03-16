@@ -364,6 +364,7 @@ visflow.diagram.listTable_ = function(table, fileList) {
     ],
     columnDefs: [
       {
+        type: 'date',
         render: function(lastModified) {
           return (new Date(lastModified)).toLocaleString();
         },

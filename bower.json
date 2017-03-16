@@ -35,6 +35,7 @@
     "jquery-ui-touch-punch": "*",
     "leaflet": "~1.0.3",
     "annyang": "^2.6.0",
-    "jquery-shadow-animation": "^1.11.0"
+    "jquery-shadow-animation": "^1.11.0",
+    "heatmap.js-amd": "^2.0.5"
   }
 }

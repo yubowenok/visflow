@@ -254,6 +254,9 @@ visflow.Port.prototype.initContextMenu_ = function() {
       if (this.isConstants) {
         menuContainer.find('#export').hide();
       }
+    }.bind(this))
+    .on('vf.flowSense', function() {
+      visflow.nlp.input(this.node);
     }.bind(this));
 };
 

@@ -413,6 +413,7 @@ visflow.upload.listDataTable = function(table, dataList) {
         targets: 2
       },
       {
+        type: 'date',
         // Last Modified
         render: function(lastModified) {
           return (new Date(lastModified)).toLocaleString();

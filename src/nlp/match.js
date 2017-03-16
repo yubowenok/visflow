@@ -16,7 +16,8 @@ visflow.nlp.chartTypes = function() {
     {name: 'line chart', value: 'lineChart'},
     {name: 'series', value: 'lineChart'},
     {name: 'network', value: 'network'},
-    {name: 'topology', value: 'network'}
+    {name: 'topology', value: 'network'},
+    {name: 'map', value: 'map'}
   ];
 };
 
@@ -25,15 +26,9 @@ visflow.nlp.chartTypes = function() {
  * @return {!Array<string>}
  */
 visflow.nlp.chartPrimitives = function() {
-  return [
-    'table',
-    'scatterplot',
-    'parallelCoordinates',
-    'histogram',
-    'heatmap',
-    'lineChart',
-    'network'
-  ];
+  return _.uniq(visflow.nlp.chartTypes().map(function(chart) {
+    return chart.value;
+  }));
 };
 
 /**

@@ -82,6 +82,22 @@ visflow.Package.prototype.filter = function(indices) {
 };
 
 /**
+ * Retrieves the value for an item with given index, on dimension dim.
+ * @param {number} index
+ * @param {number} dim
+ * @return {string|number}
+ */
+visflow.Package.prototype.getValue = function(index, dim) {
+  visflow.assert(index in this.items, 'item not found');
+  if (dim == visflow.data.INDEX_DIM) {
+    return index;
+  }
+  var numDims = this.data.dimensions.length;
+  visflow.assert(0 <= dim && dim < numDims, 'dimension out of range');
+  return this.data.values[index][dim];
+};
+
+/**
  * Counts the number of items in the package.
  * @return {number}
  */

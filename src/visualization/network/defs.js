@@ -112,20 +112,10 @@ visflow.Network.zoomExtent = function() {
 
 /** @inheritDoc */
 visflow.Network.prototype.contextMenuItems = function() {
-  return [
-    {id: 'selectAll', text: 'Select All'},
-    {id: 'clearSelection', text: 'Clear Selection'},
-    {id: 'nodeLabel', text: 'Node Label'},
-    {id: 'navigation', text: 'Navigation'},
-    {id: 'minimize', text: 'Minimize',
-      icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'visMode', text: 'Visualization Mode',
-      icon: 'glyphicon glyphicon-facetime-video'},
-    {id: 'panel', text: 'Control Panel',
-      icon: 'glyphicon glyphicon-th-list'},
-    {id: 'flowSense', text: 'FlowSense',
-      icon: 'glyphicon glyphicon-comment'},
-    {id: 'delete', text: 'Delete',
-      icon: 'glyphicon glyphicon-remove'}
-  ];
+  var baseItems = visflow.Network.base.contextMenuItems();
+  return baseItems.concat([
+    // network node label
+    {id: 'nodeLabel', text: 'Node Label', bind: 'nodeLabel'},
+    {id: 'navigation', text: 'Navigation', bind: 'navigation'}
+  ]);
 };

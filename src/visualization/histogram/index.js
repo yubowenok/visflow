@@ -159,7 +159,6 @@ visflow.Histogram.prototype.prepareHistogram_ = function() {
 visflow.Histogram.prototype.createHistogramData_ = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
-  var data = inpack.data;
   var values = [];
 
   // Histogram range.
@@ -169,15 +168,17 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
   // Remap every string to [0, count - 1].
   var ordinalMapping;
 
-  if (this.xScaleType == visflow.ScaleType.NUMERICAL) {
+  if (this.xScaleType == visflow.ScaleType.NUMERICAL ||
+    this.xScaleType == visflow.ScaleType.TIME) {
     range = this.xScale.domain();
-
     // If xScale domain has only a single value, the ticks will return empty
     // array. That is bins = [].
     bins = this.xScale.ticks(this.options.numBins);
-    if (bins.length <= 1) {
-      // D3 Histogram cannot handle 1 bin.
-      bins = 1;
+
+    // Map dates to POSIX.
+    if (this.xScaleType == visflow.ScaleType.TIME) {
+      range = range.map(function(date) { return date.getTime(); });
+      bins = bins.map(function(date) { return date.getTime(); });
     }
   } else if (this.xScaleType == visflow.ScaleType.ORDINAL) {
     var ordinals = this.xScale.domain();
@@ -192,17 +193,22 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
 
   for (var itemIndex in items) {
     var index = +itemIndex;
-    var value = data.values[index][this.options.dim];
+    var value = inpack.getValue(index, this.options.dim);
+
+    switch (this.xScaleType) {
+      case visflow.ScaleType.ORDINAL:
+        value = this.xScale(value);
+        break;
+    }
     values.push({
-      value: this.xScaleType == visflow.ScaleType.NUMERICAL ?
-          value : this.xScale(value),
+      value: value,
       index: index
     });
   }
   var histogram = d3.histogram()
     .value(_.getValue('value'))
     .thresholds(bins)
-    .domain(range); // range
+    .domain(range);
   this.histogramData_ = histogram(values);
 };
 
@@ -218,9 +224,26 @@ visflow.Histogram.prototype.createHistogramScale_ = function() {
     this.margins.left,
     svgSize.width - this.margins.right
   ];
+  var domain;
+  switch (this.xScaleType) {
+    case visflow.ScaleType.NUMERICAL:
+      domain = this.xScale.domain();
+      break;
+    case visflow.ScaleType.TIME:
+      domain = this.xScale.domain().map(function(date) {
+        return date.getTime();
+      });
+      break;
+    case visflow.ScaleType.ORDINAL:
+      domain = this.xScale.range();
+      break;
+  }
+  if (domain[0] == domain[1]) {
+    domain[0] -= 1;
+    domain[1] += 2;
+  }
   this.histogramScale = d3.scaleLinear()
-    .domain(this.xScaleType == visflow.ScaleType.NUMERICAL ?
-        this.xScale.domain() : this.xScale.range())
+    .domain(domain)
     .range(range);
 };
 
@@ -383,8 +406,11 @@ visflow.Histogram.prototype.drawHistogram_ = function() {
   updatedBars
     .attr('transform', groupTransform)
     .attr('width', function(group) {
-      return this.histogramScale(group.dx) - this.histogramScale(0) -
+      var width = this.histogramScale(group.dx) - this.histogramScale(0) -
         visflow.Histogram.BAR_INTERVAL;
+      // In case interval is larger than width. At least 1 pixel wide.
+      width = width < 0 ? 1 : width;
+      return width;
     }.bind(this))
     .attr('height', function(group) {
       return Math.ceil(this.yScale(0) - this.yScale(group.dy));

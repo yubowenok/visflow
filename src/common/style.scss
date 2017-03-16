@@ -74,3 +74,11 @@ body {
     pointer-events: none;
   }
 }
+
+#logo {
+  display: inline-block;
+  margin-right: $margin-large;
+  position: relative;
+  top: -1px;
+  width: 20px;
+}

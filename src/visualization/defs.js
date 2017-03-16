@@ -92,19 +92,10 @@ visflow.Visualization.prototype.selectedMultiplier = function() {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.contextMenuItems = function() {
-  return [
+  var items = visflow.Visualization.base.contextMenuItems();
+  return items.concat([
     {id: 'selectAll', text: 'Select All'},
-    {id: 'clearSelection', text: 'Clear Selection'},
-    {id: 'minimize', text: 'Minimize',
-      icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'visMode', text: 'Visualization Mode',
-      icon: 'glyphicon glyphicon-facetime-video'},
-    {id: 'panel', text: 'Control Panel',
-      icon: 'glyphicon glyphicon-th-list'},
-    {id: 'flowSense', text: 'FlowSense',
-      icon: 'glyphicon glyphicon-comment'},
-    {id: 'delete', text: 'Delete',
-      icon: 'glyphicon glyphicon-remove'}
-  ];
+    {id: 'clearSelection', text: 'Clear Selection'}
+  ]);
 };
 

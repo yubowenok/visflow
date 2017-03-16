@@ -108,3 +108,9 @@ visflow.about = function() {
 visflow.signal = function(obj, event, data) {
   $(obj).trigger('vf.' + event, [data]);
 };
+
+/**
+ * Debugging global entry that is used to retrieve variable values.
+ * @type {*}
+ */
+visflow.debug = null;

@@ -84,8 +84,7 @@ visflow.Sampler.prototype.filter = function() {
     var colValues = [];
     groupItems.forEach(function(itemIndex) {
       var index = +itemIndex;
-      var val = this.options.dim == visflow.data.INDEX_DIM ?
-        index : data.values[index][this.options.dim];
+      var val = inpack.getValue(index, this.options.dim);
       colValues.push(val);
     }, this);
     colValues.sort(function(a, b) {
@@ -96,17 +95,18 @@ visflow.Sampler.prototype.filter = function() {
       colValues = _.uniq(colValues);
     }
 
-    var count = this.options.mode == 'count' ? this.options.number :
+    var count = this.options.mode == visflow.Sampler.Mode.COUNT ?
+      this.options.number :
       Math.ceil(this.options.number / 100 * colValues.length);
     count = Math.min(colValues.length, count);
 
     var acceptedVals = [];
     switch (this.options.condition) {
-      case 'first':
-      case 'last':
+      case visflow.Sampler.Condition.FIRST:
+      case visflow.Sampler.Condition.LAST:
         acceptedVals = colValues.slice(0, count);
         break;
-      case 'sampling':
+      case visflow.Sampler.Condition.SAMPLING:
         var i = 0;
         var percentage = this.options.number / 100;
         while (count > 0) {
@@ -124,12 +124,16 @@ visflow.Sampler.prototype.filter = function() {
           }
           i++;
         }
+        // Last batch of filtering
+        colValues = _.filter(colValues, function(val) {
+          return val != null;
+        });
         break;
     }
     acceptedVals = _.keySet(acceptedVals);
     groupItems.forEach(function(itemIndex) {
       var index = +itemIndex;
-      var val = data.values[index][this.options.dim];
+      var val = inpack.getValue(index, this.options.dim);
       if (val in acceptedVals) {
         result.push(index);
       }

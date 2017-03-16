@@ -576,9 +576,10 @@ visflow.Node.prototype.interaction = function() {
  * Prepares the contextMenu of the node.
  */
 visflow.Node.prototype.initContextMenu = function() {
+  var items = this.contextMenuItems();
   this.contextMenu = new visflow.ContextMenu({
     container: this.container,
-    items: this.contextMenuItems()
+    items: items
   });
 
   $(this.contextMenu)
@@ -599,6 +600,12 @@ visflow.Node.prototype.initContextMenu = function() {
         minimize.children('span:last')
           .text('(M)');
       }
+      items.forEach(function(item) {
+        if (item.bind) {
+          var check = menuContainer.find('#' + item.id).children('.glyphicon');
+          check.toggleClass('glyphicon-ok', this.options[item.bind]);
+        }
+      }, this);
       if (visflow.flow.visMode) {
         minimize.hide();
       }

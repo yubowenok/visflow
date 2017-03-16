@@ -371,6 +371,7 @@ visflow.interaction.keyPress = function(event) {
           for (var id in visflow.flow.nodesSelected) {
             var node = visflow.flow.nodes[id];
             console.log(node);
+            visflow.debug = node;
           }
           break;
         case 'P':

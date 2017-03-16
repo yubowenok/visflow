@@ -23,6 +23,11 @@ d3.scalePoint = function() {};
 d3.scaleBand = function() {};
 
 /**
+ * @return {d3.Scale}
+ */
+d3.scaleTime = function() {};
+
+/**
  * @param {Array<number|string>=} opt_range
  * @return {!Array<number|string>}
  */
