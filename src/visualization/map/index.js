@@ -176,6 +176,9 @@ visflow.Map.prototype.mousedown = function(event) {
 
 /** @inheritDoc */
 visflow.Map.prototype.mouseup = function(event) {
+  if (!this.options.navigation) {
+    visflow.Map.base.mouseup.call(this, event);
+  }
   this.container.draggable('enable');
   this.map.dragging.enable();
 };

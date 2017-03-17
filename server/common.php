@@ -47,7 +47,7 @@ if ($file)
 
 function check_dir($dir)
 {
-  if (!file_exists($dir))
+  if (!is_dir($dir))
     mkdir($dir, 0744, true);
 }
 

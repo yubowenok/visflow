@@ -237,7 +237,7 @@ visflow.nlp.highlight_ = function(commands) {
   commands = commands.slice(2);
 
   var fromNode = visflow.nlp.target;
-  if (commands.length && commands[0].token == 'of') {
+  if (commands.length && commands[0].token == visflow.nlp.Keyword.OF) {
     if (!commands[0] ||
         commands[1].syntax != visflow.nlp.Keyword.CHART_TYPE) {
       console.error('unexpected highlight source');
@@ -245,9 +245,14 @@ visflow.nlp.highlight_ = function(commands) {
     }
     // Try to find the user's current focus, and highlight from there.
     if (!fromNode.matchType(commands[1].token)) {
-      visflow.nlp.target = visflow.flow.closestNodeToMouse({
+      var newTarget = visflow.flow.closestNodeToMouse({
         nodeName: commands[1].token
       });
+      if (!newTarget) {
+        // If we can find a match, then use the new target.
+        // Otherwise proceed with the previous target.
+        visflow.nlp.target = newTarget;
+      }
     }
     commands = commands.slice(2);
   }

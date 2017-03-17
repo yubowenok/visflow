@@ -142,7 +142,7 @@ function saveDiagram($diagram_id, $diagram_name, $diagram)
   $dir = DIAGRAM_PATH . $diagram_username . '/';
   $file_path = $dir . $diagram_name;
   $full_path = BASE_PATH . $file_path;
-  check_dir($dir);
+  check_dir(BASE_PATH . $dir);
 
   $file = fopen($full_path, 'w');
   if (!fwrite($file, $diagram))

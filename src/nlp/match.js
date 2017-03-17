@@ -87,7 +87,8 @@ visflow.nlp.Keyword = {
   FIND: 'find',
   MATCH: 'match',
   AUTOLAYOUT: 'autolayout',
-  DELETE: 'delete'
+  DELETE: 'delete',
+  OF: 'of'
 };
 
 /** @private @const {RegExp} */

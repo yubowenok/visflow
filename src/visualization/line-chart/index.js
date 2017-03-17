@@ -639,17 +639,18 @@ visflow.LineChart.prototype.transitionFeasible = function() {
 /** @inheritDoc */
 visflow.LineChart.prototype.setDimensions = function(dims) {
   var dimensions = this.getDimensionNames();
+  // Show speed over years
   if (dims.length >= 1) {
-    // If the plot already presents the dim, we swap the current xDim and yDim.
-    var newDim = dimensions.indexOf(dims[0]);
-    if (this.options.yDim == newDim) {
-      this.options.yDim = this.options.xDim;
-    }
-    this.options.xDim = newDim;
+    // First dim is on y
+    this.options.yDim = dimensions.indexOf(dims[0]);
   }
   if (dims.length >= 2) {
-    // Setting 2 dimensions is not ambiguous.
-    this.options.yDim = dimensions.indexOf(dims[1]);
+    // Second dim is on x (series dim)
+    this.options.xDim = dimensions.indexOf(dims[1]);
+  }
+  if (dims.length >= 3) {
+    // Third dim is groupby
+    this.options.groupBy = dimensions.indexOf(dims[2]);
   }
   this.dimensionChanged();
 };
