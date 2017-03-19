@@ -73,30 +73,9 @@ visflow.Flow = function() {
   this.force = null;
 };
 
-/**
- * Default properties for non-vismode elements when vismode is on.
- * @return {!Object}
- * @private
- */
-visflow.Flow.prototype.visModeOnCss_ = function() {
-  return {
-    opacity: 0
-  };
-};
-
 /** @private @const {number} */
 visflow.Flow.NEARBY_THRESHOLD_ = 200;
 
-/**
- * Default properties for non-vismode elements when vismode is off.
- * @return {!Object}
- * @private
- */
-visflow.Flow.prototype.visModeOffCss_ = function() {
-  return {
-    opacity: 1
-  };
-};
 
 /**
  * Initializes flow manager.
@@ -276,6 +255,9 @@ visflow.Flow.prototype.deleteNode = function(node) {
   if (this.lastSelectedNode == node) {
     this.lastSelectedNode = null;
   }
+  if (node.IS_DATASOURCE) {
+    this.dataSources.splice(this.dataSources.indexOf(node), 1);
+  }
   // Must first clear then toggle false. Otherwise the panel will not get
   // correct left offset (as its width changes).
   visflow.optionPanel.close();
@@ -414,7 +396,7 @@ visflow.Flow.prototype.serializeFlow = function() {
   for (var i in this.nodes) {
     var node = this.nodes[i];
     result.nodes.push(node.serialize());
-    if (node.getClass() == 'data-source') {
+    if (node.IS_DATASOURCE) {
       node.data.forEach(function(dataInfo) {
         result.data.push(+dataInfo.id);
       });
@@ -500,147 +482,29 @@ visflow.Flow.prototype.deserializeFlowEdges_ = function(flow, hashes) {
 };
 
 /**
- * Previews the VisMode on/off effect.
- * TODO(bowen): the visMode on/off codes are pretty messy now and should be
- * refactored.
- * @param {boolean} state
- */
-visflow.Flow.prototype.previewVisMode = function(state) {
-  if (state) {
-    // Save the css, as animation will move the nodes' positions.
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      node.getContainer().stop(true, true);
-      node.saveCss();
-    }
-
-    $(visflow.const.EDGE_CONTAINER_SELECTOR)
-      .stop(true, true)
-      .animate(this.visModeOnCss_());
-
-    var flow = this;
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      if (node.getOption('visMode')) {
-        node.hidePorts();
-        node.getContainer()
-          .stop(true, true)
-          .animate(node.visCss, function() {
-            // Enable visMode so that the view temporarily gets the correct
-            // visMode size.
-            flow.visMode = true;
-            if (this.getOption('minimized')) {
-              this.backMinimized = true;
-              this.setMinimized(false);
-            }
-            this.show();
-            flow.visMode = false;
-          }.bind(node));
-      } else {
-        node.getContainer()
-          .stop(true, true)
-          .animate(this.visModeOnCss_());
-      }
-    }
-  } else {
-    $(visflow.const.EDGE_CONTAINER_SELECTOR)
-      .stop(true)
-      .animate(this.visModeOffCss_());
-
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      if (node.getOption('visMode')) {
-        var css = node.css;
-        if (node.backMinimized) {
-          node.backMinimized = false;
-          css = _.pick(css, 'left', 'top');
-          node.setMinimized(true);
-        } else if (node.getOption('minimized')) {
-          // Already set minimized by toggleVisMode.
-          continue;
-        }
-        node.showPorts();
-        node.getContainer()
-          .stop(true, true)
-          .animate(css, function() {
-            this.updateContent();
-            this.updatePorts();
-          }.bind(node));
-      } else {
-        node.getContainer()
-          .stop(true, true)
-          .animate(this.visModeOffCss_());
-      }
-    }
-  }
-};
-
-/**
  * Toggles the VisMode.
  */
 visflow.Flow.prototype.toggleVisMode = function() {
-  if (!this.visMode) { // Turn visMode on.
-    // Do not save css as they have been saved in preview.
-    this.visMode = true;
-
-    $(visflow.const.EDGE_CONTAINER_SELECTOR)
-      .stop(true, true)
-      .animate(this.visModeOnCss_());
-
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      if (node.getOption('visMode')) {
-        node.getContainer()
-          .stop(true, true)
-          .animate(node.visCss, function() {
-            if (this.getOption('minimized')) {
-              this.backMinimized = true;
-              this.setMinimized(false);
-            }
-            this.show();
-          }.bind(node));
-      } else {
-        node.getContainer()
-          .stop(true, true)
-          .animate(this.visModeOnCss_(), node.hide.bind(node));
-      }
-    }
-  } else { // Turn visMode off.
-    // First save the current configuration for vismode.
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      node.getContainer().stop(true, true);
-      node.saveCss();
-    }
-    // Then change flag.
-    this.visMode = false;
-
-    for (var id in this.nodes) {
-      var node = this.nodes[id];
-      if (node.getOption('visMode')) {
-        var css = node.css;
-        if (node.backMinimized) {
-          node.backMinimized = false;
-          node.setMinimized(true);
-          css = _.pick(node.css, 'left', 'top');
-        }
-        node.getContainer()
-          .stop(true, true)
-          .animate(css, function() {
-            this.show();
-          }.bind(node));
-      } else {
-        node.show();
-        node.getContainer()
-          .stop(true, true)
-          .animate(this.visModeOffCss_());
-      }
-    }
-
-    $(visflow.const.EDGE_CONTAINER_SELECTOR)
-      .stop(true, true)
-      .animate(this.visModeOffCss_());
+  // We must call node.animateToVisModeOn/Off before inverting the Flow.visMode
+  // flag because nodes use this flag to determine to which css to save their
+  // current state.
+  if (!this.visMode) {
+    // Turn visMode on.
+    _.each(this.nodes, function(node) {
+      node.animateToVisModeOn();
+    });
+    $(visflow.const.EDGE_CONTAINER_SELECTOR).css('opacity', 0);
+  } else {
+    // Turn visMode off.
+    _.each(this.nodes, function(node) {
+      node.animateToVisModeOff();
+    });
+    setTimeout(function() {
+      $(visflow.const.EDGE_CONTAINER_SELECTOR).css('opacity', 1);
+    }, visflow.const.VISMODE_TRANSITION_DURATION);
   }
+
+  this.visMode = !this.visMode;
   visflow.signal(visflow.flow, 'visMode');
 };
 

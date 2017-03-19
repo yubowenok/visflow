@@ -23,7 +23,7 @@ gulp.task('build-dev', function(cb) {
 // Build doc.
 gulp.task('build-doc', function(cb) {
   runSequence(
-    'sass-doc',
+    'css-doc',
     'copy-doc',
     cb);
 });

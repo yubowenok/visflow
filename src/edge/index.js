@@ -53,8 +53,8 @@ visflow.Edge = function(params) {
   // right-click menu
   this.svg
     .on('mouseenter', function() {
-      // Prevent drag interference
-      if (visflow.interaction.mouseMode != '' || visflow.flow.visMode) {
+      if (visflow.interaction.mouseMode != '') {
+        // Prevent drag interference
         return;
       }
       visflow.flow.addEdgeSelection(this);
@@ -85,10 +85,6 @@ visflow.Edge.prototype.serialize = function() {
  * Updates the edge.
  */
 visflow.Edge.prototype.update = function() {
-  if (visflow.flow.visMode) {
-    this.hide(); // not showing edges in vis mode
-    return;
-  }
   this.draw();
 };
 
@@ -109,16 +105,12 @@ visflow.Edge.prototype.drawLinear = function(sx, sy, ex, ey) {
  * Re-renders the existing edge between two ports.
  */
 visflow.Edge.prototype.draw = function() {
+  if ($(visflow.const.EDGE_CONTAINER_SELECTOR).css('opacity') == 0) {
+    // Do not draw when parent container is not visible.
+    return;
+  }
   var sourceCenter = this.sourcePort.getCenter();
   var targetCenter = this.targetPort.getCenter();
-  /*
-  var sourceOffset = visflow.utils.offsetMain(this.sourcePort.container);
-  var targetOffset = visflow.utils.offsetMain(this.targetPort.container);
-  var sx = sourceOffset.left + this.sourcePort.container.width() / 2;
-  var sy = sourceOffset.top + this.sourcePort.container.height() / 2;
-  var ex = targetOffset.left + this.targetPort.container.width() / 2;
-  var ey = targetOffset.top + this.targetPort.container.height() / 2;
-  */
   var sx = sourceCenter.left;
   var sy = sourceCenter.top;
   var ex = targetCenter.left;

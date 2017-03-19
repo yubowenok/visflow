@@ -520,9 +520,6 @@ visflow.interaction.mouseupHandler = function(params) {
         }
         visflow.interaction.mainContainer_.css('cursor', '');
       }
-      // TODO(bowen): what is this?
-      // else if (visflow.interaction.mouseMode == 'selectbox') {
-      // }
     } else if (type == 'node') {
       if (!visflow.interaction.mouseMoved) {
         if (!visflow.interaction.shifted) {

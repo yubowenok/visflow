@@ -30,13 +30,6 @@ visflow.DataSource = function(params) {
   this.rawData = [];
 
   /**
-   * Last used data type value. When this changed, we shall auto find the
-   * transpose keys and attributes.
-   * @private {number}
-   */
-  this.lastDataType_ = 0; // TODO(bowen): how is this used?
-
-  /**
    * Created DataTable.
    * @private {DataTables|undefined}
    */
@@ -174,31 +167,27 @@ visflow.DataSource.prototype.showNodeDataList_ = function() {
  * Shows the data list both in panel and in node.
  */
 visflow.DataSource.prototype.showDataList = function() {
-  $.post(visflow.url.LIST_DATA)
-    .done(function(dataList) {
-      var dataInfos = {};
-      dataList.forEach(function(dataInfo) {
-        dataInfos[dataInfo.id] = dataInfo;
-      });
-      this.data.forEach(function(dataInfo) {
-        if (dataInfo.id in dataInfos) {
-          var info = dataInfos[dataInfo.id];
-          dataInfo.name = info.name;
-          dataInfo.file = info.file;
-        } else {
-          visflow.error('data used not listed:', dataInfo.id, dataInfo.name,
-            dataInfo.file);
-        }
-      });
-      if (visflow.optionPanel.isOpen) {
-        this.createPanelDataList(visflow.optionPanel.contentContainer());
-      }
-      // Show data list in node.
-      this.showNodeDataList_();
-    }.bind(this))
-    .fail(function(res) {
-      visflow.error('cannot retrieve data list:', res.responseText);
+  visflow.data.listData(function(dataList) {
+    var dataInfos = {};
+    dataList.forEach(function(dataInfo) {
+      dataInfos[dataInfo.id] = dataInfo;
     });
+    this.data.forEach(function(dataInfo) {
+      if (dataInfo.id in dataInfos) {
+        var info = dataInfos[dataInfo.id];
+        dataInfo.name = info.name;
+        dataInfo.file = info.file;
+      } else {
+        visflow.error('data used not listed:', dataInfo.id, dataInfo.name,
+          dataInfo.file);
+      }
+    });
+    if (visflow.optionPanel.isOpen) {
+      this.createPanelDataList(visflow.optionPanel.contentContainer());
+    }
+    // Show data list in node.
+    this.showNodeDataList_();
+  }.bind(this));
 };
 
 /**
@@ -293,32 +282,28 @@ visflow.DataSource.prototype.loadDataDialog = function() {
         this.loadData(this.data.length - 1);
       }.bind(this));
 
-      $.get(visflow.url.LIST_DATA)
-        .done(function(dataList) {
-          var table = dialog.find('table');
-          if (this.table_) {
-            this.table_.destroy();
-          }
-          this.table_ = visflow.upload.listDataTable(table, dataList);
-          table
-            .on('select.dt', function(event, dt, type, tableIndices) {
-              var data = /** @type {DataTables} */(dt)
-                .row(tableIndices[0]).data();
-              dataId = data.id;
-              dataName = data.name;
-              dataFile = data.file;
-              uploadable();
-            })
-            .on('deselect.dt', function() {
-              dataId = '';
-              dataName = '';
-              dataFile = '';
-              uploadable();
-            });
-        }.bind(this))
-        .fail(function(res) {
-          visflow.error('cannot list server data:', res.responseText);
-        });
+      visflow.data.listData(function(dataList) {
+        var table = dialog.find('table');
+        if (this.table_) {
+          this.table_.destroy();
+        }
+        this.table_ = visflow.upload.listDataTable(table, dataList);
+        table
+          .on('select.dt', function(event, dt, type, tableIndices) {
+            var data = /** @type {DataTables} */(dt)
+              .row(tableIndices[0]).data();
+            dataId = data.id;
+            dataName = data.name;
+            dataFile = data.file;
+            uploadable();
+          })
+          .on('deselect.dt', function() {
+            dataId = '';
+            dataName = '';
+            dataFile = '';
+            uploadable();
+          });
+      }.bind(this));
 
       dialog.find('.online #data-name').keyup(function(event) {
         dataName = $(event.target).val();
@@ -570,4 +555,14 @@ visflow.DataSource.prototype.getInputData = function() {
 /** @inheritDoc */
 visflow.DataSource.prototype.getDimensionNames = function() {
   return this.ports['out'].pack.data.dimensions;
+};
+
+
+/**
+ * Sets the dataset and loads the data.
+ * @param {visflow.data.Info} dataInfo
+ */
+visflow.DataSource.prototype.setData = function(dataInfo) {
+  this.data = [dataInfo];
+  this.loadData(0);
 };

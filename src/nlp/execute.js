@@ -7,10 +7,9 @@ visflow.nlp.CommandType = {
   FILTER: 20,
   FIND: 21,
   RENDERING_PROPERTY: 30,
-
+  LOAD: 40,
   AUTOLAYOUT: 50,
   DELETE: 51,
-
   UNKNOWN: -1
 };
 
@@ -45,6 +44,8 @@ visflow.nlp.getCommandType_ = function(command) {
       return visflow.nlp.getUtilType(root);
     case visflow.nlp.isRenderingProperty(root):
       return visflow.nlp.CommandType.RENDERING_PROPERTY;
+    case visflow.nlp.isLoad(root):
+      return visflow.nlp.CommandType.LOAD;
     default:
       return visflow.nlp.CommandType.UNKNOWN;
   }
@@ -63,7 +64,17 @@ visflow.nlp.execute = function(command, syntax) {
   for (var i = 0; i < commandTokens.length; i++) {
     commands.push({token: commandTokens[i], syntax: syntaxTokens[i]});
   }
+
+  if (visflow.nlp.target == null && type != visflow.nlp.CommandType.LOAD) {
+    visflow.warning(
+      'Not sure about what data to act on. First load some data?');
+    return;
+  }
+
   switch (type) {
+    case visflow.nlp.CommandType.LOAD:
+      visflow.nlp.load_(commands);
+      break;
     case visflow.nlp.CommandType.CHART:
     case visflow.nlp.CommandType.CHART_FILTER:
       visflow.nlp.chart_(commands);
@@ -99,7 +110,9 @@ visflow.nlp.createNodes_ = function(nodeInfo, opt_callback, opt_adjustLayout) {
   var readyCounter = nodeInfo.length;
   var nodes = [];
   var movable = {};
-  movable[visflow.nlp.target.id] = true;
+  if (visflow.nlp.target) {
+    movable[visflow.nlp.target.id] = true;
+  }
 
   var directions = [[0, 0], [0, 1], [1, 0], [1, 1]];
   nodeInfo.forEach(function(info) {
@@ -128,6 +141,46 @@ visflow.nlp.createNodes_ = function(nodeInfo, opt_callback, opt_adjustLayout) {
   return nodes;
 };
 
+
+/**
+ * Builds a data source that loads the data.
+ * @param {!Array<visflow.nlp.CommandToken>} commands
+ * @private
+ */
+visflow.nlp.load_ = function(commands) {
+  if (commands[0].token != visflow.nlp.Keyword.LOAD) {
+    console.error('not a load command');
+    return;
+  }
+  commands = commands.slice(1);
+  var dataName = _.reduce(commands, function(prev, now) {
+    return (prev ? prev + ' ' : '') + now.token;
+  }, '');
+  visflow.nlp.matchDataset(dataName, function(dataInfo) {
+    if (dataInfo == null) {
+      visflow.warning('no data with name "' + dataName + '" found');
+      return;
+    }
+
+    /** @type {visflow.data.Info} */
+    var info = /** @type {visflow.data.Info} */(
+      _.extend(_.pick(dataInfo, 'id', 'name', 'file'), {isServerData: true}));
+
+    if (visflow.nlp.target == null || !visflow.nlp.target.IS_DATASOURCE) {
+      visflow.nlp.createNodes_([{
+        type: 'dataSource',
+        x: visflow.interaction.mouseX,
+        y: visflow.interaction.mouseY
+      }], function(nodes) {
+        var dataSource = _.first(nodes);
+        dataSource.setData(info);
+      });
+    } else {
+      /** @type {!visflow.DataSource} */(visflow.nlp.target).setData(info);
+    }
+  });
+};
+
 /**
  * Retrieves the sequence of filters at the beginning of the commands.
  * @param {!Array<visflow.nlp.CommandToken>} commands
@@ -153,7 +206,7 @@ visflow.nlp.retrieveFilters_ = function(commands) {
     // More condition on the current dimension
     while (commands.length >= 2 &&
       (visflow.nlp.isComparison(commands[0].token) ||
-      visflow.nlp.isMatch(commands[0].token))) {
+      visflow.nlp.isContain(commands[0].token))) {
       filters = filters.concat(commands.slice(0, 2));
       commands = commands.slice(2);
     }
@@ -342,7 +395,7 @@ visflow.nlp.filter_ = function(commands, opt_noPlacement) {
       var isValueFilter = false;
       if (visflow.nlp.isComparison(commands[0].token)) {
         isRangeFilter = true;
-      } else if (visflow.nlp.isMatch(commands[0].token)) {
+      } else if (visflow.nlp.isContain(commands[0].token)) {
         isValueFilter = true;
       } else {
         // something like "dim >= 2 <= 3 [dim] >= 2"
@@ -368,7 +421,7 @@ visflow.nlp.filter_ = function(commands, opt_noPlacement) {
         }
       }
       if (isValueFilter) {
-        info.value = commands[2].token;
+        info.value = commands[1].token;
       }
       commands = commands.slice(2);
     }
@@ -446,9 +499,10 @@ visflow.nlp.filter_ = function(commands, opt_noPlacement) {
     filters.forEach(function(filter, index) {
       var spec = nodesSpec[index];
       if (spec.value !== undefined) {
-        filter.setValue(spec.dim, spec.value);
+        /** @type {!visflow.ValueFilter} */(filter).setValue(spec.dim,
+          spec.value);
       } else {
-        filter.setRange(spec.dim,
+        /** @type {!visflow.RangeFilter} */(filter).setRange(spec.dim,
           spec.range[0] == -Infinity ? null : spec.range[0],
           spec.range[1] == Infinity ? null : spec.range[1]);
       }

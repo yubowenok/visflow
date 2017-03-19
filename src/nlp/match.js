@@ -7,6 +7,7 @@ visflow.nlp.chartTypes = function() {
     {name: 'table', value: 'table'},
     {name: 'scatterplot', value: 'scatterplot'},
     {name: 'scp', value: 'scatterplot'},
+    {name: 'relation', value: 'scatterplot'},
     {name: 'parallel coordinates', value: 'parallelCoordinates'},
     {name: 'pcp', value: 'parallelCoordinates'},
     {name: 'histogram', value: 'histogram'},
@@ -85,9 +86,10 @@ visflow.nlp.Keyword = {
   SELECTION: 'selection',
   FILTER: 'filter',
   FIND: 'find',
-  MATCH: 'match',
+  CONTAIN: 'contain',
   AUTOLAYOUT: 'autolayout',
   DELETE: 'delete',
+  LOAD: 'load',
   OF: 'of'
 };
 
@@ -154,6 +156,15 @@ visflow.nlp.isFilter = function(token) {
 };
 
 /**
+ * Checks if a root command is to load data.
+ * @param {string} token
+ * @return {boolean}
+ */
+visflow.nlp.isLoad = function(token) {
+  return token == visflow.nlp.Keyword.LOAD;
+};
+
+/**
  * Chekcs if a root command is a rendering property.
  * @param {string} token
  * @return {boolean}
@@ -177,8 +188,8 @@ visflow.nlp.isComparison = function(token) {
  * @param {string} token
  * @return {boolean}
  */
-visflow.nlp.isMatch = function(token) {
-  return token == visflow.nlp.Keyword.MATCH;
+visflow.nlp.isContain = function(token) {
+  return token == visflow.nlp.Keyword.CONTAIN;
 };
 
 /**
@@ -260,9 +271,11 @@ visflow.nlp.match = function(target, pattern) {
       }
     }
   }
+  /*
   if (dp[n][m] <= visflow.nlp.MATCH_THRESHOLD_ * pattern.length) {
     console.log(target, pattern, dp[n][m]);
   }
+  */
   return dp[n][m] <= visflow.nlp.MATCH_THRESHOLD_ * pattern.length;
 };
 
@@ -284,6 +297,14 @@ visflow.nlp.matchChartTypes = function(query) {
     var matched = false;
     for (var j = 0; j < chartTypes.length; j++) {
       if (visflow.nlp.match(tokens[i], chartTypes[j].name)) {
+
+        // TODO(bowen): Find a better way to handle special utterance
+        // ambiguity.
+        if (i == 0 && chartTypes[j].value == 'map') {
+          // ignore verb map at the beginning
+          continue;
+        }
+
         visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
           chartTypes[j].value;
         matched = true;
@@ -417,4 +438,32 @@ visflow.nlp.mapDimensions = function(command) {
     }
   }
   return tokens.join(' ');
+};
+
+/**
+ * Matches the dataName against the list of available datasets.
+ * @param {string} dataName
+ * @param {function(?visflow.data.Info)} callback Callback function with data
+ *     info. This is called with null if no data matches.
+ */
+visflow.nlp.matchDataset = function(dataName, callback) {
+  visflow.data.listData(function(dataList) {
+    var matched = false;
+    for (var i = 0; i < dataList.length; i++) {
+      var data = dataList[i];
+      if (visflow.nlp.match(data.id, dataName)) {
+        callback(data);
+        matched = true;
+        return;
+      }
+      if (visflow.nlp.match(data.name, dataName)) {
+        callback(data);
+        matched = true;
+        return;
+      }
+    }
+    if (!matched) {
+      callback(null);
+    }
+  });
 };

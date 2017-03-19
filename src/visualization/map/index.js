@@ -87,7 +87,7 @@ visflow.Map.prototype.selectItemsInBox_ = function() {
   }
 
   if (!visflow.interaction.shifted) {
-    // Reset both selected items and bars if shift key is not down.
+    // Reset both selected items if shift key is not down.
     this.selected = {};
   }
 
@@ -116,7 +116,6 @@ visflow.Map.prototype.showDetails = function() {
  * @private
  */
 visflow.Map.prototype.createMap_ = function() {
-
   var tileOptions = {
     minZoom: visflow.Map.MIN_ZOOM,
     maxZoom: visflow.Map.MAX_ZOOM,
@@ -164,10 +163,12 @@ visflow.Map.prototype.createMap_ = function() {
 
 /** @inheritDoc */
 visflow.Map.prototype.mousedown = function(event) {
-  if (visflow.interaction.isAlted() || !this.options.navigation) {
+  if (visflow.interaction.isAlted() || !this.options.navigation ||
+    this.checkDataEmpty()) {
     // Disable leaflet panning when we are dragging node.
-    this.map.dragging.disable();
-
+    if (this.map) {
+      this.map.dragging.disable();
+    }
     visflow.Map.base.mousedown.call(this, event);
   } else {
     this.container.draggable('disable');
@@ -180,7 +181,9 @@ visflow.Map.prototype.mouseup = function(event) {
     visflow.Map.base.mouseup.call(this, event);
   }
   this.container.draggable('enable');
-  this.map.dragging.enable();
+  if (this.map) {
+    this.map.dragging.enable();
+  }
 };
 
 /**

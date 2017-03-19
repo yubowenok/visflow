@@ -107,4 +107,3 @@ visflow.Node.prototype.defaultOptions = function() {
     visMode: false
   });
 };
-

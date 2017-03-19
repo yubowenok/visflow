@@ -24,6 +24,10 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       width: calc(100% - 77px);
+
+      &:hover {
+        background: $gray-e6;
+      }
     }
   }
 

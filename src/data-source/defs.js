@@ -37,6 +37,9 @@ visflow.DataSource.DEFAULT_NUM_ATTRS = 1;
  */
 visflow.DataSource.DATA_NAMES_LENGTH = 100;
 
+/** @const {boolean} */
+visflow.DataSource.prototype.IS_DATASOURCE = true;
+
 /** @inheritDoc */
 visflow.DataSource.prototype.defaultOptions = function() {
   return new visflow.options.DataSource({

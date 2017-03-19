@@ -6,7 +6,7 @@
 visflow.nlp = {};
 
 /** @type {boolean} */
-visflow.nlp.isWaitingForInput = false; // TODO(bowen): doesn't seem to be used?
+visflow.nlp.isWaitingForInput = false;
 
 /** @type {boolean} */
 visflow.nlp.isProcessing = false;
@@ -73,11 +73,6 @@ visflow.nlp.input = function(opt_target) {
 
   // If the input is global, search for a proper target.
   visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget();
-
-  if (visflow.nlp.target == null) {
-    visflow.nlp.end();
-    return;
-  }
 
   $('#nlp').children().remove();
 
@@ -150,12 +145,14 @@ visflow.nlp.findTarget = function() {
       return visflow.flow.nodes[nodeId];
     }
   }
+  /*
   if (!visflow.flow.dataSources.length) {
     // Empty diagram.
     // TODO(bowen): find the last uploaded data and create a data source.
     visflow.warning('Errh, first create a data source?');
     return null;
   }
+  */
   // Return the nearest node to the mouse position.
   return visflow.flow.closestNodeToMouse();
 };
@@ -169,9 +166,11 @@ visflow.nlp.findTarget = function() {
  */
 visflow.nlp.processQuery_ = function(query) {
   console.log('[target]', visflow.nlp.target);
-  query = visflow.nlp.matchChartTypes(query);
-  query = visflow.nlp.matchDimensions(query, /** @type {!visflow.Node} */(
-    visflow.nlp.target));
+  if (visflow.nlp.target) {
+    query = visflow.nlp.matchChartTypes(query);
+    query = visflow.nlp.matchDimensions(query, /** @type {!visflow.Node} */(
+      visflow.nlp.target));
+  }
   console.log('[query]', query);
   return query;
 };
@@ -199,8 +198,11 @@ visflow.nlp.parseResponse_ = function(res, query) {
   }
 
   console.log('[response]', result);
-  var command = visflow.nlp.mapChartTypes(result);
-  command = visflow.nlp.mapDimensions(command);
+  var command = result;
+  if (visflow.nlp.target) {
+    command = visflow.nlp.mapChartTypes(result);
+    command = visflow.nlp.mapDimensions(command);
+  }
   console.log('[command]', command);
   visflow.nlp.execute(command, result);
 };

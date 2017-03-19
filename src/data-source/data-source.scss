@@ -68,35 +68,36 @@ $data-source-height: 30px;
   }
 }
 
-#modal .data-source {
-  .online.disabled {
-    color: $gray-c;
-    pointer-events: none;
-  }
-
-  .server.disabled {
-    color: $gray-c;
-    pointer-events: none;
-
-    select,
-    .paginate_button > a {
+#modal {
+  .modal-body.data-source {
+    .online.disabled {
       color: $gray-c;
       pointer-events: none;
     }
 
-    tr.selected {
-      background-color: $gray-c;
+    .server.disabled {
+      color: $gray-c;
+      pointer-events: none;
+
+      select,
+      .paginate_button > a {
+        color: $gray-c;
+        pointer-events: none;
+      }
+
+      tr.selected {
+        background-color: $gray-c;
+      }
+    }
+
+    .hint {
+      font-size: .85em;
     }
   }
 
-  .btn-right {
-    float: right;
-    margin-right: 10px;
-    position: relative;
-    top: -5px;
-  }
-
-  .hint {
-    font-size: .85em;
+  .modal-footer.data-source {
+    .upload {
+      padding: $padding $padding-large;
+    }
   }
 }

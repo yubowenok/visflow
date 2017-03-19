@@ -122,6 +122,18 @@ visflow.data.registerData = function(data) {
 };
 
 /**
+ * Lists the datasets from the server.
+ * @param {function(!Array)} done Callback on successful load.
+ */
+visflow.data.listData = function(done) {
+  $.get(visflow.url.LIST_DATA)
+    .done(done)
+    .fail(function(res) {
+      visflow.error('cannot list server data:', res.responseText);
+    });
+};
+
+/**
  * @param {visflow.TabularData=} data
  * @constructor
  * @extends {visflow.TabularData}

@@ -170,10 +170,12 @@ visflow.ValueFilter.prototype.filter = function() {
 
 /**
  * Sets the filter-by value.
+ * @param {number} dim
  * @param {string} value
  */
-visflow.ValueFilter.prototype.setValue = function(value) {
-  this.value = [value];
+visflow.ValueFilter.prototype.setValue = function(dim, value) {
+  this.options.dims = [dim];
+  this.options.typeInValue = value;
   this.options.mode = visflow.ValueFilter.Mode.TEXT;
   this.options.target = visflow.ValueFilter.Target.SUBSTRING;
   this.parameterChanged();

@@ -65,6 +65,12 @@ gulp.task('less-dev', function(cb) {
   return runLess(cb, paths.less, 'visflow_deps.css', true);
 });
 
+gulp.task('less-doc', function(cb) {
+  return runLess(cb, paths.less, 'visflow_deps.css', true);
+});
+
 gulp.task('css', ['sass', 'less']);
 
 gulp.task('css-dev', ['sass-dev', 'less-dev']);
+
+gulp.task('css-doc', ['sass-doc', 'less-doc']);

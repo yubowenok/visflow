@@ -140,7 +140,7 @@ visflow.Node = function(params) {
       this.interaction();
 
       // For callback.
-      $(this).trigger('vf.ready');
+      visflow.signal(this, 'ready');
     }.bind(this);
 
     if (!this.TEMPLATE) {
@@ -324,10 +324,6 @@ visflow.Node.prototype.updateContainer_ = function() {
  * Inheriting classes shall not remove again.
  */
 visflow.Node.prototype.show = function() {
-  if (!this.options.visMode && visflow.flow.visMode) {
-    // do not show if hidden in vis mode
-    return;
-  }
   this.container.show();
 
   this.updateContainer_();
@@ -1322,3 +1318,54 @@ visflow.Node.prototype.toggleSelected = function(state) {
 visflow.Node.prototype.flowSenseInput = function() {
   visflow.nlp.input(this);
 };
+
+/**
+ * Shows animation towards the node's VisMode on state.
+ */
+visflow.Node.prototype.animateToVisModeOn = function() {
+  this.container.stop(true, true);
+  this.saveCss();
+
+  if (this.options.visMode) {
+    this.container
+      .animate(this.visCss, visflow.const.VISMODE_TRANSITION_DURATION,
+        function() {
+          if (this.minimized) {
+            this.backMinimized = true;
+            this.setMinimized(false);
+          }
+          this.show();
+        }.bind(this));
+  } else {
+    this.container
+      .css('pointer-events', 'none')
+      .animate({opacity: 0}, visflow.const.VISMODE_TRANSITION_DURATION,
+        this.hide.bind(this));
+  }
+};
+
+/**
+ * Shows animation towards the node's VisMode off state.
+ */
+visflow.Node.prototype.animateToVisModeOff = function() {
+  this.container.stop(true, true);
+  this.saveCss();
+
+  if (this.options.visMode) {
+    var css = this.css;
+    if (this.backMinimized) {
+      this.backMinimized = false;
+      this.setMinimized(true);
+      css = _.pick(this.css, 'left', 'top');
+    }
+    this.container
+      .animate(css, visflow.const.VISMODE_TRANSITION_DURATION,
+        this.show.bind(this));
+  } else {
+    this.container
+      .css('pointer-events', 'auto')
+      .animate({opacity: 1}, visflow.const.VISMODE_TRANSITION_DURATION,
+        this.show.bind(this));
+  }
+};
+

@@ -29,16 +29,6 @@ visflow.toolPanel.init = function() {
   visMode
     .click(function() {
       visflow.flow.toggleVisMode();
-    })
-    .on('mouseenter', function() {
-      if (!visflow.flow.visMode) {
-        visflow.flow.previewVisMode(true);
-      }
-    })
-    .on('mouseleave', function() {
-      if (!visflow.flow.visMode) {
-        visflow.flow.previewVisMode(false);
-      }
     });
 
   var upload = container.find('#upload');
