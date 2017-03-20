@@ -358,6 +358,16 @@ visflow.utils.isProbablyDate = function(text) {
 };
 
 /**
+ * Strips the given text. Removes leading and trailing newlines and empty
+ * spaces.
+ * @param {string} text
+ * @return {string}
+ */
+visflow.utils.strip = function(text) {
+  return text.replace(/^[\s\n]+/, '').replace(/[\s\n]+$/, '');
+};
+
+/**
  * Performs utils initialization.
  */
 visflow.utils.init();

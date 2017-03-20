@@ -15,7 +15,7 @@
   }
 
   > #btn-toggle {
-    @extend %ui-border;
+    @include ui-border;
 
     background-color: $trans-gray-230-75;
     border-left: 0;
@@ -31,7 +31,7 @@
   }
 
   .content {
-    @extend %ui-border;
+    @include ui-border;
 
     background-color: $ui-background;
     padding: $padding-large;
@@ -52,7 +52,7 @@
     border: 1px solid $trans-black-0;
 
     &:hover {
-      @extend %ui-border;
+      @include ui-border;
 
       background-color: $white;
       border-radius: $border-radius;

@@ -31,6 +31,10 @@
 
 
 .visflow {
+  .navbar {
+    @include shadow-bottom;
+  }
+
   .navbar-right {
     a > .glyphicon {
       margin-right: $margin-large;
@@ -65,7 +69,7 @@
   .anchor {
     display: block;
     position: relative;
-    top: -$navbar-height;
+    top: calc(-#{$navbar-height} - 2px);
     visibility: hidden;
   }
 
@@ -211,7 +215,7 @@
     overflow-y: auto;
     padding: 20px;
     position: fixed;
-    top: calc(#{$navbar-height} + 1px);
+    top: calc(#{$navbar-height} + 2px);
     z-index: 1000;
 
     li {

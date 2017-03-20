@@ -17,6 +17,9 @@ visflow.nlp.target = null;
 /** @type {boolean} */
 visflow.nlp.available = false;
 
+/** @private @const {string} */
+visflow.nlp.INPUT_TEMPLATE_ = './dist/html/nlp/nlp.html';
+
 /**
  * Initializes NLP events.
  */
@@ -74,19 +77,14 @@ visflow.nlp.input = function(opt_target) {
   // If the input is global, search for a proper target.
   visflow.nlp.target = opt_target ? opt_target : visflow.nlp.findTarget();
 
-  $('#nlp').children().remove();
-
-  var div = $('<div></div>')
-    .css({
-      left: visflow.interaction.mouseX,
-      top: visflow.interaction.mouseY
-    })
-    .appendTo('#nlp');
-  $('<label>FlowSense</label>').appendTo(div);
-  $('<textarea></textarea>')
-    .addClass('form-control')
-    .appendTo(div)
-    .focus();
+  $('#nlp').load(visflow.nlp.INPUT_TEMPLATE_, function() {
+    var div = $('#nlp').children('div')
+      .css({
+        left: visflow.interaction.mouseX,
+        top: visflow.interaction.mouseY
+      });
+    div.find('.form-control').focus();
+  });
   visflow.backdrop.toggle(true);
 };
 
@@ -120,6 +118,10 @@ visflow.nlp.speech = function(query, opt_target) {
  */
 visflow.nlp.submit = function(query) {
   visflow.nlp.isProcessing = true;
+
+  // strip the query
+  query = visflow.utils.strip(query);
+
   var rawQuery = query;
   query = visflow.nlp.processQuery_(query);
 
@@ -184,18 +186,23 @@ visflow.nlp.processQuery_ = function(query) {
 visflow.nlp.parseResponse_ = function(res, query) {
   if (res.match(/: 0 candidates/) != null) {
     visflow.warning('Sorry, FlowSense does not understand:', query);
+    visflow.nlp.log_(query, '0 candidates');
     return;
   }
   var matched = res.match(/Top value \{\n\s*\(string\s*(\S.*\S)\s*\)/);
   if (matched == null) {
     visflow.error('unexpected NLP response');
     console.log(res);
+    visflow.nlp.log_(query, 'unexpected');
     return;
   }
   var result = matched[1];
   if (result[0] == '"') {
     result = result.match(/"(.*)"/)[1]; // Remove string quotes
   }
+
+  // Successful query log
+  visflow.nlp.log_(query, result);
 
   console.log('[response]', result);
   var command = result;
@@ -214,4 +221,17 @@ visflow.nlp.end = function() {
   $('#nlp').children().remove();
   visflow.backdrop.toggle(false);
   visflow.nlp.isWaitingForInput = false;
+};
+
+/**
+ * Logs the NLP query for back study.
+ * @param {string} query
+ * @param {string} result
+ * @private
+ */
+visflow.nlp.log_ = function(query, result) {
+  $.post(visflow.url.NLP_LOG, {
+    query: query,
+    result: result
+  });
 };

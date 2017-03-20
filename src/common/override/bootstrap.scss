@@ -6,7 +6,7 @@
 
 
 .navbar {
-  @extend %shadow-bottom;
+  @include shadow-bottom;
 
   background-color: $ui-background-dark;
   z-index: 0;

@@ -1,7 +1,7 @@
 @import 'src/common/common';
 
 #tool-panel {
-  @extend %ui-border;
+  @include ui-border;
 
   padding: 2px $font-size;
   position: absolute;

@@ -44,3 +44,5 @@ visflow.url.PROFILE = './server/profile.php';
 
 /** @const {string} */
 visflow.url.NLP = './server/nlp.php';
+/** @const {string} */
+visflow.url.NLP_LOG = './server/nlp-log.php';

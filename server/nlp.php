@@ -13,7 +13,6 @@ $query_md5 = md5($query);
 $query_in = BASE_PATH . NLP_PATH . $query_md5;
 $query_out = $query_in . '.out';
 
-file_put_contents($query_in, $query); // Only for records
 $query_q = preg_replace('/\s+/', '+', $query);
 
 $cmd = "curl '" . NLP_URL . "$query_q'";
@@ -27,5 +26,5 @@ if ($return_int != 0) {
 $result = implode("\n", $result_lines);
 
 echo $result;
-file_put_contents($query_out, $result);
+
 ?>
