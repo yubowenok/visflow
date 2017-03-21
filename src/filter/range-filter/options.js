@@ -11,10 +11,10 @@ visflow.options.RangeFilter = function(params) {
   visflow.options.RangeFilter.base.constructor.call(this, params);
 
   /**
-   * Filtering dimensions.
-   * @type {!Array<number>}
+   * Filtering dimension.
+   * @type {?number}
    */
-  this.dims = params.dims !== undefined ? params.dims : [];
+  this.dim = params.dim !== undefined ? params.dim : null;
 
   /**
    * Filtering range values specified by directly typing in the input boxes.

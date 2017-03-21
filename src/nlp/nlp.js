@@ -48,12 +48,6 @@ visflow.nlp.init = function() {
         visflow.nlp.end();
       }
     });
-    $('#backdrop').on('keyup', function(event) {
-      if (event.keyCode == visflow.interaction.keyCodes.ESC) {
-        // Force end regardless of server response.
-        visflow.nlp.end();
-      }
-    });
 
     // Initializes annyang speech recognition.
     visflow.nlp.initSpeech();

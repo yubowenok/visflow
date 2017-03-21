@@ -27,5 +27,3 @@ gulp.task('build-doc', function(cb) {
     'copy-doc',
     cb);
 });
-
-gulp.task('default', ['build']);

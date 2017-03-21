@@ -18,6 +18,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
           this.NO_DATA_STRING : null
       },
       change: function(event, dim) {
+        console.log(dim);
         this.options.groupBy = dim;
         this.parameterChanged();
       }

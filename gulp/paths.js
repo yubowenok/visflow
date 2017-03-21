@@ -18,7 +18,7 @@ var orderedSrc = [
   'src/user/*.js',
   'src/backdrop/*.js',
   'src/nlp/nlp.js',
-  'src/nlp/*.js',
+  'src/nlp/**/*.js',
 
   'src/save.js',
   'src/node/save.js',

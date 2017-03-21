@@ -117,6 +117,12 @@ visflow.Node = function(params) {
    */
   this.backMinimized = false;
 
+  /**
+   * Measure of how actively user is using this node.
+   * @type {number}
+   */
+  this.activeness = 0;
+
   // Extend the options. Default options maybe overwritten by inheriting
   // classes.
   this.options.extend(this.defaultOptions());
@@ -1330,11 +1336,12 @@ visflow.Node.prototype.animateToVisModeOn = function() {
     this.container
       .animate(this.visCss, visflow.const.VISMODE_TRANSITION_DURATION,
         function() {
-          if (this.minimized) {
+          if (this.options.minimized) {
             this.backMinimized = true;
-            this.setMinimized(false);
+            this.setMinimized(false); // here include show
+          } else {
+            this.show();
           }
-          this.show();
         }.bind(this));
   } else {
     this.container

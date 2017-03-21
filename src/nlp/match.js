@@ -1,97 +1,3 @@
-/**
- * Gets the chart types names available.
- * @return {!Array<{name: string, value: string}>}
- */
-visflow.nlp.chartTypes = function() {
-  return [
-    {name: 'table', value: 'table'},
-    {name: 'scatterplot', value: 'scatterplot'},
-    {name: 'scp', value: 'scatterplot'},
-    {name: 'relation', value: 'scatterplot'},
-    {name: 'parallel coordinates', value: 'parallelCoordinates'},
-    {name: 'pcp', value: 'parallelCoordinates'},
-    {name: 'histogram', value: 'histogram'},
-    {name: 'distribution', value: 'histogram'},
-    {name: 'heatmap', value: 'heatmap'},
-    {name: 'color map', value: 'heatmap'},
-    {name: 'line chart', value: 'lineChart'},
-    {name: 'series', value: 'lineChart'},
-    {name: 'network', value: 'network'},
-    {name: 'topology', value: 'network'},
-    {name: 'map', value: 'map'}
-  ];
-};
-
-/**
- * Gets the primitive chart types supported.
- * @return {!Array<string>}
- */
-visflow.nlp.chartPrimitives = function() {
-  return _.uniq(visflow.nlp.chartTypes().map(function(chart) {
-    return chart.value;
-  }));
-};
-
-/**
- * Gets the util command names available.
- * @return {!Array<{name: string, value: string}>}
- */
-visflow.nlp.utilTypes = function() {
-  return [
-    // autolayout
-    {name: 'autolayout', value: 'autolayout'},
-    {name: 'layout', value: 'autolayout'},
-
-    {name: 'delete', value: 'delete'} // TODO(bowen)
-  ];
-};
-
-/**
- * Gets the primitive util command types.
- * @return {!Array<string>}
- */
-visflow.nlp.utilPrimitives = function() {
-  return [
-    'autolayout',
-    'delete'
-  ];
-};
-
-/**
- * Gets the supported rendering properties list.
- * @return {!Array<string>}
- */
-visflow.nlp.renderingPropertyPrimitives = function() {
-  return [
-    'color',
-    'border',
-    'width',
-    'size',
-    'opacity'
-  ];
-};
-
-/**
- * Matching threshold for the edit distance.
- * Maximum allowed percentage of edit_distance/pattern_length.
- * @private @const {number}
- */
-visflow.nlp.MATCH_THRESHOLD_ = .2;
-
-/** @enum {string} */
-visflow.nlp.Keyword = {
-  CHART_TYPE: 'chart_type',
-  DIMENSION: 'dim',
-  HIGHLIGHT: 'highlight',
-  SELECTION: 'selection',
-  FILTER: 'filter',
-  FIND: 'find',
-  CONTAIN: 'contain',
-  AUTOLAYOUT: 'autolayout',
-  DELETE: 'delete',
-  LOAD: 'load',
-  OF: 'of'
-};
 
 /** @private @const {RegExp} */
 visflow.nlp.DELIMITER_REGEX_ = /[\s,;]+/;
@@ -118,60 +24,12 @@ visflow.nlp.matchedDimensions_ = {};
 
 
 /**
- * Checks if a root command is a chart type.
- * @param {string} token
- * @return {boolean}
+ * Matching threshold for the edit distance.
+ * Maximum allowed percentage of edit_distance/pattern_length.
+ * @private @const {number}
  */
-visflow.nlp.isChartType = function(token) {
-  return visflow.nlp.chartPrimitives().indexOf(token) != -1 ||
-    token == visflow.nlp.Keyword.CHART_TYPE;
-};
+visflow.nlp.MATCH_THRESHOLD_ = .2;
 
-/**
- * Checks if a root command is to highlight.
- * @param {string} token
- * @return {boolean}
- */
-visflow.nlp.isHighlight = function(token) {
-  return token == visflow.nlp.Keyword.HIGHLIGHT;
-};
-
-/**
- * Checks if the root command is a util.
- * @param {string} token
- * @return {boolean}
- */
-visflow.nlp.isUtil = function(token) {
-  return visflow.nlp.utilPrimitives().indexOf(token) != -1;
-};
-
-/**
- * Checks if a root command is to filter or find.
- * @param {string} token
- * @return {boolean}
- */
-visflow.nlp.isFilter = function(token) {
-  return token == visflow.nlp.Keyword.FILTER ||
-    token == visflow.nlp.Keyword.FIND;
-};
-
-/**
- * Checks if a root command is to load data.
- * @param {string} token
- * @return {boolean}
- */
-visflow.nlp.isLoad = function(token) {
-  return token == visflow.nlp.Keyword.LOAD;
-};
-
-/**
- * Chekcs if a root command is a rendering property.
- * @param {string} token
- * @return {boolean}
- */
-visflow.nlp.isRenderingProperty = function(token) {
-  return visflow.nlp.renderingPropertyPrimitives().indexOf(token) != -1;
-};
 
 /**
  * Checks if a token is a comparison.
@@ -181,15 +39,6 @@ visflow.nlp.isRenderingProperty = function(token) {
 visflow.nlp.isComparison = function(token) {
   var comparisonTokens = ['<', '>', '=', '<=', '>='];
   return comparisonTokens.indexOf(token) != -1;
-};
-
-/**
- * Checks if a token is a value (substring) match.
- * @param {string} token
- * @return {boolean}
- */
-visflow.nlp.isContain = function(token) {
-  return token == visflow.nlp.Keyword.CONTAIN;
 };
 
 /**
@@ -205,37 +54,14 @@ visflow.nlp.isColorScale = function(value) {
 };
 
 /**
- * Gets the filter command type form a token.
+ * Checks if a root command is a chart type.
  * @param {string} token
- * @return {visflow.nlp.CommandType}
+ * @return {boolean}
  */
-visflow.nlp.getFilterType = function(token) {
-  switch (token) {
-    case visflow.nlp.Keyword.FILTER:
-      return visflow.nlp.CommandType.FILTER;
-    case visflow.nlp.Keyword.FIND:
-      return visflow.nlp.CommandType.FIND;
-    default:
-      return visflow.nlp.CommandType.UNKNOWN;
-  }
+visflow.nlp.isChartType = function(token) {
+  return visflow.nlp.chartPrimitives().indexOf(token) != -1 ||
+    token == visflow.nlp.Keyword.CHART_TYPE;
 };
-
-/**
- * Gets the util command type from a token.
- * @param {string} token
- * @return {visflow.nlp.CommandType}
- */
-visflow.nlp.getUtilType = function(token) {
-  switch (token) {
-    case visflow.nlp.Keyword.AUTOLAYOUT:
-      return visflow.nlp.CommandType.AUTOLAYOUT;
-    case visflow.nlp.Keyword.DELETE:
-      return visflow.nlp.CommandType.DELETE;
-    default:
-      return visflow.nlp.CommandType.UNKNOWN;
-  }
-};
-
 
 /**
  * Computes the edit distance between input phrase "target" and a known
@@ -243,11 +69,14 @@ visflow.nlp.getUtilType = function(token) {
  * Addition/deletion/modification cost = 1.
  * @param {string} target
  * @param {string} pattern
+ * @param {number=} opt_threshold
  * @return {boolean} Whether the match succeeded based on allowed edit distance.
  */
-visflow.nlp.match = function(target, pattern) {
+visflow.nlp.match = function(target, pattern, opt_threshold) {
   target = target.toLowerCase();
   pattern = pattern.toLowerCase(); // case-insensitive matching
+  var threshold = opt_threshold !== undefined ? opt_threshold :
+    visflow.nlp.MATCH_THRESHOLD_;
   var n = target.length;
   var m = pattern.length;
   var dp = [];
@@ -271,12 +100,7 @@ visflow.nlp.match = function(target, pattern) {
       }
     }
   }
-  /*
-  if (dp[n][m] <= visflow.nlp.MATCH_THRESHOLD_ * pattern.length) {
-    console.log(target, pattern, dp[n][m]);
-  }
-  */
-  return dp[n][m] <= visflow.nlp.MATCH_THRESHOLD_ * pattern.length;
+  return dp[n][m] <= threshold * pattern.length;
 };
 
 /**
@@ -438,32 +262,4 @@ visflow.nlp.mapDimensions = function(command) {
     }
   }
   return tokens.join(' ');
-};
-
-/**
- * Matches the dataName against the list of available datasets.
- * @param {string} dataName
- * @param {function(?visflow.data.Info)} callback Callback function with data
- *     info. This is called with null if no data matches.
- */
-visflow.nlp.matchDataset = function(dataName, callback) {
-  visflow.data.listData(function(dataList) {
-    var matched = false;
-    for (var i = 0; i < dataList.length; i++) {
-      var data = dataList[i];
-      if (visflow.nlp.match(data.id, dataName)) {
-        callback(data);
-        matched = true;
-        return;
-      }
-      if (visflow.nlp.match(data.name, dataName)) {
-        callback(data);
-        matched = true;
-        return;
-      }
-    }
-    if (!matched) {
-      callback(null);
-    }
-  });
 };

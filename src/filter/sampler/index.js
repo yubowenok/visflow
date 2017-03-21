@@ -71,44 +71,47 @@ visflow.Sampler.prototype.process = function() {
   this.filter();
 };
 
-/** @inheritDoc */
-visflow.Sampler.prototype.filter = function() {
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
-  var data = inpack.data;
-
-  var itemGroups = inpack.groupItems(this.options.groupBy);
-  var reversed = this.options.condition == 'last' ? -1 : 1;
+/**
+ * Samples the subset with a given specification.
+ * @param {visflow.Sampler.Spec} spec
+ * @param {!visflow.Package} pack
+ * @return {!Array<number>} Resulting subset as array.
+ */
+visflow.Sampler.filter = function(spec, pack) {
   var result = [];
+  var itemGroups = pack.groupItems(spec.groupBy);
+  var reversed = spec.condition == visflow.Sampler.Condition.LAST ? -1 : 1;
+  var dim = spec.dim;
+
   itemGroups.forEach(function(groupItems) {
     var colValues = [];
     groupItems.forEach(function(itemIndex) {
       var index = +itemIndex;
-      var val = inpack.getValue(index, this.options.dim);
+      var val = pack.getValue(index, dim);
       colValues.push(val);
     }, this);
     colValues.sort(function(a, b) {
       return reversed * visflow.utils.compare(a, b);
     });
 
-    if (this.options.unique) {
+    if (spec.unique) {
       colValues = _.uniq(colValues);
     }
 
-    var count = this.options.mode == visflow.Sampler.Mode.COUNT ?
-      this.options.number :
-      Math.ceil(this.options.number / 100 * colValues.length);
+    var count = spec.mode == visflow.Sampler.Mode.COUNT ?
+      spec.number :
+      Math.ceil(spec.number / 100 * colValues.length);
     count = Math.min(colValues.length, count);
 
     var acceptedVals = [];
-    switch (this.options.condition) {
+    switch (spec.condition) {
       case visflow.Sampler.Condition.FIRST:
       case visflow.Sampler.Condition.LAST:
         acceptedVals = colValues.slice(0, count);
         break;
       case visflow.Sampler.Condition.SAMPLING:
         var i = 0;
-        var percentage = this.options.number / 100;
+        var percentage = spec.number / 100;
         while (count > 0) {
           if (i == colValues.length) {
             i = 0;
@@ -133,12 +136,28 @@ visflow.Sampler.prototype.filter = function() {
     acceptedVals = _.keySet(acceptedVals);
     groupItems.forEach(function(itemIndex) {
       var index = +itemIndex;
-      var val = inpack.getValue(index, this.options.dim);
+      var val = pack.getValue(index, dim);
       if (val in acceptedVals) {
         result.push(index);
       }
-    }, this);
-  }, this);
+    });
+  });
+  return result;
+};
+
+/** @inheritDoc */
+visflow.Sampler.prototype.filter = function() {
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
+  var outpack = this.ports['out'].pack;
+
+  var result = visflow.Sampler.filter({
+    dim: this.options.dim,
+    number: this.options.number,
+    unique: this.options.unique,
+    groupBy: this.options.groupBy,
+    mode: this.options.mode,
+    condition: this.options.condition
+  }, inpack);
 
   outpack.copy(inpack);
   outpack.filter(result);

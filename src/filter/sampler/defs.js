@@ -56,6 +56,18 @@ visflow.Sampler.prototype.modes = function() {
   ];
 };
 
+/**
+ * @typedef {{
+ *   dim: number,
+ *   groupBy: (number|string),
+ *   number: number,
+ *   unique: (boolean|undefined),
+ *   condition: visflow.Sampler.Condition,
+ *   mode: visflow.Sampler.Mode
+ * }}
+ */
+visflow.Sampler.Spec;
+
 /** @inheritDoc */
 visflow.Sampler.prototype.defaultOptions = function() {
   return new visflow.options.Sampler({

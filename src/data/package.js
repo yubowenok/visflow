@@ -48,6 +48,7 @@ visflow.Package = function(data) {
  * Makes full references to another package.
  * @param {!visflow.Package} pack
  * @param {boolean=} opt_shallow
+ * @return {!visflow.Package}
  */
 visflow.Package.prototype.copy = function(pack, opt_shallow) {
   this.data = pack.data;
@@ -63,11 +64,13 @@ visflow.Package.prototype.copy = function(pack, opt_shallow) {
     this.items = pack.items;  // shallow copy only makes reference to items
   }
   this.changed = true;
+  return this;
 };
 
 /**
  * Accepts a list of indexes to be the new items, and update items and hasItem.
  * @param {!Array<number>} indices
+ * @return {!visflow.Package}
  */
 visflow.Package.prototype.filter = function(indices) {
   var newItems = {};
@@ -79,6 +82,7 @@ visflow.Package.prototype.filter = function(indices) {
     newItems[index] = e;
   }, this);
   this.items = newItems;
+  return this;
 };
 
 /**
@@ -124,12 +128,12 @@ visflow.Package.prototype.isEmptyData = function() {
 
 /**
  * Groups items based on a given 'groupBy' attribute.
- * @param {string|number} groupBy If empty string, return a single group.
+ * @param {string|number|null} groupBy If empty string, return a single group.
  * @return {!Array<!Array<string>>}
  */
 visflow.Package.prototype.groupItems = function(groupBy) {
   var groups = [];
-  if (groupBy === '') {
+  if (groupBy === '' || groupBy == null) {
     groups.push(_.allKeys(this.items));
   } else {
     var valueSet = {};

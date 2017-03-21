@@ -402,6 +402,17 @@ visflow.Visualization.prototype.selectItems = function() {
 };
 
 /**
+ * Selects the given items.
+ * @param {!Object<number, boolean>} items
+ */
+visflow.Visualization.prototype.select = function(items) {
+  this.selected = items;
+  this.selectedChanged();
+  this.show();
+  this.pushflow();
+};
+
+/**
  * Renders the selection range as lasso stroke.
  */
 visflow.Visualization.prototype.drawLasso = function() {

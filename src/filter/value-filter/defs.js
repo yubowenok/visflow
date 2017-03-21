@@ -25,11 +25,22 @@ visflow.ValueFilter.Target = {
   SUBSTRING: 'substring'
 };
 
+/**
+ * @typedef {{
+ *   dims: (number|undefined|null),
+ *   values: !Array<number|string>,
+ *   mode: visflow.ValueFilter.Mode,
+ *   target: visflow.ValueFilter.Target,
+ *   ignoreCases: (boolean|undefined)
+ * }}
+ */
+visflow.ValueFilter.Spec;
+
 /** @inheritDoc */
 visflow.ValueFilter.prototype.defaultOptions = function() {
   return new visflow.options.ValueFilter({
     // Dimensions to be filtered on.
-    dims: [],
+    dim: undefined,
     // Whether input is treated as normal text or regex.
     // 'text' or 'regex'.
     mode: visflow.ValueFilter.Mode.TEXT,

@@ -683,7 +683,6 @@ visflow.interaction.clickHandler = function(params) {
   var type = params.type;
   if (type == 'empty') {
     visflow.flow.backgroundClearSelection();
-    //visflow.nodePanel.toggle(false);
     $('input').blur();
   }
 };
@@ -695,4 +694,5 @@ visflow.interaction.escHandler = function() {
   visflow.flow.clearNodeSelection();
   visflow.popupPanel.hide();
   visflow.dialog.close();
+  visflow.nlp.end();
 };
