@@ -3,9 +3,6 @@
  */
 
 /** @inheritDoc */
-visflow.ValueExtractor.prototype.NODE_NAME = 'Value Extractor';
-
-/** @inheritDoc */
 visflow.ValueExtractor.prototype.NODE_CLASS = 'value-extractor';
 
 /** @inheritDoc */

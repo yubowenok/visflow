@@ -62,6 +62,7 @@ var orderedSrc = [
   'src/set/**/index.js',
   'src/set/**/*.js',
 
+  'src/value/index.js',
   'src/value/**/index.js',
   'src/value/**/*.js',
 

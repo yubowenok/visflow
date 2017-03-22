@@ -2,8 +2,6 @@
  * @fileoverview Network defs.
  */
 
-/** @inheritDoc */
-visflow.Network.prototype.NODE_NAME = 'Network';
 
 /** @inheritDoc */
 visflow.Network.prototype.NODE_CLASS = 'network';

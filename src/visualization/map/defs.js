@@ -6,9 +6,6 @@
 visflow.Map.prototype.NODE_CLASS = 'map';
 
 /** @inheritDoc */
-visflow.Map.prototype.NODE_NAME = 'Map';
-
-/** @inheritDoc */
 visflow.Map.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/map/map-panel.html';
 

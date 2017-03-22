@@ -2,15 +2,13 @@
  * @fileoverview Parallel coordinates defs.
  */
 
-/** @inheritDoc */
-visflow.ParallelCoordinates.prototype.PANEL_TEMPLATE =
-  './dist/html/visualization/parallel-coordinates/parallel-coordinates-panel.html';
 
 /** @inheritDoc */
 visflow.ParallelCoordinates.prototype.NODE_CLASS = 'parallel-coordinates';
 
 /** @inheritDoc */
-visflow.ParallelCoordinates.prototype.NODE_NAME = 'ParallelCoordinates';
+visflow.ParallelCoordinates.prototype.PANEL_TEMPLATE =
+  './dist/html/visualization/parallel-coordinates/parallel-coordinates-panel.html';
 
 /**
  * Default number of dimension shown.

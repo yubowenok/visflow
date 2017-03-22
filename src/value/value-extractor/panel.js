@@ -11,6 +11,7 @@ visflow.ValueExtractor.prototype.initPanel = function(container) {
       params: {
         container: container.find('#dims'),
         list: this.getDimensionList(),
+        listTitle: 'Dimension(s)',
         selected: this.options.dims,
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
           this.NO_DATA_STRING : null

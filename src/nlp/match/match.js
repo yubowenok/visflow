@@ -22,6 +22,12 @@ visflow.nlp.matchedChartTypes_ = {};
  */
 visflow.nlp.matchedDimensions_ = {};
 
+/**
+ * Matched nodes in the query string.
+ * @private {!Object<string>}
+ */
+visflow.nlp.matchedNodes_ = {};
+
 
 /**
  * Matching threshold for the edit distance.
@@ -29,6 +35,12 @@ visflow.nlp.matchedDimensions_ = {};
  * @private @const {number}
  */
 visflow.nlp.MATCH_THRESHOLD_ = .2;
+
+/**
+ * Stricter matching threshold for the edit distance.
+ * @private @const {number}
+ */
+visflow.nlp.MATCH_THRESHOLD_STRICT_ = .05;
 
 
 /**
@@ -67,12 +79,16 @@ visflow.nlp.isChartType = function(token) {
  * Computes the edit distance between input phrase "target" and a known
  * "pattern". target can be word or bigram.
  * Addition/deletion/modification cost = 1.
- * @param {string} target
+ * @param {?string} target
  * @param {string} pattern
  * @param {number=} opt_threshold
  * @return {boolean} Whether the match succeeded based on allowed edit distance.
  */
 visflow.nlp.match = function(target, pattern, opt_threshold) {
+  if (target == null) {
+    return false;
+  }
+
   target = target.toLowerCase();
   pattern = pattern.toLowerCase(); // case-insensitive matching
   var threshold = opt_threshold !== undefined ? opt_threshold :
@@ -230,6 +246,67 @@ visflow.nlp.matchDimensions = function(query, target) {
 };
 
 /**
+ * Replaces node specifiers by placeholders.
+ * Matched nodes are stored in matchedNodes_.
+ * @param {string} query
+ * @return {string}
+ */
+visflow.nlp.matchNodes = function(query) {
+  var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
+  visflow.nlp.matchedNodes_ = {};
+
+  var nodeCounter = 0;
+  var parsedTokens = [];
+  var seenFrom = false;
+  while (tokens.length) {
+    var matchedWord = false;
+    var matchedBigram = false;
+
+    // word
+    var word = /** @type {string} */(_.first(tokens));
+    if (word == visflow.nlp.Keyword.FROM || word == visflow.nlp.Keyword.OF) {
+      seenFrom = true;
+    }
+    if (!seenFrom) {
+      // Avoid mapping the first verb to a node label, e.g. "filter the ..."
+      // is not "node the ...".
+      // TODO(bowen): Move this to grammar content.
+      _.popFront(tokens);
+      parsedTokens.push(word);
+      continue;
+    }
+    // bigrams
+    var bigram = tokens.length >= 2 ? tokens[0] + tokens[1] : null;
+    for (var id in visflow.flow.nodes) {
+      var node = visflow.flow.nodes[id];
+      if (visflow.nlp.match(word, node.label,
+          visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
+        matchedWord = true;
+        visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
+        break;
+      }
+      if (visflow.nlp.match(bigram, node.label,
+          visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
+        matchedBigram = true;
+        visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
+        break;
+      }
+    }
+
+    if (matchedWord || matchedBigram) {
+      parsedTokens.push(visflow.nlp.Keyword.NODE);
+    } else {
+      parsedTokens.push(word);
+    }
+    _.popFront(tokens);
+    if (matchedBigram) {
+      _.popFront(tokens);
+    }
+  }
+  return parsedTokens.join(' ');
+};
+
+/**
  * Maps the chart type placeholders back to the standard chart types.
  * @param {string} command
  * @return {string}
@@ -262,4 +339,39 @@ visflow.nlp.mapDimensions = function(command) {
     }
   }
   return tokens.join(' ');
+};
+
+/**
+ * Maps the node placeholders back to the node labels.
+ * @param {string} commands
+ * @return {string}
+ */
+visflow.nlp.mapNodes = function(commands) {
+  var tokens = commands.split(visflow.nlp.DELIMITER_REGEX_);
+  var nodeCounter = 0;
+  for (var i = 0; i < tokens.length; i++) {
+    if (tokens[i] == visflow.nlp.Keyword.NODE) {
+      tokens[i] = visflow.nlp.matchedNodes_[nodeCounter++];
+    }
+  }
+  return tokens.join(' ');
+};
+
+/**
+ * Finds a node matching the conditions.
+ * @param {{
+ *   label: (string|undefined)
+ * }} condition
+ * @return {?visflow.Node}
+ */
+visflow.nlp.findNode = function(condition) {
+  for (var id in visflow.flow.nodes) {
+    var node = visflow.flow.nodes[id];
+    if (condition.label !== undefined && node.label != condition.label) {
+      continue;
+    }
+    // Found a node satisfying all conditions.
+    return node;
+  }
+  return null;
 };

@@ -11,6 +11,7 @@ visflow.utils = {};
 visflow.utils.init = function() {
   // This requires externs to be added for underscore.
   _.mixin({
+    popFront: visflow.utils.popFront_,
     keySet: visflow.utils.keySet_,
     getValue: visflow.utils.getValue_,
     fadeOut: visflow.utils.fadeOut_,
@@ -304,6 +305,21 @@ visflow.utils.fadeOut_ = function(obj) {
   obj.transition()
     .style('opacity', 0)
     .remove();
+};
+
+/**
+ * Returns the first element of the array and pop_front the array.
+ * This has linear time and shall only be used on small array.
+ * @param {!Array} arr
+ * @param {number=} opt_count
+ * @return {*} If the array is empty, return undefined.
+ * @private
+ */
+visflow.utils.popFront_ = function(arr, opt_count) {
+  var count = opt_count === undefined ? 1 : opt_count;
+  var first = arr[0];
+  arr.splice(0, count);
+  return first;
 };
 
 /**

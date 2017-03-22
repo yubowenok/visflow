@@ -139,7 +139,7 @@ visflow.Visualization.prototype.isDataEmpty = function() {
 visflow.Visualization.prototype.checkDataEmpty = function() {
   if (this.isDataEmpty()) {
     // otherwise scales may be undefined
-    this.showMessage('empty data in ' + this.NODE_NAME);
+    this.showMessage('empty data');
     this.content.hide();
     return true;
   } else {

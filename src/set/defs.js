@@ -3,6 +3,9 @@
  */
 
 /** @inheritDoc */
+visflow.Set.prototype.DEFAULT_LABEL = 'Set';
+
+/** @inheritDoc */
 visflow.Set.prototype.RESIZABLE = false;
 
 /** @inheritDoc */

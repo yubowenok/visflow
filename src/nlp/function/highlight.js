@@ -12,7 +12,7 @@ visflow.nlp.highlight = function(commands) {
   commands = commands.slice(2);
 
   var fromNode = visflow.nlp.target;
-  if (commands.length && commands[0].token == visflow.nlp.Keyword.OF) {
+  if (commands.length && commands[0].token == visflow.nlp.Keyword.FROM) {
     if (!commands[0] ||
       commands[1].syntax != visflow.nlp.Keyword.CHART_TYPE) {
       console.error('unexpected highlight source');
@@ -21,7 +21,7 @@ visflow.nlp.highlight = function(commands) {
     // Try to find the user's current focus, and highlight from there.
     if (!fromNode.matchType(commands[1].token)) {
       var newTarget = visflow.flow.closestNodeToMouse({
-        nodeName: commands[1].token
+        type: commands[1].token
       });
       if (!newTarget) {
         // If we can find a match, then use the new target.

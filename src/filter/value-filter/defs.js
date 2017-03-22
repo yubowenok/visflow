@@ -9,7 +9,7 @@ visflow.ValueFilter.prototype.TEMPLATE =
 visflow.ValueFilter.prototype.PANEL_TEMPLATE =
   './dist/html/filter/value-filter/value-filter-panel.html';
 /** @inheritDoc */
-visflow.ValueFilter.prototype.NODE_NAME = 'Value Filter';
+visflow.ValueFilter.prototype.DEFAULT_LABEL = 'Filter';
 /** @inheritDoc */
 visflow.ValueFilter.prototype.NODE_CLASS = 'value-filter';
 

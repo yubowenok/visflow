@@ -2,11 +2,9 @@
  * @fileoverview LineChart defs.
  */
 
-/** @inheritDoc */
-visflow.LineChart.prototype.NODE_CLASS = 'line-chart';
 
 /** @inheritDoc */
-visflow.LineChart.prototype.NODE_NAME = 'Line Chart';
+visflow.LineChart.prototype.NODE_CLASS = 'line-chart';
 
 /** @inheritDoc */
 visflow.LineChart.prototype.PANEL_TEMPLATE =

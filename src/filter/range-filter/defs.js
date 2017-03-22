@@ -9,7 +9,7 @@ visflow.RangeFilter.prototype.TEMPLATE =
 visflow.RangeFilter.prototype.PANEL_TEMPLATE =
   './dist/html/filter/range-filter/range-filter-panel.html';
 /** @inheritDoc */
-visflow.RangeFilter.prototype.NODE_NAME = 'Range Filter';
+visflow.RangeFilter.prototype.DEFAULT_LABEL = 'Filter';
 /** @inheritDoc */
 visflow.RangeFilter.prototype.NODE_CLASS = 'range-filter';
 

@@ -3,7 +3,7 @@
  */
 
 /** @inheritDoc */
-visflow.Visualization.prototype.NODE_NAME = 'visualization';
+visflow.Visualization.prototype.DEFAULT_LABEL = 'Chart';
 
 /** @inheritDoc */
 visflow.Visualization.prototype.TEMPLATE =

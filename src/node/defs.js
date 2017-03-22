@@ -37,7 +37,8 @@ visflow.Node.prototype.NODE_CLASS = '';
  * Node name used for label.
  * @protected {string}
  */
-visflow.Node.prototype.NODE_NAME = 'node';
+visflow.Node.prototype.DEFAULT_LABEL = 'Node';
+
 
 // Minimum/maximum size of resizable.
 /** @protected {number} */

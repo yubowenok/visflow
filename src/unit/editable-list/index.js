@@ -28,8 +28,8 @@ visflow.EditableList = function(params) {
   /** @private {!Array<string|number>} */
   this.selected_ = params.selected ? params.selected.concat() : [];
 
-  /** @private {string} */
-  this.listTitle_ = params.listTitle ? params.listTitle : '';
+  /** @protected {string} */
+  this.listTitle = params.listTitle ? params.listTitle : '';
 
   /** @private {string} */
   this.addTitle_ = params.addTitle ? params.addTitle : 'Add Item';
@@ -63,7 +63,7 @@ visflow.EditableList.prototype.TEMPLATE_ =
  */
 visflow.EditableList.prototype.init_ = function() {
   this.container_.find('#list #title')
-    .text(this.listTitle_);
+    .text(this.listTitle);
 
   var select2 = this.container_.find('#add').children('select')
     .select2({

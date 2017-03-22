@@ -6,9 +6,6 @@
 visflow.PropertyMapping.prototype.NODE_CLASS = 'property-mapping';
 
 /** @inheritDoc */
-visflow.PropertyMapping.prototype.NODE_NAME = 'Property Mapping';
-
-/** @inheritDoc */
 visflow.PropertyMapping.prototype.TEMPLATE =
   './dist/html/property/property-mapping/property-mapping.html';
 

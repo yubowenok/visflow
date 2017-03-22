@@ -32,7 +32,10 @@ visflow.nlp.Keyword = {
   AUTOLAYOUT: 'autolayout',
   DELETE: 'delete',
   LOAD: 'load',
-  OF: 'of'
+  NODE: 'node',
+  FROM: 'from',
+  OF: 'of',
+  TO: 'to'
 };
 
 /**

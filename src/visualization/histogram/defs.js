@@ -2,11 +2,9 @@
  * @fileoverview Histogram defs.
  */
 
-/** @inheritDoc */
-visflow.Histogram.prototype.NODE_CLASS = 'histogram';
 
 /** @inheritDoc */
-visflow.Histogram.prototype.NODE_NAME = 'Histogram';
+visflow.Histogram.prototype.NODE_CLASS = 'histogram';
 
 /** @inheritDoc */
 visflow.Histogram.prototype.PANEL_TEMPLATE =

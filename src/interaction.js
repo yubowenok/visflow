@@ -429,6 +429,10 @@ visflow.interaction.mousedownHandler = function(params) {
   }
 
   if (type == 'background') {
+
+    // Also decrease activeness when user is navigating.
+    visflow.flow.iterateActiveness();
+
     if (!visflow.interaction.alted) {
       visflow.interaction.mouseMode = 'pan';
       visflow.interaction.mainContainer_.css('cursor', 'move');

@@ -199,3 +199,11 @@ visflow.ValueFilter.prototype.setValue = function(dim, value, opt_target) {
   this.options.target = target;
   this.parameterChanged();
 };
+
+/**
+ * Gets the constant input port.
+ * @return {!visflow.Port}
+ */
+visflow.ValueFilter.prototype.getConstantInPort = function() {
+  return this.ports['inVal'];
+};

@@ -33,7 +33,7 @@ visflow.ValueExtractor = function(params) {
   this.lastDataId = visflow.data.EMPTY_DATA_ID;
 };
 
-_.inherit(visflow.ValueExtractor, visflow.Node);
+_.inherit(visflow.ValueExtractor, visflow.Value);
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.serialize = function() {
@@ -117,4 +117,13 @@ visflow.ValueExtractor.prototype.parameterChanged = function() {
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());
   }
+};
+
+/**
+ * Sets the dimension to be extracted.
+ * @param {!Array<number>} dims
+ */
+visflow.ValueExtractor.prototype.setDimensions = function(dims) {
+  this.options.dims = dims;
+  this.parameterChanged();
 };

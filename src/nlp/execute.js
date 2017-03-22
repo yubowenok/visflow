@@ -36,6 +36,12 @@ visflow.nlp.execute = function(command, syntax) {
     case visflow.nlp.CommandType.FIND:
       visflow.nlp.filter(commands);
       break;
+    case visflow.nlp.CommandType.EXTRACT:
+      visflow.nlp.extract(commands);
+      break;
+    case visflow.nlp.CommandType.LINK:
+      visflow.nlp.link(commands);
+      break;
     case visflow.nlp.CommandType.RENDERING_PROPERTY:
       visflow.nlp.renderingProperty(commands);
       break;

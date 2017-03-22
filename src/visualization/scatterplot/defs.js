@@ -6,9 +6,6 @@
 visflow.Scatterplot.prototype.NODE_CLASS = 'scatterplot';
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.NODE_NAME = 'Scatterplot';
-
-/** @inheritDoc */
 visflow.Scatterplot.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/scatterplot/scatterplot-panel.html';
 

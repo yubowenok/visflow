@@ -254,6 +254,9 @@ visflow.Flow.prototype.deleteNode = function(node) {
   node.removeEdges();
   if (this.lastSelectedNode == node) {
     this.lastSelectedNode = null;
+    if (node.id in this.nodesSelected) {
+      delete this.nodesSelected[node.id];
+    }
   }
   if (node.IS_DATASOURCE) {
     this.dataSources.splice(this.dataSources.indexOf(node), 1);
@@ -549,8 +552,15 @@ visflow.Flow.prototype.addNodeSelection = function(nodes) {
   } else {
     toAdd = nodes;
   }
+
+  this.iterateActiveness();
+
   for (var i in toAdd) {
     var node = toAdd[i];
+
+    // Selected node has higher activeness.
+    node.activeness += 1.0;
+
     this.nodesSelected[node.id] = node;
     node.toggleSelected(true);
     this.lastSelectedNode = node;
@@ -761,9 +771,12 @@ visflow.Flow.prototype.clearEdgeHover = function() {
  * @param {number} x
  * @param {number} y
  * @param {{
- *     type: (string|undefined)
- *   }=} opt_condition
- * @return {visflow.Node}
+ *   type: (string|undefined),
+ *   label: (string|undefined),
+ *   differentData: (string|undefined),
+ *   differentNode: (string|undefined)
+ * }=} opt_condition
+ * @return {?visflow.Node}
  */
 visflow.Flow.prototype.closestNode = function(x, y, opt_condition) {
   var condition = opt_condition !== undefined ? opt_condition : {};
@@ -772,9 +785,19 @@ visflow.Flow.prototype.closestNode = function(x, y, opt_condition) {
   for (var id in this.nodes) {
     var node = this.nodes[id];
 
-    if (condition.nodeName !== undefined &&
-      !node.matchType(condition.nodeName)) {
-      // Filter by node types.
+    // Filter by condition
+    if (condition.type !== undefined && !node.matchType(condition.type)) {
+      continue;
+    }
+    if (condition.label !== undefined && !node.matchLabel(condition.label)) {
+      continue;
+    }
+    if (condition.differentData !== undefined && node.getData().dataId ==
+      condition.differentData) {
+      continue;
+    }
+    if (condition.differentNode !== undefined && node.id ==
+      condition.differentNode) {
       continue;
     }
 
@@ -796,9 +819,12 @@ visflow.Flow.prototype.closestNode = function(x, y, opt_condition) {
 /**
  * Finds the closest node to the mouse position
  * @param {{
- *     type: (string|undefined)
- *   }=} opt_condition
- * @return {visflow.Node}
+ *   type: (string|undefined),
+ *   label: (string|undefined),
+ *   differentData: (string|undefined),
+ *   differentNode: (string|undefined)
+ * }=} opt_condition
+ * @return {?visflow.Node}
  */
 visflow.Flow.prototype.closestNodeToMouse = function(opt_condition) {
   return this.closestNode(visflow.interaction.mouseX,
@@ -869,6 +895,16 @@ visflow.Flow.prototype.getAllDimensionNames = function() {
     names = names.concat(node.getDimensionNames());
   });
   return names;
+};
+
+/**
+ * Decreases activeness for all nodes.
+ */
+visflow.Flow.prototype.iterateActiveness = function() {
+  for (var id in this.nodes) {
+    var node = this.nodes[id];
+    node.activeness /= 2.0; // exponentially decrease activeness
+  }
 };
 
 /**

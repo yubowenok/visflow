@@ -2,8 +2,6 @@
  * @fileoverview Heatmap options.
  */
 
-/** @inheritDoc */
-visflow.Heatmap.prototype.NODE_NAME = 'Heatmap';
 
 /** @inheritDoc */
 visflow.Heatmap.prototype.NODE_CLASS = 'heatmap';

@@ -77,8 +77,15 @@ visflow.Filter.prototype.parameterChanged = function() {
 };
 
 /**
+ * Sets the dimension the filter filters on.
+ * @param {number} dim
+ */
+visflow.Filter.prototype.setDimension = function(dim) {
+  this.options.dim = dim;
+  this.parameterChanged();
+};
+
+/**
  * Filters the data by constraints. To be implemented in inheriting class.
  */
 visflow.Filter.prototype.filter = function() {};
-
-

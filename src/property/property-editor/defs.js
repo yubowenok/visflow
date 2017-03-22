@@ -6,9 +6,6 @@
 visflow.PropertyEditor.prototype.NODE_CLASS = 'property-editor';
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.NODE_NAME = 'Property Editor';
-
-/** @inheritDoc */
 visflow.PropertyEditor.prototype.TEMPLATE =
   './dist/html/property/property-editor/property-editor.html';
 

@@ -73,6 +73,16 @@ visflow.nlp.isExtract_ = function(token) {
 };
 
 /**
+ * Checks if a token is a link command.
+ * @param {string} token
+ * @return {boolean}
+ * @private
+ */
+visflow.nlp.isLink_ = function(token) {
+  return token == visflow.nlp.Keyword.LINK;
+};
+
+/**
  * Checks if a token is to select.
  * @param {string} token
  * @return {boolean}
@@ -144,6 +154,8 @@ visflow.nlp.getCommandType = function(command) {
       return visflow.nlp.CommandType.LOAD;
     case visflow.nlp.isExtract_(root):
       return visflow.nlp.CommandType.EXTRACT;
+    case visflow.nlp.isLink_(root):
+      return visflow.nlp.CommandType.LINK;
     default:
       return visflow.nlp.CommandType.UNKNOWN;
   }

@@ -3,17 +3,14 @@
  */
 
 /** @inheritDoc */
+visflow.Table.prototype.NODE_CLASS = 'table';
+
+/** @inheritDoc */
 visflow.Table.prototype.TEMPLATE = './dist/html/visualization/table/table.html';
 
 /** @inheritDoc */
 visflow.Table.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/table/table-panel.html';
-
-/** @inheritDoc */
-visflow.Table.prototype.NODE_NAME = 'Table';
-
-/** @inheritDoc */
-visflow.Table.prototype.NODE_CLASS = 'table';
 
 /** @inheritDoc */
 visflow.Table.prototype.MIN_WIDTH = 400;

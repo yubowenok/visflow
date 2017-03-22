@@ -70,9 +70,9 @@ visflow.Node = function(params) {
 
   /**
    * Node label.
-   * @protected {string}
+   * @type {string}
    */
-  this.label = this.NODE_NAME + ' (' + this.id + ')';
+  this.label = this.DEFAULT_LABEL + '-' + this.id;
 
   /**
    * CSS state.
@@ -1285,12 +1285,33 @@ visflow.Node.prototype.getClass = function() {
 };
 
 /**
- * Checks if the node's type matches the given type.
- * @param {string} typeName
+ * Gets the node's data.
+ * @return {!visflow.Data}
+ */
+visflow.Node.prototype.getData = function() {
+  return this.getDataOutPort().pack.data;
+};
+
+/**
+ * Checks if the node's type matches the desired string.
+ * @param {string} desired
  * @return {boolean}
  */
-visflow.Node.prototype.matchType = function(typeName) {
-  return this.NODE_NAME.toLowerCase() == typeName.toLowerCase();
+visflow.Node.prototype.matchType = function(desired) {
+  var nodeClass = this.NODE_CLASS.toLowerCase().replace(/[\s-]+/g, '');
+  desired = desired.toLowerCase().replace(/[\s-]+/g, '');
+  return nodeClass == desired;
+};
+
+/**
+ * Checks if the node's label matches the desired string.
+ * @param {string} desired
+ * @return {boolean}
+ */
+visflow.Node.prototype.matchLabel = function(desired) {
+  var nodeLabel = this.label.toLowerCase().replace(/[\s-]+/g, '');
+  desired = desired.toLowerCase().replace(/[\s-]+/g, '');
+  return nodeLabel == desired;
 };
 
 /**
@@ -1376,3 +1397,12 @@ visflow.Node.prototype.animateToVisModeOff = function() {
   }
 };
 
+/**
+ * Returns the distance from the center of the node to the mouse position.
+ * @return {number}
+ */
+visflow.Node.prototype.distanceToMouse = function() {
+  var center = this.getCenter();
+  return visflow.vectors.vectorDistance([center.left, center.top],
+    [visflow.interaction.mouseX, visflow.interaction.mouseY]);
+};

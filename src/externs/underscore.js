@@ -31,6 +31,12 @@ _.getValue = function(attr, opt_suffix) {};
 _.fadeOut = function(arg) {};
 
 /**
+ * @param {!Array} arr
+ * @param {number=} opt_count
+ */
+_.popFront = function(arr, opt_count) {};
+
+/**
  * @param {Function} arg1
  * @param {Function} arg2
  */

@@ -6,7 +6,7 @@
 visflow.DataSource.prototype.NODE_CLASS = 'data-source';
 
 /** @inheritDoc */
-visflow.DataSource.prototype.NODE_NAME = 'Data Source';
+visflow.DataSource.prototype.DEFAULT_LABEL = 'Data';
 
 /** @inheritDoc */
 visflow.DataSource.prototype.TEMPLATE =

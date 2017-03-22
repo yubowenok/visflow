@@ -9,7 +9,7 @@ visflow.Sampler.prototype.TEMPLATE =
 visflow.Sampler.prototype.PANEL_TEMPLATE =
   './dist/html/filter/sampler/sampler-panel.html';
 /** @inheritDoc */
-visflow.Sampler.prototype.NODE_NAME = 'Sampler';
+visflow.Sampler.prototype.DEFAULT_LABEL = 'Filter';
 /** @inheritDoc */
 visflow.Sampler.prototype.NODE_CLASS = 'sampler';
 
