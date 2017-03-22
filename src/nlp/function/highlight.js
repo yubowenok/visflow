@@ -37,7 +37,7 @@ visflow.nlp.highlight = function(commands) {
     return;
   }
 
-  var chartType = visflow.nlp.DEFAULT_CHART_TYPE;
+  var chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM2;
   if (commands.length &&
     commands[0].syntax == visflow.nlp.Keyword.CHART_TYPE) {
     chartType = commands[0].token;

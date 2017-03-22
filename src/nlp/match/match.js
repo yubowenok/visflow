@@ -5,9 +5,6 @@ visflow.nlp.DELIMITER_REGEX_ = /[\s,;]+/;
 /** @private @const {RegExp} */
 visflow.nlp.AUTOLAYOUT_REGEX_ = /^.*layout.*$/;
 
-/** @const {string} */
-visflow.nlp.DEFAULT_CHART_TYPE = 'scatterplot';
-
 
 /**
  * Matched chart types in the query string.
@@ -51,6 +48,16 @@ visflow.nlp.MATCH_THRESHOLD_STRICT_ = .05;
 visflow.nlp.isComparison = function(token) {
   var comparisonTokens = ['<', '>', '=', '<=', '>='];
   return comparisonTokens.indexOf(token) != -1;
+};
+
+/**
+ * Checks if a token is a sampler condition.
+ * @param {string} token
+ * @return {boolean}
+ */
+visflow.nlp.isSampler = function(token) {
+  var samplerTokens = ['max', 'min', 'random'];
+  return samplerTokens.indexOf(token) != -1;
 };
 
 /**
@@ -130,59 +137,46 @@ visflow.nlp.matchChartTypes = function(query) {
   var chartTypeCounter = 0;
   var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
 
-  // Match single words
   var parsedTokens = [];
-  visflow.nlp.matchedChartTypes_ = {};
-  for (var i = 0; i < tokens.length; i++) {
-    var matched = false;
+  visflow.nlp.matchedDimensions_ = {};
+  var isFirst = true;
+  while (tokens.length) {
+    var matchedWord = false;
+    var matchedBigram = false;
+
+    var word = tokens[0];
+    var bigram = tokens.length >= 2 ? tokens[0] + tokens[1] : null;
+
+    // Skip map verb in the beginning. TODO(bowen): integrate into grammar.
+    if (isFirst && word == 'map') {
+      parsedTokens.push(word);
+      continue;
+    }
+    isFirst = false;
+
     for (var j = 0; j < chartTypes.length; j++) {
-      if (visflow.nlp.match(tokens[i], chartTypes[j].name)) {
-
-        // TODO(bowen): Find a better way to handle special utterance
-        // ambiguity.
-        if (i == 0 && chartTypes[j].value == 'map') {
-          // ignore verb map at the beginning
-          continue;
-        }
-
+      if (visflow.nlp.match(word, chartTypes[j].name)) {
         visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
           chartTypes[j].value;
-        matched = true;
+        matchedWord = true;
         break;
       }
-      if (tokens[i] == visflow.nlp.Keyword.CHART_TYPE) {
-        visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
-          visflow.nlp.DEFAULT_CHART_TYPE;
-        matched = true;
-        break;
-      }
-    }
-    parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.Keyword.CHART_TYPE);
-  }
-  // Match bigrams
-  tokens = parsedTokens;
-  parsedTokens = [];
-  if (tokens.length == 1) {
-    parsedTokens.push(tokens[0]);
-  }
-  for (var i = 0; i < tokens.length - 1; i++) {
-    var bigram = tokens[i] + tokens[i + 1];
-    var matched = false;
-    for (var j = 0; j < chartTypes.length; j++) {
       if (visflow.nlp.match(bigram, chartTypes[j].name)) {
         visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
           chartTypes[j].value;
-        matched = true;
+        matchedBigram = true;
         break;
       }
     }
-    parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.Keyword.CHART_TYPE);
-    if (matched) {
-      i++; // Skip the next token if bigram matches.
-    } else if (i == tokens.length - 2) { // Last bigram and not matched
-      parsedTokens.push(tokens[tokens.length - 1]);
+
+    if (matchedWord || matchedBigram) {
+      parsedTokens.push(visflow.nlp.Keyword.CHART_TYPE);
+    } else {
+      parsedTokens.push(word);
+    }
+    _.popFront(tokens);
+    if (matchedBigram) {
+      _.popFront(tokens);
     }
   }
   return parsedTokens.join(' ');
@@ -203,43 +197,35 @@ visflow.nlp.matchDimensions = function(query, target) {
   var dimensionCounter = 0;
   var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
 
-  // Match single words
   var parsedTokens = [];
   visflow.nlp.matchedDimensions_ = {};
-  for (var i = 0; i < tokens.length; i++) {
-    var matched = false;
+  while (tokens.length) {
+    var matchedWord = false;
+    var matchedBigram = false;
+
+    var word = tokens[0];
+    var bigram = tokens.length >= 2 ? tokens[0] + tokens[1] : null;
     for (var j = 0; j < dimensions.length; j++) {
-      if (visflow.nlp.match(tokens[i], dimensions[j])) {
+      if (visflow.nlp.match(word, dimensions[j])) {
         visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
-        matched = true;
+        matchedWord = true;
         break;
       }
-    }
-    parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.Keyword.DIMENSION);
-  }
-  // Match bigrams
-  tokens = parsedTokens;
-  parsedTokens = [];
-  if (tokens.length == 1) {
-    parsedTokens.push(tokens[0]);
-  }
-  for (var i = 0; i < tokens.length - 1; i++) {
-    var bigram = tokens[i] + tokens[i + 1];
-    var matched = false;
-    for (var j = 0; j < dimensions.length; j++) {
       if (visflow.nlp.match(bigram, dimensions[j])) {
         visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
-        matched = true;
+        matchedBigram = true;
         break;
       }
     }
-    parsedTokens.push(!matched ? tokens[i] :
-      visflow.nlp.Keyword.DIMENSION);
-    if (matched) {
-      i++; // Skip the next token if bigram matches.
-    } else if (i == tokens.length - 2) { // Last bigram and not matched
-      parsedTokens.push(tokens[tokens.length - 1]);
+
+    if (matchedWord || matchedBigram) {
+      parsedTokens.push(visflow.nlp.Keyword.DIMENSION);
+    } else {
+      parsedTokens.push(word);
+    }
+    _.popFront(tokens);
+    if (matchedBigram) {
+      _.popFront(tokens);
     }
   }
   return parsedTokens.join(' ');
@@ -263,7 +249,7 @@ visflow.nlp.matchNodes = function(query) {
     var matchedBigram = false;
 
     // word
-    var word = /** @type {string} */(_.first(tokens));
+    var word = tokens[0];
     if (word == visflow.nlp.Keyword.FROM || word == visflow.nlp.Keyword.OF) {
       seenFrom = true;
     }
@@ -308,53 +294,77 @@ visflow.nlp.matchNodes = function(query) {
 
 /**
  * Maps the chart type placeholders back to the standard chart types.
- * @param {string} command
- * @return {string}
+ * @param {!Array<visflow.nlp.CommandToken>} commands
+ * @return {!Array<visflow.nlp.CommandToken>}
  */
-visflow.nlp.mapChartTypes = function(command) {
-  var tokens = command.split(visflow.nlp.DELIMITER_REGEX_);
+visflow.nlp.mapChartTypes = function(commands) {
   var chartTypeCounter = 0;
-  for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i] == visflow.nlp.Keyword.CHART_TYPE) {
+  return commands.map(function(command) {
+    if (command.token == visflow.nlp.Keyword.CHART_TYPE) {
       var chartType = visflow.nlp.matchedChartTypes_[chartTypeCounter++];
       // Unspecified chart_type's will be replaced by default.
-      tokens[i] = chartType == undefined ?
-        visflow.nlp.DEFAULT_CHART_TYPE : chartType;
+      return {
+        token: chartType == undefined ? visflow.nlp.Keyword.CHART_TYPE :
+          chartType,
+        syntax: visflow.nlp.Keyword.CHART_TYPE
+      };
     }
-  }
-  return tokens.join(' ');
+    return command;
+  });
 };
 
 /**
  * Maps the dimension placeholders back to the dimension names.
- * @param {string} command
- * @return {string}
+ * @param {!Array<visflow.nlp.CommandToken>} commands
+ * @return {!Array<visflow.nlp.CommandToken>}
  */
-visflow.nlp.mapDimensions = function(command) {
-  var tokens = command.split(visflow.nlp.DELIMITER_REGEX_);
+visflow.nlp.mapDimensions = function(commands) {
   var dimensionCounter = 0;
-  for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i] == visflow.nlp.Keyword.DIMENSION) {
-      tokens[i] = visflow.nlp.matchedDimensions_[dimensionCounter++];
+  return commands.map(function(command) {
+    if (command.token == visflow.nlp.Keyword.DIMENSION) {
+      return {
+        token: visflow.nlp.matchedDimensions_[dimensionCounter++],
+        syntax: visflow.nlp.Keyword.DIMENSION
+      };
     }
-  }
-  return tokens.join(' ');
+    return command;
+  });
 };
 
 /**
  * Maps the node placeholders back to the node labels.
- * @param {string} commands
- * @return {string}
+ * @param {!Array<visflow.nlp.CommandToken>} commands
+ * @return {!Array<visflow.nlp.CommandToken>}
  */
 visflow.nlp.mapNodes = function(commands) {
-  var tokens = commands.split(visflow.nlp.DELIMITER_REGEX_);
   var nodeCounter = 0;
-  for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i] == visflow.nlp.Keyword.NODE) {
-      tokens[i] = visflow.nlp.matchedNodes_[nodeCounter++];
+  return commands.map(function(command) {
+    if (command.token == visflow.nlp.Keyword.NODE) {
+      return {
+        token: visflow.nlp.matchedNodes_[nodeCounter++],
+        syntax: visflow.nlp.Keyword.NODE
+      };
     }
+    return command;
+  });
+};
+
+/**
+ * Maps the special utterances back to their original values.
+ * @param {string} result Parser result returned from the server.
+ * @return {!Array<visflow.nlp.CommandToken>}
+ */
+visflow.nlp.mapUtterances = function(result) {
+  var tokens = result.split(visflow.nlp.DELIMITER_REGEX_);
+  var commands = tokens.map(function(token) {
+    return {token: token, syntax: ''};
+  });
+  if (visflow.nlp.target) {
+    commands = visflow.nlp.mapChartTypes(commands);
+    commands = visflow.nlp.mapDimensions(commands);
+    commands = visflow.nlp.mapNodes(commands);
   }
-  return tokens.join(' ');
+  return commands;
 };
 
 /**

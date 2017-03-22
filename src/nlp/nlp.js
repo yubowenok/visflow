@@ -177,14 +177,14 @@ visflow.nlp.parseResponse_ = function(res, query) {
   visflow.nlp.log_(query, result);
 
   console.log('[response]', result);
-  var command = result;
+  var commands = [];
   if (visflow.nlp.target) {
-    command = visflow.nlp.mapChartTypes(result);
-    command = visflow.nlp.mapDimensions(command);
-    command = visflow.nlp.mapNodes(command);
+    commands = visflow.nlp.mapUtterances(result);
   }
-  console.log('[command]', command);
-  visflow.nlp.execute(command, result);
+  console.log('[command]', commands.map(function(command) {
+    return command.token;
+  }).join(' '));
+  visflow.nlp.execute(commands);
 };
 
 /**

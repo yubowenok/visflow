@@ -45,12 +45,15 @@ visflow.nlp.parseFilters = function(commands) {
   var filterSpecs = [];
 
   while (commands.length) {
-    if (commands[0].syntax != visflow.nlp.Keyword.DIMENSION) {
+    if (commands[0].syntax != visflow.nlp.Keyword.DIMENSION &&
+      commands[0].token != visflow.nlp.Keyword.INDEX) {
       console.error('unexpected dimension');
       return [];
     }
 
-    var dim = visflow.nlp.target.getDimensionNames().indexOf(commands[0].token);
+    var dim = commands[0].token == visflow.nlp.Keyword.INDEX ?
+      visflow.data.INDEX_DIM :
+      visflow.nlp.target.getDimensionNames().indexOf(commands[0].token);
     // Remove dimension
     commands = commands.slice(1);
 
@@ -71,7 +74,7 @@ visflow.nlp.parseFilters = function(commands) {
     var samplerSpec = {
       type: 'sampler',
       dim: dim,
-      number: 5 // default sampler number
+      number: visflow.nlp.DEFAULT_SAMPLER_NUMBER
     };
 
     while (commands.length >= 2) {
@@ -88,6 +91,9 @@ visflow.nlp.parseFilters = function(commands) {
         }
       } else if (visflow.nlp.isContain(commands[0].token)) {
         isValueFilter = true;
+      } else if (visflow.nlp.isSampler(commands[0].token)) {
+        // min max or random
+        isSampler = true;
       } else {
         // something like "dim >= 2 <= 3 [dim] >= 2"
         // It means a new constraint or a trailing command has started.
@@ -113,14 +119,42 @@ visflow.nlp.parseFilters = function(commands) {
           rangeSpec.range[0] = rangeSpec.range[1] = value;
         }
         useRangeFilter = true;
+        _.popFront(commands, 2);
       } else if (isValueFilter) {
         valueSpec.value = commands[1].token;
         useValueFilter = true;
+        _.popFront(commands, 2);
       } else if (isSampler) {
-        // TODO(bowen): add sampler support
+        var condition = commands[0].token;
+        if (condition == visflow.nlp.Keyword.MIN) {
+          samplerSpec.condition = visflow.Sampler.Condition.FIRST;
+        } else if (condition == visflow.nlp.Keyword.MAX) {
+          samplerSpec.condition = visflow.Sampler.Condition.LAST;
+        } else if (condition == visflow.nlp.Keyword.RANDOM) {
+          samplerSpec.condition = visflow.Sampler.Condition.SAMPLING;
+        } else {
+          console.error('unrecognized sampler condition');
+        }
+        samplerSpec.number = commands[1].token;
+        _.popFront(commands, 2);
+
+        if (commands.length &&
+          (commands[0].token == visflow.nlp.Keyword.PERCENT ||
+           commands[0].token == visflow.nlp.Keyword.PERCENT_SIGN)) {
+          samplerSpec.mode = visflow.Sampler.Mode.PERCENTAGE;
+          _.popFront(commands);
+        } else {
+          samplerSpec.mode = visflow.Sampler.Mode.COUNT;
+        }
+
+        if (commands.length &&
+          commands[0].syntax == visflow.nlp.Keyword.DIMENSION) {
+          samplerSpec.groupBy = visflow.nlp.target.getDimensionNames()
+            .indexOf(commands[0].token);
+          _.popFront(commands);
+        }
         useSampler = true;
       }
-      commands = commands.slice(2);
     }
     if (useRangeFilter) {
       filterSpecs.push(rangeSpec);
@@ -234,13 +268,17 @@ visflow.nlp.filter = function(commands, opt_noPlacement) {
     // Otherwise values may fail to load.
     filters.forEach(function(filter, index) {
       var spec = nodeSpecs[index];
-      if (spec.value !== undefined) {
+      if (spec.type == 'value') {
         /** @type {!visflow.ValueFilter} */(filter).setValue(spec.dim,
           spec.value, spec.target);
-      } else {
+      } else if (spec.type == 'range') {
         /** @type {!visflow.RangeFilter} */(filter).setRange(spec.dim,
           spec.range[0] == -Infinity ? null : spec.range[0],
           spec.range[1] == Infinity ? null : spec.range[1]);
+      } else if (spec.type == 'sampler') {
+        /** @type {!visflow.Sampler} */(filter).setSpec(spec);
+      } else {
+        console.error('unknown filter type');
       }
     });
   });

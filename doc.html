@@ -889,30 +889,50 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
         <hr>
 
         <p>
-          FlowSense is the integrated semantic parser that processes natural language and helps with VisFlow
-          diagram construction.
+          FlowSense is VisFlow's integrated semantic parser that processes natural language input.
+          It helps the user construct and expand VisFlow diagrams faster.
+          To use FlowSense, right click on a node, port or the canvas and select "FlowSense".
+          Then in the FlowSense dialog, type-in the natural language command and press <key>Enter</key>.
         </p>
 
         <p>
-          Here is a list of commands you may try (replace dimension and value entities by entities in your data).
+          Here is a list of commands you may try.
+          Replace dimensions, values, and node labels (marked by brackets) by entities in your data and diagram.
         </p>
 
         <ul>
-          <li>open car dataset</li>
-          <li>show a scatterplot of mpg and cylinders</li>
-          <li>show cars with mpg greater than 15</li>
-          <li>create a parallel coordinates plot with mpg, horsepower and cylinders</li>
-          <li>visualize the mpg distribution</li>
-          <li>search for cars with mpg between 10 and 15</li>
-          <li>show cars with a name that contains buick</li>
+          <li>open [car] dataset</li>
+          <li>show a scatterplot of [mpg] and [cylinders]</li>
+          <li>show [cars] with [mpg] greater than [15]</li>
+          <li>create a parallel coordinates plot with [mpg], [horsepower] and [cylinders]</li>
+          <li>visualize the [mpg] distribution</li>
+          <li>search for cars with [mpg] between [10] and [15]</li>
+          <li>show cars with a [name] that contains [buick]</li>
           <li>set blue color</li>
           <li>change opacity to 0.5</li>
-          <li>encode mpg by red green color scale</li>
-          <li>map mpg to size from 1 to 3</li>
+          <li>color encode mpg</li>
+          <li>encode [mpg] by red green color scale</li>
+          <li>map [mpg] to size from 1 to 3</li>
           <li>highlight selection in a scatterplot</li>
-          <li>show mpg of the selected cars in a histogram</li>
+          <li>show [mpg] of the selected [cars] in a histogram</li>
+          <li>find the [cars] with maximum [mpg]</li>
+          <li>get ten [cars] with maximum [mpg]</li>
+          <li>sample 10 percent of the [cars] group by [origin]</li>
+          <li>link [cars] with the same [origin] from [chart-1] (chart-1 refers to node label)</li>
+          <li>link and highlight [cars] with the same [origin] from [chart-1] in a scatterplot</li>
         </ul>
 
+        <p>
+          You may use speech for FlowSense input (chrome browser only).
+          First turn on the microphone in the menu bar.
+          When microphone is on, you may speak to FlowSense without activating the FlowSense dialog.
+          Alternatively, when the FlowSense dialog is on, your speech will be recorded and
+          input into the FlowSense dialog automatically.
+        </p>
+
+        <p>
+          You may activate FlowSense by shortcut. See the <a href="#sc-flowsense">Shortcuts</a> section.
+        </p>
       </div>
 
       <div class="section">

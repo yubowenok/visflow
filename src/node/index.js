@@ -1406,3 +1406,18 @@ visflow.Node.prototype.distanceToMouse = function() {
   return visflow.vectors.vectorDistance([center.left, center.top],
     [visflow.interaction.mouseX, visflow.interaction.mouseY]);
 };
+
+/**
+ * Computes the focus score for the node.
+ * @return {number}
+ */
+visflow.Node.prototype.focusScore = function() {
+  var d = this.distanceToMouse() / visflow.Node.FOCUS_GAMMA;
+
+  // dFactor is the flipped & shifted sigmoid function
+  // 1 - 1 / (1 + e^-(d/gamma - beta))
+  var dFactor = (1.0 - 1.0 /
+  (1 + Math.exp(-(d - visflow.Node.FOCUS_BETA))));
+
+  return this.activeness + visflow.Node.FOCUS_ALPHA * dFactor;
+};

@@ -752,6 +752,9 @@ visflow.Flow.prototype.updateNodeLabels = function() {
  * @private
  */
 visflow.Flow.prototype.updateDataSources_ = function() {
+  if (!this.dataSources) {
+    return;
+  }
   this.dataSources.forEach(function(node) {
     node.showDataList();
   });

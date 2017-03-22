@@ -53,9 +53,6 @@ visflow.Node.prototype.MAX_HEIGHT = Infinity;
 /** @protected {number} */
 visflow.Node.prototype.MAX_LABEL_LENGTH = 14;
 
-/** @protected @const {number} */
-visflow.Node.prototype.ERROR_LENGTH = 100;
-
 /**
  * Whether the node is resizable.
  * @protected {boolean}
@@ -70,6 +67,16 @@ visflow.Node.prototype.PORT_HEIGHT = 15;
 
 /** @const {number} */
 visflow.Node.prototype.PORT_GAP = 1;
+
+/** @protected @const {number} */
+visflow.Node.FOCUS_ALPHA = 2;
+
+/** @protected @const {number} */
+visflow.Node.FOCUS_BETA = 5;
+
+/** @protected @const {number} */
+visflow.Node.FOCUS_GAMMA = 500;
+
 
 /**
  * ContextMenu entries.

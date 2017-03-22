@@ -1,16 +1,9 @@
 /**
  * Executes an NLP command.
- * @param {string} command Command with placeholders remapped.
- * @param {string} syntax Parsed structure of the command.
+ * @param {!Array<visflow.nlp.CommandToken>} commands
  */
-visflow.nlp.execute = function(command, syntax) {
-  var type = visflow.nlp.getCommandType(command);
-  var commandTokens = command.split(/\s+/);
-  var syntaxTokens = syntax.split(/\s+/);
-  var commands = [];
-  for (var i = 0; i < commandTokens.length; i++) {
-    commands.push({token: commandTokens[i], syntax: syntaxTokens[i]});
-  }
+visflow.nlp.execute = function(commands) {
+  var type = visflow.nlp.getCommandType(_.first(commands).token);
 
   if (visflow.nlp.target == null && type != visflow.nlp.CommandType.LOAD) {
     visflow.warning(

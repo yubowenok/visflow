@@ -35,7 +35,13 @@ visflow.nlp.Keyword = {
   NODE: 'node',
   FROM: 'from',
   OF: 'of',
-  TO: 'to'
+  TO: 'to',
+  INDEX: 'index',
+  MAX: 'max',
+  MIN: 'min',
+  RANDOM: 'random',
+  PERCENT: 'percent',
+  PERCENT_SIGN: '%'
 };
 
 /**
@@ -47,6 +53,18 @@ visflow.nlp.DEFAULT_MARGIN = 150;
 /** @const {number} */
 visflow.nlp.DEFAULT_MARGIN_SMALL = visflow.nlp.DEFAULT_MARGIN / 2;
 
+/** @const {number} */
+visflow.nlp.DEFAULT_SAMPLER_NUMBER = 5;
+
+/** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE_DIM1 = 'histogram';
+
+/** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE_DIM2 = 'scatterplot';
+
+/** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE_DIMS = 'parallelCoordinates';
+
 /**
  * Gets the chart types names available.
  * @return {!Array<{name: string, value: string}>}
@@ -57,10 +75,8 @@ visflow.nlp.chartTypes = function() {
     {name: 'list', value: 'table'},
     {name: 'scatterplot', value: 'scatterplot'},
     {name: 'scp', value: 'scatterplot'},
-    // TODO(bowen): determine number of dims and choose default chart types
-    // accordingly?
-    {name: 'relation', value: 'scatterplot'},
-    {name: 'correlation', value: 'scatterplot'},
+    {name: 'relation', value: 'chart_type'},
+    {name: 'correlation', value: 'chart_type'},
     {name: 'parallel coordinates', value: 'parallelCoordinates'},
     {name: 'pcp', value: 'parallelCoordinates'},
     {name: 'histogram', value: 'histogram'},

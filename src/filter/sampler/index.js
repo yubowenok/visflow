@@ -162,3 +162,18 @@ visflow.Sampler.prototype.filter = function() {
   outpack.copy(inpack);
   outpack.filter(result);
 };
+
+/**
+ * Sets the filtering rules for the sampler by passing a spec.
+ * @param {visflow.Sampler.Spec} spec
+ */
+visflow.Sampler.prototype.setSpec = function(spec) {
+  this.options.dim = spec.dim;
+  this.options.number = spec.number;
+  this.options.unique = false; // TODO(bowen)
+  this.options.groupBy = spec.groupBy;
+  this.options.mode = spec.mode;
+  this.options.condition = spec.condition;
+
+  this.parameterChanged();
+};

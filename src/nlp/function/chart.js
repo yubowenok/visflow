@@ -4,9 +4,7 @@
  */
 visflow.nlp.chart = function(commands) {
   var target = visflow.nlp.target;
-  // By default using scatterplot, may be TODO
-  var chartType = commands[0].token == visflow.nlp.Keyword.CHART_TYPE ?
-    visflow.nlp.DEFAULT_CHART_TYPE : commands[0].token;
+  var chartType = commands[0].token;
 
   commands = commands.slice(1);
 
@@ -33,6 +31,17 @@ visflow.nlp.chart = function(commands) {
   for (var j = 0; j < commands.length &&
   commands[j].syntax == visflow.nlp.Keyword.DIMENSION; j++) {
     dims.push(commands[j].token);
+  }
+
+  // Apply default chart types.
+  if (chartType == visflow.nlp.Keyword.CHART_TYPE) {
+    if (dims.length == 1) {
+      chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM1;
+    } else if (dims.length == 2) {
+      chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM2;
+    } else {
+      chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIMS;
+    }
   }
 
   var box = target.getBoundingBox();
