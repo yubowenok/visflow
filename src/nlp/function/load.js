@@ -18,13 +18,13 @@ visflow.nlp.matchDataset_ = function(dataName, callback) {
     var matched = false;
     for (var i = 0; i < dataList.length; i++) {
       var data = dataList[i];
-      if (visflow.nlp.match(data.id, dataName,
+      if (visflow.nlp.match(data.name, dataName,
           visflow.nlp.MATCH_THRESHOLD_DATASET_)) {
         callback(data);
         matched = true;
         return;
       }
-      if (visflow.nlp.match(data.name, dataName,
+      if (visflow.nlp.match(data.file, dataName,
           visflow.nlp.MATCH_THRESHOLD_DATASET_)) {
         callback(data);
         matched = true;

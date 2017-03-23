@@ -154,12 +154,7 @@ visflow.nlp.submit = function(query) {
  */
 visflow.nlp.processQuery_ = function(query) {
   console.log('[target]', visflow.nlp.target);
-  if (visflow.nlp.target) {
-    query = visflow.nlp.matchChartTypes(query);
-    query = visflow.nlp.matchDimensions(query, /** @type {!visflow.Node} */(
-      visflow.nlp.target));
-    query = visflow.nlp.matchNodes(query);
-  }
+  query = visflow.nlp.matchUtterances(query);
   console.log('[query]', query);
   return query;
 };
@@ -193,10 +188,7 @@ visflow.nlp.parseResponse_ = function(res, query) {
   visflow.nlp.log_(query, result);
 
   console.log('[response]', result);
-  var commands = [];
-  if (visflow.nlp.target) {
-    commands = visflow.nlp.mapUtterances(result);
-  }
+  var commands = visflow.nlp.mapUtterances(result);
   console.log('[command]', commands.map(function(command) {
     return command.token;
   }).join(' '));

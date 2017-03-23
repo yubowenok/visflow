@@ -262,7 +262,7 @@ visflow.nlp.matchNodes = function(query) {
           visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
           break;
         }
-        if (visflow.nlp.match(nGram, node.label,
+        if (visflow.nlp.match(nGram, node.getClass(),
             visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
           matchedLength = n;
           visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
@@ -336,6 +336,21 @@ visflow.nlp.mapNodes = function(commands) {
     }
     return command;
   });
+};
+
+/**
+ * Maps the special utterances to placeholders.
+ * @param {string} query
+ * @return {string}
+ */
+visflow.nlp.matchUtterances = function(query) {
+  query = visflow.nlp.matchChartTypes(query);
+  if (visflow.nlp.target) {
+    query = visflow.nlp.matchDimensions(query, /** @type {!visflow.Node} */(
+      visflow.nlp.target));
+  }
+  query = visflow.nlp.matchNodes(query);
+  return query;
 };
 
 /**
