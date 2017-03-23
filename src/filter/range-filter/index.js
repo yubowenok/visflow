@@ -164,9 +164,19 @@ visflow.RangeFilter.prototype.process = function() {
  * @return {string}
  */
 visflow.RangeFilter.prototype.formatRange = function(value) {
+  var data = this.getDataInPort().pack.data;
   // Use loose date check.
-  if (visflow.utils.isProbablyDate(value, false)) {
+  // On empty data, we always show raw value.
+  // Otherwise when dim is selected and we have input data,
+  // we check if the chosen dimension is a time dimension.
+  // If so we format the time.
+  if (!data.isEmpty() && this.options.dim != null &&
+    data.dimensionTypes[this.options.dim] == visflow.ValueType.TIME &&
+    visflow.utils.isProbablyDate(value, false)) {
     return visflow.utils.formatTime('' + value);
+  }
+  if (value == null) {
+    return '';
   }
   return '' + value;
 };

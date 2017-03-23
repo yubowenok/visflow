@@ -411,6 +411,13 @@ visflow.utils.shake = function(element) {
  * @return {string}
  */
 visflow.utils.formatTime = function(value) {
+  if (visflow.utils.isNumber('' + value) &&
+    ('' + value).match(/^\d{4}$/) == null) {
+    // Note that we cannot create new Date() with UTC time string like
+    // '1490285474832', which would throw "Invalid Date".
+    // The exception is four-digit string year, which we should keep intact.
+    value = +value;
+  }
   return moment(new Date(value)).format(visflow.const.TIME_FORMAT);
 };
 

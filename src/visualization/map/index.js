@@ -322,7 +322,7 @@ visflow.Map.prototype.findPlotDimension = function() {
       }
     }
   }
-  return [];
+  return dims;
 };
 
 /** @inheritDoc */
