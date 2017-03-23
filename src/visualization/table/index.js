@@ -109,7 +109,7 @@ visflow.Table.prototype.showDetails = function() {
     if (data.dimensionTypes[dim] == visflow.ValueType.TIME) {
       columnDefs.push({
         render: function(value) {
-          return moment(new Date(value)).format(this.TIME_FORMAT);
+          return visflow.utils.formatTime(value);
         }.bind(this),
         // +1 for the index column!
         targets: dimIndex + 1

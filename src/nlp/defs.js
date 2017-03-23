@@ -45,27 +45,6 @@ visflow.nlp.Keyword = {
 };
 
 /**
- * Default margin used when creating new node.
- * @const {number}
- */
-visflow.nlp.DEFAULT_MARGIN = 150;
-
-/** @const {number} */
-visflow.nlp.DEFAULT_MARGIN_SMALL = visflow.nlp.DEFAULT_MARGIN / 2;
-
-/** @const {number} */
-visflow.nlp.DEFAULT_SAMPLER_NUMBER = 5;
-
-/** @const {string} */
-visflow.nlp.DEFAULT_CHART_TYPE_DIM1 = 'histogram';
-
-/** @const {string} */
-visflow.nlp.DEFAULT_CHART_TYPE_DIM2 = 'scatterplot';
-
-/** @const {string} */
-visflow.nlp.DEFAULT_CHART_TYPE_DIMS = 'parallelCoordinates';
-
-/**
  * Gets the chart types names available.
  * @return {!Array<{name: string, value: string}>}
  */
@@ -140,3 +119,30 @@ visflow.nlp.renderingPropertyPrimitives = function() {
     'opacity'
   ];
 };
+
+/**
+ * Default margin used when creating new node.
+ * @const {number}
+ */
+visflow.nlp.DEFAULT_MARGIN = 150;
+
+/** @const {number} */
+visflow.nlp.DEFAULT_MARGIN_SMALL = visflow.nlp.DEFAULT_MARGIN / 2;
+
+/** @const {number} */
+visflow.nlp.DEFAULT_SAMPLER_NUMBER = 5;
+
+/** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE_DIM1 = 'histogram';
+
+/** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE_DIM2 = 'scatterplot';
+
+/** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE_DIMS = 'parallelCoordinates';
+
+/**
+ * Maximum value of N for N-gram detection.
+ * @const {number}
+ */
+visflow.nlp.MAX_NGRAM_TOKENS = 10;

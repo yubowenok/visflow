@@ -43,7 +43,10 @@ visflow.nlp.init = function() {
         // Submit entered text query.
         var textarea = $('#nlp textarea');
         textarea.prop('disabled', 'disabled');
-        visflow.nlp.submit(/** @type {string} */(textarea.val()));
+
+        var text = /** @type {string} */(textarea.val());
+        visflow.nlp.submit(text);
+        textarea.val(visflow.utils.strip(text));
       } else if (event.keyCode == visflow.interaction.keyCodes.ESC) {
         visflow.nlp.end();
       }
@@ -122,11 +125,22 @@ visflow.nlp.submit = function(query) {
   $.post(visflow.url.NLP, {
     query: escape(query)
   }).done(function(res) {
-      visflow.nlp.parseResponse_(res, rawQuery);
+    if (!visflow.nlp.parseResponse_(res, rawQuery)) {
+        var failedMessage = $('#nlp .failed').show();
+        failedMessage.children('.query').text(rawQuery);
+
+        visflow.utils.shake($('#nlp .nlp-input'));
+
+        $('#nlp textarea').prop('disabled', '');
+        return;
+      }
+      $('#nlp .failed').hide();
       visflow.nlp.end();
+      visflow.nlp.isProcessing = false;
     })
     .fail(function(res) {
       visflow.error('failed to execute FlowSense:', res.responseText);
+      visflow.nlp.isProcessing = false;
     });
 };
 
@@ -153,20 +167,21 @@ visflow.nlp.processQuery_ = function(query) {
  * Parses the NLP response.
  * @param {string} res HTML response of NLP query.
  * @param {string} query Query parsed.
+ * @return {boolean} Whether query is successfully understood.
  * @private
  */
 visflow.nlp.parseResponse_ = function(res, query) {
   if (res.match(/: 0 candidates/) != null) {
-    visflow.warning('Sorry, FlowSense does not understand:', query);
     visflow.nlp.log_(query, '0 candidates');
-    return;
+    return false;
   }
+
   var matched = res.match(/Top value \{\n\s*\(string\s*(\S.*\S)\s*\)/);
   if (matched == null) {
     visflow.error('unexpected NLP response');
     console.log(res);
     visflow.nlp.log_(query, 'unexpected');
-    return;
+    return false;
   }
   var result = matched[1];
   if (result[0] == '"') {
@@ -185,6 +200,7 @@ visflow.nlp.parseResponse_ = function(res, query) {
     return command.token;
   }).join(' '));
   visflow.nlp.execute(commands);
+  return true;
 };
 
 /**

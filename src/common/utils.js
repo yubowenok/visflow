@@ -354,22 +354,27 @@ visflow.utils.isNumber = function(token) {
 
 /**
  * Checks if a string is probably a date.
- * @param {string} text
+ * @param {string|number|null|undefined} text
+ * @param {boolean=} opt_strict
  * @return {boolean}
  */
-visflow.utils.isProbablyDate = function(text) {
+visflow.utils.isProbablyDate = function(text, opt_strict) {
+  if (text == null || text == undefined) {
+    return false;
+  }
+  var strict = opt_strict !== undefined ? !!opt_strict : true;
   // Strangely, recently implementation change of Date.parse()
   // parses '10' into Mon Oct 01 2001 00:00:00 GMT-0400 (EDT) ???
   // We handle those special exceptions.
   // Make sure that text is not a number.
-  if (Number(text) == text) {
+  if (strict && Number(text) == text) {
     // TODO(bowen): we may want to double-check how to handle pure years like
     // '2001', '1975', etc.
     return false;
   }
   var date = new Date(text);
   return date != 'Invalid Date' &&
-    date >= Date.parse('Jan 1 1970') &&
+    date >= Date.parse('Jan 1 1000') &&
     date <= Date.parse('Jan 1 2200');
 };
 
@@ -381,6 +386,32 @@ visflow.utils.isProbablyDate = function(text) {
  */
 visflow.utils.strip = function(text) {
   return text.replace(/^[\s\n]+/, '').replace(/[\s\n]+$/, '');
+};
+
+/**
+ * Visually shakes a jQuery element.
+ * @param {!jQuery} element
+ */
+visflow.utils.shake = function(element) {
+  var left = element.offset().left;
+  for (var i = 0; i < 2; i++) {
+    setTimeout(function() {
+      element.css('left', left - 5);
+    }, i * 100 + 0);
+    setTimeout(function() {
+      element.css('left', left + 5);
+    }, i * 100 + 50);
+  }
+  element.css('left', left);
+};
+
+/**
+ * Formats the given value as time.
+ * @param {number|string} value
+ * @return {string}
+ */
+visflow.utils.formatTime = function(value) {
+  return moment(new Date(value)).format(visflow.const.TIME_FORMAT);
 };
 
 /**

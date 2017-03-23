@@ -13,6 +13,9 @@ visflow.RangeFilter.prototype.DEFAULT_LABEL = 'Filter';
 /** @inheritDoc */
 visflow.RangeFilter.prototype.NODE_CLASS = 'range-filter';
 
+/** @inheritDoc */
+visflow.RangeFilter.prototype.MAX_HEIGHT = 71;
+
 /**
  * @typedef {{
  *   dim: number,

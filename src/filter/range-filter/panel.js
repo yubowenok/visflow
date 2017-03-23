@@ -27,7 +27,7 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
       constructor: visflow.Input,
       params: {
         container: container.find('#min'),
-        value: this.range[0],
+        value: this.formatRange(this.range[0]),
         title: 'Min Value',
         disabled: this.ports['inMin'].connected()
       },
@@ -41,7 +41,7 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
       constructor: visflow.Input,
       params: {
         container: container.find('#max'),
-        value: this.range[1],
+        value: this.formatRange(this.range[1]),
         title: 'Max Value',
         disabled: this.ports['inMax'].connected()
       },

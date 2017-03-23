@@ -15,9 +15,6 @@ visflow.Visualization.prototype.LABEL_OFFSET = 5;
 /** @protected @const {number} */
 visflow.Visualization.prototype.DEFAULT_TICKS = 5;
 
-/** @protected @const {string} */
-visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
-
 /** @protected @const {number} */
 visflow.Visualization.prototype.TRANSITION_ELEMENT_LIMIT = 5000;
 

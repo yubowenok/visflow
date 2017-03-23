@@ -141,41 +141,34 @@ visflow.nlp.matchChartTypes = function(query) {
   visflow.nlp.matchedDimensions_ = {};
   var isFirst = true;
   while (tokens.length) {
-    var matchedWord = false;
-    var matchedBigram = false;
-
-    var word = tokens[0];
-    var bigram = tokens.length >= 2 ? tokens[0] + tokens[1] : null;
+    var matchedLength = 0;
 
     // Skip map verb in the beginning. TODO(bowen): integrate into grammar.
-    if (isFirst && word == 'map') {
-      parsedTokens.push(word);
+    if (isFirst && tokens[0] == 'map') {
+      parsedTokens.push(tokens[0]);
       continue;
     }
     isFirst = false;
 
-    for (var j = 0; j < chartTypes.length; j++) {
-      if (visflow.nlp.match(word, chartTypes[j].name)) {
-        visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
-          chartTypes[j].value;
-        matchedWord = true;
-        break;
-      }
-      if (visflow.nlp.match(bigram, chartTypes[j].name)) {
-        visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
-          chartTypes[j].value;
-        matchedBigram = true;
-        break;
-      }
-    }
+    var nGram = '';
+    for (var n = 1; n <= Math.min(tokens.length,
+      visflow.nlp.MAX_NGRAM_TOKENS) && !matchedLength; n++) {
+      nGram += (n > 1 ? ' ' : '') + tokens[n - 1];
 
-    if (matchedWord || matchedBigram) {
-      parsedTokens.push(visflow.nlp.Keyword.CHART_TYPE);
-    } else {
-      parsedTokens.push(word);
+      for (var j = 0; j < chartTypes.length; j++) {
+        if (visflow.nlp.match(nGram, chartTypes[j].name)) {
+          visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
+            chartTypes[j].value;
+          matchedLength = n;
+          break;
+        }
+      }
     }
-    _.popFront(tokens);
-    if (matchedBigram) {
+    if (matchedLength) {
+      parsedTokens.push(visflow.nlp.Keyword.CHART_TYPE);
+      _.popFront(tokens, matchedLength);
+    } else {
+      parsedTokens.push(tokens[0]);
       _.popFront(tokens);
     }
   }
@@ -200,31 +193,25 @@ visflow.nlp.matchDimensions = function(query, target) {
   var parsedTokens = [];
   visflow.nlp.matchedDimensions_ = {};
   while (tokens.length) {
-    var matchedWord = false;
-    var matchedBigram = false;
+    var matchedLength = 0;
+    var nGram = '';
+    for (var n = 1; n <= Math.min(tokens.length,
+      visflow.nlp.MAX_NGRAM_TOKENS) && !matchedLength; n++) {
+      nGram += (n > 1 ? ' ' : '') + tokens[n - 1];
 
-    var word = tokens[0];
-    var bigram = tokens.length >= 2 ? tokens[0] + tokens[1] : null;
-    for (var j = 0; j < dimensions.length; j++) {
-      if (visflow.nlp.match(word, dimensions[j])) {
-        visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
-        matchedWord = true;
-        break;
-      }
-      if (visflow.nlp.match(bigram, dimensions[j])) {
-        visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
-        matchedBigram = true;
-        break;
+      for (var j = 0; j < dimensions.length; j++) {
+        if (visflow.nlp.match(nGram, dimensions[j])) {
+          visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
+          matchedLength = n;
+          break;
+        }
       }
     }
-
-    if (matchedWord || matchedBigram) {
+    if (matchedLength) {
       parsedTokens.push(visflow.nlp.Keyword.DIMENSION);
+      _.popFront(tokens, matchedLength);
     } else {
-      parsedTokens.push(word);
-    }
-    _.popFront(tokens);
-    if (matchedBigram) {
+      parsedTokens.push(tokens[0]);
       _.popFront(tokens);
     }
   }
@@ -242,50 +229,52 @@ visflow.nlp.matchNodes = function(query) {
   visflow.nlp.matchedNodes_ = {};
 
   var nodeCounter = 0;
-  var parsedTokens = [];
   var seenFrom = false;
-  while (tokens.length) {
-    var matchedWord = false;
-    var matchedBigram = false;
 
-    // word
-    var word = tokens[0];
-    if (word == visflow.nlp.Keyword.FROM || word == visflow.nlp.Keyword.OF) {
+  var parsedTokens = [];
+  visflow.nlp.matchedNodes_ = {};
+  while (tokens.length) {
+    var matchedLength = 0;
+    var nGram = '';
+
+    if (tokens[0] == visflow.nlp.Keyword.FROM ||
+        tokens[0] == visflow.nlp.Keyword.OF) {
       seenFrom = true;
     }
+
     if (!seenFrom) {
       // Avoid mapping the first verb to a node label, e.g. "filter the ..."
       // is not "node the ...".
       // TODO(bowen): Move this to grammar content.
-      _.popFront(tokens);
-      parsedTokens.push(word);
+      parsedTokens.push(_.popFront(tokens));
       continue;
     }
-    // bigrams
-    var bigram = tokens.length >= 2 ? tokens[0] + tokens[1] : null;
-    for (var id in visflow.flow.nodes) {
-      var node = visflow.flow.nodes[id];
-      if (visflow.nlp.match(word, node.label,
-          visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
-        matchedWord = true;
-        visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
-        break;
-      }
-      if (visflow.nlp.match(bigram, node.label,
-          visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
-        matchedBigram = true;
-        visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
-        break;
-      }
-    }
 
-    if (matchedWord || matchedBigram) {
-      parsedTokens.push(visflow.nlp.Keyword.NODE);
-    } else {
-      parsedTokens.push(word);
+    for (var n = 1; n <= Math.min(tokens.length,
+      visflow.nlp.MAX_NGRAM_TOKENS) && !matchedLength; n++) {
+      nGram += (n > 1 ? ' ' : '') + tokens[n - 1];
+
+      for (var id in visflow.flow.nodes) {
+        var node = visflow.flow.nodes[id];
+        if (visflow.nlp.match(nGram, node.label,
+            visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
+          matchedLength = n;
+          visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
+          break;
+        }
+        if (visflow.nlp.match(nGram, node.label,
+            visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
+          matchedLength = n;
+          visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
+          break;
+        }
+      }
     }
-    _.popFront(tokens);
-    if (matchedBigram) {
+    if (matchedLength) {
+      parsedTokens.push(visflow.nlp.Keyword.DIMENSION);
+      _.popFront(tokens, matchedLength);
+    } else {
+      parsedTokens.push(tokens[0]);
       _.popFront(tokens);
     }
   }

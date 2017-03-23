@@ -35,7 +35,7 @@ visflow.nlp.chart = function(commands) {
 
   // Apply default chart types.
   if (chartType == visflow.nlp.Keyword.CHART_TYPE) {
-    if (dims.length == 1) {
+    if (dims.length <= 1) {
       chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM1;
     } else if (dims.length == 2) {
       chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM2;

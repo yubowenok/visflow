@@ -77,13 +77,15 @@ visflow.nlp.parseFilters = function(commands) {
       number: visflow.nlp.DEFAULT_SAMPLER_NUMBER
     };
 
-    while (commands.length >= 2) {
+    while (commands.length) {
       var isRangeFilter = false;
       var isValueFilter = false;
       var isSampler = false;
       if (visflow.nlp.isComparison(commands[0].token)) {
-        if (!visflow.utils.isNumber(commands[1].token)) {
-          // If the value is a string, then use value filter with FULL match.
+        if (!visflow.utils.isNumber(commands[1].token) &&
+          commands[0].token == '=') {
+          // If the value is a string, then use value filter with FULL match
+          // for equal comparison.
           isValueFilter = true;
           valueSpec.target = visflow.ValueFilter.Target.FULL;
         } else {
@@ -135,8 +137,13 @@ visflow.nlp.parseFilters = function(commands) {
         } else {
           console.error('unrecognized sampler condition');
         }
-        samplerSpec.number = commands[1].token;
-        _.popFront(commands, 2);
+        _.popFront(commands);
+
+        if (commands.length && visflow.utils.isNumber(commands[0].token)) {
+          // Note that if there is no number, then the default value is applied.
+          samplerSpec.number = commands[0].token;
+          _.popFront(commands);
+        }
 
         if (commands.length &&
           (commands[0].token == visflow.nlp.Keyword.PERCENT ||

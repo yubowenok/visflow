@@ -83,7 +83,7 @@ visflow.RangeFilter.prototype.showDetails = function() {
       constructor: visflow.Input,
       params: {
         container: this.content.find('#min'),
-        value: this.range[0],
+        value: this.formatRange(this.range[0]),
         disabled: this.ports['inMin'].connected()
       },
       change: function(event, value) {
@@ -96,7 +96,7 @@ visflow.RangeFilter.prototype.showDetails = function() {
       constructor: visflow.Input,
       params: {
         container: this.container.find('#max'),
-        value: this.range[1],
+        value: this.formatRange(this.range[1]),
         disabled: this.ports['inMax'].connected()
       },
       change: function(event, value) {
@@ -156,6 +156,19 @@ visflow.RangeFilter.prototype.process = function() {
 
   // Do the actual filtering.
   this.filter();
+};
+
+/**
+ * Formats a range value to readable form.
+ * @param {null|number|string} value
+ * @return {string}
+ */
+visflow.RangeFilter.prototype.formatRange = function(value) {
+  // Use loose date check.
+  if (visflow.utils.isProbablyDate(value, false)) {
+    return visflow.utils.formatTime('' + value);
+  }
+  return '' + value;
 };
 
 /**
@@ -219,3 +232,4 @@ visflow.RangeFilter.prototype.setRange = function(dim, low, high) {
   }
   this.parameterChanged();
 };
+

@@ -13,6 +13,9 @@ visflow.ValueFilter.prototype.DEFAULT_LABEL = 'Filter';
 /** @inheritDoc */
 visflow.ValueFilter.prototype.NODE_CLASS = 'value-filter';
 
+/** @inheritDoc */
+visflow.ValueFilter.prototype.MAX_HEIGHT = 71;
+
 /** @enum {string} */
 visflow.ValueFilter.Mode = {
   TEXT: 'text',

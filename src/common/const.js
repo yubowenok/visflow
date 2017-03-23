@@ -40,3 +40,6 @@ visflow.const.HIGHLIGHT_COLOR = '#ff5757';
 
 /** @const {string} */
 visflow.const.EDGE_CONTAINER_SELECTOR = '#edges';
+
+/** @const {string} */
+visflow.const.TIME_FORMAT = 'M/D/YY HH:mm:ss';
