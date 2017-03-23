@@ -66,11 +66,17 @@ visflow.Minus.prototype.process = function() {
   }
 };
 
+/** @inheritDoc */
+visflow.Minus.prototype.getDataInPort = function() {
+  return this.getPort('inx');
+};
+
 /**
  * Gets the port that accepts the input of the left side operand in a minus
  * operation (a.k.a. "X" in "X - Y").
  * @return {!visflow.Port}
+ * @override
  */
-visflow.Minus.prototype.getDataInXPort = function() {
-  return this.getPort('inx');
+visflow.Minus.prototype.getSecondDataInPort = function() {
+  return this.getPort('in');
 };

@@ -229,7 +229,7 @@ visflow.nlp.matchNodes = function(query) {
   visflow.nlp.matchedNodes_ = {};
 
   var nodeCounter = 0;
-  var seenFrom = false;
+  var isFirst = true;
 
   var parsedTokens = [];
   visflow.nlp.matchedNodes_ = {};
@@ -237,16 +237,13 @@ visflow.nlp.matchNodes = function(query) {
     var matchedLength = 0;
     var nGram = '';
 
-    if (tokens[0] == visflow.nlp.Keyword.FROM ||
-        tokens[0] == visflow.nlp.Keyword.OF) {
-      seenFrom = true;
-    }
 
-    if (!seenFrom) {
+    if (isFirst) {
       // Avoid mapping the first verb to a node label, e.g. "filter the ..."
       // is not "node the ...".
       // TODO(bowen): Move this to grammar content.
       parsedTokens.push(_.popFront(tokens));
+      isFirst = false;
       continue;
     }
 
@@ -363,11 +360,9 @@ visflow.nlp.mapUtterances = function(result) {
   var commands = tokens.map(function(token) {
     return {token: token, syntax: ''};
   });
-  if (visflow.nlp.target) {
-    commands = visflow.nlp.mapChartTypes(commands);
-    commands = visflow.nlp.mapDimensions(commands);
-    commands = visflow.nlp.mapNodes(commands);
-  }
+  commands = visflow.nlp.mapChartTypes(commands);
+  commands = visflow.nlp.mapDimensions(commands);
+  commands = visflow.nlp.mapNodes(commands);
   return commands;
 };
 

@@ -44,7 +44,7 @@ visflow.nlp.isLoad_ = function(token) {
 };
 
 /**
- * Chekcs if a root command is a rendering property.
+ * Checks if a root command is a rendering property.
  * @param {string} token
  * @return {boolean}
  */
@@ -52,6 +52,17 @@ visflow.nlp.isRenderingProperty = function(token) {
   return visflow.nlp.renderingPropertyPrimitives().indexOf(token) != -1;
 };
 
+/**
+ * Checks if a root command is a set operation.
+ * @param {string} token
+ * @return {boolean}
+ * @private
+ */
+visflow.nlp.isSet_ = function(token) {
+  return token == visflow.nlp.Keyword.INTERSECT ||
+      token == visflow.nlp.Keyword.MINUS ||
+      token == visflow.nlp.Keyword.UNION;
+};
 
 /**
  * Checks if a token is a value (substring) match.
@@ -156,6 +167,8 @@ visflow.nlp.getCommandType = function(command) {
       return visflow.nlp.CommandType.EXTRACT;
     case visflow.nlp.isLink_(root):
       return visflow.nlp.CommandType.LINK;
+    case visflow.nlp.isSet_(root):
+      return visflow.nlp.CommandType.SET;
     default:
       return visflow.nlp.CommandType.UNKNOWN;
   }
