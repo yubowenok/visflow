@@ -271,7 +271,7 @@ visflow.nlp.matchNodes = function(query) {
       }
     }
     if (matchedLength) {
-      parsedTokens.push(visflow.nlp.Keyword.DIMENSION);
+      parsedTokens.push(visflow.nlp.Keyword.NODE);
       _.popFront(tokens, matchedLength);
     } else {
       parsedTokens.push(tokens[0]);

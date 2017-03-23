@@ -13,8 +13,8 @@ $nlp_path = 'nlp/';
 
 $min_username_length = 6;
 $min_password_length = 8;
-$max_data_size = 20 * 1000000;
-$max_data_size_str = '20M';
+$max_data_size = 50 * 1000000;
+$max_data_size_str = '50M';
 
 $file = fopen('config', 'r');
 if ($file)

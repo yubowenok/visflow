@@ -24,5 +24,8 @@ visflow.nlp.findTarget = function() {
   candidates.sort(function(a, b) {
     return b.weight - a.weight;
   });
+  if (!candidates.length) {
+    return null;
+  }
   return _.first(candidates).node;
 };

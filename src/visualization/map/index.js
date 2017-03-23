@@ -168,6 +168,8 @@ visflow.Map.prototype.mousedown = function(event) {
     // Disable leaflet panning when we are dragging node.
     if (this.map) {
       this.map.dragging.disable();
+      this.map.scrollWheelZoom.disable();
+      this.map.boxZoom.disable();
     }
     visflow.Map.base.mousedown.call(this, event);
   } else {
@@ -179,10 +181,13 @@ visflow.Map.prototype.mousedown = function(event) {
 visflow.Map.prototype.mouseup = function(event) {
   if (!this.options.navigation) {
     visflow.Map.base.mouseup.call(this, event);
+    return false;
   }
   this.container.draggable('enable');
   if (this.map) {
     this.map.dragging.enable();
+    this.map.scrollWheelZoom.enable();
+    this.map.boxZoom.enable();
   }
 };
 
@@ -308,9 +313,12 @@ visflow.Map.prototype.findPlotDimension = function() {
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] == visflow.ValueType.INT ||
         data.dimensionTypes[dim] == visflow.ValueType.FLOAT) {
-      dims.push(dim);
-      if (dims.length >= 2) {
-        return dims;
+      var dimName = data.dimensions[dim];
+      if (dimName.match(/lat/i) != null) {
+        dims[0] = dim;
+      }
+      if (dimName.match(/lon/i) != null) {
+        dims[1] = dim;
       }
     }
   }

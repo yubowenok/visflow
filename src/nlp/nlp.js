@@ -39,7 +39,6 @@ visflow.nlp.init = function() {
 
     $('#nlp').on('keyup', 'textarea', function(event) {
       if (event.keyCode == visflow.interaction.keyCodes.ENTER) {
-        event.preventDefault();
         // Submit entered text query.
         var textarea = $('#nlp textarea');
         textarea.prop('disabled', 'disabled');
@@ -47,6 +46,8 @@ visflow.nlp.init = function() {
         var text = /** @type {string} */(textarea.val());
         visflow.nlp.submit(text);
         textarea.val(visflow.utils.strip(text));
+
+        return false; // prevent enter from going into the textarea
       } else if (event.keyCode == visflow.interaction.keyCodes.ESC) {
         visflow.nlp.end();
       }

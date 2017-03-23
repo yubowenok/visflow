@@ -75,11 +75,21 @@ Leaflet.prototype.invalidateSize = function() {};
 Leaflet.Control.prototype.setPrefix = function(str) {};
 
 
-/** @type {!Leaflet.Draggable} */
+/** @constructor */
+Leaflet.Handler = function() {};
+
+/** @type {!Leaflet.Handler} */
 Leaflet.prototype.dragging;
 
-Leaflet.Draggable.prototype.enable = function() {};
-Leaflet.Draggable.prototype.disable = function() {};
+/** @type {!Leaflet.Handler} */
+Leaflet.prototype.scrollWheelZoom;
+
+/** @type {!Leaflet.Handler} */
+Leaflet.prototype.boxZoom;
+
+Leaflet.Handler.prototype.enable = function() {};
+Leaflet.Handler.prototype.disable = function() {};
+
 
 /**
  * @param {string} url
