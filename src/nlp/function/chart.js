@@ -6,13 +6,13 @@ visflow.nlp.chart = function(commands) {
   var target = visflow.nlp.target;
   var chartType = commands[0].token;
 
-  commands = commands.slice(1);
+  _.popFront(commands);
 
   // Check if it is selection
   var isSelection = false;
   if (commands.length && commands[0].token == visflow.nlp.Keyword.SELECTION) {
     isSelection = true;
-    commands = commands.slice(1);
+    _.popFront(commands);
     if (!target.IS_VISUALIZATION) {
       visflow.error('node does not have selection to be highlighted');
       return;

@@ -280,7 +280,7 @@ visflow.Map.prototype.drawBrush = function() {
 
 /** @inheritDoc */
 visflow.Map.prototype.dataChanged = function() {
-  var dims = this.findPlotDimension();
+  var dims = this.findPlotDimensions();
   this.options.latDim = dims[0];
   this.options.lonDim = dims[1];
 
@@ -303,24 +303,29 @@ visflow.Map.prototype.selectedChanged = function() {
   this.itemProps_ = this.getItemProperties_();
 };
 
-/**
- * Find two numerical dimensions as latitude and longitude.
- * @return {!Array<number>}
- */
-visflow.Map.prototype.findPlotDimension = function() {
+/** @inheritDoc */
+visflow.Map.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
   var dims = [];
+  var candidates = [];
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] == visflow.ValueType.INT ||
         data.dimensionTypes[dim] == visflow.ValueType.FLOAT) {
       var dimName = data.dimensions[dim];
       if (dimName.match(/lat/i) != null) {
         dims[0] = dim;
-      }
-      if (dimName.match(/lon/i) != null) {
+      } else if (dimName.match(/lon/i) != null) {
         dims[1] = dim;
+      } else {
+        candidates.push(dim);
       }
     }
+  }
+  if (dims[0] == null) {
+    dims[0] = _.popFront(candidates);
+  }
+  if (dims[1] == null) {
+    dims[1] = _.popFront(candidates);
   }
   return dims;
 };
@@ -333,6 +338,9 @@ visflow.Map.prototype.setDimensions = function(dims) {
   }
   if (dims.length >= 2) {
     this.options.lonDim = data.dimensions.indexOf(dims[1]);
+  }
+  if (this.options.latDim == null || this.options.lonDim == null) {
+    this.findPlotDimensions();
   }
   this.dimensionChanged();
 };

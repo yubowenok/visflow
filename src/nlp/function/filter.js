@@ -12,19 +12,19 @@ visflow.nlp.retrieveFilters = function(commands) {
     return {filters: [], remaining: []};
   }
   var filters = [commands[0]];
-  commands = commands.slice(1);
+  _.popFront(commands);
   while (commands.length &&
   commands[0].syntax == visflow.nlp.Keyword.DIMENSION) {
 
     filters.push(commands[0]);
-    commands = commands.slice(1);
+    _.popFront(commands);
 
     // More condition on the current dimension
     while (commands.length >= 2 &&
     (visflow.nlp.isComparison(commands[0].token) ||
     visflow.nlp.isContain(commands[0].token))) {
       filters = filters.concat(commands.slice(0, 2));
-      commands = commands.slice(2);
+      _.popFront(commands, 2);
     }
   }
   return {
@@ -55,7 +55,7 @@ visflow.nlp.parseFilters = function(commands) {
       visflow.data.INDEX_DIM :
       visflow.nlp.target.getDimensionNames().indexOf(commands[0].token);
     // Remove dimension
-    commands = commands.slice(1);
+    _.popFront(commands);
 
     var useRangeFilter = false;
     var useValueFilter = false;
@@ -191,7 +191,7 @@ visflow.nlp.filter = function(commands, opt_noPlacement) {
     return [];
   }
   var isFind = commands[0].token == visflow.nlp.Keyword.FIND;
-  commands = commands.slice(1);
+  _.popFront(commands);
 
   var noPlacement = !!opt_noPlacement;
   var target = visflow.nlp.target;
@@ -200,7 +200,7 @@ visflow.nlp.filter = function(commands, opt_noPlacement) {
     commands[0].token == visflow.nlp.Keyword.SELECTION &&
     target.IS_VISUALIZATION;
   if (isSelection) {
-    commands = commands.slice(1);
+    _.popFront(commands);
   }
 
   var filterSpecs = visflow.nlp.parseFilters(commands);

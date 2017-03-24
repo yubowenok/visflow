@@ -12,12 +12,12 @@ visflow.nlp.extract = function(commands) {
     visflow.error('no node target to extract values from');
     return;
   }
-  commands = commands.slice(1);
+  _.popFront(commands);
 
   var isSelection = commands.length &&
     commands[0].token == visflow.nlp.Keyword.SELECTION;
   if (isSelection) {
-    commands = commands.slice(1);
+    _.popFront(commands);
     if (!target.IS_VISUALIZATION) {
       visflow.error('only visualizations have selection to be extracted');
       return;

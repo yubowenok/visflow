@@ -13,24 +13,24 @@ visflow.nlp.renderingProperty = function(commands) {
       console.error('unexpected rendering property', commands[0].token);
       return [];
     }
-    commands = commands.slice(1);
+    _.popFront(commands);
 
     var value = commands[0].token;
     var needDim = false;
     if (visflow.nlp.isColorScale(value)) {
       mapProperties[property] = {value: value};
-      commands = commands.slice(1);
+      _.popFront(commands);
       needDim = true;
     } else if (commands.length >= 2 && visflow.utils.isNumber(value) &&
       visflow.utils.isNumber(commands[1].token)) {
       // It is a value range, e.g. "size 2.0 3.0"
       mapProperties[property] = {value: [+value, +commands[1].token]};
-      commands = commands.slice(2);
+      _.popFront(commands, 2);
       needDim = true;
     } else {
       // a set property, e.g. "width 2.0"
       setProperties[property] = value;
-      commands = commands.slice(1);
+      _.popFront(commands);
     }
     if (needDim) {
       if (!commands.length ||
@@ -39,7 +39,7 @@ visflow.nlp.renderingProperty = function(commands) {
         return [];
       }
       mapProperties[property].dim = commands[0].token;
-      commands = commands.slice(1);
+      _.popFront(commands);
     }
   }
 

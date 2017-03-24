@@ -47,7 +47,7 @@ visflow.nlp.load = function(commands) {
     console.error('not a load command');
     return;
   }
-  commands = commands.slice(1);
+  _.popFront(commands);
   var dataName = _.reduce(commands, function(prev, now) {
     return (prev ? prev + ' ' : '') + now.token;
   }, '');

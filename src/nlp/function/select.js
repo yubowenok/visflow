@@ -7,7 +7,7 @@ visflow.nlp.select = function(commands) {
     console.error('unexpected select command');
     return;
   }
-  commands = commands.slice(1);
+  _.popFront(commands);
 
   if (visflow.nlp.target == null || !visflow.nlp.target.IS_VISUALIZATION) {
     visflow.error('can only make selection in a visualization');

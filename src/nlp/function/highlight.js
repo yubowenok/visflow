@@ -9,29 +9,32 @@ visflow.nlp.highlight = function(commands) {
     console.error('unexpected highlight command');
     return;
   }
-  commands = commands.slice(2);
+  _.popFront(commands, 2);
 
   var fromNode = visflow.nlp.target;
+  var targetChartType = null;
   if (commands.length && commands[0].token == visflow.nlp.Keyword.FROM) {
-    if (!commands[0] ||
+    if (!commands[1] ||
       commands[1].syntax != visflow.nlp.Keyword.CHART_TYPE) {
       console.error('unexpected highlight source');
       return;
     }
+    targetChartType = commands[1].token;
     // Try to find the user's current focus, and highlight from there.
-    if (!fromNode.matchType(commands[1].token)) {
+    if (!fromNode.matchType(targetChartType)) {
       var newTarget = visflow.flow.closestNodeToMouse({
         type: commands[1].token
       });
-      if (!newTarget) {
+      if (newTarget != null) {
         // If we can find a match, then use the new target.
         // Otherwise proceed with the previous target.
-        visflow.nlp.target = newTarget;
-      }
+        fromNode = newTarget;
+      } // Else we suppose the user wants to create such chart type.
     }
-    commands = commands.slice(2);
+    _.popFront(commands, 2);
   }
-  var target = visflow.nlp.target;
+
+  var target = fromNode;
   if (!target.IS_VISUALIZATION) {
     visflow.error('node does not have selection to be highlighted');
     return;
@@ -41,6 +44,8 @@ visflow.nlp.highlight = function(commands) {
   if (commands.length &&
     commands[0].syntax == visflow.nlp.Keyword.CHART_TYPE) {
     chartType = commands[0].token;
+  } else if (targetChartType != null) {
+    chartType = targetChartType;
   }
 
   var box = target.getBoundingBox();
