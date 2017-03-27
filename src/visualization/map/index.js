@@ -154,6 +154,8 @@ visflow.Map.prototype.createMap_ = function() {
 
   this.map.on('zoomend', function() {
     this.drawMap_();
+    this.options.zoom = this.map.getZoom();
+    this.options.center = this.map.getCenter();
   }.bind(this));
 
   this.map.on('zoomlevelschange', function() {

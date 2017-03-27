@@ -341,6 +341,7 @@ visflow.nlp.mapNodes = function(commands) {
  * @return {string}
  */
 visflow.nlp.matchUtterances = function(query) {
+  query = query.toLowerCase();
   query = visflow.nlp.matchChartTypes(query);
   if (visflow.nlp.target) {
     query = visflow.nlp.matchDimensions(query, /** @type {!visflow.Node} */(
