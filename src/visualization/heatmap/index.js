@@ -18,19 +18,19 @@ visflow.Heatmap = function(params) {
 
   /**
    * Scale in column direction.
-   * @protected {!d3.scale|undefined}
+   * @protected {d3.Scale|undefined}
    */
   this.xScale = undefined;
 
   /**
    * Scale in row direction.
-   * @protected {!d3.scale|undefined}
+   * @protected {d3.Scale|undefined}
    */
   this.yScale = undefined;
 
   /**
    * Scales from column values to [0, 1]
-   * @protected {!Array<!d3.scale>}
+   * @protected {!Array<d3.Scale>}
    */
   this.normalizeScales = [];
 
@@ -269,12 +269,13 @@ visflow.Heatmap.prototype.showDetails = function() {
 visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
   var rows = this.svgHeatmap_.selectAll('g')
     .data(itemProps, _.getValue('index'));
-  rows.enter().append('g')
-    .style('opacity', 0)
-    .attr('id', _.getValue('index'));
+
   _.fadeOut(rows.exit());
 
-  rows
+  rows = rows.enter().append('g')
+    .style('opacity', 0)
+    .attr('id', _.getValue('index'))
+    .merge(rows)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 
@@ -296,11 +297,14 @@ visflow.Heatmap.prototype.drawHeatmap_ = function(itemProps) {
 
   var cells = rows.selectAll('rect')
     .data(_.getValue('cells'), _.getValue('dimId'));
-  cells.enter().append('rect')
+
+  _.fadeOut(cells.exit());
+
+  cells = cells.enter().append('rect')
     .style('opacity', 0)
     .attr('id', _.getValue('dimId'))
-    .attr('transform', cellTransform);
-  _.fadeOut(cells.exit());
+    .attr('transform', cellTransform)
+    .merge(cells);
 
   var updatedCells = this.allowTransition ? cells.transition() : cells;
   updatedCells
@@ -329,9 +333,6 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(svg, itemProps, opt_temp) {
   // First clear potentially existing row clutter hint.
   svg.select('g').remove();
 
-  var labels = svg.selectAll('text')
-    .data(itemProps, _.getValue('index'));
-
   var labelTransform = function(row, index) {
     return visflow.utils.getTransform([
       this.leftMargin_ - this.ROW_LABEL_OFFSET_,
@@ -339,11 +340,16 @@ visflow.Heatmap.prototype.drawRowLabels_ = function(svg, itemProps, opt_temp) {
     ]);
   }.bind(this);
 
-  labels.enter().append('text')
+  var labels = svg.selectAll('text')
+    .data(itemProps, _.getValue('index'));
+
+  _.fadeOut(labels.exit());
+
+  labels = labels.enter().append('text')
     .attr('id', _.getValue('index'))
     .attr('transform', labelTransform)
-    .classed('row-label', true);
-  _.fadeOut(labels.exit());
+    .classed('row-label', true)
+    .merge(labels);
 
   var updatedLabels = this.allowTransition ? labels.transition() : labels;
   updatedLabels
@@ -409,13 +415,18 @@ visflow.Heatmap.prototype.drawColLabels_ = function(svg) {
   var inpack = this.ports['in'].pack;
   var data = inpack.data;
   var dimInfos = this.uniqueDimensions(this.dimensions);
+
   var labels = svg.selectAll('.vis-label')
     .data(dimInfos, _.getValue('uniqId'));
-  labels.enter().append('text')
+
+  _.fadeOut(labels.exit());
+
+  labels = labels.enter().append('text')
     .attr('id', _.getValue('uniqId'))
     .classed('vis-label', true)
-    .attr('transform', labelTransform);
-  _.fadeOut(labels.exit());
+    .attr('transform', labelTransform)
+    .merge(labels);
+
   var updatedLabels = this.allowTransition ? labels.transition() : labels;
   if (this.colLabelVerticalChanged_) {
     this.colLabelVerticalChanged_ = false;
@@ -510,10 +521,10 @@ visflow.Heatmap.prototype.sortItems_ = function() {
 visflow.Heatmap.prototype.prepareXYScales_ = function() {
   var margins = this.plotMargins();
   var svgSize = this.getSVGSize();
-  this.xScale = d3.scale.linear()
+  this.xScale = d3.scaleLinear()
     .domain([0, this.dimensions.length])
     .range([this.leftMargin_, svgSize.width - margins.right]);
-  this.yScale = d3.scale.linear()
+  this.yScale = d3.scaleLinear()
     .domain([0, this.itemIndices_.length])
     .range([svgSize.height - margins.bottom, this.topMargin_]);
 };

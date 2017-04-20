@@ -12,13 +12,13 @@ visflow.ParallelCoordinates = function(params) {
 
   /**
    * Mapping from axes indexes to x coordinates.
-   * @protected {!d3.scale}
+   * @protected {d3.Scale}
    */
-  this.xScale = d3.scale.linear();
+  this.xScale = d3.scaleLinear();
 
   /**
    * Mapping from data dimension domain to screen y coordinates.
-   * @protected {!Array<!d3.scale>}
+   * @protected {!Array<d3.Scale>}
    */
   this.yScales = [];
 
@@ -190,13 +190,7 @@ visflow.ParallelCoordinates.prototype.getItemProperties_ = function() {
  * @private
  */
 visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
-  var lines = this.svgPolylines_.selectAll('path').data(itemProps,
-      _.getValue('index'));
-  lines.enter().append('path')
-    .attr('id', _.getValue('index'));
-  _.fadeOut(lines.exit());
-
-  var line = d3.svg.line().interpolate('linear')
+  var line = d3.line()
     .x(function(point) {
       return this.xScale(point[0]);
     }.bind(this))
@@ -204,7 +198,14 @@ visflow.ParallelCoordinates.prototype.drawPolylines_ = function(itemProps) {
       return this.yScales[point[0]](point[1]);
     }.bind(this));
 
-  lines
+  var lines = this.svgPolylines_.selectAll('path').data(itemProps,
+      _.getValue('index'));
+
+  _.fadeOut(lines.exit());
+
+  lines = lines.enter().append('path')
+    .attr('id', _.getValue('index'))
+    .merge(lines)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 
@@ -306,8 +307,7 @@ visflow.ParallelCoordinates.prototype.drawAxis_ = function(dimIndex,
   var svgSize = this.getSVGSize();
   var yScale = this.yScales[dimIndex];
 
-  var axis = d3.svg.axis()
-    .orient('left')
+  var axis = d3.axisLeft()
     .tickValues(this.options.ticks ? yScale.domain() : [])
     .scale(yScale);
 
@@ -378,7 +378,7 @@ visflow.ParallelCoordinates.prototype.prepareScales = function() {
   // Draw x secondly, as leftMargin depends on the first y-axis.
   this.updateLeftRightMargins_();
 
-  this.xScale = d3.scale.linear()
+  this.xScale = d3.scaleLinear()
     .domain([0, this.options.dims.length - 1])
     .range([
       this.margins_.left,

@@ -1,4 +1,4 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 .visflow .node.data-source {
   text-align: center;
@@ -37,7 +37,7 @@
     .item {
       background-color: $white;
       border: 1px solid $gray-c;
-      border-radius: 4px;
+      border-radius: $border-radius;
       margin-top: 3px;
       max-width: 300px;
       padding: 5px;

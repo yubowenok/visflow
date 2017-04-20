@@ -93,15 +93,18 @@ module.exports = {
   externs: [
     'src/externs/**/*.js'
   ],
-  serverExterns: [
-    'server/externs/*.js'
-  ],
   scss: [
     'src/**/*.scss',
     'src/**/*.css'
   ],
+  less: [
+    'src/**/*.less'
+  ],
   html: [
     'src/**/*.html'
+  ],
+  fonts: [
+    'bower_components/bootstrap/dist/fonts/*'
   ],
   index: ['index.html'],
   gulpTasks: ['gulp/**/*.js']

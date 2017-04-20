@@ -1,0 +1,5 @@
+@import 'src/common/colors';
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: $gray-f5;
+}

@@ -92,14 +92,14 @@ visflow.Network = function(params) {
   this.zoomTranslate_ = [0, 0];
   /** @private {number} */
   this.zoomScale_ = 1.0;
-  /** @private {?d3.zoom} */
+  /** @private {?d3.Zoom} */
   this.zoom_ = null;
 
   /**
    * D3 force for graph layout.
-   * @private {!d3.force}
+   * @private {d3.ForceSimulation}
    */
-  this.force_ = d3.layout.force();
+  this.force_ = d3.forceSimulation();
 
   /**
    * SVG group for nodes.
@@ -130,10 +130,14 @@ visflow.Network.prototype.init = function() {
   this.svgNodeLabels_ = this.svg.append('g')
     .classed('labels render-group', true);
 
-  this.zoom_ = d3.behavior.zoom()
+  this.zoom_ = d3.zoom()
     .scaleExtent(this.zoomExtent_())
     .on('zoom', this.zoom.bind(this));
   this.svg.call(this.zoom_);
+
+  this.zoom_.filter(function() {
+    return this.options.navigation;
+  }.bind(this));
 };
 
 /** @inheritDoc */
@@ -198,14 +202,11 @@ visflow.Network.prototype.mousedown = function(event) {
  * Handles zoom event.
  */
 visflow.Network.prototype.zoom = function() {
-  if (!this.options.navigation) {
-    this.zoom_
-      .translate(this.zoomTranslate_)
-      .scale(this.zoomScale_);
-    return;
-  }
-  var translate = d3.event.translate;
-  var scale = d3.event.scale;
+  visflow.assert(this.options.navigation);
+
+  var transform = d3.event.transform;
+  var translate = [transform.x, transform.y];
+  var scale = transform.k;
 
   this.svg.selectAll('.render-group')
     .attr('transform', visflow.utils.getTransform(translate, scale));
@@ -373,9 +374,13 @@ visflow.Network.prototype.updateNodes_ = function() {
         prop.node.y
       ]);
     })
-    .attr('r', _.getValue('size'))
+    .attr('r', function(prop) {
+      return prop.size / this.zoomScale_;
+    }.bind(this))
     .style('stroke', _.getValue('border'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', function(prop) {
+      return prop.width / this.zoomScale_;
+    }.bind(this))
     .style('fill', _.getValue('color'))
     .style('opacity', _.getValue('opacity'));
 };
@@ -390,6 +395,7 @@ visflow.Network.prototype.updateNodeLabels_ = function() {
     .text(this.options.nodeLabel ? function(prop) {
       return prop.node.label;
     } : '')
+    .style('font-size', visflow.DEFAULT_FONT_SIZE / this.zoomScale_)
     .attr('transform', function(prop) {
       return visflow.utils.getTransform([
         prop.node.x + this.NODE_LABEL_OFFSET_X_,
@@ -419,10 +425,12 @@ visflow.Network.prototype.updateEdges_ = function() {
     return visflow.vectors.addVector(m, d);
   }.bind(this);
 
-  var curve = d3.svg.line().interpolate('basis');
+  var curve = d3.line().curve(d3.curveBasis);
   edges.select('path.edge')
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', function(prop) {
+      return prop.width / this.zoomScale_;
+    }.bind(this))
     .style('opacity', _.getValue('opacity'))
     .attr('d', function(edge) {
       var ps = [edge.source.x, edge.source.y];
@@ -439,17 +447,21 @@ visflow.Network.prototype.updateEdges_ = function() {
     var dm = visflow.vectors.normalizeVector(
       visflow.vectors.subtractVector(pm, pt));
     var p1 = visflow.vectors.addVector(pt,
-      visflow.vectors.multiplyVector(dm, this.NODE_SIZE_));
+      visflow.vectors.multiplyVector(dm,
+        this.NODE_SIZE_ / this.zoomScale_));
     var p2 = visflow.vectors.addVector(p1,
-      visflow.vectors.multiplyVector(ds, this.EDGE_ARROW_LENGTH_));
+      visflow.vectors.multiplyVector(ds,
+        this.EDGE_ARROW_LENGTH_ / this.zoomScale_));
     var p3 = visflow.vectors.mirrorPoint(p2, p1, pm);
     return [p1, p2, p3];
   }.bind(this);
 
-  var line = d3.svg.line().interpolate('linear-closed');
+  var line = d3.line().curve(d3.curveLinearClosed);
   edges.select('path.arrow')
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', function(prop) {
+      return prop.width / this.zoomScale_;
+    }.bind(this))
     .style('opacity', _.getValue('opacity'))
     .style('fill', _.getValue('color'))
     .attr('d', function(edge) {
@@ -736,22 +748,37 @@ visflow.Network.prototype.startForce_ = function() {
   var svgSize = this.getSVGSize();
   this.force_.stop();
 
-  this.force_ = d3.layout.force()
-    .nodes(_.toArray(this.nodes))
-    .links(_.toArray(this.edges))
-    .size([svgSize.width, svgSize.height])
-    .charge(this.options.charge)
-    .linkDistance(this.FORCE_LINK_DISTANCE_)
-    .gravity(this.FORCE_GRAVITY_)
-    .friction(this.FORCE_FRICTION_)
+  this.force_ = d3.forceSimulation(_.toArray(this.nodes))
+    .force('link', d3.forceLink(_.toArray(this.edges))
+      .distance(this.FORCE_LINK_DISTANCE_))
+    .force('charge', d3.forceManyBody()) //this.options.charge
+    .force('center', d3.forceCenter(
+      svgSize.width / 2, svgSize.height / 2))
+    .velocityDecay(this.FORCE_FRICTION_)
     .on('tick', this.updateNetwork_.bind(this));
 
+  /*
+  d3.select(this.svg.node())
+    .call(d3.drag()
+      .container(this.svg)
+      .subject(function() {
+        return this.force_.find(d3.event.x, d3.event.y);
+      }.bind(this))
+      .on('start', function() {
+        console.log(d3.event.subject);
+      }));
+      */
+      //.on('drag', dragged)
+      //.on('end', dragended));
+
+
+  /*
   this.force_.drag()
     .on('dragstart', function(node) {
       d3.select(this).classed('fixed', node.fixed = true);
     });
-
-  this.force_.start();
+*/
+  this.force_.restart();
 };
 
 /** @inheritDoc */

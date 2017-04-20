@@ -1,0 +1,29 @@
+@import 'src/common/colors';
+
+$font-size: 12px;
+$font-size-small: 10px;
+
+$icon-size: 40px;
+
+$border-radius: 2px;
+
+$border-width: 1px;
+$border-width-large: 2px;
+
+$padding: 3px;
+$padding-large: 6px;
+
+$side-button-width: $font-size-small * 2;
+
+@mixin col-wrap($width) {
+  max-width: $width;
+  word-wrap: break-word;
+}
+
+%shadow-bottom {
+  box-shadow: 0 0 1px 1px $gray-a;
+}
+
+%ui-border {
+  border: 1px solid $gray-c;
+}

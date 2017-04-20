@@ -173,7 +173,7 @@ visflow.PropertyMapping.prototype.process = function() {
   if (mappingType == 'color') {
     propScale = visflow.scales[this.options.colorScaleId].scale;
   } else if (mappingType == 'number') {
-    propScale = d3.scale.linear()
+    propScale = d3.scaleLinear()
       .domain([0, 1])
       .range(this.options.numberRange);
   }

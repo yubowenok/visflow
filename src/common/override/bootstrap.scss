@@ -1,0 +1,55 @@
+//
+// Override bootstrap css styles.
+//
+
+@import 'src/common/colors';
+
+
+.navbar {
+  @extend %shadow-bottom;
+
+  background-color: $ui-background-dark;
+  z-index: 0;
+
+  .dropdown-menu > li > a > i {
+    margin-right: 10px;
+  }
+}
+
+.navbar-fixed-top a:hover {
+  cursor: pointer;
+}
+
+.modal {
+  &.fade {
+    opacity: 1;
+
+    .modal-dialog {
+      transform: translate(0, 0);
+    }
+  }
+
+  &.in .modal-dialog {
+    transform: translate(0, 0);
+  }
+
+  .modal-content {
+    box-shadow: none;
+  }
+}
+
+// Bootstrap tooltip
+.tooltip {
+  z-index: 1002;
+}
+
+.alert {
+  left: 35%;
+  position: relative;
+  width: 30%;
+}
+
+button.close {
+  position: relative;
+  top: -3px;
+}

@@ -7,7 +7,7 @@ var paths = require('./paths.js');
 
 gulp.task('copy-imgs', function() {
   return gulp.src(paths.imgs)
-    .pipe(gulp.dest(paths.dist + 'imgs'));
+    .pipe(gulp.dest(paths.dist + 'css/imgs'));
 });
 
 gulp.task('copy-html', function() {
@@ -25,6 +25,12 @@ gulp.task('copy-doc-imgs', function() {
     .pipe(gulp.dest(paths.dist + 'doc'));
 });
 
-gulp.task('copy', ['copy-imgs', 'copy-html']);
+gulp.task('copy-fonts', function() {
+  return gulp.src(paths.fonts)
+    .pipe(gulp.dest(paths.dist + 'fonts'));
+});
 
-gulp.task('copy-doc', ['copy-doc-js', 'copy-doc-imgs']);
+
+gulp.task('copy', ['copy-imgs', 'copy-html', 'copy-fonts']);
+
+gulp.task('copy-doc', ['copy-doc-js', 'copy-doc-imgs', 'copy-fonts']);

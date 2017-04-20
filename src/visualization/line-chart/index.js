@@ -11,10 +11,10 @@ visflow.LineChart = function(params) {
   visflow.LineChart.base.constructor.call(this, params);
 
   // Rendering scales.
-  /** @type {!d3.scale} */
-  this.xScale = d3.scale.linear();
-  /** @type {!d3.scale} */
-  this.yScale = d3.scale.linear();
+  /** @type {d3.Scale} */
+  this.xScale = d3.scaleLinear();
+  /** @type {d3.Scale} */
+  this.yScale = d3.scaleLinear();
 
   /** @type {visflow.ScaleType} */
   this.xScaleType = visflow.ScaleType.UNKNOWN;
@@ -408,18 +408,7 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
  * @private
  */
 visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
-  var lines = this.svgLines_.selectAll('path').data(lineProps,
-    _.getValue('index'));
-  lines.enter().append('path')
-    .attr('id', _.getValue('index'));
-  _.fadeOut(lines.exit());
-
-  var points = {};
-  itemProps.forEach(function(prop) {
-    points[prop.index] = {x: prop.x, y: prop.y};
-  });
-
-  var line = d3.svg.line()
+  var line = d3.line()
     .x(function(index) {
       return this.xScale(points[index].x);
     }.bind(this))
@@ -427,10 +416,22 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
       return this.yScale(points[index].y);
     }.bind(this));
   if (this.options.curve) {
-    line.interpolate('basis');
+    line.curve(d3.curveBasis);
   }
 
-  lines
+  var points = {};
+  itemProps.forEach(function(prop) {
+    points[prop.index] = {x: prop.x, y: prop.y};
+  });
+
+  var lines = this.svgLines_.selectAll('path').data(lineProps,
+    _.getValue('index'));
+
+  _.fadeOut(lines.exit());
+
+  lines = lines.enter().append('path')
+    .attr('id', _.getValue('index'))
+    .merge(lines)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 
