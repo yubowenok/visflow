@@ -37,12 +37,14 @@ visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
     icon: 'glyphicon glyphicon-plus',
     hotKey: 'A'
   },
+  /*
   {
     id: 'flowSense',
     text: 'FlowSense',
     icon: 'glyphicon glyphicon-comment',
     hotKey: 'S'
   }
+  */
 ];
 
 /** @private {!jQuery} */
@@ -355,11 +357,13 @@ visflow.interaction.keyPress = function(event) {
         case 'shift+L':
           visflow.flow.autoLayoutAll();
           break;
+        /*
         case 'shift+S':
           // prevent 'S' from being entered into the nlp input
           event.preventDefault();
           visflow.nlp.input();
           break;
+        */
         case 'shift+V':
           visflow.flow.toggleVisMode();
           break;

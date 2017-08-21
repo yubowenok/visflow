@@ -590,7 +590,7 @@ visflow.Node.prototype.initContextMenu = function() {
     .on('vf.panel', this.panel.bind(this))
     .on('vf.label', this.toggleLabel.bind(this))
     .on('vf.visMode', this.toggleVisMode.bind(this))
-    .on('vf.flowSense', this.flowSenseInput.bind(this))
+    //.on('vf.flowSense', this.flowSenseInput.bind(this))
     .on('vf.beforeOpen', function(event, menuContainer) {
       var minimize = menuContainer.find('#minimize');
       if (this.options.minimized) {
@@ -848,10 +848,12 @@ visflow.Node.prototype.keyAction = function(key, event) {
     case 'V':
       this.toggleVisMode();
       break;
+    /*
     case 'S':
       event.preventDefault(); // Avoid 'S' typed into NLP input.
       this.flowSenseInput();
       break;
+    */
   }
 };
 

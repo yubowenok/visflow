@@ -91,8 +91,8 @@ visflow.Node.prototype.contextMenuItems = function() {
       icon: 'glyphicon glyphicon-facetime-video'},
     {id: 'panel', text: 'Control Panel',
       icon: 'glyphicon glyphicon-th-list'},
-    {id: 'flowSense', text: 'FlowSense',
-      icon: 'glyphicon glyphicon-comment'},
+    //{id: 'flowSense', text: 'FlowSense',
+    //  icon: 'glyphicon glyphicon-comment'},
     {id: 'delete', text: 'Delete',
       icon: 'glyphicon glyphicon-remove'}
   ];
