@@ -180,5 +180,7 @@ visflow.PropertyEditor.prototype.setProperties = function(properties) {
       this.options[property] = value;
     }
   }
-  this.parameterChanged('external');
+  setTimeout(function() {
+    this.parameterChanged('external');
+  }.bind(this), visflow.const.QUEUE_DELAY); // push to queue
 };

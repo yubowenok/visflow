@@ -39,6 +39,8 @@ visflow.nlp.chart = function(commands) {
       chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM1;
     } else if (dims.length == 2) {
       chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM2;
+    } else if (dims.length == 3) {
+      chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIM3;
     } else {
       chartType = visflow.nlp.DEFAULT_CHART_TYPE_DIMS;
     }

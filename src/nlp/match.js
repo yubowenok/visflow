@@ -138,7 +138,7 @@ visflow.nlp.matchChartTypes = function(query) {
   var tokens = query.split(visflow.nlp.DELIMITER_REGEX_);
 
   var parsedTokens = [];
-  visflow.nlp.matchedDimensions_ = {};
+  visflow.nlp.matchedChartTypes_ = {};
   var isFirst = true;
   while (tokens.length) {
     var matchedLength = 0;
@@ -152,12 +152,12 @@ visflow.nlp.matchChartTypes = function(query) {
 
     var nGram = '';
     for (var n = 1; n <= Math.min(tokens.length,
-      visflow.nlp.MAX_NGRAM_TOKENS) && !matchedLength; n++) {
+      visflow.nlp.MAX_NGRAM_TOKENS); n++) {
       nGram += (n > 1 ? ' ' : '') + tokens[n - 1];
 
       for (var j = 0; j < chartTypes.length; j++) {
         if (visflow.nlp.match(nGram, chartTypes[j].name)) {
-          visflow.nlp.matchedChartTypes_[chartTypeCounter++] =
+          visflow.nlp.matchedChartTypes_[chartTypeCounter] =
             chartTypes[j].value;
           matchedLength = n;
           break;
@@ -165,6 +165,7 @@ visflow.nlp.matchChartTypes = function(query) {
       }
     }
     if (matchedLength) {
+      chartTypeCounter++;
       parsedTokens.push(visflow.nlp.Keyword.CHART_TYPE);
       _.popFront(tokens, matchedLength);
     } else {
@@ -196,18 +197,18 @@ visflow.nlp.matchDimensions = function(query, target) {
     var matchedLength = 0;
     var nGram = '';
     for (var n = 1; n <= Math.min(tokens.length,
-      visflow.nlp.MAX_NGRAM_TOKENS) && !matchedLength; n++) {
+      visflow.nlp.MAX_NGRAM_TOKENS); n++) {
       nGram += (n > 1 ? ' ' : '') + tokens[n - 1];
 
       for (var j = 0; j < dimensions.length; j++) {
         if (visflow.nlp.match(nGram, dimensions[j])) {
-          visflow.nlp.matchedDimensions_[dimensionCounter++] = dimensions[j];
+          visflow.nlp.matchedDimensions_[dimensionCounter] = dimensions[j];
           matchedLength = n;
-          break;
         }
       }
     }
     if (matchedLength) {
+      dimensionCounter++;
       parsedTokens.push(visflow.nlp.Keyword.DIMENSION);
       _.popFront(tokens, matchedLength);
     } else {
@@ -236,8 +237,6 @@ visflow.nlp.matchNodes = function(query) {
   while (tokens.length) {
     var matchedLength = 0;
     var nGram = '';
-
-
     if (isFirst) {
       // Avoid mapping the first verb to a node label, e.g. "filter the ..."
       // is not "node the ...".
@@ -248,7 +247,7 @@ visflow.nlp.matchNodes = function(query) {
     }
 
     for (var n = 1; n <= Math.min(tokens.length,
-      visflow.nlp.MAX_NGRAM_TOKENS) && !matchedLength; n++) {
+      visflow.nlp.MAX_NGRAM_TOKENS); n++) {
       nGram += (n > 1 ? ' ' : '') + tokens[n - 1];
 
       for (var id in visflow.flow.nodes) {
@@ -256,18 +255,17 @@ visflow.nlp.matchNodes = function(query) {
         if (visflow.nlp.match(nGram, node.label,
             visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
           matchedLength = n;
-          visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
-          break;
+          visflow.nlp.matchedNodes_[nodeCounter] = node.label;
         }
         if (visflow.nlp.match(nGram, node.getClass(),
             visflow.nlp.MATCH_THRESHOLD_STRICT_)) {
           matchedLength = n;
-          visflow.nlp.matchedNodes_[nodeCounter++] = node.label;
-          break;
+          visflow.nlp.matchedNodes_[nodeCounter] = node.label;
         }
       }
     }
     if (matchedLength) {
+      nodeCounter++;
       parsedTokens.push(visflow.nlp.Keyword.NODE);
       _.popFront(tokens, matchedLength);
     } else {
@@ -368,20 +366,40 @@ visflow.nlp.mapUtterances = function(result) {
 };
 
 /**
- * Finds a node matching the conditions.
+ * Finds a node with the highest focus score that matches the conditions.
  * @param {{
- *   label: (string|undefined)
+ *   type: (string|undefined),
+ *   label: (string|undefined),
+ *   differentNode: (string|undefined),
+ *   excludeValue: (boolean|undefined)
  * }} condition
  * @return {?visflow.Node}
  */
 visflow.nlp.findNode = function(condition) {
+  var candidates = [];
   for (var id in visflow.flow.nodes) {
     var node = visflow.flow.nodes[id];
+    if (condition.type !== undefined && !node.matchType(condition.type)) {
+      continue;
+    }
     if (condition.label !== undefined && node.label != condition.label) {
       continue;
     }
+    if (condition.differentNode !== undefined &&
+      node.id == condition.differentNode) {
+      continue;
+    }
+    if (condition.excludeValue && node.IS_VALUE) {
+      continue;
+    }
     // Found a node satisfying all conditions.
-    return node;
+    candidates.push({node: node, weight: node.focusScore()});
   }
-  return null;
+  candidates.sort(function(a, b) {
+    return b.weight - a.weight;
+  });
+  if (!candidates.length) {
+    return null;
+  }
+  return _.first(candidates).node;
 };

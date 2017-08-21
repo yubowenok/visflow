@@ -143,6 +143,9 @@ visflow.nlp.DEFAULT_CHART_TYPE_DIM1 = 'histogram';
 visflow.nlp.DEFAULT_CHART_TYPE_DIM2 = 'scatterplot';
 
 /** @const {string} */
+visflow.nlp.DEFAULT_CHART_TYPE_DIM3 = 'lineChart';
+
+/** @const {string} */
 visflow.nlp.DEFAULT_CHART_TYPE_DIMS = 'parallelCoordinates';
 
 /**

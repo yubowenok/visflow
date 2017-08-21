@@ -19,7 +19,7 @@ visflow.Flow.prototype.PADDING_THRESHOLD_ = 100;
 visflow.Flow.prototype.FORCE_X_STRENGTH_ = .5;
 
 /** @private @const {number} */
-visflow.Flow.prototype.FORCE_Y_STRENGTH_ = .1;
+visflow.Flow.prototype.FORCE_Y_STRENGTH_ = .25;
 
 /** @private @const {number} */
 visflow.Flow.prototype.DEFAULT_CHARGE_ = -50;

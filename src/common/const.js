@@ -43,3 +43,6 @@ visflow.const.EDGE_CONTAINER_SELECTOR = '#edges';
 
 /** @const {string} */
 visflow.const.TIME_FORMAT = 'M/D/YY HH:mm:ss';
+
+/** @const {number} */
+visflow.const.QUEUE_DELAY = 10;

@@ -83,7 +83,11 @@ visflow.nlp.link = function(commands) {
 
   var from = null;
   if (commands.length && commands[0].token == visflow.nlp.Keyword.FROM) {
-    from = visflow.nlp.findNode({label: commands[1].token});
+    if (commands[1].syntax == visflow.nlp.Keyword.CHART_TYPE) {
+      from = visflow.nlp.findNode({type: commands[1].token});
+    } else { // visflow.nlp.Keyword.NODE
+      from = visflow.nlp.findNode({label: commands[1].token});
+    }
     _.popFront(commands, 2);
   }
 

@@ -26,8 +26,11 @@ visflow.nlp.set = function(commands) {
     _.popFront(commands);
   }
   if (!operands.length) {
-    visflow.error('cannot find node for set operation');
-    return;
+    // We auto find a node with the highest focus weight (excluding target).
+    operands.push(visflow.nlp.findNode({
+      differentNode: visflow.nlp.target.id,
+      excludeValue: true
+    }));
   }
 
   var box = visflow.nlp.target.getBoundingBox();

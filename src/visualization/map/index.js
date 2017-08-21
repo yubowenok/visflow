@@ -183,7 +183,7 @@ visflow.Map.prototype.mousedown = function(event) {
 visflow.Map.prototype.mouseup = function(event) {
   if (!this.options.navigation) {
     visflow.Map.base.mouseup.call(this, event);
-    return false;
+    return true;
   }
   this.container.draggable('enable');
   if (this.map) {
