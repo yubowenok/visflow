@@ -69,15 +69,15 @@ visflow.Network.prototype.initPanel = function(container) {
     {
       constructor: visflow.Input,
       params: {
-        container: container.find('#charge'),
-        value: this.options.charge,
+        container: container.find('#distance'),
+        value: this.options.distance,
         accept: visflow.ValueType.INT,
-        range: [-200000, 0],
-        scrollDelta: 500,
-        title: 'Force Charge'
+        range: [1, 1000],
+        scrollDelta: 5,
+        title: 'Link Distance'
       },
       change: function(event, value) {
-        this.options.charge = value;
+        this.options.distance = value;
         this.inputChanged();
       }
     },

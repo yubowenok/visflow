@@ -40,7 +40,8 @@ visflow.Intersect.prototype.process = function() {
         'cannot make intersection of two different types of datasets');
     }
 
-    for (var index in outpack.items) {
+    for (var itemIndex in outpack.items) {
+      var index = +itemIndex;
       var item = inpack.items[index];
       if (item != null) {
         // Merge rendering properties.

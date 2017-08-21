@@ -1,0 +1,43 @@
+@import 'src/common/common';
+
+#nlp {
+  > div.nlp-input {
+    background: $ui-background;
+    border: 1px solid $gray-c;
+    box-shadow: 1px 1px 1px 1px $gray-c;
+    padding: $padding-large;
+    position: absolute;
+    width: 300px;
+    z-index: 1041;
+  }
+
+  .header {
+    line-height: 2;
+    padding: $padding;
+  }
+
+  .examples {
+    float: right;
+  }
+
+  label {
+    font-size: 13px;
+  }
+
+  textarea {
+    font-size: 20px;
+    height: calc(100% - #{$font-size} - #{$padding} * 2 - #{$border-width});
+    min-height: 150px;
+    resize: none;
+    width: 100%;
+  }
+
+  .failed {
+    margin-top: $margin;
+    padding: $padding;
+
+    .query {
+      font-weight: 600;
+    }
+  }
+}

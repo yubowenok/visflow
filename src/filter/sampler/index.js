@@ -71,43 +71,47 @@ visflow.Sampler.prototype.process = function() {
   this.filter();
 };
 
-/** @inheritDoc */
-visflow.Sampler.prototype.filter = function() {
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
-  var data = inpack.data;
-
-  var itemGroups = inpack.groupItems(this.options.groupBy);
-  var reversed = this.options.condition == 'last' ? -1 : 1;
+/**
+ * Samples the subset with a given specification.
+ * @param {visflow.Sampler.Spec} spec
+ * @param {!visflow.Package} pack
+ * @return {!Array<number>} Resulting subset as array.
+ */
+visflow.Sampler.filter = function(spec, pack) {
   var result = [];
+  var itemGroups = pack.groupItems(spec.groupBy);
+  var reversed = spec.condition == visflow.Sampler.Condition.LAST ? -1 : 1;
+  var dim = spec.dim;
+
   itemGroups.forEach(function(groupItems) {
     var colValues = [];
-    groupItems.forEach(function(index) {
-      var val = this.options.dim == visflow.data.INDEX_DIM ?
-        index : data.values[index][this.options.dim];
+    groupItems.forEach(function(itemIndex) {
+      var index = +itemIndex;
+      var val = pack.getValue(index, dim);
       colValues.push(val);
     }, this);
     colValues.sort(function(a, b) {
       return reversed * visflow.utils.compare(a, b);
     });
 
-    if (this.options.unique) {
+    if (spec.unique) {
       colValues = _.uniq(colValues);
     }
 
-    var count = this.options.mode == 'count' ? this.options.number :
-      Math.ceil(this.options.number / 100 * colValues.length);
+    var count = spec.mode == visflow.Sampler.Mode.COUNT ?
+      spec.number :
+      Math.ceil(spec.number / 100 * colValues.length);
     count = Math.min(colValues.length, count);
 
     var acceptedVals = [];
-    switch (this.options.condition) {
-      case 'first':
-      case 'last':
+    switch (spec.condition) {
+      case visflow.Sampler.Condition.FIRST:
+      case visflow.Sampler.Condition.LAST:
         acceptedVals = colValues.slice(0, count);
         break;
-      case 'sampling':
+      case visflow.Sampler.Condition.SAMPLING:
         var i = 0;
-        var percentage = this.options.number / 100;
+        var percentage = spec.number / 100;
         while (count > 0) {
           if (i == colValues.length) {
             i = 0;
@@ -123,17 +127,53 @@ visflow.Sampler.prototype.filter = function() {
           }
           i++;
         }
+        // Last batch of filtering
+        colValues = _.filter(colValues, function(val) {
+          return val != null;
+        });
         break;
     }
     acceptedVals = _.keySet(acceptedVals);
-    groupItems.forEach(function(index) {
-      var val = data.values[index][this.options.dim];
+    groupItems.forEach(function(itemIndex) {
+      var index = +itemIndex;
+      var val = pack.getValue(index, dim);
       if (val in acceptedVals) {
         result.push(index);
       }
-    }, this);
-  }, this);
+    });
+  });
+  return result;
+};
+
+/** @inheritDoc */
+visflow.Sampler.prototype.filter = function() {
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
+  var outpack = this.ports['out'].pack;
+
+  var result = visflow.Sampler.filter({
+    dim: this.options.dim,
+    number: this.options.number,
+    unique: this.options.unique,
+    groupBy: this.options.groupBy,
+    mode: this.options.mode,
+    condition: this.options.condition
+  }, inpack);
 
   outpack.copy(inpack);
   outpack.filter(result);
+};
+
+/**
+ * Sets the filtering rules for the sampler by passing a spec.
+ * @param {visflow.Sampler.Spec} spec
+ */
+visflow.Sampler.prototype.setSpec = function(spec) {
+  this.options.dim = spec.dim;
+  this.options.number = spec.number;
+  this.options.unique = false; // TODO(bowen)
+  this.options.groupBy = spec.groupBy;
+  this.options.mode = spec.mode;
+  this.options.condition = spec.condition;
+
+  this.parameterChanged();
 };

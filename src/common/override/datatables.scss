@@ -1,0 +1,9 @@
+@import 'src/common/colors';
+
+.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: $gray-f5;
+}
+
+.input-sm {
+  border-radius: 0;
+}

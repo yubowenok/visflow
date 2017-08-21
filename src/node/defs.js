@@ -4,9 +4,9 @@
 
 /**
  * Node template common template file, containing the popup, background, etc.
- * @private {string}
+ * @protected {string}
  */
-visflow.Node.prototype.COMMON_TEMPLATE_ = './dist/html/node/node.html';
+visflow.Node.prototype.COMMON_TEMPLATE = './dist/html/node/node.html';
 
 /**
  * Node content template file.
@@ -16,9 +16,9 @@ visflow.Node.prototype.TEMPLATE = '';
 
 /**
  * Node control panel common template file, containing the panel header.
- * @private {string}
+ * @protected {string}
  */
-visflow.Node.prototype.COMMON_PANEL_TEMPLATE_ =
+visflow.Node.prototype.COMMON_PANEL_TEMPLATE =
   './dist/html/node/node-panel.html';
 
 /**
@@ -37,7 +37,8 @@ visflow.Node.prototype.NODE_CLASS = '';
  * Node name used for label.
  * @protected {string}
  */
-visflow.Node.prototype.NODE_NAME = 'node';
+visflow.Node.prototype.DEFAULT_LABEL = 'Node';
+
 
 // Minimum/maximum size of resizable.
 /** @protected {number} */
@@ -51,9 +52,6 @@ visflow.Node.prototype.MAX_HEIGHT = Infinity;
 
 /** @protected {number} */
 visflow.Node.prototype.MAX_LABEL_LENGTH = 14;
-
-/** @protected @const {number} */
-visflow.Node.prototype.ERROR_LENGTH = 100;
 
 /**
  * Whether the node is resizable.
@@ -70,6 +68,16 @@ visflow.Node.prototype.PORT_HEIGHT = 15;
 /** @const {number} */
 visflow.Node.prototype.PORT_GAP = 1;
 
+/** @protected @const {number} */
+visflow.Node.FOCUS_ALPHA = 2;
+
+/** @protected @const {number} */
+visflow.Node.FOCUS_BETA = 5;
+
+/** @protected @const {number} */
+visflow.Node.FOCUS_GAMMA = 500;
+
+
 /**
  * ContextMenu entries.
  * @return {!Array<visflow.contextMenu.Item>}
@@ -83,6 +91,8 @@ visflow.Node.prototype.contextMenuItems = function() {
       icon: 'glyphicon glyphicon-facetime-video'},
     {id: 'panel', text: 'Control Panel',
       icon: 'glyphicon glyphicon-th-list'},
+    //{id: 'flowSense', text: 'FlowSense',
+    //  icon: 'glyphicon glyphicon-comment'},
     {id: 'delete', text: 'Delete',
       icon: 'glyphicon glyphicon-remove'}
   ];

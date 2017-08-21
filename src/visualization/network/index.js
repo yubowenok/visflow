@@ -58,12 +58,12 @@ visflow.Network = function(params) {
 
   /**
    * References to node objects.
-   * @protected {!Object}
+   * @protected {!Object<number, !Object>}
    */
   this.nodes = {};
   /**
    * References to edge objects.
-   * @protected {!Object}
+   * @protected {!Object<number, !Object>}
    */
   this.edges = {};
 
@@ -78,7 +78,7 @@ visflow.Network = function(params) {
    */
   this.edgeProps_ = [];
 
-  /** @protected {!Object<boolean>} */
+  /** @protected {!Object<number, boolean>} */
   this.selectedEdges = {};
 
   /**
@@ -92,14 +92,14 @@ visflow.Network = function(params) {
   this.zoomTranslate_ = [0, 0];
   /** @private {number} */
   this.zoomScale_ = 1.0;
-  /** @private {?d3.zoom} */
+  /** @private {?d3.Zoom} */
   this.zoom_ = null;
 
   /**
    * D3 force for graph layout.
-   * @private {!d3.force}
+   * @private {d3.ForceSimulation}
    */
-  this.force_ = d3.layout.force();
+  this.force_ = d3.forceSimulation();
 
   /**
    * SVG group for nodes.
@@ -130,10 +130,14 @@ visflow.Network.prototype.init = function() {
   this.svgNodeLabels_ = this.svg.append('g')
     .classed('labels render-group', true);
 
-  this.zoom_ = d3.behavior.zoom()
-    .scaleExtent(this.zoomExtent_())
+  this.zoom_ = d3.zoom()
+    .scaleExtent(visflow.Network.zoomExtent())
     .on('zoom', this.zoom.bind(this));
   this.svg.call(this.zoom_);
+
+  this.zoom_.filter(function() {
+    return this.options.navigation;
+  }.bind(this));
 };
 
 /** @inheritDoc */
@@ -162,21 +166,11 @@ visflow.Network.prototype.initContextMenu = function() {
   visflow.Network.base.initContextMenu.call(this);
 
   $(this.contextMenu)
-    .on('vf.navigation', this.toggleNavigation_.bind(this))
-    .on('vf.nodeLabel', this.toggleNodeLabel_.bind(this))
-    .on('vf.beforeOpen', function(event, menuContainer) {
-      var nodeLabelIcon = menuContainer.find('#nodeLabel > i');
-      if (this.options.nodeLabel) {
-        nodeLabelIcon.addClass('glyphicon-ok');
-      } else {
-        nodeLabelIcon.removeClass('glyphicon-ok');
-      }
-      var navigationIcon = menuContainer.find('#navigation > i');
-      if (this.options.navigation) {
-        navigationIcon.addClass('glyphicon-ok');
-      } else {
-        navigationIcon.removeClass('glyphicon-ok');
-      }
+    .on('vf.navigation', function() {
+      this.toggleNavigation_();
+    }.bind(this))
+    .on('vf.nodeLabel', function() {
+      this.toggleNodeLabel_();
     }.bind(this));
 };
 
@@ -198,14 +192,11 @@ visflow.Network.prototype.mousedown = function(event) {
  * Handles zoom event.
  */
 visflow.Network.prototype.zoom = function() {
-  if (!this.options.navigation) {
-    this.zoom_
-      .translate(this.zoomTranslate_)
-      .scale(this.zoomScale_);
-    return;
-  }
-  var translate = d3.event.translate;
-  var scale = d3.event.scale;
+  visflow.assert(this.options.navigation);
+
+  var transform = d3.event.transform;
+  var translate = [transform.x, transform.y];
+  var scale = transform.k;
 
   this.svg.selectAll('.render-group')
     .attr('transform', visflow.utils.getTransform(translate, scale));
@@ -219,6 +210,7 @@ visflow.Network.prototype.zoom = function() {
 /** @inheritDoc */
 visflow.Network.prototype.selectItems = function() {
   this.selectItemsInBox_();
+  visflow.Network.base.selectItems.call(this);
 };
 
 /**
@@ -250,7 +242,8 @@ visflow.Network.prototype.selectItemsInBox_ = function() {
     this.selectedEdges = {};
   }
 
-  for (var index in this.nodes) {
+  for (var nodeIndex in this.nodes) {
+    var index = +nodeIndex;
     var node = this.nodes[index];
     var x = node.x;
     var y = node.y;
@@ -259,7 +252,8 @@ visflow.Network.prototype.selectItemsInBox_ = function() {
       this.selected[index] = true;
     }
   }
-  for (var index in this.edges) {
+  for (var edgeIndex in this.edges) {
+    var index = + edgeIndex;
     var edge = this.edges[index];
     var x1 = edge.source.x;
     var y1 = edge.source.y;
@@ -272,8 +266,6 @@ visflow.Network.prototype.selectItemsInBox_ = function() {
       this.selectedEdges[index] = true;
     }
   }
-  this.show();
-  this.pushflow();
 };
 
 /** @inheritDoc */
@@ -373,9 +365,13 @@ visflow.Network.prototype.updateNodes_ = function() {
         prop.node.y
       ]);
     })
-    .attr('r', _.getValue('size'))
+    .attr('r', function(prop) {
+      return prop.size / this.zoomScale_;
+    }.bind(this))
     .style('stroke', _.getValue('border'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', function(prop) {
+      return (prop.width / this.zoomScale_) + 'px';
+    }.bind(this))
     .style('fill', _.getValue('color'))
     .style('opacity', _.getValue('opacity'));
 };
@@ -390,10 +386,11 @@ visflow.Network.prototype.updateNodeLabels_ = function() {
     .text(this.options.nodeLabel ? function(prop) {
       return prop.node.label;
     } : '')
+    .style('font-size', visflow.const.DEFAULT_FONT_SIZE / this.zoomScale_)
     .attr('transform', function(prop) {
       return visflow.utils.getTransform([
-        prop.node.x + this.NODE_LABEL_OFFSET_X_,
-        prop.node.y + this.NODE_LABEL_OFFSET_Y_
+        prop.node.x + visflow.Network.NODE_LABEL_OFFSET_X,
+        prop.node.y + visflow.Network.NODE_LABEL_OFFSET_Y
       ]);
     }.bind(this));
 };
@@ -415,14 +412,17 @@ visflow.Network.prototype.updateEdges_ = function() {
     d = visflow.vectors.perpendicularVector(d);
     d = visflow.vectors.normalizeVector(d);
     d = visflow.vectors.multiplyVector(d,
-      visflow.vectors.vectorDistance(ps, pt) * this.EDGE_CURVE_SHIFT_);
+      visflow.vectors.vectorDistance(ps, pt) *
+      visflow.Network.EDGE_CURVE_SHIFT);
     return visflow.vectors.addVector(m, d);
   }.bind(this);
 
-  var curve = d3.svg.line().interpolate('basis');
+  var curve = d3.line().curve(d3.curveBasis);
   edges.select('path.edge')
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', function(prop) {
+      return (prop.width / this.zoomScale_) + 'px';
+    }.bind(this))
     .style('opacity', _.getValue('opacity'))
     .attr('d', function(edge) {
       var ps = [edge.source.x, edge.source.y];
@@ -439,17 +439,21 @@ visflow.Network.prototype.updateEdges_ = function() {
     var dm = visflow.vectors.normalizeVector(
       visflow.vectors.subtractVector(pm, pt));
     var p1 = visflow.vectors.addVector(pt,
-      visflow.vectors.multiplyVector(dm, this.NODE_SIZE_));
+      visflow.vectors.multiplyVector(dm,
+        visflow.Network.NODE_SIZE / this.zoomScale_));
     var p2 = visflow.vectors.addVector(p1,
-      visflow.vectors.multiplyVector(ds, this.EDGE_ARROW_LENGTH_));
+      visflow.vectors.multiplyVector(ds,
+        visflow.Network.EDGE_ARROW_LENGTH / this.zoomScale_));
     var p3 = visflow.vectors.mirrorPoint(p2, p1, pm);
     return [p1, p2, p3];
   }.bind(this);
 
-  var line = d3.svg.line().interpolate('linear-closed');
+  var line = d3.line().curve(d3.curveLinearClosed);
   edges.select('path.arrow')
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', function(prop) {
+      return (prop.width / this.zoomScale_) + 'px';
+    }.bind(this))
     .style('opacity', _.getValue('opacity'))
     .style('fill', _.getValue('color'))
     .attr('d', function(edge) {
@@ -467,7 +471,8 @@ visflow.Network.prototype.updateEdges_ = function() {
 visflow.Network.prototype.applyProperties_ = function() {
   var items = this.ports['in'].pack.items;
   this.nodeProps_ = [];
-  for (var index in this.nodes) {
+  for (var nodeIndex in this.nodes) {
+    var index = +nodeIndex;
     var node = this.nodes[index];
     var prop = _.extend(
       {},
@@ -490,7 +495,8 @@ visflow.Network.prototype.applyProperties_ = function() {
   }
   var edgeItems = this.ports['inEdges'].pack.items;
   this.edgeProps_ = [];
-  for (var index in this.edges) {
+  for (var edgeIndex in this.edges) {
+    var index = +edgeIndex;
     var edge = this.edges[index];
     var prop = _.extend(
       {},
@@ -567,7 +573,8 @@ visflow.Network.prototype.processNodes_ = function() {
     return randValue;
   };
 
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     if (!(index in this.nodes)) {
       // Create an empty object for new node.
       this.nodes[index] = {};
@@ -595,7 +602,8 @@ visflow.Network.prototype.processEdges_ = function() {
   var nodeItems = inpackNodes.items;
   var nodeData = inpackNodes.data;
   var nodeIdToIndex = {};
-  for (var index in nodeItems) {
+  for (var itemIndex in nodeItems) {
+    var index = +itemIndex;
     var id = nodeData.values[index][this.options.nodeIdBy];
     nodeIdToIndex[id] = index;
   }
@@ -604,7 +612,8 @@ visflow.Network.prototype.processEdges_ = function() {
   var items = inpack.items;
   var data = inpack.data;
 
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var sourceId = data.values[index][this.options.sourceBy];
     var targetId = data.values[index][this.options.targetBy];
     var sourceIndex = nodeIdToIndex[sourceId];
@@ -641,7 +650,8 @@ visflow.Network.prototype.validateNetwork = function() {
   var inpackNodes = this.ports['in'].pack;
   var nodeItems = inpackNodes.items;
   var deletedNodes = {};
-  for (var index in this.nodes) {
+  for (var nodeIndex in this.nodes) {
+    var index = +nodeIndex;
     if (!(index in nodeItems)) {
       delete this.nodes[index];
       deletedNodes[index] = true;
@@ -650,7 +660,8 @@ visflow.Network.prototype.validateNetwork = function() {
 
   var inpackEdges = this.ports['inEdges'].pack;
   var edgeItems = inpackEdges.items;
-  for (var index in this.edges) {
+  for (var edgeIndex in this.edges) {
+    var index = +edgeIndex;
     var edge = this.edges[index];
     if (!(index in edgeItems) ||
         deletedNodes[edge.source.index] != null ||
@@ -676,7 +687,8 @@ visflow.Network.prototype.processSelection = function() {
 visflow.Network.prototype.validateSelection = function() {
   visflow.Network.base.validateSelection.call(this); // clear selection of nodes
   var inpackEdges = this.ports['inEdges'].pack;
-  for (var index in this.selectedEdges) { // clear selection of edges
+  for (var edgeIndex in this.selectedEdges) { // clear selection of edges
+    var index = +edgeIndex;
     if (inpackEdges.items[index] == null) {
       delete this.selectedEdges[index];
     }
@@ -721,12 +733,7 @@ visflow.Network.prototype.process = function() {
 };
 
 /** @private @const {number} */
-visflow.Network.prototype.FORCE_GRAVITY_ = 0.5;
-/** @private @const {number} */
 visflow.Network.prototype.FORCE_FRICTION_ = 0.25;
-/** @private @const {number} */
-visflow.Network.prototype.FORCE_LINK_DISTANCE_ = 30;
-
 
 /**
  * Prepares and starts the force layout.
@@ -736,22 +743,16 @@ visflow.Network.prototype.startForce_ = function() {
   var svgSize = this.getSVGSize();
   this.force_.stop();
 
-  this.force_ = d3.layout.force()
-    .nodes(_.toArray(this.nodes))
-    .links(_.toArray(this.edges))
-    .size([svgSize.width, svgSize.height])
-    .charge(this.options.charge)
-    .linkDistance(this.FORCE_LINK_DISTANCE_)
-    .gravity(this.FORCE_GRAVITY_)
-    .friction(this.FORCE_FRICTION_)
+  this.force_ = d3.forceSimulation(_.toArray(this.nodes))
+    .force('link', d3.forceLink(_.toArray(this.edges))
+      .distance(this.options.distance))
+    .force('charge', d3.forceManyBody())
+    .force('center', d3.forceCenter(
+      svgSize.width / 2, svgSize.height / 2))
+    .velocityDecay(this.FORCE_FRICTION_)
     .on('tick', this.updateNetwork_.bind(this));
 
-  this.force_.drag()
-    .on('dragstart', function(node) {
-      d3.select(this).classed('fixed', node.fixed = true);
-    });
-
-  this.force_.start();
+  this.force_.restart();
 };
 
 /** @inheritDoc */
@@ -833,10 +834,12 @@ visflow.Network.prototype.toggleNavigation_ = function(opt_value) {
 
 /**
  * Toggles node label visibility.
+ * @param {boolean=} opt_value
  * @private
  */
-visflow.Network.prototype.toggleNodeLabel_ = function() {
-  this.options.nodeLabel = !this.options.nodeLabel;
+visflow.Network.prototype.toggleNodeLabel_ = function(opt_value) {
+  this.options.nodeLabel = opt_value != null ? opt_value :
+      !this.options.nodeLabel;
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());
   }
@@ -854,4 +857,12 @@ visflow.Network.prototype.keyAction = function(key, event) {
 visflow.Network.prototype.clearSelection = function() {
   this.selectedEdges = {};
   visflow.Network.base.clearSelection.call(this);
+};
+
+/** @inheritDoc */
+visflow.Network.prototype.selectAll = function() {
+  for (var edgeIndex in this.edges) {
+    this.selectedEdges[+edgeIndex] = true;
+  }
+  visflow.Network.base.selectAll.call(this);
 };

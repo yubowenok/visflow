@@ -2,8 +2,6 @@
  * @fileoverview Network defs.
  */
 
-/** @inheritDoc */
-visflow.Network.prototype.NODE_NAME = 'Network';
 
 /** @inheritDoc */
 visflow.Network.prototype.NODE_CLASS = 'network';
@@ -12,27 +10,27 @@ visflow.Network.prototype.NODE_CLASS = 'network';
 visflow.Network.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/network/network-panel.html';
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_LABEL_SIZE_ = 14;
+/** @const {number} */
+visflow.Network.NODE_LABEL_SIZE = 14;
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_LABEL_OFFSET_X_ = 10;
+/** @const {number} */
+visflow.Network.NODE_LABEL_OFFSET_X = 10;
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_LABEL_OFFSET_Y_ =
-  visflow.Network.prototype.NODE_LABEL_SIZE_ / 2;
+/** @const {number} */
+visflow.Network.NODE_LABEL_OFFSET_Y =
+  visflow.Network.NODE_LABEL_SIZE / 2;
 
-/** @private @const {number} */
-visflow.Network.prototype.NODE_SIZE_ = 6;
+/** @const {number} */
+visflow.Network.NODE_SIZE = 6;
 
-/** @private @const {number} */
-visflow.Network.prototype.EDGE_ARROW_LENGTH_ = 10;
+/** @const {number} */
+visflow.Network.EDGE_ARROW_LENGTH = 10;
 
 /**
  * Shifting percentage of curved edge.
- * @private @const {number}
+ * @const {number}
  */
-visflow.Network.prototype.EDGE_CURVE_SHIFT_ = 0.1;
+visflow.Network.EDGE_CURVE_SHIFT = 0.1;
 
 /** @inheritDoc */
 visflow.Network.prototype.defaultOptions = function() {
@@ -41,9 +39,9 @@ visflow.Network.prototype.defaultOptions = function() {
     nodeLabel: true,
     // Which dimension is used as label.
     labelBy: 0,
-    // D3 force-directed layout force charge.
-    charge: -10000,
-    // Node identifier corresponding to edges,
+    // D3 force-directed layout link distance.
+    distance: 30,
+    // Node identifier corresponding to edges.
     nodeIdBy: 0,
     // Edge dimension used as source (node id).
     sourceBy: 0,
@@ -80,7 +78,7 @@ visflow.Network.prototype.defaultEdgeProperties = function() {
 visflow.Network.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };
 
@@ -91,7 +89,7 @@ visflow.Network.prototype.selectedProperties = function() {
  */
 visflow.Network.prototype.selectedEdgeProperties = function() {
   return {
-    color: '#6699ee'
+    color: visflow.const.SELECTED_COLOR
   };
 };
 
@@ -105,26 +103,17 @@ visflow.Network.prototype.selectedMultiplier = function() {
 
 /**
  * @return {!Array<number>}
- * @private
  */
-visflow.Network.prototype.zoomExtent_ = function() {
+visflow.Network.zoomExtent = function() {
   return [.01, 8];
 };
 
 /** @inheritDoc */
 visflow.Network.prototype.contextMenuItems = function() {
-  return [
-    {id: 'selectAll', text: 'Select All'},
-    {id: 'clearSelection', text: 'Clear Selection'},
-    {id: 'nodeLabel', text: 'Node Label'},
-    {id: 'navigation', text: 'Navigation'},
-    {id: 'minimize', text: 'Minimize',
-      icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'visMode', text: 'Visualization Mode',
-      icon: 'glyphicon glyphicon-facetime-video'},
-    {id: 'panel', text: 'Control Panel',
-      icon: 'glyphicon glyphicon-th-list'},
-    {id: 'delete', text: 'Delete',
-      icon: 'glyphicon glyphicon-remove'}
-  ];
+  var baseItems = visflow.Network.base.contextMenuItems();
+  return baseItems.concat([
+    // network node label
+    {id: 'nodeLabel', text: 'Node Label', bind: 'nodeLabel'},
+    {id: 'navigation', text: 'Navigation', bind: 'navigation'}
+  ]);
 };

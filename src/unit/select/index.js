@@ -42,8 +42,8 @@ visflow.Select = function(params) {
   /** @protected {string|number} */
   this.selected = params.selected != null ? params.selected : '';
 
-  /** @private {string} */
-  this.listTitle_ = params.listTitle ? params.listTitle : '';
+  /** @protected {string} */
+  this.listTitle = params.listTitle ? params.listTitle : '';
 
   /** @protected {string} */
   this.selectTitle = params.selectTitle ? params.selectTitle : 'Select';
@@ -68,8 +68,8 @@ visflow.Select.prototype.TEMPLATE_ = './dist/html/unit/select/select.html';
  */
 visflow.Select.prototype.init = function() {
   var title = this.container.find('#title');
-  if (this.listTitle_) {
-    title.text(this.listTitle_);
+  if (this.listTitle) {
+    title.text(this.listTitle);
   } else {
     title.hide();
   }
@@ -98,7 +98,13 @@ visflow.Select.prototype.initEnd = function() {
       if (this.opening_) {
         return this.opening_();
       }
-    }.bind(this));
+    }.bind(this))
+    .on('select2:unselect', function() {
+      // Prevent dropdown from hanging.
+      setTimeout(function() {
+        $('.select2-dropdown').remove();
+      }, 0);
+    });
 };
 
 /**

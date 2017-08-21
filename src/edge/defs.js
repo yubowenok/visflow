@@ -12,15 +12,8 @@ visflow.Edge.prototype.contextMenuItems = function() {
   ];
 };
 
-/**
- * Prepares contextMenu for the edge.
- */
-visflow.Edge.prototype.contextMenu = function() {
-  var contextMenu = new visflow.ContextMenu({
-    container: this.container,
-    items: this.contextMenuItems()
-  });
+/** @protected @const {number} */
+visflow.Edge.ARROW_SIZE_PX = 18;
 
-  $(contextMenu)
-    .on('vf.delete', this.delete.bind(this));
-};
+/** @protected @const {number} */
+visflow.Edge.ARROW_OFFSET_PX = 6;

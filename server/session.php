@@ -2,11 +2,13 @@
 
 include 'mysql.php';
 
+const SESSION_LIFETIME = 3600;
+
 function checkLogin()
 {
   global $user_id, $username;
   if ($user_id == -1 || $username == '')
-    abort('login required');
+    abort('login required', 401);
 }
 
 function clientIP()
@@ -40,7 +42,7 @@ if($_SERVER['SERVER_PORT'] != 443)
 connectDB();
 
 session_start([
-  'cookie_lifetime' => 3600, // cookie time 1 hour
+  'cookie_lifetime' => SESSION_LIFETIME, // cookie duration 1 hour
   'cookie_secure' => true,
 ]);
 
@@ -66,7 +68,7 @@ else
                  array($user_id))['username'];
 
   // extend the expiration time
-  $new_end_time = time() + 3600;
+  $new_end_time = time() + SESSION_LIFETIME;
   queryDB("UPDATE auth SET end_time=FROM_UNIXTIME(%d) WHERE id=%d",
                  array($new_end_time, $auth_id));
 }

@@ -13,12 +13,12 @@ visflow.Table.prototype.initPanel = function(container) {
       params: {
         container: container.find('#dims'),
         list: dimensionList,
-        selected: this.dimensions,
+        selected: this.options.dims,
         listTitle: 'Dimensions',
         addTitle: 'Add Dimension'
       },
       change: function(event, items) {
-        this.dimensions = items;
+        this.options.dims = items;
         this.dimensionChanged();
       }
     },

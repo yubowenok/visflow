@@ -11,10 +11,10 @@ visflow.LineChart = function(params) {
   visflow.LineChart.base.constructor.call(this, params);
 
   // Rendering scales.
-  /** @type {!d3.scale} */
-  this.xScale = d3.scale.linear();
-  /** @type {!d3.scale} */
-  this.yScale = d3.scale.linear();
+  /** @type {d3.Scale} */
+  this.xScale = d3.scaleLinear();
+  /** @type {d3.Scale} */
+  this.yScale = d3.scaleLinear();
 
   /** @type {visflow.ScaleType} */
   this.xScaleType = visflow.ScaleType.UNKNOWN;
@@ -46,37 +46,28 @@ visflow.LineChart = function(params) {
 
   /**
    * Whether x axis have duplicated values.
-   * @private {boolean}
+   * @protected {boolean}
    */
-  this.xCollided_ = false;
-  /**
-   * The collided value.
-   * @private {string}
-   */
-  this.xCollidedMsg_ = '';
+  this.xCollided = false;
 
   /**
-   * @private {visflow.Margins}
+   * The collided value.
+   * @protected {string}
    */
-  this.margins_ = {
-    // Left margin computed based on the y Axis labels.
-    left: 0,
-    // Bottom margin that depends on whether xTicks are shown.
-    bottom: 0,
-    right: 0,
-    top: 0
-  };
+  this.xCollidedMsg = '';
 
   /**
    * Line rendering properties.
    * @private {!Array}
    */
   this.lineProps_ = [];
+
   /**
    * Item rendering properties.
    * @private {!Array}
    */
   this.itemProps_ = [];
+
   /**
    * Index of item in the properties array.
    * @private {!Object<number>}
@@ -151,7 +142,8 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
   var values = inpack.data.values;
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var groupIndex = groupIndices[index];
     if (groupIndex in this.selectedGroups) {
       continue;
@@ -178,7 +170,7 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
  * @private
  */
 visflow.LineChart.prototype.updateBottomMargin_ = function() {
-  this.margins_.bottom = this.plotMargins().bottom +
+  this.margins.bottom = this.plotMargins().bottom +
     (this.options.xTicks ? this.TICKS_HEIGHT : 0);
 };
 
@@ -192,8 +184,8 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
   if (tempShow) {
     this.content.show();
   }
+  this.margins.left = this.plotMargins().left;
 
-  this.margins_.left = this.plotMargins().left;
   if (this.options.yTicks) {
     this.drawYAxis_();
     var maxLength = 0;
@@ -206,7 +198,7 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
     if (maxLength == 0) {
       maxLength = 0;
     }
-    this.margins_.left += maxLength;
+    this.margins.left += maxLength;
   }
 
   if (this.options.legends) {
@@ -217,8 +209,8 @@ visflow.LineChart.prototype.updateLeftMargin_ = function() {
       .each(function(index, element) {
         maxLength = Math.max(maxLength, element.getBBox().width);
       });
-    this.margins_.left += maxLength + this.LEGEND_LABEL_OFFSET_X_ +
-      this.LEGEND_OFFSET_X_ + this.LEGEND_MARGIN_RIGHT_;
+    this.margins.left += maxLength + visflow.LineChart.LEGEND_LABEL_OFFSET_X +
+      visflow.LineChart.LEGEND_OFFSET_X + visflow.LineChart.LEGEND_MARGIN_RIGHT;
   }
 
   if (tempShow) {
@@ -263,13 +255,14 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
         points: [],
         label: this.options.groupBy == visflow.data.INDEX_DIM ||
             this.options.groupBy === '' ?
-            '' : values[_.first(itemIndices)][this.options.groupBy]
+            '' : values[+_.first(itemIndices)][this.options.groupBy]
       },
       this.defaultProperties()
     );
 
     var bound = false;
-    itemIndices.forEach(function(index) {
+    itemIndices.forEach(function(itemIndex) {
+      var index = +itemIndex;
       _.extend(prop, items[index].properties);
       prop.points.push([
         this.options.xDim == visflow.data.INDEX_DIM ?
@@ -308,7 +301,8 @@ visflow.LineChart.prototype.getItemProperties_ = function() {
   var values = inpack.data.values;
   // Data to be rendered.
   var itemProps = [];
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var prop = _.extend(
       {},
       this.defaultProperties(),
@@ -352,15 +346,15 @@ visflow.LineChart.prototype.drawLegends_ = function(lineProps) {
   boxes
     .attr('transform', function(prop, index) {
       return visflow.utils.getTransform([
-        this.LEGEND_OFFSET_X_,
-        (index + 1) * this.LEGEND_OFFSET_Y_
+        visflow.LineChart.LEGEND_OFFSET_X,
+        (index + 1) * visflow.LineChart.LEGEND_OFFSET_Y
       ]);
     }.bind(this));
   boxes.select('rect')
     .style('fill', _.getValue('color'));
   var labelTransform = visflow.utils.getTransform([
-    this.LEGEND_LABEL_OFFSET_X_,
-    this.LEGEND_LABEL_OFFSET_Y_
+    visflow.LineChart.LEGEND_LABEL_OFFSET_X,
+    visflow.LineChart.LEGEND_LABEL_OFFSET_Y
   ]);
   boxes.select('text')
     .attr('transform', labelTransform)
@@ -379,10 +373,11 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
   }
   var points = this.svgPoints_.selectAll('circle')
     .data(itemProps, _.getValue('index'));
-  points.enter().append('circle');
+
   _.fadeOut(points.exit());
 
-  points
+  points = points.enter().append('circle')
+    .merge(points)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 
@@ -397,7 +392,7 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
     .attr('r', _.getValue('size'))
     .style('fill', _.getValue('color'))
     .style('stroke', _.getValue('border'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .style('opacity', _.getValue('opacity'));
 };
 
@@ -408,18 +403,7 @@ visflow.LineChart.prototype.drawPoints_ = function(itemProps) {
  * @private
  */
 visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
-  var lines = this.svgLines_.selectAll('path').data(lineProps,
-    _.getValue('index'));
-  lines.enter().append('path')
-    .attr('id', _.getValue('index'));
-  _.fadeOut(lines.exit());
-
-  var points = {};
-  itemProps.forEach(function(prop) {
-    points[prop.index] = {x: prop.x, y: prop.y};
-  });
-
-  var line = d3.svg.line()
+  var line = d3.line()
     .x(function(index) {
       return this.xScale(points[index].x);
     }.bind(this))
@@ -427,17 +411,29 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
       return this.yScale(points[index].y);
     }.bind(this));
   if (this.options.curve) {
-    line.interpolate('basis');
+    line.curve(d3.curveBasis);
   }
 
-  lines
+  var points = {};
+  itemProps.forEach(function(prop) {
+    points[prop.index] = {x: prop.x, y: prop.y};
+  });
+
+  var lines = this.svgLines_.selectAll('path').data(lineProps,
+    _.getValue('index'));
+
+  _.fadeOut(lines.exit());
+
+  lines = lines.enter().append('path')
+    .attr('id', _.getValue('index'))
+    .merge(lines)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 
   var updatedLines = this.transitionFeasible() ? lines.transition() : lines;
   updatedLines
     .style('stroke', _.getValue('color'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .style('opacity', _.getValue('opacity'))
     .attr('d', function(prop) {
       return line(prop.itemIndices);
@@ -465,14 +461,15 @@ visflow.LineChart.prototype.sortItems_ = function() {
       }
     }.bind(this));
     for (var i = 1; !xCollided && i < itemIndices.length; i++) {
-      var index = itemIndices[i];
-      var prevIndex = itemIndices[i - 1];
+      var index = +itemIndices[i];
+      var prevIndex = +itemIndices[i - 1];
+
       var curValue = sortBy == visflow.data.INDEX_DIM ?
           index : data.values[index][sortBy];
       var prevValue = sortBy == visflow.data.INDEX_DIM ?
           prevIndex : data.values[prevIndex][sortBy];
       if (visflow.utils.compare(curValue, prevValue) == 0) {
-        this.xCollidedMsg_ = [
+        this.xCollidedMsg = [
           'values collided',
           '(' + curValue + ')',
           'on',
@@ -483,7 +480,7 @@ visflow.LineChart.prototype.sortItems_ = function() {
     }
   }, this);
   this.xCollided_ = xCollided;
-  this.updateCollisionMessage_();
+  this.updateCollisionMessage();
 };
 
 
@@ -504,7 +501,7 @@ visflow.LineChart.prototype.drawXAxis_ = function() {
     noTicks: !this.options.xTicks,
     transform: visflow.utils.getTransform([
       0,
-      svgSize.height - this.margins_.bottom
+      svgSize.height - this.margins.bottom
     ]),
     label: {
       text: data.dimensions[this.options.xDim],
@@ -531,7 +528,7 @@ visflow.LineChart.prototype.drawYAxis_ = function() {
     ticks: this.DEFAULT_TICKS,
     noTicks: !this.options.yTicks,
     transform: visflow.utils.getTransform([
-      this.margins_.left,
+      this.margins.left,
       0
     ]),
     label: {
@@ -566,7 +563,7 @@ visflow.LineChart.prototype.prepareScales = function() {
 
   var svgSize = this.getSVGSize();
   var yRange = [
-    svgSize.height - this.margins_.bottom,
+    svgSize.height - this.margins.bottom,
     margins.top
   ];
   var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
@@ -584,7 +581,7 @@ visflow.LineChart.prototype.prepareScales = function() {
   this.updateLeftMargin_();
 
   var xRange = [
-    this.margins_.left,
+    this.margins.left,
     svgSize.width - margins.right
   ];
   var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items,
@@ -599,7 +596,7 @@ visflow.LineChart.prototype.prepareScales = function() {
 /** @inheritDoc */
 visflow.LineChart.prototype.dimensionChanged = function() {
   this.inputChanged();
-  this.updateCollisionMessage_();
+  this.updateCollisionMessage();
   visflow.LineChart.base.dimensionChanged.call(this);
 };
 
@@ -637,6 +634,25 @@ visflow.LineChart.prototype.findPlotDimensions = function() {
 visflow.LineChart.prototype.transitionFeasible = function() {
   return this.allowTransition &&
       this.itemProps_.length < this.TRANSITION_ELEMENT_LIMIT;
+};
+
+/** @inheritDoc */
+visflow.LineChart.prototype.setDimensions = function(dims) {
+  var dimensions = this.getDimensionNames();
+  // Show speed over years
+  if (dims.length >= 1) {
+    // First dim is on y
+    this.options.yDim = dimensions.indexOf(dims[0]);
+  }
+  if (dims.length >= 2) {
+    // Second dim is on x (series dim)
+    this.options.xDim = dimensions.indexOf(dims[1]);
+  }
+  if (dims.length >= 3) {
+    // Third dim is groupby
+    this.options.groupBy = dimensions.indexOf(dims[2]);
+  }
+  this.dimensionChanged();
 };
 
 /** @inheritDoc */

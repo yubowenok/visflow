@@ -11,6 +11,9 @@ visflow.Union = function(params) {
   visflow.Union.base.constructor.call(this, params);
 
   // Ports inherit set base settings.
+
+  // TODO(bowen): hack, hide union node label.
+  this.options.label = false;
 };
 
 _.inherit(visflow.Union, visflow.Set);

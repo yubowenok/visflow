@@ -1,4 +1,6 @@
-@import 'src/common/colors';
+@import 'src/common/common';
+
+$data-source-height: 30px;
 
 .visflow .node.data-source {
   text-align: center;
@@ -8,15 +10,16 @@
   }
 
   &.minimized > .icon {
-    background-image: url('./imgs/datasource-icon.png');
+    background-image: url('./imgs/datasource-icon.svg');
   }
 
   &.details {
-    height: 40px;
+    height: $data-source-height;
     width: 120px;
 
     #data-name {
       cursor: default;
+      line-height: $data-source-height - $font-size / 2;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -37,7 +40,7 @@
     .item {
       background-color: $white;
       border: 1px solid $gray-c;
-      border-radius: 4px;
+      border-radius: $border-radius;
       margin-top: 3px;
       max-width: 300px;
       padding: 5px;
@@ -65,35 +68,36 @@
   }
 }
 
-#modal .data-source {
-  .online.disabled {
-    color: $gray-c;
-    pointer-events: none;
-  }
-
-  .server.disabled {
-    color: $gray-c;
-    pointer-events: none;
-
-    select,
-    .paginate_button > a {
+#modal {
+  .modal-body.data-source {
+    .online.disabled {
       color: $gray-c;
       pointer-events: none;
     }
 
-    tr.selected {
-      background-color: $gray-c;
+    .server.disabled {
+      color: $gray-c;
+      pointer-events: none;
+
+      select,
+      .paginate_button > a {
+        color: $gray-c;
+        pointer-events: none;
+      }
+
+      tr.selected {
+        background-color: $gray-c;
+      }
+    }
+
+    .hint {
+      font-size: .85em;
     }
   }
 
-  .btn-right {
-    float: right;
-    margin-right: 10px;
-    position: relative;
-    top: -5px;
-  }
-
-  .hint {
-    font-size: .85em;
+  .modal-footer.data-source {
+    .upload {
+      padding: $padding $padding-large;
+    }
   }
 }

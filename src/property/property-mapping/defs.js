@@ -6,9 +6,6 @@
 visflow.PropertyMapping.prototype.NODE_CLASS = 'property-mapping';
 
 /** @inheritDoc */
-visflow.PropertyMapping.prototype.NODE_NAME = 'Property Mapping';
-
-/** @inheritDoc */
 visflow.PropertyMapping.prototype.TEMPLATE =
   './dist/html/property/property-mapping/property-mapping.html';
 
@@ -16,6 +13,11 @@ visflow.PropertyMapping.prototype.TEMPLATE =
 visflow.PropertyMapping.prototype.PANEL_TEMPLATE =
   './dist/html/property/property-mapping/property-mapping-panel.html';
 
+/** @protected {number} */
+visflow.PropertyMapping.prototype.HEIGHT_COLORSCALE = 126;
+
+/** @protected {number} */
+visflow.PropertyMapping.prototype.HEIGHT_NUMSCALE = 108;
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.defaultOptions = function() {

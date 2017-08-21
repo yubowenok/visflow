@@ -1,18 +1,24 @@
+@import 'src/common/common';
+
 .visflow .node.value-extractor {
   &.minimized {
     height: 30px;
     width: 50px;
 
     > .icon {
-      background-image: url('./imgs/value-extractor-icon.png');
+      background-image: url('./imgs/value-extractor-icon.svg');
       height: 30px;
       width: 50px;
     }
   }
 
   &.details {
-    height: 54px;
+    height: 39px + 2 * $padding;
     width: 120px;
+
+    .content > div {
+      margin-top: $margin;
+    }
 
     #dim {
       text-align: center;

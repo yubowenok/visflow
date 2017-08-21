@@ -1,0 +1,34 @@
+//
+// jQuery-UI
+//
+
+// Hides grip-se
+.ui-icon-gripsmall-diagonal-se {
+  opacity: 0;
+}
+
+.ui-resizable-sw,
+.ui-resizable-nw,
+.ui-resizable-ne {
+  transform: scale(2);
+}
+
+.ui-resizable-se {
+  transform: scale(1.5);
+}
+
+// User agent
+th {
+  // user agent may default to bold
+  font-weight: normal;
+}
+
+div {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+// DataTables
+.dataTables_wrapper .dataTables_length select.form-control {
+  cursor: pointer;
+}

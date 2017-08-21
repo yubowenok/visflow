@@ -1,13 +1,19 @@
+@import 'src/common/common';
+
 .visflow .node.table {
   font-size: .9em;
   word-wrap: break-word;
+
+  > .content {
+    padding: $padding-large;
+  }
 
   .dataTables_filter input {
     width: 100px;
   }
 
   &.minimized > .icon {
-    background-image: url('./imgs/table-icon.png');
+    background-image: url('./imgs/table-icon.svg');
   }
 
   &.details {

@@ -88,13 +88,14 @@ visflow.PropertyEditor.prototype.process = function() {
   outpack.copy(inpack);
   var newItems = {};
   var setProps = {};
-  this.properties_().forEach(function(p) {
+  this.properties().forEach(function(p) {
     var value = this.options[p];
     if (value != null) {
       setProps[p] = value;
     }
   }, this);
-  for (var index in inpack.items) {
+  for (var itemIndex in inpack.items) {
+    var index = +itemIndex;
     var prop = _.extend(
       {},
       inpack.items[index].properties,
@@ -111,7 +112,7 @@ visflow.PropertyEditor.prototype.process = function() {
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.adjustNumbers = function() {
   var adjusted = false;
-  this.numericProperties_().forEach(function(prop) {
+  this.numericProperties().forEach(function(prop) {
     var value = /** @type {number} */(this.options[prop]);
     var range = visflow.property.MAPPING_RANGES[prop];
     if (value < range[0]) {
@@ -134,10 +135,52 @@ visflow.PropertyEditor.prototype.parameterChanged = function(source) {
   this.pushflow();
   // If number range is adjusted, we need to redraw both node and panel as the
   // inputs may be out-of-date.
-  if (adjusted || source == 'panel') {
+  if (adjusted || source != 'node') {
     this.show();
   }
-  if (adjusted || source == 'node') {
+  if (adjusted || source != 'panel') {
     this.updatePanel(visflow.optionPanel.contentContainer());
   }
+};
+
+/**
+ * Sets a particular rendering property.
+ * @param {string} property
+ * @param {string|number} value
+ */
+visflow.PropertyEditor.prototype.setProperty = function(property, value) {
+  this.options[property] = value;
+  this.parameterChanged('external');
+};
+
+/**
+ * Sets a group of rendering properties. This is equivalent to calling
+ * setProperty on each property respectively (but slightly more efficient as
+ * parameterChanged is only fired once).
+ * @param {!Object<string, (number|string)>} properties
+ *     If a value is '+' or '-', then increase or decrease the previous value.
+ */
+visflow.PropertyEditor.prototype.setProperties = function(properties) {
+  for (var property in properties) {
+    var value = properties[property];
+    if (value == '+' || value == '-') {
+      if (visflow.property.isColorProperty(value)) {
+        visflow.warning('cannot increase/decrease color');
+        continue;
+      }
+      if (this.options[property] == undefined) {
+        this.options[property] = this.defaultProperties()[property];
+      } else {
+        var preValue = this.options[property];
+        this.options[property] = value == '+' ?
+          preValue + visflow.property.SCROLL_DELTAS[property] :
+          preValue - visflow.property.SCROLL_DELTAS[property];
+      }
+    } else {
+      this.options[property] = value;
+    }
+  }
+  setTimeout(function() {
+    this.parameterChanged('external');
+  }.bind(this), visflow.const.QUEUE_DELAY); // push to queue
 };

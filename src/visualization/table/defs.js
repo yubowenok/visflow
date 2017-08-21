@@ -3,17 +3,14 @@
  */
 
 /** @inheritDoc */
+visflow.Table.prototype.NODE_CLASS = 'table';
+
+/** @inheritDoc */
 visflow.Table.prototype.TEMPLATE = './dist/html/visualization/table/table.html';
 
 /** @inheritDoc */
 visflow.Table.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/table/table-panel.html';
-
-/** @inheritDoc */
-visflow.Table.prototype.NODE_NAME = 'Table';
-
-/** @inheritDoc */
-visflow.Table.prototype.NODE_CLASS = 'table';
 
 /** @inheritDoc */
 visflow.Table.prototype.MIN_WIDTH = 400;
@@ -22,27 +19,27 @@ visflow.Table.prototype.MIN_HEIGHT = 150;
 
 /**
  * The height sum of the DataTable wrapping elements, including
- * - the search box row (35px)
- * - the info row (41px).
+ * - the search box row (33px)
+ * - the info row (37px).
  * - horizontal scrollBar (~12px)
- * @private {number}
+ * @const {number}
  */
-visflow.Table.prototype.WRAPPER_HEIGHT_ = 35 + 41 + 12;
+visflow.Table.WRAPPER_HEIGHT = 33 + 37 + 12;
 
 /**
  * After DataTable is initialized, wait for this amount of time and then resize
  * the table columns. This is to give the columns enough time to recognize the
  * potentially existing vertical scroll bar, so that the columns can get correct
  * widths.
- * @private @const {number}
+ * @const {number}
  */
-visflow.Table.prototype.COL_RESIZE_DELAY_ = 10;
+visflow.Table.COL_RESIZE_DELAY = 10;
 
 /**
  * Maximum number of dimensions by default shown.
- * @private
+ * @const {number}
  */
-visflow.Table.prototype.DEFAULT_NUM_DIMENSIONS_ = 20;
+visflow.Table.DEFAULT_NUM_DIMENSIONS = 20;
 
 /** @inheritDoc */
 visflow.Table.prototype.defaultOptions = function() {

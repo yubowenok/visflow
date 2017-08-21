@@ -1,0 +1,28 @@
+@import 'src/common/colors';
+
+.visflow .node.map {
+  &.minimized > .icon {
+    background-image: url('./imgs/map-icon.svg');
+  }
+
+  &.details {
+    height: 400px;
+    width: 400px;
+
+    .leaflet-map {
+      height: 100%;
+      width: 100%;
+    }
+
+    > .content {
+      padding: $padding;
+
+      > svg { // Svg is used to draw selectBox
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        z-index: 500; // Leaflet has large z-index
+      }
+    }
+  }
+}

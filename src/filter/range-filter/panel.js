@@ -7,20 +7,18 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
   var units = [
     // Dimensions
     {
-      constructor: visflow.MultipleSelect,
+      constructor: visflow.Select,
       params: {
-        container: container.find('#dims'),
+        container: container.find('#dim'),
         list: this.getDimensionList(),
-        selected: this.options.dims,
-        listTitle: 'Filtering Dimension(s)',
+        selected: this.options.dim,
+        listTitle: 'Filtering Dimension',
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
-          this.NO_DATA_STRING : null
+          this.NO_DATA_STRING : null,
+        allowClear: true
       },
-      change: function(event, dims) {
-        if (dims == null) {
-          dims = [];
-        }
-        this.options.dims = dims;
+      change: function(event, dim) {
+        this.options.dim = dim;
         this.parameterChanged();
       }
     },
@@ -29,7 +27,7 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
       constructor: visflow.Input,
       params: {
         container: container.find('#min'),
-        value: this.value[0],
+        value: this.formatRange(this.range[0]),
         title: 'Min Value',
         disabled: this.ports['inMin'].connected()
       },
@@ -43,7 +41,7 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
       constructor: visflow.Input,
       params: {
         container: container.find('#max'),
-        value: this.value[1],
+        value: this.formatRange(this.range[1]),
         title: 'Max Value',
         disabled: this.ports['inMax'].connected()
       },

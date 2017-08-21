@@ -11,12 +11,6 @@ visflow.Histogram = function(params) {
   visflow.Histogram.base.constructor.call(this, params);
 
   /**
-   * Distribution dimension.
-   * @protected {number}
-   */
-  this.dim = 0;
-
-  /**
    * Histogram data, created by assigning each item a bin.
    * @private {!Array}
    */
@@ -25,10 +19,10 @@ visflow.Histogram = function(params) {
   /** @private {d3|undefined} */
   this.svgHistogram_ = undefined;
 
-  /** @protected {!d3.scale} */
-  this.xScale = d3.scale.linear();
-  /** @protected {!d3.scale} */
-  this.yScale = d3.scale.linear();
+  /** @protected {d3.Scale} */
+  this.xScale = d3.scaleLinear();
+  /** @protected {d3.Scale} */
+  this.yScale = d3.scaleLinear();
 
   /**
    * Distribution dimension type.
@@ -37,7 +31,7 @@ visflow.Histogram = function(params) {
   this.xScaleType = visflow.ScaleType.UNKNOWN;
   /**
    * Mapping from [0, 1] to x screen coordinates.
-   * @protected {!d3.scale|undefined}
+   * @protected {d3.Scale|undefined}
    */
   this.histogramScale = undefined;
 
@@ -71,7 +65,7 @@ visflow.Histogram.prototype.init = function() {
 /** @inheritDoc */
 visflow.Histogram.prototype.serialize = function() {
   var result = visflow.Histogram.base.serialize.call(this);
-  result.dim = this.dim;
+  result.dim = this.options.dim;
   result.selectedBars = this.selectedBars;
   return result;
 };
@@ -79,10 +73,10 @@ visflow.Histogram.prototype.serialize = function() {
 /** @inheritDoc */
 visflow.Histogram.prototype.deserialize = function(save) {
   visflow.Histogram.base.deserialize.call(this, save);
-  this.dim = save.dim;
-  if (this.dim == null) {
+  this.options.dim = save.dim;
+  if (this.options.dim == null) {
     visflow.error('dimension not saved for histogram');
-    this.dim = 0;
+    this.options.dim = 0;
   }
 
   this.selectedBars = save.selectedBars;
@@ -123,8 +117,8 @@ visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
 
   // Check bins and get items
   this.histogramData_.forEach(function(bin) {
-    var xl = this.histogramScale(bin.x);
-    var xr = this.histogramScale(bin.x + bin.dx);
+    var xl = this.histogramScale(bin.x0);
+    var xr = this.histogramScale(bin.x1);
     if (xl > box.x2 || xr < box.x1) {
       return;
     }
@@ -165,7 +159,6 @@ visflow.Histogram.prototype.prepareHistogram_ = function() {
 visflow.Histogram.prototype.createHistogramData_ = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
-  var data = inpack.data;
   var values = [];
 
   // Histogram range.
@@ -175,37 +168,47 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
   // Remap every string to [0, count - 1].
   var ordinalMapping;
 
-  if (this.xScaleType == visflow.ScaleType.NUMERICAL) {
+  if (this.xScaleType == visflow.ScaleType.NUMERICAL ||
+    this.xScaleType == visflow.ScaleType.TIME) {
     range = this.xScale.domain();
-
     // If xScale domain has only a single value, the ticks will return empty
     // array. That is bins = [].
     bins = this.xScale.ticks(this.options.numBins);
-    if (bins.length <= 1) {
-      // D3 Histogram cannot handle 1 bin.
-      bins = 1;
+
+    // Map dates to POSIX.
+    if (this.xScaleType == visflow.ScaleType.TIME) {
+      range = range.map(function(date) { return date.getTime(); });
+      bins = bins.map(function(date) { return date.getTime(); });
     }
   } else if (this.xScaleType == visflow.ScaleType.ORDINAL) {
-    range = [0, this.xScale.domain().length - 1];
-    ordinalMapping = this.xScale.copy()
-      .range(d3.range(this.xScale.domain().length));
-    // Ordinal data does not use ticks. It uses distinct string counts.
-    bins = this.xScale.domain().length;
+    var ordinals = this.xScale.domain();
+    bins = [];
+    for (var i = 0; i < ordinals.length; i++) {
+      bins.push(this.xScale(ordinals[i]));
+    }
+    bins.push(this.xScale(ordinals[ordinals.length - 1]) +
+      this.xScale.bandwidth());
+    range = this.xScale.range();
   }
 
-  for (var index in items) {
-    var value = data.values[index][this.dim];
+  for (var itemIndex in items) {
+    var index = +itemIndex;
+    var value = inpack.getValue(index, this.options.dim);
+
+    switch (this.xScaleType) {
+      case visflow.ScaleType.ORDINAL:
+        value = this.xScale(value);
+        break;
+    }
     values.push({
-      value: this.xScaleType == visflow.ScaleType.NUMERICAL ?
-          value : ordinalMapping(value),
+      value: value,
       index: index
     });
   }
-
-  var histogram = d3.layout.histogram()
+  var histogram = d3.histogram()
     .value(_.getValue('value'))
-    .bins(bins)
-    .range(range);
+    .thresholds(bins)
+    .domain(range);
   this.histogramData_ = histogram(values);
 };
 
@@ -217,14 +220,30 @@ visflow.Histogram.prototype.createHistogramData_ = function() {
  */
 visflow.Histogram.prototype.createHistogramScale_ = function() {
   var svgSize = this.getSVGSize();
-  var margins = this.plotMargins();
   var range = [
-    margins.left,
-    svgSize.width - margins.right
+    this.margins.left,
+    svgSize.width - this.margins.right
   ];
-  this.histogramScale = d3.scale.linear()
-    .domain(this.xScaleType == visflow.ScaleType.NUMERICAL ?
-        this.xScale.domain() : [0, this.xScale.domain().length - 1])
+  var domain;
+  switch (this.xScaleType) {
+    case visflow.ScaleType.NUMERICAL:
+      domain = this.xScale.domain();
+      break;
+    case visflow.ScaleType.TIME:
+      domain = this.xScale.domain().map(function(date) {
+        return date.getTime();
+      });
+      break;
+    case visflow.ScaleType.ORDINAL:
+      domain = this.xScale.range();
+      break;
+  }
+  if (domain[0] == domain[1]) {
+    domain[0] -= 1;
+    domain[1] += 2;
+  }
+  this.histogramScale = d3.scaleLinear()
+    .domain(domain)
     .range(range);
 };
 
@@ -239,7 +258,8 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
 
   this.histogramData_.forEach(function(bin, index) {
     // Copy d3 histogram coordinates.
-    var barProp = _.pick(bin, 'x', 'y', 'dx');
+    var barProp = /** @type {{x0: number, x1: number, length: number}} */(
+      _.pick(bin, 'x0', 'x1', 'length'));
 
     var sorted = bin.map(function(itemInfo) {
       return {
@@ -253,6 +273,7 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
     // We will re-append sorted bar groups below.
     bin.length = 0;
     bin.id = 'b' + index;
+    bin.y = barProp.length; // Read length from d3 generated histogram bin.
 
     var y = 0, groupCount = 0;
     for (var j = 0; j < sorted.length; j++) {
@@ -266,10 +287,10 @@ visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
       }
       var group = {
         id: 'g' + (++groupCount),
-        x: barProp.x,
+        x: barProp.x0,
         y: y,
         dy: k - j,
-        dx: barProp.dx,
+        dx: barProp.x1 - barProp.x0,
         // Original properties are kept intact during rendering.
         originalProperties: sorted[j].properties,
         // Properties can be modified based on whether bars are selected.
@@ -325,67 +346,78 @@ visflow.Histogram.prototype.showDetails = function() {
  * @private
  */
 visflow.Histogram.prototype.drawHistogram_ = function() {
+  var binTransform = function(bin) {
+    return visflow.utils.getTransform([this.histogramScale(bin.x0), 0]);
+  }.bind(this);
+
   var bins = this.svgHistogram_.selectAll('g')
     .data(this.histogramData_);
 
-  var binTransform = function(bin) {
-    return visflow.utils.getTransform([this.histogramScale(bin.x), 0]);
-  }.bind(this);
-  bins.enter().append('g')
+  _.fadeOut(bins.exit());
+
+  bins = bins.enter().append('g')
     .attr('id', _.getValue('id'))
     .style('opacity', 0)
-    .attr('transform', binTransform);
-  _.fadeOut(bins.exit());
+    .attr('transform', binTransform)
+    .merge(bins);
 
   var updatedBins = this.allowTransition ? bins.transition() : bins;
   updatedBins
     .attr('transform', binTransform)
     .style('opacity', 1);
 
-  var barWidth = this.histogramScale(this.histogramData_[0].dx) -
-      this.histogramScale(0) - this.BAR_INTERVAL_;
-  if (barWidth < 0) {
-    var range = this.histogramScale.range();
-    barWidth = range[1] - range[0];
-  }
-  var bars = bins.selectAll('rect')
-    .data(_.identity, function(group) { // use the bar group array
-      return group.id;
-    });
   var groupTransform = function(group) {
     return visflow.utils.getTransform([
-      this.BAR_INTERVAL_,
+      visflow.Histogram.BAR_INTERVAL,
       Math.floor(this.yScale(group.y + group.dy))
     ]);
   }.bind(this);
 
-  // Gets the property values of the bar groups.
-  var getPropertiesValue = function(key) {
+  /**
+   * Gets the property values of the bar.
+   * @param {string} key
+   * @param {string=} opt_suffix
+   * @return {Function}
+   */
+  var getPropertiesValue = function(key, opt_suffix) {
+    var suffix = opt_suffix === undefined ? '' : opt_suffix;
     return function(obj) {
-      return obj.properties[this];
+      var value = obj.properties[this];
+      return value === undefined ? undefined : value + suffix;
     }.bind(key);
   };
 
-  bars.enter().append('rect')
-    .style('opacity', 0)
-    .attr('id', _.getValue('id'))
-    .attr('transform', groupTransform);
+  var bars = bins.selectAll('rect')
+    .data(_.identity, function(group) { // use the bar group array
+      return group.id;
+    });
+
   _.fadeOut(bars.exit());
 
-  bars
+  bars = bars.enter().append('rect')
+    .style('opacity', 0)
+    .attr('id', _.getValue('id'))
+    .attr('transform', groupTransform)
+    .merge(bars)
     .attr('bound', getPropertiesValue('bound'))
     .attr('selected', getPropertiesValue('selected'));
 
   var updatedBars = this.allowTransition ? bars.transition() : bars;
   updatedBars
     .attr('transform', groupTransform)
-    .attr('width', barWidth)
+    .attr('width', function(group) {
+      var width = this.histogramScale(group.dx) - this.histogramScale(0) -
+        visflow.Histogram.BAR_INTERVAL;
+      // In case interval is larger than width. At least 1 pixel wide.
+      width = width < 0 ? 1 : width;
+      return width;
+    }.bind(this))
     .attr('height', function(group) {
       return Math.ceil(this.yScale(0) - this.yScale(group.dy));
     }.bind(this))
     .style('fill', getPropertiesValue('color'))
     .style('stroke', getPropertiesValue('border'))
-    .style('stroke-width', getPropertiesValue('width'))
+    .style('stroke-width', getPropertiesValue('width', 'px'))
     .style('opacity', getPropertiesValue('opacity'));
 };
 
@@ -416,7 +448,6 @@ visflow.Histogram.prototype.drawAxes_ = function() {
 visflow.Histogram.prototype.drawXAxis_ = function() {
   var svgSize = this.getSVGSize();
   var data = this.ports['in'].pack.data;
-  var margins = this.plotMargins();
   this.drawAxis({
     svg: this.svgAxes.select('.x.axis'),
     scale: this.xScale,
@@ -427,13 +458,13 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
       this.xScale.domain() : this.options.numBins,
     transform: visflow.utils.getTransform([
       0,
-      svgSize.height - margins.bottom
+      svgSize.height - this.margins.bottom
     ]),
     label: {
-      text: data.dimensions[this.dim],
+      text: data.dimensions[this.options.dim],
       transform: visflow.utils.getTransform([
-        svgSize.width - margins.right,
-        -svgSize.height + margins.top + margins.bottom +
+        svgSize.width - this.margins.right,
+        -svgSize.height + this.margins.top + this.margins.bottom +
           this.LABEL_OFFSET
       ])
     }
@@ -445,7 +476,6 @@ visflow.Histogram.prototype.drawXAxis_ = function() {
  * @private
  */
 visflow.Histogram.prototype.drawYAxis_ = function() {
-  var margins = this.plotMargins();
   this.drawAxis({
     svg: this.svgAxes.select('.y.axis'),
     scale: this.yScale,
@@ -454,14 +484,14 @@ visflow.Histogram.prototype.drawYAxis_ = function() {
     orient: 'left',
     ticks: this.DEFAULT_TICKS,
     transform: visflow.utils.getTransform([
-      margins.left,
+      this.margins.left,
       0
     ]),
     label: {
       text: '',
       transform: visflow.utils.getTransform([
         this.LABEL_OFFSET,
-        margins.top
+        this.margins.top
       ], 1, 90)
     }
   });
@@ -472,16 +502,75 @@ visflow.Histogram.prototype.drawBrush = function() {
   this.drawSelectBox();
 };
 
+/**
+ * Updates the left margin of the plot based on the longest label for y-axis.
+ * @private
+ */
+visflow.Histogram.prototype.updateLeftMargin_ = function() {
+  var tempShow = !this.content.is(':visible');
+  if (tempShow) {
+    this.content.show();
+  }
+  this.margins.left = this.plotMargins().left;
+  if (this.options.yTicks) {
+    this.drawYAxis_();
+    var maxLength = 0;
+    $(this.svgAxes.node())
+      .find('.y.axis > .tick > text')
+      .each(function(index, element) {
+        maxLength = Math.max(maxLength, element.getBBox().width);
+      });
+    // In case the input data is empty.
+    if (maxLength == 0) {
+      maxLength = 0;
+    }
+    this.margins.left += maxLength;
+  }
+  if (tempShow) {
+    this.content.hide();
+  }
+};
+
+/**
+ * Updates the bottom margin based on the xTicks.
+ * @private
+ */
+visflow.Histogram.prototype.updateBottomMargin_ = function() {
+  this.margins.bottom = this.plotMargins().bottom +
+    (this.options.xTicks ? this.TICKS_HEIGHT : 0);
+};
+
+
 /** @inheritDoc */
 visflow.Histogram.prototype.prepareScales = function() {
   var svgSize = this.getSVGSize();
   var inpack = this.ports['in'].pack;
   var data = inpack.data;
   var items = inpack.items;
-  var margins = this.plotMargins();
-  var scaleInfo = visflow.scales.getScale(data, this.dim, items, [
-      margins.left,
-      svgSize.width - margins.right
+
+  this.margins = this.plotMargins();
+
+  this.updateBottomMargin_();
+
+  this.yScale = d3.scaleLinear()
+    .domain([
+      0,
+      d3.max(this.histogramData_, _.getValue('y')) *
+      (1 + visflow.Histogram.Y_MARGIN)
+    ])
+    .range([
+      svgSize.height - this.margins.bottom,
+      this.margins.top
+    ]);
+
+  // Compute new left margin based on selected y dimension.
+  // xScale has to be created after yScale because the left margin depends on
+  // yScale's domain.
+  this.updateLeftMargin_();
+
+  var scaleInfo = visflow.scales.getScale(data, this.options.dim, items, [
+      this.margins.left,
+      svgSize.width - this.margins.right
     ], {
       domainMargin: 0.15,
       ordinalRangeType: 'rangeBands',
@@ -491,18 +580,11 @@ visflow.Histogram.prototype.prepareScales = function() {
   this.xScaleType = scaleInfo.type;
 
   this.prepareHistogram_();
-
-  this.yScale = d3.scale.linear()
-    .domain([
-      0,
-      d3.max(this.histogramData_, _.getValue('y')) * (1 + this.Y_MARGIN_)
-    ])
-    .range([svgSize.height - margins.bottom, margins.top]);
 };
 
 /** @inheritDoc */
 visflow.Histogram.prototype.dataChanged = function() {
-  this.dim = this.findPlotDimension();
+  this.options.dim = this.findPlotDimension();
   this.selected = {};
   this.selectedBars = {};
 };
@@ -540,7 +622,7 @@ visflow.Histogram.prototype.selectAll = function() {
   var data = this.histogramData_;
   for (var i = 0; i < data.length; i++) {
     for (var j = 0; j < data[i].length; j++) {
-      this.selectedBars[i + ',' + j] = true;
+      this.selectedBars[data[i].id + ',' + data[i][j].id] = true;
     }
   }
   // Parent class will select primitive data items, and update the rendering.
@@ -551,4 +633,13 @@ visflow.Histogram.prototype.selectAll = function() {
 visflow.Histogram.prototype.clearSelection = function() {
   this.selectedBars = {};
   visflow.Histogram.base.clearSelection.call(this);
+};
+
+/** @inheritDoc */
+visflow.Histogram.prototype.setDimensions = function(dims) {
+  var data = this.ports['in'].pack.data;
+  if (dims.length) {
+    this.options.dim = data.dimensions.indexOf(dims[0]);
+  }
+  this.dimensionChanged();
 };

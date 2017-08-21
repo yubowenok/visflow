@@ -59,3 +59,12 @@ visflow.Set.prototype.show = function() {
   visflow.Set.base.show.call(this);
   this.showIcon();
 };
+
+/**
+ * Finds the data input port for the second operand of the node.
+ * For sets other than minus, this should be the same port as getDataInPort().
+ * @return {!visflow.Port}
+ */
+visflow.Set.prototype.getSecondDataInPort = function() {
+  return this.getDataInPort();
+};

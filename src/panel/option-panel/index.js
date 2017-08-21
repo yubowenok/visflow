@@ -8,7 +8,7 @@ visflow.optionPanel = {};
 /** @const {number} */
 visflow.optionPanel.COLLAPSED_WIDTH = 32;
 /** @const {number} */
-visflow.optionPanel.TRANSITION_TIME = 250;
+visflow.optionPanel.TRANSITION_TIME = 50;
 
 /**
  * Whether the panel is toggled on.

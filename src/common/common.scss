@@ -1,0 +1,42 @@
+@import 'src/common/colors';
+
+$font-size: 12px;
+$font-size-small: 10px;
+$font-size-large: 16px;
+
+$icon-size: 40px;
+
+$border-radius: 2px;
+$border-radius-large: 4px;
+
+$border-width: 1px;
+$border-width-large: 2px;
+
+$padding: 3px;
+$padding-large: 2 * $padding;
+$padding-extra-large: 4 * $padding;
+
+$margin: $padding;
+$margin-large: $padding-large;
+$margin-extra-large: $padding-extra-large;
+
+$navbar-height: 25px;
+
+$side-button-width: $font-size-small * 2;
+
+$multiple-select-height: 29px;
+
+$colorscale-select-height: 44px;
+
+@mixin col-wrap($width) {
+  max-width: $width;
+  word-wrap: break-word;
+}
+
+@mixin shadow-bottom {
+  box-shadow: 0 0 1px 1px $gray-a;
+}
+
+@mixin ui-border {
+  border: 1px solid $gray-c;
+}

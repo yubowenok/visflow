@@ -1,17 +1,32 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 #tool-panel {
-  background-color: $trans-black-05;
-  border: 1px solid $gray-c;
-  border-radius: 4px;
-  left: calc(50% - 57px);
-  padding: 5px 10px;
+  @include ui-border;
+
+  padding: 2px $font-size;
   position: absolute;
-  top: 40px;
-  width: 114px;
+  right: 15%;
+  z-index: 1001;
 
   button {
-    background: none;
-    margin: 0 2px;
+    background: $ui-background;
+    margin: 0 1px;
+
+    &.active {
+      background: $gray-d;
+    }
+  }
+
+  .glyphicon.invisible {
+    opacity: 0;
+  }
+
+  .microphone {
+    background: transparent url('./imgs/microphone.png') center no-repeat;
+    background-size: $font-size;
+    height: $font-size;
+    margin-top: 1.5px;
+    position: absolute;
+    width: $font-size;
   }
 }

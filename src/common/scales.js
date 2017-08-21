@@ -18,7 +18,7 @@ visflow.ScaleType = {
 
 /**
  * @typedef {{
- *   scale: !d3.scale,
+ *   scale: d3.Scale,
  *   id: string,
  *   text: string,
  *   contrastColor: string,
@@ -80,7 +80,7 @@ visflow.scales.SPECS_ = {
     property: 'color',
     contrastColor: 'black',
     domain: d3.range(10),
-    range: d3.scale.category10().range(),
+    range: d3.scaleOrdinal(d3.schemeCategory10).range(),
     isOrdinal: true
   }
 };
@@ -126,12 +126,12 @@ visflow.scales.init = function() {
     var scale;
     switch (spec.type) {
       case 'color':
-        scale = d3.scale.linear()
+        scale = d3.scaleLinear()
           .domain(domain)
           .range(range);
         break;
       case 'color-category10':
-        scale = d3.scale.category10()
+        scale = d3.scaleOrdinal(d3.schemeCategory10)
           .domain(spec.domain);
         break;
     }
@@ -169,7 +169,7 @@ visflow.scales.init = function() {
  *   ordinalPadding: Padding used for ordinal range.
  *   ordinalRange: Whether to use d3.range(length) for ordinal scale's range.
  * @return {{
- *   scale: !d3.scale,
+ *   scale: d3.Scale,
  *   type: !visflow.ScaleType
  * }}
  */
@@ -208,38 +208,54 @@ visflow.scales.getScale = function(data, dim, items, range, opt_params) {
   var scale;
   switch (scaleType) {
     case visflow.ScaleType.NUMERICAL:
+      var minVal = d3.min(values);
+      var maxVal = d3.max(values);
+      var span = maxVal - minVal;
+      if (span == 0) {
+        span = 1; // Avoid single-point scale
+      }
+      scale = d3.scaleLinear()
+        .domain([minVal - span * domainMargin, maxVal + span * domainMargin])
+        .range(range);
+      break;
     case visflow.ScaleType.TIME:
       var minVal = d3.min(values);
       var maxVal = d3.max(values);
       var span = maxVal - minVal;
-      scale = d3.scale.linear()
+      scale = d3.scaleTime()
         .domain([minVal - span * domainMargin, maxVal + span * domainMargin])
         .range(range);
       break;
     case visflow.ScaleType.ORDINAL:
       values = [];
-      for (var index in items) {
-        values.push(data.values[index][dim]);
+      for (var itemIndex in items) {
+        values.push(data.values[+itemIndex][dim]);
       }
       var uniqValues = _.uniq(values).sort();
-      scale = d3.scale.ordinal()
-        .domain(uniqValues);
 
       if (params.ordinalRange) {
-        scale.range(d3.range(uniqValues.length));
+        scale = d3.scaleOrdinal()
+          .domain(uniqValues)
+          .range(d3.range(uniqValues.length));
       } else {
         var ordinalPadding = params.ordinalPadding != null ?
           params.ordinalPadding : 0;
         switch (params.ordinalRangeType) {
           case 'rangeBands':
-            scale.rangeBands(range, ordinalPadding);
+            scale = d3.scaleBand();
+            scale.paddingOuter(ordinalPadding);
             break;
           case 'rangeRoundBands':
-            scale.rangeRoundBands(range, ordinalPadding);
+            scale = d3.scaleBand();
+            scale.round(true);
+            scale.paddingOuter(ordinalPadding);
             break;
           default:
-            scale.rangePoints(range, ordinalPadding);
+            scale = d3.scalePoint();
+            scale.padding(ordinalPadding);
         }
+        scale.domain(uniqValues)
+          .range(range);
       }
       break;
   }

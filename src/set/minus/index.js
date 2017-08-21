@@ -50,17 +50,33 @@ visflow.Minus.prototype.process = function() {
     return;
   }
 
-  for (var i in inpacks) {
+  for (var i = 0; i < inpacks.length; i++) {
     var inpack = inpacks[i];
     if (!outpack.data.matchDataFormat(inpack.data)) {
       return visflow.error(
         'cannot make intersection of two different types of datasets');
     }
 
-    for (var index in inpack.items) {
+    for (var itemIndex in inpack.items) {
+      var index = +itemIndex;
       if (outpack.items[index] != null) {
         delete outpack.items[index];
       }
     }
   }
+};
+
+/** @inheritDoc */
+visflow.Minus.prototype.getDataInPort = function() {
+  return this.getPort('inx');
+};
+
+/**
+ * Gets the port that accepts the input of the left side operand in a minus
+ * operation (a.k.a. "X" in "X - Y").
+ * @return {!visflow.Port}
+ * @override
+ */
+visflow.Minus.prototype.getSecondDataInPort = function() {
+  return this.getPort('in');
 };

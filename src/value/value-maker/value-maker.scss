@@ -1,18 +1,24 @@
+@import 'src/common/common';
+
 .visflow .node.value-maker {
   &.minimized {
     height: 30px;
     width: 50px;
 
     > .icon {
-      background-image: url('./imgs/value-maker-icon.png');
+      background-image: url('./imgs/value-maker-icon.svg');
       height: 30px;
       width: 50px;
     }
   }
 
   &.details {
-    height: 54px;
+    height: 31px + 2 * $padding;
     width: 120px;
+
+    .content > div {
+      margin-top: $margin;
+    }
 
     input {
       font-size: .95em;

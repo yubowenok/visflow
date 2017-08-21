@@ -9,14 +9,8 @@
  */
 visflow.Table = function(params) {
   visflow.Table.base.constructor.call(this, params);
-
-  this.tableState = null; // last table state
-
-  /**
-   * Selected dimensions to show in table.
-   * @protected {!Array<number>}
-   */
-  this.dimensions = [];
+  /** @type {Object} */
+  this.tableState = null; // last dataTable state
 
   /**
    * Table template. We store a copy of the table structure when the node HTML
@@ -37,8 +31,6 @@ visflow.Table = function(params) {
 _.inherit(visflow.Table, visflow.Visualization);
 
 
-
-
 /** @inheritDoc */
 visflow.Table.prototype.init = function() {
   visflow.Table.base.init.call(this);
@@ -50,7 +42,7 @@ visflow.Table.prototype.init = function() {
 /** @inheritDoc */
 visflow.Table.prototype.serialize = function() {
   var result = visflow.Table.base.serialize.call(this);
-  result.dimensions = this.dimensions;
+  result.dimensions = this.options.dims;
   result.tableState = this.dataTable != null ? this.dataTable.state() : null;
   return result;
 };
@@ -59,11 +51,10 @@ visflow.Table.prototype.serialize = function() {
 visflow.Table.prototype.deserialize = function(save) {
   visflow.Table.base.deserialize.call(this, save);
   this.tableState = save.tableState;
-  this.dimensions = save.dimensions;
-  if (this.dimensions == null) {
-    var data = this.ports['in'].pack.data;
-    this.dimensions = data.dimensions.concat();
-    visflow.warning('table w/o dimensions saved');
+  if (this.options.dims == null) {
+    // Deserialize from old-version dimensions.
+    // If not possible, then use raw dimensions.
+    this.options.dims = save.dimensions || this.findPlotDimensions();
   }
 };
 
@@ -88,13 +79,13 @@ visflow.Table.prototype.showDetails = function() {
   var columns = [
     // Data item index column.
     {title: ''}
-  ].concat(this.dimensions.map(function(dim) {
+  ].concat(this.options.dims.map(function(dim) {
     return {title: data.dimensions[dim]};
   }));
 
   for (var index in items) {
     var row = [index];
-    this.dimensions.forEach(function(dim) {
+    this.options.dims.forEach(function(dim) {
       row.push(data.values[index][dim]);
     }, this);
     rows.push(row);
@@ -114,11 +105,11 @@ visflow.Table.prototype.showDetails = function() {
     orderable: false,
     targets: 0
   }];
-  this.dimensions.forEach(function(dim, dimIndex) {
+  this.options.dims.forEach(function(dim, dimIndex) {
     if (data.dimensionTypes[dim] == visflow.ValueType.TIME) {
       columnDefs.push({
         render: function(value) {
-          return moment(new Date(value)).format(this.TIME_FORMAT);
+          return visflow.utils.formatTime(value);
         }.bind(this),
         // +1 for the index column!
         targets: dimIndex + 1
@@ -150,7 +141,7 @@ visflow.Table.prototype.showDetails = function() {
           // Otherwise the width may not be correct due to vertical scroll bar.
           search.val('a').trigger('keyup');
           search.val('').trigger('keyup');
-        }.bind(this), this.COL_RESIZE_DELAY_);
+        }.bind(this), visflow.Table.COL_RESIZE_DELAY);
       }.bind(this),
       infoCallback: function() {
         var this_ = /** @type {!DataTables.Api} */(this);
@@ -219,7 +210,7 @@ visflow.Table.prototype.drawBrush = function() {
 visflow.Table.prototype.updateScrollBodyHeight_ = function() {
   var height = this.container.height() -
     this.container.find('.dataTables_scrollHead').height() -
-    this.WRAPPER_HEIGHT_;
+    visflow.Table.WRAPPER_HEIGHT;
   this.content.find('.dataTables_scrollBody')
     .css('max-height', height)
     .css('height', height);
@@ -239,16 +230,16 @@ visflow.Table.prototype.clearSelection = function() {
 visflow.Table.prototype.dataChanged = function() {
   visflow.Table.base.dataChanged.call(this);
   // When data set changes, select all dimensions to show in table.
-  this.dimensions = this.findPlotDimensions();
+  this.options.dims = this.findPlotDimensions();
 };
 
 /**
- * @override
  * @return {!Array<number>}
+ * @override
  */
 visflow.Table.prototype.findPlotDimensions = function() {
   return d3.range(this.ports['in'].pack.data.dimensions.length)
-    .slice(0, this.DEFAULT_NUM_DIMENSIONS_);
+    .slice(0, visflow.Table.DEFAULT_NUM_DIMENSIONS);
 };
 
 /** @inheritDoc */

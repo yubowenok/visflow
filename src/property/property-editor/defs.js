@@ -6,9 +6,6 @@
 visflow.PropertyEditor.prototype.NODE_CLASS = 'property-editor';
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.NODE_NAME = 'Property Editor';
-
-/** @inheritDoc */
 visflow.PropertyEditor.prototype.TEMPLATE =
   './dist/html/property/property-editor/property-editor.html';
 
@@ -29,9 +26,9 @@ visflow.PropertyEditor.prototype.defaultOptions = function() {
 
 /**
  * @return {!Array<string>}
- * @private
+ * @protected
  */
-visflow.PropertyEditor.prototype.properties_ = function() {
+visflow.PropertyEditor.prototype.properties = function() {
   return [
     'color',
     'border',
@@ -43,12 +40,24 @@ visflow.PropertyEditor.prototype.properties_ = function() {
 
 /**
  * @return {!Array<string>}
- * @private
+ * @protected
  */
-visflow.PropertyEditor.prototype.numericProperties_ = function() {
+visflow.PropertyEditor.prototype.numericProperties = function() {
   return [
     'width',
     'size',
     'opacity'
   ];
+};
+
+/**
+ * When a property is not set, increase/decrease to this default value.
+ * @return {!Object<string, (number|string)>}
+ */
+visflow.PropertyEditor.prototype.defaultProperties = function() {
+  return {
+    width: 1,
+    size: 1,
+    opacity: 1
+  };
 };

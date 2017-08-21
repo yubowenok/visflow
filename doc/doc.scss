@@ -1,4 +1,5 @@
-@import 'src/common/colors';
+@import 'src/common/common';
+
 
 @mixin embed-icon($width, $height, $hover-width, $hover-height, $margin: 5px) {
   background-position: center;
@@ -20,29 +21,23 @@
   }
 }
 
+#logo {
+  display: inline-block;
+  margin-right: $margin-large;
+  position: relative;
+  top: -1px;
+  width: 20px;
+}
+
 
 .visflow {
-  .navbar-nav > li > a,
-  .navbar-brand {
-    font-size: 1em;
-    height: 28px;
-    line-height: 28px;
-    padding-bottom: 0;
-    padding-top: 4px;
+  .navbar {
+    @include shadow-bottom;
   }
 
   .navbar-right {
     a > .glyphicon {
-      margin-right: 5px;
-    }
-  }
-
-  .navbar {
-    min-height: 28px;
-    z-index: 0;
-
-    .dropdown-menu > li > a > i {
-      margin-right: 10px;
+      margin-right: $margin-large;
     }
   }
 
@@ -59,8 +54,8 @@
   }
 
   #main {
-    margin-bottom: 40px;
-    margin-top: 20px;
+    font-size: 13px;
+    margin-top: $navbar-height;
   }
 
   .section {
@@ -68,13 +63,13 @@
   }
 
   h2 {
-    padding-top: 20px;
+    padding-top: $padding-extra-large;
   }
 
   .anchor {
     display: block;
     position: relative;
-    top: -50px;
+    top: calc(-#{$navbar-height} - 2px);
     visibility: hidden;
   }
 
@@ -125,83 +120,83 @@
     }
 
     &.data-source {
-      background-image: url('./imgs/datasource-icon.png');
+      background-image: url('./imgs/datasource-icon.svg');
     }
 
     &.scatterplot {
-      background-image: url('./imgs/scatterplot-icon.png');
+      background-image: url('./imgs/scatterplot-icon.svg');
     }
 
     &.heatmap {
-      background-image: url('./imgs/heatmap-icon.png');
+      background-image: url('./imgs/heatmap-icon.svg');
     }
 
     &.histogram {
-      background-image: url('./imgs/histogram-icon.png');
+      background-image: url('./imgs/histogram-icon.svg');
     }
 
     &.parallel-coordinates {
-      background-image: url('./imgs/parallelcoordinates-icon.png');
+      background-image: url('./imgs/parallelcoordinates-icon.svg');
     }
 
     &.network {
-      background-image: url('./imgs/network-icon.png');
+      background-image: url('./imgs/network-icon.svg');
     }
 
     &.line-chart {
-      background-image: url('./imgs/line-chart-icon.png');
+      background-image: url('./imgs/line-chart-icon.svg');
     }
 
     &.table {
-      background-image: url('./imgs/table-icon.png');
+      background-image: url('./imgs/table-icon.svg');
     }
 
     &.union {
       @include flat();
-      background-image: url('./imgs/union-icon.png');
+      background-image: url('./imgs/union-icon.svg');
     }
 
     &.intersect {
       @include flat();
-      background-image: url('./imgs/intersect-icon.png');
+      background-image: url('./imgs/intersect-icon.svg');
     }
 
     &.minus {
       @include flat();
-      background-image: url('./imgs/minus-icon.png');
+      background-image: url('./imgs/minus-icon.svg');
     }
 
     &.value-maker {
       @include flat();
-      background-image: url('./imgs/value-maker-icon.png');
+      background-image: url('./imgs/value-maker-icon.svg');
     }
 
     &.value-extractor {
       @include flat();
-      background-image: url('./imgs/value-extractor-icon.png');
+      background-image: url('./imgs/value-extractor-icon.svg');
     }
 
     &.property-editor {
-      background-image: url('./imgs/property-editor-icon.png');
+      background-image: url('./imgs/property-editor-icon.svg');
     }
 
     &.property-mapping {
-      background-image: url('./imgs/property-mapping-icon.png');
+      background-image: url('./imgs/property-mapping-icon.svg');
     }
 
     &.value-filter {
       @include flat();
-      background-image: url('./imgs/value-filter-icon.png');
+      background-image: url('./imgs/value-filter-icon.svg');
     }
 
     &.range-filter {
       @include flat();
-      background-image: url('./imgs/range-filter-icon.png');
+      background-image: url('./imgs/range-filter-icon.svg');
     }
 
     &.sampler {
       @include flat();
-      background-image: url('./imgs/sampler-icon.png');
+      background-image: url('./imgs/sampler-icon.svg');
     }
   }
 
@@ -220,7 +215,7 @@
     overflow-y: auto;
     padding: 20px;
     position: fixed;
-    top: 51px;
+    top: calc(#{$navbar-height} + 2px);
     z-index: 1000;
 
     li {
@@ -228,7 +223,7 @@
 
       a {
         color: $gray-3;
-        padding: 5px 2.5px;
+        padding: $padding;
       }
     }
 
@@ -236,24 +231,21 @@
       a:hover {
         background-color: $white;
         border: 1px solid $gray-a;
-        border-radius: 4px;
       }
     }
 
     .nav-lv2 {
-      font-size: 13px;
-      padding-left: 20px;
+      padding-left: 18px;
     }
 
     .nav-lv3 {
-      font-size: 12px;
-      padding-left: 20px;
+      font-size: 11px;
+      padding-left: 18px;
     }
   }
 
   .bordered {
     border: 1px solid $gray-e;
-    border-radius: 4px;
   }
 
   .tutorial-table {

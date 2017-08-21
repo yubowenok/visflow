@@ -3,6 +3,9 @@
  */
 
 /** @inheritDoc */
+visflow.Set.prototype.DEFAULT_LABEL = 'Set';
+
+/** @inheritDoc */
 visflow.Set.prototype.RESIZABLE = false;
 
 /** @inheritDoc */
@@ -18,6 +21,8 @@ visflow.Set.prototype.contextMenuItems = function() {
       icon: 'glyphicon glyphicon-resize-small'},
     {id: 'panel', text: 'Control Panel',
       icon: 'glyphicon glyphicon-th-list'},
+    {id: 'flowSense', text: 'FlowSense',
+      icon: 'glyphicon glyphicon-comment'},
     {id: 'delete', text: 'Delete', icon:
       'glyphicon glyphicon-remove'}
   ];

@@ -22,13 +22,10 @@ visflow.init = function() {
   visflow.popupPanel.init();
   visflow.toolPanel.init();
   visflow.interaction.init();
+  visflow.nlp.init();
 
   visflow.user.init();
 };
-
-/** @private @const {number} */
-visflow.MESSAGE_DURATION_ = 2000;
-
 
 /**
  * Tests if the client is using mobile device.
@@ -45,7 +42,8 @@ visflow.isMobile = function() {
 visflow.error = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.error(msg);
-  $('#error').text(msg).parent().slideDown();
+  $('#error').text(msg).parent()
+    .slideDown(visflow.const.ALERT_TRANSITION_DURATION);
 };
 
 /**
@@ -56,9 +54,9 @@ visflow.warning = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.warn(msg);
   $('#warning').text(msg).parent()
-    .slideDown()
-    .delay(visflow.MESSAGE_DURATION_)
-    .slideUp();
+    .slideDown(visflow.const.ALERT_TRANSITION_DURATION)
+    .delay(visflow.const.MESSAGE_DURATION)
+    .slideUp(visflow.const.ALERT_TRANSITION_DURATION);
 };
 
 /**
@@ -69,9 +67,9 @@ visflow.success = function(args) {
   var msg = Array.prototype.slice.call(arguments).join(' ');
   console.info(msg);
   $('#success').text(msg).parent()
-    .slideDown()
-    .delay(visflow.MESSAGE_DURATION_)
-    .slideUp();
+    .slideDown(visflow.const.ALERT_TRANSITION_DURATION)
+    .delay(visflow.const.MESSAGE_DURATION)
+    .slideUp(visflow.const.ALERT_TRANSITION_DURATION);
 };
 
 /**
@@ -110,3 +108,9 @@ visflow.about = function() {
 visflow.signal = function(obj, event, data) {
   $(obj).trigger('vf.' + event, [data]);
 };
+
+/**
+ * Debugging global entry that is used to retrieve variable values.
+ * @type {*}
+ */
+visflow.debug = null;

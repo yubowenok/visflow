@@ -6,9 +6,6 @@
 visflow.Scatterplot.prototype.NODE_CLASS = 'scatterplot';
 
 /** @inheritDoc */
-visflow.Scatterplot.prototype.NODE_NAME = 'Scatterplot';
-
-/** @inheritDoc */
 visflow.Scatterplot.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/scatterplot/scatterplot-panel.html';
 
@@ -45,6 +42,6 @@ visflow.Scatterplot.prototype.defaultProperties = function() {
 visflow.Scatterplot.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };

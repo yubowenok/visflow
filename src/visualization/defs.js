@@ -3,7 +3,7 @@
  */
 
 /** @inheritDoc */
-visflow.Visualization.prototype.NODE_NAME = 'visualization';
+visflow.Visualization.prototype.DEFAULT_LABEL = 'Chart';
 
 /** @inheritDoc */
 visflow.Visualization.prototype.TEMPLATE =
@@ -15,16 +15,13 @@ visflow.Visualization.prototype.LABEL_OFFSET = 5;
 /** @protected @const {number} */
 visflow.Visualization.prototype.DEFAULT_TICKS = 5;
 
-/** @protected @const {string} */
-visflow.Visualization.prototype.TIME_FORMAT = 'M/D/YY HH:mm:ss';
-
 /** @protected @const {number} */
 visflow.Visualization.prototype.TRANSITION_ELEMENT_LIMIT = 5000;
 
 /** @protected @const {number} */
 visflow.Visualization.prototype.TICKS_HEIGHT = 10;
 
-/** @protected @const {boolean} */
+/** @const {boolean} */
 visflow.Visualization.prototype.IS_VISUALIZATION = true;
 
 /**
@@ -74,7 +71,7 @@ visflow.Visualization.prototype.defaultProperties = function() {
 visflow.Visualization.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };
 
@@ -92,17 +89,10 @@ visflow.Visualization.prototype.selectedMultiplier = function() {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.contextMenuItems = function() {
-  return [
+  var items = visflow.Visualization.base.contextMenuItems();
+  return items.concat([
     {id: 'selectAll', text: 'Select All'},
-    {id: 'clearSelection', text: 'Clear Selection'},
-    {id: 'minimize', text: 'Minimize',
-      icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'visMode', text: 'Visualization Mode',
-      icon: 'glyphicon glyphicon-facetime-video'},
-    {id: 'panel', text: 'Control Panel',
-      icon: 'glyphicon glyphicon-th-list'},
-    {id: 'delete', text: 'Delete',
-      icon: 'glyphicon glyphicon-remove'}
-  ];
+    {id: 'clearSelection', text: 'Clear Selection'}
+  ]);
 };
 

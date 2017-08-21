@@ -34,10 +34,10 @@ visflow.ValueFilter = function(params) {
   };
 
   /**
-   * Filtering value applied.
+   * Filtering value(s) applied.
    * @protected {!Array<number|string>}
    */
-  this.value = [];
+  this.values = [];
 };
 
 _.inherit(visflow.ValueFilter, visflow.Filter);
@@ -57,19 +57,17 @@ visflow.ValueFilter.prototype.showDetails = function() {
   var units = [
     // Dimension
     {
-      constructor: visflow.MultipleSelect,
+      constructor: visflow.Select,
       params: {
-        container: this.content.find('#dims'),
+        container: this.content.find('#dim'),
         list: this.getDimensionList(),
-        selected: this.options.dims,
+        selected: this.options.dim,
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
-          this.NO_DATA_STRING : null
+          this.NO_DATA_STRING : null,
+        allowClear: true
       },
-      change: function(event, dims) {
-        if (dims == null) {
-          dims = [];
-        }
-        this.options.dims = dims;
+      change: function(event, dim) {
+        this.options.dim = dim;
         this.parameterChanged();
       }
     },
@@ -78,7 +76,7 @@ visflow.ValueFilter.prototype.showDetails = function() {
       constructor: visflow.Input,
       params: {
         container: this.content.find('#value'),
-        value: this.value,
+        value: this.values,
         disabled: this.ports['inVal'].connected()
       },
       change: function(event, value) {
@@ -102,7 +100,7 @@ visflow.ValueFilter.prototype.process = function() {
     // Empty constants
     pack = port.pack;
   }
-  this.value = pack.getAll();
+  this.values = pack.getAll();
 
   var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
   var outpack = this.ports['out'].pack;
@@ -120,41 +118,44 @@ visflow.ValueFilter.prototype.process = function() {
   this.filter();
 };
 
-/** @inheritDoc */
-visflow.ValueFilter.prototype.filter = function() {
-  // Slow implementation: Linear scan
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
-  var items = inpack.items;
-  var data = inpack.data;
-
+/**
+ * Value filters the subset with a given specification.
+ * @param {visflow.ValueFilter.Spec} spec
+ * @param {!visflow.Package} pack
+ * @return {!Array<number>} Resulting subset as array.
+ */
+visflow.ValueFilter.filter = function(spec, pack) {
+  if (spec.dim === undefined) {
+    return [];
+  }
   var result = [];
-  for (var index in items) {
+  var dim = spec.dim;
+  var items = pack.items;
+  var ignoreCases = spec.ignoreCases !== undefined ? !!spec.ignoreCases : true;
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var matched = false;
-    for (var dimIndex = 0; dimIndex < this.options.dims.length && !matched;
-         dimIndex++) {
-      var dim = this.options.dims[dimIndex];
-      var value = '' + data.values[index][dim];
-      if (this.options.ignoreCases) {
-        value = value.toLowerCase();
+    var value = '' + pack.getValue(index, dim);
+    if (ignoreCases) {
+      value = value.toLowerCase();
+    }
+    for (var i = 0; i < spec.values.length && !matched; i++) {
+      var pattern = spec.values[i] + '';
+      if (ignoreCases) {
+        pattern = pattern.toLowerCase();
       }
-      for (var i = 0; i < this.value.length && !matched; i++) {
-        var pattern = this.value[i] + '';
-        if (this.options.ignoreCases) {
-          pattern = pattern.toLowerCase();
-        }
-        if (this.options.mode == 'regex') {
-          pattern = RegExp(pattern);
-          var m = value.match(pattern);
-          matched = m != null &&
-            (this.options.target == 'substring' || m[0] == value);
+      if (spec.mode == visflow.ValueFilter.Mode.REGEX) {
+        pattern = RegExp(pattern);
+        var m = value.match(pattern);
+        matched = m != null &&
+          (spec.target == visflow.ValueFilter.Target.SUBSTRING ||
+          m[0] == value);
+      } else {
+        // text matching
+        if (spec.target == visflow.ValueFilter.Target.FULL) {
+          matched = value === pattern;
         } else {
-          // text matching
-          if (this.options.target == 'full') {
-            matched = value === pattern;
-          } else {
-            matched = value.indexOf(pattern) != -1;
-          }
+          matched = value.indexOf(pattern) != -1;
         }
       }
     }
@@ -162,6 +163,47 @@ visflow.ValueFilter.prototype.filter = function() {
       result.push(index);
     }
   }
+  return result;
+};
+
+/** @inheritDoc */
+visflow.ValueFilter.prototype.filter = function() {
+  // Slow implementation: Linear scan
+  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
+  var outpack = this.ports['out'].pack;
+
+  var result = visflow.ValueFilter.filter({
+    dim: this.options.dim,
+    values: this.values,
+    mode: this.options.mode,
+    target: this.options.target,
+    ignoreCases: this.options.ignoreCases
+  }, inpack);
+
   outpack.copy(inpack);
   outpack.filter(result);
+};
+
+/**
+ * Sets the filter-by value.
+ * @param {number} dim
+ * @param {string} value
+ * @param {visflow.ValueFilter.Target=} opt_target
+ */
+visflow.ValueFilter.prototype.setValue = function(dim, value, opt_target) {
+  var target = opt_target !== undefined ? opt_target :
+    visflow.ValueFilter.Target.SUBSTRING;
+  this.options.dim = dim;
+  this.options.typeInValue = value;
+  this.options.mode = visflow.ValueFilter.Mode.TEXT;
+  this.options.target = target;
+  this.parameterChanged();
+};
+
+/**
+ * Gets the constant input port.
+ * @return {!visflow.Port}
+ */
+visflow.ValueFilter.prototype.getConstantInPort = function() {
+  return this.ports['inVal'];
 };

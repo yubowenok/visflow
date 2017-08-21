@@ -1,11 +1,18 @@
+//
+// VisFlow Color definitions.
+//
+
 $gray-3: #333;
+$gray-5: #555;
 $gray-7: #777;
 $gray-8: #888;
 $gray-a: #aaa;
 $gray-b: #bbb;
 $gray-c: #ccc;
+$gray-d: #ddd;
 $gray-e: #eee;
 $gray-e2: #e2e2e2;
+$gray-e6: #e6e6e6;
 $gray-e8: #e8e8e8;
 $gray-f5: #f5f5f5;
 
@@ -13,7 +20,17 @@ $white: #fff;
 $black: #000;
 $red: #f00;
 
+$theme-color: #5a098f;
+$theme-color-light: #9460b7;
+$theme-color-dark: #460570;
+
+$highlight-color: #ff5757;
+
 $dark-blue: #69e;
+
+
+$ui-background: rgba(245, 245, 245, .9);
+$ui-background-dark: darken($ui-background, 3%);
 
 $selectbox-background: rgba(102, 153, 238, .25);
 

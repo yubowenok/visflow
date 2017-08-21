@@ -28,8 +28,8 @@ visflow.EditableList = function(params) {
   /** @private {!Array<string|number>} */
   this.selected_ = params.selected ? params.selected.concat() : [];
 
-  /** @private {string} */
-  this.listTitle_ = params.listTitle ? params.listTitle : '';
+  /** @protected {string} */
+  this.listTitle = params.listTitle ? params.listTitle : '';
 
   /** @private {string} */
   this.addTitle_ = params.addTitle ? params.addTitle : 'Add Item';
@@ -63,7 +63,7 @@ visflow.EditableList.prototype.TEMPLATE_ =
  */
 visflow.EditableList.prototype.init_ = function() {
   this.container_.find('#list #title')
-    .text(this.listTitle_);
+    .text(this.listTitle);
 
   var select2 = this.container_.find('#add').children('select')
     .select2({
@@ -95,7 +95,7 @@ visflow.EditableList.prototype.init_ = function() {
   }.bind(this));
 
   select2.on('change', function() {
-    var id = select2.val();
+    var id = /** @type {string} */(select2.val());
     if (id != '') {
       this.selected_.push(id);
       this.createItems_();
@@ -170,7 +170,7 @@ visflow.EditableList.prototype.sortableChanged_ = function(event, ui) {
   lis.each(function(index, li) {
     var id = $(li).hasClass('ui-sortable-placeholder') ?
       $(ui.item).attr('id') : $(li).attr('id');
-    this.selected_.push(id);
+    this.selected_.push(/** @type {string} */(id));
   }.bind(this));
   visflow.signal(this, 'change', this.selected_.slice());
 };

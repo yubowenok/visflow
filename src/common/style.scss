@@ -1,5 +1,8 @@
 // Z-index list:
-// tooltip - 1001
+// nlp - 1041
+// backdrop - 1040
+// tooltip - 1002
+// tool panel - 1001
 // contextMenu - 1000
 // navbar (menu) - 106
 // message - 105
@@ -9,7 +12,7 @@
 // main selectbox - 100
 // main - 0
 
-@import 'src/common/colors';
+@import 'src/common/common';
 
 body {
   overflow: hidden;
@@ -36,16 +39,6 @@ body {
     position: absolute;
     width: 100%;
     z-index: 0;
-
-    #svg-edges {
-      height: 100%;
-      pointer-events: none;
-      width: 100%;
-
-      path {
-        pointer-events: auto;
-      }
-    }
   }
 
   #selectbox {
@@ -80,4 +73,12 @@ body {
   .text {
     pointer-events: none;
   }
+}
+
+#logo {
+  display: inline-block;
+  margin-right: $margin-large;
+  position: relative;
+  top: -1px;
+  width: 20px;
 }

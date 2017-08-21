@@ -13,6 +13,7 @@ visflow.params.Node;
 
 /**
  * @param {visflow.params.Node} params
+ * @abstract
  * @constructor
  */
 visflow.Node = function(params) {
@@ -69,15 +70,9 @@ visflow.Node = function(params) {
 
   /**
    * Node label.
-   * @protected {string}
+   * @type {string}
    */
-  this.label = this.NODE_NAME + ' (' + this.id + ')';
-
-  /**
-   * Position offset of node options panel.
-   * @protected {null}
-   */
-  this.optionsOffset = null;
+  this.label = this.DEFAULT_LABEL + '-' + this.id;
 
   /**
    * CSS state.
@@ -122,11 +117,17 @@ visflow.Node = function(params) {
    */
   this.backMinimized = false;
 
+  /**
+   * Measure of how actively user is using this node.
+   * @type {number}
+   */
+  this.activeness = 0;
+
   // Extend the options. Default options maybe overwritten by inheriting
   // classes.
   this.options.extend(this.defaultOptions());
 
-  this.container.load(this.COMMON_TEMPLATE_, function() {
+  this.container.load(this.COMMON_TEMPLATE, function() {
     this.container
       .addClass('node details')
       .addClass(this.NODE_CLASS)
@@ -145,7 +146,7 @@ visflow.Node = function(params) {
       this.interaction();
 
       // For callback.
-      $(this).trigger('vf.ready');
+      visflow.signal(this, 'ready');
     }.bind(this);
 
     if (!this.TEMPLATE) {
@@ -197,6 +198,7 @@ visflow.Node.prototype.deserialize = function(save) {
     };
   }
 
+  // Merge saved node options with default options
   _.extend(this.options, save.options);
   this.fillOptions(this.options, this.defaultOptions());
 
@@ -204,6 +206,10 @@ visflow.Node.prototype.deserialize = function(save) {
 
   this.css = save.css;
   this.visCss = save.visCss;
+
+  // Adjust to new smaller node styling.
+  this.css.width = Math.min(this.css.width, this.MAX_WIDTH);
+  this.css.height = Math.min(this.css.height, this.MAX_HEIGHT);
 
   this.container.css(this.css);
 
@@ -324,12 +330,6 @@ visflow.Node.prototype.updateContainer_ = function() {
  * Inheriting classes shall not remove again.
  */
 visflow.Node.prototype.show = function() {
-  //this.content.children().remove();
-
-  if (!this.options.visMode && visflow.flow.visMode) {
-    // do not show if hidden in vis mode
-    return;
-  }
   this.container.show();
 
   this.updateContainer_();
@@ -578,9 +578,10 @@ visflow.Node.prototype.interaction = function() {
  * Prepares the contextMenu of the node.
  */
 visflow.Node.prototype.initContextMenu = function() {
+  var items = this.contextMenuItems();
   this.contextMenu = new visflow.ContextMenu({
     container: this.container,
-    items: this.contextMenuItems()
+    items: items
   });
 
   $(this.contextMenu)
@@ -589,6 +590,7 @@ visflow.Node.prototype.initContextMenu = function() {
     .on('vf.panel', this.panel.bind(this))
     .on('vf.label', this.toggleLabel.bind(this))
     .on('vf.visMode', this.toggleVisMode.bind(this))
+    //.on('vf.flowSense', this.flowSenseInput.bind(this))
     .on('vf.beforeOpen', function(event, menuContainer) {
       var minimize = menuContainer.find('#minimize');
       if (this.options.minimized) {
@@ -600,6 +602,12 @@ visflow.Node.prototype.initContextMenu = function() {
         minimize.children('span:last')
           .text('(M)');
       }
+      items.forEach(function(item) {
+        if (item.bind) {
+          var check = menuContainer.find('#' + item.id).children('.glyphicon');
+          check.toggleClass('glyphicon-ok', this.options[item.bind]);
+        }
+      }, this);
       if (visflow.flow.visMode) {
         minimize.hide();
       }
@@ -622,9 +630,10 @@ visflow.Node.prototype.prepareDimensionList = function(ignoreTypes) {
   var dims = inpack.data.dimensions,
       dimTypes = inpack.data.dimensionTypes;
   var list = [];
-  for (var i in dims) {
-    if (ignoreTypes.indexOf(dimTypes[i]) != -1)
+  for (var i = 0; i < dims.length; i++) {
+    if (ignoreTypes.indexOf(dimTypes[i]) != -1) {
       continue;
+    }
     list.push({
       value: i,
       text: dims[i]
@@ -639,7 +648,7 @@ visflow.Node.prototype.prepareDimensionList = function(ignoreTypes) {
 visflow.Node.prototype.updateEdges = function() {
   for (var key in this.ports) {
     var port = this.ports[key];
-    for (var i in port.connections) {
+    for (var i = 0; i < port.connections.length; i++) {
       var edge = port.connections[i];
       edge.update();
     }
@@ -690,19 +699,19 @@ visflow.Node.prototype.updatePorts = function() {
   var portStep = this.PORT_HEIGHT + this.PORT_GAP;
   var inTopBase = (height - this.inPorts.length * portStep +
       this.PORT_GAP) / 2;
-  for (var i in this.inPorts) {
+  for (var i = 0; i < this.inPorts.length; i++) {
     var port = this.inPorts[i];
     port.container.css('top', inTopBase + i * portStep);
-    for (var j in port.connections) {
+    for (var j = 0; j < port.connections.length; j++) {
       port.connections[j].update();
     }
   }
   var outTopBase = (height - this.outPorts.length * portStep +
       this.PORT_GAP) / 2;
-  for (var i in this.outPorts) {
+  for (var i = 0; i < this.outPorts.length; i++) {
     var port = this.outPorts[i];
     port.container.css('top', outTopBase + i * portStep);
-    for (var j in port.connections) {
+    for (var j = 0; j < port.connections.length; j++) {
       port.connections[j].update();
     }
   }
@@ -737,7 +746,7 @@ visflow.Node.prototype.hide = function() {
  */
 visflow.Node.prototype.firstConnectable = function(port) {
   var ports = port.isInput ? this.outPorts : this.inPorts;
-  for (var i in ports) {
+  for (var i = 0; i < ports.length; i++) {
     var port2 = ports[i];
     if (port2.connectable(port).connectable) {
       return port2;
@@ -839,6 +848,12 @@ visflow.Node.prototype.keyAction = function(key, event) {
     case 'V':
       this.toggleVisMode();
       break;
+    /*
+    case 'S':
+      event.preventDefault(); // Avoid 'S' typed into NLP input.
+      this.flowSenseInput();
+      break;
+    */
   }
 };
 
@@ -914,6 +929,20 @@ visflow.Node.prototype.resize = function() {
 };
 
 /**
+ * Sets the size of the node.
+ * @param {?number=} opt_width
+ * @param {?number=} opt_height
+ */
+visflow.Node.prototype.setSize = function(opt_width, opt_height) {
+  if (opt_width) {
+    this.container.width(opt_width);
+  }
+  if (opt_height) {
+    this.container.height(opt_height);
+  }
+};
+
+/**
  * Handles resize stop event.
  */
 visflow.Node.prototype.resizeStop = function() {
@@ -935,7 +964,7 @@ visflow.Node.prototype.panel = function() {
   }
 
   visflow.optionPanel.setLoadedNode(this);
-  visflow.optionPanel.load(this.COMMON_PANEL_TEMPLATE_, function(container) {
+  visflow.optionPanel.load(this.COMMON_PANEL_TEMPLATE, function(container) {
     this.initPanelHeader(container);
     // Load type specific node panel.
     if (this.PANEL_TEMPLATE != '') {
@@ -1026,7 +1055,7 @@ visflow.Node.prototype.initPanel = function(container) {};
  * }>} units
  */
 visflow.Node.prototype.initInterface = function(units) {
-  var preventAltedOpen = function(event) {
+  var preventAltedOpen = function() {
     if (visflow.interaction.isAlted()) {
       // When alt-ed, do not show list.
       return false;
@@ -1085,14 +1114,15 @@ visflow.Node.prototype.removeEdges = function() {
     var port = this.ports[key];
     var connections = port.connections.slice();
     // cannot use port.connections, because the length is changing
-    for (var i in connections) {
+    for (var i = 0; i < connections.length; i++) {
       visflow.flow.deleteEdge(connections[i]);
     }
   }
 };
 
 /**
- * Gets the list of dimensions used for select2.
+ * Gets the list of dimensions from the input data.
+ * This is used for select2 input.
  * @param {(visflow.Data|visflow.TabularData)=} opt_data
  * @param {boolean=} opt_addIndex
  * @return {!Array<{id: number, text: string}>}
@@ -1115,6 +1145,14 @@ visflow.Node.prototype.getDimensionList = function(opt_data, opt_addIndex) {
 };
 
 /**
+ * Gets the list of dimensions names the input data.
+ * @return {!Array<string>}
+ */
+visflow.Node.prototype.getDimensionNames = function() {
+  return this.ports['in'].pack.data.dimensions;
+};
+
+/**
  * Gets the port with the given id.
  * @param {string} id
  * @return {!(visflow.Port|visflow.MultiplePort|visflow.SelectionPort)}
@@ -1124,11 +1162,111 @@ visflow.Node.prototype.getPort = function(id) {
 };
 
 /**
+ * Gets input data.
+ * @return {!Array<visflow.Data>}
+ */
+visflow.Node.prototype.getInputData = function() {
+  var data = [];
+  for (var id in this.ports) {
+    var port = this.ports[id];
+    if (port.isInput && !port.isConstants) {
+      data.push(port.pack.data);
+    }
+  }
+  return data;
+};
+
+/**
  * Gets the container of the node.
  * @return {!jQuery}
  */
 visflow.Node.prototype.getContainer = function() {
   return this.container;
+};
+
+/**
+ * Gets the location of the node (top, left).
+ * @return {{left: number, top: number}}
+ */
+visflow.Node.prototype.getCenter = function() {
+  var offset = visflow.utils.offsetMain(this.container);
+  var size = this.getSize();
+  return {
+    left: offset.left + size.width / 2,
+    top: offset.top + size.height / 2
+  };
+};
+
+/**
+ * Gets the size of the node container.
+ * @return {{width: number, height: number}}
+ */
+visflow.Node.prototype.getSize = function() {
+  var w = /** @type {number} */(this.container.outerWidth());
+  var h = /** @type {number} */(this.container.outerHeight());
+  return {width: w, height: h};
+};
+
+/**
+ * Gets the bounding box of the node container.
+ * @return {{left: number, top: number, width: number, height: number}}
+ */
+visflow.Node.prototype.getBoundingBox = function() {
+  var offset = this.container.position();
+  var size = this.getSize();
+  return {
+    left: offset.left,
+    top: offset.top,
+    width: size.width,
+    height: size.height
+  };
+};
+
+/**
+ * Moves the node to a given position.
+ * @param {number} left
+ * @param {number} top
+ */
+visflow.Node.prototype.moveTo = function(left, top) {
+  this.container.css({left: left, top: top});
+  this.updatePorts(); // Must redraw connections.
+};
+
+/**
+ * Moves the node to a given position with transition.
+ * @param {number} left
+ * @param {number} top
+ * @param {number=} opt_duration Transition duration
+ */
+visflow.Node.prototype.moveToWithTransition = function(left, top,
+                                                       opt_duration) {
+  var duration = opt_duration !== undefined ?
+    opt_duration : visflow.const.DEFAULT_TRANSITION_DURATION;
+  this.container.animate({
+    left: left,
+    top: top
+  }, {
+    duration: duration,
+    step: function() {
+      this.updatePorts();
+    }.bind(this)
+  });
+};
+
+/**
+ * Gets the input data port.
+ * @return {!visflow.Port}
+ */
+visflow.Node.prototype.getDataInPort = function() {
+  return this.getPort('in');
+};
+
+/**
+ * Gets the output data port.
+ * @return {!visflow.Port}
+ */
+visflow.Node.prototype.getDataOutPort = function() {
+  return this.getPort('out');
 };
 
 /**
@@ -1146,4 +1284,142 @@ visflow.Node.prototype.getOption = function(key) {
  */
 visflow.Node.prototype.getClass = function() {
   return this.NODE_CLASS;
+};
+
+/**
+ * Gets the node's data.
+ * @return {!visflow.Data}
+ */
+visflow.Node.prototype.getData = function() {
+  return this.getDataOutPort().pack.data;
+};
+
+/**
+ * Checks if the node's type matches the desired string.
+ * @param {string} desired
+ * @return {boolean}
+ */
+visflow.Node.prototype.matchType = function(desired) {
+  var nodeClass = this.NODE_CLASS.toLowerCase().replace(/[\s-]+/g, '');
+  desired = desired.toLowerCase().replace(/[\s-]+/g, '');
+  return nodeClass == desired;
+};
+
+/**
+ * Checks if the node's label matches the desired string.
+ * @param {string} desired
+ * @return {boolean}
+ */
+visflow.Node.prototype.matchLabel = function(desired) {
+  var nodeLabel = this.label.toLowerCase().replace(/[\s-]+/g, '');
+  desired = desired.toLowerCase().replace(/[\s-]+/g, '');
+  return nodeLabel == desired;
+};
+
+/**
+ * Sets the selected state of the node. When selected, the node animates a
+ * selected effect.
+ * @param {boolean} state
+ */
+visflow.Node.prototype.toggleSelected = function(state) {
+  var background = this.container.children('.background');
+  this.container.toggleClass('selected', state);
+  if (state) {
+    var darkCss = {boxShadow: '1px 1px 24px #aaa'};
+    var lightCss = {boxShadow: '1px 1px 2px #aaa'};
+    var darker = function() {
+      background.animate(darkCss, lighter);
+    };
+    var lighter = function() {
+      background.animate(lightCss, darker);
+    };
+    background.animate(darkCss, lighter);
+  } else {
+    background
+      .css('box-shadow', '')
+      .stop(true);
+  }
+};
+
+/**
+ * Accepts FlowSense input.
+ */
+visflow.Node.prototype.flowSenseInput = function() {
+  visflow.nlp.input(this);
+};
+
+/**
+ * Shows animation towards the node's VisMode on state.
+ */
+visflow.Node.prototype.animateToVisModeOn = function() {
+  this.container.stop(true, true);
+  this.saveCss();
+
+  if (this.options.visMode) {
+    this.container
+      .animate(this.visCss, visflow.const.VISMODE_TRANSITION_DURATION,
+        function() {
+          if (this.options.minimized) {
+            this.backMinimized = true;
+            this.setMinimized(false); // here include show
+          } else {
+            this.show();
+          }
+        }.bind(this));
+  } else {
+    this.container
+      .css('pointer-events', 'none')
+      .animate({opacity: 0}, visflow.const.VISMODE_TRANSITION_DURATION,
+        this.hide.bind(this));
+  }
+};
+
+/**
+ * Shows animation towards the node's VisMode off state.
+ */
+visflow.Node.prototype.animateToVisModeOff = function() {
+  this.container.stop(true, true);
+  this.saveCss();
+
+  if (this.options.visMode) {
+    var css = this.css;
+    if (this.backMinimized) {
+      this.backMinimized = false;
+      this.setMinimized(true);
+      css = _.pick(this.css, 'left', 'top');
+    }
+    this.container
+      .animate(css, visflow.const.VISMODE_TRANSITION_DURATION,
+        this.show.bind(this));
+  } else {
+    this.container
+      .css('pointer-events', 'auto')
+      .animate({opacity: 1}, visflow.const.VISMODE_TRANSITION_DURATION,
+        this.show.bind(this));
+  }
+};
+
+/**
+ * Returns the distance from the center of the node to the mouse position.
+ * @return {number}
+ */
+visflow.Node.prototype.distanceToMouse = function() {
+  var center = this.getCenter();
+  return visflow.vectors.vectorDistance([center.left, center.top],
+    [visflow.interaction.mouseX, visflow.interaction.mouseY]);
+};
+
+/**
+ * Computes the focus score for the node.
+ * @return {number}
+ */
+visflow.Node.prototype.focusScore = function() {
+  var d = this.distanceToMouse() / visflow.Node.FOCUS_GAMMA;
+
+  // dFactor is the flipped & shifted sigmoid function
+  // 1 - 1 / (1 + e^-(d/gamma - beta))
+  var dFactor = (1.0 - 1.0 /
+  (1 + Math.exp(-(d - visflow.Node.FOCUS_BETA))));
+
+  return this.activeness + visflow.Node.FOCUS_ALPHA * dFactor;
 };

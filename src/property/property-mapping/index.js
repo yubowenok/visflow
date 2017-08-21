@@ -25,43 +25,24 @@ visflow.PropertyMapping = function(params) {
       isConstants: false
     })
   };
-
-  /**
-   * Dimension to be mapped.
-   * @protected {number}
-   */
-  this.dim = 0;
 };
 
 _.inherit(visflow.PropertyMapping, visflow.Property);
 
 /** @inheritDoc */
-visflow.PropertyMapping.prototype.serialize = function() {
-  var result = visflow.PropertyMapping.base.serialize.call(this);
-
-  result.dim = this.dim;
-  result.mapping = this.mapping;
-  result.colorScaleId = this.colorScaleId;
-  return result;
-};
-
-/** @inheritDoc */
 visflow.PropertyMapping.prototype.deserialize = function(save) {
   visflow.PropertyMapping.base.deserialize.call(this, save);
 
-  this.dim = save.dim;
-
-  if (this.dim == null) {
-    visflow.warning('dim not saved in', this.label);
-    this.dim = 0;
+  if (this.options.dim == null) {
+    // Read from old save on save.dim.
+    this.options.dim = save.dim || 0;
   }
   if (this.options.mapping == null) {
     visflow.warning('mapping not saved in', this.label);
     this.options.mapping = 'color';
   }
   if (this.options.colorScaleId == null) {
-    visflow.warning('colorScaleId not saved in', this.label);
-    this.options.colorScaleId = 'redGreen';
+    this.options.colorScaleId = save.colorScaleId || 'redGreen';
   }
 };
 
@@ -69,9 +50,9 @@ visflow.PropertyMapping.prototype.deserialize = function(save) {
  * Shows a user editable scale for color or number.
  * @param {!jQuery} scaleDiv
  * @param {string} source 'panel' or 'node'.
- * @private
+ * @protected
  */
-visflow.PropertyMapping.prototype.showEditableScale_ = function(scaleDiv,
+visflow.PropertyMapping.prototype.showEditableScale = function(scaleDiv,
                                                                 source) {
   var mappingType = visflow.property.MAPPING_TYPES[this.options.mapping];
   scaleDiv.children('*').hide();
@@ -127,12 +108,12 @@ visflow.PropertyMapping.prototype.showDetails = function() {
       params: {
         container: this.content.find('#dim'),
         list: this.getDimensionList(),
-        selected: this.dim,
+        selected: this.options.dim,
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
       },
       change: function(event, dim) {
-        this.dim = dim;
+        this.options.dim = dim;
         this.parameterChanged('node');
       }
     },
@@ -145,7 +126,7 @@ visflow.PropertyMapping.prototype.showDetails = function() {
       },
       change: function(event, mapping) {
         this.options.mapping = mapping;
-        this.showEditableScale_(this.content.find('#scale'), 'node');
+        this.showEditableScale(this.content.find('#scale'), 'node');
         this.parameterChanged('node');
       }
     }
@@ -153,7 +134,9 @@ visflow.PropertyMapping.prototype.showDetails = function() {
 
   this.initInterface(units);
 
-  this.showEditableScale_(this.content.find('#scale'), 'node');
+  this.showEditableScale(this.content.find('#scale'), 'node');
+
+  this.updateSize_();
 };
 
 /** @inheritDoc */
@@ -166,14 +149,13 @@ visflow.PropertyMapping.prototype.process = function() {
 
   var mappingType = visflow.property.MAPPING_TYPES[this.options.mapping];
 
-  var dataScale = visflow.scales.getScale(data, this.dim, items, [0, 1], {
-    ordinalRange: true
-  }).scale;
+  var dataScale = visflow.scales.getScale(data, this.options.dim, items, [0, 1],
+    {ordinalRange: true}).scale;
   var propScale;
   if (mappingType == 'color') {
     propScale = visflow.scales[this.options.colorScaleId].scale;
   } else if (mappingType == 'number') {
-    propScale = d3.scale.linear()
+    propScale = d3.scaleLinear()
       .domain([0, 1])
       .range(this.options.numberRange);
   }
@@ -181,8 +163,9 @@ visflow.PropertyMapping.prototype.process = function() {
   var isOrdinal = visflow.scales[this.options.colorScaleId].isOrdinal;
 
   var newItems = {};
-  for (var index in inpack.items) {
-    var value = data.values[index][this.dim];
+  for (var itemIndex in inpack.items) {
+    var index = +itemIndex;
+    var value = data.values[index][this.options.dim];
     var mappedDataValue;
     if (isOrdinal) {
       value = visflow.utils.hashString('' + value);
@@ -226,10 +209,46 @@ visflow.PropertyMapping.prototype.parameterChanged = function(source) {
   this.pushflow();
   // If number range is adjusted, we need to redraw both node and panel as the
   // inputs may be out-of-date.
-  if (adjusted || source == 'panel') {
+  if (adjusted || source != 'node') {
     this.show();
   }
-  if (adjusted || source == 'node') {
+  if (adjusted || source != 'panel') {
     this.updatePanel(visflow.optionPanel.contentContainer());
+    this.updateSize_();
   }
 };
+
+/**
+ * Updates the node size based on the current interface shown (with or without
+ * color scale).
+ * @private
+ */
+visflow.PropertyMapping.prototype.updateSize_ = function() {
+  if (visflow.property.isColorProperty(this.options.mapping)) {
+    this.setSize(null, this.HEIGHT_COLORSCALE);
+  } else {
+    this.setSize(null, this.HEIGHT_NUMSCALE);
+  }
+};
+
+/**
+ * Sets a mapping from the selected dimension to a mapping scheme.
+ * @param {number} dim
+ * @param {string} property
+ * @param {number|string|!Array<number>} value
+ *     If value is an array
+ */
+visflow.PropertyMapping.prototype.setMapping = function(dim, property, value) {
+  this.options.dim = dim;
+  this.options.mapping = property;
+  console.log(dim, property, value);
+  if (value instanceof Array) {
+    // numerical mapping
+    this.options.numberRange = value;
+  } else {
+    // color mapping
+    this.options.colorScaleId = value;
+  }
+  this.parameterChanged('external');
+};
+

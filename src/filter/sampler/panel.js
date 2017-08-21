@@ -18,6 +18,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
           this.NO_DATA_STRING : null
       },
       change: function(event, dim) {
+        console.log(dim);
         this.options.groupBy = dim;
         this.parameterChanged();
       }
@@ -43,7 +44,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
       constructor: visflow.Select,
       params: {
         container: container.find('#condition'),
-        list: this.conditions_(),
+        list: this.conditions(),
         selected: this.options.condition,
         listTitle: 'Condition'
       },
@@ -57,7 +58,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
       constructor: visflow.Select,
       params: {
         container: container.find('#mode'),
-        list: this.modes_(),
+        list: this.modes(),
         selected: this.options.mode,
         listTitle: 'Mode'
       },

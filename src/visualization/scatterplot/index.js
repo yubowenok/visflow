@@ -11,10 +11,10 @@ visflow.Scatterplot = function(params) {
   visflow.Scatterplot.base.constructor.call(this, params);
 
   // Rendering scales.
-  /** @type {!d3.scale} */
-  this.xScale = d3.scale.linear();
-  /** @type {!d3.scale} */
-  this.yScale = d3.scale.linear();
+  /** @type {d3.Scale} */
+  this.xScale = d3.scaleLinear();
+  /** @type {d3.Scale} */
+  this.yScale = d3.scaleLinear();
 
   /** @type {visflow.ScaleType} */
   this.xScaleType = visflow.ScaleType.UNKNOWN;
@@ -26,18 +26,6 @@ visflow.Scatterplot = function(params) {
    * @private {d3|undefined}
    */
   this.svgPoints_ = undefined;
-
-  /**
-   * @private {visflow.Margins}
-   */
-  this.margins_ = {
-    // Left margin computed based on the y Axis labels.
-    left: 0,
-    // Bottom margin that depends on xTicks.
-    bottom: 0,
-    right: 0,
-    top: 0
-  };
 
   /**
    * Rendering properties for points.
@@ -85,7 +73,8 @@ visflow.Scatterplot.prototype.selectItemsInBox_ = function() {
   var inpack = this.ports['in'].pack;
   var items = inpack.items;
   var values = inpack.data.values;
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var point = {
       x: this.xScale(values[index][this.options.xDim]),
       y: this.yScale(values[index][this.options.yDim])
@@ -119,7 +108,7 @@ visflow.Scatterplot.prototype.showSelection = function() {
  * @private
  */
 visflow.Scatterplot.prototype.updateBottomMargin_ = function() {
-  this.margins_.bottom = this.plotMargins().bottom +
+  this.margins.bottom = this.plotMargins().bottom +
     (this.options.xTicks ? this.TICKS_HEIGHT : 0);
 };
 
@@ -132,7 +121,7 @@ visflow.Scatterplot.prototype.updateLeftMargin_ = function() {
   if (tempShow) {
     this.content.show();
   }
-  this.margins_.left = this.plotMargins().left;
+  this.margins.left = this.plotMargins().left;
   if (this.options.yTicks) {
     this.drawYAxis_();
     var maxLength = 0;
@@ -145,7 +134,7 @@ visflow.Scatterplot.prototype.updateLeftMargin_ = function() {
     if (maxLength == 0) {
       maxLength = 0;
     }
-    this.margins_.left += maxLength;
+    this.margins.left += maxLength;
   }
   if (tempShow) {
     this.content.hide();
@@ -162,7 +151,8 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
   var values = inpack.data.values;
   var items = inpack.items;
   var itemProps = [];
-  for (var index in items) {
+  for (var itemIndex in items) {
+    var index = +itemIndex;
     var prop = _.extend(
       {},
       this.defaultProperties(),
@@ -194,11 +184,12 @@ visflow.Scatterplot.prototype.getItemProperties_ = function() {
 visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
   var points = this.svgPoints_.selectAll('circle')
     .data(itemProps, _.getValue('index'));
-  points.enter().append('circle')
-    .attr('id', _.getValue('index'));
+
   _.fadeOut(points.exit());
 
-  points
+  points = points.enter().append('circle')
+    .attr('id', _.getValue('index'))
+    .merge(points)
     .attr('bound', _.getValue('bound'))
     .attr('selected', _.getValue('selected'));
 
@@ -210,10 +201,10 @@ visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
     .attr('cy', function(point) {
       return this.yScale(point.y);
     }.bind(this))
-    .attr('r', _.getValue('size'))
+    .attr('r', _.getValue('size', 'px'))
     .style('fill', _.getValue('color'))
     .style('stroke', _.getValue('border'))
-    .style('stroke-width', _.getValue('width'))
+    .style('stroke-width', _.getValue('width', 'px'))
     .style('opacity', _.getValue('opacity'));
 };
 
@@ -234,7 +225,7 @@ visflow.Scatterplot.prototype.drawXAxis_ = function() {
     noTicks: !this.options.xTicks,
     transform: visflow.utils.getTransform([
       0,
-      svgSize.height - this.margins_.bottom
+      svgSize.height - this.margins.bottom
     ]),
     label: {
       text: data.dimensions[this.options.xDim],
@@ -261,14 +252,14 @@ visflow.Scatterplot.prototype.drawYAxis_ = function() {
     ticks: this.DEFAULT_TICKS,
     noTicks: !this.options.yTicks,
     transform: visflow.utils.getTransform([
-      this.margins_.left,
+      this.margins.left,
       0
     ]),
     label: {
       text: data.dimensions[this.options.yDim],
       transform: visflow.utils.getTransform([
         this.LABEL_OFFSET,
-        this.plotMargins().top
+        this.margins.top
       ], 1, 90)
     }
   });
@@ -288,16 +279,17 @@ visflow.Scatterplot.prototype.drawAxes_ = function() {
  */
 visflow.Scatterplot.prototype.prepareScales = function() {
   var inpack = this.ports['in'].pack;
-  var items = inpack.items,
-      data = inpack.data;
-  var margins = this.plotMargins();
+  var items = inpack.items;
+  var data = inpack.data;
+
+  this.margins = this.plotMargins();
 
   this.updateBottomMargin_();
 
   var svgSize = this.getSVGSize();
   var yRange = [
-    svgSize.height - this.margins_.bottom,
-    margins.top
+    svgSize.height - this.margins.bottom,
+    this.margins.top
   ];
   var yScaleInfo = visflow.scales.getScale(data, this.options.yDim, items,
     yRange, {
@@ -313,8 +305,8 @@ visflow.Scatterplot.prototype.prepareScales = function() {
   this.updateLeftMargin_();
 
   var xRange = [
-    this.margins_.left,
-    svgSize.width - margins.right
+    this.margins.left,
+    svgSize.width - this.margins.right
   ];
   var xScaleInfo = visflow.scales.getScale(data, this.options.xDim, items,
     xRange, {
@@ -339,7 +331,7 @@ visflow.Scatterplot.prototype.transitionFeasible = function() {
 visflow.Scatterplot.prototype.findPlotDimensions = function() {
   var data = this.ports['in'].pack.data;
   var chosen = [];
-  for (var i in data.dimensionTypes) {
+  for (var i = 0; i < data.dimensionTypes.length; i++) {
     if (data.dimensionTypes[i] != visflow.ValueType.STRING) {
       chosen.push(i);
     }
@@ -351,6 +343,44 @@ visflow.Scatterplot.prototype.findPlotDimensions = function() {
     x: chosen[0] == null ? 0 : chosen[0],
     y: chosen[1] == null ? 0 : chosen[1]
   };
+};
+
+/**
+ * Sets the X dimension of the scatterplot.
+ * @param {string} dim
+ */
+visflow.Scatterplot.prototype.setXDimension = function(dim) {
+  var data = this.ports['in'].pack.data;
+  this.options.xDim = data.dimensions.indexOf(dim);
+  this.dimensionChanged();
+};
+
+/**
+ * Sets the Y dimension of the scatterplot.
+ * @param {string} dim
+ */
+visflow.Scatterplot.prototype.setYDimension = function(dim) {
+  var data = this.ports['in'].pack.data;
+  this.options.yDim = data.dimensions.indexOf(dim);
+  this.dimensionChanged();
+};
+
+/** @inheritDoc */
+visflow.Scatterplot.prototype.setDimensions = function(dims) {
+  var dimensions = this.getDimensionNames();
+  if (dims.length >= 1) {
+    // If the plot already presents the dim, we swap the current xDim and yDim.
+    var newDim = dimensions.indexOf(dims[0]);
+    if (this.options.yDim == newDim) {
+      this.options.yDim = this.options.xDim;
+    }
+    this.options.xDim = newDim;
+  }
+  if (dims.length >= 2) {
+    // Setting 2 dimensions is not ambiguous.
+    this.options.yDim = dimensions.indexOf(dims[1]);
+  }
+  this.dimensionChanged();
 };
 
 /** @inheritDoc */
@@ -371,4 +401,9 @@ visflow.Scatterplot.prototype.inputChanged = function() {
 visflow.Scatterplot.prototype.dimensionChanged = function() {
   this.itemProps_ = this.getItemProperties_();
   visflow.Scatterplot.base.dimensionChanged.call(this);
+};
+
+/** @inheritDoc */
+visflow.Scatterplot.prototype.selectedChanged = function() {
+  this.itemProps_ = this.getItemProperties_();
 };

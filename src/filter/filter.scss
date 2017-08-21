@@ -1,6 +1,8 @@
+@import 'src/common/common';
+
 .visflow .node.filter {
   &.details {
-    height: 95px;
+    height: 65px + 2 * $padding;
 
     #dim {
       overflow: hidden;
@@ -11,7 +13,6 @@
     }
 
     .content > div {
-      margin-bottom: 3px;
       margin-top: 3px;
     }
   }

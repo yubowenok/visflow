@@ -5,6 +5,7 @@
 /**
  * @param {!Object} params
  * @constructor
+ * @abstract
  * @extends {visflow.Node}
  */
 visflow.Visualization = function(params) {
@@ -44,7 +45,7 @@ visflow.Visualization = function(params) {
 
   /**
    * Selected data items.
-   * @protected {!Object<boolean>}
+   * @protected {!Object<number, boolean>}
    */
   this.selected = {};
 
@@ -59,6 +60,12 @@ visflow.Visualization = function(params) {
    * @protected {string}
    */
   this.lastDataId = visflow.data.EMPTY_DATA_ID;
+
+  /**
+   * Margins of the plot in the four directions.
+   * @protected {visflow.Margins}
+   */
+  this.margins = this.plotMargins();
 
   /**
    * Whether rendering should be using transition. When the view is resized,
@@ -132,7 +139,7 @@ visflow.Visualization.prototype.isDataEmpty = function() {
 visflow.Visualization.prototype.checkDataEmpty = function() {
   if (this.isDataEmpty()) {
     // otherwise scales may be undefined
-    this.showMessage('empty data in ' + this.NODE_NAME);
+    this.showMessage('empty data');
     this.content.hide();
     return true;
   } else {
@@ -214,7 +221,8 @@ visflow.Visualization.prototype.processSelection = function() {
  */
 visflow.Visualization.prototype.validateSelection = function() {
   var inpack = this.ports['in'].pack;
-  for (var index in this.selected) {
+  for (var itemIndex in this.selected) {
+    var index = +itemIndex;
     if (inpack.items[index] == null) {
       delete this.selected[index];
     }
@@ -394,13 +402,23 @@ visflow.Visualization.prototype.selectItems = function() {
 };
 
 /**
+ * Selects the given items.
+ * @param {!Object<number, boolean>} items
+ */
+visflow.Visualization.prototype.select = function(items) {
+  this.selected = items;
+  this.selectedChanged();
+  this.show();
+  this.pushflow();
+};
+
+/**
  * Renders the selection range as lasso stroke.
  */
 visflow.Visualization.prototype.drawLasso = function() {
-  var line = d3.svg.line()
+  var line = d3.line()
     .x(_.getValue('x'))
-    .y(_.getValue('y'))
-    .interpolate('linear');
+    .y(_.getValue('y'));
   this.svg.append('path')
     .classed('lasso', true)
     .attr('d', line(this.brushPoints));
@@ -458,6 +476,7 @@ visflow.Visualization.prototype.getSelectBox = function(opt_ignoreEmpty) {
 visflow.Visualization.prototype.selectAll = function() {
   var items = this.ports['in'].pack.items;
   this.selected = _.keySet(items);
+  this.selectedChanged();
   this.show();
   this.pushflow();
 };
@@ -467,6 +486,7 @@ visflow.Visualization.prototype.selectAll = function() {
  */
 visflow.Visualization.prototype.clearSelection = function() {
   this.selected = {};
+  this.selectedChanged();
   this.show();
   this.pushflow();
 };
@@ -475,7 +495,7 @@ visflow.Visualization.prototype.clearSelection = function() {
  * Renders an axis label.
  * @param {{
  *   svg: !d3,
- *   scale: !d3.scale,
+ *   scale: d3.Scale,
  *   scaleType: visflow.ScaleType,
  *   classes: string,
  *   orient: string,
@@ -490,16 +510,24 @@ visflow.Visualization.prototype.clearSelection = function() {
  */
 visflow.Visualization.prototype.drawAxis = function(params) {
   var svg = params.svg;
-  var axis = d3.svg.axis()
-    .orient(params.orient)
-    .ticks(params.ticks)
-    .tickFormat(function(value) {
-      if (params.scaleType == visflow.ScaleType.TIME) {
-        return moment(new Date(value)).format(this.TIME_FORMAT);
-      } else {
-        return value;
-      }
-    }.bind(this));
+  var axis;
+  switch (params.orient) {
+    case 'top':
+      axis = d3.axisTop();
+      break;
+    case 'bottom':
+      axis = d3.axisBottom();
+      break;
+    case 'left':
+      axis = d3.axisLeft();
+      break;
+    case 'right':
+      axis = d3.axisRight();
+      break;
+    default:
+      console.error('unknown axis orient');
+  }
+  axis.ticks(params.ticks);
   if (params.noTicks) {
     axis.tickValues([]);
   }
@@ -574,9 +602,13 @@ visflow.Visualization.prototype.dataChanged = function() {};
 
 /**
  * Finds reasonable dimensions to show.
- * @return {*}
+ * @return {!Array<number>|!Object}
+ *   Usually this should return an array of dimension indices. Yet some plots
+ *   may return a compound dimension info object.
  */
-visflow.Visualization.prototype.findPlotDimensions = function() {};
+visflow.Visualization.prototype.findPlotDimensions = function() {
+  return [];
+};
 
 /**
  * Checks if transition should be applied.
@@ -601,4 +633,29 @@ visflow.Visualization.prototype.layoutChanged = function() {
 visflow.Visualization.prototype.dimensionChanged = function() {
   this.prepareScales();
   this.show();
+};
+
+/**
+ * Handles selection changes from shortcuts (selectAll and clearSelection).
+ */
+visflow.Visualization.prototype.selectedChanged = function() {};
+
+/**
+ * Sets the dimensions to be visualized.
+ * @param {!Array<string>} dims
+ */
+visflow.Visualization.prototype.setDimensions = function(dims) {
+  var dimensions = this.getDimensionNames();
+  this.options.dims = dims.map(function(name) {
+    return dimensions.indexOf(name);
+  });
+  this.dimensionChanged();
+};
+
+/**
+ * Gets the data selection output port.
+ * @return {!visflow.Port}
+ */
+visflow.Visualization.prototype.getSelectionOutPort = function() {
+  return this.getPort('outs');
 };

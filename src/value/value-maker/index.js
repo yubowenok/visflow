@@ -34,7 +34,7 @@ visflow.ValueMaker = function(params) {
   this.ports['out'].pack = this.value;
 };
 
-_.inherit(visflow.ValueMaker, visflow.Node);
+_.inherit(visflow.ValueMaker, visflow.Value);
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.serialize = function() {

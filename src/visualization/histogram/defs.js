@@ -2,21 +2,19 @@
  * @fileoverview Histogram defs.
  */
 
-/** @inheritDoc */
-visflow.Histogram.prototype.NODE_CLASS = 'histogram';
 
 /** @inheritDoc */
-visflow.Histogram.prototype.NODE_NAME = 'Histogram';
+visflow.Histogram.prototype.NODE_CLASS = 'histogram';
 
 /** @inheritDoc */
 visflow.Histogram.prototype.PANEL_TEMPLATE =
   './dist/html/visualization/histogram/histogram-panel.html';
 
-/** @private @const {number} */
-visflow.Histogram.prototype.Y_MARGIN_ = 0.1;
+/** @const {number} */
+visflow.Histogram.Y_MARGIN = 0.1;
 
-/** @private @const {number} */
-visflow.Histogram.prototype.BAR_INTERVAL_ = 1;
+/** @const {number} */
+visflow.Histogram.BAR_INTERVAL = 1;
 
 /** @inheritDoc */
 visflow.Histogram.prototype.defaultOptions = function() {
@@ -24,16 +22,6 @@ visflow.Histogram.prototype.defaultOptions = function() {
     // Number of histogram bins.
     numBins: 10
   });
-};
-
-/** @inheritDoc */
-visflow.Histogram.prototype.plotMargins = function() {
-  return {
-    left: 25,
-    right: 10,
-    top: 10,
-    bottom: 20
-  };
 };
 
 /** @inheritDoc */
@@ -48,7 +36,7 @@ visflow.Histogram.prototype.defaultProperties = function() {
 visflow.Histogram.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee',
+    border: visflow.const.SELECTED_COLOR,
     width: 1.5
   };
 };

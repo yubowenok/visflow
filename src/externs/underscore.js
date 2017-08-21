@@ -19,15 +19,22 @@ _.keySet = function(array) {};
 
 /**
  * @param {string} attr
+ * @param {string=} opt_suffix
  * @return {function(!d3, *): *}
  */
-_.getValue = function(attr) {};
+_.getValue = function(attr, opt_suffix) {};
 
 
 /**
  * @param {!d3} arg
  */
 _.fadeOut = function(arg) {};
+
+/**
+ * @param {!Array} arr
+ * @param {number=} opt_count
+ */
+_.popFront = function(arr, opt_count) {};
 
 /**
  * @param {Function} arg1

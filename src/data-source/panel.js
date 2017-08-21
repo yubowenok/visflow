@@ -4,80 +4,80 @@
 
 /** @inheritDoc */
 visflow.DataSource.prototype.initPanel = function(container) {
-  container.find('#add-data').click(this.loadDataDialog_.bind(this));
-  container.find('#clear-data').click(this.clearData_.bind(this));
+  container.find('#add-data').click(this.loadDataDialog.bind(this));
+  container.find('#clear-data').click(this.clearData.bind(this));
 
-  this.createPanelDataList_(container);
+  this.createPanelDataList(container);
 
-  var dimensionList = this.rawData_[0] != null ?
-    this.getDimensionList(this.rawData_[0], true) : [];
+  var dimensionList = this.rawData[0] != null ?
+    this.getDimensionList(this.rawData[0], true) : [];
 
   var units = [
     {
       constructor: visflow.Checkbox,
       params: {
-        container: container.find('#crossing'),
-        value: this.options.crossing,
-        title: 'Crossing'
+        container: container.find('#transpose'),
+        value: this.options.transpose,
+        title: 'Transpose'
       },
       change: function(event, value) {
-        this.options.crossing = value;
-        this.updateCrossing_();
+        this.options.transpose = value;
+        this.updateTranspose_();
       }
     },
     {
       constructor: visflow.EditableList,
       params: {
-        container: container.find('#crossing-keys'),
+        container: container.find('#transpose-keys'),
         list: dimensionList,
         listTitle: 'Key(s)',
         addTitle: 'Add Dimension',
-        selected: this.options.crossingKeys,
+        selected: this.options.transposeKeys,
         allowClear: false
       },
       change: function(event, dims) {
-        this.options.crossingKeys = dims;
-        if (this.options.crossing) {
-          this.updateCrossing_();
+        this.options.transposeKeys = dims;
+        if (this.options.transpose) {
+          this.updateTranspose_();
         }
       }
     },
     {
       constructor: visflow.EditableList,
       params: {
-        container: container.find('#crossing-attrs'),
+        container: container.find('#transpose-attrs'),
         list: dimensionList,
         listTitle: 'Attributes',
         addTitle: 'Add Attribute',
-        selected: this.options.crossingAttrs,
+        selected: this.options.transposeAttrs,
         allowClear: true
       },
       change: function(event, attrs) {
-        this.options.crossingAttrs = attrs;
-        this.validateCrossingAttributes_();
-        if (this.options.crossing) {
-          this.updateCrossing_();
+        this.options.transposeAttrs = attrs;
+        this.validateTransposeAttributes_();
+        if (this.options.transpose) {
+          this.updateTranspose_();
         }
       }
     },
     {
       constructor: visflow.Input,
       params: {
-        container: container.find('#crossing-name'),
-        value: this.options.crossingName,
+        container: container.find('#transpose-name'),
+        value: this.options.transposeName,
         title: 'Attribute Column Name'
       },
       change: function(event, value) {
-        this.options.crossingName = value;
-        if (this.options.crossing) {
-          this.updateCrossing_();
+        this.options.transposeName = value;
+        if (this.options.transpose) {
+          this.updateTranspose_();
         }
       }
     }
   ];
   this.initInterface(units);
-  if (!this.options.crossing) {
-    container.find('#crossing-section').hide();
+  if (!this.options.transpose) {
+    container.find('#transpose-section').hide();
   }
 };
 
@@ -85,15 +85,14 @@ visflow.DataSource.prototype.initPanel = function(container) {
 /**
  * Creates a data list in the panel according to the currently loaded data.
  * @param {!jQuery} container
- * @private
  */
-visflow.DataSource.prototype.createPanelDataList_ = function(container) {
+visflow.DataSource.prototype.createPanelDataList = function(container) {
   var ul = container.find('#data-list ul');
   var template = container.find('#data-template');
   ul.children('li').remove();
 
   var hasData = false;
-  this.rawData_.forEach(function(rawData, dataIndex) {
+  this.rawData.forEach(function(rawData, dataIndex) {
     if (rawData == null) {
       return;
     }
@@ -103,7 +102,7 @@ visflow.DataSource.prototype.createPanelDataList_ = function(container) {
       .show()
       .appendTo(ul);
     li.children('.close').click(function() {
-      this.deleteData_(dataIndex);
+      this.deleteData(dataIndex);
       li.remove();
     }.bind(this));
 

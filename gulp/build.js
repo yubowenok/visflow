@@ -6,7 +6,8 @@ var runSequence = require('run-sequence');
 gulp.task('build', function(cb) {
   runSequence(
     'dist',
-    ['copy', 'sass', 'compile'],
+    'compile',
+    ['copy', 'css'],
     cb);
 });
 
@@ -15,17 +16,14 @@ gulp.task('build-dev', function(cb) {
   runSequence(
     'dist',
     'compile-dev',
-    [
-      'copy',
-      'sass-dev'
-    ],
+    ['copy', 'css-dev'],
     cb);
 });
 
 // Build doc.
 gulp.task('build-doc', function(cb) {
   runSequence(
-    'sass-doc',
+    'css-doc',
     'copy-doc',
     cb);
 });

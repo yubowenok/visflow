@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>VisFlow</title>
   <meta name="description" content="VisFlow is a web-based visualization framework for tabular data with a subset flow model.">
-  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="shortcut icon" type="image/x-icon" href="./logo.png">
 
   <!-- npm components -->
   <!-- jquery -->
@@ -15,11 +15,11 @@
   <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/theme.css"/>
   <!-- bootstrap -->
   <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
+  <!-- dependency css built from libraries -->
+  <link rel="stylesheet" href="dist/css/visflow_deps.css"/>
+
   <!-- bootstrap switch -->
-  <script type="text/javascript" src="bower_components/bootstrap-switch/dist/js/bootstrap-switch.min.js"></script>
-  <link rel="stylesheet" href="bower_components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.min.css"/>
+  <script type="text/javascript" src="bower_components/bootstrap-switch-jquery/dist/js/bootstrap-switch.min.js"></script>
   <!-- select2 -->
   <script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
   <link rel="stylesheet" href="bower_components/select2/dist/css/select2.min.css"/>
@@ -32,8 +32,15 @@
   <!-- bootstrap-colorpicker -->
   <script type="text/javascript" src="bower_components/mjolnic-bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
   <link rel="stylesheet" href="bower_components/mjolnic-bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css"/>
+  <!-- leaflet -->
+  <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css">
+  <script type="text/javascript" src="bower_components/leaflet/dist/leaflet-src.js"></script>
+  <!-- heatmap.js -->
+  <script type="text/javascript" src="bower_components/heatmap.js-amd/build/heatmap.min.js"></script>
 
   <!-- others -->
+  <script type="text/javascript" src="bower_components/jquery-shadow-animation/jquery.animate-shadow-min.js"></script>
+  <script type="text/javascript" src="bower_components/annyang/dist/annyang.min.js"></script>
   <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
   <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
   <script type="text/javascript" src="bower_components/jquery-mousewheel/jquery.mousewheel.min.js"></script>
@@ -47,13 +54,13 @@
 
   <!-- visflow src -->
   <script type="text/javascript" src="dist/visflow.js"></script>
-  <link rel="stylesheet" href="dist/visflow.css"/>
+  <link rel="stylesheet" href="dist/css/visflow.css"/>
 </head>
 <body class="visflow">
-  <nav class="navbar navbar-inverse navbar-fixed-top">
+  <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand bold">VisFlow</a>
+        <a class="navbar-brand bold"><img id="logo" src="./logo.png">VisFlow</a>
       </div>
       <ul class="nav navbar-nav">
         <li id="diagram" class="dropdown">
@@ -67,20 +74,24 @@
         <li id="edit" class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown">Edit <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a id="add-node"><i class="glyphicon glyphicon-plus"></i>Create Node<span class="hotkey">( A )</span></a></li>
+            <li><a id="undo" class="disabled"><i class="glyphicon glyphicon-repeat" style="-webkit-transform: rotate(-90deg);"></i>Undo</a></li>
+            <li><a id="redo" class="disabled"><i class="glyphicon glyphicon-repeat"></i>Redo</a></li>
+            <li><a id="minimize-non-vis"><i class="glyphicon glyphicon-zoom-out"></i>Minimize Non-Visualizations</a></li>
+            <li><a id="auto-layout"><i class="glyphicon glyphicon-th"></i>Auto Layout<span class="hotkey">( SHIFT + L )</span></a></li>
           </ul>
         </li>
-        <li id="options" class="dropdown">
-          <a class="dropdown-toggle" data-toggle="dropdown">Options <span class="caret"></span></a>
+        <li id="view" class="dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown">Views <span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a id="show-node-label"><i class="glyphicon glyphicon-ok"></i>Show Node Labels</a></li>
+            <li><a id="show-node-panel"><i class="glyphicon glyphicon-ok"></i>Node Panel</a></li>
+            <li><a id="show-node-label"><i class="glyphicon glyphicon-ok"></i>Node Labels</a></li>
           </ul>
         </li>
         <li id="help" class="dropdown">
           <a class="dropdown-toggle" data-toggle="dropdown">Help <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a id="documentation"><i class="glyphicon glyphicon-book"></i>Documentation</a></li>
-            <li><a id="report" href="https://github.com/yubowenok/visflow/issues/new" target="_blank"><i class="glyphicon glyphicon-pencil"></i>Report Issue</a></li>
+            <li><a id="report" href="https://github.com/yubowenok/visflow/issues/new" target="_blank"><i class="glyphicon glyphicon-pencil"></i>Issue / Suggestion</a></li>
             <li><a id="about"><i class="glyphicon glyphicon-info-sign"></i>About</a></li>
           </ul>
         </li>
@@ -97,46 +108,35 @@
 
   <div id="modal" class="modal fade">
     <div class="modal-dialog">
-      <div class="modal-content">
-      </div>
+      <div class="modal-content"></div>
     </div>
   </div>
 
-  <div id="message" class="container-fluid">
-    <div class="row">
-      <div class="system-message alert alert-success" style="display:none">
-        <button class="close">&times;</button>
-        <div id="success">Success info displayed here</div>
-      </div>
-      <div class="system-message alert alert-warning" style="display:none">
-        <button class="close">&times;</button>
-        <div id="warning">Warning displayed here</div>
-      </div>
-      <div class="system-message alert alert-danger" style="display:none">
-        <button class="close">&times;</button>
-        <div id="error">Error displayed here</div>
-      </div>
+  <div id="message">
+    <div class="system-message alert alert-success" style="display:none">
+      <button class="close">&times;</button>
+      <div id="success">Success info displayed here</div>
+    </div>
+    <div class="system-message alert alert-warning" style="display:none">
+      <button class="close">&times;</button>
+      <div id="warning">Warning displayed here</div>
+    </div>
+    <div class="system-message alert alert-danger" style="display:none">
+      <button class="close">&times;</button>
+      <div id="error">Error displayed here</div>
     </div>
   </div>
 
   <div id="context-menu">
-    <ul class="dropdown-menu">
-    </ul>
+    <ul class="dropdown-menu"></ul>
   </div>
 
   <div id="main">
     <div id="nodes"></div>
     <div id="hover"></div>
     <div id="selectbox"></div>
-    <div id="edge-drawing" style="display: none;">
-      <div id="edge-drawing-segment" class="edge-segment"></div>
-      <div id="edge-drawing-arrow" class="edge-arrow"></div>
-    </div>
-    <div id="edges">
-    </div>
-    <svg id="svg-edges">
-      <!-- TODO(bowen): render edges in a single underlying svg canvas -->
-    </svg>
+    <svg id="edges"></svg>
+    <svg id="edge-drawing"></svg>
   </div>
 
   <div id="option-panel">
@@ -146,29 +146,33 @@
     <button id="btn-pin" class="btn btn-default to-tooltip" data-placement="left" title="pin the control panel">
       <span class="glyphicon glyphicon-pushpin"></span>
     </button>
-    <div class="content">
-    </div>
+    <div class="content"></div>
   </div>
   <div id="node-panel">
-    <button id="btn-toggle">
-      <span class="glyphicon glyphicon-plus"></span>
-    </button>
-    <div class="hover-area">
-    </div>
-    <div class="content">
-    </div>
+    <div class="content"></div>
   </div>
   <div id="popup-panel" class="popup-panel" style="display: none;"></div>
   <div id="tool-panel" class="tool-panel">
-    <button id="alted" class="btn btn-default btn-xs to-tooltip" title="dragging mode" data-placement="left">
+    <button id="alted" class="btn btn-default btn-xs to-tooltip" title="Dragging Mode" data-placement="left">
       <i class="glyphicon glyphicon-move"></i>
     </button>
-    <button id="vis-mode" class="btn btn-default btn-xs to-tooltip" title="visualization mode" data-placement="bottom">
-      <i class="glyphicon glyphicon glyphicon-facetime-video"></i>
+    <button id="vis-mode" class="btn btn-default btn-xs to-tooltip" title="Visualization Mode" data-placement="bottom">
+      <i class="glyphicon glyphicon-facetime-video"></i>
     </button>
-    <button id="upload" class="btn btn-default btn-xs to-tooltip" title="upload data" data-placement="right">
-      <i class="glyphicon glyphicon glyphicon-upload"></i>
+    <button id="upload" class="btn btn-default btn-xs to-tooltip" title="Upload Data" data-placement="right">
+      <i class="glyphicon glyphicon-upload"></i>
     </button>
+    <!--
+    <button id="mic" class="btn btn-default btn-xs to-tooltip" title="Talk to FlowSense (SHIFT+T)" data-placement="right">
+      <i class="microphone" alt="Icons made by http://www.freepik.com from http://www.flaticon.com CC 3.0 BY"></i>
+      <i class="glyphicon glyphicon-asterisk invisible"></i>
+    </button>
+    -->
+  </div>
+  <div id="backdrop" class="modal-backdrop" style="display: none"></div>
+  <div id="nlp"></div>
+  <div id="progress" class="progress bottom" style="display: none">
+    <div class="progress-bar" role="progressbar">Loading VisFlow</div>
   </div>
 </body>
 </html>

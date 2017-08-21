@@ -26,19 +26,15 @@ visflow.upload.upload = function() {
     visflow.dialog.close();
     return;
   }
-  $.get(visflow.url.LIST_DATA)
-    .done(function(dataList) {
-      visflow.dialog.create({
-        template: visflow.upload.TEMPLATE_,
-        complete: visflow.upload.uploadDialog_,
-        params: {
-          dataList: dataList
-        }
-      });
-    })
-    .fail(function(res) {
-      visflow.error('cannot list server data:', res.responseText);
+  visflow.data.listData(function(dataList) {
+    visflow.dialog.create({
+      template: visflow.upload.TEMPLATE_,
+      complete: visflow.upload.uploadDialog_,
+      params: {
+        dataList: dataList
+      }
     });
+  });
 };
 
 /**
@@ -50,20 +46,16 @@ visflow.upload.export = function(pack) {
     visflow.warning('you must login to export data');
     return;
   }
-  $.get(visflow.url.LIST_DATA)
-    .done(function(dataList) {
-      visflow.dialog.create({
-        template: visflow.upload.TEMPLATE_,
-        complete: visflow.upload.exportDialog_,
-        params: {
-          dataList: dataList,
-          pack: pack
-        }
-      });
-    })
-    .fail(function(res) {
-      visflow.error('cannot list server data:', res.responseText);
+  visflow.data.listData(function(dataList) {
+    visflow.dialog.create({
+      template: visflow.upload.TEMPLATE_,
+      complete: visflow.upload.exportDialog_,
+      params: {
+        dataList: dataList,
+        pack: pack
+      }
     });
+  });
 };
 
 /**
@@ -413,6 +405,7 @@ visflow.upload.listDataTable = function(table, dataList) {
         targets: 2
       },
       {
+        type: 'date',
         // Last Modified
         render: function(lastModified) {
           return (new Date(lastModified)).toLocaleString();

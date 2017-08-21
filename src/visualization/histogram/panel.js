@@ -11,11 +11,11 @@ visflow.Histogram.prototype.initPanel = function(container) {
       params: {
         container: container.find('#dim'),
         list: dimensionList,
-        selected: this.dim,
+        selected: this.options.dim,
         listTitle: 'Distribution Dimension'
       },
       change: function(event, dim) {
-        this.dim = dim;
+        this.options.dim = dim;
         this.dimensionChanged();
       }
     },

@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * Authenticates the current session when the VisFlow page is opened.
+ * The authentication can be called independently from the client.
+ */
 include 'session.php';
 
 if ($username == '')

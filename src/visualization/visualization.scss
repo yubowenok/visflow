@@ -1,4 +1,4 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 .visflow .node.visualization {
   &.details {
@@ -8,6 +8,7 @@
 
   .axis {
     text {
+      fill: $gray-3;
       font-size: 11px;
     }
 
@@ -20,10 +21,8 @@
   }
 
   svg {
-    background: $white;
-    height: 100%;
-    pointer-events: all;
-    width: 100%;
+    //background: $white;
+    //pointer-events: all;
   }
 
   .selectbox {
@@ -44,16 +43,8 @@
   }
 
   .vis-label {
-    font-size: 11px; // TODO(bowen): check if without !important this is oorrect
+    font-size: 11px;
     font-weight: bold;
     text-anchor: middle;
   }
-}
-
-// TODO(bowen): is this used?
-.visflow .visualization-message {
-  pointer-events: none;
-  position: absolute;
-  text-align: center;
-  width: calc(100% - 10px);
 }

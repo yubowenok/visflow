@@ -1,4 +1,4 @@
-@import 'src/common/utils';
+@import 'src/common/common';
 
 .data-list {
   td {
@@ -15,4 +15,11 @@
       @include col-wrap(100px);
     }
   }
+}
+
+.upload .notice {
+  font-size: .9em;
+  margin-left: $margin;
+  position: relative;
+  top: -$margin-extra-large;
 }

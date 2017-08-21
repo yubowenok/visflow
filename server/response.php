@@ -1,4 +1,9 @@
 <?php
+/**
+ * Methods for sending http responses.
+ *
+ * This shall be included via 'session.php' or 'file.php'.
+ */
 
 function status($code)
 {
@@ -32,9 +37,9 @@ function contentType($type)
   }
 }
 
-function abort($msg)
+function abort($msg, $code = 500)
 {
-  status(500);
+  status($code);
   contentType('text');
   echo $msg;
   exit();

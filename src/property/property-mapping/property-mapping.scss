@@ -1,19 +1,20 @@
+@import 'src/common/common';
+
 .visflow .node.property-mapping {
   &.minimized > .icon {
-    background-image: url('./imgs/property-mapping-icon.png');
+    background-image: url('./imgs/property-mapping-icon.svg');
   }
 
   &.details {
-    height: 145px;
+    height: 120px + 2 * $padding;
     width: 150px;
 
     .content > div {
-      margin-bottom: 3px;
-      margin-top: 3px;
+      margin-top: $margin;
     }
 
     #number {
-      margin-top: 10px;
+      margin-top: $padding-large;
 
       > .offset {
         top: 10px;
@@ -24,6 +25,7 @@
     #max {
       > div {
         display: inline-block;
+        width: calc(50% - #{$padding-extra-large});
       }
 
       input {
@@ -33,7 +35,6 @@
         text-align: center;
         text-overflow: ellipsis;
         white-space: nowrap;
-        width: 50px;
       }
     }
   }

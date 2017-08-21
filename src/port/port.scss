@@ -1,4 +1,4 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 .visflow {
   .port {
@@ -19,7 +19,7 @@
       left: 100%;
 
       > .background {
-        border-radius: 0 4px 4px 0;
+        border-radius: 0 $border-radius $border-radius 0;
       }
     }
 
@@ -27,7 +27,7 @@
       left: -15px;
 
       > .background {
-        border-radius: 4px 0 0 4px;
+        border-radius: $border-radius 0 0 $border-radius;
       }
     }
 
@@ -35,7 +35,6 @@
     &:hover {
       > .background {
         border: 2px solid $gray-a;
-
       }
     }
 

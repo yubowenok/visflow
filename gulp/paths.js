@@ -4,15 +4,21 @@ var orderedSrc = [
   'src/visflow.js',
   'src/common/defs.js',
   'src/common/*.js',
+  'src/history/history.js',
+  'src/history/*.js',
   'src/menu/*.js',
   'src/view-manager.js',
   'src/interaction.js',
   'src/contextmenu/*.js',
   'src/dialog/*.js',
   'src/tooltip/*.js',
+  'src/progress/*.js',
   'src/upload/*.js',
   'src/parser.js',
   'src/user/*.js',
+  'src/backdrop/*.js',
+  'src/nlp/nlp.js',
+  'src/nlp/**/*.js',
 
   'src/save.js',
   'src/node/save.js',
@@ -56,6 +62,7 @@ var orderedSrc = [
   'src/set/**/index.js',
   'src/set/**/*.js',
 
+  'src/value/index.js',
   'src/value/**/index.js',
   'src/value/**/*.js',
 
@@ -64,7 +71,7 @@ var orderedSrc = [
   'src/visualization/**/*.js',
 
   'src/diagram/diagram.js',
-  'src/flow.js',
+  'src/flow/**/*.js',
   'src/welcome/welcome.js',
 
   'src/launch.js',
@@ -93,15 +100,18 @@ module.exports = {
   externs: [
     'src/externs/**/*.js'
   ],
-  serverExterns: [
-    'server/externs/*.js'
-  ],
   scss: [
     'src/**/*.scss',
     'src/**/*.css'
   ],
+  less: [
+    'src/**/*.less'
+  ],
   html: [
     'src/**/*.html'
+  ],
+  fonts: [
+    'bower_components/bootstrap/dist/fonts/*'
   ],
   index: ['index.html'],
   gulpTasks: ['gulp/**/*.js']

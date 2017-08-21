@@ -1,28 +1,27 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 #option-panel {
-  bottom: 25px;
+  bottom: 50px;
   height: auto;
   position: fixed;
   right: -210px;
   top: 50px;
   z-index: 102;
 
+  // Direct children button are side buttons.
   > button {
     height: 100px;
-    left: -25px;
+    left: -($side-button-width - $border-width);
     position: absolute;
-    width: 26px;
+    width: $side-button-width;
     z-index: 1;
+
+    > .glyphicon {
+      margin-left: -$font-size-small / 4;
+    }
   }
 
   > #btn-toggle {
-    border-radius: 4px 0 0;
-
-    > span {
-      margin-left: -6px;
-    }
-
     :disabled {
       opacity: 1;
 
@@ -33,13 +32,8 @@
   }
 
   > #btn-pin {
-    border-radius: 0 0 0 4px;
     height: 30px;
     top: 99px;
-
-    > span {
-      margin-left: -6px;
-    }
   }
 
   .section {
@@ -49,7 +43,6 @@
   }
 
   .input-with-update {
-    border-radius: 4px 0 0 4px;
     width: calc(100% - 40px);
   }
 
@@ -58,7 +51,6 @@
   }
 
   .btn-update {
-    border-radius: 0 4px 4px 0;
     float: right;
     left: -1px;
     top: -.5px;
@@ -75,9 +67,8 @@
   }
 
   .content {
-    background-color: $white;
+    background-color: $ui-background;
     border: solid 1px $gray-c;
-    border-radius: 0 0 0 4px;
     height: 100%;
     min-width: 210px;
     overflow-x: hidden;
@@ -100,7 +91,7 @@
     }
 
     &.node-panel {
-      margin-bottom: 20px;
+      margin-bottom: $margin-large;
 
       > span > button {
         margin-right: 5px;

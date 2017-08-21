@@ -11,6 +11,7 @@ visflow.utils = {};
 visflow.utils.init = function() {
   // This requires externs to be added for underscore.
   _.mixin({
+    popFront: visflow.utils.popFront_,
     keySet: visflow.utils.keySet_,
     getValue: visflow.utils.getValue_,
     fadeOut: visflow.utils.fadeOut_,
@@ -202,7 +203,7 @@ visflow.utils.propertiesCompareKey = function(properties) {
   ['color', 'border', 'width', 'opacity'].forEach(function(key) {
     var p = key in properties ? properties[key] : '';
     if (key == 'color') {
-      p = d3.rgb('' + p).hsl();
+      p = d3.hsl(d3.rgb('' + p));
       p = [isNaN(p.h) ? 0 : p.h, isNaN(p.s) ? 0 : p.s, p.l];
       result = result.concat(p);
     } else {
@@ -283,13 +284,15 @@ visflow.utils.keySet_ = function(collection) {
 
 /**
  * Provides a function that gets the value of a given key, from a given object.
+ * If suffix is given, then concat suffix at the end of the return value.
  * @param {string} key
+ * @param {string=} opt_suffix
  * @return {function(!Object): *}
  * @private
  */
-visflow.utils.getValue_ = function(key) {
+visflow.utils.getValue_ = function(key, opt_suffix) {
   return function(obj) {
-    return obj[this];
+    return opt_suffix ? obj[this] + opt_suffix : obj[this];
   }.bind(key);
 };
 
@@ -302,6 +305,21 @@ visflow.utils.fadeOut_ = function(obj) {
   obj.transition()
     .style('opacity', 0)
     .remove();
+};
+
+/**
+ * Returns the first element of the array and pop_front the array.
+ * This has linear time and shall only be used on small array.
+ * @param {!Array} arr
+ * @param {number=} opt_count
+ * @return {*} If the array is empty, return undefined.
+ * @private
+ */
+visflow.utils.popFront_ = function(arr, opt_count) {
+  var count = opt_count === undefined ? 1 : opt_count;
+  var first = arr[0];
+  arr.splice(0, count);
+  return first;
 };
 
 /**
@@ -323,6 +341,84 @@ visflow.utils.inherit_ = function(child, base) {
   child.prototype = Object.create(base.prototype);
   child.prototype.constructor = child;
   child.base = base.prototype;
+};
+
+/**
+ * Checks if a token is a numeric number.
+ * @param {string} token
+ * @return {boolean}
+ */
+visflow.utils.isNumber = function(token) {
+  return !isNaN(token);
+};
+
+/**
+ * Checks if a string is probably a date.
+ * @param {string|number|null|undefined} text
+ * @param {boolean=} opt_strict
+ * @return {boolean}
+ */
+visflow.utils.isProbablyDate = function(text, opt_strict) {
+  if (text == null || text == undefined) {
+    return false;
+  }
+  var strict = opt_strict !== undefined ? !!opt_strict : true;
+  // Strangely, recently implementation change of Date.parse()
+  // parses '10' into Mon Oct 01 2001 00:00:00 GMT-0400 (EDT) ???
+  // We handle those special exceptions.
+  // Make sure that text is not a number.
+  if (strict && Number(text) == text) {
+    // TODO(bowen): we may want to double-check how to handle pure years like
+    // '2001', '1975', etc.
+    return false;
+  }
+  var date = new Date(text);
+  return date != 'Invalid Date' &&
+    date >= Date.parse('Jan 1 1000') &&
+    date <= Date.parse('Jan 1 2200');
+};
+
+/**
+ * Strips the given text. Removes leading and trailing newlines and empty
+ * spaces.
+ * @param {string} text
+ * @return {string}
+ */
+visflow.utils.strip = function(text) {
+  return text.replace(/^[\s\n]+/, '').replace(/[\s\n]+$/, '');
+};
+
+/**
+ * Visually shakes a jQuery element.
+ * @param {!jQuery} element
+ */
+visflow.utils.shake = function(element) {
+  var left = element.offset().left;
+  for (var i = 0; i < 2; i++) {
+    setTimeout(function() {
+      element.css('left', left - 5);
+    }, i * 100 + 0);
+    setTimeout(function() {
+      element.css('left', left + 5);
+    }, i * 100 + 50);
+  }
+  element.css('left', left);
+};
+
+/**
+ * Formats the given value as time.
+ * @param {number|string} value
+ * @return {string}
+ */
+visflow.utils.formatTime = function(value) {
+  if (visflow.utils.isNumber('' + value) &&
+    ('' + value).match(/^\d{4}$/) == null) {
+    // Note that we cannot create new Date() with UTC time string like
+    // '1490285474832', which would throw "Invalid Date".
+    // The exception is four-digit string year, which we should keep intact.
+    value = +value;
+  }
+  return moment(new Date(value)).format(visflow.const.TIME_FORMAT);
 };
 
 /**

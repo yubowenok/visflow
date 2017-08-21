@@ -4,23 +4,22 @@
   <meta charset="utf-8">
   <title>Visflow Documentation</title>
   <meta name="description" content="VisFlow is a web-based visualization framework for tabular data with a subset flow model.">
-  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="shortcut icon" type="image/x-icon" href="./logo.png">
 
   <!-- jquery -->
   <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
   <!-- bootstrap -->
   <script type="text/javascript" src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css"/>
 
-  <link rel="stylesheet" href="dist/doc.css"/>
+  <link rel="stylesheet" href="dist/css/doc.css"/>
+  <link rel="stylesheet" href="dist/css/visflow_deps.css"/>
   <script type="text/javascript" src="dist/doc.js"></script>
 </head>
 <body class="visflow">
-  <nav class="navbar navbar-inverse navbar-fixed-top">
+  <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">VisFlow Documentation</a>
+        <a class="navbar-brand" href="#"><img id="logo" src="./logo.png">VisFlow Documentation</a>
       </div>
       <div class="navbar-right">
         <a class="btn btn-primary" href=".">
@@ -66,7 +65,7 @@
           <a href="#data">Data</a>
           <ul class="nav nav-lv2">
             <li><a href="#d-tabular-data">Tabular Data</a></li>
-            <li><a href="#d-data-crossing">Data Crossing</a></li>
+            <li><a href="#d-data-transpose">Data Transpose</a></li>
             <li><a href="#d-upload-data">Upload Data</a></li>
           </ul>
         </li>
@@ -128,17 +127,23 @@
             </li>
           </ul>
         </li>
+        <!--
+        <li>
+          <a href="#flowsense">FlowSense</a>
+        </li>
+        -->
         <li>
           <a href="#shortcuts">Shortcuts</a>
           <ul class="nav nav-lv2">
             <li><a href="#sc-diagram">Diagram</a></li>
             <li><a href="#sc-editing">Editing</a></li>
             <li><a href="#sc-visualization">Visualization</a></li>
+            <!-- <li><a href="#sc-flowsense">FlowSense</a></li> -->
           </ul>
         </li>
       </ul>
     </div>
-    <div id="main" class="col-xs-offset-2 col-xs-10">
+    <div class="col-xs-offset-2 col-xs-10">
       <div class="section">
         <h2 id="getting-started">Getting Started</h2>
         <hr>
@@ -376,16 +381,16 @@
         </p>
         <img width="360" src="dist/doc/tabular.png">
 
-        <a id="d-data-crossing" class="anchor"></a>
-        <h3>Data Crossing</h3>
+        <a id="d-data-transpose" class="anchor"></a>
+        <h3>Data Transpose</h3>
         <p>
-          To facilitate series data analyses, VisFlow supports a special type of operation on its input table called <i>Data Crossing</i>,
+          To facilitate series data analyses, VisFlow supports a special type of operation on its input table called <i>Data Transpose</i>,
           which takes a set of primary key attributes and a set of dimensions, and transforms the input table into rows of series points.
           Dimension names are written in an attribute column, and the original table values are stored in a third column.
-          Table (b) above shows data crossing of table (a) using "Country" as the primary key, and the years as the dimensions.
+          Table (b) above shows data transpose of table (a) using "Country" as the primary key, and the years as the dimensions.
         </p>
         <p>
-          After data crossing, table (b) can be applied in LineChart<icon class="line-chart"></icon> series visualization.
+          After data transpose, table (b) can be applied in LineChart<icon class="line-chart"></icon> series visualization.
         </p>
 
         <a id="d-upload-data" class="anchor"></a>
@@ -496,8 +501,8 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
           If multiple tables are loaded, they are combined and considered to be a single larger table throughout the system.
         </p>
         <p>
-          A data source can be set to perform <i>data crossing</i> operation for its input table and output the transformed table instead.
-          Data crossing is useful for plotting series data.
+          A data source can be set to perform <i>data transpose</i> operation for its input table and output the transformed table instead.
+          Data transpose is useful for plotting series data.
         </p>
 
         <a id="nt-visualization" class="anchor"></a>
@@ -880,6 +885,65 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
         </table>
       </div>
 
+      <!--
+      <div class="section">
+        <a id="flowsense" class="anchor"></a>
+        <h2>FlowSense</h2>
+        <hr>
+
+        <p>
+          FlowSense is VisFlow's integrated semantic parser that processes natural language input.
+          It helps the user construct and expand VisFlow diagrams faster.
+          To use FlowSense, right click on a node, port or the canvas and select "FlowSense".
+          Then in the FlowSense dialog, type-in the natural language command and press <key>Enter</key>.
+        </p>
+
+        <p>
+          Here is a list of commands you may try.
+          Replace dimensions, values, and node labels (marked by brackets) by entities in your data and diagram.
+          The following commands work on the demo car data (without brackets).
+        </p>
+
+        <ul>
+          <li>open [car] dataset</li>
+          <li>show a scatterplot of [mpg] and [cylinders]</li>
+          <li>show [cars] with [mpg] greater than [15]</li>
+          <li>create a parallel coordinates plot with [mpg], [horsepower] and [cylinders]</li>
+          <li>visualize the [mpg] distribution</li>
+          <li>search for cars with [mpg] between [10] and [15]</li>
+          <li>show cars with a [name] that contains [buick]</li>
+          <li>set blue color</li>
+          <li>change opacity to 0.5</li>
+          <li>color encode mpg</li>
+          <li>encode [mpg] by red green color scale</li>
+          <li>map [mpg] to size from 1 to 3</li>
+          <li>highlight selection in a scatterplot</li>
+          <li>show [mpg] of the selected [cars] in a histogram</li>
+          <li>find the [cars] with maximum [mpg]</li>
+          <li>get ten [cars] with maximum [mpg]</li>
+          <li>sample 10 percent of the [cars] group by [origin]</li>
+          <li>link [cars] with the same [origin] from [chart-1] (chart-1 refers to node label)</li>
+          <li>link and highlight [cars] with the same [origin] from [chart-1] in a scatterplot</li>
+          <li>merge [chart-1] with [chart-2]</li>
+          <li>find the different [cars] from [chart-1]</li>
+          <li>find the common [cars] between [chart-1] and [chart-2]</li>
+        </ul>
+
+        <p>
+          You may use speech for FlowSense input (chrome browser only).
+          First turn on the microphone in the menu bar.
+          You need to allow the page to access your microphone if asked.
+          When microphone is on, you may speak to FlowSense without activating the FlowSense dialog.
+          Alternatively, when the FlowSense dialog is on, your speech will be recorded and
+          input into the FlowSense dialog automatically.
+        </p>
+
+        <p>
+          You may activate FlowSense by shortcut. See the <a href="#sc-flowsense">Shortcuts</a> section.
+        </p>
+      </div>
+      -->
+
       <div class="section">
         <a id="shortcuts" class="anchor"></a>
         <h2>Shortcuts</h2>
@@ -985,6 +1049,32 @@ itemN_value_1,itemN_value_2,...,itemN_value_D</pre>
           </tr>
           </tbody>
         </table>
+
+        <!--
+        <a id="sc-flowsense" class="anchor"></a>
+        <h3>FlowSense</h3>
+        <table class="table table-bordered table-striped">
+          <colgroup>
+            <col width="20%">
+            <col width="80%">
+          </colgroup>
+          <thead>
+          <tr>
+            <th>Key</th><th>Function</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><key>Shift</key> + <key>S</key></td>
+            <td>Launch FlowSense</td>
+          </tr>
+          <tr>
+            <td><key>Shift</key> + <key>T</key></td>
+            <td>Enable/disable FlowSense microphone</td>
+          </tr>
+          </tbody>
+        </table>
+        -->
       </div>
     </div>
   </div>

@@ -1,10 +1,10 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 #node-panel {
-  bottom: 25px;
+  bottom: $icon-size / 2;
   height: auto;
   position: fixed;
-  top: 50px;
+  top: $icon-size;
   z-index: 102;
 
   > .hover-area {
@@ -15,10 +15,10 @@
   }
 
   > #btn-toggle {
+    @include ui-border;
+
     background-color: $trans-gray-230-75;
-    border: 1px solid $gray-c;
     border-left: 0;
-    border-radius: 0 4px 4px 0;
     cursor: default;
     height: 120px;
     position: absolute;
@@ -31,33 +31,31 @@
   }
 
   .content {
-    background-color: $trans-gray-230-75;
-    border: 1px solid $gray-c;
-    border-radius: 0 0 4px;
-    height: 100%;
-    overflow-y: scroll;
-    padding: 10px;
+    @include ui-border;
+
+    background-color: $ui-background;
+    padding: $padding-large;
     top: 0;
   }
 
   .square-icon {
-    height: 50px;
-    width: 50px;
+    height: $icon-size;
+    width: $icon-size;
   }
 
   .flat-icon {
-    height: 25px;
-    width: 50px;
+    height: $icon-size / 2;
+    width: $icon-size;
   }
 
   .panel-button {
     border: 1px solid $trans-black-0;
-    border-radius: 4px;
 
     &:hover {
+      @include ui-border;
+
       background-color: $white;
-      border: 1px solid $gray-c;
-      border-radius: 4px;
+      border-radius: $border-radius;
       cursor: pointer;
     }
   }

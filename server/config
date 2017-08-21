@@ -1,0 +1,4 @@
+base_path = /data/visflow/
+data_path = data/
+diagram_path = diagrams/
+nlp_path = nlp/

@@ -2,8 +2,6 @@
  * @fileoverview ValueMaker defs.
  */
 
-/** @inheritDoc */
-visflow.ValueMaker.prototype.NODE_NAME = 'Value Maker';
 
 /** @inheritDoc */
 visflow.ValueMaker.prototype.NODE_CLASS = 'value-maker';

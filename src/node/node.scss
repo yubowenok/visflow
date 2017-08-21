@@ -1,18 +1,19 @@
-@import 'src/common/colors';
+@import 'src/common/common';
 
 .visflow .node {
   position: absolute;
 
   > .content {
     height: 100%;
-    padding: 10px;
+    padding: $padding $padding-large;
     width: 100%;
   }
 
   > .background {
     background-color: $white;
     border: 1px solid $gray-a;
-    border-radius: 4px;
+    border-radius: $border-radius;
+    box-shadow: 1px 1px 2px $gray-a;
     height: 100%;
     position: absolute;
     width: 100%;
@@ -31,17 +32,15 @@
   #node-label {
     background: $white;
     border: 1px solid $gray-c;
-    border-radius: 2px 2px 0 0;
-    font-size: 11px;
+    border-radius: $border-radius $border-radius 0 0;
+    font-size: $font-size-small;
     font-weight: bold;
-    left: 5px;
-    line-height: 11px;
+    line-height: $font-size-small;
     overflow: hidden;
-    padding: 5px;
+    padding: $padding $padding-large;
     position: absolute;
-    top: -22px;
+    top: -($padding * 2 + $font-size-small + $border-width);
     white-space: nowrap;
-    width: 100px;
   }
 
   &.details {
@@ -57,14 +56,15 @@
   &.hover {
     > .background {
       border-color: $gray-b;
-      border-width: 3px;
+      border-width: 2px;
+      box-shadow: 2px 2px 4px $gray-a;
     }
   }
 
   &.selected {
     > .background {
       border-color: $gray-7;
-      border-width: 3px;
+      border-width: 2px;
     }
   }
 
@@ -86,7 +86,7 @@
 
     .cover {
       background-image: linear-gradient(to bottom, $gray-f5 0, $gray-e8 100%);
-      border-radius: 4px;
+      border-radius: $border-radius;
       height: calc(100% - 4px);
       left: 2px;
       opacity: .9;

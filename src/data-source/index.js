@@ -23,17 +23,11 @@ visflow.DataSource = function(params) {
   this.data = [];
 
   /**
-   * Copy of parsed data, used for switching between non-crossing and crossing.
-   * @private {!Array<?visflow.TabularData>}
+   * Copy of parsed data, used for switching between non-transpose and
+   * transpose.
+   * @protected {!Array<?visflow.TabularData>}
    */
-  this.rawData_ = [];
-
-  /**
-   * Last used data type value. When this changed, we shall auto find the
-   * crossing keys and attributes.
-   * @private {number}
-   */
-  this.lastDataType_ = 0; // TODO(bowen): how is this used?
+  this.rawData = [];
 
   /**
    * Created DataTable.
@@ -139,17 +133,16 @@ visflow.DataSource.prototype.showDetails = function() {
 visflow.DataSource.prototype.interaction = function() {
   visflow.DataSource.base.interaction.call(this);
 
-  this.content.children('button').click(this.loadDataDialog_.bind(this));
+  this.content.children('button').click(this.loadDataDialog.bind(this));
 };
 
 /**
  * Deletes a dataset from the data list.
  * @param {number} dataIndex
- * @private
  */
-visflow.DataSource.prototype.deleteData_ = function(dataIndex) {
+visflow.DataSource.prototype.deleteData = function(dataIndex) {
   this.data.splice(dataIndex, 1);
-  this.rawData_.splice(dataIndex, 1);
+  this.rawData.splice(dataIndex, 1);
   this.process();
 };
 
@@ -163,8 +156,8 @@ visflow.DataSource.prototype.showNodeDataList_ = function() {
     this.data.map(function(data) {
       return data.name;
     }).join(', ');
-  if (text.length > this.DATA_NAMES_LENGTH_) {
-    text = text.substr(0, this.DATA_NAMES_LENGTH_ - 3) + '...';
+  if (text.length > visflow.DataSource.DATA_NAMES_LENGTH) {
+    text = text.substr(0, visflow.DataSource.DATA_NAMES_LENGTH - 3) + '...';
   }
   dataName.text(text).show();
   this.content.find('#data-error').hide();
@@ -174,59 +167,55 @@ visflow.DataSource.prototype.showNodeDataList_ = function() {
  * Shows the data list both in panel and in node.
  */
 visflow.DataSource.prototype.showDataList = function() {
-  $.post(visflow.url.LIST_DATA)
-    .done(function(dataList) {
-      var dataInfos = {};
-      dataList.forEach(function(dataInfo) {
-        dataInfos[dataInfo.id] = dataInfo;
-      });
-      this.data.forEach(function(dataInfo) {
-        if (dataInfo.id in dataInfos) {
-          var info = dataInfos[dataInfo.id];
-          dataInfo.name = info.name;
-          dataInfo.file = info.file;
-        } else {
-          visflow.error('data used not listed:', dataInfo.id, dataInfo.name,
-            dataInfo.file);
-        }
-      });
-      if (visflow.optionPanel.isOpen) {
-        this.createPanelDataList_(visflow.optionPanel.contentContainer());
-      }
-      // Show data list in node.
-      this.showNodeDataList_();
-    }.bind(this))
-    .fail(function(res) {
-      visflow.error('cannot retrieve data list:', res.responseText);
+  visflow.data.listData(function(dataList) {
+    var dataInfos = {};
+    dataList.forEach(function(dataInfo) {
+      dataInfos[dataInfo.id] = dataInfo;
     });
+    this.data.forEach(function(dataInfo) {
+      if (dataInfo.id in dataInfos) {
+        var info = dataInfos[dataInfo.id];
+        dataInfo.name = info.name;
+        dataInfo.file = info.file;
+      } else {
+        visflow.error('data used not listed:', dataInfo.id, dataInfo.name,
+          dataInfo.file);
+      }
+    });
+    if (visflow.optionPanel.isOpen) {
+      this.createPanelDataList(visflow.optionPanel.contentContainer());
+    }
+    // Show data list in node.
+    this.showNodeDataList_();
+  }.bind(this));
 };
 
 /**
- * Updates the data crossing option.
+ * Updates the data transpose option.
  * @private
  */
-visflow.DataSource.prototype.updateCrossing_ = function() {
+visflow.DataSource.prototype.updateTranspose_ = function() {
   if (visflow.optionPanel.isOpen) {
     var panelContainer = visflow.optionPanel.contentContainer();
-    panelContainer.find('#crossing-section').toggle(this.options.crossing);
+    panelContainer.find('#transpose-section').toggle(this.options.transpose);
   }
   this.process();
 };
 
 /**
- * Checks if there are duplicate attribute in crossing keys.
+ * Checks if there are duplicate attribute in transpose keys.
  * @private
  */
-visflow.DataSource.prototype.validateCrossingAttributes_ = function() {
-  var keys = _.keySet(this.options.crossingKeys);
+visflow.DataSource.prototype.validateTransposeAttributes_ = function() {
+  var keys = _.keySet(this.options.transposeKeys);
   var duplicate = false;
-  this.options.crossingAttrs.forEach(function(dim) {
+  this.options.transposeAttrs.forEach(function(dim) {
     if (dim in keys) {
       duplicate = true;
     }
   });
   if (duplicate) {
-    visflow.warning('crossing attribute duplicate in keys');
+    visflow.warning('transpose attribute duplicate in keys');
   }
 };
 
@@ -255,11 +244,10 @@ visflow.DataSource.prototype.updateActiveSections_ = function(dialog) {
 
 /**
  * Creates the load data dialog.
- * @private
  */
-visflow.DataSource.prototype.loadDataDialog_ = function() {
+visflow.DataSource.prototype.loadDataDialog = function() {
   visflow.dialog.create({
-    template: this.SELECT_DATA_TEMPLATE_,
+    template: visflow.DataSource.SELECT_DATA_TEMPLATE,
     complete: function(dialog) {
 
       dialog.find('.to-tooltip').tooltip({
@@ -294,32 +282,28 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
         this.loadData(this.data.length - 1);
       }.bind(this));
 
-      $.get(visflow.url.LIST_DATA)
-        .done(function(dataList) {
-          var table = dialog.find('table');
-          if (this.table_) {
-            this.table_.destroy();
-          }
-          this.table_ = visflow.upload.listDataTable(table, dataList);
-          table
-            .on('select.dt', function(event, dt, type, tableIndices) {
-              var data = /** @type {DataTables} */(dt)
-                .row(tableIndices[0]).data();
-              dataId = data.id;
-              dataName = data.name;
-              dataFile = data.file;
-              uploadable();
-            })
-            .on('deselect.dt', function() {
-              dataId = '';
-              dataName = '';
-              dataFile = '';
-              uploadable();
-            });
-        }.bind(this))
-        .fail(function(res) {
-          visflow.error('cannot list server data:', res.responseText);
-        });
+      visflow.data.listData(function(dataList) {
+        var table = dialog.find('table');
+        if (this.table_) {
+          this.table_.destroy();
+        }
+        this.table_ = visflow.upload.listDataTable(table, dataList);
+        table
+          .on('select.dt', function(event, dt, type, tableIndices) {
+            var data = /** @type {DataTables} */(dt)
+              .row(tableIndices[0]).data();
+            dataId = data.id;
+            dataName = data.name;
+            dataFile = data.file;
+            uploadable();
+          })
+          .on('deselect.dt', function() {
+            dataId = '';
+            dataName = '';
+            dataFile = '';
+            uploadable();
+          });
+      }.bind(this));
 
       dialog.find('.online #data-name').keyup(function(event) {
         dataName = $(event.target).val();
@@ -344,7 +328,7 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 
       dialog.find('#btn-upload').click(function(event) {
         event.stopPropagation();
-        visflow.upload.setComplete(this.loadDataDialog_.bind(this));
+        visflow.upload.setComplete(this.loadDataDialog.bind(this));
         visflow.upload.upload();
       }.bind(this));
     }.bind(this)
@@ -353,11 +337,10 @@ visflow.DataSource.prototype.loadDataDialog_ = function() {
 
 /**
  * Clears the currently loaded data.
- * @private
  */
-visflow.DataSource.prototype.clearData_ = function() {
+visflow.DataSource.prototype.clearData = function() {
   this.data = [];
-  this.rawData_ = [];
+  this.rawData = [];
   this.showDataList();
   this.process();
 };
@@ -369,7 +352,7 @@ visflow.DataSource.prototype.clearData_ = function() {
  */
 visflow.DataSource.prototype.loadData = function(opt_index) {
   if (opt_index != null) {
-    this.rawData_[opt_index] = null;
+    this.rawData[opt_index] = null;
   }
 
   var counter = 0;
@@ -382,7 +365,7 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
   }.bind(this);
   var hasAsyncLoad = false;
   this.data.forEach(function(data, dataIndex) {
-    if (this.rawData_[dataIndex]) {
+    if (this.rawData[dataIndex]) {
       // Skip already loaded data.
       return;
     }
@@ -393,7 +376,7 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
 
     var duplicateData = visflow.data.duplicateData(data);
     if (duplicateData != null) {
-      this.rawData_[dataIndex] = duplicateData;
+      this.rawData[dataIndex] = duplicateData;
       --counter;
       return;
     }
@@ -406,9 +389,9 @@ visflow.DataSource.prototype.loadData = function(opt_index) {
         // CSV parser will report error itself.
         result = visflow.parser.csv(result);
 
-        // Store a copy of parsed data, so that we can switch between crossing
-        // and non-crossing.
-        this.rawData_[dataIndex] = result;
+        // Store a copy of parsed data, so that we can switch between transpose
+        // and non-transpose.
+        this.rawData[dataIndex] = result;
 
         visflow.data.registerRawData(data, result);
 
@@ -444,14 +427,14 @@ visflow.DataSource.prototype.useEmptyData_ = function(opt_isError) {
 };
 
 /**
- * Automatically finds a string dimension for crossing key.
+ * Automatically finds a string dimension for transpose key.
  * @return {!Array<number>} Dimension index.
  */
-visflow.DataSource.prototype.findCrossingDims = function() {
+visflow.DataSource.prototype.findTransposeDims = function() {
   if (this.data.length == 0) {
     return [];
   }
-  var data = _.first(this.rawData_);
+  var data = _.first(this.rawData);
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] == visflow.ValueType.STRING &&
         !data.dimensionDuplicate[dim]) {
@@ -462,18 +445,18 @@ visflow.DataSource.prototype.findCrossingDims = function() {
 };
 
 /**
- * Automatically finds numerical attributes for crossing attibutes.
+ * Automatically finds numerical attributes for transpose attibutes.
  * @return {!Array<number>} Dimension index.
  */
-visflow.DataSource.prototype.findCrossingAttrs = function() {
+visflow.DataSource.prototype.findTransposeAttrs = function() {
   if (this.data.length == 0) {
     return [];
   }
-  var data = _.first(this.rawData_);
+  var data = _.first(this.rawData);
   var dims = [];
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] != visflow.ValueType.STRING) {
-      if (dims.length < this.DEFAULT_NUM_ATTRS_) {
+      if (dims.length < visflow.DataSource.DEFAULT_NUM_ATTRS) {
         dims.push(dim);
       }
     }
@@ -488,9 +471,9 @@ visflow.DataSource.prototype.process = function() {
   var values = [];
   var mismatched = {};
   var type;
-  var firstDataIndex = null;
-  this.rawData_.forEach(function(data, dataIndex) {
-    if (firstDataIndex == null) {
+  var firstDataIndex = -1;
+  this.rawData.forEach(function(data, dataIndex) {
+    if (firstDataIndex == -1) {
       firstDataIndex = dataIndex;
       type = data.type;
     } else if (data.type != type) { // Data type mismatch.
@@ -501,7 +484,7 @@ visflow.DataSource.prototype.process = function() {
     values = values.concat(data.values);
   });
 
-  if (firstDataIndex == null) {
+  if (firstDataIndex == -1) {
     this.useEmptyData_();
     this.showDataList();
     return;
@@ -509,25 +492,25 @@ visflow.DataSource.prototype.process = function() {
 
   for (var dataIndex in mismatched) {
     this.data.splice(dataIndex, 1);
-    this.rawData_.splice(dataIndex, 1);
+    this.rawData.splice(dataIndex, 1);
   }
   var finalData = /** @type {visflow.TabularData} */(
-    $.extend({}, this.rawData_[firstDataIndex]));
+    $.extend({}, this.rawData[firstDataIndex]));
   finalData.values = values;
 
   this.showDataList();
 
-  // Apply crossing.
-  if (this.options.crossing) {
-    if (this.options.crossingKeys.length == 0) {
-      this.options.crossingKeys = this.findCrossingDims();
-      this.options.crossingAttrs = this.findCrossingAttrs();
+  // Apply transpose.
+  if (this.options.transpose) {
+    if (this.options.transposeKeys.length == 0) {
+      this.options.transposeKeys = this.findTransposeDims();
+      this.options.transposeAttrs = this.findTransposeAttrs();
     }
-    var result = visflow.parser.cross(
+    var result = visflow.parser.transpose(
       finalData,
-      this.options.crossingKeys,
-      this.options.crossingAttrs,
-      this.options.crossingName
+      this.options.transposeKeys,
+      this.options.transposeAttrs,
+      this.options.transposeName
     );
     if (!result.success) {
       visflow.error('failed to cross data:', result.msg);
@@ -558,4 +541,28 @@ visflow.DataSource.prototype.process = function() {
   // Overwrite data object (to keep the same reference).
   $.extend(this.ports['out'].pack, new visflow.Package(data));
   visflow.flow.propagate(this);
+};
+
+/**
+ * Since data source does not have input, return the output data.
+ * @inheritDoc
+ */
+visflow.DataSource.prototype.getInputData = function() {
+  var port = this.ports['out'];
+  return [port.pack.data];
+};
+
+/** @inheritDoc */
+visflow.DataSource.prototype.getDimensionNames = function() {
+  return this.ports['out'].pack.data.dimensions;
+};
+
+
+/**
+ * Sets the dataset and loads the data.
+ * @param {visflow.data.Info} dataInfo
+ */
+visflow.DataSource.prototype.setData = function(dataInfo) {
+  this.data = [dataInfo];
+  this.loadData(0);
 };

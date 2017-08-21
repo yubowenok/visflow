@@ -3,7 +3,7 @@
  */
 
 /**
- * Extends sorting to support custom types.
+ * Extends sorting to support custom type "data-size".
  * @param {string} size File size in bytes.
  * @return {number}
  */
@@ -20,4 +20,13 @@ $.fn.dataTable.ext.type.order['data-size-pre'] = function(size) {
       break;
   }
   return parseFloat(size) * multiplier;
+};
+
+/**
+ * Extends sorting to support custom type "date".
+ * @param {string} dateText Date string.
+ * @return {number}
+ */
+$.fn.dataTable.ext.type.order['date-pre'] = function(dateText) {
+  return Date.parse(dateText);
 };

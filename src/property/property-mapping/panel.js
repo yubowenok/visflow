@@ -10,13 +10,13 @@ visflow.PropertyMapping.prototype.initPanel = function(container) {
       params: {
         container: container.find('#dim'),
         list: this.getDimensionList(),
-        selected: this.dim,
+        selected: this.options.dim,
         listTitle: 'Dimension',
         selectTitle: this.ports['in'].pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
       },
       change: function(event, dim) {
-        this.dim = dim;
+        this.options.dim = dim;
         this.parameterChanged('panel');
       }
     },
@@ -30,12 +30,12 @@ visflow.PropertyMapping.prototype.initPanel = function(container) {
       },
       change: function(event, mapping) {
         this.options.mapping = mapping;
-        this.showEditableScale_(container.find('#scale'), 'panel');
+        this.showEditableScale(container.find('#scale'), 'panel');
         this.parameterChanged('panel');
       }
     }
   ];
   this.initInterface(units);
 
-  this.showEditableScale_(container.find('#scale'), 'panel');
+  this.showEditableScale(container.find('#scale'), 'panel');
 };

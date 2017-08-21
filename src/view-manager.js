@@ -33,11 +33,11 @@ visflow.viewManager.createNodeContainer = function() {
 };
 
 /**
- * Creates a container for edge.
+ * Returns the SVG edge container.
  * @return {!jQuery}
  */
-visflow.viewManager.createEdgeContainer = function() {
-  return $('<div></div>').appendTo('#main > #edges');
+visflow.viewManager.getEdgeContainer = function() {
+  return $('#edges');
 };
 
 /**
@@ -63,39 +63,6 @@ visflow.viewManager.clearFlowViews = function() {
   $('.node').remove();
   $('#edges').children().remove();
   // after this, nodes and edges cannot reuse their container
-};
-
-/**
- * Adds hover effect for an edge.
- * @param {!visflow.Edge} edge
- */
-visflow.viewManager.addEdgeHover = function(edge) {
-  var container = edge.getContainer();
-  // make a shadow
-  container.children('.edge-segment').clone()
-    .appendTo('#hover')
-    .addClass('edge-segment-hover edge-clone');
-  container.children().clone()
-    .appendTo('#main')
-    .addClass('edge-clone');
-  // copy port
-  edge.sourcePort.container
-    .clone()
-    .appendTo('#main')
-    .addClass('edge-clone hover')
-    .css(visflow.utils.offsetMain(edge.sourcePort.container));
-  edge.targetPort.container
-    .clone()
-    .appendTo('#main')
-    .addClass('edge-clone hover')
-    .css(visflow.utils.offsetMain(edge.targetPort.container));
-};
-
-/**
- * Clears hover effect for an edge.
- */
-visflow.viewManager.clearEdgeHover = function() {
-  $('#main').find('.edge-clone').remove();
 };
 
 /**

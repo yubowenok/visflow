@@ -9,6 +9,11 @@
  */
 visflow.options.PropertyMapping = function(params) {
   visflow.options.PropertyMapping.base.constructor.call(this, params);
+  /**
+   * Dimension to be mapped.
+   * @type {number}
+   */
+  this.dim = params.dim !== undefined ? params.dim : 0;
 
   /**
    * @type {!Array<number>}

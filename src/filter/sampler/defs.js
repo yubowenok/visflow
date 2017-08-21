@@ -9,39 +9,64 @@ visflow.Sampler.prototype.TEMPLATE =
 visflow.Sampler.prototype.PANEL_TEMPLATE =
   './dist/html/filter/sampler/sampler-panel.html';
 /** @inheritDoc */
-visflow.Sampler.prototype.NODE_NAME = 'Sampler';
+visflow.Sampler.prototype.DEFAULT_LABEL = 'Filter';
 /** @inheritDoc */
 visflow.Sampler.prototype.NODE_CLASS = 'sampler';
 
 /** @inheritDoc */
-visflow.Sampler.prototype.MAX_HEIGHT = 60;
+visflow.Sampler.prototype.MAX_HEIGHT = 43;
 /** @inheritDoc */
-visflow.Sampler.prototype.MIN_HEIGHT = 60;
+visflow.Sampler.prototype.MIN_HEIGHT = 43;
+
+/** @enum {string} */
+visflow.Sampler.Condition = {
+  FIRST: 'first',
+  LAST: 'last',
+  SAMPLING: 'sampling'
+};
+
+/** @enum {string} */
+visflow.Sampler.Mode = {
+  COUNT: 'count',
+  PERCENTAGE: 'percentage'
+};
 
 /**
  * Condition for sampling.
  * @return {!Array<{id: string, text: string}>}
- * @private
+ * @protected
  */
-visflow.Sampler.prototype.conditions_ = function() {
+visflow.Sampler.prototype.conditions = function() {
   return [
-    {id: 'first', text: 'First / Minimum'},
-    {id: 'last', text: 'Last / Maximum'},
-    {id: 'sampling', text: 'Random Sampling'}
+    {id: visflow.Sampler.Condition.FIRST, text: 'First / Minimum'},
+    {id: visflow.Sampler.Condition.LAST, text: 'Last / Maximum'},
+    {id: visflow.Sampler.Condition.SAMPLING, text: 'Random Sampling'}
   ];
 };
 
 /**
  * Modes for band limiting.
  * @return {!Array<{id: string, text: string}>}
- * @private
+ * @protected
  */
-visflow.Sampler.prototype.modes_ = function() {
+visflow.Sampler.prototype.modes = function() {
   return [
-    {id: 'count', text: 'Count'},
-    {id: 'percentage', text: 'Percentage'}
+    {id: visflow.Sampler.Mode.COUNT, text: 'Count'},
+    {id: visflow.Sampler.Mode.PERCENTAGE, text: 'Percentage'}
   ];
 };
+
+/**
+ * @typedef {{
+ *   dim: number,
+ *   groupBy: (number|string),
+ *   number: number,
+ *   unique: (boolean|undefined),
+ *   condition: visflow.Sampler.Condition,
+ *   mode: visflow.Sampler.Mode
+ * }}
+ */
+visflow.Sampler.Spec;
 
 /** @inheritDoc */
 visflow.Sampler.prototype.defaultOptions = function() {
@@ -49,9 +74,9 @@ visflow.Sampler.prototype.defaultOptions = function() {
     // Dimension to be filtered on.
     dim: 0,
     // Filtering conditions, 'first', 'last' or 'sampling'.
-    condition: 'first',
+    condition: visflow.Sampler.Condition.FIRST,
     // Filtering modes, 'count' or 'percentage'.
-    mode: 'count',
+    mode: visflow.Sampler.Mode.COUNT,
     // Filtering count or percentage
     number: 5,
     // Group by dimension.

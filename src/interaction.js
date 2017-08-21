@@ -36,7 +36,15 @@ visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
     text: 'Add Node',
     icon: 'glyphicon glyphicon-plus',
     hotKey: 'A'
+  },
+  /*
+  {
+    id: 'flowSense',
+    text: 'FlowSense',
+    icon: 'glyphicon glyphicon-comment',
+    hotKey: 'S'
   }
+  */
 ];
 
 /** @private {!jQuery} */
@@ -106,6 +114,11 @@ visflow.interaction.init = function() {
   visflow.interaction.interaction();
   visflow.interaction.contextMenuClickOff();
   visflow.interaction.systemMessageClickOff();
+
+  /** @type {!visflow.Edge} */
+  visflow.interaction.edgeDrawing = new visflow.Edge({
+    container: $('#edge-drawing')
+  });
 };
 
 /**
@@ -240,7 +253,7 @@ visflow.interaction.interaction = function() {
   visflow.interaction.jqselectbox.hide();
   visflow.interaction.mainContainer_
     .mousedown(function(event) {
-      if ($(event.target).is('#main')) {
+      if ($(event.target).is('#edges')) {
         visflow.interaction.mousedownHandler({
           type: 'background',
           event: event
@@ -286,7 +299,8 @@ visflow.interaction.keyPress = function(event) {
   var code = event.keyCode;
 
   // Avoid interfering with input and editable.
-  if ($(event.target).is('input, #node-label')) {
+  // TODO(bowen): Check interaction logic. Is it okay to do it globally?
+  if ($(event.target).is('input, #node-label, textarea')) {
     return true;
   }
 
@@ -340,13 +354,29 @@ visflow.interaction.keyPress = function(event) {
             visflow.popupPanel.show(event, true);
           }
           break;
-        case 'shift+A':
-          event.pageX = visflow.interaction.mouseX;
-          event.pageY = visflow.interaction.mouseY;
-          visflow.popupPanel.show(event);
+        case 'shift+L':
+          visflow.flow.autoLayoutAll();
           break;
+        /*
+        case 'shift+S':
+          // prevent 'S' from being entered into the nlp input
+          event.preventDefault();
+          visflow.nlp.input();
+          break;
+        */
         case 'shift+V':
           visflow.flow.toggleVisMode();
+          break;
+        case 'shift+T':
+          visflow.nlp.toggleSpeech();
+          break;
+        case 'shift+D':
+          // Debug only
+          for (var id in visflow.flow.nodesSelected) {
+            var node = visflow.flow.nodes[id];
+            console.log(node);
+            visflow.debug = node;
+          }
           break;
         case 'P':
           if (visflow.optionPanel.isOpen) {
@@ -378,6 +408,9 @@ visflow.interaction.mainContextMenu_ = function() {
   $(contextMenu)
     .on('vf.addNode', function() {
       visflow.popupPanel.show();
+    })
+    .on('vf.flowSense', function() {
+      visflow.nlp.input();
     });
 };
 
@@ -400,6 +433,10 @@ visflow.interaction.mousedownHandler = function(params) {
   }
 
   if (type == 'background') {
+
+    // Also decrease activeness when user is navigating.
+    visflow.flow.iterateActiveness();
+
     if (!visflow.interaction.alted) {
       visflow.interaction.mouseMode = 'pan';
       visflow.interaction.mainContainer_.css('cursor', 'move');
@@ -428,6 +465,7 @@ visflow.interaction.mousemoveHandler = function(params) {
     if (visflow.interaction.mouseMode == 'pan') {
       var dx = event.pageX - visflow.interaction.mouselastPos[0],
           dy = event.pageY - visflow.interaction.mouselastPos[1];
+      visflow.nlp.end();
       visflow.flow.moveNodes(dx, dy, visflow.flow.nodes);
     } else if (visflow.interaction.mouseMode == 'selectbox') {
       var selectbox = visflow.interaction.selectbox;
@@ -449,6 +487,7 @@ visflow.interaction.mousemoveHandler = function(params) {
       var hovered = visflow.flow.getNodesInSelectbox(box);
       visflow.flow.clearNodeHover();
       visflow.flow.addNodeHover(hovered);
+      visflow.nlp.end();
     }
   }
   visflow.interaction.mouselastPos = [event.pageX, event.pageY];
@@ -489,9 +528,6 @@ visflow.interaction.mouseupHandler = function(params) {
         }
         visflow.interaction.mainContainer_.css('cursor', '');
       }
-      // TODO(bowen): what is this?
-      // else if (visflow.interaction.mouseMode == 'selectbox') {
-      // }
     } else if (type == 'node') {
       if (!visflow.interaction.mouseMoved) {
         if (!visflow.interaction.shifted) {
@@ -511,7 +547,7 @@ visflow.interaction.mouseupHandler = function(params) {
     visflow.interaction.keyRelease(visflow.interaction.keyCodes.SHIFT);
   }
 
-  visflow.viewManager.clearEdgeHover();
+  //visflow.viewManager.clearEdgeHover();
   visflow.popupPanel.hide();
 
   visflow.interaction.mouseMode = '';
@@ -569,44 +605,14 @@ visflow.interaction.dragmoveHandler = function(params) {
     var dy = visflow.interaction.dragstopPos[1] -
       visflow.interaction.dragstartPos[1];
 
-    var jqsegment = $('#edge-drawing > .edge-segment'),
-        jqarrow = $('#edge-drawing > .edge-arrow');
-    var hseg = 3,
-        harrow = 9;
-
     var pos = params.port.isInput ? visflow.interaction.dragstopPos :
       visflow.interaction.dragstartPos;
     var rpos = !params.port.isInput ? visflow.interaction.dragstopPos :
       visflow.interaction.dragstartPos;
-    if (params.port.isInput) {
-      dx = -dx;
-      dy = -dy;
-      jqsegment
-        .css('left', pos[0] - hseg / 2)
-        .css('top', pos[1] - hseg / 2);
-    } else {
-      jqsegment
-        .css('left', pos[0] - hseg / 2)
-        .css('top', pos[1] - hseg / 2);
-    }
-    var length = Math.sqrt(dx * dx + dy * dy) - 10;
-    var angle = Math.atan2(dy, dx);
-    jqsegment
-      .css({
-        width: length,
-        transform: 'rotate(' + angle + 'rad)'
-      });
-    jqarrow
-      .css({
-        transform: 'rotate(' + angle + 'rad)'
-      });
-    jqarrow
-      .css({
-        left: rpos[0] - 20 * Math.cos(angle),
-        top: rpos[1] - 20 * Math.sin(angle) - harrow / 2,
-      });
 
-    $('#edge-drawing').show();
+    visflow.interaction.edgeDrawing.show();
+    visflow.interaction.edgeDrawing
+      .drawLinear(pos[0], pos[1], rpos[0], rpos[1]);
   } else if (type == 'node') {
     var dx = event.pageX - visflow.interaction.draglastPos[0],
         dy = event.pageY - visflow.interaction.draglastPos[1];
@@ -630,7 +636,7 @@ visflow.interaction.dragstopHandler = function(params) {
   visflow.interaction.dragstopParams = params;
   visflow.interaction.dragstopPos = [event.pageX, event.pageY];
   if (type == 'port') {
-    $('#edge-drawing').hide();
+    visflow.interaction.edgeDrawing.hide();
   } else if (type == 'node') {
     visflow.interaction.mainContainer_.css('cursor', '');
   }
@@ -685,7 +691,6 @@ visflow.interaction.clickHandler = function(params) {
   var type = params.type;
   if (type == 'empty') {
     visflow.flow.backgroundClearSelection();
-    visflow.nodePanel.toggle(false);
     $('input').blur();
   }
 };
@@ -697,4 +702,5 @@ visflow.interaction.escHandler = function() {
   visflow.flow.clearNodeSelection();
   visflow.popupPanel.hide();
   visflow.dialog.close();
+  visflow.nlp.end();
 };

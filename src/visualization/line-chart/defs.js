@@ -2,11 +2,9 @@
  * @fileoverview LineChart defs.
  */
 
-/** @inheritDoc */
-visflow.LineChart.prototype.NODE_CLASS = 'line-chart';
 
 /** @inheritDoc */
-visflow.LineChart.prototype.NODE_NAME = 'Line Chart';
+visflow.LineChart.prototype.NODE_CLASS = 'line-chart';
 
 /** @inheritDoc */
 visflow.LineChart.prototype.PANEL_TEMPLATE =
@@ -38,19 +36,19 @@ visflow.LineChart.prototype.defaultOptions = function() {
   });
 };
 
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_OFFSET_X_ = 10;
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_OFFSET_Y_ = 15;
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_MARGIN_RIGHT_ = 5;
+/** @const {number} */
+visflow.LineChart.LEGEND_OFFSET_X = 10;
+/** @const {number} */
+visflow.LineChart.LEGEND_OFFSET_Y = 15;
+/** @const {number} */
+visflow.LineChart.LEGEND_MARGIN_RIGHT = 5;
 /**
  * This includes the colorbox size.
- * @private @const {number}
+ * @const {number}
  */
-visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_X_ = 15;
-/** @private @const {number} */
-visflow.LineChart.prototype.LEGEND_LABEL_OFFSET_Y_ = 10;
+visflow.LineChart.LEGEND_LABEL_OFFSET_X = 15;
+/** @const {number} */
+visflow.LineChart.LEGEND_LABEL_OFFSET_Y = 10;
 
 /** @inheritDoc */
 visflow.LineChart.prototype.defaultProperties = function() {
@@ -67,7 +65,7 @@ visflow.LineChart.prototype.defaultProperties = function() {
 visflow.LineChart.prototype.selectedProperties = function() {
   return {
     color: 'white',
-    border: '#6699ee'
+    border: visflow.const.SELECTED_COLOR
   };
 };
 
@@ -80,7 +78,7 @@ visflow.LineChart.prototype.selectedProperties = function() {
  */
 visflow.LineChart.prototype.selectedLineProperties = function() {
   return {
-    color: '#6699ee',
+    color: visflow.const.SELECTED_COLOR,
     width: 2
   };
 };

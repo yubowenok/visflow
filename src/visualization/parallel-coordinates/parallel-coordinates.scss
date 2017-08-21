@@ -1,6 +1,6 @@
 .visflow .node.parallel-coordinates {
   &.minimized > .icon {
-    background-image: url('./imgs/parallelcoordinates-icon.png');
+    background-image: url('./imgs/parallelcoordinates-icon.svg');
   }
 
   &.details {
@@ -10,6 +10,5 @@
 
   path {
     fill: none;
-    shape-rendering: optimizeSpeed;
   }
 }
