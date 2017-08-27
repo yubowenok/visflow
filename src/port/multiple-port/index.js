@@ -5,7 +5,7 @@
 /**
  * @param {visflow.params.Port} params
  * @constructor
- * @extends {visflow.Port}
+ * @extends {visflow.SubsetPort}
  */
 visflow.MultiplePort = function(params) {
   visflow.MultiplePort.base.constructor.call(this, params);
@@ -17,7 +17,7 @@ visflow.MultiplePort = function(params) {
   }
 };
 
-_.inherit(visflow.MultiplePort, visflow.Port);
+_.inherit(visflow.MultiplePort, visflow.SubsetPort);
 
 /** @inheritDoc */
 visflow.MultiplePort.prototype.setContainer = function(container) {

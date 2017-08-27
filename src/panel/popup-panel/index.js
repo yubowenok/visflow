@@ -117,7 +117,7 @@ visflow.popupPanel.initButton_ = function(button) {
     var node = visflow.flow.createNode(/** @type {string} */(
       button.attr('id')));
 
-    $(node).on('vf.ready', function() {
+    visflow.listen(node, visflow.Event.READY, function() {
       var container = node.getContainer();
       container.css(_.extend({
         left: visflow.interaction.mouseX - container.width() / 2,

@@ -5,7 +5,7 @@
 /**
  * @param {!Object} params
  * @constructor
- * @extends {visflow.Node}
+ * @extends {visflow.SubsetNode}
  */
 visflow.Filter = function(params) {
   visflow.Filter.base.constructor.call(this, params);
@@ -23,7 +23,7 @@ visflow.Filter = function(params) {
   this.lastDataId = visflow.data.EMPTY_DATA_ID;
 };
 
-_.inherit(visflow.Filter, visflow.Node);
+_.inherit(visflow.Filter, visflow.SubsetNode);
 
 /** @private @const {number} */
 visflow.Filter.HEIGHT_ = 67 + visflow.const.PADDING * 2;

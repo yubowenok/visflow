@@ -7,7 +7,7 @@ visflow.Scatterplot.prototype.initPanel = function(container) {
   visflow.Scatterplot.base.initPanel.call(this, container);
   var dimensionList = this.getDimensionList();
 
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.Select,
       params: {
@@ -89,5 +89,4 @@ visflow.Scatterplot.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
 };

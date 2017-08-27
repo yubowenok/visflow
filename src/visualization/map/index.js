@@ -240,7 +240,7 @@ visflow.Map.prototype.getItemProperties_ = function() {
   }.bind(this));
   this.circles = {};
 
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var values = inpack.data.values;
   var items = inpack.items;
   var itemProps = [];
@@ -307,7 +307,7 @@ visflow.Map.prototype.selectedChanged = function() {
 
 /** @inheritDoc */
 visflow.Map.prototype.findPlotDimensions = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   var dims = [];
   var candidates = [];
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
@@ -334,7 +334,7 @@ visflow.Map.prototype.findPlotDimensions = function() {
 
 /** @inheritDoc */
 visflow.Map.prototype.setDimensions = function(dims) {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   if (dims.length) {
     this.options.latDim = data.dimensions.indexOf(dims[0]);
   }

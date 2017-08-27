@@ -4,7 +4,7 @@
 
 /** @inheritDoc */
 visflow.RangeFilter.prototype.initPanel = function(container) {
-  var units = [
+  this.panelElements = [
     // Dimensions
     {
       constructor: visflow.Select,
@@ -13,7 +13,7 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
         list: this.getDimensionList(),
         selected: this.options.dim,
         listTitle: 'Filtering Dimension',
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        selectTitle: this.getDataInPort().pack.data.isEmpty() ?
           this.NO_DATA_STRING : null,
         allowClear: true
       },
@@ -29,7 +29,7 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
         container: container.find('#min'),
         value: this.formatRange(this.range[0]),
         title: 'Min Value',
-        disabled: this.ports['inMin'].connected()
+        disabled: this.getPort('inMin').connected()
       },
       change: function(event, value) {
         this.options.typeInValue[0] = '' + value;
@@ -43,7 +43,7 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
         container: container.find('#max'),
         value: this.formatRange(this.range[1]),
         title: 'Max Value',
-        disabled: this.ports['inMax'].connected()
+        disabled: this.getPort('inMax').connected()
       },
       change: function(event, value) {
         this.options.typeInValue[1] = '' + value;
@@ -51,5 +51,4 @@ visflow.RangeFilter.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
 };

@@ -12,7 +12,7 @@ visflow.PropertyEditor = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    'in': new visflow.Port({
+    'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
       isInput: true,
@@ -39,13 +39,13 @@ visflow.PropertyEditor.prototype.serialize = function() {
 visflow.PropertyEditor.prototype.showDetails = function() {
   visflow.PropertyEditor.base.showDetails.call(this); // call parent settings
 
-  var units = [];
+  var panelElements = [];
 
   [
     {selector: '#color', property: 'color'},
     {selector: '#border', property: 'border'}
   ].forEach(function(info) {
-    units.push({
+    panelElements.push({
       constructor: visflow.ColorPicker,
       params: {
         container: this.content.find(info.selector),
@@ -63,7 +63,7 @@ visflow.PropertyEditor.prototype.showDetails = function() {
     {selector: '#size', property: 'size'},
     {selector: '#opacity', property: 'opacity'}
   ].forEach(function(info) {
-    units.push({
+    panelElements.push({
       constructor: visflow.Input,
       params: {
         container: this.content.find(info.selector),
@@ -78,13 +78,14 @@ visflow.PropertyEditor.prototype.showDetails = function() {
       }
     });
   }, this);
-  this.initInterface(units);
+
+  this.showUiElements(panelElements);
 };
 
 /** @inheritDoc */
-visflow.PropertyEditor.prototype.process = function() {
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
+visflow.PropertyEditor.prototype.processSync = function() {
+  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var outpack = this.getDataOutPort().pack;
   outpack.copy(inpack);
   var newItems = {};
   var setProps = {};

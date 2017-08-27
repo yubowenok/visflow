@@ -5,7 +5,7 @@
 /** @inheritDoc */
 visflow.Map.prototype.initPanel = function(container) {
   var dimensionList = this.getDimensionList();
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.Select,
       params: {
@@ -56,5 +56,4 @@ visflow.Map.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
 };

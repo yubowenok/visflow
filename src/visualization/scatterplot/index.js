@@ -70,7 +70,7 @@ visflow.Scatterplot.prototype.selectItemsInBox_ = function() {
   if (!visflow.interaction.shifted) {
     this.selected = {}; // reset selection if shift key is not down
   }
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var values = inpack.data.values;
   for (var itemIndex in items) {
@@ -147,7 +147,7 @@ visflow.Scatterplot.prototype.updateLeftMargin_ = function() {
  * @private
  */
 visflow.Scatterplot.prototype.getItemProperties_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var values = inpack.data.values;
   var items = inpack.items;
   var itemProps = [];
@@ -214,7 +214,7 @@ visflow.Scatterplot.prototype.drawPoints_ = function(itemProps) {
  */
 visflow.Scatterplot.prototype.drawXAxis_ = function() {
   var svgSize = this.getSVGSize();
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   this.drawAxis({
     svg: this.svgAxes.select('.x.axis'),
     scale: this.xScale,
@@ -242,7 +242,7 @@ visflow.Scatterplot.prototype.drawXAxis_ = function() {
  * @private
  */
 visflow.Scatterplot.prototype.drawYAxis_ = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   this.drawAxis({
     svg: this.svgAxes.select('.y.axis'),
     scale: this.yScale,
@@ -278,7 +278,7 @@ visflow.Scatterplot.prototype.drawAxes_ = function() {
  * Prepares the scales for scatterplot.
  */
 visflow.Scatterplot.prototype.prepareScales = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var data = inpack.data;
 
@@ -329,7 +329,7 @@ visflow.Scatterplot.prototype.transitionFeasible = function() {
  * @override
  */
 visflow.Scatterplot.prototype.findPlotDimensions = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   var chosen = [];
   for (var i = 0; i < data.dimensionTypes.length; i++) {
     if (data.dimensionTypes[i] != visflow.ValueType.STRING) {
@@ -350,7 +350,7 @@ visflow.Scatterplot.prototype.findPlotDimensions = function() {
  * @param {string} dim
  */
 visflow.Scatterplot.prototype.setXDimension = function(dim) {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   this.options.xDim = data.dimensions.indexOf(dim);
   this.dimensionChanged();
 };
@@ -360,7 +360,7 @@ visflow.Scatterplot.prototype.setXDimension = function(dim) {
  * @param {string} dim
  */
 visflow.Scatterplot.prototype.setYDimension = function(dim) {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   this.options.yDim = data.dimensions.indexOf(dim);
   this.dimensionChanged();
 };

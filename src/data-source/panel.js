@@ -12,7 +12,7 @@ visflow.DataSource.prototype.initPanel = function(container) {
   var dimensionList = this.rawData[0] != null ?
     this.getDimensionList(this.rawData[0], true) : [];
 
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.Checkbox,
       params: {
@@ -75,7 +75,6 @@ visflow.DataSource.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
   if (!this.options.transpose) {
     container.find('#transpose-section').hide();
   }

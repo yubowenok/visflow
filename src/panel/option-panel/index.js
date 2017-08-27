@@ -62,7 +62,7 @@ visflow.optionPanel.init = function() {
  * @private
  */
 visflow.optionPanel.initUpdateHandlers_ = function() {
-  $(visflow.flow).on('vf.visMode', function() {
+  visflow.listen(visflow.flow, visflow.Event.VISMODE, function() {
     visflow.optionPanel.updateVisMode_();
   });
 };

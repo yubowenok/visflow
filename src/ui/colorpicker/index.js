@@ -1,6 +1,6 @@
 /**
- * @fileoverview VisFlow colorpicker unit that provides interface for choosing
- * color.
+ * @fileoverview VisFlow colorpicker UI element that provides interface for
+ * choosing color.
  */
 
 /**
@@ -37,7 +37,7 @@ visflow.ColorPicker = function(params) {
  * @private @const {string}
  */
 visflow.ColorPicker.prototype.TEMPLATE_ =
-    './dist/html/unit/colorpicker/colorpicker.html';
+    './dist/html/ui/colorpicker/colorpicker.html';
 
 /** @private @const {number} */
 visflow.ColorPicker.prototype.X_OFFSET_ = -50;

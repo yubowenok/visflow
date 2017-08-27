@@ -14,9 +14,9 @@ visflow.Intersect = function(params) {
 _.inherit(visflow.Intersect, visflow.Set);
 
 /** @inheritDoc */
-visflow.Intersect.prototype.process = function() {
-  var inpacks = this.ports['in'].packs;
-  var outpack = this.ports['out'].pack;
+visflow.Intersect.prototype.processSync = function() {
+  var inpacks = this.getDataInPort().packs;
+  var outpack = this.getDataOutPort().pack;
 
   outpack.copy(new visflow.Package());
 

@@ -5,7 +5,7 @@
 /** @inheritDoc */
 visflow.ValueMaker.prototype.initPanel = function(container) {
   visflow.ValueMaker.base.initPanel.call(this, container);
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.Input,
       params: {
@@ -19,5 +19,4 @@ visflow.ValueMaker.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
 };

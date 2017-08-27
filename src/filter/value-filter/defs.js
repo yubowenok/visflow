@@ -28,6 +28,11 @@ visflow.ValueFilter.Target = {
   SUBSTRING: 'substring'
 };
 
+/** @enum {string} */
+visflow.ValueFilter.Port = {
+  IN_VAL: 'inVal'
+};
+
 /**
  * @typedef {{
  *   dims: (number|undefined|null),

@@ -12,14 +12,14 @@ visflow.ValueFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    'inVal': new visflow.Port({
+    'inVal': new visflow.SubsetPort({
       node: this,
       id: 'inVal',
       text: 'containing value',
       isInput: true,
       isConstants: true
     }),
-    'in': new visflow.Port({
+    'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
       isInput: true,
@@ -54,7 +54,7 @@ visflow.ValueFilter.prototype.deserialize = function(save) {
 visflow.ValueFilter.prototype.showDetails = function() {
   visflow.ValueFilter.base.showDetails.call(this);
 
-  var units = [
+  var uiElements = [
     // Dimension
     {
       constructor: visflow.Select,
@@ -62,7 +62,7 @@ visflow.ValueFilter.prototype.showDetails = function() {
         container: this.content.find('#dim'),
         list: this.getDimensionList(),
         selected: this.options.dim,
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        selectTitle: this.getDataInPort().pack.data.isEmpty() ?
           this.NO_DATA_STRING : null,
         allowClear: true
       },
@@ -85,12 +85,13 @@ visflow.ValueFilter.prototype.showDetails = function() {
       }
     }
   ];
-  this.initInterface(units);
+
+  this.showUiElements(uiElements);
 };
 
 /** @inheritDoc */
-visflow.ValueFilter.prototype.process = function() {
-  var port = this.ports['inVal'];
+visflow.ValueFilter.prototype.processSync = function() {
+  var port = this.getPort(visflow.ValueFilter.Port.IN_VAL);
   var pack;
   if (port.connected()) {
     pack = port.pack;
@@ -102,8 +103,8 @@ visflow.ValueFilter.prototype.process = function() {
   }
   this.values = pack.getAll();
 
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var outpack = this.getDataOutPort().pack;
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
     return;
@@ -169,8 +170,8 @@ visflow.ValueFilter.filter = function(spec, pack) {
 /** @inheritDoc */
 visflow.ValueFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
+  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var outpack = this.getDataOutPort().pack;
 
   var result = visflow.ValueFilter.filter({
     dim: this.options.dim,

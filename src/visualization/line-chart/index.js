@@ -139,7 +139,7 @@ visflow.LineChart.prototype.selectItemsInBox_ = function() {
     this.selected = {}; // reset selection if shift key is not down
     this.selectedGroups = {};
   }
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var values = inpack.data.values;
   for (var itemIndex in items) {
@@ -243,7 +243,7 @@ visflow.LineChart.prototype.showSelection = function() {
  * @private
  */
 visflow.LineChart.prototype.getLineProperties_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var data = inpack.data;
   var values = data.values;
@@ -296,7 +296,7 @@ visflow.LineChart.prototype.getLineProperties_ = function() {
  * @private
  */
 visflow.LineChart.prototype.getItemProperties_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var values = inpack.data.values;
   // Data to be rendered.
@@ -445,7 +445,7 @@ visflow.LineChart.prototype.drawLines_ = function(lineProps, itemProps) {
  * @private
  */
 visflow.LineChart.prototype.sortItems_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var data = inpack.data;
 
   var xCollided = false;
@@ -490,7 +490,7 @@ visflow.LineChart.prototype.sortItems_ = function() {
  */
 visflow.LineChart.prototype.drawXAxis_ = function() {
   var svgSize = this.getSVGSize();
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   this.drawAxis({
     svg: this.svgAxes.select('.x.axis'),
     scale: this.xScale,
@@ -518,7 +518,7 @@ visflow.LineChart.prototype.drawXAxis_ = function() {
  * @private
  */
 visflow.LineChart.prototype.drawYAxis_ = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   this.drawAxis({
     svg: this.svgAxes.select('.y.axis'),
     scale: this.yScale,
@@ -554,7 +554,7 @@ visflow.LineChart.prototype.drawAxes_ = function() {
  * Prepares the scales for line chart.
  */
 visflow.LineChart.prototype.prepareScales = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var data = inpack.data;
   var margins = this.plotMargins();
@@ -606,7 +606,7 @@ visflow.LineChart.prototype.dimensionChanged = function() {
  * @override
  */
 visflow.LineChart.prototype.findPlotDimensions = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   var x = null;
   var y = null;
   var groupBy = null;
@@ -668,7 +668,7 @@ visflow.LineChart.prototype.dataChanged = function() {
 /** @inheritDoc */
 visflow.LineChart.prototype.inputChanged = function() {
   this.selectedGroups = {};
-  this.itemGroups_ = this.ports['in'].pack.groupItems(this.options.groupBy);
+  this.itemGroups_ = this.getDataInPort().pack.groupItems(this.options.groupBy);
   this.sortItems_();
   this.itemProps_ = this.getItemProperties_();
   this.lineProps_ = this.getLineProperties_();
@@ -680,7 +680,7 @@ visflow.LineChart.prototype.inputChanged = function() {
  */
 visflow.LineChart.prototype.selectAll = function() {
   // Repeat getting selected items as we need to update the properties.
-  var items = this.ports['in'].pack.items;
+  var items = this.getDataInPort().pack.items;
   this.selected = _.keySet(items);
   this.selectedGroups = _.keySet(_.range(0, this.lineProps_.length));
   this.itemProps_ = this.getItemProperties_();

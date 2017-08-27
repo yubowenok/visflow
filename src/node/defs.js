@@ -40,6 +40,15 @@ visflow.Node.prototype.NODE_CLASS = '';
 visflow.Node.prototype.DEFAULT_LABEL = 'Node';
 
 
+/**
+ * Whether the node should use asynchronous process. This is usually set for
+ * a whole class of nodes. But it can also be changed based on ENV if the node
+ * can be either sync or async.
+ * @type {boolean}
+ */
+visflow.Node.prototype.isAsyncProcess = false;
+
+
 // Minimum/maximum size of resizable.
 /** @protected {number} */
 visflow.Node.prototype.MIN_WIDTH = 120;
@@ -81,7 +90,6 @@ visflow.Node.FOCUS_GAMMA = 500;
 /**
  * ContextMenu entries.
  * @return {!Array<visflow.contextMenu.Item>}
- * @protected
  */
 visflow.Node.prototype.contextMenuItems = function() {
   return [
@@ -114,4 +122,14 @@ visflow.Node.prototype.defaultOptions = function() {
     label: true,
     visMode: false
   });
+};
+
+/**
+ * Messages to be displayed as popup.
+ * @enum {string}
+ */
+visflow.Node.Message = {
+  PROCESSING: 'processing',
+  EMPTY_DATA: 'empty data',
+  WAITING: 'waiting'
 };

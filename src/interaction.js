@@ -655,24 +655,16 @@ visflow.interaction.dropHandler = function(params) {
       // connect ports
       var port1 = visflow.interaction.dragstartParams.port,
           port2 = params.port;
-      if (port1.isInput) {
-        // always connect from out to in, swap
-        var porttmp = port1;
-        port1 = port2;
-        port2 = porttmp;
-      }
-      visflow.flow.createEdge(port1, port2);
-    } else if (type == 'node') {
-      var port1 = visflow.interaction.dragstartParams.port,
-          port2 = params.node.firstConnectable(port1);
-      if (port2 != null) {
-        if (port1.isInput) {
-          // always connect from out to in, swap
-          var porttmp = port1;
-          port1 = port2;
-          port2 = porttmp;
-        }
+      // always connect from out to in
+      port1.isInput ? visflow.flow.createEdge(port2, port1) :
         visflow.flow.createEdge(port1, port2);
+    } else if (type == 'node') {
+      var port1 = visflow.interaction.dragstartParams.port;
+      var port2 = params.node.firstConnectable(port1);
+      if (port2 != null) {
+        // always connect from out to in
+        port1.isInput ? visflow.flow.createEdge(port2, port1) :
+          visflow.flow.createEdge(port1, port2);
       } else {
         // Show error message.
         visflow.tooltip.create('No connectable port available');

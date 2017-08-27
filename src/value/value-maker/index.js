@@ -5,7 +5,7 @@
 /**
  * @param {visflow.params.Node} params
  * @constructor
- * @extends {visflow.Node}
+ * @extends {visflow.Value}
  */
 visflow.ValueMaker = function(params) {
   visflow.ValueMaker.base.constructor.call(this, params);
@@ -31,7 +31,7 @@ visflow.ValueMaker = function(params) {
    * @protected {visflow.Constants}
    */
   this.value = new visflow.Constants('' + this.valueString);
-  this.ports['out'].pack = this.value;
+  this.getDataOutPort().pack = this.value;
 };
 
 _.inherit(visflow.ValueMaker, visflow.Value);
@@ -52,7 +52,7 @@ visflow.ValueMaker.prototype.deserialize = function(save) {
 /** @inheritDoc */
 visflow.ValueMaker.prototype.showDetails = function() {
   visflow.ValueMaker.base.showDetails.call(this);
-  var units = [
+  var uiElements = [
     {
       constructor: visflow.Input,
       params: {
@@ -65,15 +65,15 @@ visflow.ValueMaker.prototype.showDetails = function() {
       }
     }
   ];
-  this.initInterface(units);
+  this.showUiElements(uiElements);
 };
 
 /**
  * Handles interface parameter changes.
  */
 visflow.ValueMaker.prototype.parameterChanged = function() {
-  this.process();
-  this.show();
+  //this.process();
+  //this.show();
   this.pushflow();
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());
@@ -92,5 +92,5 @@ visflow.ValueMaker.prototype.setValueString = function(str) {
   this.valueString = str;
   this.value = new visflow.Constants('' + str);
 
-  $.extend(this.ports['out'].pack, this.value);
+  $.extend(this.getDataOutPort().pack, this.value);
 };

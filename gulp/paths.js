@@ -2,6 +2,7 @@
 
 var orderedSrc = [
   'src/visflow.js',
+  'src/signal.js',
   'src/common/defs.js',
   'src/common/*.js',
   'src/history/history.js',
@@ -34,15 +35,17 @@ var orderedSrc = [
   'src/data/*.js',
 
   'src/node/index.js',
-  'src/node/*.js',
+  'src/node/subset-node/index.js',
+  'src/node/computation-node/index.js',
+  'src/node/**/*.js',
   'src/edge/index.js',
   'src/edge/*.js',
   'src/port/index.js',
-  'src/port/multiple-port/index.js',
-  'src/port/selection-port/index.js',
+  'src/port/subset-port/index.js',
+  'src/port/**/index.js',
 
-  'src/unit/select/index.js',
-  'src/unit/**/*.js',
+  'src/ui/select/index.js',
+  'src/ui/**/*.js',
 
   'src/panel/panel.js',
   'src/panel/**/*.js',
@@ -70,7 +73,11 @@ var orderedSrc = [
   'src/visualization/**/index.js',
   'src/visualization/**/*.js',
 
+  'src/identity/index.js',
+  'src/identity/**/*.js',
+
   'src/diagram/diagram.js',
+  'src/flow/flow.js',
   'src/flow/**/*.js',
   'src/welcome/welcome.js',
 

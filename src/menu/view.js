@@ -28,22 +28,24 @@ visflow.view.initDropdown = function(navbar) {
  */
 visflow.view.initListeners_ = function() {
   // Change of nodePanel visibility
-  $(visflow.nodePanel).on('vf.change', function(event, data) {
-    var value = data.value;
-    switch (data.type) {
-      case 'nodePanel':
-        $('#view #show-node-panel > i').toggleClass('glyphicon-ok', value);
-        break;
-    }
-  });
+  visflow.listen(visflow.nodePanel, visflow.Event.CHANGE,
+    function(event, data) {
+      var value = data.value;
+      switch (data.type) {
+        case 'nodePanel':
+          $('#view #show-node-panel > i').toggleClass('glyphicon-ok', value);
+          break;
+      }
+    });
   // Change of node label visibility
-  $(visflow.options).on('vf.change', function(event, data) {
-    var value = data.value;
-    switch (data.type) {
-      case 'nodeLabel':
-        $('#view #show-node-label > i').toggleClass('glyphicon-ok', value);
-        visflow.flow.updateNodeLabels();
-        break;
-    }
+  visflow.listen(visflow.options, visflow.Event.CHANGE,
+    function(event, data) {
+      var value = data.value;
+      switch (data.type) {
+        case 'nodeLabel':
+          $('#view #show-node-label > i').toggleClass('glyphicon-ok', value);
+          visflow.flow.updateNodeLabels();
+          break;
+      }
   });
 };

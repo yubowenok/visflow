@@ -7,7 +7,7 @@ visflow.LineChart.prototype.initPanel = function(container) {
   visflow.LineChart.base.initPanel.call(this, container);
   var dimensionList = this.getDimensionList(null, true);
 
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.Select,
       params: {
@@ -140,7 +140,6 @@ visflow.LineChart.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
   this.updateCollisionMessage();
 };
 

@@ -4,12 +4,13 @@
 
 /** @inheritDoc */
 visflow.PropertyEditor.prototype.initPanel = function(container) {
-  var units = [];
+  var panelElements = [];
+
   [
     {selector: '#color', property: 'color', title: 'Color'},
     {selector: '#border', property: 'border', title: 'Border'}
   ].forEach(function(info) {
-    units.push({
+    panelElements.push({
       constructor: visflow.ColorPicker,
       params: {
         container: container.find(info.selector),
@@ -23,12 +24,13 @@ visflow.PropertyEditor.prototype.initPanel = function(container) {
       }
     });
   }, this);
+
   [
     {selector: '#width', property: 'width', title: 'Width'},
     {selector: '#size', property: 'size', title: 'Size'},
     {selector: '#opacity', property: 'opacity', title: 'Opacity'}
   ].forEach(function(info) {
-    units.push({
+    panelElements.push({
       constructor: visflow.Input,
       params: {
         container: container.find(info.selector),
@@ -45,5 +47,5 @@ visflow.PropertyEditor.prototype.initPanel = function(container) {
     });
   }, this);
 
-  this.initInterface(units);
+  this.panelElements = panelElements;
 };

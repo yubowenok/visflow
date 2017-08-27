@@ -162,7 +162,7 @@ visflow.Heatmap.ItemProperty;
  * @private
  */
 visflow.Heatmap.prototype.getItemProperties_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var data = inpack.data;
   // visflow.Scale information
@@ -406,7 +406,7 @@ visflow.Heatmap.prototype.drawColLabels_ = function(svg) {
       ]);
     }.bind(this);
   }
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var data = inpack.data;
   var dimInfos = this.uniqueDimensions(this.options.dims);
 
@@ -487,7 +487,7 @@ visflow.Heatmap.prototype.showSelection = function() {
  * @private
  */
 visflow.Heatmap.prototype.sortItems_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var data = inpack.data;
 
@@ -528,7 +528,7 @@ visflow.Heatmap.prototype.prepareXYScales_ = function() {
  * @private
  */
 visflow.Heatmap.prototype.prepareNormalizeScales_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var data = inpack.data;
 
@@ -561,7 +561,7 @@ visflow.Heatmap.prototype.updateLeftMargin_ = function() {
  * @private
  */
 visflow.Heatmap.prototype.updateTopMargin_ = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   var margins = this.plotMargins();
   this.topMargin_ = margins.top;
   if (data.isEmpty()) {
@@ -624,7 +624,7 @@ visflow.Heatmap.prototype.prepareScales = function() {
  * @override
  */
 visflow.Heatmap.prototype.findPlotDimensions = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   var dimensions = [];
   var labelBy = null;
   data.dimensionTypes.forEach(function(type, index) {

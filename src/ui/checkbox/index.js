@@ -1,5 +1,5 @@
 /**
- * @fileoverview VisFlow checkbox unit.
+ * @fileoverview VisFlow checkbox UI element.
  */
 
 /**
@@ -27,7 +27,7 @@ visflow.Checkbox = function(params) {
 
 /** @private @const {string} */
 visflow.Checkbox.prototype.TEMPLATE_ =
-  './dist/html/unit/checkbox/checkbox.html';
+  './dist/html/ui/checkbox/checkbox.html';
 
 /**
  * Initializes the checkbox.

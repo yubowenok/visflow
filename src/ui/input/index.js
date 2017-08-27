@@ -58,7 +58,7 @@ visflow.Input = function(params) {
  * Input HTML template.
  * @private @const {string}
  */
-visflow.Input.prototype.TEMPLATE_ = './dist/html/unit/input/input.html';
+visflow.Input.prototype.TEMPLATE_ = './dist/html/ui/input/input.html';
 
 /**
  * Initializes the Input.

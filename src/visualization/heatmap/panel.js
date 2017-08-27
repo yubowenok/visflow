@@ -7,7 +7,7 @@ visflow.Heatmap.prototype.initPanel = function(container) {
   visflow.Heatmap.base.initPanel.call(this, container);
   var dimensionList = this.getDimensionList();
 
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.EditableList,
       params: {
@@ -80,5 +80,4 @@ visflow.Heatmap.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
 };

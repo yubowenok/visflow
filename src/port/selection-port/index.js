@@ -5,7 +5,7 @@
 /**
  * @param {visflow.params.Port} params
  * @constructor
- * @extends {visflow.Port}
+ * @extends {visflow.MultiplePort}
  */
 visflow.SelectionPort = function(params) {
   var paramsApplied = _.extend(
