@@ -12,31 +12,27 @@ visflow.RangeFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    'inMin': new visflow.SubsetPort({
+    'inMin': new visflow.ConstantPort({
       node: this,
       id: 'inMin',
       text: 'range min',
-      isInput: true,
-      isConstants: true
+      isInput: true
     }),
-    'inMax': new visflow.SubsetPort({
+    'inMax': new visflow.ConstantPort({
       node: this,
       id: 'inMax',
       text: 'range max',
-      isInput: true,
-      isConstants: true
+      isInput: true
     }),
     'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 
@@ -143,7 +139,7 @@ visflow.RangeFilter.prototype.processSync = function() {
     visflow.warning('minValue > maxValue in', this.label);
   }
 
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
   var outpack = this.getDataOutPort().pack;
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
@@ -185,7 +181,7 @@ visflow.RangeFilter.prototype.formatRange = function(value) {
 /**
  * Range filters the subset with a given specification.
  * @param {visflow.RangeFilter.Spec} spec
- * @param {!visflow.Package} pack
+ * @param {!visflow.Subset} pack
  * @return {!Array<number>} Resulting subset as array.
  */
 visflow.RangeFilter.filter = function(spec, pack) {
@@ -209,7 +205,7 @@ visflow.RangeFilter.filter = function(spec, pack) {
 /** @inheritDoc */
 visflow.RangeFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
 
   var result = visflow.RangeFilter.filter({
     dim: this.options.dim,

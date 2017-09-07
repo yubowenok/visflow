@@ -15,14 +15,12 @@ visflow.ValueExtractor = function(params) {
     'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiConstantPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: true
+      isInput: false
     })
   };
 
@@ -75,8 +73,8 @@ visflow.ValueExtractor.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.processSync = function() {
-  var inpack = this.getDataInPort().pack;
-  var outpack = this.getDataOutPort().pack;
+  var inpack = this.getDataInPort().getSubset();
+  var outpack = this.getConstantOutPort().pack;
   if (inpack.type === 'constants')
     return visflow.error('constants in connected to value extractor');
 
@@ -111,8 +109,6 @@ visflow.ValueExtractor.prototype.processSync = function() {
  * Handles interface parameter changes.
  */
 visflow.ValueExtractor.prototype.parameterChanged = function() {
-  //this.process();
-  //this.show();
   this.pushflow();
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());

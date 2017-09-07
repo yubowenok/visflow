@@ -15,14 +15,12 @@ visflow.PropertyMapping = function(params) {
     'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 };
@@ -142,7 +140,7 @@ visflow.PropertyMapping.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.processSync = function() {
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
   var outpack = this.getDataOutPort().pack;
   var items = inpack.items;
   var data = inpack.data;
@@ -206,7 +204,6 @@ visflow.PropertyMapping.prototype.adjustNumbers = function() {
 /** @inheritDoc */
 visflow.PropertyMapping.prototype.parameterChanged = function(source) {
   var adjusted = this.adjustNumbers();
-  this.process();
   this.pushflow();
   // If number range is adjusted, we need to redraw both node and panel as the
   // inputs may be out-of-date.

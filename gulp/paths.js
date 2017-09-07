@@ -32,6 +32,7 @@ var orderedSrc = [
   'src/params.js',
   'src/**/params.js',
 
+  'src/data/package.js',
   'src/data/*.js',
 
   'src/node/index.js',
@@ -42,7 +43,11 @@ var orderedSrc = [
   'src/edge/*.js',
   'src/port/index.js',
   'src/port/subset-port/index.js',
+  'src/port/constant-port/index.js',
+  'src/port/multi-subset-port/index.js',
+  'src/port/selection-port/index.js',
   'src/port/**/index.js',
+  'src/port/**/defs.js',
 
   'src/ui/select/index.js',
   'src/ui/**/*.js',

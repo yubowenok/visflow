@@ -37,11 +37,10 @@ visflow.DataSource = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    out: new visflow.MultiplePort({
+    out: new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
       isInput: false,
-      isConstants: false,
       fromPort: ''
     })
   };
@@ -199,7 +198,7 @@ visflow.DataSource.prototype.updateTranspose_ = function() {
     var panelContainer = visflow.optionPanel.contentContainer();
     panelContainer.find('#transpose-section').toggle(this.options.transpose);
   }
-  this.process();
+  this.pushflow();
 };
 
 /**
@@ -249,7 +248,6 @@ visflow.DataSource.prototype.loadDataDialog = function() {
   visflow.dialog.create({
     template: visflow.DataSource.SELECT_DATA_TEMPLATE,
     complete: function(dialog) {
-
       dialog.find('.to-tooltip').tooltip({
         delay: this.TOOLTIP_DELAY
       });
@@ -277,7 +275,10 @@ visflow.DataSource.prototype.loadDataDialog = function() {
           file: dataFile,
           isServerData: this.options.useServerData
         });
-        this.loadData({index: this.data.length - 1});
+        this.loadData({
+          index: this.data.length - 1,
+          callback: this.pushflow.bind(this)
+        });
       }.bind(this));
 
       visflow.data.listData(function(dataList) {
@@ -340,7 +341,7 @@ visflow.DataSource.prototype.clearData = function() {
   this.data = [];
   this.rawData = [];
   this.showDataList();
-  this.process();
+  this.pushflow();
 };
 
 /**
@@ -428,8 +429,7 @@ visflow.DataSource.prototype.useEmptyData_ = function(opt_isError) {
     this.content.find('#data-error').show();
   }
   // No data. Create empty package and propagate.
-  $.extend(this.getDataOutPort().pack, new visflow.Package());
-  this.pushflow();
+  $.extend(this.getDataOutPort().pack, new visflow.Subset());
 };
 
 /**
@@ -540,7 +540,7 @@ visflow.DataSource.prototype.processData_ = function(endProcess) {
       this.options.transposeName
     );
     if (!result.success) {
-      visflow.error('failed to cross data:', result.msg);
+      visflow.error('failed to transpose data:', result.msg);
       this.useEmptyData_(true);
 
       endProcess();
@@ -568,15 +568,15 @@ visflow.DataSource.prototype.processData_ = function(endProcess) {
     visflow.data.registerData(data);
   }
   // Overwrite data object (to keep the same reference).
-  $.extend(this.getDataOutPort().pack, new visflow.Package(data));
+  $.extend(this.getDataOutPort().pack, new visflow.Subset(data));
 
   endProcess();
 };
 
 /** @inheritDoc */
 visflow.DataSource.prototype.processAsync = function(endProcess) {
-  console.warn('data source async');
   if (!this.allDataLoaded_()) {
+    console.warn('load data async');
     this.loadData({
       callback: this.processData_.bind(this, endProcess)
     });
@@ -605,5 +605,8 @@ visflow.DataSource.prototype.getDimensionNames = function() {
  */
 visflow.DataSource.prototype.setData = function(dataInfo) {
   this.data = [dataInfo];
-  this.loadData({index: 0});
+  this.loadData({
+    index: 0,
+    callback: this.pushflow.bind(this)
+  });
 };

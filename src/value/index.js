@@ -21,8 +21,8 @@ visflow.Value.prototype.init = function() {
 
 /**
  * Gets the constant output port of the value node.
- * @return {!visflow.Port}
+ * @return {!visflow.ConstantPort}
  */
 visflow.Value.prototype.getConstantOutPort = function() {
-  return this.getDataOutPort();
+  return /** @type {!visflow.ConstantPort} */(this.getPort('out'));
 };

@@ -790,19 +790,11 @@ visflow.Node.prototype.inPortsChanged = function() {
 };
 
 /**
- * Updates the node. It checks if the upflow data has changed. If so it
- * processes the node and calls rendering.
- */
-visflow.Node.prototype.update = function() {
-  this.process();
-};
-
-/**
- * Processes input data and generates output.
+ * Processes input data and generates output. Updates and re-renders the node
+ * if the input data has chnaged.
  * This is to be implemented in inheriting classes.
  * [Warning!]
  * Otherwise the flow would endlessly call process().
- * @protected
  */
 visflow.Node.prototype.process = function() {
   // During propagation, every node that is potentially touched will be marked
@@ -811,6 +803,14 @@ visflow.Node.prototype.process = function() {
   this.hideMessage(visflow.Node.Message.WAITING);
 
   this.startProcess_();
+
+  // Mark all output ports changed. Note that this is not optimized for
+  // performance. If a node's processSync/processAsync implementation can
+  // determine that some ports possess the same package before and after, it
+  // should unset the changed flag on the ports to prevent unnecessary
+  // propagation.
+  this.outputPorts().forEach(function(port) { port.changed(true); });
+
   if (!this.inPortsChanged()) {
     // Everything not changed, do not process and just signifies endProcess.
     this.endProcess_();
@@ -1234,6 +1234,14 @@ visflow.Node.prototype.outputPorts = function() {
     }
   });
   return outPorts;
+};
+
+/**
+ * Gets all ports of the node.
+ * @return {!Array<!visflow.Port>}
+ */
+visflow.Node.prototype.allPorts = function() {
+  return this.inputPorts().concat(this.outputPorts());
 };
 
 /**

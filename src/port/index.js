@@ -60,6 +60,12 @@ visflow.Port = function(params) {
 
   /** @private {boolean} */
   this.changed_ = false;
+
+  /**
+   * Package the port currently possesses (subset, constants, generic).
+   * @type {!visflow.Package}
+   */
+  this.pack = new visflow.Package();
 };
 
 /** @protected @const {number} */
@@ -79,6 +85,8 @@ visflow.Port.prototype.contextMenuItems = function() {
 
 /**
  * Checks if more connections can be made on this port.
+ * By default each port can only be connected to one other port, so we just
+ * negate the length of the connections.
  * @return {boolean}
  */
 visflow.Port.prototype.hasMoreConnections = function() {
@@ -146,12 +154,8 @@ visflow.Port.prototype.connect = function(edge) {
   this.connections.push(edge);
   this.onConnected(edge);
 
-  // Propagation does not include processing the node being propagated.
   // Update is required on the downflow node so that it becomes aware of the
   // upflow changes.
-  if (!visflow.flow.deserializing) {
-    edge.targetNode.update();
-  }
   visflow.flow.propagate(edge.targetNode);
 };
 
@@ -208,15 +212,15 @@ visflow.Port.prototype.setContainer = function(container) {
     .addClass('background')
     .appendTo(this.container);
 
-  this.initContextMenu_();
+  this.initContextMenu();
   this.interaction();
 };
 
 /**
  * Prepares the contextMenu for the port.
- * @private
+ * @return {!visflow.ContextMenu}
  */
-visflow.Port.prototype.initContextMenu_ = function() {
+visflow.Port.prototype.initContextMenu = function() {
   var contextMenu = new visflow.ContextMenu({
     container: this.container,
     items: this.contextMenuItems()
@@ -228,17 +232,11 @@ visflow.Port.prototype.initContextMenu_ = function() {
         visflow.flow.deleteEdge(connection);
       });
     }.bind(this))
-    .on('vf.export', function() {
-      visflow.upload.export(/** @type {!visflow.Package} */(this.pack));
-    }.bind(this))
-    .on('vf.beforeOpen', function(event, menuContainer) {
-      if (this.isConstants) {
-        menuContainer.find('#export').hide();
-      }
-    }.bind(this))
     .on('vf.flowSense', function() {
       visflow.nlp.input(this.node);
     }.bind(this));
+
+  return contextMenu;
 };
 
 /**
@@ -327,10 +325,26 @@ visflow.Port.prototype.getCenter = function() {
  * @return {boolean}
  */
 visflow.Port.prototype.changed = function(opt_value) {
-  if (opt_value == undefined) {
-    return this.changed_;
+  if (opt_value != undefined) {
+    return this.changed_ = opt_value;
   }
-  return this.changed_ = opt_value;
+  for (var i = 0; i < this.connections.length; i++) {
+    var edge = this.connections[i];
+    var port = this.isInput ? edge.sourcePort : edge.targetPort;
+    if (port.getChanged()) {
+      return this.changed_ = true;
+    }
+  }
+  return this.changed_ = false;
+};
+
+/**
+ * Gets the changed_ flag. This method does not derive changed_ state from
+ * connected neighbors.
+ * @return {boolean}
+ */
+visflow.Port.prototype.getChanged = function() {
+  return this.changed_;
 };
 
 /**
@@ -340,4 +354,14 @@ visflow.Port.prototype.changed = function(opt_value) {
  */
 visflow.Port.prototype.isEmpty = function() {
   return false;
+};
+
+/**
+ * Gets the subset from the port. If the port does not produce a subset,
+ * the method should panic (constant or generic).
+ * @return {!visflow.Subset}
+ */
+visflow.Port.prototype.getSubset = function() {
+  visflow.error('cannot serialize port data to subset');
+  return new visflow.Subset();
 };

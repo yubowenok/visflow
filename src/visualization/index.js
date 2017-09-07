@@ -16,18 +16,16 @@ visflow.Visualization = function(params) {
     'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
     'outs': new visflow.SelectionPort({
       node: this,
       id: 'outs'
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 
@@ -170,9 +168,9 @@ visflow.Visualization.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.Visualization.prototype.processSync = function() {
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
-  var outpack = this.getDataOutPort().pack;
-  var outspack = this.ports['outs'].pack;
+  var inpack = this.getDataInPort().getSubset();
+  var outpack = this.getDataOutPort().getSubset();
+  var outspack = this.ports['outs'].getSubset();
 
   // always pass data through
   outpack.copy(inpack, true);
@@ -214,8 +212,8 @@ visflow.Visualization.prototype.processSync = function() {
  * Processes the current user selection.
  */
 visflow.Visualization.prototype.processSelection = function() {
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
-  var outspack = this.ports['outs'].pack;
+  var inpack = this.getDataInPort().getSubset();
+  var outspack = this.ports['outs'].getSubset();
   outspack.copy(inpack);
   outspack.filter(_.allKeys(this.selected));
 };
@@ -402,23 +400,22 @@ visflow.Visualization.prototype.clearBrush = function() {
  * parallelCoordinates uses lasso stroke.
  */
 visflow.Visualization.prototype.selectItems = function() {
-  //this.show();
-  //this.process();
-  console.log('selectItems');
+  // Here we must process selection because selection does not trigger the
+  // node's process() because the input ports do not change.
+  this.processSelection();
+
   this.pushflow();
 };
 
 /**
  * Selects the given items.
  * @param {!Object<number, boolean>} items
+ * @private
  */
-visflow.Visualization.prototype.select = function(items) {
+visflow.Visualization.prototype.select_ = function(items) {
   this.selected = items;
   this.selectedChanged();
-  //this.show();
-  //this.process();
-  console.log('select');
-  this.pushflow();
+  this.selectItems();
 };
 
 /**
@@ -483,23 +480,15 @@ visflow.Visualization.prototype.getSelectBox = function(opt_ignoreEmpty) {
  * Selects all data items.
  */
 visflow.Visualization.prototype.selectAll = function() {
-  var items = this.getDataInPort().pack.items;
-  this.selected = _.keySet(items);
-  this.selectedChanged();
-  //this.show();
-  //this.process();
-  this.pushflow();
+  var items = this.getDataInPort().getSubset().items;
+  this.select_(_.keySet(items));
 };
 
 /**
  * Clears all item selection
  */
 visflow.Visualization.prototype.clearSelection = function() {
-  this.selected = {};
-  this.selectedChanged();
-  //this.show();
-  //this.process();
-  this.pushflow();
+  this.select_({});
 };
 
 /**
@@ -649,7 +638,13 @@ visflow.Visualization.prototype.dimensionChanged = function() {
 /**
  * Handles selection changes from shortcuts (selectAll and clearSelection).
  */
-visflow.Visualization.prototype.selectedChanged = function() {};
+visflow.Visualization.prototype.selectedChanged = function() {
+  this.allPorts().forEach(function(port) {
+    if (port.IS_SELECTION_PORT) {
+      port.changed(true);
+    }
+  });
+};
 
 /**
  * Sets the dimensions to be visualized.

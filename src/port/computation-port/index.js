@@ -11,7 +11,6 @@ visflow.ComputationPort = function(params) {
   var paramsApplied = _.extend(
     {
       isInput: false,
-      isConstants: false,
       text: 'computation port'
     },
     params

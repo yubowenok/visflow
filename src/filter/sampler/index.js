@@ -12,17 +12,15 @@ visflow.Sampler = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    'in': new visflow.MultiplePort({
+    'in': new visflow.MultiSubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 };
@@ -56,7 +54,7 @@ visflow.Sampler.prototype.showDetails = function() {
 
 /** @inheritDoc */
 visflow.Sampler.prototype.processSync = function() {
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
   var outpack = this.getDataOutPort().pack;
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
@@ -75,7 +73,7 @@ visflow.Sampler.prototype.processSync = function() {
 /**
  * Samples the subset with a given specification.
  * @param {visflow.Sampler.Spec} spec
- * @param {!visflow.Package} pack
+ * @param {!visflow.Subset} pack
  * @return {!Array<number>} Resulting subset as array.
  */
 visflow.Sampler.filter = function(spec, pack) {
@@ -148,7 +146,7 @@ visflow.Sampler.filter = function(spec, pack) {
 
 /** @inheritDoc */
 visflow.Sampler.prototype.filter = function() {
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
   var outpack = this.getDataOutPort().pack;
 
   var result = visflow.Sampler.filter({

@@ -146,17 +146,17 @@ visflow.Flow.prototype.createNode = function(type, save) {
       this.deserialize(save);
       this.loadCss();
     }
+
+    // Show the node so that it can show initial state, e.g. for
+    // visualizations they should display "empty data" message.
+    this.show();
+
     this.focus();
+
     if (save) {
       // Node size might be de-serialized from save and a resize event must be
       // explicitly fired in order to re-draw correctly.
       this.resize();
-    }
-
-    // Process the node so that it can show initial state, e.g. for
-    // visualizations they should display "empty data" message.
-    if (!visflow.flow.deserializing) {
-      this.process();
     }
   }.bind(newNode));
 
@@ -232,12 +232,8 @@ visflow.Flow.prototype.deleteEdge = function(edge) {
   sourcePort.disconnect(edge);
   targetPort.disconnect(edge);
 
-  // Propagation does not include processing the node being propagated.
   // Update is required on the downflow node so that it becomes aware of the
   // upflow changes.
-  if (!this.deserializing) {
-    edge.targetNode.update();
-  }
   this.propagate(edge.targetNode);
 
   // Remove the container
@@ -355,7 +351,14 @@ visflow.Flow.prototype.propagate = function(startNode) {
       visflow.error('dependency count', dependencyCount[node.id],
         'is incorrect; something is wrong in execution');
       return;
+    } else {
+      delete dependencyCount[node.id];
+      if ($.isEmptyObject(dependencyCount)) {
+        clearPortFlags();
+        return;
+      }
     }
+
     var targetNodes = node.outputTargetNodes();
     targetNodes.forEach(function(targetNode) {
       dependencyCount[targetNode.id]--;
@@ -363,7 +366,7 @@ visflow.Flow.prototype.propagate = function(startNode) {
       //  dependencyCount[targetNode.id]);
 
       if (dependencyCount[targetNode.id] < 0) {
-        visflow.error('dependency count', dependencyCount[node.id],
+        visflow.error('dependency count', dependencyCount[targetNode.id],
           'is abnormal; something is wrong in execution');
       }
 
@@ -371,12 +374,8 @@ visflow.Flow.prototype.propagate = function(startNode) {
         console.log('listen', targetNode.type);
         visflow.listen(targetNode, visflow.Event.PROCESSED, nodeProcessed);
 
-        // Calling node's update(), this will process the node and show it.
-        targetNode.update();
-
-        if ($.isEmptyObject(dependencyCount)) {
-          clearPortFlags();
-        }
+        // Calling node's process(), this will also show it.
+        targetNode.process();
       }
     });
   };
@@ -385,8 +384,9 @@ visflow.Flow.prototype.propagate = function(startNode) {
    * Clears change flags for all in/out ports.
    */
   var clearPortFlags = function() {
+    console.log('all done');
     topo.forEach(function(node) {
-      node.ports.forEach(function(port) {
+      node.allPorts().forEach(function(port) {
         port.changed(false);
       });
     });
@@ -409,7 +409,7 @@ visflow.Flow.prototype.propagate = function(startNode) {
     }
   }
 
-  // Update the propagation starting nodes.  This must be called after all
+  // Update the propagation starting nodes. This must be called after all
   // dependencyCount's are set.
   _.each(this.nodes, function(node) {
     // Note that some process() are very fast. By the time the _.each reaches
@@ -417,14 +417,9 @@ visflow.Flow.prototype.propagate = function(startNode) {
     // dependencyCount decreased to zero.
     if (node.id in visited && !(node.id in processedNodes) &&
         dependencyCount[node.id] == 0) {
-      node.update();
+      node.process();
     }
   });
-  // Iterate in reverse order to obtain topo order.
-  // Skip the first one, i.e. the node itself.
-  //for (var i = topo.length - 2; i >= 0; i--) {
-  //  topo[i].update();
-  //}
 };
 
 /**

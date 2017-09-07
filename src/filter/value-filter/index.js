@@ -12,24 +12,21 @@ visflow.ValueFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    'inVal': new visflow.SubsetPort({
+    'inVal': new visflow.ConstantPort({
       node: this,
       id: 'inVal',
       text: 'containing value',
-      isInput: true,
-      isConstants: true
+      isInput: true
     }),
     'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 
@@ -103,7 +100,7 @@ visflow.ValueFilter.prototype.processSync = function() {
   }
   this.values = pack.getAll();
 
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
   var outpack = this.getDataOutPort().pack;
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
@@ -122,7 +119,7 @@ visflow.ValueFilter.prototype.processSync = function() {
 /**
  * Value filters the subset with a given specification.
  * @param {visflow.ValueFilter.Spec} spec
- * @param {!visflow.Package} pack
+ * @param {!visflow.Subset} pack
  * @return {!Array<number>} Resulting subset as array.
  */
 visflow.ValueFilter.filter = function(spec, pack) {
@@ -170,7 +167,7 @@ visflow.ValueFilter.filter = function(spec, pack) {
 /** @inheritDoc */
 visflow.ValueFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
-  var inpack = /** @type {!visflow.Package} */(this.getDataInPort().pack);
+  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
   var outpack = this.getDataOutPort().pack;
 
   var result = visflow.ValueFilter.filter({

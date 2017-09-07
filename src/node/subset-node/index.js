@@ -32,7 +32,7 @@ visflow.SubsetNode.prototype.getInputData = function() {
   var data = [];
   for (var id in this.ports) {
     var port = this.ports[id];
-    if (port.isInput && !port.isConstants) {
+    if (port.isInput && !port.IS_CONSTANT_PORT) {
       data.push(port.pack.data);
     }
   }
@@ -46,7 +46,9 @@ visflow.SubsetNode.prototype.getInputData = function() {
  */
 visflow.SubsetNode.prototype.getDataPort = function(id) {
   var port = /** @type {!visflow.SubsetPort} */(this.getPort(id));
-  // TODO(bowen): type-check that the port with id is indeed a data port.
+  if (!port.IS_SUBSET_PORT) {
+    visflow.error('port is not SubsetPort but getDataPort is called');
+  }
   return port;
 };
 

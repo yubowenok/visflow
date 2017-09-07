@@ -12,11 +12,10 @@ visflow.ValueMaker = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    out: new visflow.MultiplePort({
+    out: new visflow.MultiConstantPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: true
+      isInput: false
     })
   };
 
@@ -31,7 +30,7 @@ visflow.ValueMaker = function(params) {
    * @protected {visflow.Constants}
    */
   this.value = new visflow.Constants('' + this.valueString);
-  this.getDataOutPort().pack = this.value;
+  this.getConstantOutPort().pack = this.value;
 };
 
 _.inherit(visflow.ValueMaker, visflow.Value);
@@ -72,8 +71,6 @@ visflow.ValueMaker.prototype.showDetails = function() {
  * Handles interface parameter changes.
  */
 visflow.ValueMaker.prototype.parameterChanged = function() {
-  //this.process();
-  //this.show();
   this.pushflow();
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());
