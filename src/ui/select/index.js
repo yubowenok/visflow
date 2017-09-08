@@ -60,7 +60,7 @@ visflow.Select = function(params) {
 };
 
 /** @private @const {string} */
-visflow.Select.prototype.TEMPLATE_ = './dist/html/unit/select/select.html';
+visflow.Select.prototype.TEMPLATE_ = './dist/html/ui/select/select.html';
 
 /**
  * Initializes the list title and add item select2.
@@ -115,7 +115,7 @@ visflow.Select.prototype.change = function() {
   var val = /** @type {string} */(this.select2.val());
   if (this.selected !== val) {
     this.selected = val;
-    visflow.signal(this, 'change', this.selected);
+    visflow.signal(this, visflow.Event.CHANGE, this.selected);
   }
 };
 

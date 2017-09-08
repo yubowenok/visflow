@@ -40,13 +40,23 @@ visflow.DataSource.DATA_NAMES_LENGTH = 100;
 /** @const {boolean} */
 visflow.DataSource.prototype.IS_DATASOURCE = true;
 
+
+/**
+ * Data source asynchronously loads the data so this flag is on.
+ * @inheritDoc
+ */
+visflow.DataSource.prototype.isAsyncProcess = true;
+
+
 /** @inheritDoc */
 visflow.DataSource.prototype.defaultOptions = function() {
-  return new visflow.options.DataSource({
+  var options = visflow.DataSource.base.defaultOptions.call(this);
+  options.extend(new visflow.options.DataSource({
+    label: true,
     transpose: false,
     transposeName: 'attributes',
     transposeKeys: [],
-    transposeAttrs: [],
-    useServerData: true
-  });
+    transposeAttrs: []
+  }));
+  return options;
 };

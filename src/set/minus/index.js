@@ -13,24 +13,21 @@ visflow.Minus = function(params) {
   /** @inheritDoc */
   this.ports = {
     // To be subtracted from
-    'inx': new visflow.Port({
+    'inx': new visflow.SubsetPort({
       node: this,
       id: 'inx',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
     // To subtract
-    'in': new visflow.MultiplePort({
+    'in': new visflow.MultiSubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 };
@@ -38,10 +35,11 @@ visflow.Minus = function(params) {
 _.inherit(visflow.Minus, visflow.Set);
 
 /** @inheritDoc */
-visflow.Minus.prototype.process = function() {
-  var xpack = /** @type {!visflow.Package} */(this.ports['inx'].pack);
-  var inpacks = /** @type {!visflow.MultiplePort} */(this.ports['in']).packs;
-  var outpack = this.ports['out'].pack;
+visflow.Minus.prototype.processSync = function() {
+  var xpack = this.getPort('inx').getSubset();
+  var inpacks = /** @type {!visflow.MultiSubsetPort} */(
+      this.getDataInPort()).packs;
+  var outpack = this.getDataOutPort().pack;
 
   outpack.copy(xpack);  // pick the X pack, potentially empty
 
@@ -68,15 +66,15 @@ visflow.Minus.prototype.process = function() {
 
 /** @inheritDoc */
 visflow.Minus.prototype.getDataInPort = function() {
-  return this.getPort('inx');
+  return this.getDataPort('inx');
 };
 
 /**
  * Gets the port that accepts the input of the left side operand in a minus
  * operation (a.k.a. "X" in "X - Y").
- * @return {!visflow.Port}
+ * @return {!visflow.SubsetPort}
  * @override
  */
 visflow.Minus.prototype.getSecondDataInPort = function() {
-  return this.getPort('in');
+  return this.getDataPort('in');
 };

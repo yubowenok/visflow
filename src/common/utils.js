@@ -240,7 +240,7 @@ visflow.utils.propertiesCompare = function(a, b) {
  * @param {string} url
  * @return {string}
  */
-visflow.utils.standardURL = function(url) {
+visflow.utils.standardUrl = function(url) {
   if (url.substr(0, 4) != 'http') {
     return 'http://' + url;
   }

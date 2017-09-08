@@ -55,7 +55,7 @@ visflow.EditableList = function(params) {
 
 /** @private @const {string} */
 visflow.EditableList.prototype.TEMPLATE_ =
-    './dist/html/unit/editable-list/editable-list.html';
+    './dist/html/ui/editable-list/editable-list.html';
 
 /**
  * Initializes the list title and add item select2.
@@ -79,19 +79,19 @@ visflow.EditableList.prototype.init_ = function() {
       return item.id;
     });
     this.createItems_();
-    visflow.signal(this, 'change', this.selected_.slice());
+    visflow.signal(this, visflow.Event.CHANGE, this.selected_.slice());
   }.bind(this));
   this.container_.find('#clear').click(function() {
     this.selected_ = this.allowClear_ ? [] : this.selected_.slice(0, 1);
     this.createItems_();
-    visflow.signal(this, 'change', this.selected_.slice());
+    visflow.signal(this, visflow.Event.CHANGE, this.selected_.slice());
   }.bind(this));
   this.container_.find('#sort').click(function() {
     this.selected_.sort(function(a, b) {
       return visflow.utils.compare(this.list_[a].text, this.list_[b].text);
     }.bind(this));
     this.createItems_();
-    visflow.signal(this, 'change', this.selected_.slice());
+    visflow.signal(this, visflow.Event.CHANGE, this.selected_.slice());
   }.bind(this));
 
   select2.on('change', function() {
@@ -101,7 +101,7 @@ visflow.EditableList.prototype.init_ = function() {
       this.createItems_();
       select2.val('').trigger('change');
 
-      visflow.signal(this, 'change', this.selected_.slice());
+      visflow.signal(this, visflow.Event.CHANGE, this.selected_.slice());
     }
   }.bind(this));
 
@@ -152,7 +152,7 @@ visflow.EditableList.prototype.deleteItem_ = function(id) {
 
   this.selected_.splice(index, 1);
   this.createItems_();
-  visflow.signal(this, 'change', this.selected_.slice());
+  visflow.signal(this, visflow.Event.CHANGE, this.selected_.slice());
 };
 
 /**
@@ -172,5 +172,5 @@ visflow.EditableList.prototype.sortableChanged_ = function(event, ui) {
       $(ui.item).attr('id') : $(li).attr('id');
     this.selected_.push(/** @type {string} */(id));
   }.bind(this));
-  visflow.signal(this, 'change', this.selected_.slice());
+  visflow.signal(this, visflow.Event.CHANGE, this.selected_.slice());
 };

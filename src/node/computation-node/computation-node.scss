@@ -1,0 +1,23 @@
+@import 'src/common/common';
+
+.visflow .node.computation {
+  > .background {
+    background-color: $gray-e6;
+  }
+
+  &.minimized {
+    height: 30px;
+    width: 50px;
+  }
+
+  .content > div {
+    @extend %node-text;
+
+    position: relative;
+  }
+
+  &.details {
+    height: 40px;
+    width: 120px;
+  }
+}

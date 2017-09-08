@@ -64,7 +64,7 @@ visflow.Table.prototype.showDetails = function() {
     return;
   }
 
-  var pack = this.ports['in'].pack;
+  var pack = this.getDataInPort().pack;
   var data = pack.data;
   var items = pack.items;
 
@@ -238,7 +238,7 @@ visflow.Table.prototype.dataChanged = function() {
  * @override
  */
 visflow.Table.prototype.findPlotDimensions = function() {
-  return d3.range(this.ports['in'].pack.data.dimensions.length)
+  return d3.range(this.getDataInPort().pack.data.dimensions.length)
     .slice(0, visflow.Table.DEFAULT_NUM_DIMENSIONS);
 };
 

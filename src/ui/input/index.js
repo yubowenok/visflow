@@ -58,7 +58,7 @@ visflow.Input = function(params) {
  * Input HTML template.
  * @private @const {string}
  */
-visflow.Input.prototype.TEMPLATE_ = './dist/html/unit/input/input.html';
+visflow.Input.prototype.TEMPLATE_ = './dist/html/ui/input/input.html';
 
 /**
  * Initializes the Input.
@@ -137,7 +137,7 @@ visflow.Input.prototype.setValue_ = function(value) {
   }
   this.value_ = value;
   input.val('' + value);
-  visflow.signal(this, 'change', this.value_);
+  visflow.signal(this, visflow.Event.CHANGE, this.value_);
 };
 
 /**

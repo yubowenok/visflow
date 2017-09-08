@@ -19,11 +19,11 @@ visflow.Union = function(params) {
 _.inherit(visflow.Union, visflow.Set);
 
 /** @inheritDoc */
-visflow.Union.prototype.process = function() {
-  var inpacks = this.ports['in'].packs;
-  var outpack = this.ports['out'].pack;
+visflow.Union.prototype.processSync = function() {
+  var inpacks = this.getDataInPort().packs;
+  var outpack = this.getDataOutPort().pack;
 
-  outpack.copy(new visflow.Package());
+  outpack.copy(new visflow.Subset());
 
   for (var i in inpacks) {
     if (!inpacks[i].isEmpty()) {

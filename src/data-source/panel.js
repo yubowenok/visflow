@@ -12,7 +12,7 @@ visflow.DataSource.prototype.initPanel = function(container) {
   var dimensionList = this.rawData[0] != null ?
     this.getDimensionList(this.rawData[0], true) : [];
 
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.Checkbox,
       params: {
@@ -75,7 +75,6 @@ visflow.DataSource.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
   if (!this.options.transpose) {
     container.find('#transpose-section').hide();
   }
@@ -107,9 +106,7 @@ visflow.DataSource.prototype.createPanelDataList = function(container) {
     }.bind(this));
 
     var data = this.data[dataIndex];
-    var text = data.isServerData ?
-    data.name + ' (' + data.file + ') ' : data.file + ' (online)';
-    li.children('span').text(text);
+    li.children('span').text(data.name + ' (' + data.file + ')');
   }, this);
 
   if (hasData) {

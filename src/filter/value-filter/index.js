@@ -12,24 +12,21 @@ visflow.ValueFilter = function(params) {
 
   /** @inheritDoc */
   this.ports = {
-    'inVal': new visflow.Port({
+    'inVal': new visflow.ConstantPort({
       node: this,
       id: 'inVal',
       text: 'containing value',
-      isInput: true,
-      isConstants: true
+      isInput: true
     }),
-    'in': new visflow.Port({
+    'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 
@@ -54,7 +51,7 @@ visflow.ValueFilter.prototype.deserialize = function(save) {
 visflow.ValueFilter.prototype.showDetails = function() {
   visflow.ValueFilter.base.showDetails.call(this);
 
-  var units = [
+  var uiElements = [
     // Dimension
     {
       constructor: visflow.Select,
@@ -62,7 +59,7 @@ visflow.ValueFilter.prototype.showDetails = function() {
         container: this.content.find('#dim'),
         list: this.getDimensionList(),
         selected: this.options.dim,
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        selectTitle: this.getDataInPort().pack.data.isEmpty() ?
           this.NO_DATA_STRING : null,
         allowClear: true
       },
@@ -77,7 +74,7 @@ visflow.ValueFilter.prototype.showDetails = function() {
       params: {
         container: this.content.find('#value'),
         value: this.values,
-        disabled: this.ports['inVal'].connected()
+        disabled: this.getConstantInPort().connected()
       },
       change: function(event, value) {
         this.options.typeInValue = '' + value;
@@ -85,12 +82,16 @@ visflow.ValueFilter.prototype.showDetails = function() {
       }
     }
   ];
-  this.initInterface(units);
+
+  this.showUiElements(uiElements);
 };
 
-/** @inheritDoc */
-visflow.ValueFilter.prototype.process = function() {
-  var port = this.ports['inVal'];
+/**
+ * Updates the values of the ValueFilter.
+ * @private
+ */
+visflow.ValueFilter.prototype.updateValues_ = function() {
+  var port = this.getConstantInPort();
   var pack;
   if (port.connected()) {
     pack = port.pack;
@@ -101,9 +102,14 @@ visflow.ValueFilter.prototype.process = function() {
     pack = port.pack;
   }
   this.values = pack.getAll();
+};
 
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
+/** @inheritDoc */
+visflow.ValueFilter.prototype.processSync = function() {
+  this.updateValues_();
+
+  var inpack = this.getDataInPort().getSubset();
+  var outpack = this.getDataOutPort().getSubset();
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
     return;
@@ -120,8 +126,9 @@ visflow.ValueFilter.prototype.process = function() {
 
 /**
  * Value filters the subset with a given specification.
+ * Note that this is a prototyped filter util method.
  * @param {visflow.ValueFilter.Spec} spec
- * @param {!visflow.Package} pack
+ * @param {!visflow.Subset} pack
  * @return {!Array<number>} Resulting subset as array.
  */
 visflow.ValueFilter.filter = function(spec, pack) {
@@ -169,8 +176,8 @@ visflow.ValueFilter.filter = function(spec, pack) {
 /** @inheritDoc */
 visflow.ValueFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
-  var inpack = /** @type {!visflow.Package} */(this.ports['in'].pack);
-  var outpack = this.ports['out'].pack;
+  var inpack = this.getDataInPort().getSubset();
+  var outpack = this.getDataOutPort().pack;
 
   var result = visflow.ValueFilter.filter({
     dim: this.options.dim,
@@ -202,8 +209,15 @@ visflow.ValueFilter.prototype.setValue = function(dim, value, opt_target) {
 
 /**
  * Gets the constant input port.
- * @return {!visflow.Port}
+ * @return {!visflow.ConstantPort}
  */
 visflow.ValueFilter.prototype.getConstantInPort = function() {
-  return this.ports['inVal'];
+  return /** @type {!visflow.ConstantPort} */(
+    this.getPort(visflow.ValueFilter.Port.IN_VAL));
+};
+
+/** @inheritDoc */
+visflow.ValueFilter.prototype.parameterChanged = function() {
+  this.updateValues_();
+  visflow.ValueFilter.base.parameterChanged.call(this);
 };

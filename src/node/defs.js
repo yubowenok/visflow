@@ -40,6 +40,15 @@ visflow.Node.prototype.NODE_CLASS = '';
 visflow.Node.prototype.DEFAULT_LABEL = 'Node';
 
 
+/**
+ * Whether the node should use asynchronous process. This is usually set for
+ * a whole class of nodes. But it can also be changed based on ENV if the node
+ * can be either sync or async.
+ * @type {boolean}
+ */
+visflow.Node.prototype.isAsyncProcess = false;
+
+
 // Minimum/maximum size of resizable.
 /** @protected {number} */
 visflow.Node.prototype.MIN_WIDTH = 120;
@@ -81,7 +90,6 @@ visflow.Node.FOCUS_GAMMA = 500;
 /**
  * ContextMenu entries.
  * @return {!Array<visflow.contextMenu.Item>}
- * @protected
  */
 visflow.Node.prototype.contextMenuItems = function() {
   return [
@@ -102,7 +110,7 @@ visflow.Node.prototype.contextMenuItems = function() {
  * Default options that shall be set by the node.
  * This is specific to a node type that is a leaf in the inheriting tree.
  * The options written here will be checked and filled during de-serialization.
- * If a class is a inner node of an inheriting tree (e.g. Visualization), it
+ * If a class is an inner node of an inheriting tree (e.g. Visualization), it
  * needs to define separate options object and fill it during its inheriting
  * de-serialize function.
  * @return {!visflow.options.Node}
@@ -110,8 +118,18 @@ visflow.Node.prototype.contextMenuItems = function() {
  */
 visflow.Node.prototype.defaultOptions = function() {
   return new visflow.options.Node({
-    minimized: false,
-    label: true,
-    visMode: false
+    minimized: false, // is not minimized by default
+    label: false, // does not show label by default
+    visMode: false // is not in visualization mode by default
   });
+};
+
+/**
+ * Messages to be displayed as popup.
+ * @enum {string}
+ */
+visflow.Node.Message = {
+  PROCESSING: 'processing',
+  EMPTY_DATA: 'empty data',
+  WAITING: 'waiting'
 };

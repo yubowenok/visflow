@@ -36,12 +36,6 @@ visflow.options.DataSource = function(params) {
    */
   this.transposeAttrs = params.transposeAttrs !== undefined ?
     params.transposeAttrs : [];
-
-  /**
-   * Whether to user server data set in the UI.
-   * @type {boolean}
-   */
-  this.useServerData = !!params.useServerData;
 };
 
 _.inherit(visflow.options.DataSource, visflow.options.Node);

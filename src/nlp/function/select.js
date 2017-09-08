@@ -15,7 +15,7 @@ visflow.nlp.select = function(commands) {
   }
 
   var filterSpecs = visflow.nlp.parseFilters(commands);
-  var pack = new visflow.Package().copy(/** @type {!visflow.Package} */(
+  var pack = new visflow.Subset().copy(/** @type {!visflow.Subset} */(
     visflow.nlp.target.getDataInPort().pack));
   filterSpecs.forEach(function(spec) {
     var result = [];

@@ -18,7 +18,7 @@ gulp.task('watch', function() {
     paths.docScss,
     paths.externs,
     paths.html
-  ], ['build-dev']);
+  ], ['build-dev-express']);
 });
 
 gulp.task('watch-doc', function() {

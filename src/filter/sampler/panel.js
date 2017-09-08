@@ -4,7 +4,7 @@
 
 /** @inheritDoc */
 visflow.Sampler.prototype.initPanel = function(container) {
-  var units = [
+  this.panelElements = [
     // Group By
     {
       constructor: visflow.Select,
@@ -14,11 +14,10 @@ visflow.Sampler.prototype.initPanel = function(container) {
         allowClear: true,
         selected: this.options.groupBy,
         listTitle: 'Group By',
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        selectTitle: this.getDataInPort().pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
       },
       change: function(event, dim) {
-        console.log(dim);
         this.options.groupBy = dim;
         this.parameterChanged();
       }
@@ -31,7 +30,7 @@ visflow.Sampler.prototype.initPanel = function(container) {
         list: this.getDimensionList(null, true),
         selected: this.options.dim,
         listTitle: 'Filtering Dimension',
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        selectTitle: this.getDataInPort().pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
       },
       change: function(event, dim) {
@@ -96,5 +95,4 @@ visflow.Sampler.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
 };

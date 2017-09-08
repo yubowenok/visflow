@@ -228,7 +228,7 @@ visflow.nlp.link = function(commands) {
 
 /**
  * Finds a value extractor from the incident nodes of the port.
- * @param {!visflow.Port} port
+ * @param {!visflow.SubsetPort} port
  * @return {?visflow.ValueExtractor}
  * @private
  */

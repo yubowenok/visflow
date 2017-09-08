@@ -1,14 +1,14 @@
 /**
- * @fileoverview VisFlow multiple port.
+ * @fileoverview Port that accepts multiple subsets.
  */
 
 /**
  * @param {visflow.params.Port} params
  * @constructor
- * @extends {visflow.Port}
+ * @extends {visflow.ConstantPort}
  */
-visflow.MultiplePort = function(params) {
-  visflow.MultiplePort.base.constructor.call(this, params);
+visflow.MultiConstantPort = function(params) {
+  visflow.MultiConstantPort.base.constructor.call(this, params);
 
   if (this.isInput) {
     // For in-multiple, use array to store packs.
@@ -17,33 +17,33 @@ visflow.MultiplePort = function(params) {
   }
 };
 
-_.inherit(visflow.MultiplePort, visflow.Port);
+_.inherit(visflow.MultiConstantPort, visflow.ConstantPort);
 
 /** @inheritDoc */
-visflow.MultiplePort.prototype.setContainer = function(container) {
-  visflow.MultiplePort.base.setContainer.call(this, container);
+visflow.MultiConstantPort.prototype.setContainer = function(container) {
+  visflow.MultiConstantPort.base.setContainer.call(this, container);
   container.find('.port-icon').addClass('multiple');
 };
 
 
 /** @inheritDoc */
-visflow.MultiplePort.prototype.hasMoreConnections = function() {
+visflow.MultiConstantPort.prototype.hasMoreConnections = function() {
   // Multiple ports have no connection limit.
   return true;
 };
 
 /** @inheritDoc */
-visflow.MultiplePort.prototype.connect = function(edge) {
+visflow.MultiConstantPort.prototype.connect = function(edge) {
   if (this.isInput) {
     this.packs.push(edge.sourcePort.pack);
     // For in-multiple this.pack references the last connected pack,
     // which is set at the base class's connect function.
   }
-  visflow.MultiplePort.base.connect.call(this, edge);
+  visflow.MultiConstantPort.base.connect.call(this, edge);
 };
 
 /** @inheritDoc */
-visflow.MultiplePort.prototype.disconnect = function(edge) {
+visflow.MultiConstantPort.prototype.disconnect = function(edge) {
   if (this.isInput) {
     for (var i = 0; i < this.connections.length; i++) {
       if (this.connections[i] === edge) {
@@ -54,15 +54,5 @@ visflow.MultiplePort.prototype.disconnect = function(edge) {
   }
   // this.connections will be spliced in base class's disconnect, so we have to
   // splice the packs above.
-  visflow.MultiplePort.base.disconnect.call(this, edge);
-};
-
-/** @inheritDoc */
-visflow.MultiplePort.prototype.changed = function() {
-  for (var i = 0; i < this.packs.length; i++) {
-    if (this.packs[i].changed) {
-      return true;
-    }
-  }
-  return false;
+  visflow.MultiConstantPort.base.disconnect.call(this, edge);
 };

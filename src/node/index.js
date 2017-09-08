@@ -33,6 +33,7 @@ visflow.Node = function(params) {
    * @type {string}
    */
   this.id = params.id;
+
   /**
    * Node type.
    * @type {string}
@@ -46,24 +47,13 @@ visflow.Node = function(params) {
   this.container = params.container;
 
   /**
-   * Input ports.
-   * @protected {!Array<!visflow.Port>}
-   */
-  this.inPorts = [];
-  /**
-   * Output ports.
-   * @protected {!Array<!visflow.Port>}
-   */
-  this.outPorts = [];
-  /**
    * Ports collection. Key is port id.
-   * @protected {!Object<!(visflow.Port|visflow.MultiplePort|
-   *     visflow.SelectionPort)>}
+   * @protected {!Object<!visflow.Port>}
    */
   this.ports = {};
 
   /**
-   * Node options.
+   * Node options. Default options maybe overwritten by inheriting classes.
    * @protected {!visflow.options.Node}
    */
   this.options = this.defaultOptions();
@@ -110,6 +100,11 @@ visflow.Node = function(params) {
   this.contextMenu = undefined;
 
   /**
+   * @protected {!Array<visflow.PanelElementSpec>}
+   */
+  this.panelElements = [];
+
+  /**
    * Flag used to record that the node should go back to minimized mode, usd
    * when the user switch to visMode (turn it on or preview) when this node is
    * minimized.
@@ -123,9 +118,19 @@ visflow.Node = function(params) {
    */
   this.activeness = 0;
 
-  // Extend the options. Default options maybe overwritten by inheriting
-  // classes.
-  this.options.extend(this.defaultOptions());
+  /**
+   * Messages to be displayed as popup. The first message will be shown.
+   * @private {!Array<string>}
+   */
+  this.messages_ = [];
+
+  /**
+   * Indicates if the the node is one of the propagation starting points.
+   * If so, process() will always execute, regardless of whether
+   * inPortsChanged() is true.
+   * @type {boolean}
+   */
+  this.isPropagationSource = false;
 
   this.container.load(this.COMMON_TEMPLATE, function() {
     this.container
@@ -146,7 +151,7 @@ visflow.Node = function(params) {
       this.interaction();
 
       // For callback.
-      visflow.signal(this, 'ready');
+      visflow.signal(this, visflow.Event.READY);
     }.bind(this);
 
     if (!this.TEMPLATE) {
@@ -162,7 +167,6 @@ visflow.Node = function(params) {
  * from template.
  */
 visflow.Node.prototype.init = function() {
-  this.listInOutPorts_();
   this.createPorts();
   this.initContextMenu();
 };
@@ -245,34 +249,42 @@ visflow.Node.prototype.fillOptions = function(options, defaultOptions) {
 };
 
 /**
- * Creates a list for input, output ports, respectively.
- * @private
- */
-visflow.Node.prototype.listInOutPorts_ = function() {
-  $.each(this.ports, function(id, port) {
-    if (port.isInput) {
-      this.inPorts.push(port);
-    } else {
-      this.outPorts.push(port);
-    }
-  }.bind(this));
-};
-
-/**
- * Displays a message at the center of the node.
+ * Displays a message at the center of the node. "msg" is pushed to the messages
+ * queue and the first message is displayed.
  * @param {string} msg
  */
 visflow.Node.prototype.showMessage = function(msg) {
   var popup = this.container.children('.popup');
-  popup.children('.text').text(msg);
+  if (this.messages_.indexOf(msg) == -1) {
+    this.messages_.push(msg);
+  }
+  popup.children('.text').text(this.messages_[0]);
   popup.show();
 };
 
 /**
  * Hides the node message.
+ * @param {visflow.Node.Message=} opt_msg Removes a message from the message
+ *     queue. If this results in the message queue becomes empty, then hides the
+ *     message popup. If this is not set, the message queue is kept as is but
+ *     hides the popup.
  */
-visflow.Node.prototype.hideMessage = function() {
-  this.container.children('.popup').hide();
+visflow.Node.prototype.hideMessage = function(opt_msg) {
+  var popup = this.container.children('.popup');
+  if (opt_msg == undefined) {
+    popup.hide();
+    return;
+  }
+  var index = this.messages_.indexOf(opt_msg);
+  if (index != -1) {
+    this.messages_.splice(index, 1);
+  }
+  if (!this.messages_.length) {
+    popup.hide();
+  } else {
+    // show the first message in queue
+    this.showMessage(this.messages_[0]);
+  }
 };
 
 /**
@@ -584,12 +596,14 @@ visflow.Node.prototype.initContextMenu = function() {
     items: items
   });
 
+  visflow.listen(this.contextMenu, visflow.Event.VISMODE,
+    this.toggleVisMode.bind(this));
+
   $(this.contextMenu)
     .on('vf.delete', this.delete.bind(this))
     .on('vf.minimize', this.toggleMinimized.bind(this))
     .on('vf.panel', this.panel.bind(this))
     .on('vf.label', this.toggleLabel.bind(this))
-    .on('vf.visMode', this.toggleVisMode.bind(this))
     //.on('vf.flowSense', this.flowSenseInput.bind(this))
     .on('vf.beforeOpen', function(event, menuContainer) {
       var minimize = menuContainer.find('#minimize');
@@ -624,7 +638,7 @@ visflow.Node.prototype.prepareDimensionList = function(ignoreTypes) {
     ignoreTypes = [];
   }
 
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   if (inpack.isEmptyData())
     return [];
   var dims = inpack.data.dimensions,
@@ -663,18 +677,21 @@ visflow.Node.prototype.createPorts = function() {
 
   var height = this.container.innerHeight();
 
+  var inPorts = this.inputPorts();
   var portStep = this.PORT_HEIGHT + this.PORT_GAP;
-  var inTopBase = (height - this.inPorts.length * portStep +
+  var inTopBase = (height - inPorts.length * portStep +
     this.PORT_GAP) / 2;
-  this.inPorts.forEach(function(port, index) {
+  inPorts.forEach(function(port, index) {
     var container = $('<div></div>')
       .css('top', inTopBase + index * portStep)
       .appendTo(this.container);
     port.setContainer(container);
   }, this);
-  var outTopBase = (height - this.outPorts.length * portStep +
+
+  var outPorts = this.outputPorts();
+  var outTopBase = (height - outPorts.length * portStep +
     this.PORT_GAP) / 2;
-  this.outPorts.forEach(function(port, index) {
+  outPorts.forEach(function(port, index) {
     var container = $('<div></div>')
       .css('top', outTopBase + index * portStep)
       .appendTo(this.container);
@@ -697,19 +714,23 @@ visflow.Node.prototype.showPorts = function() {
 visflow.Node.prototype.updatePorts = function() {
   var height = this.container.innerHeight();
   var portStep = this.PORT_HEIGHT + this.PORT_GAP;
-  var inTopBase = (height - this.inPorts.length * portStep +
+
+  var inPorts = this.inputPorts();
+  var inTopBase = (height - inPorts.length * portStep +
       this.PORT_GAP) / 2;
-  for (var i = 0; i < this.inPorts.length; i++) {
-    var port = this.inPorts[i];
+  for (var i = 0; i < inPorts.length; i++) {
+    var port = inPorts[i];
     port.container.css('top', inTopBase + i * portStep);
     for (var j = 0; j < port.connections.length; j++) {
       port.connections[j].update();
     }
   }
-  var outTopBase = (height - this.outPorts.length * portStep +
+
+  var outPorts = this.outputPorts();
+  var outTopBase = (height - outPorts.length * portStep +
       this.PORT_GAP) / 2;
-  for (var i = 0; i < this.outPorts.length; i++) {
-    var port = this.outPorts[i];
+  for (var i = 0; i < outPorts.length; i++) {
+    var port = outPorts[i];
     port.container.css('top', outTopBase + i * portStep);
     for (var j = 0; j < port.connections.length; j++) {
       port.connections[j].update();
@@ -742,13 +763,14 @@ visflow.Node.prototype.hide = function() {
 /**
  * Finds the first node port that can be connected to the given 'port'.
  * @param {!visflow.Port} port Port to be connected to.
- * @return {visflow.Port} 'null' if no port is connectable.
+ * @return {visflow.Port} null if no port is connectable.
  */
 visflow.Node.prototype.firstConnectable = function(port) {
-  var ports = port.isInput ? this.outPorts : this.inPorts;
+  var ports = port.isInput ? this.outputPorts() : this.inputPorts();
   for (var i = 0; i < ports.length; i++) {
     var port2 = ports[i];
-    if (port2.connectable(port).connectable) {
+    var connectableResult = port2.connectable(port);
+    if (connectableResult.connectable) {
       return port2;
     }
   }
@@ -760,8 +782,12 @@ visflow.Node.prototype.firstConnectable = function(port) {
  * @return {boolean}
  */
 visflow.Node.prototype.inPortsChanged = function() {
-  for (var i = 0; i < this.inPorts.length; i++) {
-    if (this.inPorts[i].changed()) {
+  var inPorts = this.inputPorts();
+  if (!inPorts.length) {
+    return true; // For nodes without inputs, always return true.
+  }
+  for (var i = 0; i < inPorts.length; i++) {
+    if (inPorts[i].changed()) {
       return true;
     }
   }
@@ -769,25 +795,104 @@ visflow.Node.prototype.inPortsChanged = function() {
 };
 
 /**
- * Updates the node. It checks if the upflow data has changed. If so it
- * processes the node and calls rendering.
+ * Processes input data and generates output. Updates and re-renders the node
+ * if the input data has chnaged.
+ * This is to be implemented in inheriting classes.
+ * [Warning!]
+ * Otherwise the flow would endlessly call process().
  */
-visflow.Node.prototype.update = function() {
-  if (!this.inPortsChanged()) {
-    return; // everything not changed, do not process
-  }
+visflow.Node.prototype.process = function() {
+  // During propagation, every node that is potentially touched will be marked
+  // 'waiting'. Once it is this node's turn to update(), remove the waiting
+  // message.
+  this.hideMessage(visflow.Node.Message.WAITING);
 
-  this.process();
-  this.show();
+  this.startProcess_();
+
+  // Mark all output ports changed. Note that this is not optimized for
+  // performance. If a node's processSync/processAsync implementation can
+  // determine that some ports possess the same package before and after, it
+  // should unset the changed flag on the ports to prevent unnecessary
+  // propagation.
+  this.outputPorts().forEach(function(port) { port.changed(true); });
+
+  if (!this.isPropagationSource && !this.inPortsChanged()) {
+    // Everything not changed, do not process and just signifies endProcess.
+    this.endProcess_();
+    return;
+  }
+  if (this.isAsyncProcess) {
+    this.processAsync(this.endProcess_.bind(this));
+  } else {
+    this.processSync();
+    this.endProcess_();
+  }
 };
 
 /**
- * Processes input data and generates output.
- * This is to be extended in inheriting classes.
+ * To be implemented by inheriting classes. Synchronously processes the node.
+ * [Warning!] You cannot call propagate in processSync(). This function is
+ * supposed to only compute its output values based on its input.
  */
-visflow.Node.prototype.process = function() {
-  // Warning: You cannot call propagate in process, otherwise flowManager will
-  // endlessly call process().
+visflow.Node.prototype.processSync = function() {
+  visflow.error('processSync is not implemented but called on node', this.id,
+    'type', this.type);
+};
+
+/**
+ * To be implemented by inheriting classes.
+ * Asynchronously processes the node.
+ * [Warning!] You cannot call propagate in processAsync(). This function is
+ * supposed to only compute its output values based on its input.
+ *
+ * @param {Function} endProcess You must call endProcess() once the processing
+ *     ends in order to make the flow propagate properly.
+ */
+visflow.Node.prototype.processAsync = function(endProcess) {
+  visflow.error('processAsync is not implemented but called on node', this.id,
+    'type', this.type);
+};
+
+/**
+ * Notifies the data flow that this node has change in its output, which should
+ * be propagated to the downflow. Only call this function when the node has
+ * completed its process() and its outputs are ready.
+ * [Warning!] You should only call this when a change comes from the UI (user).
+ * Do not call pushflow within propagation (along with process) otherwise the
+ * performance would seriously downgrade.
+ */
+visflow.Node.prototype.pushflow = function() {
+  visflow.flow.propagate(this);
+};
+
+/**
+ * Signifies that the process() of the node has started. This creates a popup
+ * cover on the node that shows "processing" to the user.
+ * @private
+ */
+visflow.Node.prototype.startProcess_ = function() {
+  this.showMessage(visflow.Node.Message.PROCESSING);
+};
+
+/**
+ * Signifies that the process() has ended.
+ * @private
+ */
+visflow.Node.prototype.endProcess_ = function() {
+  this.show();
+
+  // Signals that the node has completed process(). This is to notify other
+  // downflow nodes to update based on its new output.
+  visflow.signal(this, visflow.Event.PROCESSED, {node: this});
+
+  this.hideMessage(visflow.Node.Message.PROCESSING);
+};
+
+/**
+ * Shows that the node is waiting to be processed.
+ */
+visflow.Node.prototype.wait = function() {
+  this.showMessage(visflow.Node.Message.WAITING);
 };
 
 /**
@@ -911,15 +1016,6 @@ visflow.Node.prototype.toggleLabel = function() {
 };
 
 /**
- * Processes and propagates changes.
- */
-visflow.Node.prototype.pushflow = function() {
-  this.process();
-  // Push property changes to downflow.
-  visflow.flow.propagate(this);
-};
-
-/**
  * Handles node resize.
  */
 visflow.Node.prototype.resize = function() {
@@ -969,7 +1065,7 @@ visflow.Node.prototype.panel = function() {
     // Load type specific node panel.
     if (this.PANEL_TEMPLATE != '') {
       container.find('.panel-content').load(this.PANEL_TEMPLATE, function() {
-        this.initPanel(container);
+        this.updatePanel(container);
       }.bind(this));
     }
   }.bind(this));
@@ -1016,71 +1112,32 @@ visflow.Node.prototype.initPanelHeader = function(container) {
 
   // Handle header button clicks.
   if (!visflow.flow.visMode) {
+    var btnMinimized = header.find('#minimized').show();
+    btnMinimized.click(function() {
+        this.toggleMinimized();
+        btnMinimized.toggleClass('active', this.options.minimized);
+      }.bind(this))
+      .toggleClass('active', this.options.minimized);
+
+    var btnVisMode = header.find('#vis-mode').show();
+    btnVisMode.click(function() {
+        this.toggleVisMode();
+        btnVisMode.toggleClass('active', this.options.visMode);
+      }.bind(this))
+      .toggleClass('active', this.options.visMode);
+
+    var btnLabel = header.find('#label').show();
+    btnLabel.click(function() {
+        this.toggleLabel();
+        btnLabel.toggleClass('active', this.options.label);
+      }.bind(this))
+      .toggleClass('active', this.options.label);
+
     var btnDelete = header.find('#delete').show();
     btnDelete.click(function() {
       this.delete();
     }.bind(this));
-
-    var btnVisMode = header.find('#vis-mode').show();
-    btnVisMode.click(function() {
-      this.toggleVisMode();
-    }.bind(this));
-    if (this.options.visMode) {
-      btnVisMode.addClass('active');
-    }
-
-    var btnMinimized = header.find('#minimized').show();
-    btnMinimized.click(function() {
-      this.toggleMinimized();
-    }.bind(this));
-    if (this.options.minimized) {
-      btnMinimized.addClass('active');
-    }
   }
-};
-
-/**
- * Initializes control panel elements when the panel is loaded.
- * @param {!jQuery} container Panel container.
- */
-visflow.Node.prototype.initPanel = function(container) {};
-
-/**
- * Initializes the user interface units.
- * @param {!Array<{
- *   constructor: Function,
- *   params: !Object,
- *   change: function(!jQuery.Event, *),
- *   opening: function(!jQuery.Event, *): *
- * }>} units
- */
-visflow.Node.prototype.initInterface = function(units) {
-  var preventAltedOpen = function() {
-    if (visflow.interaction.isAlted()) {
-      // When alt-ed, do not show list.
-      return false;
-    }
-  };
-  units.forEach(function(unit) {
-    _.extend(unit.params, {
-      opening: preventAltedOpen
-    });
-    $(new unit.constructor(unit.params))
-      .on('vf.change', unit.change.bind(this));
-  }, this);
-};
-
-/**
- * Updates the panel when option values changes in the node.
- * @param {!jQuery} container Panel container.
- */
-visflow.Node.prototype.updatePanel = function(container) {
-  if (!visflow.optionPanel.isOpen) {
-    // Do nothing if panel is not open.
-    return;
-  }
-  // Naive simplest update is to redraw.
-  this.initPanel(container);
 };
 
 /**
@@ -1123,12 +1180,12 @@ visflow.Node.prototype.removeEdges = function() {
 /**
  * Gets the list of dimensions from the input data.
  * This is used for select2 input.
- * @param {(visflow.Data|visflow.TabularData)=} opt_data
+ * @param {(visflow.Dataset|visflow.TabularData)=} opt_data
  * @param {boolean=} opt_addIndex
  * @return {!Array<{id: number, text: string}>}
  */
 visflow.Node.prototype.getDimensionList = function(opt_data, opt_addIndex) {
-  var data = opt_data == null ? this.ports['in'].pack.data : opt_data;
+  var data = opt_data == null ? this.getDataInPort().pack.data : opt_data;
   var result = data.dimensions.map(function(dimName, index) {
     return {
       id: index,
@@ -1149,31 +1206,90 @@ visflow.Node.prototype.getDimensionList = function(opt_data, opt_addIndex) {
  * @return {!Array<string>}
  */
 visflow.Node.prototype.getDimensionNames = function() {
-  return this.ports['in'].pack.data.dimensions;
+  return this.getDataInPort().pack.data.dimensions;
 };
 
 /**
  * Gets the port with the given id.
  * @param {string} id
- * @return {!(visflow.Port|visflow.MultiplePort|visflow.SelectionPort)}
+ * @return {!visflow.Port}
  */
 visflow.Node.prototype.getPort = function(id) {
   return this.ports[id];
 };
 
 /**
- * Gets input data.
- * @return {!Array<visflow.Data>}
+ * Gets all input ports of the node.
+ * @return {!Array<!visflow.Port>}
  */
-visflow.Node.prototype.getInputData = function() {
-  var data = [];
-  for (var id in this.ports) {
-    var port = this.ports[id];
-    if (port.isInput && !port.isConstants) {
-      data.push(port.pack.data);
+visflow.Node.prototype.inputPorts = function() {
+  var inPorts = [];
+  _.each(this.ports, function(port) {
+    if (port.isInput) {
+      inPorts.push(port);
     }
-  }
-  return data;
+  });
+  return inPorts;
+};
+
+/**
+ * Gets all output ports of the node.
+ * @return {!Array<!visflow.Port>}
+ */
+visflow.Node.prototype.outputPorts = function() {
+  var outPorts = [];
+  _.each(this.ports, function(port) {
+    if (!port.isInput) { // port is either input or output
+      outPorts.push(port);
+    }
+  });
+  return outPorts;
+};
+
+/**
+ * Gets all ports of the node.
+ * @return {!Array<!visflow.Port>}
+ */
+visflow.Node.prototype.allPorts = function() {
+  return this.inputPorts().concat(this.outputPorts());
+};
+
+/**
+ * Gets all nodes that this node is connected to from its input ports.
+ * @return {!Array<!visflow.Node>}
+ */
+visflow.Node.prototype.inputSourceNodes = function() {
+  var nodes = [];
+  var nodeIds = {}; // used to deduplicate
+  this.inputPorts().forEach(function(port) {
+    port.connections.forEach(function(edge) {
+      var node = edge.sourceNode;
+      if (!(node.id in nodeIds)) {
+        nodeIds[node.id] = true;
+        nodes.push(node);
+      }
+    });
+  });
+  return nodes;
+};
+
+/**
+ * Gets all nodes that this node is connected to from its output ports.
+ * @return {!Array<!visflow.Node>}
+ */
+visflow.Node.prototype.outputTargetNodes = function() {
+  var nodes = [];
+  var nodeIds = {}; // used to deduplicate
+  this.outputPorts().forEach(function(port) {
+    port.connections.forEach(function(edge) {
+      var node = edge.targetNode;
+      if (!(node.id in nodeIds)) {
+        nodeIds[node.id] = true;
+        nodes.push(node);
+      }
+    });
+  });
+  return nodes;
 };
 
 /**
@@ -1254,22 +1370,6 @@ visflow.Node.prototype.moveToWithTransition = function(left, top,
 };
 
 /**
- * Gets the input data port.
- * @return {!visflow.Port}
- */
-visflow.Node.prototype.getDataInPort = function() {
-  return this.getPort('in');
-};
-
-/**
- * Gets the output data port.
- * @return {!visflow.Port}
- */
-visflow.Node.prototype.getDataOutPort = function() {
-  return this.getPort('out');
-};
-
-/**
  * Gets node option identified by key.
  * @param {string} key
  * @return {*}
@@ -1288,7 +1388,7 @@ visflow.Node.prototype.getClass = function() {
 
 /**
  * Gets the node's data.
- * @return {!visflow.Data}
+ * @return {!visflow.Dataset}
  */
 visflow.Node.prototype.getData = function() {
   return this.getDataOutPort().pack.data;

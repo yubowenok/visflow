@@ -5,7 +5,7 @@
 /** @inheritDoc */
 visflow.Histogram.prototype.initPanel = function(container) {
   var dimensionList = this.getDimensionList();
-  var units = [
+  this.panelElements = [
     {
       constructor: visflow.Select,
       params: {
@@ -40,5 +40,4 @@ visflow.Histogram.prototype.initPanel = function(container) {
       }
     }
   ];
-  this.initInterface(units);
 };

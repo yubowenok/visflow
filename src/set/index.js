@@ -5,24 +5,22 @@
 /**
  * @param {visflow.params.Node} params
  * @constructor
- * @extends {visflow.Node}
+ * @extends {visflow.SubsetNode}
  */
 visflow.Set = function(params) {
   visflow.Set.base.constructor.call(this, params);
 
   /** @inheritDoc */
   this.ports = {
-    'in': new visflow.MultiplePort({
+    'in': new visflow.MultiSubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiSubsetPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: false
+      isInput: false
     })
   };
 
@@ -34,7 +32,7 @@ visflow.Set = function(params) {
   this.numConnections_ = 0;
 };
 
-_.inherit(visflow.Set, visflow.Node);
+_.inherit(visflow.Set, visflow.SubsetNode);
 
 /** @inheritDoc */
 visflow.Set.prototype.init = function() {
@@ -47,8 +45,8 @@ visflow.Set.prototype.init = function() {
  * @return {boolean}
  */
 visflow.Set.prototype.inPortsChanged = function() {
-  if (this.numConnections_ != this.ports['in'].connections.length) {
-    this.numConnections_ = this.ports['in'].connections.length;
+  if (this.numConnections_ != this.getDataInPort().connections.length) {
+    this.numConnections_ = this.getDataInPort().connections.length;
     return true;
   }
   return visflow.Set.base.inPortsChanged.call(this);

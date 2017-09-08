@@ -5,24 +5,22 @@
 /**
  * @param {visflow.params.Node} params
  * @constructor
- * @extends {visflow.Node}
+ * @extends {visflow.Value}
  */
 visflow.ValueExtractor = function(params) {
   visflow.ValueExtractor.base.constructor.call(this, params);
 
   /** @inheritDoc */
   this.ports = {
-    'in': new visflow.Port({
+    'in': new visflow.SubsetPort({
       node: this,
       id: 'in',
-      isInput: true,
-      isConstants: false
+      isInput: true
     }),
-    'out': new visflow.MultiplePort({
+    'out': new visflow.MultiConstantPort({
       node: this,
       id: 'out',
-      isInput: false,
-      isConstants: true
+      isInput: false
     })
   };
 
@@ -51,14 +49,14 @@ visflow.ValueExtractor.prototype.deserialize = function(save) {
 /** @inheritDoc */
 visflow.ValueExtractor.prototype.showDetails = function() {
   visflow.ValueExtractor.base.showDetails.call(this);
-  var units = [
+  var uiElements = [
     {
       constructor: visflow.MultipleSelect,
       params: {
         container: this.content.find('#dims'),
         list: this.getDimensionList(),
         selected: this.options.dims,
-        selectTitle: this.ports['in'].pack.data.isEmpty() ?
+        selectTitle: this.getDataInPort().pack.data.isEmpty() ?
           this.NO_DATA_STRING : null
       },
       change: function(event, dims) {
@@ -70,13 +68,13 @@ visflow.ValueExtractor.prototype.showDetails = function() {
       }
     }
   ];
-  this.initInterface(units);
+  this.showUiElements(uiElements);
 };
 
 /** @inheritDoc */
-visflow.ValueExtractor.prototype.process = function() {
-  var inpack = this.ports['in'].pack;
-  var outpack = this.ports['out'].pack;
+visflow.ValueExtractor.prototype.processSync = function() {
+  var inpack = this.getDataInPort().getSubset();
+  var outpack = this.getConstantOutPort().pack;
   if (inpack.type === 'constants')
     return visflow.error('constants in connected to value extractor');
 
@@ -111,9 +109,7 @@ visflow.ValueExtractor.prototype.process = function() {
  * Handles interface parameter changes.
  */
 visflow.ValueExtractor.prototype.parameterChanged = function() {
-  this.process();
   this.pushflow();
-  this.show();
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());
   }

@@ -157,7 +157,7 @@ visflow.Histogram.prototype.prepareHistogram_ = function() {
  * @private
  */
 visflow.Histogram.prototype.createHistogramData_ = function() {
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var items = inpack.items;
   var values = [];
 
@@ -253,7 +253,7 @@ visflow.Histogram.prototype.createHistogramScale_ = function() {
  */
 visflow.Histogram.prototype.assignItemsIntoBins_ = function() {
   // group the items in each bin by their properties
-  var inpack = this.ports['in'].pack,
+  var inpack = this.getDataInPort().pack,
       items = inpack.items;
 
   this.histogramData_.forEach(function(bin, index) {
@@ -447,7 +447,7 @@ visflow.Histogram.prototype.drawAxes_ = function() {
  */
 visflow.Histogram.prototype.drawXAxis_ = function() {
   var svgSize = this.getSVGSize();
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   this.drawAxis({
     svg: this.svgAxes.select('.x.axis'),
     scale: this.xScale,
@@ -544,7 +544,7 @@ visflow.Histogram.prototype.updateBottomMargin_ = function() {
 /** @inheritDoc */
 visflow.Histogram.prototype.prepareScales = function() {
   var svgSize = this.getSVGSize();
-  var inpack = this.ports['in'].pack;
+  var inpack = this.getDataInPort().pack;
   var data = inpack.data;
   var items = inpack.items;
 
@@ -604,7 +604,7 @@ visflow.Histogram.prototype.inputChanged = function() {
  * @return {number}
  */
 visflow.Histogram.prototype.findPlotDimension = function() {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   for (var dim = 0; dim < data.dimensionTypes.length; dim++) {
     if (data.dimensionTypes[dim] != visflow.ValueType.STRING) {
       return dim;
@@ -637,7 +637,7 @@ visflow.Histogram.prototype.clearSelection = function() {
 
 /** @inheritDoc */
 visflow.Histogram.prototype.setDimensions = function(dims) {
-  var data = this.ports['in'].pack.data;
+  var data = this.getDataInPort().pack.data;
   if (dims.length) {
     this.options.dim = data.dimensions.indexOf(dims[0]);
   }
