@@ -239,7 +239,6 @@ visflow.PropertyMapping.prototype.updateSize_ = function() {
 visflow.PropertyMapping.prototype.setMapping = function(dim, property, value) {
   this.options.dim = dim;
   this.options.mapping = property;
-  console.log(dim, property, value);
   if (value instanceof Array) {
     // numerical mapping
     this.options.numberRange = value;

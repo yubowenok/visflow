@@ -110,7 +110,7 @@ visflow.Node.prototype.contextMenuItems = function() {
  * Default options that shall be set by the node.
  * This is specific to a node type that is a leaf in the inheriting tree.
  * The options written here will be checked and filled during de-serialization.
- * If a class is a inner node of an inheriting tree (e.g. Visualization), it
+ * If a class is an inner node of an inheriting tree (e.g. Visualization), it
  * needs to define separate options object and fill it during its inheriting
  * de-serialize function.
  * @return {!visflow.options.Node}
@@ -118,9 +118,9 @@ visflow.Node.prototype.contextMenuItems = function() {
  */
 visflow.Node.prototype.defaultOptions = function() {
   return new visflow.options.Node({
-    minimized: false,
-    label: true,
-    visMode: false
+    minimized: false, // is not minimized by default
+    label: false, // does not show label by default
+    visMode: false // is not in visualization mode by default
   });
 };
 

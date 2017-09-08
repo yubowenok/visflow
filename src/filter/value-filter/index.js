@@ -74,7 +74,7 @@ visflow.ValueFilter.prototype.showDetails = function() {
       params: {
         container: this.content.find('#value'),
         value: this.values,
-        disabled: this.ports['inVal'].connected()
+        disabled: this.getConstantInPort().connected()
       },
       change: function(event, value) {
         this.options.typeInValue = '' + value;
@@ -86,9 +86,12 @@ visflow.ValueFilter.prototype.showDetails = function() {
   this.showUiElements(uiElements);
 };
 
-/** @inheritDoc */
-visflow.ValueFilter.prototype.processSync = function() {
-  var port = this.getPort(visflow.ValueFilter.Port.IN_VAL);
+/**
+ * Updates the values of the ValueFilter.
+ * @private
+ */
+visflow.ValueFilter.prototype.updateValues_ = function() {
+  var port = this.getConstantInPort();
   var pack;
   if (port.connected()) {
     pack = port.pack;
@@ -99,9 +102,14 @@ visflow.ValueFilter.prototype.processSync = function() {
     pack = port.pack;
   }
   this.values = pack.getAll();
+};
 
-  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
-  var outpack = this.getDataOutPort().pack;
+/** @inheritDoc */
+visflow.ValueFilter.prototype.processSync = function() {
+  this.updateValues_();
+
+  var inpack = this.getDataInPort().getSubset();
+  var outpack = this.getDataOutPort().getSubset();
   if (inpack.isEmpty()) {
     outpack.copy(inpack);
     return;
@@ -118,6 +126,7 @@ visflow.ValueFilter.prototype.processSync = function() {
 
 /**
  * Value filters the subset with a given specification.
+ * Note that this is a prototyped filter util method.
  * @param {visflow.ValueFilter.Spec} spec
  * @param {!visflow.Subset} pack
  * @return {!Array<number>} Resulting subset as array.
@@ -167,7 +176,7 @@ visflow.ValueFilter.filter = function(spec, pack) {
 /** @inheritDoc */
 visflow.ValueFilter.prototype.filter = function() {
   // Slow implementation: Linear scan
-  var inpack = /** @type {!visflow.Subset} */(this.getDataInPort().pack);
+  var inpack = this.getDataInPort().getSubset();
   var outpack = this.getDataOutPort().pack;
 
   var result = visflow.ValueFilter.filter({
@@ -200,8 +209,15 @@ visflow.ValueFilter.prototype.setValue = function(dim, value, opt_target) {
 
 /**
  * Gets the constant input port.
- * @return {!visflow.Port}
+ * @return {!visflow.ConstantPort}
  */
 visflow.ValueFilter.prototype.getConstantInPort = function() {
-  return this.ports['inVal'];
+  return /** @type {!visflow.ConstantPort} */(
+    this.getPort(visflow.ValueFilter.Port.IN_VAL));
+};
+
+/** @inheritDoc */
+visflow.ValueFilter.prototype.parameterChanged = function() {
+  this.updateValues_();
+  visflow.ValueFilter.base.parameterChanged.call(this);
 };

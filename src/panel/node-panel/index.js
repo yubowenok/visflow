@@ -38,16 +38,6 @@ visflow.nodePanel.init = function() {
   visflow.nodePanel.container_ = container;
   visflow.nodePanel.hoverArea_ = container.children('.hover-area');
 
-  /*
-  var showPanel = function() {
-    if (!visflow.nodePanel.isOpen) {
-      visflow.nodePanel.toggle(true);
-    }
-  };
-  container.find('#btn-toggle').mouseenter(showPanel);
-  visflow.nodePanel.hoverArea_.mouseenter(showPanel);
-  */
-
   visflow.nodePanel.initUpdateHandlers_();
   // Set correct panel width on system init
   visflow.nodePanel.show_();
@@ -86,7 +76,7 @@ visflow.nodePanel.toggle = function(opt_state) {
     } else {
       visflow.nodePanel.hide_();
     }
-    visflow.signal(visflow.nodePanel, 'change', {
+    visflow.signal(visflow.nodePanel, visflow.Event.CHANGE, {
       type: 'nodePanel',
       value: newState
     });

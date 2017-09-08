@@ -15,7 +15,15 @@ visflow.ComputationPort = function(params) {
     },
     params
   );
+
   visflow.ComputationPort.base.constructor.call(this, paramsApplied);
+
+  /**
+   * If input is set, this is a copy of the input subset. Otherwise, the value
+   * has no meaning.
+   * @type {!visflow.Subset}
+   */
+  this.pack = new visflow.Subset();
 };
 
 _.inherit(visflow.ComputationPort, visflow.Port);
@@ -37,6 +45,36 @@ visflow.ComputationPort.prototype.connectable = function(port) {
     // already failed due to graph topology
     return result;
   }
+  if (port.IS_CONSTANT_PORT) {
+    return {
+      connectable: false,
+      reason: 'cannot connect ComputationPort to ConstantPort'
+    };
+  }
   // computation port can connect to anything
   return result;
+};
+
+/** @inheritDoc */
+visflow.ComputationPort.prototype.getSubset = function() {
+  return this.node.getPortSubset(this.id);
+};
+
+/** @inheritDoc */
+visflow.ComputationPort.prototype.info = function() {
+  var subset = this.getSubset();
+  if (subset == null) {
+    return 'generic data';
+  }
+  return '(' + subset.count() + ' items)';
+};
+
+/** @inheritDoc */
+visflow.ComputationPort.prototype.onConnected = function(edge) {
+  if (this.isInput) {
+    if (edge.sourcePort.IS_SUBSET_PORT) {
+      this.pack = edge.sourcePort.getSubset();
+    }
+  }
+  edge.sourcePort.changed(true);
 };

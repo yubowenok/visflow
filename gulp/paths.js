@@ -33,6 +33,7 @@ var orderedSrc = [
   'src/**/params.js',
 
   'src/data/package.js',
+  'src/data/data.js',
   'src/data/*.js',
 
   'src/node/index.js',

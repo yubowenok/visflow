@@ -89,5 +89,10 @@ visflow.ValueMaker.prototype.setValueString = function(str) {
   this.valueString = str;
   this.value = new visflow.Constants('' + str);
 
-  $.extend(this.getDataOutPort().pack, this.value);
+  $.extend(this.getConstantOutPort().pack, this.value);
+};
+
+/** @inheritDoc */
+visflow.ValueMaker.prototype.processSync = function() {
+  $.extend(this.getConstantOutPort().pack, this.value);
 };

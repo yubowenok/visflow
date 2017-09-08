@@ -33,6 +33,7 @@ visflow.Node = function(params) {
    * @type {string}
    */
   this.id = params.id;
+
   /**
    * Node type.
    * @type {string}
@@ -52,7 +53,7 @@ visflow.Node = function(params) {
   this.ports = {};
 
   /**
-   * Node options.
+   * Node options. Default options maybe overwritten by inheriting classes.
    * @protected {!visflow.options.Node}
    */
   this.options = this.defaultOptions();
@@ -123,9 +124,13 @@ visflow.Node = function(params) {
    */
   this.messages_ = [];
 
-  // Extend the options. Default options maybe overwritten by inheriting
-  // classes.
-  this.options.extend(this.defaultOptions());
+  /**
+   * Indicates if the the node is one of the propagation starting points.
+   * If so, process() will always execute, regardless of whether
+   * inPortsChanged() is true.
+   * @type {boolean}
+   */
+  this.isPropagationSource = false;
 
   this.container.load(this.COMMON_TEMPLATE, function() {
     this.container
@@ -811,7 +816,7 @@ visflow.Node.prototype.process = function() {
   // propagation.
   this.outputPorts().forEach(function(port) { port.changed(true); });
 
-  if (!this.inPortsChanged()) {
+  if (!this.isPropagationSource && !this.inPortsChanged()) {
     // Everything not changed, do not process and just signifies endProcess.
     this.endProcess_();
     return;
@@ -1107,26 +1112,31 @@ visflow.Node.prototype.initPanelHeader = function(container) {
 
   // Handle header button clicks.
   if (!visflow.flow.visMode) {
+    var btnMinimized = header.find('#minimized').show();
+    btnMinimized.click(function() {
+        this.toggleMinimized();
+        btnMinimized.toggleClass('active', this.options.minimized);
+      }.bind(this))
+      .toggleClass('active', this.options.minimized);
+
+    var btnVisMode = header.find('#vis-mode').show();
+    btnVisMode.click(function() {
+        this.toggleVisMode();
+        btnVisMode.toggleClass('active', this.options.visMode);
+      }.bind(this))
+      .toggleClass('active', this.options.visMode);
+
+    var btnLabel = header.find('#label').show();
+    btnLabel.click(function() {
+        this.toggleLabel();
+        btnLabel.toggleClass('active', this.options.label);
+      }.bind(this))
+      .toggleClass('active', this.options.label);
+
     var btnDelete = header.find('#delete').show();
     btnDelete.click(function() {
       this.delete();
     }.bind(this));
-
-    var btnVisMode = header.find('#vis-mode').show();
-    btnVisMode.click(function() {
-      this.toggleVisMode();
-    }.bind(this));
-    if (this.options.visMode) {
-      btnVisMode.addClass('active');
-    }
-
-    var btnMinimized = header.find('#minimized').show();
-    btnMinimized.click(function() {
-      this.toggleMinimized();
-    }.bind(this));
-    if (this.options.minimized) {
-      btnMinimized.addClass('active');
-    }
   }
 };
 
@@ -1170,7 +1180,7 @@ visflow.Node.prototype.removeEdges = function() {
 /**
  * Gets the list of dimensions from the input data.
  * This is used for select2 input.
- * @param {(visflow.Data|visflow.TabularData)=} opt_data
+ * @param {(visflow.Dataset|visflow.TabularData)=} opt_data
  * @param {boolean=} opt_addIndex
  * @return {!Array<{id: number, text: string}>}
  */
@@ -1378,7 +1388,7 @@ visflow.Node.prototype.getClass = function() {
 
 /**
  * Gets the node's data.
- * @return {!visflow.Data}
+ * @return {!visflow.Dataset}
  */
 visflow.Node.prototype.getData = function() {
   return this.getDataOutPort().pack.data;

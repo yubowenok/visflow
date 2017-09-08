@@ -400,10 +400,6 @@ visflow.Visualization.prototype.clearBrush = function() {
  * parallelCoordinates uses lasso stroke.
  */
 visflow.Visualization.prototype.selectItems = function() {
-  // Here we must process selection because selection does not trigger the
-  // node's process() because the input ports do not change.
-  this.processSelection();
-
   this.pushflow();
 };
 
@@ -415,7 +411,7 @@ visflow.Visualization.prototype.selectItems = function() {
 visflow.Visualization.prototype.select_ = function(items) {
   this.selected = items;
   this.selectedChanged();
-  this.selectItems();
+  this.pushflow();
 };
 
 /**

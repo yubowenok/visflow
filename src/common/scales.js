@@ -152,7 +152,7 @@ visflow.scales.init = function() {
 
 /**
  * Gets a scale with domain set based on value types.
- * @param {!visflow.Data} data Data the scale is for.
+ * @param {!visflow.Dataset} data Data the scale is for.
  * @param {number} dim Dimension index of the data to process.
  * @param {!Object<boolean>} items Collection of items the scale is for.
  * @param {!Array<number>} range Range of the scale.

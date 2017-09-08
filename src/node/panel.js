@@ -35,8 +35,8 @@ visflow.Node.prototype.showUiElements = function(uiElements) {
     _.extend(uiElement.params, {
       opening: preventAltedOpen
     });
-    $(new uiElement.constructor(uiElement.params))
-      .on('vf.change', uiElement.change.bind(this));
+    visflow.listen(new uiElement.constructor(uiElement.params),
+      visflow.Event.CHANGE, uiElement.change.bind(this));
   }, this);
 };
 

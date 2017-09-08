@@ -40,3 +40,10 @@ $colorscale-select-height: 44px;
 @mixin ui-border {
   border: 1px solid $gray-c;
 }
+
+%node-text {
+  font-size: .95em;
+  text-align: center;
+  top: calc(50% - .95em * .75);
+  width: 100%;
+}

@@ -50,11 +50,13 @@ visflow.DataSource.prototype.isAsyncProcess = true;
 
 /** @inheritDoc */
 visflow.DataSource.prototype.defaultOptions = function() {
-  return new visflow.options.DataSource({
+  var options = visflow.DataSource.base.defaultOptions.call(this);
+  options.extend(new visflow.options.DataSource({
+    label: true,
     transpose: false,
     transposeName: 'attributes',
     transposeKeys: [],
-    transposeAttrs: [],
-    useServerData: true
-  });
+    transposeAttrs: []
+  }));
+  return options;
 };

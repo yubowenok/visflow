@@ -106,9 +106,7 @@ visflow.DataSource.prototype.createPanelDataList = function(container) {
     }.bind(this));
 
     var data = this.data[dataIndex];
-    var text = data.isServerData ?
-    data.name + ' (' + data.file + ') ' : data.file + ' (online)';
-    li.children('span').text(text);
+    li.children('span').text(data.name + ' (' + data.file + ')');
   }, this);
 
   if (hasData) {

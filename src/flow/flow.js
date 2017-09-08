@@ -174,16 +174,14 @@ visflow.Flow.prototype.createNode = function(type, save) {
  * @return {visflow.Edge}
  */
 visflow.Flow.prototype.createEdge = function(sourcePort, targetPort) {
-  var sourceNode = sourcePort.node,
-      targetNode = targetPort.node;
-
   var conn = sourcePort.connectable(targetPort);
-
   if (!conn.connectable) {
     visflow.tooltip.create(/** @type {string} */(conn.reason));
     return null;
   }
 
+  var sourceNode = sourcePort.node;
+  var targetNode = targetPort.node;
   var newedge = new visflow.Edge({
     id: ++visflow.flow.edgeCounter_,
     sourceNode: sourceNode,
@@ -298,8 +296,10 @@ visflow.Flow.prototype.propagate = function(startNode) {
   }
   console.log('propagate', startNode);
 
-  // clear all processed listeners on the nodes
+  // Clear all processed listeners on the nodes.
+  // Clear flags of propagation starting points.
   _.each(this.nodes, function(node) {
+    node.isPropagationSource = false;
     visflow.unlisten(node, visflow.Event.PROCESSED);
   });
 
@@ -322,15 +322,20 @@ visflow.Flow.prototype.propagate = function(startNode) {
   };
 
   // Traverse startNode(s) to get all nodes touched by propagation.
+  visflow.progress.start('propagating', true);
   if (visflow.Node.prototype.isPrototypeOf(startNode)) {
+    startNode.isPropagationSource = true;
     traverse(startNode);
   } else if (startNode instanceof Array) {
     startNode.forEach(function(node) {
+      node.isPropagationSource = true;
       traverse(node);
     });
   }
+  visflow.progress.setPercentage(visflow.Flow.PROPAGATION_PROGRESS_BASE);
 
   var processedNodes = {};
+  var processedCounter = 0;
   /**
    * Handles the completion of a node's process().
    * @param {!jQuery.Event} event
@@ -339,6 +344,9 @@ visflow.Flow.prototype.propagate = function(startNode) {
   var nodeProcessed = function(event, data) {
     var node = data.node;
     console.log('processed', node.type);
+    var percent = ++processedCounter / topo.length;
+    visflow.progress.setPercentage(percent *
+      (2 - visflow.Flow.PROPAGATION_PROGRESS_BASE));
 
     if (node.id in processedNodes) {
       visflow.error('node', node.id, node.type,
@@ -355,6 +363,7 @@ visflow.Flow.prototype.propagate = function(startNode) {
       delete dependencyCount[node.id];
       if ($.isEmptyObject(dependencyCount)) {
         clearPortFlags();
+        visflow.progress.end();
         return;
       }
     }

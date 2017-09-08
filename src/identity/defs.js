@@ -9,6 +9,12 @@ visflow.Identity.prototype.NODE_CLASS = 'identity';
 visflow.Identity.prototype.DEFAULT_LABEL = 'Identity';
 
 /**
+ * Identity mimics async data processing.
+ * @inheritDoc
+ */
+visflow.Identity.prototype.isAsyncProcess = true;
+
+/**
  * Identity nodes specific options.
  * @return {!visflow.options.Node}
  */

@@ -62,6 +62,6 @@ visflow.MultipleSelect.prototype.change = function() {
   if (_.difference(this.selected, val).length ||
     _.difference(val, this.selected).length) {
     this.selected = val;
-    visflow.signal(this, 'change', this.selected);
+    visflow.signal(this, visflow.Event.CHANGE, this.selected);
   }
 };

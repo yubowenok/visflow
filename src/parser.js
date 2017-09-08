@@ -1,5 +1,5 @@
 /**
- * @fileoverview VisFlow data parser.
+ * @fileoverview Data parser that converts raw tabular data to visflow.Dataset.
  */
 
 /** @const */
@@ -146,10 +146,22 @@ visflow.parser.csv = function(csv) {
   if (_.last(dimensions) === '') {
     // In case there is a delimiter in the end.
     dimensions.pop();
+    for (var i = 0; i < values.length; i++) {
+      while (values[i].length > dimensions.length) {
+        values[i].pop();
+      }
+    }
   }
+  for (var i = 0; i < values.length; i++) {
+    if (!(values[i] instanceof Array) ||
+      values[i].length < dimensions.length) {
+      visflow.error('data is not valid CSV');
+      return new visflow.Dataset(); // errored, return empty dataset
+    }
+  }
+
   var dimensionTypes = [];
   var dimensionDuplicate = [];
-
   dimensions.forEach(function(dimName, dimIndex) {
     var colInfo = visflow.parser.typingColumn(values, dimIndex);
     dimensionTypes.push(colInfo.type);
@@ -210,7 +222,7 @@ visflow.parser.typingColumn = function(values, colIndex) {
 
 /**
  * Converts visflow tabular data to csv.
- * @param {!visflow.Data} data
+ * @param {!visflow.Dataset} data
  * @param {Object} opt_items
  * @return {string}
  */

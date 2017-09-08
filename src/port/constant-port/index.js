@@ -30,6 +30,7 @@ visflow.ConstantPort.prototype.connectable = function(port) {
 
   if (port.IS_SUBSET_PORT) {
     return _.extend(result, {
+      connectable: false,
       reason: 'cannot connect ConstantPort with SubsetPort'
     });
   }

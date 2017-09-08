@@ -62,25 +62,12 @@ visflow.DataSource.prototype.deserialize = function(save) {
 
   save = /** @type {!visflow.save.DataSource} */(save);
 
-  if (save.dataSelected != null) {
-    visflow.warning('older version data storage found, auto fixed');
-    save.dataFile = save.dataSelected;
-    save.data = [
-      {
-        id: '',
-        name: 'data name',
-        file: save.dataSelected,
-        isServerData: true
-      }
-    ];
-  }
   if (save.data == null) {
     save.data = [
       {
         id: '',
         name: save.dataName,
-        file: save.dataFile,
-        isServerData: save.useServerData
+        file: save.dataFile
       }
     ];
   }
@@ -228,17 +215,10 @@ visflow.DataSource.prototype.updateActiveSections_ = function(dialog) {
   var online = dialog.find('.online');
   var btnServer = dialog.find('#btn-server');
   var btnOnline = dialog.find('#btn-online');
-  if (this.options.useServerData) {
-    server.removeClass('disabled');
-    btnServer.hide();
-    online.addClass('disabled');
-    btnOnline.show();
-  } else {
-    online.removeClass('disabled');
-    btnServer.show();
-    server.addClass('disabled');
-    btnOnline.hide();
-  }
+  server.removeClass('disabled');
+  btnServer.hide();
+  online.addClass('disabled');
+  btnOnline.show();
 };
 
 /**
@@ -259,21 +239,15 @@ visflow.DataSource.prototype.loadDataDialog = function() {
 
       // Checks whether upload options have been all set.
       var uploadable = function() {
-        var allSet;
-        if (this.options.useServerData) {
-          allSet = dataId !== '' && dataName !== '';
-        } else {
-          allSet = dataFile !== '' && dataName !== '';
-        }
+        var allSet = dataId !== '' && dataName !== '';
         confirm.prop('disabled', !allSet);
       }.bind(this);
 
       confirm.click(function() {
         this.data.push({
-          id: this.options.useServerData ? dataId : dataFile,
+          id: dataId,
           name: dataName,
-          file: dataFile,
-          isServerData: this.options.useServerData
+          file: dataFile
         });
         this.loadData({
           index: this.data.length - 1,
@@ -313,16 +287,6 @@ visflow.DataSource.prototype.loadDataDialog = function() {
         uploadable();
       }.bind(this));
 
-      dialog.find('#btn-server').click(function() {
-        this.options.useServerData = true;
-        this.updateActiveSections_(dialog);
-        uploadable();
-      }.bind(this));
-      dialog.find('#btn-online').click(function() {
-        this.options.useServerData = false;
-        this.updateActiveSections_(dialog);
-        uploadable();
-      }.bind(this));
       this.updateActiveSections_(dialog);
 
       dialog.find('#btn-upload').click(function(event) {
@@ -377,10 +341,10 @@ visflow.DataSource.prototype.loadData = function(opt_options) {
       return;
     }
     counter++;
-    var url = data.isServerData ?
-      visflow.url.GET_DATA + '?id=' + data.id :
-      visflow.utils.standardUrl(data.file);
+    var url = visflow.url.GET_DATA + '?id=' + data.id;
 
+    // Check if the dataset has already been loaded so that we can re-use the
+    // existing dataset.
     var duplicateData = visflow.data.duplicateData(data);
     if (duplicateData != null) {
       this.rawData[dataIndex] = duplicateData;
@@ -563,10 +527,12 @@ visflow.DataSource.prototype.processData_ = function(endProcess) {
     file: finalFile
   });
 
-  var data = new visflow.Data(/** @type {visflow.TabularData} */(finalData));
+  var data = new visflow.Dataset(/** @type {visflow.TabularData} */(finalData));
+  /*
   if (data.type !== '') {
     visflow.data.registerData(data);
   }
+  */
   // Overwrite data object (to keep the same reference).
   $.extend(this.getDataOutPort().pack, new visflow.Subset(data));
 

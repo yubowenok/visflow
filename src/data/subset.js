@@ -12,19 +12,19 @@
 visflow.ItemSet;
 
 /**
- * @param {visflow.Data=} data
+ * @param {visflow.Dataset=} data
  * @constructor
  */
 visflow.Subset = function(data) {
   visflow.Subset.base.constructor.call(this, data);
 
   if (data == null) {
-    data = new visflow.Data();
+    data = new visflow.Dataset();
   }
 
   /**
    * A reference to the original data object.
-   * @type {!visflow.Data}
+   * @type {!visflow.Dataset}
    */
   this.data = data;
 

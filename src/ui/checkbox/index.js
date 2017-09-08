@@ -65,5 +65,5 @@ visflow.Checkbox.prototype.toggle = function(opt_value) {
     return;
   }
   this.value_ = newValue;
-  visflow.signal(this, 'change', this.value_);
+  visflow.signal(this, visflow.Event.CHANGE, this.value_);
 };

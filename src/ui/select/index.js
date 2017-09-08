@@ -115,7 +115,7 @@ visflow.Select.prototype.change = function() {
   var val = /** @type {string} */(this.select2.val());
   if (this.selected !== val) {
     this.selected = val;
-    visflow.signal(this, 'change', this.selected);
+    visflow.signal(this, visflow.Event.CHANGE, this.selected);
   }
 };
 

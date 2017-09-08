@@ -69,11 +69,10 @@ visflow.Filter.prototype.dataChanged = function() {
  * Handles interface changes, e.g. dimension changed, filtering values changed.
  */
 visflow.Filter.prototype.parameterChanged = function() {
-  this.pushflow();
-  this.show();
   if (visflow.optionPanel.isOpen) {
     this.updatePanel(visflow.optionPanel.contentContainer());
   }
+  this.pushflow();
 };
 
 /**

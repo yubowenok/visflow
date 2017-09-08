@@ -3,6 +3,13 @@
  */
 
 /**
+ * Minimum progress percentage to be shown when all propagation sources have
+ * been pushed to queue.
+ * @const {number}
+ */
+visflow.Flow.PROPAGATION_PROGRESS_BASE = .25;
+
+/**
  * Mapping from node type to node constructor.
  * @return {!Object<Function>}
  */

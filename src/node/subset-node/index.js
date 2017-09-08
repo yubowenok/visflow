@@ -26,7 +26,7 @@ visflow.SubsetNode.prototype.init = function() {
 
 /**
  * Gets input data.
- * @return {!Array<visflow.Data>}
+ * @return {!Array<visflow.Dataset>}
  */
 visflow.SubsetNode.prototype.getInputData = function() {
   var data = [];

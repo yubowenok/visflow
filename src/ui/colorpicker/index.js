@@ -88,6 +88,6 @@ visflow.ColorPicker.prototype.change_ = function(event) {
       this.container_.find('.input-group-addon').children('i')
         .css('background-color', '');
     }
-    visflow.signal(this, 'change', this.color_);
+    visflow.signal(this, visflow.Event.CHANGE, this.color_);
   }
 };

@@ -93,10 +93,7 @@
     }
 
     .text {
-      font-size: .95em;
-      text-align: center;
-      top: calc(50% - .95em * .75);
-      width: 100%;
+      @extend %node-text;
 
       &.with-image {
         top: calc(55% - .95em);

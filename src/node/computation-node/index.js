@@ -37,3 +37,16 @@ visflow.ComputationNode.prototype.isConnectedToSubsetNode = function() {
   }
   return false;
 };
+
+/**
+ * Serializes the given port's data to a subset. If the data is not serializable
+ * to subset, the method should panic.
+ * @param {string} id Port id.
+ * @return {!visflow.Subset}
+ */
+visflow.ComputationNode.prototype.getPortSubset = function(id) {
+  return new visflow.Subset();
+};
+
+/** @inheritDoc */
+visflow.ComputationNode.prototype.showDetails = function() {};

@@ -42,7 +42,6 @@ visflow.Identity.prototype.init = function() {
  */
 visflow.Identity.prototype.serialize = function() {
   var result = visflow.Identity.base.serialize.call(this);
-  //_.extend(result, {});
   return result;
 };
 
@@ -56,4 +55,32 @@ visflow.Identity.prototype.deserialize = function(save) {
 };
 
 /** @inheritDoc */
-visflow.Identity.prototype.processAsync = function() {};
+visflow.Identity.prototype.processAsync = function(endProcess) {
+  var inPort = this.getPort('in');
+  var outPort = this.getPort('out');
+  outPort.pack.copy(inPort.pack, true);
+  endProcess();
+};
+
+/** @inheritDoc */
+visflow.Identity.prototype.showDetails = function() {
+  this.content.children().remove();
+  $('<div></div>').text(this.type).appendTo(this.content);
+};
+
+/** @inheritDoc */
+visflow.Identity.prototype.getPortSubset = function(id) {
+  if (this.getPort('in').connected()) {
+    var port = /** @type {!visflow.ComputationPort} */(this.getPort(id));
+    return port.pack;
+  } else {
+    // TODO(bowen): [test only] output a dummy table if no input exists.
+    var tabularData = visflow.parser.csv([
+      'a,b,c',
+      '33,1.25,xyz1',
+      '44,2.55,xyz2',
+      '55,3.75,xyz3'
+    ].join('\n'));
+    return new visflow.Subset(new visflow.Dataset(tabularData));
+  }
+};
