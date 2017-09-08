@@ -1,0 +1,43 @@
+<html>
+<head>
+    <title>WebSocket TA2TA3</title>
+</head>
+<body>
+<script>
+    var ws = new WebSocket("ws://localhost:8888/ws");
+
+    function sendMessage(msg){
+        // Wait until the state of the socket is not ready and send the message when it is...
+        waitForSocketConnection(ws, function(){
+            ws.send(msg);
+        });
+    }
+
+    // Make the function wait until the connection is made...
+    function waitForSocketConnection(socket, callback){
+        setTimeout(
+            function () {
+                if (socket.readyState === 1) {
+                    // Connection is made
+                    if(callback != null){
+                        callback();
+                    }
+                    return;
+
+                } else {
+                    // wait for connection...
+                    waitForSocketConnection(socket, callback);
+                }
+
+            }, 5); // wait 5 milisecond for the connection...
+    }
+
+
+    ws.onmessage = function(event){
+        console.log(event.data)
+    }
+
+    sendMessage("potato potato")
+</script>
+</body>
+</html>
