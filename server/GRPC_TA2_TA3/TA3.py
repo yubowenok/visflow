@@ -126,7 +126,7 @@ class SocketHandler(websocket.WebSocketHandler):
         call = grpcCall[message["fname"]]
 
         if call["inputType"] == MESSAGE_TYPE["BLOCKING"]:
-        	grpc_input = call["input"](message["object"])
+        	grpc_input = dict_to_protobuf(call["input"], message["object"])
         	if call["outputType"] == MESSAGE_TYPE["BLOCKING"]:
 				response = call["function"](grpc_input)
 				ret = {"rid":message["rid"], "object": protobuf_to_dict(response)}
