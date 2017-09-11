@@ -89,7 +89,6 @@ grpcCall = {
             'inputType': MESSAGE_TYPE['BLOCKING'],
             'outputType': MESSAGE_TYPE['BLOCKING']
         }
-
 }
 
 # WebSocket message request format:
@@ -122,19 +121,19 @@ class SocketHandler(websocket.WebSocketHandler):
     def on_message(self, message):
         message = json.loads(message)
 
-        call = grpcCall[message['fname']]
+        gc = grpcCall[message['fname']]
 
-        if call['inputType'] == MESSAGE_TYPE['BLOCKING']:
-            grpc_input = dict_to_protobuf(call['input'], message['object'])
-            if call['outputType'] == MESSAGE_TYPE['BLOCKING']:
-                response = call['function'](grpc_input)
+        if gc['inputType'] == MESSAGE_TYPE['BLOCKING']:
+            grpc_input = dict_to_protobuf(gc['input'], message['object'])
+            if gc['outputType'] == MESSAGE_TYPE['BLOCKING']:
+                response = gc['function'](grpc_input)
                 ret = {'rid':message['rid'], 'object': protobuf_to_dict(response)}
                 self.write_message(json.dumps(ret))
-            else: #call['outputType'] == MESSAGE_TYPE['STREAMING']
-                for response in call['function'](grpc_input):
+            else: #gc['outputType'] == MESSAGE_TYPE['STREAMING']
+                for response in gc['function'](grpc_input):
                     ret = {'rid':message['rid'], 'object': protobuf_to_dict(response)}
                     self.write_message(json.dumps(ret))
-        else: # call['inputType'] == MESSAGE_TYPE['STREAMING']):
+        else: # gc['inputType'] == MESSAGE_TYPE['STREAMING']):
             raise NotImplementedError('Streaming input not supported')
 
 app = web.Application([
