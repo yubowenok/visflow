@@ -129,11 +129,11 @@ class SocketHandler(websocket.WebSocketHandler):
         	grpc_input = call["input"](message["object"])
         	if call["outputType"] == MESSAGE_TYPE["BLOCKING"]:
 				response = call["function"](grpc_input)
-				ret = {"rid":call["rid"], "object": protobuf_to_dict(response)}
+				ret = {"rid":message["rid"], "object": protobuf_to_dict(response)}
 				self.write_message(json.dumps(ret))
         	else: #call["outputType"] == MESSAGE_TYPE["STREAMING"]
         		for response in call["function"](grpc_input):
-        			ret = {"rid":call["rid"], "object": protobuf_to_dict(response)}
+        			ret = {"rid":message["rid"], "object": protobuf_to_dict(response)}
         			self.write_message(json.dumps(ret))
         else: # call["inputType"] == MESSAGE_TYPE["STREAMING"]):
         	raise NotImplementedError("Streaming input not supported")
