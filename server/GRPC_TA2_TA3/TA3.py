@@ -23,8 +23,8 @@ grpcCall = {
 		{
 			'function': coreStub.CreatePipelines,
 			'input': core_pb2.PipelineCreateRequest,
-			'inputType': MESSAGE_TYPE["BLOCKING"],
-			'outputType': MESSAGE_TYPE["STREAMING"]
+			'inputType': MESSAGE_TYPE['BLOCKING'],
+			'outputType': MESSAGE_TYPE['STREAMING']
 		},
 
 	# rpc ExecutePipeline(PipelineExecuteRequest) returns (stream PipelineExecuteResult) {}
@@ -32,8 +32,8 @@ grpcCall = {
 		{
 			'function': coreStub.ExecutePipeline,
 			'input': core_pb2.PipelineExecuteRequest,
-			'inputType': MESSAGE_TYPE["BLOCKING"],
-			'outputType': MESSAGE_TYPE["STREAMING"]
+			'inputType': MESSAGE_TYPE['BLOCKING'],
+			'outputType': MESSAGE_TYPE['STREAMING']
 		},
 
     # rpc ListPipelines(PipelineListRequest) returns (PipelineListResult) {}
@@ -41,8 +41,8 @@ grpcCall = {
     	{
 			'function': coreStub.ListPipelines,
 			'input': core_pb2.PipelineListRequest,
-			'inputType': MESSAGE_TYPE["BLOCKING"],
-			'outputType': MESSAGE_TYPE["BLOCKING"]
+			'inputType': MESSAGE_TYPE['BLOCKING'],
+			'outputType': MESSAGE_TYPE['BLOCKING']
 		},
 
     # rpc GetCreatePipelineResults(PipelineCreateResultsRequest) returns (stream PipelineCreateResult) {}
@@ -50,8 +50,8 @@ grpcCall = {
 		{
 			'function': coreStub.GetCreatePipelineResults,
 			'input': core_pb2.PipelineCreateResultsRequest,
-			'inputType': MESSAGE_TYPE["BLOCKING"],
-			'outputType': MESSAGE_TYPE["STREAMING"]
+			'inputType': MESSAGE_TYPE['BLOCKING'],
+			'outputType': MESSAGE_TYPE['STREAMING']
 		},
 
     # rpc GetExecutePipelineResults(PipelineExecuteResultsRequest) returns (stream PipelineExecuteResult) {}
@@ -59,8 +59,8 @@ grpcCall = {
     	{
     		'function': coreStub.GetExecutePipelineResults,
     		'input': core_pb2.PipelineExecuteResultsRequest,
-    		'inputType': MESSAGE_TYPE["BLOCKING"],
-    		'outputType': MESSAGE_TYPE["STREAMING"]
+    		'inputType': MESSAGE_TYPE['BLOCKING'],
+    		'outputType': MESSAGE_TYPE['STREAMING']
     	},
 
     # rpc UpdateProblemSchema(UpdateProblemSchemaRequest) returns (Response) {}
@@ -68,8 +68,8 @@ grpcCall = {
     	{
     		'function': coreStub.UpdateProblemSchema,
     		'input': core_pb2.UpdateProblemSchemaRequest,
-    		'inputType': MESSAGE_TYPE["BLOCKING"],
-    		'outputType': MESSAGE_TYPE["BLOCKING"]
+    		'inputType': MESSAGE_TYPE['BLOCKING'],
+    		'outputType': MESSAGE_TYPE['BLOCKING']
     	},
 
     # rpc StartSession(SessionRequest) returns (SessionResponse) {}
@@ -77,8 +77,8 @@ grpcCall = {
     	{
     		'function': coreStub.StartSession,
     		'input': core_pb2.SessionRequest,
-    		'inputType': MESSAGE_TYPE["BLOCKING"],
-    		'outputType': MESSAGE_TYPE["BLOCKING"]
+    		'inputType': MESSAGE_TYPE['BLOCKING'],
+    		'outputType': MESSAGE_TYPE['BLOCKING']
     	},
 
 
@@ -87,8 +87,8 @@ grpcCall = {
     	{
     		'function': coreStub.EndSession,
     		'input': core_pb2.SessionContext,
-    		'inputType': MESSAGE_TYPE["BLOCKING"],
-    		'outputType': MESSAGE_TYPE["BLOCKING"]
+    		'inputType': MESSAGE_TYPE['BLOCKING'],
+    		'outputType': MESSAGE_TYPE['BLOCKING']
     	}
 
 }
@@ -96,8 +96,8 @@ grpcCall = {
 # WebSocket message request format:
 # 
 # {
-# 	fname: "function name to be called by grpc",
-#   rid: "requestId"
+# 	fname: 'function name to be called by grpc',
+#   rid: 'requestId'
 #   object: !{object_definition}
 # }
 #
@@ -105,8 +105,8 @@ grpcCall = {
 # WebSocket message response format:
 #
 # {
-# 	rid: "request id -> same as requested",
-# 	"object": !{object_definition}
+# 	rid: 'request id -> same as requested',
+# 	'object': !{object_definition}
 # }
 
 
@@ -123,20 +123,20 @@ class SocketHandler(websocket.WebSocketHandler):
     def on_message(self, message):
         message = json.loads(message)
 
-        call = grpcCall[message["fname"]]
+        call = grpcCall[message['fname']]
 
-        if call["inputType"] == MESSAGE_TYPE["BLOCKING"]:
-        	grpc_input = dict_to_protobuf(call["input"], message["object"])
-        	if call["outputType"] == MESSAGE_TYPE["BLOCKING"]:
-				response = call["function"](grpc_input)
-				ret = {"rid":message["rid"], "object": protobuf_to_dict(response)}
+        if call['inputType'] == MESSAGE_TYPE['BLOCKING']:
+        	grpc_input = dict_to_protobuf(call['input'], message['object'])
+        	if call['outputType'] == MESSAGE_TYPE['BLOCKING']:
+				response = call['function'](grpc_input)
+				ret = {'rid':message['rid'], 'object': protobuf_to_dict(response)}
 				self.write_message(json.dumps(ret))
-        	else: #call["outputType"] == MESSAGE_TYPE["STREAMING"]
-        		for response in call["function"](grpc_input):
-        			ret = {"rid":message["rid"], "object": protobuf_to_dict(response)}
+        	else: #call['outputType'] == MESSAGE_TYPE['STREAMING']
+        		for response in call['function'](grpc_input):
+        			ret = {'rid':message['rid'], 'object': protobuf_to_dict(response)}
         			self.write_message(json.dumps(ret))
-        else: # call["inputType"] == MESSAGE_TYPE["STREAMING"]):
-        	raise NotImplementedError("Streaming input not supported")
+        else: # call['inputType'] == MESSAGE_TYPE['STREAMING']):
+        	raise NotImplementedError('Streaming input not supported')
 
 app = web.Application([
     (r'/ws', SocketHandler)
