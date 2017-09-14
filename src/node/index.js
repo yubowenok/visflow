@@ -95,9 +95,9 @@ visflow.Node = function(params) {
 
   /**
    * Context menu.
-   * @protected {!visflow.ContextMenu|undefined}
+   * @protected {!visflow.ContextMenu}
    */
-  this.contextMenu = undefined;
+  this.contextMenu = /** @type {!visflow.ContextMenu} */({});
 
   /**
    * @protected {!Array<visflow.PanelElementSpec>}
@@ -596,36 +596,64 @@ visflow.Node.prototype.initContextMenu = function() {
     items: items
   });
 
-  visflow.listen(this.contextMenu, visflow.Event.VISMODE,
-    this.toggleVisMode.bind(this));
+  /**
+   * Updates the context menu items according to system states.
+   * @param {!jQuery.Event} event
+   * @param {!jQuery} menuContainer
+   * @this {!visflow.Node}
+   */
+  var beforeOpen = function(event, menuContainer) {
+    var minimize = menuContainer.find('#minimize');
+    if (this.options.minimized) {
+      minimize.children('.glyphicon')
+        .addClass('glyphicon-resize-full')
+        .removeClass('glyphicon-resize-small');
+      minimize.children('span:first')
+        .text('Maximize');
+      minimize.children('span:last')
+        .text('(M)');
+    }
+    items.forEach(function(item) {
+      if (item.bind) {
+        var check = menuContainer.find('#' + item.id).children('.glyphicon');
+        check.toggleClass('glyphicon-ok', this.options[item.bind]);
+      }
+    }, this);
+    if (visflow.flow.visMode) {
+      minimize.hide();
+    }
+  }.bind(this);
 
-  $(this.contextMenu)
-    .on('vf.delete', this.delete.bind(this))
-    .on('vf.minimize', this.toggleMinimized.bind(this))
-    .on('vf.panel', this.panel.bind(this))
-    .on('vf.label', this.toggleLabel.bind(this))
-    //.on('vf.flowSense', this.flowSenseInput.bind(this))
-    .on('vf.beforeOpen', function(event, menuContainer) {
-      var minimize = menuContainer.find('#minimize');
-      if (this.options.minimized) {
-        minimize.children('.glyphicon')
-          .addClass('glyphicon-resize-full')
-          .removeClass('glyphicon-resize-small');
-        minimize.children('span:first')
-          .text('Maximize');
-        minimize.children('span:last')
-          .text('(M)');
-      }
-      items.forEach(function(item) {
-        if (item.bind) {
-          var check = menuContainer.find('#' + item.id).children('.glyphicon');
-          check.toggleClass('glyphicon-ok', this.options[item.bind]);
-        }
-      }, this);
-      if (visflow.flow.visMode) {
-        minimize.hide();
-      }
-    }.bind(this));
+  visflow.listenMany(this.contextMenu, [
+    {
+      event: visflow.Event.VISMODE,
+      callback: this.toggleVisMode.bind(this)
+    },
+    {
+      event: visflow.Event.DELETE,
+      callback: this.delete.bind(this)
+    },
+    {
+      event: visflow.Event.MINIMIZE,
+      callback: this.toggleMinimized.bind(this)
+    },
+    {
+      event: visflow.Event.PANEL,
+      callback: this.panel.bind(this)
+    },
+    {
+      event: visflow.Event.LABEL,
+      callback: this.toggleLabel.bind(this)
+    },
+    //{
+    //  event: visflow.Event.FLOWSENSE,
+    //  callback: this.flowSenseInput.bind(this)
+    //},
+    {
+      event: visflow.Event.BEFORE_OPEN,
+      callback: beforeOpen
+    }
+  ]);
 };
 
 /**

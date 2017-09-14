@@ -97,23 +97,30 @@ visflow.menu.initTooltips_ = function() {
  */
 visflow.menu.initUpdateHandlers_ = function() {
   var navbar = $('.visflow > .navbar-fixed-top');
-  $(visflow.user)
-    .on('vf.login', function() {
-      navbar.find('.logged-in').show();
-      navbar.find('.logged-out').hide();
-      navbar.find('#username').text(visflow.user.account.username);
+  visflow.listenMany(visflow.user, [
+    {
+      event: visflow.Event.LOGIN,
+      callback: function() {
+        navbar.find('.logged-in').show();
+        navbar.find('.logged-out').hide();
+        navbar.find('#username').text(visflow.user.account.username);
 
-      if (visflow.user.writePermission()) {
-        navbar.find('#save').removeClass('disabled');
+        if (visflow.user.writePermission()) {
+          navbar.find('#save').removeClass('disabled');
+        }
+        navbar.find('#load').removeClass('disabled');
       }
-      navbar.find('#load').removeClass('disabled');
-    })
-    .on('vf.logout', function() {
-      navbar.find('.logged-out').show();
-      navbar.find('.logged-in').hide();
+    },
+    {
+      event: visflow.Event.LOGOUT,
+      callback: function() {
+        navbar.find('.logged-out').show();
+        navbar.find('.logged-in').hide();
 
-      navbar.find('#save, #load').addClass('disabled');
-    });
+        navbar.find('#save, #load').addClass('disabled');
+      }
+    }
+  ]);
 };
 
 /**

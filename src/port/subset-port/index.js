@@ -52,7 +52,7 @@ visflow.SubsetPort.prototype.onConnected = function(edge) {
 visflow.SubsetPort.prototype.initContextMenu = function() {
   var contextMenu = visflow.SubsetPort.base.initContextMenu.call(this);
 
-  $(contextMenu).on('vf.export', function() {
+  visflow.listen(contextMenu, visflow.Event.EXPORT, function() {
     visflow.upload.export(this.pack);
   }.bind(this));
 

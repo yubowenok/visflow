@@ -52,10 +52,8 @@ visflow.Map.prototype.init = function() {
 visflow.Map.prototype.initContextMenu = function() {
   visflow.Map.base.initContextMenu.call(this);
 
-  $(this.contextMenu)
-    .on('vf.navigation', function() {
-      this.toggleNavigation_();
-    }.bind(this));
+  visflow.listen(this.contextMenu, visflow.Event.NAVIGATION,
+    this.toggleNavigation_.bind(this));
 };
 
 /** @inheritDoc */

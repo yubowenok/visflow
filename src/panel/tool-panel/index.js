@@ -47,9 +47,8 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
   visflow.listen(visflow.flow, visflow.Event.VISMODE, function() {
     visflow.toolPanel.updateVisMode_();
   });
-  $(visflow.interaction).on('vf.alt', function() {
-    visflow.toolPanel.updateAlt_();
-  });
+  visflow.listen(visflow.interaction, visflow.Event.ALT,
+    visflow.toolPanel.updateAlt_);
 
   var disableUpload = function() {
     visflow.toolPanel.container_.find('#upload')
@@ -61,21 +60,28 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
       });
   };
 
-  $(visflow.user)
-    .on('vf.logout', disableUpload)
-    .on('vf.login', function() {
-      if (!visflow.user.writePermission()) {
-        disableUpload();
-        return;
+  visflow.listenMany(visflow.user, [
+    {
+      event: visflow.Event.LOGOUT,
+      callback: disableUpload
+    },
+    {
+      event: visflow.Event.LOGIN,
+      callback: function() {
+        if (!visflow.user.writePermission()) {
+          disableUpload();
+          return;
+        }
+        visflow.toolPanel.container_.find('#upload')
+          .prop('disabled', false)
+          .attr('title', 'upload data')
+          .tooltip('destroy')
+          .tooltip({
+            delay: visflow.panel.TOOLTIP_DELAY
+          });
       }
-      visflow.toolPanel.container_.find('#upload')
-        .prop('disabled', false)
-        .attr('title', 'upload data')
-        .tooltip('destroy')
-        .tooltip({
-          delay: visflow.panel.TOOLTIP_DELAY
-        });
-    });
+    }
+  ]);
 };
 
 /**

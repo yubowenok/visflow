@@ -161,13 +161,16 @@ visflow.Network.prototype.deserialize = function(save) {
 visflow.Network.prototype.initContextMenu = function() {
   visflow.Network.base.initContextMenu.call(this);
 
-  $(this.contextMenu)
-    .on('vf.navigation', function() {
-      this.toggleNavigation_();
-    }.bind(this))
-    .on('vf.nodeLabel', function() {
-      this.toggleNodeLabel_();
-    }.bind(this));
+  visflow.listenMany(this.contextMenu, [
+    {
+      event: visflow.Event.NAVIGATION,
+      callback: this.toggleNavigation_.bind(this)
+    },
+    {
+      event: visflow.Event.NODE_LABEL,
+      callback: this.toggleNodeLabel_.bind(this)
+    }
+  ]);
 };
 
 /** @inheritDoc */

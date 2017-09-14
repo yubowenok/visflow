@@ -32,15 +32,25 @@ visflow.edit.initListeners_ = function(navbar) {
   var edit = navbar.find('#edit');
   var undo = edit.find('#undo');
   var redo = edit.find('#redo');
-  $(visflow.history)
-    .on('vf.push', function() {
-      undo.removeClass('disabled');
-      redo.addClass('disabled');
-    })
-    .on('vf.noUndo', function() {
-      undo.addClass('disabled');
-    })
-    .on('vf.noRedo', function() {
-      redo.addClass('disabled');
-    });
+  visflow.listenMany(visflow.history, [
+    {
+      event: visflow.Event.PUSH,
+      callback: function() {
+        undo.removeClass('disabled');
+        redo.addClass('disabled');
+      }
+    },
+    {
+      event: visflow.Event.NO_UNDO,
+      callback: function() {
+        undo.addClass('disabled');
+      }
+    },
+    {
+      event: visflow.Event.NO_REDO,
+      callback: function() {
+        redo.addClass('disabled');
+      }
+    }
+  ]);
 };

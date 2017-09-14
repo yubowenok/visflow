@@ -177,9 +177,9 @@ visflow.optionPanel.update_ = function() {
           });
         }
         if (visflow.optionPanel.isOpen) {
-          visflow.signal(visflow.optionPanel, 'opened');
+          visflow.signal(visflow.optionPanel, visflow.Event.OPENED);
         } else {
-          visflow.signal(visflow.optionPanel, 'closed');
+          visflow.signal(visflow.optionPanel, visflow.Event.CLOSED);
         }
       }
     });
@@ -225,9 +225,9 @@ visflow.optionPanel.close = function() {
   visflow.optionPanel.loadedNode_ = null;
   var clear = function() {
     visflow.optionPanel.clear_();
-    $(visflow.optionPanel).off('vf.closed', clear);
+    visflow.unlisten(visflow.optionPanel, visflow.Event.CLOSED, clear);
   };
-  $(visflow.optionPanel).on('vf.closed', clear);
+  visflow.listen(visflow.optionPanel, visflow.Event.CLOSED, clear);
 };
 
 /**
