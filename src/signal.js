@@ -4,32 +4,50 @@
 
 /** @enum {number} */
 visflow.Event = {
-  PROCESSED: 0,
-  READY: 1,
-  VISMODE: 2,
-  CHANGE: 3,
-  EXPORT: 4,
-  CLOSED: 5,
-  MINIMIZE: 6,
-  PANEL: 7,
-  LABEL: 8,
-  ADD_NODE: 9,
+  // generic
+  ALT: 0,
+  CHANGE: 1,
+  OPENED: 2,
+  VISIBLE: 3,
+  VISMODE: 4,
+  UPLOADED: 5,
+  // options and global states
+  DIAGRAM_EDITABLE: 6,
+  NODE_LABEL: 7,
+  NODE_PANEL: 8,
+
+  // node states
+  PROCESSED: 100,
+  READY: 101,
+  PANEL: 102,
+  LABEL: 103,
+  CLOSED: 105,
+  MINIMIZE: 106,
   NAVIGATION: 10,
-  NODE_LABEL: 11,
-  CONNECT: 12,
-  DISCONNECT: 13,
-  SELECT_ALL: 14,
-  CLEAR_SELECTION: 15,
-  LOGIN: 16,
-  LOGOUT: 17,
-  PUSH: 18,
-  NO_UNDO: 19,
-  NO_REDO: 20,
-  BEFORE_OPEN: 21,
-  ALT: 22,
-  UPLOADED: 23,
-  OPENED: 24,
-  DELETE: 25,
+
+  // flow edits and actions
+  ADD_NODE: 200,
+  DELETE: 201,
+  CONNECT: 202,
+  DISCONNECT: 203,
+  EXPORT: 204,
+  EXPLORE: 205,
+  BEFORE_OPEN: 206, // context menu
+
+  // selection
+  SELECT_ALL: 300,
+  CLEAR_SELECTION: 301,
+
+  // user
+  LOGIN: 400,
+  LOGOUT: 401,
+
+  // history
+  PUSH: 500,
+  NO_UNDO: 501,
+  NO_REDO: 502,
+
+  // flowsense extension
   FLOWSENSE: 1000
 };
 

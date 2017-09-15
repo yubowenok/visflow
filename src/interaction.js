@@ -350,7 +350,7 @@ visflow.interaction.keyPress = function(event) {
         case 'A':
           event.pageX = visflow.interaction.mouseX;
           event.pageY = visflow.interaction.mouseY;
-          if (!visflow.flow.visMode) {
+          if (visflow.options.isDiagramEditable()) {
             visflow.popupPanel.show(event, true);
           }
           break;
@@ -365,7 +365,7 @@ visflow.interaction.keyPress = function(event) {
           break;
         */
         case 'shift+V':
-          visflow.flow.toggleVisMode();
+          visflow.options.toggleVisMode();
           break;
         case 'shift+T':
           visflow.nlp.toggleSpeech();
@@ -413,6 +413,13 @@ visflow.interaction.mainContextMenu_ = function() {
     {
       event: visflow.Event.FLOWSENSE,
       callback: visflow.nlp.input
+    },
+    {
+      event: visflow.Event.BEFORE_OPEN,
+      callback: function(event, menuContainer) {
+        menuContainer.find('#addNode')
+          .toggleClass('disabled', !visflow.options.isDiagramEditable());
+      }
     }
   ]);
 };

@@ -23,7 +23,7 @@ visflow.menu.init = function() {
   visflow.menu.initUserButtons_();
   visflow.menu.initTooltips_();
 
-  visflow.menu.initUpdateHandlers_();
+  visflow.menu.initEventListeners_();
 };
 
 /**
@@ -95,7 +95,7 @@ visflow.menu.initTooltips_ = function() {
  * Initializes the update event handlers for events across systems.
  * @private
  */
-visflow.menu.initUpdateHandlers_ = function() {
+visflow.menu.initEventListeners_ = function() {
   var navbar = $('.visflow > .navbar-fixed-top');
   visflow.listenMany(visflow.user, [
     {
@@ -121,13 +121,17 @@ visflow.menu.initUpdateHandlers_ = function() {
       }
     }
   ]);
+
+  visflow.listen(visflow.options, visflow.Event.DIAGRAM_EDITABLE,
+    visflow.menu.diagramEditableChanged_);
 };
 
 /**
  * Updates the enabled/disabled state of the add node item in the menu.
+ * @private
  */
-visflow.menu.updateVisMode = function() {
+visflow.menu.diagramEditableChanged_ = function() {
   var navbar = $('.visflow > .navbar-fixed-top');
   var addNode = navbar.find('#add-node');
-  addNode.toggleClass('disabled', visflow.flow.visMode);
+  addNode.toggleClass('disabled', !visflow.options.isDiagramEditable());
 };

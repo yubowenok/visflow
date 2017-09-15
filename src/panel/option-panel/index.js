@@ -54,16 +54,16 @@ visflow.optionPanel.init = function() {
     delay: visflow.panel.TOOLTIP_DELAY
   });
 
-  visflow.optionPanel.initUpdateHandlers_();
+  visflow.optionPanel.initEventListeners_();
 };
 
 /**
  * Creates event listeners for system events.
  * @private
  */
-visflow.optionPanel.initUpdateHandlers_ = function() {
-  visflow.listen(visflow.flow, visflow.Event.VISMODE, function() {
-    visflow.optionPanel.updateVisMode_();
+visflow.optionPanel.initEventListeners_ = function() {
+  visflow.listen(visflow.options, visflow.Event.VISMODE, function() {
+    visflow.optionPanel.updateHeaderVisibility_();
   });
 };
 
@@ -243,7 +243,7 @@ visflow.optionPanel.clear_ = function() {
  * Shows/hides the panel header according to visMode on/off.
  * @private
  */
-visflow.optionPanel.updateVisMode_ = function() {
+visflow.optionPanel.updateHeaderVisibility_ = function() {
   var header = $('#option-panel .node-panel.panel-header');
-  header.toggle(!visflow.flow.visMode);
+  header.toggle(!visflow.options.isInVisMode());
 };

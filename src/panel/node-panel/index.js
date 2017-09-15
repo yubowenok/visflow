@@ -38,20 +38,19 @@ visflow.nodePanel.init = function() {
   visflow.nodePanel.container_ = container;
   visflow.nodePanel.hoverArea_ = container.children('.hover-area');
 
-  visflow.nodePanel.initUpdateHandlers_();
+  visflow.nodePanel.initEventListeners_();
+
   // Set correct panel width on system init
   visflow.nodePanel.show_();
-  //setTimeout(visflow.nodePanel.hide_, visflow.nodePanel.INIT_DELAY_);
 };
 
 /**
  * Creates event listeners for system events.
  * @private
  */
-visflow.nodePanel.initUpdateHandlers_ = function() {
-  visflow.listen(visflow.flow, visflow.Event.VISMODE, function() {
-    visflow.nodePanel.updateVisMode_();
-  });
+visflow.nodePanel.initEventListeners_ = function() {
+  visflow.listen(visflow.options, visflow.Event.DIAGRAM_EDITABLE,
+    visflow.nodePanel.updateVisibility_);
 };
 
 /**
@@ -76,10 +75,6 @@ visflow.nodePanel.toggle = function(opt_state) {
     } else {
       visflow.nodePanel.hide_();
     }
-    visflow.signal(visflow.nodePanel, visflow.Event.CHANGE, {
-      type: 'nodePanel',
-      value: newState
-    });
   }
 };
 
@@ -217,9 +212,9 @@ visflow.nodePanel.initButton_ = function(button) {
 };
 
 /**
- * Shows/hides the node creation panel according to visMode on/off.
+ * Shows/hides the node creation panel.
  * @private
  */
-visflow.nodePanel.updateVisMode_ = function() {
-  visflow.nodePanel.setVisible_(!visflow.flow.visMode);
+visflow.nodePanel.updateVisibility_ = function() {
+  visflow.nodePanel.setVisible_(visflow.options.isDiagramEditable());
 };

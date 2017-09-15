@@ -9,12 +9,6 @@
  */
 visflow.Flow = function() {
   /**
-   * Visualization mode on/off.
-   * @type {boolean}
-   */
-  this.visMode = false;
-
-  /**
    * De-serialization flag. Propagation and panel show are disabled during
    * de-serialization.
    * @type {boolean}
@@ -79,6 +73,15 @@ visflow.Flow.prototype.init = function() {
 
   // TODO(bowen): check that data sources update their data list on-the-fly
   //$(visflow.upload).on('vf.uploaded', this.updateDataSources_);
+
+  visflow.listen(visflow.options, visflow.Event.VISMODE,
+    function(event, state) {
+      if (state) {
+        this.turnOnVisMode();
+      } else {
+        this.turnOffVisMode();
+      }
+    }.bind(this));
 };
 
 /**
@@ -86,7 +89,7 @@ visflow.Flow.prototype.init = function() {
  */
 visflow.Flow.prototype.resetFlow = function() {
   // Clear visMode.
-  this.visMode = false;
+  visflow.options.toggleVisMode(false);
   visflow.signal(visflow.flow, visflow.Event.VISMODE);
 
   // counters start from 1
@@ -346,10 +349,9 @@ visflow.Flow.prototype.propagate = function(startNode) {
   /**
    * Handles the completion of a node's process().
    * @param {!jQuery.Event} event
-   * @param {{node: !visflow.Node}} data
+   * @param {!visflow.Node} node
    */
-  var nodeProcessed = function(event, data) {
-    var node = data.node;
+  var nodeProcessed = function(event, node) {
     console.log('processed', node.type);
     var percent = ++processedCounter / topo.length;
     visflow.progress.setPercentage(percent *
@@ -531,31 +533,30 @@ visflow.Flow.prototype.deserializeFlowEdges_ = function(flow, hashes) {
   this.propagate(this.dataSources());
 };
 
-/**
- * Toggles the VisMode.
- */
-visflow.Flow.prototype.toggleVisMode = function() {
-  // We must call node.animateToVisModeOn/Off before inverting the Flow.visMode
-  // flag because nodes use this flag to determine to which css to save their
-  // current state.
-  if (!this.visMode) {
-    // Turn visMode on.
-    _.each(this.nodes, function(node) {
-      node.animateToVisModeOn();
-    });
-    $(visflow.const.EDGE_CONTAINER_SELECTOR).css('opacity', 0);
-  } else {
-    // Turn visMode off.
-    _.each(this.nodes, function(node) {
-      node.animateToVisModeOff();
-    });
-    setTimeout(function() {
-      $(visflow.const.EDGE_CONTAINER_SELECTOR).css('opacity', 1);
-    }, visflow.const.VISMODE_TRANSITION_DURATION);
-  }
 
-  this.visMode = !this.visMode;
-  visflow.signal(visflow.flow, visflow.Event.VISMODE);
+/**
+ * Turns on VisMode.
+ */
+visflow.Flow.prototype.turnOnVisMode = function() {
+  _.each(this.nodes, function(node) {
+    node.animateToVisModeOn();
+  });
+  $(visflow.const.EDGE_CONTAINER_SELECTOR).css('opacity', 0);
+};
+
+/**
+ * Turns off VisMode.
+ * We must call node.animateToVisModeOn/Off before inverting the Flow.visMode
+ * flag because nodes use this flag to determine to which css to save their
+ * current state.
+ */
+visflow.Flow.prototype.turnOffVisMode = function() {
+  _.each(this.nodes, function(node) {
+    node.animateToVisModeOff();
+  });
+  setTimeout(function() {
+    $(visflow.const.EDGE_CONTAINER_SELECTOR).css('opacity', 1);
+  }, visflow.const.VISMODE_TRANSITION_DURATION);
 };
 
 /**

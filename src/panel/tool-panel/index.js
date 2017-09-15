@@ -28,7 +28,7 @@ visflow.toolPanel.init = function() {
   var visMode = container.find('#vis-mode');
   visMode
     .click(function() {
-      visflow.flow.toggleVisMode();
+      visflow.options.toggleVisMode();
     });
 
   var upload = container.find('#upload');
@@ -36,15 +36,15 @@ visflow.toolPanel.init = function() {
     visflow.upload.upload();
   });
 
-  visflow.toolPanel.initUpdateHandlers_();
+  visflow.toolPanel.initEventListeners_();
 };
 
 /**
  * Creates event listeners for system-wide update.
  * @private
  */
-visflow.toolPanel.initUpdateHandlers_ = function() {
-  visflow.listen(visflow.flow, visflow.Event.VISMODE, function() {
+visflow.toolPanel.initEventListeners_ = function() {
+  visflow.listen(visflow.options, visflow.Event.VISMODE, function() {
     visflow.toolPanel.updateVisMode_();
   });
   visflow.listen(visflow.interaction, visflow.Event.ALT,
@@ -90,7 +90,7 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
  */
 visflow.toolPanel.updateVisMode_ = function() {
   visflow.toolPanel.container_.find('#vis-mode')
-    .toggleClass('active', visflow.flow.visMode);
+    .toggleClass('active', visflow.options.isInVisMode());
 };
 
 /**
