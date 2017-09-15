@@ -362,7 +362,7 @@ visflow.Node.prototype.show = function() {
  * Shows the node label.
  */
 visflow.Node.prototype.showLabel = function() {
-  if (this.options.label && visflow.options.nodeLabel) {
+  if (this.options.label && visflow.options.isNodeLabelVisible()) {
     var label = this.label.length > this.MAX_LABEL_LENGTH ?
         this.label.substr(0, this.MAX_LABEL_LENGTH - 3) + '...' : this.label;
     this.container.children('#node-label')
