@@ -39,8 +39,7 @@ gulp.task('default', ['lint', 'build', 'build-doc']);
 gulp.task('all', function(cb) {
   runSequence(
     'dist',
-    ['lint', 'compile-all'],
-    'dist',
+    'lint',
     ['build', 'build-doc'],
     cb);
 });

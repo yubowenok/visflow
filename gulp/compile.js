@@ -2,7 +2,7 @@
 var gulp = require('gulp');
 var del = require('del');
 var runSequence = require('run-sequence');
-var closureCompiler = require('gulp-closure-compiler');
+var closureCompiler = require('google-closure-compiler').gulp();
 var concat = require('gulp-concat');
 
 var paths = require('./paths.js');
@@ -20,7 +20,6 @@ var jscompWarnings = [
   'undefinedNames'
 ];
 
-var compilerPath = 'node_modules/google-closure-compiler/compiler.jar';
 var closureContrib = 'node_modules/google-closure-compiler/contrib/';
 var closureExterns = closureContrib + 'externs/';
 
@@ -29,18 +28,22 @@ var externs = [
   closureExterns + 'underscore-1.5.2.js'
 ].concat(paths.externs);
 
+
+gulp.task('externs', function(cb, src) {
+  return gulp.src(externs)
+    .pipe(concat('externs.js'))
+    .pipe(gulp.dest(paths.dist));
+});
+
 var compile = function(cb, src) {
   return gulp.src(src)
     .pipe(closureCompiler({
-      compilerPath: compilerPath,
-      fileName: 'visflow.js',
-      compilerFlags: {
-        jscomp_error: jscompErrors,
-        jscomp_warning: jscompWarnings,
-        compilation_level: 'SIMPLE_OPTIMIZATIONS',
-        externs: externs,
-        output_wrapper: '(function(){%output%}).call(window);'
-      }
+      js_output_file: 'visflow.js',
+      jscomp_error: jscompErrors,
+      jscomp_warning: jscompWarnings,
+      compilation_level: 'SIMPLE_OPTIMIZATIONS',
+      externs: paths.dist + '/externs.js',
+      output_wrapper: '(function(){%output%}).call(window);'
     }).on('error', function(err) {
       del([
         'visflow.js'
@@ -49,31 +52,33 @@ var compile = function(cb, src) {
     }));
 };
 
-// Virtual compilation: no output file is created.
-gulp.task('closure-compile-dev', function(cb) {
-  return compile(cb, paths.srcDev);
-});
-
-gulp.task('compile', function(cb) {
+gulp.task('closure-compile', function(cb) {
   return compile(cb, paths.src)
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('compile-concat', function() {
+// Virtual compilation: no output file is created.
+gulp.task('closure-compile-no-output', function(cb) {
+  return compile(cb, paths.srcDev);
+});
+
+gulp.task('closure-compile-concat', function() {
   return gulp.src(paths.srcDev)
     .pipe(concat('visflow.js'))
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('compile-dev', function(cb) {
-  runSequence(
-    ['closure-compile-dev', 'compile-concat'],
-    cb);
+// Really compiles.
+gulp.task('compile', function(cb) {
+  runSequence('externs', 'closure-compile');
 });
 
-// Fast (fake) compile with only concatenation of sources.
-gulp.task('compile-dev-express', ['compile-concat']);
+// Runs closure compiler but produces concatenated outputs.
+gulp.task('compile-dev', function(cb) {
+  runSequence('externs', 'closure-compile-no-output', 'closure-compile-concat');
+});
 
-gulp.task('compile-all', function(cb) {
-  runSequence('compile', 'compile-dev', cb);
+// Does not run closure compiler and produces concatenated outputs.
+gulp.task('compile-concat', function(cb) {
+  runSequence('externs', 'closure-compile-concat', cb);
 });
