@@ -11,9 +11,9 @@ visflow.SubsetPort.prototype.IS_SUBSET_PORT = true;
  */
 visflow.SubsetPort.prototype.contextMenuItems = function() {
   return [
-    {id: 'disconnect', text: 'Disconnect',
+    {id: visflow.Event.DISCONNECT, text: 'Disconnect',
       icon: 'glyphicon glyphicon-minus-sign'},
-    {id: 'export', text: 'Export Data',
+    {id: visflow.Event.EXPORT, text: 'Export Data',
       icon: 'glyphicon glyphicon-open'}
     //{id: 'flowSense', text: 'FlowSense',
     //  icon: 'glyphicon glyphicon-comment'}

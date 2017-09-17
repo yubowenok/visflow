@@ -9,7 +9,7 @@ visflow.ComputationNode.prototype.IS_COMPUTATION_NODE = true;
 visflow.ComputationNode.prototype.contextMenuItems = function() {
   var items = visflow.ComputationNode.base.contextMenuItems();
   items.push({
-    id: 'execute', text: 'Execute'
+    id: visflow.Event.EXECUTE, text: 'Execute'
   });
   return items;
 };
