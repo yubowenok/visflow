@@ -605,7 +605,7 @@ visflow.Node.prototype.initContextMenu = function() {
    * @this {!visflow.Node}
    */
   var beforeOpen = function(event, menuContainer) {
-    var minimize = menuContainer.find('#minimize');
+    var minimize = menuContainer.find('#' + visflow.Event.MINIMIZE);
     if (this.options.minimized) {
       minimize.children('.glyphicon')
         .addClass('glyphicon-resize-full')

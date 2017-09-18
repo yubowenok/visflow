@@ -690,3 +690,8 @@ visflow.Visualization.prototype.selectionTargetNodes = function() {
   });
   return nodes;
 };
+
+/**
+ * Pushes selection changes to the downflow.
+ */
+visflow.Visualization.prototype.pushSelection = function() {};

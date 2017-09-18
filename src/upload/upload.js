@@ -152,19 +152,20 @@ visflow.upload.uploadDialog_ = function(dialog, params) {
   /** @type {number} */
   var dataId = -1;
   /** @type {string} */
-  var dataName = params.defaultDataName !== undefined ?
-    params.defaultDataName : '';
-  var dataFile = '';
+  var dataName = params.defaultDataName || '';
+  /** @type {string} */
+  var dataFile = params.defaultFileName || '';
   var prevDataName = '';
   var prevDataFile = '';
   var isOwner = true;
 
   // Checks if all required fields are filled.
   var uploadReady = function() {
+    var fileSelected = selectedFile || params.defaultFileName != undefined;
     confirm.prop('disabled', dataName === '' ||
-      (isOwner && !selectedFile && (dataId == -1 ||
+      (isOwner && !fileSelected && (dataId == -1 ||
       dataIdInfos[dataId].shareWith == shareWith.val())) ||
-      (!isOwner && !selectedFile));
+      (!isOwner && !fileSelected));
   };
 
   var file = dialog.find('#file');

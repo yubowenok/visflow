@@ -303,6 +303,7 @@ visflow.Table.prototype.toCancelSelect_ = function() {
  * Propagates the changes starting from target nodes connected to the selection
  * port. If you call pushflow, the table would be redrawn, however its state
  * (like scrolling) is not kept and this interferes with user selection.
+ * @inheritDoc
  */
 visflow.Table.prototype.pushSelection = function() {
   this.processSync();

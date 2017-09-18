@@ -380,8 +380,6 @@ visflow.Flow.prototype.propagate = function(startNode) {
     var targetNodes = node.outputTargetNodes();
     targetNodes.forEach(function(targetNode) {
       dependencyCount[targetNode.id]--;
-      //console.log(targetNode.id, targetNode.type,
-      //  dependencyCount[targetNode.id]);
 
       if (dependencyCount[targetNode.id] < 0) {
         visflow.error('dependency count', dependencyCount[targetNode.id],
@@ -389,7 +387,7 @@ visflow.Flow.prototype.propagate = function(startNode) {
       }
 
       if (dependencyCount[targetNode.id] == 0) {
-        console.log('listen', targetNode.type);
+        //console.log('listen', targetNode.type);
         visflow.listen(targetNode, visflow.Event.PROCESSED, nodeProcessed);
 
         // Calling node's process(), this will also show it.

@@ -416,7 +416,7 @@ visflow.interaction.mainContextMenu_ = function() {
     {
       event: visflow.Event.BEFORE_OPEN,
       callback: function(event, menuContainer) {
-        menuContainer.find('#addNode')
+        menuContainer.find('#' + visflow.Event.ADD_NODE)
           .toggleClass('disabled', !visflow.options.isDiagramEditable());
       }
     }
