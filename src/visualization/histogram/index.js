@@ -616,7 +616,6 @@ visflow.Histogram.prototype.selectAll = function() {
       this.selectedBars[data[i].id + ',' + data[i][j].id] = true;
     }
   }
-  console.log(this.selectedBars);
   // Parent class will select primitive data items, and update the rendering.
   visflow.Histogram.base.selectAll.call(this);
 };
