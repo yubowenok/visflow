@@ -70,12 +70,13 @@ gulp.task('closure-compile-concat', function() {
 
 // Really compiles.
 gulp.task('compile', function(cb) {
-  runSequence('externs', 'closure-compile');
+  runSequence('externs', 'closure-compile', cb);
 });
 
 // Runs closure compiler but produces concatenated outputs.
 gulp.task('compile-dev', function(cb) {
-  runSequence('externs', 'closure-compile-no-output', 'closure-compile-concat');
+  runSequence('externs', 'closure-compile-no-output',
+    'closure-compile-concat', cb);
 });
 
 // Does not run closure compiler and produces concatenated outputs.
