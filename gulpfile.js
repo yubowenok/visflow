@@ -18,7 +18,7 @@ gulp.task('watch', function() {
     paths.docScss,
     paths.externs,
     paths.html
-  ], ['build-dev']);
+  ], ['build-dev-express']);
 });
 
 gulp.task('watch-doc', function() {
@@ -39,8 +39,7 @@ gulp.task('default', ['lint', 'build', 'build-doc']);
 gulp.task('all', function(cb) {
   runSequence(
     'dist',
-    ['lint', 'compile-all'],
-    'dist',
+    'lint',
     ['build', 'build-doc'],
     cb);
 });

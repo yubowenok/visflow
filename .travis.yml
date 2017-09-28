@@ -1,6 +1,6 @@
 language: node_js
 node_js:
-  - "4.1"
+  - "6.11.1"
 
 before_script:
   - npm install -g gulp
@@ -14,4 +14,3 @@ cache:
   directories:
   - bower_components
   - node_modules
-
