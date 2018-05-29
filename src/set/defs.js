@@ -17,13 +17,13 @@ visflow.Set.prototype.MAX_LABEL_LENGTH = 9;
 /** @inheritDoc */
 visflow.Set.prototype.contextMenuItems = function() {
   return [
-    {id: 'minimize', text: 'Minimize',
+    {id: visflow.Event.MINIMIZE, text: 'Minimize',
       icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'panel', text: 'Control Panel',
+    {id: visflow.Event.PANEL, text: 'Control Panel',
       icon: 'glyphicon glyphicon-th-list'},
-    {id: 'flowSense', text: 'FlowSense',
-      icon: 'glyphicon glyphicon-comment'},
-    {id: 'delete', text: 'Delete', icon:
+    //{id: visflow.Event.FLOWSENSE, text: 'FlowSense',
+    //  icon: 'glyphicon glyphicon-comment'},
+    {id: visflow.Event.DELETE, text: 'Delete', icon:
       'glyphicon glyphicon-remove'}
   ];
 };

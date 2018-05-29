@@ -95,9 +95,9 @@ visflow.Node = function(params) {
 
   /**
    * Context menu.
-   * @protected {!visflow.ContextMenu|undefined}
+   * @protected {!visflow.ContextMenu}
    */
-  this.contextMenu = undefined;
+  this.contextMenu = /** @type {!visflow.ContextMenu} */({});
 
   /**
    * @protected {!Array<visflow.PanelElementSpec>}
@@ -323,8 +323,10 @@ visflow.Node.prototype.updateContainer_ = function() {
       .addClass('details')
       .removeClass('minimized')
       .css({
-        width: visflow.flow.visMode ? this.visCss.width : this.css.width,
-        height: visflow.flow.visMode ? this.visCss.height : this.css.height
+        width: visflow.options.isInVisMode() ?
+          this.visCss.width : this.css.width,
+        height: visflow.options.isInVisMode() ?
+          this.visCss.height : this.css.height
       });
 
     if (this.RESIZABLE) {
@@ -347,7 +349,7 @@ visflow.Node.prototype.show = function() {
   this.updateContainer_();
   this.updateContent();
 
-  if (!visflow.flow.visMode) {
+  if (!visflow.options.isInVisMode()) {
     // Not show edges with vismode on.
     this.showPorts();
     this.updatePorts();
@@ -360,7 +362,7 @@ visflow.Node.prototype.show = function() {
  * Shows the node label.
  */
 visflow.Node.prototype.showLabel = function() {
-  if (this.options.label && visflow.options.nodeLabel) {
+  if (this.options.label && visflow.options.isNodeLabelVisible()) {
     var label = this.label.length > this.MAX_LABEL_LENGTH ?
         this.label.substr(0, this.MAX_LABEL_LENGTH - 3) + '...' : this.label;
     this.container.children('#node-label')
@@ -596,36 +598,64 @@ visflow.Node.prototype.initContextMenu = function() {
     items: items
   });
 
-  visflow.listen(this.contextMenu, visflow.Event.VISMODE,
-    this.toggleVisMode.bind(this));
+  /**
+   * Updates the context menu items according to system states.
+   * @param {!jQuery.Event} event
+   * @param {!jQuery} menuContainer
+   * @this {!visflow.Node}
+   */
+  var beforeOpen = function(event, menuContainer) {
+    var minimize = menuContainer.find('#' + visflow.Event.MINIMIZE);
+    if (this.options.minimized) {
+      minimize.children('.glyphicon')
+        .addClass('glyphicon-resize-full')
+        .removeClass('glyphicon-resize-small');
+      minimize.children('span:first')
+        .text('Maximize');
+      minimize.children('span:last')
+        .text('(M)');
+    }
+    items.forEach(function(item) {
+      if (item.bind) {
+        var check = menuContainer.find('#' + item.id).children('.glyphicon');
+        check.toggleClass('glyphicon-ok', this.options[item.bind]);
+      }
+    }, this);
+    if (visflow.options.isInVisMode()) {
+      minimize.hide();
+    }
+  }.bind(this);
 
-  $(this.contextMenu)
-    .on('vf.delete', this.delete.bind(this))
-    .on('vf.minimize', this.toggleMinimized.bind(this))
-    .on('vf.panel', this.panel.bind(this))
-    .on('vf.label', this.toggleLabel.bind(this))
-    //.on('vf.flowSense', this.flowSenseInput.bind(this))
-    .on('vf.beforeOpen', function(event, menuContainer) {
-      var minimize = menuContainer.find('#minimize');
-      if (this.options.minimized) {
-        minimize.children('.glyphicon')
-          .addClass('glyphicon-resize-full')
-          .removeClass('glyphicon-resize-small');
-        minimize.children('span:first')
-          .text('Maximize');
-        minimize.children('span:last')
-          .text('(M)');
-      }
-      items.forEach(function(item) {
-        if (item.bind) {
-          var check = menuContainer.find('#' + item.id).children('.glyphicon');
-          check.toggleClass('glyphicon-ok', this.options[item.bind]);
-        }
-      }, this);
-      if (visflow.flow.visMode) {
-        minimize.hide();
-      }
-    }.bind(this));
+  visflow.listenMany(this.contextMenu, [
+    {
+      event: visflow.Event.VISMODE,
+      callback: this.toggleVisMode.bind(this)
+    },
+    {
+      event: visflow.Event.DELETE,
+      callback: this.delete.bind(this)
+    },
+    {
+      event: visflow.Event.MINIMIZE,
+      callback: this.toggleMinimized.bind(this)
+    },
+    {
+      event: visflow.Event.PANEL,
+      callback: this.panel.bind(this)
+    },
+    {
+      event: visflow.Event.LABEL,
+      callback: this.toggleLabel.bind(this)
+    },
+    //{
+    //  event: visflow.Event.FLOWSENSE,
+    //  callback: this.flowSenseInput.bind(this)
+    //},
+    {
+      event: visflow.Event.BEFORE_OPEN,
+      callback: beforeOpen
+    }
+  ]);
 };
 
 /**
@@ -883,7 +913,7 @@ visflow.Node.prototype.endProcess_ = function() {
 
   // Signals that the node has completed process(). This is to notify other
   // downflow nodes to update based on its new output.
-  visflow.signal(this, visflow.Event.PROCESSED, {node: this});
+  visflow.signal(this, visflow.Event.PROCESSED, this);
 
   this.hideMessage(visflow.Node.Message.PROCESSING);
 };
@@ -897,8 +927,9 @@ visflow.Node.prototype.wait = function() {
 
 /**
  * Saves the current css specification into 'this.css' or 'this.visCss'.
+ * @param {boolean=} opt_toVisCss
  */
-visflow.Node.prototype.saveCss = function() {
+visflow.Node.prototype.saveCss = function(opt_toVisCss) {
   var css = {
     left: this.container.position().left,
     top: this.container.position().top
@@ -911,18 +942,18 @@ visflow.Node.prototype.saveCss = function() {
       height: this.container.height()
     });
   }
-  if (!visflow.flow.visMode) {
-    _.extend(this.css, css);
-  } else {
-    _.extend(this.visCss, css);
+  var toVisCss = visflow.options.isInVisMode();
+  if (opt_toVisCss != undefined) {
+    toVisCss = opt_toVisCss;
   }
+  _.extend(toVisCss ? this.visCss : this.css, css);
 };
 
 /**
  * Applies css specification.
  */
 visflow.Node.prototype.loadCss = function() {
-  if (!visflow.flow.visMode) {
+  if (!visflow.options.isInVisMode()) {
     this.container.css(this.css);
   } else {
     this.container.css(this.visCss);
@@ -1019,7 +1050,7 @@ visflow.Node.prototype.toggleLabel = function() {
  * Handles node resize.
  */
 visflow.Node.prototype.resize = function() {
-  if (visflow.flow.visMode == false) {
+  if (!visflow.options.isInVisMode()) {
     this.updatePorts();
   }
 };
@@ -1111,7 +1142,7 @@ visflow.Node.prototype.initPanelHeader = function(container) {
     }.bind(this));
 
   // Handle header button clicks.
-  if (!visflow.flow.visMode) {
+  if (!visflow.options.isInVisMode()) {
     var btnMinimized = header.find('#minimized').show();
     btnMinimized.click(function() {
         this.toggleMinimized();
@@ -1453,7 +1484,7 @@ visflow.Node.prototype.flowSenseInput = function() {
  */
 visflow.Node.prototype.animateToVisModeOn = function() {
   this.container.stop(true, true);
-  this.saveCss();
+  this.saveCss(false);
 
   if (this.options.visMode) {
     this.container
@@ -1479,7 +1510,7 @@ visflow.Node.prototype.animateToVisModeOn = function() {
  */
 visflow.Node.prototype.animateToVisModeOff = function() {
   this.container.stop(true, true);
-  this.saveCss();
+  this.saveCss(true);
 
   if (this.options.visMode) {
     var css = this.css;

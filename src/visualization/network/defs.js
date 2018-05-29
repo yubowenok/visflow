@@ -113,7 +113,7 @@ visflow.Network.prototype.contextMenuItems = function() {
   var baseItems = visflow.Network.base.contextMenuItems();
   return baseItems.concat([
     // network node label
-    {id: 'nodeLabel', text: 'Node Label', bind: 'nodeLabel'},
-    {id: 'navigation', text: 'Navigation', bind: 'navigation'}
+    {id: visflow.Event.NODE_LABEL, text: 'Node Label', bind: 'nodeLabel'},
+    {id: visflow.Event.NAVIGATION, text: 'Navigation', bind: 'navigation'}
   ]);
 };

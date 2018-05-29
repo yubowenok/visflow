@@ -11,7 +11,7 @@ visflow.ConstantPort.prototype.IS_CONSTANT_PORT = true;
  */
 visflow.ConstantPort.prototype.contextMenuItems = function() {
   return [
-    {id: 'disconnect', text: 'Disconnect',
+    {id: visflow.Event.DISCONNECT, text: 'Disconnect',
       icon: 'glyphicon glyphicon-minus-sign'},
     //{id: 'flowSense', text: 'FlowSense',
     //  icon: 'glyphicon glyphicon-comment'}

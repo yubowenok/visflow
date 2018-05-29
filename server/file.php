@@ -41,7 +41,7 @@ function saveDataPaths($data_username, $file_name)
   $dir = DATA_PATH . $data_username . '/';
   $file_path = $dir . $file_name;
   $full_path = BASE_PATH . $file_path;
-  check_dir($dir);
+  check_dir(BASE_PATH . $dir);
   return array(
     'file_path' => $file_path,
     'full_path' => $full_path,

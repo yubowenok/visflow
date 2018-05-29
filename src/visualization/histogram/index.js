@@ -137,9 +137,10 @@ visflow.Histogram.prototype.selectItemsIntersectBox_ = function() {
       }, this);
     }, this);
   }, this);
+
   this.applyProperties_();
-  this.show();
-  this.pushflow();
+  this.drawHistogram_();
+  this.pushSelection();
 };
 
 /**
@@ -589,16 +590,6 @@ visflow.Histogram.prototype.dataChanged = function() {
   this.selectedBars = {};
 };
 
-/** @inheritDoc */
-visflow.Histogram.prototype.inputChanged = function() {
-  if (this.deserialized_) {
-    this.deserialized_ = false;
-  } else {
-    this.selected = {};
-    this.selectedBars = {};
-  }
-};
-
 /**
  * Find the first non-categorical dimension.
  * @return {number}
@@ -642,4 +633,15 @@ visflow.Histogram.prototype.setDimensions = function(dims) {
     this.options.dim = data.dimensions.indexOf(dims[0]);
   }
   this.dimensionChanged();
+};
+
+/**
+ * Pushes the flow starting from selection targets so that the interactive
+ * selection doesn't get overwritten by inputChanged().
+ * @inheritDoc
+ */
+visflow.Histogram.prototype.pushSelection = function() {
+  this.processSelection();
+  this.getSelectionOutPort().changed(true);
+  visflow.flow.propagate(this.selectionTargetNodes());
 };

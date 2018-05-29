@@ -41,3 +41,25 @@ mysql -u root -p < init-db.sql
 # Create data and diagrams folders and copy demo data and diagrams in place.
 ./init.sh
 ```
+
+You need to configure the web server https for VisFlow. Here is a sample config for Apache:
+```
+# Must have enabled rewrite_module and headers_module
+<VirtualHost {your_domain}:80>
+  <Directory {path_to_visflow}>
+    # Redirect all http requests to https
+    RewriteEngine on
+    RewriteCond %{HTTPS} off
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI}
+  </Directory>
+</VirtualHost>
+<VirtualHost {your_domain}:443>
+  SSLEngine on
+  SSLCertificateFile {path_to_ssl_cert}
+  SSLCertificateKeyFile {path_to_ssl_key}
+
+  <Directory {path_to_visflow}>
+    DirectoryIndex index.php
+  </Directory>
+</VirtualHost>
+```

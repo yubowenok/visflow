@@ -18,15 +18,6 @@ visflow.Table.prototype.MIN_WIDTH = 400;
 visflow.Table.prototype.MIN_HEIGHT = 150;
 
 /**
- * The height sum of the DataTable wrapping elements, including
- * - the search box row (33px)
- * - the info row (37px).
- * - horizontal scrollBar (~12px)
- * @const {number}
- */
-visflow.Table.WRAPPER_HEIGHT = 33 + 37 + 12;
-
-/**
  * After DataTable is initialized, wait for this amount of time and then resize
  * the table columns. This is to give the columns enough time to recognize the
  * potentially existing vertical scroll bar, so that the columns can get correct

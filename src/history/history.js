@@ -45,7 +45,7 @@ visflow.history.push = function(record) {
   visflow.history.records[++visflow.history.top_] = record;
   // Remove trailing entries. Clear possible redos.
   visflow.history.records.splice(visflow.history.top_ + 1);
-  visflow.signal(visflow.history, 'push');
+  visflow.signal(visflow.history, visflow.Event.PUSH);
 };
 
 /**
@@ -55,7 +55,7 @@ visflow.history.push = function(record) {
 visflow.history.redo = function() {
   visflow.history.execute_(visflow.history.top_++);
   if (visflow.history.records[visflow.history.top_] == null) {
-    visflow.signal(visflow.history, 'noRedo');
+    visflow.signal(visflow.history, visflow.Event.NO_REDO);
   }
 };
 
@@ -66,7 +66,7 @@ visflow.history.redo = function() {
 visflow.history.undo = function() {
   visflow.history.reverseExecute_(visflow.history.top_--);
   if (visflow.history.top_ < 0) {
-    visflow.signal(visflow.history, 'noUndo');
+    visflow.signal(visflow.history, visflow.Event.NO_UNDO);
   }
 };
 

@@ -32,15 +32,14 @@ visflow.interaction.MOVE_DELTA_ = 50;
 /** @private {!Array<visflow.contextMenu.Item>} */
 visflow.interaction.MAIN_CONTEXTMENU_ITEMS_ = [
   {
-    id: 'addNode',
+    id: visflow.Event.ADD_NODE,
     text: 'Add Node',
     icon: 'glyphicon glyphicon-plus',
     hotKey: 'A'
   },
   /*
   {
-    id: 'flowSense',
-    text: 'FlowSense',
+    id: visflow.Event.FLOWSENSE,
     icon: 'glyphicon glyphicon-comment',
     hotKey: 'S'
   }
@@ -183,7 +182,7 @@ visflow.interaction.trackMousemove = function(opt_enabled) {
  */
 visflow.interaction.toggleAltHold = function() {
   visflow.interaction.altHold_ = !visflow.interaction.altHold_;
-  visflow.signal(visflow.interaction, 'alt');
+  visflow.signal(visflow.interaction, visflow.Event.ALT);
 };
 
 /**
@@ -234,7 +233,7 @@ visflow.interaction.keyRelease = function(key) {
         break;
       case keyCodes.ALT:
         visflow.interaction.alted = false;
-        visflow.signal(visflow.interaction, 'alt');
+        visflow.signal(visflow.interaction, visflow.Event.ALT);
         visflow.interaction.visualizationBlocking = true;
         visflow.interaction.mainContainer_.css('cursor', '');
         break;
@@ -325,7 +324,7 @@ visflow.interaction.keyPress = function(event) {
       break;
     case keyCodes.ALT:
       visflow.interaction.alted = true;
-      visflow.signal(visflow.interaction, 'alt');
+      visflow.signal(visflow.interaction, visflow.Event.ALT);
       visflow.interaction.visualizationBlocking = false;
       break;
     case keyCodes.CTRL:
@@ -350,7 +349,7 @@ visflow.interaction.keyPress = function(event) {
         case 'A':
           event.pageX = visflow.interaction.mouseX;
           event.pageY = visflow.interaction.mouseY;
-          if (!visflow.flow.visMode) {
+          if (visflow.options.isDiagramEditable()) {
             visflow.popupPanel.show(event, true);
           }
           break;
@@ -365,7 +364,7 @@ visflow.interaction.keyPress = function(event) {
           break;
         */
         case 'shift+V':
-          visflow.flow.toggleVisMode();
+          visflow.options.toggleVisMode();
           break;
         case 'shift+T':
           visflow.nlp.toggleSpeech();
@@ -405,13 +404,23 @@ visflow.interaction.mainContextMenu_ = function() {
     container: visflow.interaction.mainContainer_,
     items: visflow.interaction.MAIN_CONTEXTMENU_ITEMS_
   });
-  $(contextMenu)
-    .on('vf.addNode', function() {
-      visflow.popupPanel.show();
-    })
-    .on('vf.flowSense', function() {
-      visflow.nlp.input();
-    });
+  visflow.listenMany(contextMenu, [
+    {
+      event: visflow.Event.ADD_NODE,
+      callback: visflow.popupPanel.show
+    },
+    {
+      event: visflow.Event.FLOWSENSE,
+      callback: visflow.nlp.input
+    },
+    {
+      event: visflow.Event.BEFORE_OPEN,
+      callback: function(event, menuContainer) {
+        menuContainer.find('#' + visflow.Event.ADD_NODE)
+          .toggleClass('disabled', !visflow.options.isDiagramEditable());
+      }
+    }
+  ]);
 };
 
 /**

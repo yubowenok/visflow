@@ -91,8 +91,8 @@ visflow.Visualization.prototype.selectedMultiplier = function() {
 visflow.Visualization.prototype.contextMenuItems = function() {
   var items = visflow.Visualization.base.contextMenuItems();
   return items.concat([
-    {id: 'selectAll', text: 'Select All'},
-    {id: 'clearSelection', text: 'Clear Selection'}
+    {id: visflow.Event.SELECT_ALL, text: 'Select All'},
+    {id: visflow.Event.CLEAR_SELECTION, text: 'Clear Selection'}
   ]);
 };
 

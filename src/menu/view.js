@@ -15,10 +15,10 @@ visflow.view.initDropdown = function(navbar) {
     visflow.options.toggleNodeLabel(); // TODO(bowen): check visflow.options
   });
   view.find('#show-node-panel').click(function() {
-    visflow.nodePanel.toggle();
+    visflow.options.toggleNodePanel();
   });
 
-  visflow.view.initListeners_();
+  visflow.view.initEventListeners_();
 };
 
 
@@ -26,26 +26,28 @@ visflow.view.initDropdown = function(navbar) {
  * Initializes listeners for view dropdown.
  * @private
  */
-visflow.view.initListeners_ = function() {
-  // Change of nodePanel visibility
-  visflow.listen(visflow.nodePanel, visflow.Event.CHANGE,
-    function(event, data) {
-      var value = data.value;
-      switch (data.type) {
-        case 'nodePanel':
-          $('#view #show-node-panel > i').toggleClass('glyphicon-ok', value);
-          break;
+visflow.view.initEventListeners_ = function() {
+  var view = $('#view');
+  // Change "show-node-panel" button visibility.
+  visflow.listenMany(visflow.options, [
+    {
+      event: visflow.Event.DIAGRAM_EDITABLE,
+      callback: function() {
+        view.find('#show-node-panel')
+          .toggleClass('disabled', !visflow.options.isDiagramEditable());
       }
+    },
+    {
+      event: visflow.Event.NODE_PANEL,
+      callback: function(event, value) {
+        view.find('#show-node-panel > i').toggleClass('glyphicon-ok', value);
+      }
+    }
+  ]);
+  // Change "show-node-label" button visibility.
+  visflow.listen(visflow.options, visflow.Event.NODE_LABEL,
+    function(event, value) {
+      view.find('#show-node-label > i').toggleClass('glyphicon-ok', value);
+      visflow.flow.updateNodeLabels();
     });
-  // Change of node label visibility
-  visflow.listen(visflow.options, visflow.Event.CHANGE,
-    function(event, data) {
-      var value = data.value;
-      switch (data.type) {
-        case 'nodeLabel':
-          $('#view #show-node-label > i').toggleClass('glyphicon-ok', value);
-          visflow.flow.updateNodeLabels();
-          break;
-      }
-  });
 };

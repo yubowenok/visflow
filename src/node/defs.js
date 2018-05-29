@@ -93,15 +93,15 @@ visflow.Node.FOCUS_GAMMA = 500;
  */
 visflow.Node.prototype.contextMenuItems = function() {
   return [
-    {id: 'minimize', text: 'Minimize',
+    {id: visflow.Event.MINIMIZE, text: 'Minimize',
       icon: 'glyphicon glyphicon-resize-small'},
-    {id: 'visMode', text: 'Visualization Mode',
+    {id: visflow.Event.VISMODE, text: 'Visualization Mode',
       icon: 'glyphicon glyphicon-facetime-video'},
-    {id: 'panel', text: 'Control Panel',
+    {id: visflow.Event.PANEL, text: 'Control Panel',
       icon: 'glyphicon glyphicon-th-list'},
-    //{id: 'flowSense', text: 'FlowSense',
+    //{id: visflow.Event.FLOWSENSE, text: 'FlowSense',
     //  icon: 'glyphicon glyphicon-comment'},
-    {id: 'delete', text: 'Delete',
+    {id: visflow.Event.DELETE, text: 'Delete',
       icon: 'glyphicon glyphicon-remove'}
   ];
 };
