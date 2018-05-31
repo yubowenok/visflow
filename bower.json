@@ -32,10 +32,10 @@
     "select2": "~4.0.0",
     "underscore": "~1.8.2",
     "js-cookie": "~2.1.0",
-    "jquery-ui-touch-punch": "*",
     "leaflet": "~1.0.3",
     "annyang": "^2.6.0",
     "jquery-shadow-animation": "^1.11.0",
-    "heatmap.js-amd": "^2.0.5"
+    "heatmap.js-amd": "^2.0.5",
+    "jqueryui-touch-punch": "*"
   }
 }
