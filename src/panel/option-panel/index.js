@@ -54,16 +54,16 @@ visflow.optionPanel.init = function() {
     delay: visflow.panel.TOOLTIP_DELAY
   });
 
-  visflow.optionPanel.initUpdateHandlers_();
+  visflow.optionPanel.initEventListeners_();
 };
 
 /**
  * Creates event listeners for system events.
  * @private
  */
-visflow.optionPanel.initUpdateHandlers_ = function() {
-  visflow.listen(visflow.flow, visflow.Event.VISMODE, function() {
-    visflow.optionPanel.updateVisMode_();
+visflow.optionPanel.initEventListeners_ = function() {
+  visflow.listen(visflow.options, visflow.Event.VISMODE, function() {
+    visflow.optionPanel.updateHeaderVisibility_();
   });
 };
 
@@ -177,9 +177,9 @@ visflow.optionPanel.update_ = function() {
           });
         }
         if (visflow.optionPanel.isOpen) {
-          visflow.signal(visflow.optionPanel, 'opened');
+          visflow.signal(visflow.optionPanel, visflow.Event.OPENED);
         } else {
-          visflow.signal(visflow.optionPanel, 'closed');
+          visflow.signal(visflow.optionPanel, visflow.Event.CLOSED);
         }
       }
     });
@@ -225,9 +225,9 @@ visflow.optionPanel.close = function() {
   visflow.optionPanel.loadedNode_ = null;
   var clear = function() {
     visflow.optionPanel.clear_();
-    $(visflow.optionPanel).off('vf.closed', clear);
+    visflow.unlisten(visflow.optionPanel, visflow.Event.CLOSED, clear);
   };
-  $(visflow.optionPanel).on('vf.closed', clear);
+  visflow.listen(visflow.optionPanel, visflow.Event.CLOSED, clear);
 };
 
 /**
@@ -243,7 +243,7 @@ visflow.optionPanel.clear_ = function() {
  * Shows/hides the panel header according to visMode on/off.
  * @private
  */
-visflow.optionPanel.updateVisMode_ = function() {
+visflow.optionPanel.updateHeaderVisibility_ = function() {
   var header = $('#option-panel .node-panel.panel-header');
-  header.toggle(!visflow.flow.visMode);
+  header.toggle(!visflow.options.isInVisMode());
 };

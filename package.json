@@ -1,8 +1,8 @@
 {
   "name": "visflow",
   "version": "1.0.0",
-  "description": "web-based dataflow framework for visual analytics of tabular data",
-  "main": "gulpfile.js",
+  "description": "web-based dataflow framework for visual data exploration",
+  "main": "index.php",
   "dependencies": {
     "bower": "^1.7.7"
   },
@@ -12,7 +12,6 @@
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.0",
     "gulp-clean-css": "^3.0.2",
-    "gulp-closure-compiler": "^0.4.0",
     "gulp-concat": "^2.6.0",
     "gulp-flatten": "^0.2.0",
     "gulp-gjslint": "^0.1.5",
@@ -28,20 +27,18 @@
   },
   "scripts": {
     "prestart": "npm install",
-    "postinstall": "bower install",
-    "test": "npm test"
+    "postinstall": "bower install"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yubowenok/visflow.git"
-  },
+  "repository": "git+https://github.com/yubowenok/visflow.git",
   "keywords": [
-    "visflow"
+    "visflow",
+    "dataflow",
+    "visualization"
   ],
   "author": "Bowen Yu",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/yubowenok/visflow/issues"
   },
-  "homepage": "https://github.com/yubowenok/visflow#readme"
+  "homepage": "https://visflow.org/"
 }

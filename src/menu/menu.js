@@ -23,7 +23,7 @@ visflow.menu.init = function() {
   visflow.menu.initUserButtons_();
   visflow.menu.initTooltips_();
 
-  visflow.menu.initUpdateHandlers_();
+  visflow.menu.initEventListeners_();
 };
 
 /**
@@ -95,32 +95,43 @@ visflow.menu.initTooltips_ = function() {
  * Initializes the update event handlers for events across systems.
  * @private
  */
-visflow.menu.initUpdateHandlers_ = function() {
+visflow.menu.initEventListeners_ = function() {
   var navbar = $('.visflow > .navbar-fixed-top');
-  $(visflow.user)
-    .on('vf.login', function() {
-      navbar.find('.logged-in').show();
-      navbar.find('.logged-out').hide();
-      navbar.find('#username').text(visflow.user.account.username);
+  visflow.listenMany(visflow.user, [
+    {
+      event: visflow.Event.LOGIN,
+      callback: function() {
+        navbar.find('.logged-in').show();
+        navbar.find('.logged-out').hide();
+        navbar.find('#username').text(visflow.user.account.username);
 
-      if (visflow.user.writePermission()) {
-        navbar.find('#save').removeClass('disabled');
+        if (visflow.user.writePermission()) {
+          navbar.find('#save').removeClass('disabled');
+        }
+        navbar.find('#load').removeClass('disabled');
       }
-      navbar.find('#load').removeClass('disabled');
-    })
-    .on('vf.logout', function() {
-      navbar.find('.logged-out').show();
-      navbar.find('.logged-in').hide();
+    },
+    {
+      event: visflow.Event.LOGOUT,
+      callback: function() {
+        navbar.find('.logged-out').show();
+        navbar.find('.logged-in').hide();
 
-      navbar.find('#save, #load').addClass('disabled');
-    });
+        navbar.find('#save, #load').addClass('disabled');
+      }
+    }
+  ]);
+
+  visflow.listen(visflow.options, visflow.Event.DIAGRAM_EDITABLE,
+    visflow.menu.diagramEditableChanged_);
 };
 
 /**
  * Updates the enabled/disabled state of the add node item in the menu.
+ * @private
  */
-visflow.menu.updateVisMode = function() {
+visflow.menu.diagramEditableChanged_ = function() {
   var navbar = $('.visflow > .navbar-fixed-top');
   var addNode = navbar.find('#add-node');
-  addNode.toggleClass('disabled', visflow.flow.visMode);
+  addNode.toggleClass('disabled', !visflow.options.isDiagramEditable());
 };

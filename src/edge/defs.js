@@ -8,7 +8,11 @@
  */
 visflow.Edge.prototype.contextMenuItems = function() {
   return [
-    {id: 'delete', text: 'Delete', icon: 'glyphicon glyphicon-remove'}
+    {
+      id: visflow.Event.DELETE,
+      text: 'Delete',
+      icon: 'glyphicon glyphicon-remove'
+    }
   ];
 };
 

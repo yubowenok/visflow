@@ -30,19 +30,21 @@ visflow.contextMenu.hide = function() {
 
 /**
  * Global hotkey settings for contextMenu items.
- * @const {!Object<string>}
+ * When context menus are shown, if the id of an item can be found in this list,
+ * the hotkey defined here will be applied.
+ * @const {!Array<{id: visflow.Event, hotkey: string}>}
  */
-visflow.contextMenu.HOT_KEYS = {
-  addNode: 'A',
-  delete: 'CTRL + X',
-  visMode: 'V',
-  panel: 'P',
-  minimize: 'M',
-  selectAll: 'CTRL + A',
-  clearSelection: 'CTRL + SHIFT + A',
-  navigation: 'N'
-  //flowSense: 'S'
-};
+visflow.contextMenu.hotKeys = [
+  {id: visflow.Event.ADD_NODE, hotkey: 'A'},
+  {id: visflow.Event.DELETE, hotkey: 'CTRL + X'},
+  {id: visflow.Event.VISMODE, hotkey: 'V'},
+  {id: visflow.Event.PANEL, hotkey: 'P'},
+  {id: visflow.Event.MINIMIZE, hotkey: 'M'},
+  {id: visflow.Event.SELECT_ALL, hotkey: 'CTRL + A'},
+  {id: visflow.Event.CLEAR_SELECTION, hotkey: 'CTRL + SHIFT + A'},
+  {id: visflow.Event.NAVIGATION, hotkey: 'N'}
+  //{id: visflow.Event.FLOWSENSE, hotkey: 'S'}
+];
 
 
 /**
@@ -53,8 +55,8 @@ visflow.contextMenu.HOT_KEYS = {
  * @constructor
  */
 visflow.ContextMenu = function(params) {
-  if (params == null) {
-    visflow.error('null params');
+  if (params == undefined) {
+    visflow.error('no params given for ContextMenu');
     return;
   }
 
@@ -89,7 +91,7 @@ visflow.ContextMenu.prototype.openMenu_ = function(event) {
       top: event.pageY
     });
   this.listItems_();
-  visflow.signal(this, 'beforeOpen', this.contextMenu_);
+  visflow.signal(this, visflow.Event.BEFORE_OPEN, this.contextMenu_);
 };
 
 /**
@@ -120,13 +122,17 @@ visflow.ContextMenu.prototype.listItems_ = function() {
       .text(item.text)
       .appendTo(a);
 
-    var hotKey = item.hotKey;
-    if (hotKey == null) {
-      hotKey = visflow.contextMenu.HOT_KEYS[item.id];
+    var hotkey = item.hotkey;
+    if (hotkey == null) {
+      visflow.contextMenu.hotKeys.forEach(function(key) {
+        if (key.id == item.id) {
+          hotkey = key.hotkey;
+        }
+      });
     }
     $('<span></span>')
       .addClass('hotkey')
-      .text(hotKey == null ? '' : '( ' + hotKey + ' )')
+      .text(hotkey == null ? '' : '( ' + hotkey + ' )')
       .appendTo(a);
   }, this);
 };

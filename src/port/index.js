@@ -226,16 +226,22 @@ visflow.Port.prototype.initContextMenu = function() {
     items: this.contextMenuItems()
   });
 
-  $(contextMenu)
-    .on('vf.disconnect', function() {
-      this.connections.concat().forEach(function(connection) {
-        visflow.flow.deleteEdge(connection);
-      });
-    }.bind(this))
-    .on('vf.flowSense', function() {
-      visflow.nlp.input(this.node);
-    }.bind(this));
-
+  visflow.listenMany(contextMenu, [
+    {
+      event: visflow.Event.DISCONNECT,
+      callback: function() {
+        this.connections.concat().forEach(function(connection) {
+          visflow.flow.deleteEdge(connection);
+        });
+      }.bind(this)
+    },
+    {
+      event: visflow.Event.FLOWSENSE,
+      callback: function() {
+        visflow.nlp.input(this.node);
+      }.bind(this)
+    }
+  ]);
   return contextMenu;
 };
 

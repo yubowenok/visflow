@@ -288,6 +288,5 @@ visflow.Edge.prototype.initContextMenu = function() {
     items: this.contextMenuItems()
   });
 
-  $(contextMenu)
-    .on('vf.delete', this.delete.bind(this));
+  visflow.listen(contextMenu, visflow.Event.DELETE, this.delete.bind(this));
 };

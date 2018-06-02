@@ -170,7 +170,7 @@ visflow.Table.prototype.showDetails = function() {
       this.dataTable.rows(tableIndices).deselect();
       this.dataTable.on('deselect.dt', deselectHandler);
     }
-    this.pushflow();
+    this.pushSelection();
   }.bind(this);
   var deselectHandler = function(event, dt, type, tableIndices) {
     var cancelled = this.toCancelSelect_();
@@ -187,7 +187,7 @@ visflow.Table.prototype.showDetails = function() {
       this.dataTable.rows(tableIndices).select();
       this.dataTable.on('select.dt', selectHandler);
     }
-    this.pushflow();
+    this.pushSelection();
   }.bind(this);
 
   this.dataTable
@@ -210,7 +210,7 @@ visflow.Table.prototype.drawBrush = function() {
 visflow.Table.prototype.updateScrollBodyHeight_ = function() {
   var height = this.container.height() -
     this.container.find('.dataTables_scrollHead').height() -
-    visflow.Table.WRAPPER_HEIGHT;
+    visflow.const.DATATABLE_WRAPPER_HEIGHT;
   this.content.find('.dataTables_scrollBody')
     .css('max-height', height)
     .css('height', height);
@@ -281,8 +281,9 @@ visflow.Table.prototype.mousedown = function(event) {
 
 /** @inheritDoc */
 visflow.Table.prototype.selectItems = function() {
-  // Nothing. Do not pass to parent class. Otherwise show and pushflow will
-  // be called and table would have to incorrectly refresh.
+  // Nothing. Do not pass to parent class. Otherwise pushflow will be called and
+  // table would have to incorrectly refresh without consistent state (e.g.
+  // scrolling).
 };
 
 /**
@@ -296,4 +297,16 @@ visflow.Table.prototype.toCancelSelect_ = function() {
     return true;
   }
   return false;
+};
+
+/**
+ * Propagates the changes starting from target nodes connected to the selection
+ * port. If you call pushflow, the table would be redrawn, however its state
+ * (like scrolling) is not kept and this interferes with user selection.
+ * @inheritDoc
+ */
+visflow.Table.prototype.pushSelection = function() {
+  this.processSync();
+  this.getSelectionOutPort().changed(true);
+  visflow.flow.propagate(this.selectionTargetNodes());
 };

@@ -46,3 +46,12 @@ visflow.const.TIME_FORMAT = 'M/D/YY HH:mm:ss';
 
 /** @const {number} */
 visflow.const.QUEUE_DELAY = 10;
+
+/**
+ * The height sum of the DataTable wrapping elements, including
+ * - the search box row (33px)
+ * - the info row (37px).
+ * - horizontal scrollBar (~12px)
+ * @const {number}
+ */
+visflow.const.DATATABLE_WRAPPER_HEIGHT = 33 + 37 + 12;

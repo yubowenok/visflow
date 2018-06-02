@@ -213,7 +213,7 @@ visflow.Visualization.prototype.processSync = function() {
  */
 visflow.Visualization.prototype.processSelection = function() {
   var inpack = this.getDataInPort().getSubset();
-  var outspack = this.ports['outs'].getSubset();
+  var outspack = this.getSelectionOutPort().getSubset();
   outspack.copy(inpack);
   outspack.filter(_.allKeys(this.selected));
 };
@@ -355,9 +355,16 @@ visflow.Visualization.prototype.multiplyProperties = function(properties,
  */
 visflow.Visualization.prototype.initContextMenu = function() {
   visflow.Visualization.base.initContextMenu.call(this);
-  $(this.contextMenu)
-    .on('vf.selectAll', this.selectAll.bind(this))
-    .on('vf.clearSelection', this.clearSelection.bind(this));
+  visflow.listenMany(this.contextMenu, [
+    {
+      event: visflow.Event.SELECT_ALL,
+      callback: this.selectAll.bind(this)
+    },
+    {
+      event: visflow.Event.CLEAR_SELECTION,
+      callback: this.clearSelection.bind(this)
+    }
+  ]);
 };
 
 /**
@@ -661,3 +668,30 @@ visflow.Visualization.prototype.setDimensions = function(dims) {
 visflow.Visualization.prototype.getSelectionOutPort = function() {
   return /** @type {!visflow.SubsetPort} */(this.getPort('outs'));
 };
+
+/**
+ * Gets the nodes connected to the selection port.
+ * @return {!Array<!visflow.SubsetNode>}
+ */
+visflow.Visualization.prototype.selectionTargetNodes = function() {
+  var nodes = [];
+  var nodeIds = {}; // used to deduplicate
+  this.outputPorts().forEach(function(port) {
+    if (!port.IS_SELECTION_PORT) {
+      return;
+    }
+    port.connections.forEach(function(edge) {
+      var node = edge.targetNode;
+      if (!(node.id in nodeIds)) {
+        nodeIds[node.id] = true;
+        nodes.push(node);
+      }
+    });
+  });
+  return nodes;
+};
+
+/**
+ * Pushes selection changes to the downflow.
+ */
+visflow.Visualization.prototype.pushSelection = function() {};

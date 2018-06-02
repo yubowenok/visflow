@@ -156,7 +156,7 @@ visflow.user.logout = function() {
     })
     .always(function() {
       visflow.user.account = null;
-      visflow.signal(visflow.user, 'logout');
+      visflow.signal(visflow.user, visflow.Event.LOGOUT);
     });
 };
 
@@ -171,17 +171,17 @@ visflow.user.authenticate = function() {
         visflow.user.account = {
           username: username
         };
-        visflow.signal(visflow.user, 'login');
+        visflow.signal(visflow.user, visflow.Event.LOGIN);
       })
       .fail(function() {
         visflow.user.account = null;
-        visflow.signal(visflow.user, 'logout');
+        visflow.signal(visflow.user, visflow.Event.LOGOUT);
       })
       .always(function() {
         visflow.user.callLoginHook();
       });
   } else {
-    visflow.signal(visflow.user, 'logout');
+    visflow.signal(visflow.user, visflow.Event.LOGOUT);
     visflow.user.callLoginHook();
   }
 };

@@ -80,6 +80,11 @@ visflow.Map.prototype.selectedProperties = function() {
 visflow.Map.prototype.contextMenuItems = function() {
   var baseItems = visflow.Map.base.contextMenuItems();
   return baseItems.concat([
-    {id: 'navigation', text: 'Navigation', bind: 'navigation', hotKey: 'N'}
+    {
+      id: visflow.Event.NAVIGATION,
+      text: 'Navigation',
+      bind: 'navigation',
+      hotKey: 'N'
+    }
   ]);
 };

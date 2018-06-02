@@ -28,7 +28,7 @@ visflow.toolPanel.init = function() {
   var visMode = container.find('#vis-mode');
   visMode
     .click(function() {
-      visflow.flow.toggleVisMode();
+      visflow.options.toggleVisMode();
     });
 
   var upload = container.find('#upload');
@@ -36,20 +36,19 @@ visflow.toolPanel.init = function() {
     visflow.upload.upload();
   });
 
-  visflow.toolPanel.initUpdateHandlers_();
+  visflow.toolPanel.initEventListeners_();
 };
 
 /**
  * Creates event listeners for system-wide update.
  * @private
  */
-visflow.toolPanel.initUpdateHandlers_ = function() {
-  visflow.listen(visflow.flow, visflow.Event.VISMODE, function() {
+visflow.toolPanel.initEventListeners_ = function() {
+  visflow.listen(visflow.options, visflow.Event.VISMODE, function() {
     visflow.toolPanel.updateVisMode_();
   });
-  $(visflow.interaction).on('vf.alt', function() {
-    visflow.toolPanel.updateAlt_();
-  });
+  visflow.listen(visflow.interaction, visflow.Event.ALT,
+    visflow.toolPanel.updateAlt_);
 
   var disableUpload = function() {
     visflow.toolPanel.container_.find('#upload')
@@ -61,21 +60,28 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
       });
   };
 
-  $(visflow.user)
-    .on('vf.logout', disableUpload)
-    .on('vf.login', function() {
-      if (!visflow.user.writePermission()) {
-        disableUpload();
-        return;
+  visflow.listenMany(visflow.user, [
+    {
+      event: visflow.Event.LOGOUT,
+      callback: disableUpload
+    },
+    {
+      event: visflow.Event.LOGIN,
+      callback: function() {
+        if (!visflow.user.writePermission()) {
+          disableUpload();
+          return;
+        }
+        visflow.toolPanel.container_.find('#upload')
+          .prop('disabled', false)
+          .attr('title', 'upload data')
+          .tooltip('destroy')
+          .tooltip({
+            delay: visflow.panel.TOOLTIP_DELAY
+          });
       }
-      visflow.toolPanel.container_.find('#upload')
-        .prop('disabled', false)
-        .attr('title', 'upload data')
-        .tooltip('destroy')
-        .tooltip({
-          delay: visflow.panel.TOOLTIP_DELAY
-        });
-    });
+    }
+  ]);
 };
 
 /**
@@ -84,7 +90,7 @@ visflow.toolPanel.initUpdateHandlers_ = function() {
  */
 visflow.toolPanel.updateVisMode_ = function() {
   visflow.toolPanel.container_.find('#vis-mode')
-    .toggleClass('active', visflow.flow.visMode);
+    .toggleClass('active', visflow.options.isInVisMode());
 };
 
 /**
