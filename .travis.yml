@@ -1,17 +1,15 @@
 language: node_js
 node_js:
-  - "4.1"
+  - "8.11.2"
 
 before_script:
-  - npm install -g gulp
-  - rvm install ruby
-  - gem install scss_lint
+  - cd sketch
+  - yarn install
 
 script:
-  - gulp all
+  - yarn build
+  - yarn test
 
 cache:
   directories:
-  - bower_components
-  - node_modules
-
+  - sketch/node_modules
