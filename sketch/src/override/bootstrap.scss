@@ -1,0 +1,23 @@
+@import '../common/colors';
+
+a {
+  cursor: pointer;
+}
+
+a:active {
+  color: $theme-green;
+}
+
+a:hover {
+  color: $theme-purple;
+}
+
+.navbar-light .navbar-nav .nav-link {
+  color: #333;
+}
+
+.btn {
+  border-radius: 2px;
+  padding-top: .1rem;
+  padding-bottom: .1rem;
+}

@@ -1,0 +1,32 @@
+@import '../../common/colors';
+
+.app-header {
+  font-family: 'proxima-nova', Helvetica, Arial, sans-serif;
+  font-size: .9em;
+  padding-top: 0;
+  padding-bottom: 0;
+  
+  #logo {
+    font-weight: bold;
+    
+    > img {
+      width: 30px;
+    }
+  }
+
+  /deep/ .dropdown-item {
+    font-size: 14px;
+    .fas, .far {
+      margin-right: .75em;
+    }
+
+    &:focus {
+      outline: none;
+      background-color: $hover-green;
+    }
+
+    &:active {
+      background-color: $theme-green;
+    }
+  }
+}
