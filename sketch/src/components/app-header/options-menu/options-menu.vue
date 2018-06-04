@@ -1,7 +1,13 @@
 <template>
 <b-nav-item-dropdown text="Options">
-  <b-dropdown-item><i class="far fa-sm fa-square"></i>Node Panel</b-dropdown-item>
-  <b-dropdown-item><i class="far fa-sm fa-square"></i>Node Labels</b-dropdown-item>
+  <b-dropdown-item @click="toggleNodePanel">
+    <i :class="['far fa-sm', nodePanelEnabled ? 'fa-check-square' : 'fa-square']"></i>
+    Node Panel
+  </b-dropdown-item>
+  <b-dropdown-item @click="toggleNodeLabels">
+    <i :class="['far fa-sm', nodeLabelsEnabled ? 'fa-check-square' :  'fa-square']"></i>
+    Node Labels
+  </b-dropdown-item>
 </b-nav-item-dropdown>
 </template>
 

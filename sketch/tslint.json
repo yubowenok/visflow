@@ -20,6 +20,16 @@
     "object-literal-sort-keys": false,
     "ordered-imports": false,
     "quotemark": [true, "single"],
-    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}]
+    "trailing-comma": [true, {"multiline": "always", "singleline": "never"}],
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-module",
+      "check-operator",
+      "check-separator",
+      "check-type",
+      "check-typecast"
+    ]
   }
 }

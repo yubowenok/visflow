@@ -1,12 +1,13 @@
-import Vue from 'vue';
+import { Component, Vue } from 'vue-property-decorator';
 import AppHeader from '../app-header/app-header';
 import BootstrapVue from 'bootstrap-vue';
 
 Vue.use(BootstrapVue);
 
-export default Vue.extend({
-  name: 'app',
+@Component({
   components: {
     AppHeader,
   },
-});
+})
+export default class App extends Vue {
+}

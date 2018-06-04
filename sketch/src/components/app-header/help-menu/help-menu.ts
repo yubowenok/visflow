@@ -1,5 +1,19 @@
-import Vue from 'vue';
+import { Component, Vue } from 'vue-property-decorator';
 
-export default Vue.extend({
-  name: 'help-menu',
-});
+@Component
+export default class DiagramMenu extends Vue {
+  /** Opens a new browser tab for system documentation. */
+  private documentation() {
+    window.open('https://visflow.org/doc.html', '_blank');
+  }
+
+  /** Opens a new browser tab to report issues on GitHub. */
+  private issues() {
+    window.open('https://github.com/yubowenok/visflow/issues/new', '_blank');
+  }
+
+  /** Shows a popup modal for system about info. */
+  private about() {
+    alert('About page TBA');
+  }
+}

@@ -1,17 +1,19 @@
 import Vue from 'vue';
-import Vuex from 'vuex';
-import dataflow from './modules/dataflow';
-import options from './modules/options';
+import Vuex, { StoreOptions } from 'vuex';
+import { dataflow } from './dataflow';
+import { systemOptions } from './system-options';
 
 Vue.use(Vuex);
 
 const debug = process.env.NODE_ENV !== 'production';
 
-export default new Vuex.Store({
+export interface RootState {
+  version?: number;
+}
+
+export default new Vuex.Store<RootState>({
   modules: {
     dataflow,
-    options,
+    systemOptions,
   },
-  strict: debug,
-  // plugins: debug ? [createLogger()] : []
 });
