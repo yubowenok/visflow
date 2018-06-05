@@ -1,14 +1,13 @@
-@import '../../common/colors';
+@import '../../common/style/index';
 
 .app-header {
-  font-family: 'proxima-nova', Helvetica, Arial, sans-serif;
-  font-size: .9em;
+  @extend %ui-font;
   padding-top: 0;
   padding-bottom: 0;
-  
+
   #logo {
     font-weight: bold;
-    
+
     > img {
       width: 30px;
     }
@@ -16,17 +15,8 @@
 
   /deep/ .dropdown-item {
     font-size: 14px;
-    .fas, .far {
-      margin-right: .75em;
-    }
+    outline: none;
 
-    &:focus {
-      outline: none;
-      background-color: $hover-green;
-    }
-
-    &:active {
-      background-color: $theme-green;
-    }
+    @extend %list-item;
   }
 }

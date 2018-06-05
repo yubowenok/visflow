@@ -6,5 +6,5 @@
 </b-nav-item-dropdown>
 </template>
 
-<script lang="ts" src="./diagram-menu.ts">
+<script src="./diagram-menu.ts">
 </script>

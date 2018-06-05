@@ -11,5 +11,5 @@
 </b-nav-item-dropdown>
 </template>
 
-<script lang="ts" src="./options-menu.ts">
+<script src="./options-menu.ts">
 </script>

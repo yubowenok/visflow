@@ -23,7 +23,6 @@ const mutations = {
   /** Enable/disable the node panel, which is for dragging new nodes onto the canvas. */
   toggleNodePanel(state: SystemOptionsState) {
     state.nodePanelEnabled = !state.nodePanelEnabled;
-    console.log(state.nodePanelEnabled);
   },
 
   /**

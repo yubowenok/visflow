@@ -1,0 +1,18 @@
+@import '../../common/style/index';
+
+li {
+  cursor: pointer;
+  @extend %list-item, %ui-font;
+  @extend %padding;
+}
+
+li::before {
+  margin-right: -2em;
+}
+
+.context-menu {
+  list-style: none;
+  position: absolute;
+  z-index: $zIndexContextMenu;
+  @extend %box;
+}
