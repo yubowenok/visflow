@@ -1,0 +1,31 @@
+@import 'src/common/style/index';
+
+.node-panel {
+  top: $navbar-height + $icon-size / 2;
+  // bottom: $icon-size / 2;
+  position: fixed;
+  padding: $padding-size;
+  z-index: $zIndexNodePanel;
+  @extend %box, %padding;
+
+  .square-icon {
+    height: $icon-size;
+    width: $icon-size;
+  }
+
+  .flat-icon {
+    height: $icon-size / 2;
+    width: $icon-size;
+  }
+
+  .node-button {
+    display: inline-block;
+    cursor: pointer;
+    transition: all .1s ease-in-out;
+    @extend %margin;
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+}

@@ -1,0 +1,107 @@
+@import '../../common/style/index';
+
+.node {
+  position: absolute;
+
+  > .content {
+    height: 100%;
+    padding: $padding $padding-large;
+    width: 100%;
+  }
+
+  > .background {
+    border: 1px solid $gray-a;
+    box-shadow: 1px 1px 2px $gray-a;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: -1;
+  }
+
+  > .icon {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: 45px;
+    height: 50px;
+    position: absolute;
+    width: 50px;
+  }
+
+  #label {
+    background: $white;
+    border: 1px solid $gray-c;
+    border-radius: $border-radius $border-radius 0 0;
+    font-size: $font-size-small;
+    font-weight: bold;
+    line-height: $font-size-small;
+    overflow: hidden;
+    padding: $padding $padding-large;
+    position: absolute;
+    top: -($padding * 2 + $font-size-small + $border-width);
+    white-space: nowrap;
+  }
+
+  &.details {
+    height: 100px;
+    width: 100px;
+  }
+
+  &.minimized {
+    height: 50px;
+    width: 50px;
+  }
+
+  &.hover {
+    > .background {
+      border-color: $gray-b;
+      border-width: 2px;
+      box-shadow: 2px 2px 4px $gray-a;
+    }
+  }
+
+  &.selected {
+    > .background {
+      border-color: $gray-7;
+      border-width: 2px;
+    }
+  }
+
+  .popup {
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+
+    .image-hourglass {
+      left: calc(50% - 40px / 2);
+      top: calc(55% - 59px);
+    }
+
+    .image-failure {
+      left: calc(50% - 50px / 2);
+      top: calc(55% - 50px);
+    }
+
+    .cover {
+      background-image: linear-gradient(to bottom, $gray-f5 0, $gray-e8 100%);
+      border-radius: $border-radius;
+      height: calc(100% - 4px);
+      left: 2px;
+      opacity: .75;
+      top: 2px;
+      width: calc(100% - 4px);
+    }
+
+    .text {
+      @extend %node-text;
+
+      &.with-image {
+        top: calc(55% - .95em);
+      }
+    }
+
+    * {
+      position: absolute;
+    }
+  }
+}

@@ -1,0 +1,21 @@
+@import '../../common/style/index';
+
+.app-header {
+  @extend %ui-font, %box-shadow;
+  padding-top: 0;
+  padding-bottom: 0;
+
+  #logo {
+    font-weight: bold;
+
+    > img {
+      width: 30px;
+    }
+  }
+
+  /deep/ .dropdown-item {
+    outline: none;
+
+    @extend %list-item;
+  }
+}

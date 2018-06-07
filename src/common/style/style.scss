@@ -1,0 +1,49 @@
+@import './colors';
+
+$font-size: 14px;
+$font-size-sm: 12px;
+
+
+$border-radius: 2px;
+
+%list-item {
+  &:focus, &:hover {
+    background-color: $hover-green;
+  }
+
+  &:active {
+    background-color: $theme-green;
+  }
+
+  .fas, .far {
+    margin-right: .75em;
+
+    &.placeholder {
+      opacity: 0;
+    }
+  }
+
+  &.disabled {
+    color: #999;
+    text-decoration: none;
+    cursor: not-allowed;
+    background: none;
+  }
+}
+
+%box-shadow {
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, .05);
+}
+
+%border {
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, .15);
+}
+
+%box {
+  @extend %box-shadow, %border;
+}
+
+%ui-font {
+  font-family: 'proxima-nova', Helvetica, Arial, sans-serif;
+}

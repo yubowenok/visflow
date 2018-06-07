@@ -3,7 +3,6 @@ node_js:
   - "8.11.2"
 
 before_script:
-  - cd sketch
   - yarn install
 
 script:
@@ -14,4 +13,3 @@ cache:
   yarn: true
   directories:
   - node_modules
-  - sketch/node_modules

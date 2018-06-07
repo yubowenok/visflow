@@ -1,0 +1,31 @@
+$navbar-height: 41px;
+
+$icon-size: 40px;
+
+$padding-size: .25rem;
+
+%padding {
+  padding: .25rem 1.5rem;
+}
+%padding-lr {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+%padding-tb {
+  padding-top: .25rem;
+  padding-bottom: .25rem;
+}
+
+$margin-size: .05rem;
+
+%margin {
+  margin: .05rem;
+}
+%margin-lr {
+  margin-left: .05rem;
+  margin-right: .05rem;
+}
+%margin-tb {
+  margin-top: .05rem;
+  margin-bottom: .05rem;
+}
