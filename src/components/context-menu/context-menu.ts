@@ -1,9 +1,9 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import ClickOutside from '../../directives/click-outside';
+import GlobalClick from '../../directives/global-click';
 
 @Component({
   directives: {
-    ClickOutside,
+    GlobalClick,
   },
 })
 export default class ContextMenu extends Vue {
@@ -24,10 +24,11 @@ export default class ContextMenu extends Vue {
     this.visible = false;
   }
 
-  private clickOutside(evt: MouseEvent) {
+  private globalClick(evt: MouseEvent) {
     if (this.$el.contains(evt.target as Node)) {
       return;
     }
+    // Closes the ContextMenu if the click is outside the ContextMenu's parent element.
     this.close();
   }
 

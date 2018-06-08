@@ -2,10 +2,13 @@
 
 .node {
   position: absolute;
+  font-size: $font-size-sm;
 
+  @extend %box;
+  /*
   > .content {
     height: 100%;
-    padding: $padding $padding-large;
+    padding: $padding;
     width: 100%;
   }
 
@@ -67,11 +70,6 @@
   }
 
   .popup {
-    height: 100%;
-    position: absolute;
-    width: 100%;
-    z-index: 1;
-
     .image-hourglass {
       left: calc(50% - 40px / 2);
       top: calc(55% - 59px);
@@ -80,16 +78,6 @@
     .image-failure {
       left: calc(50% - 50px / 2);
       top: calc(55% - 50px);
-    }
-
-    .cover {
-      background-image: linear-gradient(to bottom, $gray-f5 0, $gray-e8 100%);
-      border-radius: $border-radius;
-      height: calc(100% - 4px);
-      left: 2px;
-      opacity: .75;
-      top: 2px;
-      width: calc(100% - 4px);
     }
 
     .text {
@@ -104,4 +92,5 @@
       position: absolute;
     }
   }
+  */
 }

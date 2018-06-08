@@ -1,9 +1,13 @@
 <template>
-<div id="app">
+<div id="app" @contextmenu.prevent>
   <app-header></app-header>
   <node-panel></node-panel>
-  <div id="canvas" @contextmenu.prevent="$refs.contextMenu.open">
-    <visualization></visualization>
+  <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
+    <div id="nodes">
+      <visualization></visualization>
+    </div>
+    <div id="edges">
+    </div>
   </div>
   <context-menu id="context-menu" ref="contextMenu">
     <template slot-scope="slotProps">

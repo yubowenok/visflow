@@ -1,8 +1,7 @@
 @import './colors';
 
-$font-size: 14px;
-$font-size-sm: 12px;
-
+$font-size: 13px;
+$font-size-sm: 11px;
 
 $border-radius: 2px;
 
@@ -37,13 +36,13 @@ $border-radius: 2px;
 
 %border {
   border-radius: 2px;
-  border: 1px solid rgba(0, 0, 0, .15);
-}
-
-%box {
-  @extend %box-shadow, %border;
+  border: 1px solid rgba(0, 0, 0, .2);
 }
 
 %ui-font {
   font-family: 'proxima-nova', Helvetica, Arial, sans-serif;
+}
+
+%box {
+  @extend %box-shadow, %border;
 }

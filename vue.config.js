@@ -10,13 +10,16 @@ if (process.env.NODE_ENV === 'production') {
 
 module.exports = {
   configureWebpack: config => {
+    const plugins = [
+      new StyleLintPlugin(),
+    ];
     if (process.env.NODE_ENV === 'production') {
       config.output.publicPath = process.env.BASE_URL;
+    } else if (process.env.NODE_ENV === 'test') {
+      // Test config writes here.
     }
     return {
-      plugins: [
-        new StyleLintPlugin()
-      ]
+      plugins,
     };
   },
   chainWebpack: config => {

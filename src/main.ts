@@ -5,7 +5,8 @@ import App from './components/app/app';
 // Global stylesheets
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-vue/dist/bootstrap-vue.min.css';
-import './override/bootstrap.scss';
+import './override/index.scss';
+import 'jqueryui/jquery-ui.min.css';
 
 Vue.config.productionTip = false;
 

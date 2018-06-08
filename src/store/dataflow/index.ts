@@ -1,21 +1,18 @@
 import { Module } from 'vuex';
 import { RootState } from '../index';
-import { saveMutations } from './save';
+import edit from './edit';
+import save from './save';
+import { DataflowState } from './types';
 
-export interface DataflowState {
-  nodes: string[];
-  edges: string[];
-}
-const state: DataflowState = {
-  nodes: [],
-  edges: [],
+const state = {
+  ...edit.state,
 };
 
 const getters = {
 };
 
 const mutations = {
-  ...saveMutations,
+  ...edit.mutations,
 };
 
 const actions = {

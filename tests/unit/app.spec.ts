@@ -1,10 +1,9 @@
-import Vue from 'vue';
 import Vuex, { Store } from 'vuex';
 import { expect } from 'chai';
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
 
-import app from '@/components/app/app';
 import { RootState, defaultStore } from '@/store';
+import App from '@/components/app/app';
 
 const localVue = createLocalVue();
 
@@ -18,7 +17,7 @@ describe('app.vue', () => {
   });
 
   it('renders entire App', () => {
-    const wrapper = mount(app, { store, localVue });
+    const wrapper = mount(App, { store, localVue });
     expect(wrapper.find('#logo').exists()).to.be.true;
   });
 });

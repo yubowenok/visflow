@@ -663,9 +663,15 @@
   dependencies:
     "@types/node" "*"
 
-"@types/jquery@^3.3.2":
+"@types/jquery@*", "@types/jquery@^3.3.2":
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.2.tgz#8700226bdde24b6f98e3a60126dbaab3b2a3ab41"
+
+"@types/jqueryui@^1.12.2":
+  version "1.12.2"
+  resolved "https://registry.yarnpkg.com/@types/jqueryui/-/jqueryui-1.12.2.tgz#8daa7ffa16880c78b1662ff287df058a2aceb651"
+  dependencies:
+    "@types/jquery" "*"
 
 "@types/mocha@^2.2.46":
   version "2.2.48"
@@ -4130,13 +4136,13 @@ joi@^12.0.0:
     isemail "3.x.x"
     topo "2.x.x"
 
-jquery-ui@^1.12.1:
-  version "1.12.1"
-  resolved "https://registry.yarnpkg.com/jquery-ui/-/jquery-ui-1.12.1.tgz#bcb4045c8dd0539c134bc1488cdd3e768a7a9e51"
-
 jquery@^3.3.1:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
+
+jqueryui@^1.11.1:
+  version "1.11.1"
+  resolved "https://registry.yarnpkg.com/jqueryui/-/jqueryui-1.11.1.tgz#8718550705f5568d1199196169094db73b2291bc"
 
 js-base64@^2.1.8, js-base64@^2.1.9:
   version "2.4.5"
@@ -7609,10 +7615,6 @@ vm-browserify@0.0.4:
 vue-class-component@^6.1.0, vue-class-component@^6.2.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-6.2.0.tgz#7adb1daa9a868c75f30f97f33f4f1b94aee62089"
-
-vue-context-menu@^2.0.6:
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/vue-context-menu/-/vue-context-menu-2.0.6.tgz#185107cd3ae51f25c53266a2751008fa7da4f34e"
 
 vue-functional-data-merge@^2.0.5:
   version "2.0.6"

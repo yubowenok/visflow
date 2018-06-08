@@ -1,11 +1,11 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
+import BootstrapVue from 'bootstrap-vue';
+import '@/common/jquery-ui';
 
 import AppHeader from '../app-header/app-header';
-import BootstrapVue from 'bootstrap-vue';
 import ContextMenu from '../context-menu/context-menu';
 import NodePanel from '../node-panel/node-panel';
-import Node from '../node/node';
 import Visualization from '../visualization/visualization';
 
 const dataflow = namespace('dataflow');

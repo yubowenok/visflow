@@ -1,9 +1,10 @@
 <template>
-<div class="node">
+<div>
+  <node-cover></node-cover>
 </div>
 </template>
 
-<style scoped src="./node.scss"></style>
+<style src="./node.scss"></style>
 
 <script src="./node.ts">
 </script>

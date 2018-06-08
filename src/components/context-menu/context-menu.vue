@@ -3,8 +3,8 @@
      v-if="visible"
      :style="styles"
      @click="close"
-     @contextmenu.prevent
-     v-click-outside="clickOutside"
+     @contextmenu.prevent.stop
+     v-global-click="globalClick"
      >
   <slot :menuProps="menuProps"></slot>
 </div>

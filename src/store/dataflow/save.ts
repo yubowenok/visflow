@@ -1,4 +1,4 @@
-export const saveMutations = {
+const mutations = {
   newDiagram() {
     console.log('dataflow.newDiagram()');
   },
@@ -8,4 +8,8 @@ export const saveMutations = {
   loadDiagram() {
     console.log('dataflow.loadDiagram()');
   },
+};
+
+export default {
+  mutations,
 };
