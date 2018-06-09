@@ -20,6 +20,13 @@ module.exports = {
     }
     return {
       plugins,
+      /*
+      resolve: {
+        alias: {
+          'vue$': 'vue/dist/vue.esm.js',
+        },
+      },
+      */
     };
   },
   chainWebpack: config => {

@@ -6,7 +6,7 @@ import '@/common/jquery-ui';
 import AppHeader from '../app-header/app-header';
 import ContextMenu from '../context-menu/context-menu';
 import NodePanel from '../node-panel/node-panel';
-import Visualization from '../visualization/visualization';
+import Dataflow from '../dataflow/dataflow';
 
 const dataflow = namespace('dataflow');
 
@@ -16,10 +16,18 @@ Vue.use(BootstrapVue);
   components: {
     AppHeader,
     ContextMenu,
-    Visualization,
     NodePanel,
+    Dataflow,
   },
 })
 export default class App extends Vue {
-  @dataflow.Mutation('addNode') private addNode!: () => void;
+  @dataflow.Mutation('setCanvas') private setCanvas!: (canvas: Vue) => void;
+
+  private mounted() {
+    this.setCanvas(this.$refs.dataflow as Vue);
+  }
+
+  private addNode() {
+    // TODO: add node menu item
+  }
 }

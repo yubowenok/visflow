@@ -1,9 +1,10 @@
 import Vue from 'vue';
 import Vuex, { StoreOptions } from 'vuex';
 import { dataflow } from './dataflow';
-import { systemOptions } from './system-options/system-options';
-import { nodePanel } from './node-panel/node-panel';
-import { interaction } from './interaction/interaction';
+import { systemOptions } from './system-options';
+import { nodePanel } from './node-panel';
+import { interaction } from './interaction';
+import { history } from './history';
 
 Vue.use(Vuex);
 

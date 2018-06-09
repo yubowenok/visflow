@@ -1,27 +1,37 @@
-export interface Node {
-  id: string;
-  x: number;
-  y: number;
-}
+import Node from '@/components/node/node';
 
-export interface Edge {
-  source: {
-    nodeId: string,
-    portId: string,
-  };
-  target: {
-    nodeId: string,
-    portId: string,
-  };
+export interface NodeType {
+  id: string;
+  title: string;
+  imgSrc: string;
+  constructor?: Function;
 }
 
 export interface DataflowState {
   nodes: Node[];
   edges: Edge[];
+  nodeTypes: NodeType[];
 }
 
 export interface CreateNodeOptions {
   type: string;
-  x: number;
-  y: number;
+  centerX: number;
+  centerY: number;
+}
+export interface ConnectionInfo {
+  nodeId: string;
+  portId: string;
+}
+export interface Node {
+  id: string;
+  type: string;
+}
+
+export interface Edge {
+  source: ConnectionInfo;
+  target: ConnectionInfo;
+}
+
+export interface Port {
+  connectedWith: ConnectionInfo | undefined;
 }

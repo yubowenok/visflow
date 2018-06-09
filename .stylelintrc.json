@@ -4,7 +4,9 @@
     "selector-type-no-unknown": [
       true,
       { "ignore": ["custom-elements"] }
-    ]
+    ],
+    "no-empty-source": null,
+    "block-no-empty": null
   },
   "ignoreFiles": ["doc/**"]
 }

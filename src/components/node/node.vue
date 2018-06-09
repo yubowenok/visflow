@@ -1,6 +1,6 @@
 <template>
 <div>
-  <node-cover></node-cover>
+  <node-cover :text="coverText"></node-cover>
 </div>
 </template>
 

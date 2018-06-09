@@ -3,11 +3,7 @@
   <app-header></app-header>
   <node-panel></node-panel>
   <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
-    <div id="nodes">
-      <visualization></visualization>
-    </div>
-    <div id="edges">
-    </div>
+    <dataflow ref="dataflow"></dataflow>
   </div>
   <context-menu id="context-menu" ref="contextMenu">
     <template slot-scope="slotProps">

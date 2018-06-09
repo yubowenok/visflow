@@ -1,10 +1,8 @@
 import { Module } from 'vuex';
 import { RootState } from '../index';
-import { nodeTypes } from './node-types';
 
 const state = {
   visible: true,
-  nodeTypes,
 };
 
 const getters = {

@@ -1,14 +1,14 @@
-import { Component } from 'vue-property-decorator';
+import { Component, Prop } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
 import Node from '../node/node';
 
-const TYPE_NAME = 'visualization';
 @Component
 export default class Visualization extends mixins(Node) {
-  constructor() {
-    super();
-  }
+  protected NODE_TYPE = 'visualization';
+  protected DEFAULT_WIDTH = 300;
+  protected DEFAULT_HEIGHT = 300;
+  protected RESIZABLE = true;
 
   public minimize() {
     console.log('vis.minimize');
@@ -16,6 +16,7 @@ export default class Visualization extends mixins(Node) {
 
   protected created() {
     this.coverText = 'no data';
-    this.containerClasses.push(TYPE_NAME);
+    this.containerClasses.push(this.NODE_TYPE);
+    console.log(this.coverText);
   }
 }
