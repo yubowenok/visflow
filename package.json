@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/chai": "^4.1.0",
     "@types/dotenv": "^4.0.3",
+    "@types/gsap": "^1.19.2",
     "@types/jquery": "^3.3.2",
     "@types/jqueryui": "^1.12.2",
     "@types/mocha": "^2.2.46",
@@ -30,6 +31,7 @@
     "bootstrap-vue": "^2.0.0-rc.11",
     "chai": "^4.1.2",
     "dotenv": "^5.0.1",
+    "gsap": "^2.0.1",
     "jquery": "^3.3.1",
     "jqueryui": "^1.11.1",
     "node-sass": "^4.9.0",

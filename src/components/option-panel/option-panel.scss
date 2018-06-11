@@ -1,0 +1,41 @@
+@import '../../common/style/index';
+
+.option-panel {
+  position: fixed;
+  bottom: $icon-size * 2;
+  top: $navbar-height + $icon-size / 2;
+  background-color: white;
+
+  right: 0;
+  min-width: 100px;
+  width: auto;
+
+  z-index: $zIndexOptionPanel;
+  @extend %box;
+
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+
+  > .header {
+    margin-top: $margin-size;
+    @extend %padding;
+
+    button {
+      font-size: .75em;
+      background-color: white;
+      border-color: #aaa;
+      color: #555;
+      margin: .25em;
+    }
+  }
+
+  > .divider {
+    margin: $margin-size 0;
+    border-top: 1px solid #ccc;
+    @extend %box-shadow;
+  }
+
+  > .content {
+    @extend %padding;
+  }
+}

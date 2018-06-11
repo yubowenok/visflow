@@ -85,15 +85,29 @@ export const nodeTypes: NodeType[] = [
   },
 ];
 
+const findNodeType = (type: string): NodeType | undefined => {
+  for (const nodeType of nodeTypes) {
+    if (nodeType.id === type) {
+      return nodeType;
+    }
+  }
+  console.error(`node type ${type} is not registered`);
+};
+
 /**
  * Retrieves the Vue constructor for a given type of node.
  * @param type is a string matching the id of a node type.
  */
-export const getConstructor = (type: string): VueConstructor | undefined => {
-  for (const nodeType of nodeTypes) {
-    if (nodeType.id === type) {
-      return nodeType.constructor as VueConstructor;
-    }
-  }
-  console.error(`node type ${type} is not registered`);
+export const getConstructor = (type: string): VueConstructor => {
+  const nodeType = findNodeType(type) as NodeType;
+  return nodeType.constructor as VueConstructor;
+};
+
+/**
+ * Retrieves the img source for a given type of node.
+ * @param type is a string matching the id of a node type.
+ */
+export const getImgSrc = (type: string): string | undefined => {
+  const nodeType = findNodeType(type) as NodeType;
+  return nodeType.imgSrc;
 };

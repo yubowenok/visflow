@@ -4,7 +4,7 @@ export interface NodeType {
   id: string;
   title: string;
   imgSrc: string;
-  constructor?: Function;
+  constructor: Function;
 }
 
 export interface DataflowState {

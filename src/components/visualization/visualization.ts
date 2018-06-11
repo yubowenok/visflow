@@ -1,4 +1,4 @@
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Watch } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
 import Node from '../node/node';
@@ -17,6 +17,11 @@ export default class Visualization extends mixins(Node) {
   protected created() {
     this.coverText = 'no data';
     this.containerClasses.push(this.NODE_TYPE);
-    console.log(this.coverText);
+
+    console.log('created vis');
+  }
+
+  private testOption() {
+    this.minimize();
   }
 }

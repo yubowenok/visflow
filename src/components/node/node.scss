@@ -3,6 +3,7 @@
 .node {
   position: absolute;
   font-size: $font-size-sm;
+  background-color: white;
 
   @extend %box;
   /*
@@ -10,15 +11,6 @@
     height: 100%;
     padding: $padding;
     width: 100%;
-  }
-
-  > .background {
-    border: 1px solid $gray-a;
-    box-shadow: 1px 1px 2px $gray-a;
-    height: 100%;
-    position: absolute;
-    width: 100%;
-    z-index: -1;
   }
 
   > .icon {
@@ -44,16 +36,6 @@
     white-space: nowrap;
   }
 
-  &.details {
-    height: 100px;
-    width: 100px;
-  }
-
-  &.minimized {
-    height: 50px;
-    width: 50px;
-  }
-
   &.hover {
     > .background {
       border-color: $gray-b;
@@ -66,30 +48,6 @@
     > .background {
       border-color: $gray-7;
       border-width: 2px;
-    }
-  }
-
-  .popup {
-    .image-hourglass {
-      left: calc(50% - 40px / 2);
-      top: calc(55% - 59px);
-    }
-
-    .image-failure {
-      left: calc(50% - 50px / 2);
-      top: calc(55% - 50px);
-    }
-
-    .text {
-      @extend %node-text;
-
-      &.with-image {
-        top: calc(55% - .95em);
-      }
-    }
-
-    * {
-      position: absolute;
     }
   }
   */

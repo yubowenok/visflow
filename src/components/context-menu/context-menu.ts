@@ -14,7 +14,7 @@ export default class ContextMenu extends Vue {
   private leftOffset: number = 0;
   private visible: boolean = false;
 
-  private open(e: MouseEvent) {
+  public open(e: MouseEvent) {
     this.visible = true;
     this.topOffset = e.pageY;
     this.leftOffset = e.pageX;
@@ -25,7 +25,7 @@ export default class ContextMenu extends Vue {
   }
 
   private globalClick(evt: MouseEvent) {
-    if (this.$el.contains(evt.target as Node)) {
+    if (this.$el.contains(evt.target as Element)) {
       return;
     }
     // Closes the ContextMenu if the click is outside the ContextMenu's parent element.

@@ -6,11 +6,15 @@
 </template>
 
 <style scoped lang="scss">
+@import '../../common/style/index';
+
 .node-cover {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
   pointer-events: none;
+  z-index: $zIndexNodeCover;
+  margin: 1px;
 }
 
 .cover {
