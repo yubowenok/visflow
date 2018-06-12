@@ -6,6 +6,8 @@
   background-color: white;
 
   @extend %box;
+
+
   /*
   > .content {
     height: 100%;
@@ -51,4 +53,19 @@
     }
   }
   */
+}
+
+.slide-fade-enter-active {
+  transition: all .2s;
+}
+.slide-fade-leave-active {
+  transition: all .2s;
+}
+.slide-fade-enter, .slide-fade-leave-to {
+  transform: translateX(200px);
+  opacity: 0;
+}
+.slide-fade-leave, .slide-fade-enter-to {
+  transform: translateX(0);
+  opacity: 1;
 }

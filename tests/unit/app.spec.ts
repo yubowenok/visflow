@@ -9,7 +9,7 @@ const localVue = createLocalVue();
 
 localVue.use(Vuex);
 
-describe('app.vue', () => {
+describe('app', () => {
   let store: Store<RootState>;
 
   beforeEach(() => {

@@ -1,0 +1,18 @@
+<div>
+  <div ref="node" v-global-click="globalClick">
+    <node-cover :text="coverText"></node-cover>
+    <!-- node-content -->
+  </div><!--node-->
+  <context-menu ref="contextMenu">
+    <!-- context-menu -->
+  </context-menu>
+  <transition name="slide-fade">
+    <option-panel
+        v-if="isActive"
+        :initState="optionPanelInitState"
+        @toggle:iconized="onToggleIconized">
+      <!-- option-panel -->
+    </option-panel>
+  </transition>
+  <slot name="menu"></slot>
+</div>

@@ -20,13 +20,22 @@ module.exports = {
     }
     return {
       plugins,
-      /*
       resolve: {
         alias: {
+          // This is required because node descendants inject templates.
           'vue$': 'vue/dist/vue.esm.js',
         },
+        extensions: ['.html'],
       },
-      */
+      module: {
+        rules: [
+          {
+            test: /\.html$/,
+            exclude: /node_modules/,
+            loader: 'html-loader?exportAsEs6Default',
+          },
+        ],
+      },
     };
   },
   chainWebpack: config => {

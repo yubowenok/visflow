@@ -1,9 +1,11 @@
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
-import Node from '../node/node';
-
-@Component
+import Node, { injectNodeTemplate } from '../node/node';
+import template from './visualization.html';
+@Component({
+  template: injectNodeTemplate(template),
+})
 export default class Visualization extends mixins(Node) {
   protected NODE_TYPE = 'visualization';
   protected DEFAULT_WIDTH = 300;

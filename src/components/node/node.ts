@@ -8,6 +8,7 @@ import ContextMenu from '../context-menu/context-menu';
 import GlobalClick from '../../directives/global-click';
 import NodeCover from './node-cover.vue';
 import OptionPanel from '../option-panel/option-panel';
+import template from './node.html';
 
 const GRID_SIZE = 10;
 @Component({
@@ -19,6 +20,7 @@ const GRID_SIZE = 10;
   directives: {
     GlobalClick,
   },
+  template,
 })
 export default class Node extends Vue {
   protected NODE_TYPE: string = 'node';
@@ -53,6 +55,7 @@ export default class Node extends Vue {
    * Makes the node activated. This is typically triggered by mouse click.
    */
   public activate() {
+    console.log('activate');
     this.isActive = true;
   }
 
@@ -98,7 +101,6 @@ export default class Node extends Vue {
   }
 
   private globalClick(evt: MouseEvent) {
-    console.log('out clk');
     if (this.$el.contains(evt.target as Element)) {
       return;
     }
@@ -106,6 +108,7 @@ export default class Node extends Vue {
   }
 
   private deactivate() {
+    console.log('deactivate');
     this.isActive = false;
   }
 
@@ -143,3 +146,57 @@ export default class Node extends Vue {
     };
   }
 }
+
+const TEMPLATE_COMPONENTS = [
+  {
+    id: 'node-content',
+    regex: /\s*<\!--\s*node-content\s*-->\s*[\r\n]+/,
+  },
+  {
+    id: 'context-menu',
+    regex: /\s*<\!--\s*context-menu\s*-->\s*[\r\n]+/,
+  },
+  {
+    id: 'option-panel',
+    regex: /\s*<\!--\s*option-panel\s*-->\s*[\r\n]+/,
+  },
+];
+/**
+ * This is a helper function that fills in the "slots" in the node template using the HTML template of the
+ * inheritting classes. The content to be replaced includes node-content, context-menu, and option-panel.
+ * The placeholder text in HTML comment format like "<!-- node-content -->" is used for replacement.
+ * @param html The template string containing the slot contents. It should have three blocks:
+ *   1) The node-content block that starts with a line of "<!-- node-content -->";
+ *   2) The context-menu block that starts with a line of "<!-- context-menu -->";
+ *   3) The option-panel block that starts with a line of "<!-- option-panel -->".
+ */
+export const injectNodeTemplate = (html: string): string => {
+  // template.replace('<!-- node-content -->', )
+  let slots = [html];
+  TEMPLATE_COMPONENTS.forEach(pattern => {
+    const newSlots: string[] = [];
+    slots.forEach(slot => {
+      const parts = slot.split(pattern.regex);
+      if (parts.length !== 2) {
+        newSlots.push(slot);
+        return;
+      }
+      newSlots.push(parts[0]);
+      newSlots.push(pattern.id);
+      newSlots.push(parts[1]);
+    });
+    slots = newSlots;
+  });
+  slots = slots.filter(s => s !== '');
+  if (slots.length < TEMPLATE_COMPONENTS.length * 2) {
+    console.error('not all node template slots are filled');
+  }
+  let injectedTemplate = template;
+  for (let i = 0; i < slots.length; i += 2) {
+    const id = slots[i];
+    const content = slots[i + 1];
+    const pattern = TEMPLATE_COMPONENTS.filter(p => p.id === id)[0];
+    injectedTemplate = injectedTemplate.replace(pattern.regex, content);
+  }
+  return injectedTemplate;
+};

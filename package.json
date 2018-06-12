@@ -32,6 +32,7 @@
     "chai": "^4.1.2",
     "dotenv": "^5.0.1",
     "gsap": "^2.0.1",
+    "html-loader": "^0.5.5",
     "jquery": "^3.3.1",
     "jqueryui": "^1.11.1",
     "node-sass": "^4.9.0",
