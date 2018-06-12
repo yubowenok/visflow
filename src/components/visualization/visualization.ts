@@ -19,8 +19,6 @@ export default class Visualization extends mixins(Node) {
   protected created() {
     this.coverText = 'no data';
     this.containerClasses.push(this.NODE_TYPE);
-
-    console.log('created vis');
   }
 
   private testOption() {

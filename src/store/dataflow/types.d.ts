@@ -1,16 +1,18 @@
 import Node from '@/components/node/node';
 
+export interface DataflowState {
+  nodeTypes: NodeType[];
+  nodes: Node[];
+  edges: Edge[];
+  numNodeLayers: number; // number of node layers, each node is on its own layer to define front/back ordering
+  nodeIdCounter: number; // for assigning ids to new nodes
+}
+
 export interface NodeType {
   id: string;
   title: string;
   imgSrc: string;
   constructor: Function;
-}
-
-export interface DataflowState {
-  nodes: Node[];
-  edges: Edge[];
-  nodeTypes: NodeType[];
 }
 
 export interface CreateNodeOptions {

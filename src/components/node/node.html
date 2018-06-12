@@ -1,5 +1,9 @@
 <div>
-  <div ref="node" v-global-click="globalClick">
+  <div ref="node"
+    v-global-click="globalClick"
+    @mousedown="activate"
+    @contextmenu.prevent.stop="$refs.contextMenu.open"
+  >
     <node-cover :text="coverText"></node-cover>
     <!-- node-content -->
   </div><!--node-->
@@ -10,9 +14,11 @@
     <option-panel
         v-if="isActive"
         :initState="optionPanelInitState"
-        @toggle:iconized="onToggleIconized">
+        @toggle:iconized="onToggleIconized"
+        @toggle:inVisMode="onToggleInVisMode"
+        @toggle:labelVisible="onToggleLabelVisible"
+    >
       <!-- option-panel -->
     </option-panel>
   </transition>
-  <slot name="menu"></slot>
 </div>
