@@ -2,16 +2,20 @@ import { Component, Vue, Watch } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import { TweenLite } from 'gsap';
 import $ from 'jquery';
+import _ from 'lodash';
 
 import { getImgSrc } from '@/store/dataflow/node-types';
-import { DEFAULT_ANIMATION_DURATION } from '@/common/constants';
+import { DEFAULT_ANIMATION_DURATION, PORT_SIZE } from '@/common/constants';
 import ContextMenu from '../context-menu/context-menu';
 import GlobalClick from '../../directives/global-click';
 import NodeCover from './node-cover.vue';
+import NodeLabel from './node-label.vue';
 import OptionPanel from '../option-panel/option-panel';
+import Port from '../port/port';
 import template from './node.html';
 
 const dataflow = namespace('dataflow');
+const interaction = namespace('interaction');
 
 const GRID_SIZE = 10;
 
@@ -72,9 +76,11 @@ export const injectNodeTemplate = (html: string): string => {
 
 @Component({
   components: {
+    NodeLabel,
     NodeCover,
     ContextMenu,
     OptionPanel,
+    Port,
   },
   directives: {
     GlobalClick,
@@ -89,9 +95,19 @@ export default class Node extends Vue {
   protected DEFAULT_HEIGHT: number = 50;
   protected RESIZABLE: boolean = false;
 
-  protected id: string = '';
+  protected id!: string;
+  protected label: string = 'node';
+
+  // ports: input and output ports ids must be unique
+  protected inputPorts: Port[] = [];
+  protected outputPorts: Port[] = [];
+
+  /** Maps port id to port. */
+  protected portMap: { [id: string]: Port } = {};
 
   // layout
+  protected width: number = 0; // initialized in created()
+  protected height: number = 0; // initialized in created()
   protected x: number = 0;
   protected y: number = 0;
   protected isActive: boolean = false;
@@ -104,8 +120,25 @@ export default class Node extends Vue {
 
   protected coverText: string = '(node)';
 
+  get numInputPorts(): number {
+    return this.inputPorts.length;
+  }
+
+  get numOutputPorts(): number {
+    return this.outputPorts.length;
+  }
+
+  get optionPanelInitState() {
+    return {
+      isIconized: this.isIconized,
+      isInVisMode: this.isInVisMode,
+      isLabelVisible: this.isLabelVisible,
+    };
+  }
+
   @dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
   @dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
+  @interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
 
   public minimize() {
     console.log('node.minimize');
@@ -125,6 +158,35 @@ export default class Node extends Vue {
     this.isActive = false;
   }
 
+  protected created() {
+    this.width = this.DEFAULT_WIDTH;
+    this.height = this.DEFAULT_HEIGHT;
+
+    this.createPorts();
+    this.createPortMap();
+  }
+
+  protected createPorts() {
+    this.inputPorts = [
+      new Port({
+        data: {
+          id: 'in',
+          node: this,
+        },
+        store: this.$store,
+      }),
+    ];
+    this.outputPorts = [
+      new Port({
+        data: {
+          id: 'out',
+          node: this,
+        },
+        store: this.$store,
+      }),
+    ];
+  }
+
   /**
    * We make mounted() private so that inheriting class cannot add mounted behavior.
    * Though vue supports all mounted() to be called sequentially, any inheriting class should update their
@@ -133,21 +195,62 @@ export default class Node extends Vue {
    * before we set up things here.
    */
   private mounted() {
+    this.isActive = true;
     this.initEventListeners();
+    this.initDragAndResize();
+    this.initCss();
+    this.mountPorts();
+    this.appear(); // animate node appearance
+  }
 
+  /** Creates a mapping from port id to port component. */
+  private createPortMap() {
+    this.inputPorts.forEach(port => {
+      this.portMap[port.id] = port;
+    });
+    this.outputPorts.forEach(port => {
+      this.portMap[port.id] = port;
+    });
+  }
+
+  private initDragAndResize() {
     const $node = $(this.$refs.node);
-
     $node.draggable({
       grid: [GRID_SIZE, GRID_SIZE],
+    });
+
+    // Ports can be dropped on nodes to create an edge.
+    $node.droppable({
+      drop: (evt: Event, ui: JQueryUI.DroppableEventUIParam) => {
+        if (ui.draggable.hasClass('port')) {
+          this.dropPortOnNode(this);
+        }
+      },
     });
 
     if (this.RESIZABLE) {
       $node.resizable({
         handles: 'all',
         grid: GRID_SIZE,
+        resize: (evt: Event, ui: JQueryUI.ResizableUIParams) => {
+          this.width = ui.size.width;
+          this.height = ui.size.height;
+        },
       });
     }
+  }
 
+  private mountPorts() {
+    const $node = $(this.$refs.node);
+    _.each(this.portMap, (port: Port) => {
+      const container = $node.find(`#port-container-${port.id}`);
+      port.$mount();
+      container.append(port.$el);
+    });
+  }
+
+  private initCss() {
+    const $node = $(this.$refs.node);
     $node.addClass(this.containerClasses)
       .attr({
         id: this.id,
@@ -160,12 +263,12 @@ export default class Node extends Vue {
         // jQuery.draggable sets position to relative, we override here.
         position: 'absolute',
       });
+  }
 
-    TweenLite.from($node[0], DEFAULT_ANIMATION_DURATION, {
+  private appear() {
+    TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION, {
       scale: 1.5,
     });
-
-    this.isActive = true;
   }
 
   private clicked() {
@@ -180,23 +283,15 @@ export default class Node extends Vue {
   }
 
   private onToggleIconized(val: boolean) {
-    console.log('iconized', val);
+    this.isIconized = val;
   }
 
   private onToggleInVisMode(val: boolean) {
-    console.log('inVisMode', val);
+    this.isInVisMode = val;
   }
 
   private onToggleLabelVisible(val: boolean) {
-    console.log('labelVisible', val);
-  }
-
-  get optionPanelInitState() {
-    return {
-      isIconized: this.isIconized,
-      isInVisMode: this.isInVisMode,
-      isLabelVisible: this.isLabelVisible,
-    };
+    this.isLabelVisible = val;
   }
 
   @Watch('isActive')
@@ -212,15 +307,18 @@ export default class Node extends Vue {
     $(this.$refs.node).css('z-index', this.layer);
   }
 
-  /**
-   * Sets up common hooks such as mouse click handlers.
-   */
-  private initEventListeners() {
+  /** Sets the locations of ports. */
+  private portStyles(port: Port, index: number, isInputPort: boolean): {} {
+    return {
+      left: (isInputPort ? -PORT_SIZE : this.width - 2) + 'px',
+      top: ((index - .5) * PORT_SIZE + this.height / 2) + 'px',
+    };
   }
 
-  /**
-   * Destroys all event listeners created outside vue.
-   */
+  /** Sets up common hooks such as mouse click handlers. */
+  private initEventListeners() {
+  }
+  /** Destroys all event listeners created outside vue. */
   private beforeDestroy() {
   }
 }

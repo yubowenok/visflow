@@ -60,6 +60,10 @@ const mutations = {
     }
     state.numNodeLayers++;
   },
+
+  createEdge: (statE: DataflowState, payload: any) => { // tslint:disable-line
+    console.log('create edge', payload);
+  },
 };
 
 const actions = {

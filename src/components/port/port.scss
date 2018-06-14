@@ -1,0 +1,7 @@
+@import '../../common/style/index';
+
+.port {
+  width: 15px;
+  height: 15px;
+  @extend %box;
+}

@@ -16,6 +16,7 @@
 </div>
 </template>
 
+<!-- App styles are not scoped because they may affect body and html -->
 <style src="./app.scss"></style>
 
 <script src="./app.ts">

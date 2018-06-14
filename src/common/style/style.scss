@@ -1,7 +1,7 @@
 @import './colors';
 
 $font-size: 13px;
-$font-size-sm: 11px;
+$font-size-sm: .85rem;
 
 $border-radius: 2px;
 
@@ -45,4 +45,22 @@ $border-radius: 2px;
 
 %box {
   @extend %box-shadow, %border;
+}
+
+%border-touch-left {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+%border-touch-right {
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+%border-touch-bottom {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }

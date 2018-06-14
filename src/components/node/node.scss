@@ -4,17 +4,24 @@
   position: absolute;
   font-size: $font-size-sm;
   background-color: white;
+  overflow: visible;
 
   @extend %box;
 
-
-  /*
-  > .content {
-    height: 100%;
-    padding: $padding;
-    width: 100%;
+  .port-container {
+    position: absolute;
+    z-index: $zIndexPort;
   }
 
+  // port class assigned by Port component
+  .input .port {
+    @extend %border-touch-right;
+  }
+  .output .port {
+    @extend %border-touch-left;
+  }
+
+  /*
   > .icon {
     background-position: center center;
     background-repeat: no-repeat;
@@ -22,20 +29,6 @@
     height: 50px;
     position: absolute;
     width: 50px;
-  }
-
-  #label {
-    background: $white;
-    border: 1px solid $gray-c;
-    border-radius: $border-radius $border-radius 0 0;
-    font-size: $font-size-small;
-    font-weight: bold;
-    line-height: $font-size-small;
-    overflow: hidden;
-    padding: $padding $padding-large;
-    position: absolute;
-    top: -($padding * 2 + $font-size-small + $border-width);
-    white-space: nowrap;
   }
 
   &.hover {

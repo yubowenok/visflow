@@ -5,10 +5,7 @@
   position: fixed;
   padding: $padding-size;
   z-index: $zIndexNodePanel;
-  @extend %box, %padding;
-
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  @extend %box, %padding, %border-touch-left;
 
   .square-icon {
     height: $icon-size;

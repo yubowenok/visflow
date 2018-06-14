@@ -11,10 +11,7 @@
   width: auto;
 
   z-index: $zIndexOptionPanel;
-  @extend %box;
-
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  @extend %box, %border-touch-right;
 
   > .header {
     margin-top: $margin-size;
