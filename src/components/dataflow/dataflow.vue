@@ -1,7 +1,8 @@
 <template>
-<div>
+<div class="dataflow">
   <div ref="nodes"></div>
-  <div ref="edges"></div>
+  <drawing-edge v-if="draggedPort"></drawing-edge>
+  <svg ref="edges"></svg>
 </div>
 </template>
 

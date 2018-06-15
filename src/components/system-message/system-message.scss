@@ -1,0 +1,35 @@
+@import '../../common/style/index';
+
+.message {
+  position: fixed;
+  z-index: $zIndexSystemMessage;
+
+  text-align: center;
+  width: 40%;
+  left: 30%;
+  background: none;
+
+  top: $navbar-height + 5px;
+  @extend %box, %padding;
+
+  .btn {
+    float: right;
+    border: none;
+    margin-right: -.5rem;
+  }
+
+  &.success {
+    color: #183d20;
+    background-color: #ccffcc;
+  }
+
+  &.warn {
+    color: #744500;
+    background-color: #fffccc;
+  }
+
+  &.error {
+    color: #d43131;
+    background-color: #ffdddd;
+  }
+}

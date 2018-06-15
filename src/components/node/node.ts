@@ -5,7 +5,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import { getImgSrc } from '@/store/dataflow/node-types';
-import { DEFAULT_ANIMATION_DURATION, PORT_SIZE } from '@/common/constants';
+import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX } from '@/common/constants';
 import ContextMenu from '../context-menu/context-menu';
 import GlobalClick from '../../directives/global-click';
 import NodeCover from './node-cover.vue';
@@ -13,9 +13,11 @@ import NodeLabel from './node-label.vue';
 import OptionPanel from '../option-panel/option-panel';
 import Port from '../port/port';
 import template from './node.html';
+import { MessageOptions } from '@/store/message';
 
 const dataflow = namespace('dataflow');
 const interaction = namespace('interaction');
+const message = namespace('message');
 
 const GRID_SIZE = 10;
 
@@ -139,6 +141,7 @@ export default class Node extends Vue {
   @dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
   @dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
   @interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
+  @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
 
   public minimize() {
     console.log('node.minimize');
@@ -196,7 +199,6 @@ export default class Node extends Vue {
    */
   private mounted() {
     this.isActive = true;
-    this.initEventListeners();
     this.initDragAndResize();
     this.initCss();
     this.mountPorts();
@@ -220,7 +222,14 @@ export default class Node extends Vue {
     });
 
     // Ports can be dropped on nodes to create an edge.
-    $node.droppable({
+    $(this.$refs.content).droppable({
+      /**
+       * General note on using jquery callback within vue components:
+       * "this" of the callback function is the Vue component.
+       * If we add console.log(this) in the callback function, it may print the Vue component.
+       * However in chrome debugger console if we set a breakpoint and use the debugger console to print "this",
+       * the DOM element may be incorrectly printed.
+       */
       drop: (evt: Event, ui: JQueryUI.DroppableEventUIParam) => {
         if (ui.draggable.hasClass('port')) {
           this.dropPortOnNode(this);
@@ -266,7 +275,7 @@ export default class Node extends Vue {
   }
 
   private appear() {
-    TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION, {
+    TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       scale: 1.5,
     });
   }
@@ -310,15 +319,8 @@ export default class Node extends Vue {
   /** Sets the locations of ports. */
   private portStyles(port: Port, index: number, isInputPort: boolean): {} {
     return {
-      left: (isInputPort ? -PORT_SIZE : this.width - 2) + 'px',
-      top: ((index - .5) * PORT_SIZE + this.height / 2) + 'px',
+      left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
+      top: ((index - .5) * PORT_SIZE_PX + this.height / 2) + 'px',
     };
-  }
-
-  /** Sets up common hooks such as mouse click handlers. */
-  private initEventListeners() {
-  }
-  /** Destroys all event listeners created outside vue. */
-  private beforeDestroy() {
   }
 }

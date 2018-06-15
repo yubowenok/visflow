@@ -1,19 +1,21 @@
-import { Module, ActionContext } from 'vuex';
+import { Module } from 'vuex';
 import { RootState } from '../index';
+import $ from 'jquery';
+
 import save from './save';
 import { nodeTypes, getConstructor } from './node-types';
 import { DataflowState, CreateNodeOptions } from './types';
 import { VueConstructor } from 'vue';
 import store from '../index';
 import Node from '@/components/node/node';
+import Edge from '@/components/edge/edge';
 import Dataflow from '@/components/dataflow/dataflow';
-
-let canvas: Dataflow;
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
 
 const defaultState: DataflowState = {
+  canvas: new Dataflow(),
   nodeTypes,
   nodes: [],
   edges: [],
@@ -23,12 +25,15 @@ const defaultState: DataflowState = {
 
 const getters = {
   topNodeLayer: (state: DataflowState) => state.numNodeLayers,
+  canvasOffset: (state: DataflowState): JQuery.Coordinates => {
+    return $(state.canvas.$el).offset() as JQuery.Coordinates;
+  },
 };
 
 const mutations = {
   /** Sets the rendering canvas to the global Vue Dataflow instance. */
   setCanvas: (state: DataflowState, canvas_: Dataflow) => {
-    canvas = canvas_;
+    state.canvas = canvas_;
   },
 
   /** Creates a dataflow node. */
@@ -43,7 +48,7 @@ const mutations = {
       },
       store,
     }) as Node;
-    canvas.addNode(node);
+    state.canvas.addNode(node);
     state.nodes.push(node);
   },
 
@@ -62,7 +67,8 @@ const mutations = {
   },
 
   createEdge: (statE: DataflowState, payload: any) => { // tslint:disable-line
-    console.log('create edge', payload);
+    new Edge(); // tslint:disable-line
+    console.warn('create edge', payload);
   },
 };
 

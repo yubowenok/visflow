@@ -10,11 +10,11 @@
 
 .node-cover {
   position: absolute;
-  width: calc(100% - 2px);
-  height: calc(100% - 2px);
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
   pointer-events: none;
   z-index: $zIndexNodeCover;
-  margin: 1px;
+  margin: 2px;
 }
 
 .cover {

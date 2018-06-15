@@ -3,5 +3,10 @@
 .port {
   width: 15px;
   height: 15px;
+  background-color: white;
   @extend %box;
+
+  &.hover, &:hover {
+    @extend %bold-border;
+  }
 }

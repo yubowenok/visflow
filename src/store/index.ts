@@ -4,6 +4,7 @@ import { dataflow } from './dataflow';
 import { systemOptions } from './system-options';
 import { nodePanel } from './node-panel';
 import { interaction } from './interaction';
+import { message } from './message';
 import { history } from './history';
 
 Vue.use(Vuex);
@@ -20,6 +21,7 @@ export const defaultStore = {
     systemOptions,
     nodePanel,
     interaction,
+    message,
   },
 };
 

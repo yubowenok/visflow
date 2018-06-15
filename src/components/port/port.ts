@@ -3,6 +3,7 @@ import Node from '../node/node';
 import $ from 'jquery';
 import { namespace } from 'vuex-class';
 const interaction = namespace('interaction');
+const dataflow = namespace('dataflow');
 
 @Component
 export default class Port extends Vue {
@@ -14,18 +15,21 @@ export default class Port extends Vue {
   @interaction.Mutation('portDragStarted') private portDragStarted!: (port: Port) => void;
   @interaction.Mutation('portDragged') private portDragged!: (coordinates: { x: number, y: number }) => void;
   @interaction.Mutation('portDragEnded') private portDragEnded!: (port: Port) => void;
+  @interaction.Mutation('dropPortOnPort') private dropPortOnPort!: (port: Port) => void;
 
   private mounted() {
     const $el = $(this.$el);
     $el.draggable({
       helper: () => $('<div></div>'),
       start: () => {
-        console.warn('id', this.id);
         this.portDragStarted(this);
       },
       drag: (evt_: Event) => {
         const evt: MouseEvent = evt_ as MouseEvent;
-        this.portDragged({ x: evt.pageX, y: evt.pageY});
+        this.portDragged({
+          x: evt.pageX,
+          y: evt.pageY,
+        });
       },
       stop: () => this.portDragEnded(this),
     });
@@ -33,8 +37,10 @@ export default class Port extends Vue {
     $el.droppable({
       hoverClass: 'hover',
       tolerance: 'pointer',
-      drop: (evt: Event) => {
-        console.warn('drop on port', evt);
+      drop: (evt: Event, ui: JQueryUI.DroppableEventUIParam) => {
+        if (ui.draggable.hasClass('port')) {
+          this.dropPortOnPort(this);
+        }
       },
     });
   }

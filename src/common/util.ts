@@ -15,3 +15,15 @@ export const elementContains = (el: Element | JQuery, x: number, y: number, marg
   return x >= left - margin && x <= left + width + margin &&
     y >= top - margin && y <= top + height + margin;
 };
+
+/**
+ * Gets the offset of an element "e1" relative to another element "e2".
+ */
+export const elementOffset = (e1: JQuery, e2: JQuery): JQuery.Coordinates => {
+  const offset1 = e1.offset() as JQuery.Coordinates;
+  const offset2 = e2.offset() as JQuery.Coordinates;
+  return {
+    left: offset1.left - offset2.left,
+    top: offset1.top - offset2.top,
+  };
+};

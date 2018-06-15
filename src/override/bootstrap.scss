@@ -1,4 +1,4 @@
-@import '../common/style/colors';
+@import '../common/style/index';
 
 a {
   cursor: pointer;
@@ -20,4 +20,10 @@ a:hover {
   border-radius: 2px;
   padding-top: .1rem;
   padding-bottom: .1rem;
+}
+
+.btn-secondary {
+  background-color: white;
+  border-color: #aaa;
+  color: #555;
 }

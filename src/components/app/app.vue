@@ -1,6 +1,7 @@
 <template>
 <div id="app" @contextmenu.prevent>
   <app-header></app-header>
+  <system-message></system-message>
   <node-panel></node-panel>
   <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
     <dataflow ref="dataflow"></dataflow>

@@ -1,6 +1,8 @@
 import Node from '@/components/node/node';
+import Dataflow from '@/components/dataflow/dataflow';
 
 export interface DataflowState {
+  canvas: Dataflow;
   nodeTypes: NodeType[];
   nodes: Node[];
   edges: Edge[];

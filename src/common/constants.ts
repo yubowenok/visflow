@@ -1,3 +1,5 @@
-export const DEFAULT_ANIMATION_DURATION = .2;
+export const DEFAULT_ANIMATION_DURATION_S = .2;
 
-export const PORT_SIZE = 15;
+// All sizes are by default in 'px'.
+export const PORT_SIZE_PX = 15;
+export const ARROW_SIZE_PX = 12;

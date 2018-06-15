@@ -39,6 +39,11 @@ $border-radius: 2px;
   border: 1px solid rgba(0, 0, 0, .2);
 }
 
+%bold-border {
+  border-width: 2px;
+  border-color: rgba(0, 0, 0, .3);
+}
+
 %ui-font {
   font-family: 'proxima-nova', Helvetica, Arial, sans-serif;
 }
