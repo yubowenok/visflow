@@ -1,38 +1,29 @@
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
-import Victor from 'victor';
-import * as d3 from 'd3';
 
-import { ARROW_SIZE_PX } from '@/common/constants';
+import Port from '../port/port';
+import { arrowPath } from '../edge/edge';
 
 const interaction = namespace('interaction');
 
 @Component
 export default class DrawingEdge extends Vue {
-  @interaction.State('draggedX1') private x1!: number;
-  @interaction.State('draggedY1') private y1!: number;
-  @interaction.State('draggedX2') private x2!: number;
-  @interaction.State('draggedY2') private y2!: number;
+  @interaction.State('draggedPort') private draggedPort!: Port;
+  @interaction.State('draggedX1') private draggedX1!: number;
+  @interaction.State('draggedY1') private draggedY1!: number;
+  @interaction.State('draggedX2') private draggedX2!: number;
+  @interaction.State('draggedY2') private draggedY2!: number;
 
-  get arrowPath(): string {
-    const p = new Victor(this.x1, this.y1);
-    const q = new Victor(this.x2, this.y2);
-    if (p.distance(q) <= ARROW_SIZE_PX) {
-      return ''; // avoid weird arrow direction when the drag just begins
-    }
-    const pq = q.clone().subtract(p).normalize();
-    const scalar = new Victor(ARROW_SIZE_PX, ARROW_SIZE_PX);
-    const smallScalar = new Victor(ARROW_SIZE_PX / 3, ARROW_SIZE_PX / 3);
-    const pqLeft = pq.clone().rotate(Math.PI / 2);
-    const pqRight = pq.clone().rotate(-Math.PI / 2);
+  get start(): Point {
+    return !this.draggedPort.isInput ?
+      { x: this.draggedX1, y: this.draggedY1 } : { x: this.draggedX2, y: this.draggedY2 };
+  }
+  get end(): Point {
+    return !this.draggedPort.isInput ?
+      { x: this.draggedX2, y: this.draggedY2 } : { x: this.draggedX1, y: this.draggedY1 };
+  }
 
-    const root = q.clone().subtract(pq.clone().multiply(scalar));
-
-    const points: number[][] = [
-      q.toArray(),
-      root.clone().add(pqLeft.multiply(smallScalar)).toArray(),
-      root.clone().add(pqRight.multiply(smallScalar)).toArray(),
-    ];
-    return d3.line().curve(d3.curveLinearClosed)(points as Array<[number, number]>) as string;
+  get getArrowPath(): string {
+    return arrowPath(this.start, this.end);
   }
 }

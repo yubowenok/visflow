@@ -41,8 +41,8 @@ export default class NodePanel extends Vue {
       button.click((evt: JQuery.Event) => {
         this.createNode({
           type: nodeType.id,
-          centerX: window.innerWidth / 2,
-          centerY: window.innerHeight * 2 / 5,
+          centerX: window.innerWidth * .5,
+          centerY: window.innerHeight * .45,
         });
       });
     });

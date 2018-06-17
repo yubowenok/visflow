@@ -1,17 +1,32 @@
 <template>
-<div class="edge"> <!-- edge styles set by edge.scss -->
-  <svg>
-    <line :x1="x1" :y1="y1" :x2="x2" :y2="y2"></line>
-    <path :d="arrowPath"></path>
-  </svg>
-</div>
-
+<g class="edge drawing"> <!-- edge styles set by edge.scss -->
+  <line class="curve" :x1="start.x" :y1="start.y" :x2="end.x" :y2="end.y"></line>
+  <path class="arrow" :d="getArrowPath"></path>
+</g>
 </template>
 
 <style scoped lang="scss">
-svg, div {
-  width: 100%;
-  height: 100%;
+@import '../../common/style/index';
+
+@keyframes moving {
+  from {
+    stroke-dashoffset: 12px;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.edge.drawing {
+  pointer-events: none;
+
+  line {
+    stroke-dasharray: 8px 4px;
+    animation-name: moving;
+    animation-duration: .5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
 }
 </style>
 

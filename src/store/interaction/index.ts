@@ -32,17 +32,15 @@ const mutations = {
     state.draggedPort = port;
     const $port = $(port.$el);
     const portOffset = $port.offset() as JQuery.Coordinates;
-    const offset: JQuery.Coordinates = store.getters['dataflow/canvasOffset'];
     const portWidth = $port.width() as number;
     const portHeight = $port.height() as number;
-    state.draggedX1 = portOffset.left - offset.left + portWidth / 2;
-    state.draggedY1 = portOffset.top - offset.top + portHeight / 2;
+    state.draggedX1 = portOffset.left + portWidth / 2;
+    state.draggedY1 = portOffset.top + portHeight / 2;
   },
 
-  portDragged: (state: InteractionState, p: { x: number, y: number }) => {
-    const offset: JQuery.Coordinates = store.getters['dataflow/canvasOffset'];
-    state.draggedX2 = p.x - offset.left;
-    state.draggedY2 = p.y - offset.top;
+  portDragged: (state: InteractionState, p: Point) => {
+    state.draggedX2 = p.x;
+    state.draggedY2 = p.y;
   },
 
   portDragEnded: (state: InteractionState, port: Port) => {

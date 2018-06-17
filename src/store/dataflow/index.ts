@@ -4,7 +4,7 @@ import $ from 'jquery';
 
 import save from './save';
 import { nodeTypes, getConstructor } from './node-types';
-import { DataflowState, CreateNodeOptions } from './types';
+import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from './types';
 import { VueConstructor } from 'vue';
 import store from '../index';
 import Node from '@/components/node/node';
@@ -25,9 +25,11 @@ const defaultState: DataflowState = {
 
 const getters = {
   topNodeLayer: (state: DataflowState) => state.numNodeLayers,
+  /*
   canvasOffset: (state: DataflowState): JQuery.Coordinates => {
     return $(state.canvas.$el).offset() as JQuery.Coordinates;
   },
+  */
 };
 
 const mutations = {
@@ -66,9 +68,23 @@ const mutations = {
     state.numNodeLayers++;
   },
 
-  createEdge: (statE: DataflowState, payload: any) => { // tslint:disable-line
-    new Edge(); // tslint:disable-line
-    console.warn('create edge', payload);
+  createEdge: (state: DataflowState, payload: CreateEdgeOptions) => {
+    const sourcePort = payload.sourcePort;
+    const targetPort = payload.targetPort || (payload.targetNode as Node).findConnectablePort(sourcePort);
+    if (!targetPort) {
+      store.commit('message/showMessage', {
+        text: 'cannot find available port to connect',
+        class: 'warn',
+      });
+    }
+    const edge = new Edge({
+      data: {
+        // always create edge from output port to input port
+        source: !sourcePort.isInput ? sourcePort : targetPort,
+        target: !sourcePort.isInput ? targetPort : sourcePort,
+      },
+    });
+    state.canvas.addEdge(edge);
   },
 };
 

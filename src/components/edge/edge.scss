@@ -1,12 +1,18 @@
+
+
 .edge {
   pointer-events: auto;
   shape-rendering: geometricPrecision;
 
-  line {
+  line, path {
     stroke: #555;
-  }
 
-  path {
-    fill: #555;
+    &.curve {
+      fill: none;
+    }
+
+    &.arrow {
+      fill: #555;
+    }
   }
 }

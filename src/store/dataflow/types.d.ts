@@ -1,4 +1,6 @@
 import Node from '@/components/node/node';
+import Port from '@/components/port/port';
+import Edge from '@/components/edge/edge';
 import Dataflow from '@/components/dataflow/dataflow';
 
 export interface DataflowState {
@@ -22,10 +24,19 @@ export interface CreateNodeOptions {
   centerX: number;
   centerY: number;
 }
+
+export interface CreateEdgeOptions {
+  sourcePort: Port;
+  targetPort?: Port;
+  targetNode?: Node;
+}
+
 export interface ConnectionInfo {
   nodeId: string;
   portId: string;
 }
+
+/*
 export interface Node {
   id: string;
   type: string;
@@ -39,3 +50,5 @@ export interface Edge {
 export interface Port {
   connectedWith: ConnectionInfo | undefined;
 }
+
+*/

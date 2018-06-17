@@ -11,9 +11,10 @@ body {
 }
 
 #canvas {
+  position: absolute;
+  top: 0; // start below app-header for easier coordinates calculation
   width: 100%;
   height: 100%;
-  position: absolute;
   overflow: hidden; // prevent canvas from scrolling upon dragging
 }
 

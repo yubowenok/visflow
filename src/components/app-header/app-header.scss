@@ -4,6 +4,7 @@
   @extend %ui-font, %box-shadow;
   padding-top: 0;
   padding-bottom: 0;
+  z-index: $zIndexAppHeader;
 
   #logo {
     font-weight: bold;

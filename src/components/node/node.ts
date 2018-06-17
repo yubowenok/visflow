@@ -90,6 +90,7 @@ export const injectNodeTemplate = (html: string): string => {
   template,
 })
 export default class Node extends Vue {
+  public id!: string;
   public layer: number = 0;
 
   protected NODE_TYPE: string = 'node';
@@ -97,7 +98,6 @@ export default class Node extends Vue {
   protected DEFAULT_HEIGHT: number = 50;
   protected RESIZABLE: boolean = false;
 
-  protected id!: string;
   protected label: string = 'node';
 
   // ports: input and output ports ids must be unique
@@ -143,6 +143,28 @@ export default class Node extends Vue {
   @interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
   @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
 
+  public findConnectablePort(port: Port): Port {
+    // TODO: do not check connectivity. Just return the first input/output port.
+    if (port.isInput) {
+      return this.outputPorts[0];
+    } else {
+      return this.inputPorts[0];
+    }
+  }
+
+  public getBoundingBox(): Box {
+    const $node = $(this.$refs.node);
+    const w = $node.width() as number;
+    const h = $node.height() as number;
+    const offset = $node.offset() as JQueryCoordinates;
+    return {
+      x: offset.left,
+      y: offset.top,
+      w,
+      h,
+    };
+  }
+
   public minimize() {
     console.log('node.minimize');
   }
@@ -162,6 +184,7 @@ export default class Node extends Vue {
   }
 
   protected created() {
+    this.coverText = this.id;
     this.width = this.DEFAULT_WIDTH;
     this.height = this.DEFAULT_HEIGHT;
 
@@ -175,6 +198,7 @@ export default class Node extends Vue {
         data: {
           id: 'in',
           node: this,
+          isInput: true,
         },
         store: this.$store,
       }),
@@ -215,10 +239,32 @@ export default class Node extends Vue {
     });
   }
 
+  /** Update the ports' coordinates when the node moves. */
+  private updatePortCoordinates() {
+    _.each(this.portMap, (port: Port) => {
+      port.updateCoordinates();
+    });
+  }
+
   private initDragAndResize() {
     const $node = $(this.$refs.node);
+    let lastDragPosition: { left: number, top: number };
     $node.draggable({
       grid: [GRID_SIZE, GRID_SIZE],
+      start: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
+        lastDragPosition = ui.position;
+      },
+      drag: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
+        if (ui.position.left !== lastDragPosition.left ||
+            ui.position.top !== lastDragPosition.top) {
+          lastDragPosition.left = ui.position.left;
+          lastDragPosition.top = ui.position.top;
+          // Port coordinates are Vue reactive and async.
+          // We must update coordinates till Vue updates the ports.
+          this.$nextTick(this.updatePortCoordinates);
+        }
+      },
+      stop: () => this.updatePortCoordinates(),
     });
 
     // Ports can be dropped on nodes to create an edge.
