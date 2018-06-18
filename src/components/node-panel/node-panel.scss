@@ -1,11 +1,9 @@
 @import 'src/common/style/index';
 
 .node-panel {
-  top: $navbar-height + $icon-size / 2;
-  position: fixed;
-  padding: $padding-size;
+  @extend %left-panel;
+  @extend %padding;
   z-index: $zIndexNodePanel;
-  @extend %box, %padding, %border-touch-left;
 
   .square-icon {
     height: $icon-size;

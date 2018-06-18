@@ -6,6 +6,28 @@
   background-color: white;
   overflow: visible;
 
+  > .content {
+    width: 100%;
+    height: 100%;
+    background: white;
+    padding: $padding-size;
+  }
+
+  > .background {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    @extend %box;
+  }
+
+  &:hover {
+    > .background {
+      @extend %bold-border;
+    }
+  }
+
   .port-container {
     position: absolute;
     z-index: $zIndexPort;
@@ -19,27 +41,6 @@
     @extend %border-touch-left;
   }
 
-  .content {
-    width: 100%;
-    height: 100%;
-    background: white;
-    padding: $padding-size;
-  }
-
-  .background {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    height: 100%;
-
-    @extend %box;
-  }
-
-  &:hover {
-    .background {
-      @extend %bold-border;
-    }
-  }
   /*
   > .icon {
     background-position: center center;
@@ -57,4 +58,10 @@
     }
   }
   */
+}
+
+.active {
+  .node > .background {
+    @extend %extra-bold-border;
+  }
 }

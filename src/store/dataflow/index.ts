@@ -10,11 +10,12 @@ import store from '../index';
 import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
 import Dataflow from '@/components/dataflow/dataflow';
+import Vue from 'vue';
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
 
-const defaultState: DataflowState = {
+const initialState: DataflowState = {
   canvas: new Dataflow(),
   nodeTypes,
   nodes: [],
@@ -93,7 +94,7 @@ const actions = {
 
 export const dataflow: Module<DataflowState, RootState> = {
   namespaced: true,
-  state: defaultState,
+  state: initialState,
   getters,
   mutations,
   actions,

@@ -31,3 +31,20 @@ $margin-size: .05rem;
   margin-top: .05rem;
   margin-bottom: .05rem;
 }
+
+%left-panel {
+  position: fixed;
+  top: $navbar-height + $icon-size / 2;
+  padding: $padding-size;
+  @extend %box, %border-touch-left;
+}
+
+%right-panel {
+  position: fixed;
+  top: $navbar-height + $icon-size / 2;
+  background-color: white;
+  right: 0;
+  min-width: 100px;
+  width: auto;
+  @extend %box, %border-touch-right;
+}

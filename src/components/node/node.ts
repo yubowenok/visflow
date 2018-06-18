@@ -18,6 +18,8 @@ import { MessageOptions } from '@/store/message';
 const dataflow = namespace('dataflow');
 const interaction = namespace('interaction');
 const message = namespace('message');
+const systemOptions = namespace('systemOptions');
+const panels = namespace('panels');
 
 const GRID_SIZE = 10;
 
@@ -96,6 +98,9 @@ export default class Node extends Vue {
   protected NODE_TYPE: string = 'node';
   protected DEFAULT_WIDTH: number = 50;
   protected DEFAULT_HEIGHT: number = 50;
+  protected MIN_WIDTH: number = 30;
+  protected MIN_HEIGHT: number = 30;
+
   protected RESIZABLE: boolean = false;
 
   protected label: string = 'node';
@@ -130,7 +135,7 @@ export default class Node extends Vue {
     return this.outputPorts.length;
   }
 
-  get optionPanelInitState() {
+  get optionPanelInitialState() {
     return {
       isIconized: this.isIconized,
       isInVisMode: this.isInVisMode,
@@ -142,6 +147,8 @@ export default class Node extends Vue {
   @dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
   @interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
   @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
+  @systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
+  @panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
 
   public findConnectablePort(port: Port): Port {
     // TODO: do not check connectivity. Just return the first input/output port.
@@ -176,6 +183,8 @@ export default class Node extends Vue {
   /** Makes the node activated. This is typically auto-triggered by mouse click on the node. */
   public activate() {
     this.isActive = true;
+    // Must use $nextTick because $refs.optionPanel appears asynchronously after isActive becomes true.
+    this.$nextTick(() => this.mountOptionPanel(this.$refs.optionPanel as Vue));
   }
 
   /** Makes the node deactivated. This is typically auto-triggered by clicking outside the node. */
@@ -224,6 +233,7 @@ export default class Node extends Vue {
   private mounted() {
     this.isActive = true;
     this.initDragAndResize();
+    this.initDrop();
     this.initCss();
     this.mountPorts();
     this.appear(); // animate node appearance
@@ -249,6 +259,13 @@ export default class Node extends Vue {
   private initDragAndResize() {
     const $node = $(this.$refs.node);
     let lastDragPosition: { left: number, top: number };
+
+    const updatePorts = () => {
+      // Port coordinates are Vue reactive and async.
+      // We must update coordinates till Vue updates the ports.
+      this.$nextTick(this.updatePortCoordinates);
+    };
+
     $node.draggable({
       grid: [GRID_SIZE, GRID_SIZE],
       start: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
@@ -259,14 +276,37 @@ export default class Node extends Vue {
             ui.position.top !== lastDragPosition.top) {
           lastDragPosition.left = ui.position.left;
           lastDragPosition.top = ui.position.top;
-          // Port coordinates are Vue reactive and async.
-          // We must update coordinates till Vue updates the ports.
-          this.$nextTick(this.updatePortCoordinates);
+
+          this.x = ui.position.left;
+          this.y = ui.position.top;
+          updatePorts();
         }
       },
-      stop: () => this.updatePortCoordinates(),
+      stop: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
+        this.x = ui.position.left;
+        this.y = ui.position.top;
+        updatePorts();
+      },
     });
 
+    if (this.RESIZABLE) {
+      $node.resizable({
+        handles: 'all',
+        grid: GRID_SIZE,
+        minWidth: this.MIN_WIDTH,
+        minHeight: this.MIN_HEIGHT,
+        resize: (evt: Event, ui: JQueryUI.ResizableUIParams) => {
+          this.width = ui.size.width;
+          this.height = ui.size.height;
+          this.x = ui.position.left;
+          this.y = ui.position.top;
+          updatePorts();
+        },
+      });
+    }
+  }
+
+  private initDrop() {
     // Ports can be dropped on nodes to create an edge.
     $(this.$refs.content).droppable({
       /**
@@ -282,17 +322,6 @@ export default class Node extends Vue {
         }
       },
     });
-
-    if (this.RESIZABLE) {
-      $node.resizable({
-        handles: 'all',
-        grid: GRID_SIZE,
-        resize: (evt: Event, ui: JQueryUI.ResizableUIParams) => {
-          this.width = ui.size.width;
-          this.height = ui.size.height;
-        },
-      });
-    }
   }
 
   private mountPorts() {
@@ -328,10 +357,13 @@ export default class Node extends Vue {
 
   private clicked() {
     this.activate();
+    this.$nextTick(() => this.mountOptionPanel(this.$refs.optionsPanel as Vue));
   }
 
   private globalClick(evt: MouseEvent) {
-    if (this.$el.contains(evt.target as Element)) {
+    // If the click is on the node or its option panel, do nothing.
+    if (this.$el.contains(evt.target as Element) ||
+      this.$refs.optionPanel && (this.$refs.optionPanel as Vue).$el.contains(evt.target as Element)) {
       return;
     }
     this.deactivate();
@@ -363,7 +395,7 @@ export default class Node extends Vue {
   }
 
   /** Sets the locations of ports. */
-  private portStyles(port: Port, index: number, isInputPort: boolean): {} {
+  private portStyles(port: Port, index: number, isInputPort: boolean): { left: string, top: string } {
     return {
       left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
       top: ((index - .5) * PORT_SIZE_PX + this.height / 2) + 'px',

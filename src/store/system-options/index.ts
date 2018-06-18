@@ -5,7 +5,7 @@ interface SystemOptionsState {
   nodeLabelsVisible: boolean;
 }
 
-const defaultState: SystemOptionsState = {
+const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
 };
 
@@ -32,7 +32,7 @@ const actions = {
 
 export const systemOptions: Module<SystemOptionsState, RootState> = {
   namespaced: true,
-  state: defaultState,
+  state: initialState,
   getters,
   mutations,
   actions,

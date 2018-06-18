@@ -16,7 +16,7 @@ interface InteractionState {
   draggedY2: number;
 }
 
-const defaultState = {
+const initialState = {
   draggedPort: undefined,
   draggedX1: 0,
   draggedY1: 0,
@@ -67,7 +67,7 @@ const actions = {
 
 export const interaction: Module<InteractionState, RootState> = {
   namespaced: true,
-  state: defaultState,
+  state: initialState,
   getters,
   mutations,
   actions,

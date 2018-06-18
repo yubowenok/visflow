@@ -6,14 +6,14 @@ import { NodeType } from '@/store/dataflow/types';
 import { CreateNodeOptions } from '@/store/dataflow/types';
 import { elementContains } from '@/common/util';
 
-const nodePanel = namespace('nodePanel');
+const panels = namespace('panels');
 const dataflow = namespace('dataflow');
 
 const NODE_TYPES_PER_ROW = 2;
 
 @Component
 export default class NodePanel extends Vue {
-  @nodePanel.State('visible') private visible!: boolean;
+  @panels.State('nodePanelVisible') private visible!: boolean;
   @dataflow.State('nodeTypes') private nodeTypes!: NodeType[];
   @dataflow.Mutation('createNode') private createNode!: (options: CreateNodeOptions) => void;
 

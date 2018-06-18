@@ -9,4 +9,8 @@
   &.hover, &:hover {
     @extend %bold-border;
   }
+
+  &.active {
+    @extend %extra-bold-border;
+  }
 }

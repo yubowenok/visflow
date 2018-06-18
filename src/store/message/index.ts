@@ -18,7 +18,7 @@ export interface MessageOptions {
   duration?: number;
 }
 
-const defaultState: MessageState = {
+const initialState: MessageState = {
   text: '',
   class: '',
 };
@@ -54,7 +54,7 @@ const actions = {
 
 export const message: Module<MessageState, RootState> = {
   namespaced: true,
-  state: defaultState,
+  state: initialState,
   getters,
   mutations,
   actions,

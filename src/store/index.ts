@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex, { StoreOptions } from 'vuex';
 import { dataflow } from './dataflow';
 import { systemOptions } from './system-options';
-import { nodePanel } from './node-panel';
+import { panels } from './panels';
 import { interaction } from './interaction';
 import { message } from './message';
 import { history } from './history';
@@ -19,7 +19,7 @@ export const defaultStore = {
   modules: {
     dataflow,
     systemOptions,
-    nodePanel,
+    panels,
     interaction,
     message,
   },

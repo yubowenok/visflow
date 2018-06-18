@@ -2,6 +2,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import Victor from 'victor';
 import $ from 'jquery';
+import _ from 'lodash';
 
 import Port from '../port/port';
 import * as d3 from 'd3';
@@ -13,21 +14,19 @@ const dataflow = namespace('dataflow');
 export const arrowPath = (base: Point, head: Point): string => {
   const p = new Victor(base.x, base.y);
   const q = new Victor(head.x, head.y);
-  if (p.distance(q) <= ARROW_SIZE_PX) {
+  if (p.distance(q) <= ARROW_SIZE_PX * .1) {
     return ''; // avoid weird arrow direction when the drag just begins
   }
   const pq = q.clone().subtract(p).normalize();
-  const scalar = new Victor(ARROW_SIZE_PX, ARROW_SIZE_PX);
-  const smallScalar = new Victor(ARROW_WING_SIZE_PX, ARROW_WING_SIZE_PX);
   const pqLeft = pq.clone().rotate(Math.PI / 2);
   const pqRight = pq.clone().rotate(-Math.PI / 2);
 
-  const root = q.clone().subtract(pq.clone().multiply(scalar));
+  const root = q.clone().subtract(pq.clone().multiplyScalar(ARROW_SIZE_PX));
 
   const points: number[][] = [
     q.toArray(),
-    root.clone().add(pqLeft.multiply(smallScalar)).toArray(),
-    root.clone().add(pqRight.multiply(smallScalar)).toArray(),
+    root.clone().add(pqLeft.multiplyScalar(ARROW_WING_SIZE_PX)).toArray(),
+    root.clone().add(pqRight.multiplyScalar(ARROW_WING_SIZE_PX)).toArray(),
   ];
   return d3.line().curve(d3.curveLinearClosed)(points as Array<[number, number]>) as string;
 };
@@ -114,24 +113,59 @@ export default class Edge extends Vue {
   }
 
   get getArrowPath(): string {
-    return arrowPath(this.getArrowBase(this.edgePathStr), { x: this.x2, y: this.y2 });
+    const points = this.getArrowPoints(this.edgePathStr);
+    return arrowPath(points.base, points.head);
   }
 
-  private getArrowBase(edgePath: string): Point {
-    const curveCoords = (edgePath.match(/^.*([,CLM].*,.*C(?:.*,.*)+)L.*$/) as string[])[1]
-      .split(/[C,]/)
-      .slice(1)
-      .map((val: string): number => +val);
-    const xCoords = curveCoords.filter((e: number, index: number) => index % 2 === 0);
-    const yCoords = curveCoords.filter((e: number, index: number) => index % 2 === 1);
-    const bezierFunc = (t: number, val: number[]) => {
+  private getArrowPoints(edgePath: string): { base: Point, head: Point } {
+    const segments = edgePath.match(/[CLM]([\d.]+,?)+/g) as string[];
+    let distance: number = 0;
+    const xyCoords = segments.join('').split(/[CLM,]/g).map(val => +val)
+      .slice(1); // remove the leading empty string from [CLM]
+    const xCoords = xyCoords.filter((e: number, index: number) => index % 2 === 0);
+    const yCoords = xyCoords.filter((e: number, index: number) => index % 2 === 1);
+    if ((_.last(segments) as string)[0] === 'L') {
+      const n = xCoords.length;
+      const p1 = new Victor(xCoords[n - 2], yCoords[n - 2]);
+      const p2 = new Victor(xCoords[n - 1], yCoords[n - 1]);
+      distance += p1.distance(p2);
+      if (distance >= ARROW_SIZE_PX) { // arrow should be drawn along the line from p1 to p2
+        return {
+          base: p1,
+          head: p2,
+        };
+      }
+      segments.pop();
+      xCoords.pop();
+      yCoords.pop();
+    }
+    xCoords.splice(0, xCoords.length - 4);
+    yCoords.splice(0, yCoords.length - 4);
+    const bezierCurve = (t: number, val: number[]) => {
       const ct = 1 - t;
-      return ct * ct * ct * val[0] + t * t * t * val[3] +
-        3 * ct * t * (ct * val[1] + t * val[2]);
+      return ct * ct * ct * val[0] + t * t * t * val[3] + 3 * ct * t * (ct * val[1] + t * val[2]);
     };
+    let lastPoint = new Victor(_.last(xCoords) as number, _.last(yCoords) as number);
+    let p: number;
+    const step = .01;
+    for (p = 1 - step; p >= 0 && distance < ARROW_SIZE_PX; p -= step) {
+      const point = new Victor(bezierCurve(p, xCoords), bezierCurve(p, yCoords));
+      distance += point.distance(lastPoint);
+      lastPoint = point;
+    }
+    const base = {
+      x: bezierCurve(p, xCoords),
+      y: bezierCurve(p, yCoords),
+    };
+    const baseVector = new Victor(base.x, base.y);
+    const head = new Victor(_.last(xCoords) as number, _.last(yCoords) as number)
+      .subtract(baseVector)
+      .normalize()
+      .multiplyScalar(ARROW_SIZE_PX)
+      .add(baseVector);
     return {
-      x: bezierFunc(.6, xCoords),
-      y: bezierFunc(.6, yCoords),
+      base,
+      head,
     };
   }
 }

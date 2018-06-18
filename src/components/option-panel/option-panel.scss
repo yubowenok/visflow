@@ -1,17 +1,9 @@
 @import '../../common/style/index';
 
 .option-panel {
-  position: fixed;
+  @extend %right-panel;
   bottom: $icon-size * 2;
-  top: $navbar-height + $icon-size / 2;
-  background-color: white;
-
-  right: 0;
-  min-width: 100px;
-  width: auto;
-
   z-index: $zIndexOptionPanel;
-  @extend %box, %border-touch-right;
 
   > .header {
     margin-top: $margin-size;

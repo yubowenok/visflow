@@ -12,6 +12,7 @@ import { MessageOptions } from '@/store/message';
 
 const dataflow = namespace('dataflow');
 const message = namespace('message');
+const panels = namespace('panels');
 
 Vue.use(BootstrapVue);
 
@@ -26,10 +27,14 @@ Vue.use(BootstrapVue);
 })
 export default class App extends Vue {
   @dataflow.Mutation('setCanvas') private setCanvas!: (canvas: Vue) => void;
+  @panels.Mutation('setOptionPanelMount') private setOptionPanelMount!: (mount: Vue) => void;
+  @panels.Mutation('setPortPanelMount') private setPortPanelMount!: (mount: Vue) => void;
   @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
 
   private mounted() {
     this.setCanvas(this.$refs.dataflow as Vue);
+    this.setOptionPanelMount(this.$refs.optionPanelMount as Vue);
+    this.setPortPanelMount(this.$refs.portPanelMount as Vue);
   }
 
   private addNode() {

@@ -1,5 +1,7 @@
 <template>
-<div class="node-label" :style="styles">{{ text }}</div>
+<transition name="slide-fade-bottom">
+  <div class="node-label" :style="styles">{{ text }}</div>
+</transition>
 </template>
 
 <style scoped lang="scss">
@@ -10,14 +12,15 @@
   background: #888;
   color: white;
   font-size: $font-size-sm;
-  line-height: $font-size-sm;
   overflow: hidden;
   white-space: nowrap;
+  text-overflow: ellipsis;
 
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
 
-  @extend %padding;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 </style>
 
@@ -29,12 +32,15 @@ import $ from 'jquery';
 export default class NodeLabel extends Vue {
   @Prop()
   public text!: string;
+  @Prop()
+  private maxWidth!: number;
 
   private height: number = 0;
 
   get styles() {
     return {
-      top: -this.height + 'px',
+      'top': -this.height + 'px',
+      'max-width': this.maxWidth + 'px',
     };
   }
 

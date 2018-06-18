@@ -9,7 +9,7 @@ interface InitialState {
 @Component
 export default class OptionPanel extends Vue {
   @Prop()
-  private initState!: InitialState;
+  private initialState!: InitialState;
 
   private isIconized = false;
   private isInVisMode = false;
@@ -17,7 +17,7 @@ export default class OptionPanel extends Vue {
 
   private data() {
     return {
-      ...this.initState,
+      ...this.initialState,
     };
   }
 

@@ -1,0 +1,7 @@
+@import 'src/common/style/index';
+
+.port-panel {
+  @extend %right-panel;
+  @extend %padding;
+  z-index: $zIndexPortPanel;
+}
