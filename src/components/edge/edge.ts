@@ -10,6 +10,8 @@ import * as d3 from 'd3';
 import { ARROW_SIZE_PX, ARROW_WING_SIZE_PX, LONG_ANIMATION_DURATION_S } from '@/common/constants';
 import ContextMenu from '../context-menu/context-menu';
 
+const dataflow = namespace('dataflow');
+
 export const arrowPath = (base: Point, head: Point): string => {
   const p = new Victor(base.x, base.y);
   const q = new Victor(head.x, head.y);
@@ -39,6 +41,8 @@ export default class Edge extends Vue {
   public source!: Port;
   public target!: Port;
 
+  @dataflow.Mutation('removeEdge') private dataflowRemoveEdge!: (edge: Vue) => void;
+
   private x1: number = 0;
   private y1: number = 0;
   private x2: number = 0;
@@ -60,12 +64,12 @@ export default class Edge extends Vue {
     this.y2 = targetCenter.y;
   }
 
+  private contextMenuRemove() {
+    this.dataflowRemoveEdge(this);
+  }
+
   private mounted() {
     this.updateCoordinates();
-
-    // Add the edge to the incident lists of ports.
-    this.source.addEdge(this);
-    this.target.addEdge(this);
 
     TweenLite.from(this.$el, LONG_ANIMATION_DURATION_S, {
       opacity: 0,

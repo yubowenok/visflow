@@ -15,7 +15,10 @@ $border-radius: 2px;
   }
 
   .fas, .far {
-    margin-right: .75em;
+    width: 1rem;
+    text-align: center;
+    margin-right: .75rem;
+    margin-left: -.75rem;
 
     &.placeholder {
       opacity: 0;

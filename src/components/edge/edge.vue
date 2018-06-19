@@ -12,7 +12,7 @@
     <path ref="arrowPath" class="arrow" :d="getArrowPath"></path>
   </g>
   <context-menu ref="contextMenu">
-    <li>edge menu</li>
+    <li @click="contextMenuRemove"><i class="fas fa-sm fa-times"></i>Remove</li>
   </context-menu>
 </div>
 </template>

@@ -25,6 +25,8 @@
   </div><!--node-->
   <context-menu ref="contextMenu">
     <!-- context-menu -->
+    <!-- common menu items -->
+    <li @click="contextMenuRemove"><i class="fas fa-sm fa-times"></i>Remove</li>
   </context-menu>
   <transition name="slide-fade-right">
     <option-panel ref="optionPanel" v-if="isActive"

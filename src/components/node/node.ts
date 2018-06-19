@@ -11,6 +11,7 @@ import GlobalClick from '../../directives/global-click';
 import NodeCover from './node-cover.vue';
 import NodeLabel from './node-label.vue';
 import OptionPanel from '../option-panel/option-panel';
+import Edge from '../edge/edge';
 import Port from '../port/port';
 import MultiplePort from '../port/multiple-port';
 import template from './node.html';
@@ -147,6 +148,7 @@ export default class Node extends Vue {
 
   @dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
   @dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
+  @dataflow.Mutation('removeNode') private dataflowRemoveNode!: (node: Node) => void;
   @interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
   @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
   @systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
@@ -207,6 +209,14 @@ export default class Node extends Vue {
   /** Makes the node deactivated. This is typically auto-triggered by clicking outside the node. */
   public deactivate() {
     this.isActive = false;
+  }
+
+  public getAllEdges(): Edge[] {
+    let edges: Edge[] = [];
+    _.each(this.portMap, port => {
+      edges = edges.concat(port.getAllEdges());
+    });
+    return edges;
   }
 
   protected created() {
@@ -370,6 +380,10 @@ export default class Node extends Vue {
     TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       scale: 1.5,
     });
+  }
+
+  private contextMenuRemove() {
+    this.dataflowRemoveNode(this);
   }
 
   private clicked() {

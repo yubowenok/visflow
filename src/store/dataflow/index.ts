@@ -59,6 +59,14 @@ const mutations = {
     state.nodes.push(node);
   },
 
+  /** Removes a node from the dataflow diagram. */
+  removeNode: (state: DataflowState, node: Node) => {
+    for (const edge of node.getAllEdges()) {
+      mutations.removeEdge(state, edge);
+    }
+    state.canvas.removeNode(node, () => node.$destroy());
+  },
+
   /**
    * Assigns a new layer for a node.
    * This typically happens when a node is clicked so that it appears on top of the other nodes.
@@ -91,8 +99,17 @@ const mutations = {
         source: !sourcePort.isInput ? sourcePort : targetPort,
         target: !sourcePort.isInput ? targetPort : sourcePort,
       },
+      store,
     });
+    sourcePort.addIncidentEdge(edge);
+    targetPort.addIncidentEdge(edge);
     state.canvas.addEdge(edge);
+  },
+
+  removeEdge: (state: DataflowState, edge: Edge) => {
+    edge.source.removeIncidentEdge(edge);
+    edge.target.removeIncidentEdge(edge);
+    state.canvas.removeEdge(edge, () => edge.$destroy());
   },
 };
 

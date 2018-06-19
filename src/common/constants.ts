@@ -5,4 +5,4 @@ export const PORT_SIZE_PX = 15;
 export const ARROW_SIZE_PX = 16;
 export const ARROW_WING_SIZE_PX = 4;
 
-export const DRAG_TIME_THRESHOLD = 300;
+export const DRAG_TIME_THRESHOLD = 100;

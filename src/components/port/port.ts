@@ -3,6 +3,7 @@ import Node from '../node/node';
 import Edge from '../edge/edge';
 import PortPanel from '../port-panel/port-panel';
 import $ from 'jquery';
+import _ from 'lodash';
 import { namespace } from 'vuex-class';
 
 import ContextMenu from '../context-menu/context-menu';
@@ -10,6 +11,7 @@ import ContextMenu from '../context-menu/context-menu';
 const interaction = namespace('interaction');
 const panels = namespace('panels');
 const contextMenu = namespace('contextMenu');
+const dataflow = namespace('dataflow');
 
 @Component({
   components: {
@@ -56,10 +58,6 @@ export default class Port extends Vue {
     }
   }
 
-  public addEdge(edge: Edge) {
-    this.edges.push(edge);
-  }
-
   public getCenterCoordinates(): Point {
     const $port = $(this.$refs.port);
     const offset = $port.offset() as JQuery.Coordinates;
@@ -67,6 +65,20 @@ export default class Port extends Vue {
       x: offset.left + ($port.width() as number) / 2,
       y: offset.top + ($port.height() as number) / 2,
     };
+  }
+
+  public getAllEdges(): Edge[] {
+    return this.edges.concat();
+  }
+
+  /** Adds an edge to this port's incident list */
+  public addIncidentEdge(edge: Edge) {
+    this.edges.push(edge);
+  }
+
+  /** Removes an edge from this port's incident list */
+  public removeIncidentEdge(edge: Edge) {
+    _.pull(this.edges, edge);
   }
 
   private activate() {
