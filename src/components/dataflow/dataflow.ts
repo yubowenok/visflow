@@ -23,6 +23,7 @@ export default class Dataflow extends Vue {
 
   public addEdge(edge: Edge) {
     edge.$mount();
-    (this.$refs.edges as Element).appendChild(edge.$el);
+    (this.$refs.edgeMount as Element).appendChild(edge.$el);
+    (this.$refs.edges as Element).appendChild(edge.getEdgeSvgNode());
   }
 }

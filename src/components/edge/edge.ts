@@ -1,7 +1,6 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import Victor from 'victor';
-import $ from 'jquery';
 import { TweenLite } from 'gsap';
 import _ from 'lodash';
 
@@ -9,8 +8,7 @@ import Port from '../port/port';
 import * as d3 from 'd3';
 
 import { ARROW_SIZE_PX, ARROW_WING_SIZE_PX, LONG_ANIMATION_DURATION_S } from '@/common/constants';
-
-const dataflow = namespace('dataflow');
+import ContextMenu from '../context-menu/context-menu';
 
 export const arrowPath = (base: Point, head: Point): string => {
   const p = new Victor(base.x, base.y);
@@ -32,7 +30,11 @@ export const arrowPath = (base: Point, head: Point): string => {
   return d3.line().curve(d3.curveLinearClosed)(points as Array<[number, number]>) as string;
 };
 
-@Component
+@Component({
+  components: {
+    ContextMenu,
+  },
+})
 export default class Edge extends Vue {
   public source!: Port;
   public target!: Port;
@@ -44,6 +46,10 @@ export default class Edge extends Vue {
   private edgePathStr: string = '';
 
   private isHovered: boolean = false;
+
+  public getEdgeSvgNode(): Element {
+    return this.$refs.edge as Element;
+  }
 
   public updateCoordinates() {
     const sourceCenter = this.source.getCenterCoordinates();

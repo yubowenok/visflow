@@ -4,6 +4,7 @@
   <svg ref="edges">
     <drawing-edge v-if="draggedPort"></drawing-edge>
   </svg>
+  <div ref="edgeMount"></div>
 </div>
 </template>
 

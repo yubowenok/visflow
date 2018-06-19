@@ -1,16 +1,16 @@
 @import '../../common/style/index';
 
-li {
-  font-size: $font-size;
-  cursor: pointer;
-  @extend %list-item, %ui-font;
-  @extend %padding;
-}
-
 .context-menu {
   list-style: none;
   position: fixed;
   z-index: $zIndexContextMenu;
   background-color: white;
   @extend %box;
+
+  /deep/ li {
+    font-size: $font-size;
+    cursor: pointer;
+    @extend %list-item, %ui-font;
+    @extend %padding;
+  }
 }

@@ -5,6 +5,7 @@ import { systemOptions } from './system-options';
 import { panels } from './panels';
 import { interaction } from './interaction';
 import { message } from './message';
+import { contextMenu } from './context-menu';
 import { user } from './user';
 import { history } from './history';
 
@@ -23,6 +24,7 @@ export const defaultStore = {
     panels,
     interaction,
     message,
+    contextMenu,
     user,
   },
 };

@@ -16,6 +16,11 @@
     }
   }
 
+  .hover-path {
+    opacity: 0;
+    stroke-width: 10px;
+  }
+
   &.hovered {
     stroke-width: 3px;
   }

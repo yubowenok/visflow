@@ -14,10 +14,17 @@ export default class ContextMenu extends Vue {
   private leftOffset: number = 0;
   private visible: boolean = false;
 
-  public open(e: MouseEvent) {
+  /**
+   * Opens the context menu at the current mouse event position.
+   * If the mouse event is on a nested element, the caller should pass in the offset object which is
+   * the nested element's global position.
+   * [Caution] Most likely the context menu has to be placed globally so that it can appear above
+   * all other elements, and using an offset is not necessary. Mount the context menu to a global position instead.
+   */
+  public open(evt: MouseEvent, offset?: { left: number, top: number }) {
     this.visible = true;
-    this.topOffset = e.pageY;
-    this.leftOffset = e.pageX;
+    this.leftOffset = evt.pageX - (offset ? offset.left : 0);
+    this.topOffset = evt.pageY - (offset ? offset.top : 0);
   }
 
   private close() {

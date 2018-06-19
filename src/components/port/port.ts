@@ -4,13 +4,17 @@ import Edge from '../edge/edge';
 import PortPanel from '../port-panel/port-panel';
 import $ from 'jquery';
 import { namespace } from 'vuex-class';
+
+import ContextMenu from '../context-menu/context-menu';
+
 const interaction = namespace('interaction');
-const dataflow = namespace('dataflow');
 const panels = namespace('panels');
+const contextMenu = namespace('contextMenu');
 
 @Component({
   components: {
     PortPanel,
+    ContextMenu,
   },
 })
 export default class Port extends Vue {
@@ -29,6 +33,7 @@ export default class Port extends Vue {
   @interaction.Mutation('portDragEnded') private portDragEnded!: (port: Port) => void;
   @interaction.Mutation('dropPortOnPort') private dropPortOnPort!: (port: Port) => void;
   @panels.Mutation('mountPortPanel') private mountPortPanel!: (panel: Vue) => void;
+  @contextMenu.Mutation('mount') private mountContextMenu!: (menu: ContextMenu) => void;
 
   public hasCapacity(): boolean {
     return this.edges.length < this.MAX_CONNECTIONS;
@@ -56,7 +61,7 @@ export default class Port extends Vue {
   }
 
   public getCenterCoordinates(): Point {
-    const $port = $(this.$el);
+    const $port = $(this.$refs.port);
     const offset = $port.offset() as JQuery.Coordinates;
     return {
       x: offset.left + ($port.width() as number) / 2,
@@ -87,16 +92,22 @@ export default class Port extends Vue {
 
   private globalClick(evt: MouseEvent) {
     // If the click is on the port or on the port panel, do nothing.
-    if (this.$el.contains(evt.target as Element) ||
+    if ((this.$refs.port as Element).contains(evt.target as Element) ||
       this.$refs.portPanel && (this.$refs.portPanel as Vue).$el.contains(evt.target as Element)) {
       return;
     }
     this.deactivate();
   }
 
+  private openContextMenu(evt: MouseEvent) {
+    (this.$refs.contextMenu as ContextMenu).open(evt);
+  }
+
   private mounted() {
-    const $el = $(this.$el);
-    $el.draggable({
+    this.mountContextMenu(this.$refs.contextMenu as ContextMenu);
+
+    const $port = $(this.$refs.port);
+    $port.draggable({
       helper: () => $('<div></div>'),
       start: () => this.portDragStarted(this),
       drag: (evt_: Event) => {
@@ -109,7 +120,7 @@ export default class Port extends Vue {
       stop: () => this.portDragEnded(this),
     });
 
-    $el.droppable({
+    $port.droppable({
       hoverClass: 'hover',
       tolerance: 'pointer',
       drop: (evt: Event, ui: JQueryUI.DroppableEventUIParam) => {
