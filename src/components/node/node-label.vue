@@ -12,6 +12,7 @@
   background: #888;
   color: white;
   font-size: $font-size-sm;
+  left: .25rem;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

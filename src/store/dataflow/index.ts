@@ -10,10 +10,13 @@ import store from '../index';
 import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
 import Dataflow from '@/components/dataflow/dataflow';
-import Vue from 'vue';
+import { checkEdgeConnectivity } from '@/store/dataflow/util';
+import { showSystemMessage } from '@/store/message';
+export * from './util';
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
+
 
 const initialState: DataflowState = {
   canvas: new Dataflow(),
@@ -46,8 +49,9 @@ const mutations = {
     const node: Node = new constructor({
       data: {
         id,
-        x: options.centerX,
-        y: options.centerY,
+        // Floor the coordinates so that nodes are always aligned to integers.
+        x: Math.floor(options.centerX),
+        y: Math.floor(options.centerY),
       },
       store,
     }) as Node;
@@ -73,10 +77,13 @@ const mutations = {
     const sourcePort = payload.sourcePort;
     const targetPort = payload.targetPort || (payload.targetNode as Node).findConnectablePort(sourcePort);
     if (!targetPort) {
-      store.commit('message/showMessage', {
-        text: 'cannot find available port to connect',
-        class: 'warn',
-      });
+      showSystemMessage('cannot find available port to connect', 'warn');
+      return;
+    }
+    const connectivity = checkEdgeConnectivity(sourcePort, targetPort);
+    if (!connectivity.connectable) {
+      showSystemMessage(connectivity.reason, 'warn');
+      return;
     }
     const edge = new Edge({
       data: {

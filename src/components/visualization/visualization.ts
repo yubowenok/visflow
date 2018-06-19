@@ -12,16 +12,11 @@ export default class Visualization extends mixins(Node) {
   protected DEFAULT_HEIGHT = 300;
   protected RESIZABLE = true;
 
-  public minimize() {
-    console.log('vis.minimize');
-  }
-
   protected created() {
     this.coverText = 'no data';
     this.containerClasses.push(this.NODE_TYPE);
   }
 
   private testOption() {
-    this.minimize();
   }
 }

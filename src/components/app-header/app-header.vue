@@ -20,7 +20,7 @@
       <help-menu></help-menu>
     </b-navbar-nav>
     <b-navbar-nav class="ml-auto">
-      <button class="btn btn-outline-success">Login</button>
+      <user-bar></user-bar>
     </b-navbar-nav>
   </b-collapse>
   <!--

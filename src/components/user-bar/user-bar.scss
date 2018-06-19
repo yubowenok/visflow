@@ -1,0 +1,5 @@
+@import '../../common/style/index';
+
+.user-bar > div {
+  @extend %padding-tb;
+}

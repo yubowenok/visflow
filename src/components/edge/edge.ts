@@ -2,12 +2,13 @@ import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import Victor from 'victor';
 import $ from 'jquery';
+import { TweenLite } from 'gsap';
 import _ from 'lodash';
 
 import Port from '../port/port';
 import * as d3 from 'd3';
 
-import { ARROW_SIZE_PX, ARROW_WING_SIZE_PX } from '@/common/constants';
+import { ARROW_SIZE_PX, ARROW_WING_SIZE_PX, LONG_ANIMATION_DURATION_S } from '@/common/constants';
 
 const dataflow = namespace('dataflow');
 
@@ -42,6 +43,8 @@ export default class Edge extends Vue {
   private y2: number = 0;
   private edgePathStr: string = '';
 
+  private isHovered: boolean = false;
+
   public updateCoordinates() {
     const sourceCenter = this.source.getCenterCoordinates();
     this.x1 = sourceCenter.x;
@@ -57,6 +60,10 @@ export default class Edge extends Vue {
     // Add the edge to the incident lists of ports.
     this.source.addEdge(this);
     this.target.addEdge(this);
+
+    TweenLite.from(this.$el, LONG_ANIMATION_DURATION_S, {
+      opacity: 0,
+    });
   }
 
   get getCurvePath(): string {

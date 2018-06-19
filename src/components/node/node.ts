@@ -12,8 +12,10 @@ import NodeCover from './node-cover.vue';
 import NodeLabel from './node-label.vue';
 import OptionPanel from '../option-panel/option-panel';
 import Port from '../port/port';
+import MultiplePort from '../port/multiple-port';
 import template from './node.html';
 import { MessageOptions } from '@/store/message';
+import { checkEdgeConnectivity } from '@/store/dataflow';
 
 const dataflow = namespace('dataflow');
 const interaction = namespace('interaction');
@@ -150,13 +152,36 @@ export default class Node extends Vue {
   @systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
 
-  public findConnectablePort(port: Port): Port {
+  public findConnectablePort(port: Port): Port | null {
     // TODO: do not check connectivity. Just return the first input/output port.
     if (port.isInput) {
-      return this.outputPorts[0];
+      for (const output of this.outputPorts) {
+        const connectivity = checkEdgeConnectivity(output, port);
+        if (connectivity.connectable) {
+          return output;
+        }
+      }
     } else {
-      return this.inputPorts[0];
+      for (const input of this.inputPorts) {
+        const connectivity = checkEdgeConnectivity(port, input);
+        if (connectivity.connectable) {
+          return input;
+        }
+      }
     }
+    return null;
+  }
+
+  /** Retrieves the ids of the nodes that this node connects to via output ports. */
+  public getOutputNodes(): Node[] {
+    const nodes: Set<Node> = new Set();
+    for (const port of this.outputPorts) {
+      const outputs = port.getConnectedNodes();
+      for (const node of outputs) {
+        nodes.add(node);
+      }
+    }
+    return Array.from(nodes);
   }
 
   public getBoundingBox(): Box {
@@ -170,14 +195,6 @@ export default class Node extends Vue {
       w,
       h,
     };
-  }
-
-  public minimize() {
-    console.log('node.minimize');
-  }
-
-  public maximize() {
-    console.log('node.maximize');
   }
 
   /** Makes the node activated. This is typically auto-triggered by mouse click on the node. */
@@ -213,7 +230,7 @@ export default class Node extends Vue {
       }),
     ];
     this.outputPorts = [
-      new Port({
+      new MultiplePort({
         data: {
           id: 'out',
           node: this,

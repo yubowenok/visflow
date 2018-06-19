@@ -17,8 +17,11 @@ export default class Port extends Vue {
   public id!: string;
   public node!: Node;
   public isInput: boolean = false;
+  public dataType: string = 'table';
 
+  protected MAX_CONNECTIONS: number = 1;
   protected isActive: boolean = false;
+  protected isAttachable: boolean = false;
   protected edges: Edge[] = [];
 
   @interaction.Mutation('portDragStarted') private portDragStarted!: (port: Port) => void;
@@ -26,6 +29,20 @@ export default class Port extends Vue {
   @interaction.Mutation('portDragEnded') private portDragEnded!: (port: Port) => void;
   @interaction.Mutation('dropPortOnPort') private dropPortOnPort!: (port: Port) => void;
   @panels.Mutation('mountPortPanel') private mountPortPanel!: (panel: Vue) => void;
+
+  public hasCapacity(): boolean {
+    return this.edges.length < this.MAX_CONNECTIONS;
+  }
+
+  /** Retrieves a list of nodes that this port connects to. */
+  public getConnectedNodes(): Node[] {
+    return this.edges.map(edge => this.isInput ? edge.target.node : edge.source.node);
+  }
+
+  /** Retrieves a list of ports that this port connects to. */
+  public getConnectedPorts(): Port[] {
+    return this.edges.map(edge => this.isInput ? edge.target : edge.source);
+  }
 
   public updateCoordinates() {
     // also notify the incident edges to re-draw

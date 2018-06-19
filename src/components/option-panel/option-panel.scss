@@ -12,6 +12,10 @@
     button {
       font-size: .75rem;
       margin: .25em;
+
+      &.active {
+        background-color: $theme-green;
+      }
     }
   }
 
