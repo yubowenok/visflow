@@ -1,0 +1,19 @@
+*.log
+
+node_modules/
+flowsense/
+
+# API keys and secrets
+.env
+.env.*
+!.env.test
+
+# Editors
+.idea
+
+# OS metadata
+.DS_Store
+Thumbs.db
+
+# Ignore built ts files
+dist/**/*

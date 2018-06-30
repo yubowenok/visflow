@@ -10,8 +10,9 @@
     @extend %padding;
 
     button {
+      width: 2rem;
       font-size: .75rem;
-      margin: .25em;
+      margin: $margin-size;
 
       &.active {
         background-color: $theme-green;

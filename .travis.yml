@@ -1,15 +1,24 @@
 language: node_js
 node_js:
   - "8.11.2"
+services:
+  - mongodb
 
 before_script:
+  - yarn install
+  - cd server
   - yarn install
 
 script:
   - yarn build
+  - yarn test
+  - cd server
+  - yarn build
+  - yarn lint
   - yarn test
 
 cache:
   yarn: true
   directories:
   - node_modules
+  - server/node_modules

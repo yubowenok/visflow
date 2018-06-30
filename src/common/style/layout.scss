@@ -18,18 +18,18 @@ $padding-lr-size: 1.5rem;
   padding-bottom: .25rem;
 }
 
-$margin-size: .05rem;
+$margin-size: .1rem;
 
 %margin {
-  margin: .05rem;
+  margin: $margin-size;
 }
 %margin-lr {
-  margin-left: .05rem;
-  margin-right: .05rem;
+  margin-left: $margin-size;
+  margin-right: $margin-size;
 }
 %margin-tb {
-  margin-top: .05rem;
-  margin-bottom: .05rem;
+  margin-top: $margin-size;
+  margin-bottom: $margin-size;
 }
 
 %left-panel {

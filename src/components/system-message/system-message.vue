@@ -1,9 +1,7 @@
 <template>
 <transition name="slide-fade-top">
   <div :class="['message', classes]" v-if="text">
-    <button class="btn close" @click="closeMessage">
-      <i class="fas fa-xs fa-times"></i>
-    </button>
+    <button class="close" @click="closeMessage">×</button>
     {{ text }}
   </div>
 </transition>

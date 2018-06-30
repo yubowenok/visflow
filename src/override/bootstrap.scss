@@ -1,5 +1,9 @@
 @import '../common/style/index';
 
+$primary: $theme-purple;
+
+@import 'node_modules/bootstrap/scss/bootstrap';
+
 a {
   cursor: pointer;
 }
@@ -16,14 +20,22 @@ a:hover {
   color: #333;
 }
 
-.btn {
+.close:focus {
+  outline: none;
+}
+
+button.btn {
   border-radius: 2px;
   padding-top: .1rem;
   padding-bottom: .1rem;
+
+  &.btn-outline-secondary {
+    border-color: #999;
+  }
 }
 
-.btn-secondary {
-  background-color: white;
-  border-color: #aaa;
-  color: #555;
+.modal-dialog {
+  .btn {
+    @extend %margin-lr;
+  }
 }

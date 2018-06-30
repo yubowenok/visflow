@@ -12,24 +12,22 @@
   top: $navbar-height + 5px;
   @extend %box, %padding;
 
-  .btn {
-    float: right;
+  .close {
+    font-size: 1.25rem;
     border: none;
-    margin-right: -.5rem;
+    padding: 1rem;
+    margin: -1rem -1.5rem -1rem auto;
   }
 
   &.success {
-    color: #183d20;
-    background-color: #ccffcc;
+    @extend %success-message;
   }
 
   &.warn {
-    color: #744500;
-    background-color: #fffccc;
+    @extend %warn-message;
   }
 
   &.error {
-    color: #d43131;
-    background-color: #ffdddd;
+    @extend %error-message;
   }
 }

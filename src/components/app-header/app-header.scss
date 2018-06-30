@@ -14,6 +14,10 @@
     }
   }
 
+  /deep/ .dropdown-toggle > span {
+    color: #333;
+  }
+
   /deep/ .dropdown-item {
     outline: none;
 

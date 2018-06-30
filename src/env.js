@@ -9,9 +9,6 @@ switch (process.env.NODE_ENV) {
   case 'test':
     envFile = '.env.test';
     break;
-  case 'development':
-    envFile = '.env.dev';
-    break;
   default:
     envFile = '.env.local';
 }

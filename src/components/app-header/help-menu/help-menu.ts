@@ -2,6 +2,8 @@ import { Component, Vue } from 'vue-property-decorator';
 
 @Component
 export default class DiagramMenu extends Vue {
+  private aboutModalVisible = false;
+
   /** Opens a new browser tab for system documentation. */
   private documentation() {
     window.open('https://visflow.org/doc.html', '_blank');
@@ -14,6 +16,6 @@ export default class DiagramMenu extends Vue {
 
   /** Shows a popup modal for system about info. */
   private about() {
-    alert('About page TBA');
+    this.aboutModalVisible = true;
   }
 }

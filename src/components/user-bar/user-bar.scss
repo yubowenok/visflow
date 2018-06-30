@@ -1,5 +1,33 @@
 @import '../../common/style/index';
 
-.user-bar > div {
+.username > * {
   @extend %padding-tb;
+  @extend %transition;
+  cursor: pointer;
+
+  &:hover {
+    color: $theme-green;
+  }
+}
+
+.logout {
+  margin-left: $margin-size * 5;
+  border: none;
+  color: #555;
+}
+
+.label {
+  line-height: 2rem;
+  @extend %padding-tb;
+}
+
+div.row {
+  @extend %margin-tb;
+}
+
+.error-message {
+  text-align: center;
+  margin-bottom: $margin-size * 5;
+
+  @extend %error-message, %padding;
 }
