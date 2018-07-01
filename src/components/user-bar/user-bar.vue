@@ -13,8 +13,7 @@
   >
     Login
   </button>
-  <b-modal v-model="loginModalVisible"
-    title="Login">
+  <b-modal v-model="loginModalVisible" title="Login">
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     <b-container fluid>
       <b-row>
@@ -32,8 +31,7 @@
       <b-btn class="float-right" variant="outline-secondary" @click="closeLoginModal(); openSignupModal()">Signup</b-btn>
     </div>
   </b-modal>
-  <b-modal v-model="signupModalVisible"
-    title="Signup New User">
+  <b-modal v-model="signupModalVisible" title="Signup New User">
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     <b-container fluid>
       <b-row>
@@ -58,8 +56,7 @@
       <b-btn class="float-right" variant="outline-secondary" @click="closeSignupModal">Cancel</b-btn>
     </div>
   </b-modal>
-  <b-modal v-model="profileModalVisible"
-    title="Profile">
+  <b-modal v-model="profileModalVisible" title="Profile">
     Profile is coming soon.
     <div slot="modal-footer">
       <b-btn class="float-right" variant="outline-secondary" @click="closeProfileModal">OK</b-btn>

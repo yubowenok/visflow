@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { injectNodeTemplate } from '@/components/node/node';
+import { injectNodeTemplate } from '@/components/node/template';
 
 describe('inject node template', () => {
   const check = (injected: string) => {

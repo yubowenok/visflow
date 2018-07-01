@@ -1,8 +1,13 @@
 import { Module, ActionContext } from 'vuex';
 import { RootState } from '../index';
 import axios from 'axios';
+
+import { errorMessage } from '../util';
 import { API_URL } from '../../common/url';
 
+const axiosConfig = {
+  withCredentials: true,
+};
 interface UserState {
   username: string;
 
@@ -47,42 +52,44 @@ const mutations = {
 const actions = {
   login(context: ActionContext<UserState, RootState>, profile: LoginProfile) {
     return new Promise((resolve, reject) => {
-      axios.post(API_URL + '/user/login', profile)
+      axios.post(API_URL + '/user/login', profile, axiosConfig)
         .then(res => {
           context.commit('loginUser', res.data.username);
           resolve(res.data.username);
         })
-        .catch(err => {
-          const msg = (err.response && err.response.data) || err.message;
-          reject(msg);
-        });
+        .catch(err => reject(errorMessage(err)));
     });
   },
 
   logout(context: ActionContext<UserState, RootState>) {
     return new Promise((resolve, reject) => {
-      axios.post(API_URL + '/user/login')
-        .then(res => {
+      axios.post(API_URL + '/user/logout', {}, axiosConfig)
+        .then(() => {
           context.commit('logoutUser');
           resolve();
         })
-        .catch(err => {
-          const msg = (err.response && err.response.data) || err.message;
-          reject(msg);
-        });
+        .catch(err => reject(errorMessage(err)));
     });
   },
 
   signup(context: ActionContext<UserState, RootState>, profile: SignupProfile) {
     return new Promise((resolve, reject) => {
-      axios.post(API_URL + '/user/signup', profile)
+      axios.post(API_URL + '/user/signup', profile, axiosConfig)
         .then(res => {
           resolve(res.data.username);
         })
-        .catch(err => {
-          const msg = (err.response && err.response.data) || err.message;
-          reject(msg);
-        });
+        .catch(err => reject(errorMessage(err)));
+    });
+  },
+
+  whoami(context: ActionContext<UserState, RootState>) {
+    return new Promise((resolve, reject) => {
+      axios.post(API_URL + '/user/whoami', {}, axiosConfig)
+        .then(res => {
+          context.commit('loginUser', res.data.username);
+          resolve(res.data.username || '');
+        })
+        .catch(err => reject(errorMessage(err)));
     });
   },
 };

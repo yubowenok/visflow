@@ -6,16 +6,14 @@ services:
 
 before_script:
   - yarn install
-  - cd server
-  - yarn install
+  - yarn --cwd server install
 
 script:
   - yarn build
   - yarn test
-  - cd server
-  - yarn build
-  - yarn lint
-  - yarn test
+  - yarn --cwd server build
+  - yarn --cwd server lint
+  - yarn --cwd server test
 
 cache:
   yarn: true

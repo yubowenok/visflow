@@ -7,13 +7,17 @@ import $ from 'jquery';
 import 'jqueryui/jquery-ui.min.css';
 import './override/index.scss';
 
+import { ENVIRONMENT } from './common/env';
+
 Vue.config.productionTip = false;
+// Cannot use devtools because of manually/dynamically mounted components.
+Vue.config.devtools = false;
 
 new Vue({
   store,
   render: h => h(App),
 }).$mount('#app');
 
-if (process.env.NODE_ENV === 'development') {
+if (ENVIRONMENT === 'development') {
   window.$ = $;
 }

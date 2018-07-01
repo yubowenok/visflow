@@ -1,7 +1,7 @@
 import request from 'supertest';
 import app from '@src/app';
+import User from '@src/models/user';
 import _ from 'lodash';
-import logger from '@src/util/logger';
 
 describe('POST /api/user/signup', () => {
   const signupData = {
@@ -17,6 +17,25 @@ describe('POST /api/user/signup', () => {
       .send(_.extend({}, signupData))
       .expect({ username: 'abc' })
       .expect(200, done);
+  });
+
+  it('should not signup because of duplicate username', (done) => {
+    request(app)
+      .post('/api/user/signup')
+      .send(_.extend({}, signupData, { email: 'other@test.com' }))
+      .expect(400, done);
+  });
+
+  it('should not signup because of duplicate email', (done) => {
+    request(app)
+      .post('/api/user/signup')
+      .send(_.extend({}, signupData, { username: 'xyz' }))
+      .expect(400);
+
+    // remove the signed-up user
+    User.findOneAndRemove({ username: 'abc' }, () => {
+      done();
+    });
   });
 
   it('should not signup because username is too short', (done) => {

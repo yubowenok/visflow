@@ -1,10 +1,9 @@
 import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import { LoginProfile, SignupProfile } from '@/store/user';
-import { MessageOptions } from '@/store/message';
+import { MessageOptions, showSystemMessage } from '@/store/message';
 
 const user = namespace('user');
-const message = namespace('message');
 
 @Component
 export default class UserBar extends Vue {
@@ -12,7 +11,7 @@ export default class UserBar extends Vue {
   @user.Action('login') private dispatchLogin!: (profile: LoginProfile) => Promise<string>;
   @user.Action('signup') private dispatchSignup!: (profile: SignupProfile) => Promise<string>;
   @user.Action('logout') private dispatchLogout!: () => Promise<void>;
-  @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
+  @user.Action('whoami') private dispatchWhoami!: () => Promise<string>;
 
   private errorMessage = '';
   private signupModalVisible = false;
@@ -57,10 +56,7 @@ export default class UserBar extends Vue {
   }
 
   private welcome(username: string) {
-    this.showMessage({
-      text: `Welcome ${username}`,
-      class: 'success',
-    });
+    showSystemMessage(`Welcome ${username}`, 'success');
   }
 
   private login() {
@@ -91,17 +87,12 @@ export default class UserBar extends Vue {
 
   private logout() {
     this.dispatchLogout()
-      .then(() => {
-        this.showMessage({
-          text: 'logged out',
-          class: 'success',
-        });
-      })
-      .catch((err: string) => {
-        this.showMessage({
-          text: err,
-          class: 'error',
-        });
-      });
+      .then(() => showSystemMessage('logged out', 'success'))
+      .catch((err: string) => showSystemMessage(err, 'error'));
+  }
+
+  private mounted() {
+    this.dispatchWhoami()
+      .catch((err: string) => showSystemMessage(err, 'error'));
   }
 }

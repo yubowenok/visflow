@@ -1,11 +1,10 @@
 const StyleLintPlugin = require('stylelint-webpack-plugin');
+const env = require('./env');
+let baseUrl = env.BASE_URL;
 
-if (process.env.NODE_ENV === 'production') {
-  // Retrieve BASE_URL for production build
-  require('./src/env');
-
-  process.env.BASE_URL = process.env.BASE_URL || '/';
-  console.log(`BASE_URL = "${process.env.BASE_URL}"`);
+if (env.ENVIRONMENT === 'production') {
+  baseUrl = baseUrl || '/';
+  console.log(`BASE_URL = "${baseUrl}"`);
 }
 
 module.exports = {
@@ -13,9 +12,9 @@ module.exports = {
     const plugins = [
       new StyleLintPlugin(),
     ];
-    if (process.env.NODE_ENV === 'production') {
-      config.output.publicPath = process.env.BASE_URL;
-    } else if (process.env.NODE_ENV === 'test') {
+    if (env.ENVIRONMENT === 'production') {
+      config.output.publicPath = baseUrl;
+    } else if (env.ENVIRONMENT === 'test') {
       // Test config writes here.
     }
     return {
@@ -39,11 +38,11 @@ module.exports = {
     };
   },
   chainWebpack: config => {
-    if (process.env.NODE_ENV === 'production') {
+    if (env.ENVIRONMENT === 'production') {
       config
       .plugin('html')
       .tap(args => {
-        args[0].baseUrl = process.env.BASE_URL;
+        args[0].baseUrl = baseUrl;
         return args;
       });
     }

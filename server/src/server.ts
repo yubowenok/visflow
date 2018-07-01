@@ -1,8 +1,9 @@
 import errorHandler from 'errorhandler';
 
 import app from './app';
+import { ENVIRONMENT } from './config/env';
 
-if (process.env.NODE_ENV !== 'production') {
+if (ENVIRONMENT !== 'production') {
   app.use(errorHandler());
 }
 

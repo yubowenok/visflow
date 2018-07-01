@@ -1,7 +1,9 @@
 
 import mongoose from 'mongoose';
 import bluebird from 'bluebird';
+import { Request, Response, NextFunction } from 'express';
 import session from 'express-session';
+
 import { MONGODB_URI } from './config/env';
 
 export const connectMongo = () => {
@@ -17,4 +19,11 @@ export const sessionStore = () => {
     mongooseConnection: mongoose.connection,
     autoReconnect: true,
   });
+};
+
+export const isMongooseConnected = (req: Request, res: Response, next: NextFunction) => {
+  if (mongoose.connection.readyState) {
+    return next();
+  }
+  return res.status(500).send('lost connection to db');
 };

@@ -35,6 +35,10 @@ button.btn {
 }
 
 .modal-dialog {
+  // This may not take effect if modal is not mounted as root level elements.
+  z-index: $zIndexModalDialog;
+  margin-top: 8rem;
+
   .btn {
     @extend %margin-lr;
   }

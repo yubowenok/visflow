@@ -14,14 +14,14 @@ const userSchema = new mongoose.Schema({
   password: String,
 }, { timestamps: true });
 
-userSchema.pre('save', (next: NextFunction) => {
-  const user = this;
+userSchema.pre('save', function(next: NextFunction) {
+  const user = this as UserModel;
   /*
   if (!user.isModified('password')) {
     return next();
   }
   */
-  bcrypt.genSalt(12, (err: Error, salt: string) => {
+  bcrypt.genSalt(10, (err: Error, salt: string) => {
     if (err) {
       return next(err);
     }

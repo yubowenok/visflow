@@ -4,6 +4,7 @@
 
 import { Module } from 'vuex';
 import { RootState } from '../index';
+import { delayedCall } from '@/store/util';
 export * from './util';
 
 const DEFAULT_MESSAGE_DURATION = 5000;
@@ -26,9 +27,6 @@ const initialState: MessageState = {
   class: '',
 };
 
-const getters = {
-};
-
 const mutations = {
   /**
    * [text and background colors of message classes]
@@ -42,16 +40,14 @@ const mutations = {
       state.class = payload.class || '';
       const duration = payload.duration || DEFAULT_MESSAGE_DURATION;
       if (state.class !== 'error') { // error message must be closed manually
-        setTimeout(() => {
-          state.text = '';
-        }, duration);
+        delayedCall(() => state.text = '', duration);
       }
     };
     if (state.text !== '') {
       // If we are currently showing a message, then first animate hiding it by setting it to the empty string.
       // Display the other (new) message after a short interval.
       state.text = '';
-      setTimeout(() => display(), MESSAGE_INTERVAL);
+      delayedCall(display, MESSAGE_INTERVAL);
     } else {
       display();
     }
@@ -62,13 +58,8 @@ const mutations = {
   },
 };
 
-const actions = {
-};
-
 export const message: Module<MessageState, RootState> = {
   namespaced: true,
   state: initialState,
-  getters,
   mutations,
-  actions,
 };

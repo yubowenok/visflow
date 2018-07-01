@@ -1,4 +1,3 @@
-// import logger from '../util/logger';
 import dotenv from 'dotenv';
 import fs from 'fs';
 
@@ -29,7 +28,7 @@ export const ENVIRONMENT = process.env.NODE_ENV;
 export const SESSION_SECRET = process.env.SESSION_SECRET;
 export const MONGODB_URI = process.env.MONGODB_URI;
 export const PORT = process.env.PORT;
-export const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN;
+export const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN.split(';');
 
 if (!MONGODB_URI) {
   console.error('MONGODB_URI is not set');
