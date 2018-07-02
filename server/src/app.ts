@@ -17,6 +17,7 @@ import './config/passport';
 
 import diagramApi from './api/diagram';
 import userApi from './api/user';
+import datasetApi from './api/dataset';
 
 const app = express();
 connectMongo();
@@ -36,20 +37,8 @@ app.use(cors({
       callback(new Error('not allowed by CORS'));
     }
   },
-  // allowedHeaders: 'Origin,X-Requested-With,Content-Type,Accept',
   credentials: true,
 }));
-/*
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const origin = req.get('origin');
-  if (ALLOW_ORIGIN.indexOf(origin) !== -1) {
-    res.header('Access-Control-Allow-Origin', origin);
-  }
-  res.header('Access-Control-Allow-Headers', 'Origin,X-Requested-With,Content-Type,Accept');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
-*/
 
 app.use(morgan(ENVIRONMENT === 'production' ? 'combined' : 'dev'));
 app.use(compression());
@@ -68,8 +57,9 @@ app.use(passport.session());
 app.use(lusca.xframe('SAMEORIGIN'));
 app.use(lusca.xssProtection(true));
 
-diagramApi(app);
 userApi(app);
+diagramApi(app);
+datasetApi(app);
 
 app.use('/', express.static(path.join(__dirname, '../../dist')));
 

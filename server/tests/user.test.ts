@@ -8,7 +8,7 @@ describe('POST /api/user/signup', () => {
     username: 'abc',
     password: '123456',
     confirmPassword: '123456',
-    email: 'abc@test.com',
+    email: 'abc@visflow.org',
   };
 
   it('should signup successfully', (done) => {
@@ -22,7 +22,7 @@ describe('POST /api/user/signup', () => {
   it('should not signup because of duplicate username', (done) => {
     request(app)
       .post('/api/user/signup')
-      .send(_.extend({}, signupData, { email: 'other@test.com' }))
+      .send(_.extend({}, signupData, { email: 'other@visflow.org' }))
       .expect(400, done);
   });
 

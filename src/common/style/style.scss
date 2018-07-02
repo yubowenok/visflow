@@ -96,3 +96,7 @@ $border-radius: 2px;
 %transition {
   transition: .2s;
 }
+
+%bar {
+  @extend %margin-lr;
+}

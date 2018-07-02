@@ -6,7 +6,6 @@ import { Request, Response, NextFunction } from 'express';
 import User, { UserModel } from '../models/user';
 
 passport.serializeUser<UserModel, string>((user, done) => {
-  console.log(user.id, user._id);
   done(undefined, user._id);
 });
 
@@ -41,5 +40,5 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
     return next();
   }
   // authentication required
-  res.status(401);
+  return res.status(401).send('login required');
 };

@@ -62,7 +62,6 @@ const userApi = (app: Express) => {
   });
 
   app.post('/api/user/login', (req: Request, res: Response, next: NextFunction) => {
-    console.log('login');
     passport.authenticate('local', (err: Error, user: UserModel | undefined, info: IVerifyOptions) => {
       if (err) {
         return next(err);

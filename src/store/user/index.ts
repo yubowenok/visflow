@@ -2,8 +2,8 @@ import { Module, ActionContext } from 'vuex';
 import { RootState } from '../index';
 import axios from 'axios';
 
-import { errorMessage } from '../util';
-import { API_URL } from '../../common/url';
+import { errorMessage } from '@/common/util';
+import { API_URL } from '@/common/url';
 
 const axiosConfig = {
   withCredentials: true,
@@ -76,6 +76,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       axios.post(API_URL + '/user/signup', profile, axiosConfig)
         .then(res => {
+          context.commit('loginUser', res.data.username);
           resolve(res.data.username);
         })
         .catch(err => reject(errorMessage(err)));

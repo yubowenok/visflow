@@ -14,6 +14,8 @@ interface InteractionState {
   draggedY1: number;
   draggedX2: number;
   draggedY2: number;
+
+  altPressed: boolean;
 }
 
 const initialState = {
@@ -22,9 +24,8 @@ const initialState = {
   draggedY1: 0,
   draggedX2: 0,
   draggedY2: 0,
-};
 
-const getters = {
+  altPressed: false,
 };
 
 const mutations = {
@@ -60,15 +61,18 @@ const mutations = {
       targetPort: port,
     });
   },
-};
 
-const actions = {
+  toggleAlt: (state: InteractionState, value?: boolean) => {
+    if (value === undefined) {
+      state.altPressed = !state.altPressed;
+    } else {
+      state.altPressed = value;
+    }
+  },
 };
 
 export const interaction: Module<InteractionState, RootState> = {
   namespaced: true,
   state: initialState,
-  getters,
   mutations,
-  actions,
 };

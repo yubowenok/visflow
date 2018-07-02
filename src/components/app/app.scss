@@ -25,3 +25,17 @@ body {
   z-index: $zIndexCanvasCover;
   opacity: 0;
 }
+
+.modal-message {
+  text-align: center;
+  margin-bottom: $margin-size-lg;
+  @extend %padding;
+
+  &.error {
+    @extend %error-message;
+  }
+
+  &.success {
+    @extend %success-message;
+  }
+}

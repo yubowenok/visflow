@@ -10,7 +10,7 @@ import store from '../index';
 import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
 import Dataflow from '@/components/dataflow/dataflow';
-import { checkEdgeConnectivity } from '@/store/dataflow/util';
+import { checkEdgeConnectivity } from './util';
 import { showSystemMessage } from '@/store/message';
 export * from './util';
 

@@ -29,6 +29,7 @@ export const SESSION_SECRET = process.env.SESSION_SECRET;
 export const MONGODB_URI = process.env.MONGODB_URI;
 export const PORT = process.env.PORT;
 export const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN.split(';');
+export const DATA_PATH = process.env.DATA_PATH;
 
 if (!MONGODB_URI) {
   console.error('MONGODB_URI is not set');

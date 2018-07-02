@@ -14,7 +14,7 @@
     Login
   </button>
   <b-modal v-model="loginModalVisible" title="Login">
-    <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div v-if="errorMessage" class="modal-error-message">{{ errorMessage }}</div>
     <b-container fluid>
       <b-row>
         <b-col sm="3" class="label">Username</b-col>

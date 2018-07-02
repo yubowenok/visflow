@@ -4,7 +4,7 @@
 
 import { Module } from 'vuex';
 import { RootState } from '../index';
-import { delayedCall } from '@/store/util';
+import { delayedCall } from '@/common/util';
 export * from './util';
 
 const DEFAULT_MESSAGE_DURATION = 5000;

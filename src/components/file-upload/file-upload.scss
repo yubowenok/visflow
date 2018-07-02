@@ -1,0 +1,39 @@
+@import '../../common/style/index';
+
+.drop-area {
+  border: 1px dashed grey;
+  background: lighten($theme-green, 40%);
+  height: 10rem;
+  line-height: 10rem;
+  text-align: center;
+  cursor: pointer;
+  @extend %transition;
+
+  &.disabled {
+    background-color: #eee;
+    pointer-events: none;
+  }
+
+  &:hover, &:active, &.active {
+    background: lighten($theme-green, 30%);
+  }
+
+  input {
+    opacity: 0; // invisible file input
+    cursor: pointer;
+    height: 10rem;
+    left: 0;
+    width: 100%;
+    position: absolute;
+  }
+
+  .text {
+    display: inline-block;
+    vertical-align: middle;
+    pointer-events: none;
+  }
+}
+
+.upload-progress {
+  margin-bottom: $margin-size-lg;
+}

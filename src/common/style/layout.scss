@@ -19,6 +19,7 @@ $padding-lr-size: 1.5rem;
 }
 
 $margin-size: .1rem;
+$margin-size-lg: $margin-size * 5;
 
 %margin {
   margin: $margin-size;

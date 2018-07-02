@@ -20,12 +20,13 @@
       <help-menu></help-menu>
     </b-navbar-nav>
     <b-navbar-nav class="ml-auto">
+      <!-- tool bars -->
+      <drag-bar></drag-bar>
+      <dataset-bar></dataset-bar>
+
       <user-bar></user-bar>
     </b-navbar-nav>
   </b-collapse>
-  <!--
-  <a class="btn btn-outline-primary" href="#">Sign up</a>
-  -->
 </nav>
 </template>
 
