@@ -1,9 +1,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import axios from 'axios';
 import { namespace } from 'vuex-class';
 
-import { API_URL } from '@/common/url';
-import { errorMessage } from '@/common/util';
+import { axiosPost, errorMessage } from '@/common/util';
 
 const user = namespace('user');
 
@@ -62,14 +60,14 @@ export default class FileUpload extends Vue {
     this.uploadState = UploadState.UPLOADING;
     this.uploadPercentage = 0;
 
-    axios.post(API_URL + this.url, data, {
-      withCredentials: true,
+    axiosPost<{ filename: string, originalname: string }>(this.url, data, {
       onUploadProgress: (progressEvt: ProgressEvent) => {
         this.uploadPercentage = Math.floor(progressEvt.loaded / progressEvt.total * 100);
       },
     }).then(res => {
       this.uploadState = UploadState.WAITING;
-      this.successMessage = `Uploaded: ${res.data}`;
+      this.successMessage = `Uploaded: ${res.data.originalname}`;
+      this.$emit('uploaded');
       setTimeout(() => {
         this.successMessage = '';
       }, MESSAGE_DURATION);

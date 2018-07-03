@@ -14,6 +14,8 @@ const userSchema = new mongoose.Schema({
   password: String,
 }, { timestamps: true });
 
+userSchema.index({ username: 1 }, { unique: true });
+
 userSchema.pre('save', function(next: NextFunction) {
   const user = this as UserModel;
   /*

@@ -1,8 +1,6 @@
 import { Module } from 'vuex';
 import { RootState } from '../index';
-import $ from 'jquery';
 
-import save from './save';
 import { nodeTypes, getConstructor } from './node-types';
 import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from './types';
 import { VueConstructor } from 'vue';

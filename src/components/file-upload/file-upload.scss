@@ -15,7 +15,7 @@
   }
 
   &:hover, &:active, &.active {
-    background: lighten($theme-green, 30%);
+    background: $theme-green-light;
   }
 
   input {

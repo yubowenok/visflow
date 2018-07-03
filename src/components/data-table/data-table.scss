@@ -1,0 +1,16 @@
+@import '../../common/style/index';
+
+.data-table {
+  /deep/ .btn-outline-secondary {
+    padding-left: $padding-size-lg;
+    padding-right: $padding-size-lg;
+
+    &:not(:hover) {
+      background-color: white;
+    }
+
+    > i {
+      pointer-events: none;
+    }
+  }
+}

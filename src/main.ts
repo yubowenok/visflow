@@ -1,12 +1,17 @@
 import Vue from 'vue';
-import store from './store';
-import App from './components/app/app';
 import $ from 'jquery';
+
+import 'datatables.net';
+import 'datatables.net-bs4';
+import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
+import 'datatables.net-select';
 
 // Global stylesheets
 import 'jqueryui/jquery-ui.min.css';
 import './override/index.scss';
 
+import store from './store'; // store must be imported before App
+import App from './components/app/app';
 import { ENVIRONMENT } from './common/env';
 
 Vue.config.productionTip = false;

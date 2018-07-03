@@ -3,6 +3,7 @@ $navbar-height: 41px;
 $icon-size: 35px;
 
 $padding-size: .25rem;
+$padding-size-lg: $padding-size * 2;
 $padding-tb-size: .25rem;
 $padding-lr-size: 1.5rem;
 
@@ -20,6 +21,7 @@ $padding-lr-size: 1.5rem;
 
 $margin-size: .1rem;
 $margin-size-lg: $margin-size * 5;
+$section-margin: 1.25rem;
 
 %margin {
   margin: $margin-size;

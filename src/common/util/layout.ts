@@ -1,6 +1,4 @@
 import $ from 'jquery';
-import { ENVIRONMENT } from '@/common/env';
-import store from '@/store';
 
 /**
  * Returns true if the element contains a given point.
@@ -28,26 +26,4 @@ export const elementOffset = (e1: JQuery, e2: JQuery): JQuery.Coordinates => {
     left: offset1.left - offset2.left,
     top: offset1.top - offset2.top,
   };
-};
-
-interface Err {
-  message: string;
-  response?: {
-    data: string;
-  };
-}
-
-export const errorMessage = (err: Err): string => {
-  return (err.response && err.response.data) || err.message;
-};
-
-export const delayedCall = (callback: () => void, duration: number) => {
-  setTimeout(() => callback(), duration);
-  return;
-  if (ENVIRONMENT !== 'test') {
-    setTimeout(() => callback(), duration);
-  } else {
-    // make the call immediately when in tests
-    callback();
-  }
 };

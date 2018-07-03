@@ -3,6 +3,9 @@
 $theme-purple: #572e87;
 $theme-green: #98ca3c;
 
+$theme-purple-light: lighten($theme-purple, 30%);
+$theme-green-light: lighten($theme-green, 30%);
+
 $hover-green: rgba(152, 202, 60, .25);
 
 $highlight-color: #ff5757;

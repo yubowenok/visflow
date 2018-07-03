@@ -1,0 +1,23 @@
+@import '../common/style/index';
+
+table.dataTable {
+  border-width: 1px;
+  border-collapse: collapse;
+
+  tr.selected {
+    background-color: #ccc;
+  }
+
+  thead {
+    th {
+      border-bottom-width: 1px;
+      border-bottom-color: #ccc;
+    }
+  }
+
+  tbody {
+    th, td {
+      border-width: 1px;
+    }
+  }
+}

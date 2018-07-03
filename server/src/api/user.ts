@@ -1,10 +1,11 @@
 import { Express, Response, Request, NextFunction } from 'express';
-import { check, validationResult } from 'express-validator/check';
+import { check  } from 'express-validator/check';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import User, { UserModel } from '../models/user';
 import { IVerifyOptions } from 'passport-local';
 import { isMongooseConnected } from '../mongo';
+import { checkValidationResults } from '../common/util';
 
 const userApi = (app: Express) => {
   app.post('/api/user/*', isMongooseConnected);
@@ -33,15 +34,8 @@ const userApi = (app: Express) => {
           }
         });
       }),
+    checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      const msg = errors.array().reduce((prev: string, cur: { msg: string }): string => {
-        return (prev ? prev + '; ' : '') + cur.msg;
-      }, '');
-      return res.status(400).send(msg);
-    }
-
     const user = new User({
       username: req.body.username,
       password: req.body.password,
