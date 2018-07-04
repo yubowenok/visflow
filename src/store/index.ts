@@ -7,6 +7,7 @@ import { interaction } from './interaction';
 import { message } from './message';
 import { contextMenu } from './context-menu';
 import { user } from './user';
+import { dataset } from './dataset';
 import { history } from './history';
 
 Vue.use(Vuex);
@@ -26,6 +27,7 @@ export const defaultStore = {
     message,
     contextMenu,
     user,
+    dataset,
   },
 };
 

@@ -1,13 +1,19 @@
 // import { ENVIRONMENT } from '@/common/env';
+import { showSystemMessage } from '@/store/message';
 
-interface Err {
+interface ErrorResponse {
   message: string;
   response?: {
     data: string;
   };
 }
 
-export const errorMessage = (err: Err): string => {
+type Error = ErrorResponse | string;
+
+export const errorMessage = (err: Error): string => {
+  if (typeof err === 'string') {
+    return err;
+  }
   return (err.response && err.response.data) || err.message;
 };
 
@@ -22,16 +28,7 @@ export const fileSizeDisplay = (size: number): string => {
   }
 };
 
-export const delayedCall = (callback: () => void, duration: number) => {
-  // TODO: check this. just use delayed callback and see if tests are okay.
-  setTimeout(() => callback(), duration);
-  return;
-  /*
-  if (ENVIRONMENT !== 'test') {
-    setTimeout(() => callback(), duration);
-  } else {
-    // make the call immediately when in tests
-    callback();
-  }
-  */
+/** Displays an error message using the system message popup. */
+export const systemMessageErrorHandler = (err: Error) => {
+  showSystemMessage(errorMessage(err), 'error');
 };

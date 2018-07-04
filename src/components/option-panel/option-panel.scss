@@ -28,5 +28,10 @@
 
   > .content {
     @extend %padding;
+
+    .divider {
+      margin-left: -$padding-lr-size / 2;
+      margin-right: -$padding-lr-size / 2;
+    }
   }
 }

@@ -14,5 +14,15 @@ export default class DataTable extends Vue {
       this.table.destroy();
     }
     this.table = $(this.$refs.table).DataTable(this.config);
+    this.table.on('select', (evt: Event, dt: DataTables.DataTables, type: string, indexes: number[]) => {
+      if (type === 'row') {
+        this.$emit('selectRow', indexes);
+      }
+    });
+    this.table.on('deselect', (evt: Event, dt: DataTables.DataTables, type: string, indexes: number[]) => {
+      if (type === 'row') {
+        this.$emit('deselectRow', indexes);
+      }
+    });
   }
 }

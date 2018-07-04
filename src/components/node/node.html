@@ -4,11 +4,18 @@
     @mousedown="activate"
     @contextmenu.prevent.stop="$refs.contextMenu.open"
   >
-    <node-cover :text="coverText"></node-cover>
+    <node-cover v-if="coverText" :text="coverText"></node-cover>
     <node-label v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
-    <div ref="content" class="content">
-      <!-- node-content -->
-    </div>
+    <transition name="fade">
+      <div ref="content" v-if="!isIconized && !isAnimating" class="content">
+        <!-- node-content -->
+      </div>
+    </transition>
+    <transition name="fade">
+      <div ref="icon" v-if="isIconized && !isAnimating" class="icon">
+        <img :src="getIconPath">
+      </div>
+    </transition>
     <div class="background"></div>
     <div class="input">
       <div v-for="(port, index) in inputPorts" :key="port.id" :id="'port-container-' + port.id"

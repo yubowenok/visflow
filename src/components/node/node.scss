@@ -10,11 +10,11 @@
     width: 100%;
     height: 100%;
     background: white;
-    padding: $padding-size;
   }
 
   > .background {
     position: absolute;
+    pointer-events: none;
     top: 0;
     width: 100%;
     height: 100%;
@@ -41,16 +41,17 @@
     @extend %border-touch-left;
   }
 
-  /*
   > .icon {
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: 45px;
-    height: 50px;
-    position: absolute;
-    width: 50px;
+    @extend %vertical-center;
+
+    img {
+      // use 1px to adjust visual offset...
+      width: $icon-size-lg - 1px;
+      height: $icon-size-lg - 1px;
+    }
   }
 
+  /*
   &.selected {
     > .background {
       border-color: $gray-7;

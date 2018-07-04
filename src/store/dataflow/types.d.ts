@@ -35,20 +35,3 @@ export interface ConnectionInfo {
   nodeId: string;
   portId: string;
 }
-
-/*
-export interface Node {
-  id: string;
-  type: string;
-}
-
-export interface Edge {
-  source: ConnectionInfo;
-  target: ConnectionInfo;
-}
-
-export interface Port {
-  connectedWith: ConnectionInfo | undefined;
-}
-
-*/

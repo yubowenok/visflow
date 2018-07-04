@@ -13,9 +13,7 @@
   color: white;
   font-size: $font-size-sm;
   left: .25rem;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  @extend %ellipsis-text;
 
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;

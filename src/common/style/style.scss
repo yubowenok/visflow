@@ -100,3 +100,9 @@ $border-radius: 2px;
 %bar {
   @extend %margin-lr;
 }
+
+%ellipsis-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

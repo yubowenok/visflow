@@ -2,6 +2,8 @@ import { VueConstructor } from 'vue';
 
 import { NodeType } from './types';
 import Visualization from '@/components/visualization/visualization';
+import DataSource from '@/components/data-source/data-source';
+import Table from '@/components/table/table';
 import Node from '@/components/node/node';
 
 export const nodeTypes: NodeType[] = [
@@ -9,13 +11,13 @@ export const nodeTypes: NodeType[] = [
     id: 'data-source',
     title: 'Data Source',
     imgSrc: require('@/imgs/data-source.svg'),
-    constructor: Node, // test only
+    constructor: DataSource,
   },
   {
     id: 'table',
     title: 'Table',
     imgSrc: require('@/imgs/table.svg'),
-    constructor: Visualization, // test only
+    constructor: Table,
   },
   {
     id: 'scatterplot',

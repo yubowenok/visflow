@@ -1,13 +1,8 @@
 import { Module, ActionContext } from 'vuex';
 import { RootState } from '../index';
-import axios from 'axios';
 
-import { errorMessage } from '@/common/util';
-import { API_URL } from '@/common/url';
+import { axiosPost, errorMessage } from '@/common/util';
 
-const axiosConfig = {
-  withCredentials: true,
-};
 interface UserState {
   username: string;
 
@@ -50,9 +45,9 @@ const mutations = {
 };
 
 const actions = {
-  login(context: ActionContext<UserState, RootState>, profile: LoginProfile) {
+  login(context: ActionContext<UserState, RootState>, profile: LoginProfile): Promise<string> {
     return new Promise((resolve, reject) => {
-      axios.post(API_URL + '/user/login', profile, axiosConfig)
+      axiosPost<{ username: string }>('/user/login', profile)
         .then(res => {
           context.commit('loginUser', res.data.username);
           resolve(res.data.username);
@@ -61,9 +56,9 @@ const actions = {
     });
   },
 
-  logout(context: ActionContext<UserState, RootState>) {
+  logout(context: ActionContext<UserState, RootState>): Promise<void> {
     return new Promise((resolve, reject) => {
-      axios.post(API_URL + '/user/logout', {}, axiosConfig)
+      axiosPost<void>('/user/logout', {})
         .then(() => {
           context.commit('logoutUser');
           resolve();
@@ -72,9 +67,9 @@ const actions = {
     });
   },
 
-  signup(context: ActionContext<UserState, RootState>, profile: SignupProfile) {
+  signup(context: ActionContext<UserState, RootState>, profile: SignupProfile): Promise<string> {
     return new Promise((resolve, reject) => {
-      axios.post(API_URL + '/user/signup', profile, axiosConfig)
+      axiosPost<{ username: string }>('/user/signup', profile)
         .then(res => {
           context.commit('loginUser', res.data.username);
           resolve(res.data.username);
@@ -83,9 +78,13 @@ const actions = {
     });
   },
 
-  whoami(context: ActionContext<UserState, RootState>) {
+  /**
+   * Queries the currently logged in user from the last session.
+   * The promise returnsempty string when no user logged in or the session expires.
+   */
+  whoami(context: ActionContext<UserState, RootState>): Promise<string> {
     return new Promise((resolve, reject) => {
-      axios.post(API_URL + '/user/whoami', {}, axiosConfig)
+      axiosPost<{ username: string }>('/user/whoami', {})
         .then(res => {
           context.commit('loginUser', res.data.username);
           resolve(res.data.username || '');

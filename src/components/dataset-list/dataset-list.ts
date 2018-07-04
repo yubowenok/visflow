@@ -6,7 +6,7 @@ import { axiosPost, errorMessage, fileSizeDisplay } from '@/common/util';
 
 const user = namespace('user');
 
-interface DatasetInfo {
+export interface DatasetInfo {
   originalname: string;
   filename: string;
   size: number;
@@ -72,6 +72,7 @@ export default class DatasetLit extends Vue {
         info.filename,
       ]),
       lengthChange: false,
+      pageLength: 5,
       select: this.selectable ? 'single' : false,
       order: [2, 'desc'],
       searching: false,
@@ -100,5 +101,13 @@ export default class DatasetLit extends Vue {
   private deleteDataset(filename: string) {
     axiosPost<void>('/dataset/delete', { filename })
       .then(this.getList);
+  }
+
+  private onDatasetSelect(indexes: number[]) {
+    this.$emit('selectDataset', this.list[indexes[0]]);
+  }
+
+  private onDatasetDeselect(indexes: number[]) {
+    this.$emit('deselectDataset');
   }
 }

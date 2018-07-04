@@ -5,7 +5,7 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import { getImgSrc } from '@/store/dataflow/node-types';
-import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX } from '@/common/constants';
+import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX, ICONIZED_NODE_SIZE_PX } from '@/common/constants';
 export { injectNodeTemplate } from './template';
 import template from './node.html';
 import ContextMenu from '../context-menu/context-menu';
@@ -52,7 +52,7 @@ export default class Node extends Vue {
 
   protected RESIZABLE: boolean = false;
 
-  protected label: string = 'node';
+  protected label: string = '';
 
   // ports: input and output ports ids must be unique
   protected inputPorts: Port[] = [];
@@ -62,10 +62,13 @@ export default class Node extends Vue {
   protected portMap: { [id: string]: Port } = {};
 
   // layout
+  // current width and height are dynamic
   protected width: number = 0; // initialized in created()
   protected height: number = 0; // initialized in created()
-  protected x: number = 0;
-  protected y: number = 0;
+  protected displayWidth: number = 0; // width when not iconized
+  protected displayHeight: number = 0; // height when not iconized
+  protected x: number = 0; // css "left" of top-left corner
+  protected y: number = 0; // css "top" of top-left corner
   protected isActive: boolean = false;
   protected isIconized: boolean = false;
   protected isInVisMode: boolean = false;
@@ -74,7 +77,9 @@ export default class Node extends Vue {
   /** A list of classes to be added to the container element so that CSS can take effect. */
   protected containerClasses: string[] = [this.NODE_TYPE];
 
-  protected coverText: string = '(node)';
+  protected coverText: string = '';
+
+  private isAnimating = false;
 
   get numInputPorts(): number {
     return this.inputPorts.length;
@@ -90,6 +95,10 @@ export default class Node extends Vue {
       isInVisMode: this.isInVisMode,
       isLabelVisible: this.isLabelVisible,
     };
+  }
+
+  get getIconPath() {
+    return getImgSrc(this.NODE_TYPE);
   }
 
   @dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
@@ -166,9 +175,9 @@ export default class Node extends Vue {
   }
 
   protected created() {
-    this.coverText = this.id;
-    this.width = this.DEFAULT_WIDTH;
-    this.height = this.DEFAULT_HEIGHT;
+    this.label = this.id;
+    this.width = this.displayWidth = this.DEFAULT_WIDTH;
+    this.height = this.displayHeight = this.DEFAULT_HEIGHT;
 
     this.createPorts();
     this.createPortMap();
@@ -269,8 +278,8 @@ export default class Node extends Vue {
         minWidth: this.MIN_WIDTH,
         minHeight: this.MIN_HEIGHT,
         resize: (evt: Event, ui: JQueryUI.ResizableUIParams) => {
-          this.width = ui.size.width;
-          this.height = ui.size.height;
+          this.width = this.displayWidth = ui.size.width;
+          this.height = this.displayHeight = ui.size.height;
           this.x = ui.position.left;
           this.y = ui.position.top;
           updatePorts();
@@ -308,6 +317,10 @@ export default class Node extends Vue {
 
   private initCss() {
     const $node = $(this.$refs.node);
+    // Note: When the node is created and initialized, the passed in x and y are coordinates for the center,
+    // not the top-left corner.
+    this.x -= this.DEFAULT_WIDTH / 2;
+    this.y -= this.DEFAULT_HEIGHT / 2;
     $node.addClass(this.containerClasses)
       .attr({
         id: this.id,
@@ -315,8 +328,8 @@ export default class Node extends Vue {
       .css({
         width: this.DEFAULT_WIDTH,
         height: this.DEFAULT_HEIGHT,
-        left: this.x - this.DEFAULT_WIDTH / 2,
-        top: this.y - this.DEFAULT_HEIGHT / 2,
+        left: this.x,
+        top: this.y,
         // jQuery.draggable sets position to relative, we override here.
         position: 'absolute',
       });
@@ -356,6 +369,48 @@ export default class Node extends Vue {
 
   private onToggleLabelVisible(val: boolean) {
     this.isLabelVisible = val;
+  }
+
+  @Watch('isIconized')
+  private onIconizedChange() {
+    let newWidth: number;
+    let newHeight: number;
+    if (this.isIconized) {
+      this.displayWidth = this.width;
+      this.displayHeight = this.height;
+      newWidth = newHeight = ICONIZED_NODE_SIZE_PX;
+      if (this.RESIZABLE) {
+        $(this.$refs.node).resizable('disable');
+      }
+    } else {
+      newWidth = this.displayWidth;
+      newHeight = this.displayHeight;
+      if (this.RESIZABLE) {
+        $(this.$refs.node).resizable('enable');
+      }
+    }
+    const targetX = this.x + this.width / 2 - newWidth / 2;
+    const targetY = this.y + this.height / 2 - newHeight / 2;
+    const $node = $(this.$refs.node);
+    this.isAnimating = true;
+    TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
+      width: newWidth,
+      height: newHeight,
+      left: targetX,
+      top: targetY,
+      onUpdate: () => {
+        this.width = $node.width() as number;
+        this.height = $node.height() as number;
+        const offset = $node.offset() as JQuery.Coordinates;
+        this.x = offset.left;
+        this.y = offset.top;
+      },
+      onComplete: () => {
+        this.width = newWidth;
+        this.height = newHeight;
+        this.isAnimating = false;
+      },
+    });
   }
 
   @Watch('isActive')
