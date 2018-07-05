@@ -71,7 +71,7 @@ export default class Edge extends Vue {
   private mounted() {
     this.updateCoordinates();
 
-    TweenLite.from(this.$el, LONG_ANIMATION_DURATION_S, {
+    TweenLite.from(this.$refs.edge, LONG_ANIMATION_DURATION_S, {
       opacity: 0,
     });
   }

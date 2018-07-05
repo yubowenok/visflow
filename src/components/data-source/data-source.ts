@@ -5,7 +5,7 @@ import { namespace } from 'vuex-class';
 import Node, { injectNodeTemplate } from '../node/node';
 import MultiplePort from '../port/multiple-port';
 import template from './data-source.html';
-
+import Port from '@/components/port/port';
 import DatasetPanel from '../dataset-panel/dataset-panel';
 import { DatasetInfo } from '@/components/dataset-list/dataset-list';
 import { systemMessageErrorHandler } from '@/common/util';
@@ -13,6 +13,7 @@ import { FetchDatasetOptions } from '@/store/dataset';
 
 const dataset = namespace('dataset');
 const user = namespace('user');
+const dataflow = namespace('dataflow');
 
 @Component({
   template: injectNodeTemplate(template),
@@ -28,6 +29,7 @@ export default class DataSource extends mixins(Node) {
 
   @user.State('username') private username!: string;
   @dataset.Action('fetchDataset') private fetchDataset!: (options: FetchDatasetOptions) => Promise<string>;
+  @dataflow.Mutation('propagatePort') private propagatePort!: (port: Port, t: number) => void;
 
   private datasetInfo: DatasetInfo | null = null;
   private datasetName = '';
@@ -55,6 +57,7 @@ export default class DataSource extends mixins(Node) {
     }).then(csvStr => {
       // TODO: parse csv string and generate data object
       console.log(csvStr);
+      this.propagatePort(this.portMap.out, 3);
     }).catch(systemMessageErrorHandler);
   }
 }

@@ -61,21 +61,22 @@ export default class Node extends Vue {
   /** Maps port id to port. */
   protected portMap: { [id: string]: Port } = {};
 
-  // layout
-  // current width and height are dynamic
+  // Layout related properties.
+  // Changing width and height will resize the node.
   protected width: number = 0; // initialized in created()
   protected height: number = 0; // initialized in created()
   protected displayWidth: number = 0; // width when not iconized
   protected displayHeight: number = 0; // height when not iconized
-  protected x: number = 0; // css "left" of top-left corner
-  protected y: number = 0; // css "top" of top-left corner
+  // Changing x and y will change the position of the node.
+  protected x: number = 0; // CSS "left" of top-left corner
+  protected y: number = 0; // CSS "top" of top-left corner
   protected isActive: boolean = false;
   protected isIconized: boolean = false;
   protected isInVisMode: boolean = false;
   protected isLabelVisible: boolean = false;
 
   /** A list of classes to be added to the container element so that CSS can take effect. */
-  protected containerClasses: string[] = [this.NODE_TYPE];
+  protected containerClasses: string[] = ['node'];
 
   protected coverText: string = '';
 
@@ -108,6 +109,7 @@ export default class Node extends Vue {
   @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
   @systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
+  @panels.Mutation('unmountOptionPanel') private unmountOptionPanel!: (panel: Vue) => void;
 
   public findConnectablePort(port: Port): Port | null {
     // TODO: do not check connectivity. Just return the first input/output port.
@@ -174,6 +176,26 @@ export default class Node extends Vue {
     return edges;
   }
 
+  /** Moves the node to a given position. */
+  public moveTo(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+
+  /** Moves the node by the given (dx, dy) from its current position. */
+  public moveBy(dx: number, dy: number) {
+    this.x += dx;
+    this.y += dy;
+  }
+
+  /**
+   * Updates all outputs based on the (possibly) new inputs. This is called by dataflow propagation.
+   * Inheriting node types should implement this method to define how they output data.
+   */
+  public update() {
+    console.log('updated', this.id);
+  }
+
   protected created() {
     this.label = this.id;
     this.width = this.displayWidth = this.DEFAULT_WIDTH;
@@ -233,20 +255,18 @@ export default class Node extends Vue {
 
   /** Update the ports' coordinates when the node moves. */
   private updatePortCoordinates() {
-    _.each(this.portMap, (port: Port) => {
-      port.updateCoordinates();
+    // Port coordinates are Vue reactive and async.
+    // We must update coordinates till Vue updates the ports.
+    this.$nextTick(() => {
+      _.each(this.portMap, (port: Port) => {
+        port.updateCoordinates();
+      });
     });
   }
 
   private initDragAndResize() {
     const $node = $(this.$refs.node);
     let lastDragPosition: { left: number, top: number };
-
-    const updatePorts = () => {
-      // Port coordinates are Vue reactive and async.
-      // We must update coordinates till Vue updates the ports.
-      this.$nextTick(this.updatePortCoordinates);
-    };
 
     $node.draggable({
       grid: [GRID_SIZE, GRID_SIZE],
@@ -258,16 +278,13 @@ export default class Node extends Vue {
             ui.position.top !== lastDragPosition.top) {
           lastDragPosition.left = ui.position.left;
           lastDragPosition.top = ui.position.top;
-
           this.x = ui.position.left;
           this.y = ui.position.top;
-          updatePorts();
         }
       },
       stop: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
         this.x = ui.position.left;
         this.y = ui.position.top;
-        updatePorts();
       },
     });
 
@@ -282,7 +299,6 @@ export default class Node extends Vue {
           this.height = this.displayHeight = ui.size.height;
           this.x = ui.position.left;
           this.y = ui.position.top;
-          updatePorts();
         },
       });
     }
@@ -322,14 +338,7 @@ export default class Node extends Vue {
     this.x -= this.DEFAULT_WIDTH / 2;
     this.y -= this.DEFAULT_HEIGHT / 2;
     $node.addClass(this.containerClasses)
-      .attr({
-        id: this.id,
-      })
       .css({
-        width: this.DEFAULT_WIDTH,
-        height: this.DEFAULT_HEIGHT,
-        left: this.x,
-        top: this.y,
         // jQuery.draggable sets position to relative, we override here.
         position: 'absolute',
       });
@@ -424,6 +433,28 @@ export default class Node extends Vue {
   @Watch('layer')
   private onLayerChange(newLayer: number) {
     $(this.$refs.node).css('z-index', this.layer);
+  }
+
+  // Watch layout parameter changes to re-position the node and its ports reactively.
+  @Watch('x')
+  private onXChange() {
+    $(this.$refs.node).css('left', this.x);
+    this.updatePortCoordinates();
+  }
+  @Watch('y')
+  private onYChange() {
+    $(this.$refs.node).css('top', this.y);
+    this.updatePortCoordinates();
+  }
+  @Watch('width')
+  private onWidthChange() {
+    $(this.$refs.node).css('width', this.width);
+    this.updatePortCoordinates();
+  }
+  @Watch('height')
+  private onHeightChange() {
+    $(this.$refs.node).css('height', this.height);
+    this.updatePortCoordinates();
   }
 
   /** Sets the locations of ports. */

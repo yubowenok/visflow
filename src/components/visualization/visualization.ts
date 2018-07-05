@@ -15,9 +15,6 @@ export default class Visualization extends mixins(Node) {
 
   protected isInVisMode = true;
 
-  protected created() {
-  }
-
   private testOption() {
   }
 }

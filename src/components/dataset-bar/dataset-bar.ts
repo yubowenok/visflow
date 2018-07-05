@@ -7,6 +7,4 @@ import DatasetPanel from '../dataset-panel/dataset-panel';
   },
 })
 export default class DatasetBar extends Vue {
-  private mounted() {
-  }
 }

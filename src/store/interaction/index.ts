@@ -8,6 +8,7 @@ import Port from '@/components/port/port';
 import Node from '@/components/node/node';
 import store from '../index';
 
+
 interface InteractionState {
   draggedPort?: Port;
   draggedX1: number;
@@ -16,6 +17,9 @@ interface InteractionState {
   draggedY2: number;
 
   altPressed: boolean;
+  shiftPressed: boolean;
+  ctrlPressed: boolean;
+  altHold: boolean;
 }
 
 const initialState = {
@@ -26,6 +30,23 @@ const initialState = {
   draggedY2: 0,
 
   altPressed: false,
+  shiftPressed: false,
+  ctrlPressed: false,
+  altHold: false,
+};
+
+const getters = {
+  isAltPressed: (state: InteractionState): boolean => {
+    return state.altHold || state.altPressed;
+  },
+
+  isShiftPressed: (state: InteractionState): boolean => {
+    return state.shiftPressed;
+  },
+
+  isCtrlPressed: (state: InteractionState): boolean => {
+    return state.ctrlPressed;
+  },
 };
 
 const mutations = {
@@ -62,11 +83,39 @@ const mutations = {
     });
   },
 
-  toggleAlt: (state: InteractionState, value?: boolean) => {
+  toggleAltHold: (state: InteractionState, value?: boolean) => {
     if (value === undefined) {
-      state.altPressed = !state.altPressed;
+      state.altHold = !state.altHold;
     } else {
-      state.altPressed = value;
+      state.altHold = value;
+    }
+  },
+
+  keydown: (state: InteractionState, key: string) => {
+    switch (key) {
+      case 'Control':
+        state.ctrlPressed = true;
+        break;
+      case 'Shift':
+        state.shiftPressed = true;
+        break;
+      case 'Alt':
+        state.altPressed = true;
+        break;
+    }
+  },
+
+  keyup: (state: InteractionState, key: string) => {
+    switch (key) {
+      case 'Control':
+        state.ctrlPressed = false;
+        break;
+      case 'Shift':
+        state.shiftPressed = false;
+        break;
+      case 'Alt':
+        state.altPressed = false;
+        break;
     }
   },
 };
@@ -74,5 +123,6 @@ const mutations = {
 export const interaction: Module<InteractionState, RootState> = {
   namespaced: true,
   state: initialState,
+  getters,
   mutations,
 };

@@ -1,26 +1,24 @@
 import { Module } from 'vuex';
 import { RootState } from '../index';
+import _ from 'lodash';
 
-import { nodeTypes, getConstructor } from './node-types';
+import { nodeTypes } from './node-types';
 import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from './types';
-import { VueConstructor } from 'vue';
-import store from '../index';
 import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
-import Dataflow from '@/components/dataflow/dataflow';
-import { checkEdgeConnectivity } from './util';
-import { showSystemMessage } from '@/store/message';
+import Port from '@/components/port/port';
+import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
+
+import * as helper from './helper';
 export * from './util';
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
 
-
 const initialState: DataflowState = {
-  canvas: new Dataflow(),
+  canvas: new DataflowCanvas(),
   nodeTypes,
   nodes: [],
-  edges: [],
   numNodeLayers: 0,
   nodeIdCounter: 0,
 };
@@ -36,33 +34,8 @@ const getters = {
 
 const mutations = {
   /** Sets the rendering canvas to the global Vue Dataflow instance. */
-  setCanvas: (state: DataflowState, canvas_: Dataflow) => {
-    state.canvas = canvas_;
-  },
-
-  /** Creates a dataflow node. */
-  createNode: (state: DataflowState, options: CreateNodeOptions) => {
-    const constructor = getConstructor(options.type) as VueConstructor;
-    const id = `node-${state.nodeIdCounter++}`;
-    const node: Node = new constructor({
-      data: {
-        id,
-        // Floor the coordinates so that nodes are always aligned to integers.
-        x: Math.floor(options.centerX),
-        y: Math.floor(options.centerY),
-      },
-      store,
-    }) as Node;
-    state.canvas.addNode(node);
-    state.nodes.push(node);
-  },
-
-  /** Removes a node from the dataflow diagram. */
-  removeNode: (state: DataflowState, node: Node) => {
-    for (const edge of node.getAllEdges()) {
-      mutations.removeEdge(state, edge);
-    }
-    state.canvas.removeNode(node, () => node.$destroy());
+  setCanvas: (state: DataflowState, canvas: DataflowCanvas) => {
+    state.canvas = canvas;
   },
 
   /**
@@ -79,39 +52,45 @@ const mutations = {
     state.numNodeLayers++;
   },
 
-  createEdge: (state: DataflowState, payload: CreateEdgeOptions) => {
-    const sourcePort = payload.sourcePort;
-    const targetPort = payload.targetPort || (payload.targetNode as Node).findConnectablePort(sourcePort);
-    if (!targetPort) {
-      showSystemMessage('cannot find available port to connect', 'warn');
-      return;
-    }
-    const connectivity = checkEdgeConnectivity(sourcePort, targetPort);
-    if (!connectivity.connectable) {
-      showSystemMessage(connectivity.reason, 'warn');
-      return;
-    }
-    const edge = new Edge({
-      data: {
-        // always create edge from output port to input port
-        source: !sourcePort.isInput ? sourcePort : targetPort,
-        target: !sourcePort.isInput ? targetPort : sourcePort,
-      },
-      store,
-    });
-    sourcePort.addIncidentEdge(edge);
-    targetPort.addIncidentEdge(edge);
-    state.canvas.addEdge(edge);
+  /** Creates a node without propagation. This assumes the new node does not connect to any other node. */
+  createNode: (state: DataflowState, options: CreateNodeOptions) => {
+    helper.createNode(state, options);
   },
 
+  /** Removes a node and propagates. */
+  removeNode: (state: DataflowState, node: Node) => {
+    helper.removeNode(state, node, true);
+  },
+
+  /** Creates an edge and propagates. */
+  createEdge: (state: DataflowState, options: CreateEdgeOptions) => {
+    helper.createEdge(state, options, true);
+  },
+
+  /** Removes an edge and propagates. */
   removeEdge: (state: DataflowState, edge: Edge) => {
-    edge.source.removeIncidentEdge(edge);
-    edge.target.removeIncidentEdge(edge);
-    state.canvas.removeEdge(edge, () => edge.$destroy());
+    helper.removeEdge(state, edge, true);
   },
-};
 
-const actions = {
+  /** Removes all incident edges to a port and propagates. */
+  disconnectPort: (state: DataflowState, port: Port) => {
+    helper.disconnectPort(state, port, true);
+  },
+
+  /** Notifies of port data change and propagates the change. */
+  updatePort: (state: DataflowState, port: Port) => {
+    helper.propagatePort(port);
+  },
+
+  /** Notifies of node data change and propagates the change. */
+  updateNode: (state: DataflowState, node: Node) => {
+    helper.propagateNode(node);
+  },
+
+  /** Moves all nodes by (dx, dy). */
+  moveDiagram: (state: DataflowState, { dx, dy }: { dx: number, dy: number }) => {
+    _.each(state.nodes, node => node.moveBy(dx, dy));
+  },
 };
 
 export const dataflow: Module<DataflowState, RootState> = {
@@ -119,5 +98,4 @@ export const dataflow: Module<DataflowState, RootState> = {
   state: initialState,
   getters,
   mutations,
-  actions,
 };

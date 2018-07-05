@@ -14,3 +14,12 @@
     @extend %extra-bold-border;
   }
 }
+
+.connectivity {
+  @extend %vertical-center;
+
+  .fa-circle {
+    color: #555;
+    font-size: 5px;
+  }
+}

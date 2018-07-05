@@ -1,5 +1,5 @@
 <template>
-<div class="dataflow">
+<div id="dataflow-canvas" :class="dragClass">
   <div ref="nodes"></div>
   <svg ref="edges">
     <drawing-edge v-if="draggedPort"></drawing-edge>
@@ -8,7 +8,7 @@
 </div>
 </template>
 
-<style scoped src="./dataflow.scss"></style>
+<style scoped src="./dataflow-canvas.scss"></style>
 
-<script src="./dataflow.ts">
+<script src="./dataflow-canvas.ts">
 </script>

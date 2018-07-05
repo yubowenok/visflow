@@ -6,9 +6,11 @@
     @dblclick.prevent.stop="activate"
     @contextmenu.prevent.stop="openContextMenu"
     v-global-click="globalClick">
+    <span class="connectivity" v-if="MAX_CONNECTIONS === 1">
+      <i class="fas fa-circle"></i>
+    </span>
     <transition name="slide-fade-right">
-      <port-panel ref="portPanel" v-if="isActive">
-        Panel for port {{ id }}
+      <port-panel ref="portPanel" v-if="isActive" :port-id="id">
         <div>
           <a @click="clickLink">test link</a>
         </div>
@@ -16,7 +18,7 @@
     </transition>
   </div>
   <context-menu ref="contextMenu">
-    <li>Port Menu</li>
+    <li @click="disconnect">Disconnect</li>
   </context-menu>
 </div>
 

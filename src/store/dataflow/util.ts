@@ -16,6 +16,14 @@ export const checkEdgeConnectivity = (source: Port, target: Port): { connectable
     };
   }
 
+  const errNoCycle = {
+    connectable: false,
+    reason: 'cycles are not allowed in the diagram',
+  };
+  if (source.node === target.node) {
+    return errNoCycle;
+  }
+
   const visited: Set<Node> = new Set();
   visited.add(source.node);
   // Use array as queue here. The flow graph is small so the efficiency should be ok.
@@ -26,10 +34,7 @@ export const checkEdgeConnectivity = (source: Port, target: Port): { connectable
     // console.warn(from.id, outputs.map(node => node.id));
     for (const to of outputs) {
       if (visited.has(to)) {
-        return {
-          connectable: false,
-          reason: 'cycles are not allowed in the diagram',
-        };
+        return errNoCycle;
       } else {
         visited.add(to);
         queue.push(to);

@@ -36,6 +36,7 @@ export default class Port extends Vue {
   @interaction.Mutation('dropPortOnPort') private dropPortOnPort!: (port: Port) => void;
   @panels.Mutation('mountPortPanel') private mountPortPanel!: (panel: Vue) => void;
   @contextMenu.Mutation('mount') private mountContextMenu!: (menu: ContextMenu) => void;
+  @dataflow.Mutation('disconnectPort') private disconnectPort!: (port: Port) => void;
 
   public hasCapacity(): boolean {
     return this.edges.length < this.MAX_CONNECTIONS;
@@ -43,12 +44,12 @@ export default class Port extends Vue {
 
   /** Retrieves a list of nodes that this port connects to. */
   public getConnectedNodes(): Node[] {
-    return this.edges.map(edge => this.isInput ? edge.target.node : edge.source.node);
+    return this.edges.map(edge => this.isInput ? edge.source.node : edge.target.node);
   }
 
   /** Retrieves a list of ports that this port connects to. */
   public getConnectedPorts(): Port[] {
-    return this.edges.map(edge => this.isInput ? edge.target : edge.source);
+    return this.edges.map(edge => this.isInput ? edge.source : edge.target);
   }
 
   public updateCoordinates() {
@@ -90,6 +91,11 @@ export default class Port extends Vue {
 
   private deactivate() {
     this.isActive = false;
+  }
+
+  /** Removes all incident edges */
+  private disconnect() {
+    this.disconnectPort(this);
   }
 
   private mousedown(evt: Event) {

@@ -1,5 +1,5 @@
 <div :class="{ active: isActive }">
-  <div ref="node"
+  <div ref="node" :id="id"
     v-global-click="globalClick"
     @mousedown="activate"
     @contextmenu.prevent.stop="$refs.contextMenu.open"

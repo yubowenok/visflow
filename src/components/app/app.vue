@@ -4,7 +4,7 @@
   <system-message></system-message>
   <node-panel></node-panel>
   <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
-    <dataflow ref="dataflow"></dataflow>
+    <dataflow-canvas ref="dataflowCanvas"></dataflow-canvas>
   </div>
   <div id="option-panel-mount" ref="optionPanelMount"></div>
   <div id="port-panel-mount" ref="portPanelMount"></div>

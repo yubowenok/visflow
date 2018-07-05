@@ -21,17 +21,14 @@
   }
 
   > .divider {
-    margin: $margin-size 0;
-    border-top: 1px solid #ccc;
-    @extend %box-shadow;
+    @extend %divider;
   }
 
   > .content {
     @extend %padding;
 
     .divider {
-      margin-left: -$padding-lr-size / 2;
-      margin-right: -$padding-lr-size / 2;
+      @extend %secondary-divider;
     }
   }
 }

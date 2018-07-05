@@ -13,6 +13,7 @@ const MESSAGE_INTERVAL = 100;
 interface MessageState {
   text: string;
   class: string;
+  timeout: NodeJS.Timer | null;
 }
 
 export interface MessageOptions {
@@ -24,6 +25,7 @@ export interface MessageOptions {
 const initialState: MessageState = {
   text: '',
   class: '',
+  timeout: null,
 };
 
 const mutations = {
@@ -35,11 +37,15 @@ const mutations = {
    */
   showMessage: (state: MessageState, payload: MessageOptions) => {
     const display = () => {
+      if (state.timeout) {
+        clearTimeout(state.timeout);
+        state.timeout = null;
+      }
       state.text = payload.text;
       state.class = payload.class || '';
       const duration = payload.duration || DEFAULT_MESSAGE_DURATION;
       if (state.class !== 'error') { // error message must be closed manually
-        setTimeout(() => state.text = '', duration);
+        state.timeout = setTimeout(() => state.text = '', duration);
       }
     };
     if (state.text !== '') {

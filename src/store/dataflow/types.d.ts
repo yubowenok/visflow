@@ -1,13 +1,12 @@
 import Node from '@/components/node/node';
 import Port from '@/components/port/port';
 import Edge from '@/components/edge/edge';
-import Dataflow from '@/components/dataflow/dataflow';
+import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 
 export interface DataflowState {
-  canvas: Dataflow;
+  canvas: DataflowCanvas;
   nodeTypes: NodeType[];
   nodes: Node[];
-  edges: Edge[];
   numNodeLayers: number; // number of node layers, each node is on its own layer to define front/back ordering
   nodeIdCounter: number; // for assigning ids to new nodes
 }

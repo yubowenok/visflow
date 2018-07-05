@@ -1,6 +1,6 @@
 <template>
 <b-modal title="Dataset" v-model="modalVisible">
-  <file-upload ref="fileUpload" url="/dataset/upload" field="dataset" @uploaded="onFileUpload"></file-upload>
+  <file-upload ref="fileUpload" :parentRefs="$refs" url="/dataset/upload" field="dataset" @uploaded="onFileUpload"></file-upload>
   <div class="list">
     <h5>Your Datasets</h5>
     <dataset-list ref="datasetList" :selectable="selectable"

@@ -1,7 +1,7 @@
 @import '../../common/style/index';
 
 .bar {
-  &.active {
+  #toggle.active {
     background-color: $theme-green;
   }
 }

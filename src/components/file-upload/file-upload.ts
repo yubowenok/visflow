@@ -21,6 +21,8 @@ export default class FileUpload extends Vue {
   private url!: string;
   @Prop()
   private field!: string;
+  @Prop()
+  private parentRefs!: any; // tslint:disable-line
 
   private successMessage = '';
   private errorMessage = '';

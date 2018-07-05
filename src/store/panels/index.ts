@@ -32,6 +32,14 @@ const mutations = {
     state.optionPanelMount.appendChild(panel.$el);
   },
 
+  unmountOptionPanel(state: PanelsState, panel: OptionPanel) {
+    if (panel.$el.parentElement !== state.optionPanelMount) {
+      console.error('attempt to mount an unmounted option panel');
+      return;
+    }
+    state.optionPanelMount.removeChild(panel.$el);
+  },
+
   mountPortPanel(state: PanelsState, panel: PortPanel) {
     if (!panel) {
       console.error('attempted to mount undefined port panel');
