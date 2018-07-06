@@ -11,6 +11,7 @@ import $ from 'jquery';
 import { DEFAULT_ANIMATION_DURATION_S } from '@/common/constants';
 
 enum DragMode {
+  NONE = 'none',
   PAN = 'pan',
   SELECT = 'select',
 }
@@ -28,16 +29,15 @@ export default class DataflowCanvas extends Vue {
   @interaction.State('draggedPort') private draggedPort!: Port;
   @interaction.Getter('isAltPressed') private isAltPressed!: boolean;
   @interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
+  @interaction.Mutation('clickBackground') private clickBackground!: () => void;
   @dataflow.Mutation('moveDiagram') private moveDiagram!: ({ dx, dy }: { dx: number, dy: number }) => void;
 
   private dragStart: JQuery.Coordinates = { left: 0, top: 0 };
   private isPanning = false;
   private lastMouseX: number = 0;
   private lastMouseY: number = 0;
-
-  get dragMode(): DragMode {
-    return this.isShiftPressed ? DragMode.SELECT : DragMode.PAN;
-  }
+  private draggedDistance: number = 0;
+  private dragMode: DragMode = DragMode.NONE;
 
   get dragClass(): string {
     return this.isPanning ? 'panning' : '';
@@ -90,10 +90,15 @@ export default class DataflowCanvas extends Vue {
   private onMousedown(evt: JQuery.Event) {
     // $refs.edges is the background of the canvas.
     if (evt.target !== this.$refs.edges) {
+      this.dragMode = DragMode.NONE;
       return;
     }
+
+    this.dragMode = this.isShiftPressed ? DragMode.SELECT : DragMode.PAN;
+
     if (this.dragMode === DragMode.PAN) {
       this.isPanning = true;
+      this.draggedDistance = 0;
     } else if (this.dragMode === DragMode.SELECT) {
 
     }
@@ -106,6 +111,7 @@ export default class DataflowCanvas extends Vue {
       const dx = evt.pageX - this.lastMouseX;
       const dy = evt.pageY - this.lastMouseY;
       this.moveDiagram({ dx, dy });
+      this.draggedDistance += Math.abs(dx) + Math.abs(dy);
     } else if (this.dragMode === DragMode.SELECT) {
 
     }
@@ -116,8 +122,11 @@ export default class DataflowCanvas extends Vue {
   private onMouseup(evt: JQuery.Event) {
     if (this.dragMode === DragMode.PAN) {
       this.isPanning = false;
+      if (this.draggedDistance === 0) {
+        // Click on the background deselects all selected nodes.
+        this.clickBackground();
+      }
     } else if (this.dragMode === DragMode.SELECT) {
-
     }
   }
 

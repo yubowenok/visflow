@@ -9,6 +9,8 @@ import { contextMenu } from './context-menu';
 import { user } from './user';
 import { dataset } from './dataset';
 import { history } from './history';
+import { DataflowState } from '@/store/dataflow/types';
+import { InteractionState } from '@/store/interaction';
 
 Vue.use(Vuex);
 
@@ -16,6 +18,8 @@ const debug = process.env.NODE_ENV !== 'production';
 
 export interface RootState {
   version?: number;
+  dataflow: DataflowState;
+  interaction: InteractionState;
 }
 
 export const defaultStore = {

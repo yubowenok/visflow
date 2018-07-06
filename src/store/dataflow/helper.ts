@@ -3,6 +3,7 @@
  * The helper functions here should only be imported by the dataflow store.
  */
 import { VueConstructor } from 'vue';
+import _ from 'lodash';
 
 import { checkEdgeConnectivity } from './util';
 import { showSystemMessage } from '@/store/message';
@@ -81,6 +82,23 @@ export const removeNode = (state: DataflowState, node: Node, propagate: boolean)
   }
 
   state.canvas.removeNode(node, () => node.$destroy());
+};
+
+export const removeActiveNodes = (state: DataflowState) => {
+  const affectedOutputNodes: Set<Node> = new Set();
+  const activeNodes = state.nodes.filter(node => node.isActive);
+  for (const node of activeNodes) {
+    for (const toNode of node.getOutputNodes()) {
+      if (_.indexOf(activeNodes, toNode) === -1) {
+        affectedOutputNodes.add(toNode);
+      }
+    }
+  }
+  console.log('remove ', activeNodes);
+  for (const node of activeNodes) {
+    removeNode(state, node, false);
+  }
+  propagateNodes(Array.from(affectedOutputNodes));
 };
 
 export const disconnectPort = (state: DataflowState, port: Port, propagate: boolean) => {

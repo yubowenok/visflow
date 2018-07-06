@@ -20,6 +20,11 @@
     height: 100%;
 
     @extend %box;
+
+    &.selected,
+    &.active {
+      @extend %extra-bold-border;
+    }
   }
 
   &:hover {
@@ -59,10 +64,4 @@
     }
   }
   */
-}
-
-.active {
-  .node > .background {
-    @extend %extra-bold-border;
-  }
 }

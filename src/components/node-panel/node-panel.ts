@@ -2,8 +2,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import { namespace } from 'vuex-class';
 import $ from 'jquery';
 
-import { NodeType } from '@/store/dataflow/types';
-import { CreateNodeOptions } from '@/store/dataflow/types';
+import { NodeType, CreateNodeOptions } from '@/store/dataflow/types';
 import { elementContains } from '@/common/util';
 import { DRAG_TIME_THRESHOLD } from '@/common/constants';
 

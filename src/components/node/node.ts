@@ -1,5 +1,4 @@
 import { Component, Vue, Watch } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 import { TweenLite } from 'gsap';
 import $ from 'jquery';
 import _ from 'lodash';
@@ -17,13 +16,9 @@ import Edge from '../edge/edge';
 import Port from '../port/port';
 import MultiplePort from '../port/multiple-port';
 import { MessageOptions } from '@/store/message';
+import { DragNodePayload } from '@/store/interaction';
 import { checkEdgeConnectivity } from '@/store/dataflow';
-
-const dataflow = namespace('dataflow');
-const interaction = namespace('interaction');
-const message = namespace('message');
-const systemOptions = namespace('systemOptions');
-const panels = namespace('panels');
+import { ns } from '@/common/util';
 
 const GRID_SIZE = 10;
 
@@ -43,7 +38,10 @@ const GRID_SIZE = 10;
 export default class Node extends Vue {
   public id!: string;
   public layer: number = 0;
-
+  // whether the node is focused and its option panel is shown
+  public isActive: boolean = false;
+  // whether the node is among the current selection, which may contain multiple nodes
+  public isSelected: boolean = false;
   protected NODE_TYPE: string = 'node';
   protected DEFAULT_WIDTH: number = 50;
   protected DEFAULT_HEIGHT: number = 50;
@@ -70,7 +68,6 @@ export default class Node extends Vue {
   // Changing x and y will change the position of the node.
   protected x: number = 0; // CSS "left" of top-left corner
   protected y: number = 0; // CSS "top" of top-left corner
-  protected isActive: boolean = false;
   protected isIconized: boolean = false;
   protected isInVisMode: boolean = false;
   protected isLabelVisible: boolean = false;
@@ -81,6 +78,7 @@ export default class Node extends Vue {
   protected coverText: string = '';
 
   private isAnimating = false;
+  private isDragged = false;
 
   get numInputPorts(): number {
     return this.inputPorts.length;
@@ -102,14 +100,19 @@ export default class Node extends Vue {
     return getImgSrc(this.NODE_TYPE);
   }
 
-  @dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
-  @dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
-  @dataflow.Mutation('removeNode') private dataflowRemoveNode!: (node: Node) => void;
-  @interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
-  @message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
-  @systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
-  @panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
-  @panels.Mutation('unmountOptionPanel') private unmountOptionPanel!: (panel: Vue) => void;
+  @ns.dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
+  @ns.dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
+  @ns.dataflow.Mutation('removeNode') private dataflowRemoveNode!: (node: Node) => void;
+  @ns.interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
+  @ns.interaction.Getter('numSelectedNodes') private numSelectedNodes!: number;
+  @ns.interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
+  @ns.interaction.Mutation('dragNode') private dragNode!: (payload: DragNodePayload) => void;
+  @ns.interaction.Mutation('dragNodeStopped') private dragNodeStopped!: () => void;
+  @ns.interaction.Mutation('clickNode') private clickNode!: (node: Node) => void;
+  @ns.message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
+  @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
+  @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
+  @ns.panels.Mutation('unmountOptionPanel') private unmountOptionPanel!: (panel: Vue) => void;
 
   public findConnectablePort(port: Port): Port | null {
     // TODO: do not check connectivity. Just return the first input/output port.
@@ -159,6 +162,7 @@ export default class Node extends Vue {
   /** Makes the node activated. This is typically auto-triggered by mouse click on the node. */
   public activate() {
     this.isActive = true;
+    // Activating the node implies selecting it.
     // Must use $nextTick because $refs.optionPanel appears asynchronously after isActive becomes true.
     this.$nextTick(() => this.mountOptionPanel(this.$refs.optionPanel as Vue));
   }
@@ -166,6 +170,14 @@ export default class Node extends Vue {
   /** Makes the node deactivated. This is typically auto-triggered by clicking outside the node. */
   public deactivate() {
     this.isActive = false;
+  }
+
+  public select() {
+    this.isSelected = true;
+  }
+
+  public deselect() {
+    this.isSelected = false;
   }
 
   public getAllEdges(): Edge[] {
@@ -193,7 +205,7 @@ export default class Node extends Vue {
    * Inheriting node types should implement this method to define how they output data.
    */
   public update() {
-    console.log('updated', this.id);
+    console.error(`update() is not implemented for node type "${this.NODE_TYPE}"`);
   }
 
   protected created() {
@@ -267,15 +279,28 @@ export default class Node extends Vue {
   private initDragAndResize() {
     const $node = $(this.$refs.node);
     let lastDragPosition: { left: number, top: number };
-
+    let alreadySelected: boolean;
     $node.draggable({
       grid: [GRID_SIZE, GRID_SIZE],
       start: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
         lastDragPosition = ui.position;
+        alreadySelected = this.isSelected;
       },
       drag: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
         if (ui.position.left !== lastDragPosition.left ||
             ui.position.top !== lastDragPosition.top) {
+          this.isDragged = true;
+          if (!alreadySelected) {
+            if (!this.isShiftPressed) {
+              this.clickNode(this);
+            }
+            this.select();
+          }
+          this.dragNode({
+            node: this,
+            dx: ui.position.left - lastDragPosition.left,
+            dy: ui.position.top - lastDragPosition.top,
+          });
           lastDragPosition.left = ui.position.left;
           lastDragPosition.top = ui.position.top;
           this.x = ui.position.left;
@@ -285,6 +310,8 @@ export default class Node extends Vue {
       stop: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
         this.x = ui.position.left;
         this.y = ui.position.top;
+        this.isDragged = false;
+        this.activate();
       },
     });
 
@@ -354,14 +381,35 @@ export default class Node extends Vue {
     this.dataflowRemoveNode(this);
   }
 
-  private clicked() {
-    this.activate();
-    this.$nextTick(() => this.mountOptionPanel(this.$refs.optionsPanel as Vue));
+  private onMouseup(evt: MouseEvent) {
+    if (!this.isDragged) {
+      if (this.isShiftPressed) {
+        // When shift is pressed, clicking a node toggles its selection.
+        this.toggleSelected();
+      } else {
+        this.clickNode(this);
+        this.select();
+        this.activate();
+      }
+    }
+  }
+
+  private onMousedown(evt: MouseEvent) {
+  }
+
+  private toggleSelected() {
+    if (this.isSelected) {
+      this.deselect();
+      this.deactivate();
+    } else {
+      this.select();
+      this.activate();
+    }
   }
 
   private globalClick(evt: MouseEvent) {
-    // If the click is on the node or its option panel, do nothing.
-    if (this.$el.contains(evt.target as Element) ||
+    if ( // If the click is on the node or its option panel, do nothing.
+      this.$el.contains(evt.target as Element) ||
       this.$refs.optionPanel && (this.$refs.optionPanel as Vue).$el.contains(evt.target as Element)) {
       return;
     }

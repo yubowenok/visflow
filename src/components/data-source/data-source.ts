@@ -29,7 +29,7 @@ export default class DataSource extends mixins(Node) {
 
   @user.State('username') private username!: string;
   @dataset.Action('fetchDataset') private fetchDataset!: (options: FetchDatasetOptions) => Promise<string>;
-  @dataflow.Mutation('propagatePort') private propagatePort!: (port: Port, t: number) => void;
+  @dataflow.Mutation('portUpdated') private portUpdated!: (port: Port) => void;
 
   private datasetInfo: DatasetInfo | null = null;
   private datasetName = '';
@@ -57,7 +57,7 @@ export default class DataSource extends mixins(Node) {
     }).then(csvStr => {
       // TODO: parse csv string and generate data object
       console.log(csvStr);
-      this.propagatePort(this.portMap.out, 3);
+      this.portUpdated(this.portMap.out);
     }).catch(systemMessageErrorHandler);
   }
 }

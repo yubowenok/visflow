@@ -1,7 +1,10 @@
-<div :class="{ active: isActive }">
+<div>
+
+    <!--  -->
   <div ref="node" :id="id"
+    @mouseup="onMouseup"
+    @mousedown="onMousedown"
     v-global-click="globalClick"
-    @mousedown="activate"
     @contextmenu.prevent.stop="$refs.contextMenu.open"
   >
     <node-cover v-if="coverText" :text="coverText"></node-cover>
@@ -16,7 +19,7 @@
         <img :src="getIconPath">
       </div>
     </transition>
-    <div class="background"></div>
+    <div class="background" :class="{ active: isActive, selected: isSelected }"></div>
     <div class="input">
       <div v-for="(port, index) in inputPorts" :key="port.id" :id="'port-container-' + port.id"
         class="input port-container"

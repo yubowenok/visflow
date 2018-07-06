@@ -15,7 +15,7 @@ export interface NodeType {
   id: string;
   title: string;
   imgSrc: string;
-  constructor: Function;
+  constructor: Function; // tslint:disable-line ban-types
 }
 
 export interface CreateNodeOptions {

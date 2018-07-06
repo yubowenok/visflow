@@ -8,9 +8,10 @@ import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
 import Port from '@/components/port/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
-
 import * as helper from './helper';
+
 export * from './util';
+export { DataflowState } from './types';
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
@@ -78,18 +79,23 @@ const mutations = {
   },
 
   /** Notifies of port data change and propagates the change. */
-  updatePort: (state: DataflowState, port: Port) => {
+  portUpdated: (state: DataflowState, port: Port) => {
     helper.propagatePort(port);
   },
 
   /** Notifies of node data change and propagates the change. */
-  updateNode: (state: DataflowState, node: Node) => {
+  nodeUpdated: (state: DataflowState, node: Node) => {
     helper.propagateNode(node);
   },
 
   /** Moves all nodes by (dx, dy). */
   moveDiagram: (state: DataflowState, { dx, dy }: { dx: number, dy: number }) => {
     _.each(state.nodes, node => node.moveBy(dx, dy));
+  },
+
+  /** Removes the nodes that are currently active. */
+  removeActiveNodes: (state: DataflowState) => {
+    helper.removeActiveNodes(state);
   },
 };
 

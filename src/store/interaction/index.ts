@@ -7,9 +7,14 @@ import { RootState } from '../index';
 import Port from '@/components/port/port';
 import Node from '@/components/node/node';
 import store from '../index';
+import * as helper from './helper';
 
-
-interface InteractionState {
+export interface DragNodePayload {
+  node: Node;
+  dx: number;
+  dy: number;
+}
+export interface InteractionState {
   draggedPort?: Port;
   draggedX1: number;
   draggedY1: number;
@@ -46,6 +51,11 @@ const getters = {
 
   isCtrlPressed: (state: InteractionState): boolean => {
     return state.ctrlPressed;
+  },
+
+  numSelectedNodes: (state: InteractionState): number => {
+    console.warn(store.state.dataflow.nodes.filter(node => node.isSelected).length);
+    return store.state.dataflow.nodes.filter(node => node.isSelected).length;
   },
 };
 
@@ -91,6 +101,22 @@ const mutations = {
     }
   },
 
+  dragNode: (state: InteractionState, { dx, dy, node }: DragNodePayload) => {
+    helper.dragSelectedNodes(node, dx, dy);
+  },
+
+  dragNodeStopped: (state: InteractionState) => {
+    // helper.dragSelectedNodesStopped();
+  },
+
+  clickNode: (state: InteractionState, clicked: Node) => {
+    helper.deselectAllNodes({ exception: clicked });
+  },
+
+  clickBackground: (state: InteractionState) => {
+    helper.deselectAllNodes();
+  },
+
   keydown: (state: InteractionState, key: string) => {
     switch (key) {
       case 'Control':
@@ -115,6 +141,17 @@ const mutations = {
         break;
       case 'Alt':
         state.altPressed = false;
+        break;
+      case 'd':
+        if (state.ctrlPressed) {
+          store.commit('dataflow/removeActiveNodes');
+        }
+        break;
+      case 'x':
+        if (state.ctrlPressed) {
+          // TODO: change to cut nodes
+          store.commit('dataflow/removeActiveNodes');
+        }
         break;
     }
   },
