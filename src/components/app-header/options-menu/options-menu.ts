@@ -1,14 +1,11 @@
 import { Component, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
-
-const panels = namespace('panels');
-const systemOptions = namespace('systemOptions');
+import ns from '@/common/namespaces';
 
 @Component
 export default class OptionsMenu extends Vue {
-  @panels.State('nodePanelVisible') private nodePanelVisible!: boolean;
-  @panels.Mutation('toggleNodePanel') private toggleNodePanel!: () => void;
+  @ns.panels.State('nodePanelVisible') private nodePanelVisible!: boolean;
+  @ns.panels.Mutation('toggleNodePanel') private toggleNodePanel!: () => void;
 
-  @systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
-  @systemOptions.Mutation('toggleNodeLabels') private toggleNodeLabels!: () => void;
+  @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
+  @ns.systemOptions.Mutation('toggleNodeLabels') private toggleNodeLabels!: () => void;
 }

@@ -1,6 +1,5 @@
 import { Component, Prop, Watch } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
-import { namespace } from 'vuex-class';
 
 import Node, { injectNodeTemplate } from '../node/node';
 import MultiplePort from '../port/multiple-port';
@@ -10,10 +9,7 @@ import DatasetPanel from '../dataset-panel/dataset-panel';
 import { DatasetInfo } from '@/components/dataset-list/dataset-list';
 import { systemMessageErrorHandler } from '@/common/util';
 import { FetchDatasetOptions } from '@/store/dataset';
-
-const dataset = namespace('dataset');
-const user = namespace('user');
-const dataflow = namespace('dataflow');
+import ns from '@/common/namespaces';
 
 @Component({
   template: injectNodeTemplate(template),
@@ -27,9 +23,9 @@ export default class DataSource extends mixins(Node) {
   protected DEFAULT_WIDTH = 120;
   protected DEFAULT_HEIGHT = 30;
 
-  @user.State('username') private username!: string;
-  @dataset.Action('fetchDataset') private fetchDataset!: (options: FetchDatasetOptions) => Promise<string>;
-  @dataflow.Mutation('portUpdated') private portUpdated!: (port: Port) => void;
+  @ns.user.State('username') private username!: string;
+  @ns.dataset.Action('fetchDataset') private fetchDataset!: (options: FetchDatasetOptions) => Promise<string>;
+  @ns.dataflow.Mutation('portUpdated') private portUpdated!: (port: Port) => void;
 
   private datasetInfo: DatasetInfo | null = null;
   private datasetName = '';

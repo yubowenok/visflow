@@ -1,11 +1,9 @@
 import { Component, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
-
-const dataflow = namespace('dataflow');
+import ns from '@/common/namespaces';
 
 @Component
 export default class DiagramMenu extends Vue {
-  @dataflow.Mutation('newDiagram') private newDiagram!: () => void;
-  @dataflow.Mutation('saveDiagram') private saveDiagram!: () => void;
-  @dataflow.Mutation('loadDiagram') private loadDiagram!: () => void;
+  @ns.dataflow.Mutation('newDiagram') private newDiagram!: () => void;
+  @ns.dataflow.Mutation('saveDiagram') private saveDiagram!: () => void;
+  @ns.dataflow.Mutation('loadDiagram') private loadDiagram!: () => void;
 }

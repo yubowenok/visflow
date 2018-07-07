@@ -18,7 +18,7 @@ import MultiplePort from '../port/multiple-port';
 import { MessageOptions } from '@/store/message';
 import { DragNodePayload } from '@/store/interaction';
 import { checkEdgeConnectivity } from '@/store/dataflow';
-import { ns } from '@/common/util';
+import ns from '@/common/namespaces';
 
 const GRID_SIZE = 10;
 

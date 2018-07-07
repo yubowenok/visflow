@@ -1,13 +1,13 @@
 import { Component, Vue } from 'vue-property-decorator';
+import { TweenLite } from 'gsap';
+import $ from 'jquery';
+
+import ns from '@/common/namespaces';
 import Node from '../node/node';
 import Port from '../port/port';
 import Edge from '../edge/edge';
 import DrawingEdge from '../drawing-edge/drawing-edge';
 import Visualization from '../visualization/visualization';
-import { namespace } from 'vuex-class';
-import { TweenLite } from 'gsap';
-import $ from 'jquery';
-
 import { DEFAULT_ANIMATION_DURATION_S } from '@/common/constants';
 
 enum DragMode {
@@ -15,10 +15,6 @@ enum DragMode {
   PAN = 'pan',
   SELECT = 'select',
 }
-
-const interaction = namespace('interaction');
-const dataflow = namespace('dataflow');
-
 @Component({
   components: {
     Visualization,
@@ -26,11 +22,11 @@ const dataflow = namespace('dataflow');
   },
 })
 export default class DataflowCanvas extends Vue {
-  @interaction.State('draggedPort') private draggedPort!: Port;
-  @interaction.Getter('isAltPressed') private isAltPressed!: boolean;
-  @interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
-  @interaction.Mutation('clickBackground') private clickBackground!: () => void;
-  @dataflow.Mutation('moveDiagram') private moveDiagram!: ({ dx, dy }: { dx: number, dy: number }) => void;
+  @ns.interaction.State('draggedPort') private draggedPort!: Port;
+  @ns.interaction.Getter('isAltPressed') private isAltPressed!: boolean;
+  @ns.interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
+  @ns.interaction.Mutation('clickBackground') private clickBackground!: () => void;
+  @ns.dataflow.Mutation('moveDiagram') private moveDiagram!: ({ dx, dy }: { dx: number, dy: number }) => void;
 
   private dragStart: JQuery.Coordinates = { left: 0, top: 0 };
   private isPanning = false;
@@ -88,8 +84,9 @@ export default class DataflowCanvas extends Vue {
   }
 
   private onMousedown(evt: JQuery.Event) {
-    // $refs.edges is the background of the canvas.
-    if (evt.target !== this.$refs.edges) {
+    // $refs.edges is the background of the canvas that is responsive to mouse clicks.
+    if (evt.target !== this.$refs.edges ||
+      evt.button !== 0) { // Respond only to left click (button = 0).
       this.dragMode = DragMode.NONE;
       return;
     }

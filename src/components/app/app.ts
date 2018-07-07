@@ -1,5 +1,4 @@
 import { Component, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 import BootstrapVue from 'bootstrap-vue';
 import '@/common/jquery-ui';
 import $ from 'jquery';
@@ -9,11 +8,7 @@ import SystemMessage from '../system-message/system-message';
 import ContextMenu from '../context-menu/context-menu';
 import NodePanel from '../node-panel/node-panel';
 import DataflowCanvas from '../dataflow-canvas/dataflow-canvas';
-
-const dataflow = namespace('dataflow');
-const panels = namespace('panels');
-const contextMenu = namespace('contextMenu');
-const interaction = namespace('interaction');
+import ns from '@/common/namespaces';
 
 Vue.use(BootstrapVue);
 
@@ -27,12 +22,12 @@ Vue.use(BootstrapVue);
   },
 })
 export default class App extends Vue {
-  @dataflow.Mutation('setCanvas') private setCanvas!: (canvas: Vue) => void;
-  @panels.Mutation('setOptionPanelMount') private setOptionPanelMount!: (mount: Vue) => void;
-  @panels.Mutation('setPortPanelMount') private setPortPanelMount!: (mount: Vue) => void;
-  @contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
-  @interaction.Mutation('keydown') private interactionKeydown!: (key: string) => void;
-  @interaction.Mutation('keyup') private interactionKeyup!: (key: string) => void;
+  @ns.dataflow.Mutation('setCanvas') private setCanvas!: (canvas: Vue) => void;
+  @ns.panels.Mutation('setOptionPanelMount') private setOptionPanelMount!: (mount: Vue) => void;
+  @ns.panels.Mutation('setPortPanelMount') private setPortPanelMount!: (mount: Vue) => void;
+  @ns.contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
+  @ns.interaction.Mutation('keydown') private interactionKeydown!: (key: string) => void;
+  @ns.interaction.Mutation('keyup') private interactionKeyup!: (key: string) => void;
 
   private mounted() {
     this.setCanvas(this.$refs.dataflowCanvas as Vue);

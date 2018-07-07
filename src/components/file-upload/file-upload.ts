@@ -1,9 +1,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 
+import ns from '@/common/namespaces';
 import { axiosPost, errorMessage } from '@/common/util';
-
-const user = namespace('user');
 
 const MESSAGE_DURATION = 5000;
 
@@ -15,7 +13,7 @@ enum UploadState {
 
 @Component
 export default class FileUpload extends Vue {
-  @user.State('username') private isLoggedIn!: string;
+  @ns.user.State('username') private isLoggedIn!: string;
 
   @Prop()
   private url!: string;

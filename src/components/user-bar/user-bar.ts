@@ -1,17 +1,15 @@
 import { Component, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 import { LoginProfile, SignupProfile } from '@/store/user';
-import { MessageOptions, showSystemMessage } from '@/store/message';
-
-const user = namespace('user');
+import { showSystemMessage } from '@/store/message';
+import ns from '@/common/namespaces';
 
 @Component
 export default class UserBar extends Vue {
-  @user.State('username') private username!: string;
-  @user.Action('login') private dispatchLogin!: (profile: LoginProfile) => Promise<string>;
-  @user.Action('signup') private dispatchSignup!: (profile: SignupProfile) => Promise<string>;
-  @user.Action('logout') private dispatchLogout!: () => Promise<void>;
-  @user.Action('whoami') private dispatchWhoami!: () => Promise<string>;
+  @ns.user.State('username') private username!: string;
+  @ns.user.Action('login') private dispatchLogin!: (profile: LoginProfile) => Promise<string>;
+  @ns.user.Action('signup') private dispatchSignup!: (profile: SignupProfile) => Promise<string>;
+  @ns.user.Action('logout') private dispatchLogout!: () => Promise<void>;
+  @ns.user.Action('whoami') private dispatchWhoami!: () => Promise<string>;
 
   private errorMessage = '';
   private signupModalVisible = false;

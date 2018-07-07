@@ -1,21 +1,18 @@
 import { Component, Vue } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 import $ from 'jquery';
 
+import ns from '@/common/namespaces';
 import { NodeType, CreateNodeOptions } from '@/store/dataflow/types';
 import { elementContains } from '@/common/util';
 import { DRAG_TIME_THRESHOLD } from '@/common/constants';
-
-const panels = namespace('panels');
-const dataflow = namespace('dataflow');
 
 const NODE_TYPES_PER_ROW = 2;
 
 @Component
 export default class NodePanel extends Vue {
-  @panels.State('nodePanelVisible') private visible!: boolean;
-  @dataflow.State('nodeTypes') private nodeTypes!: NodeType[];
-  @dataflow.Mutation('createNode') private createNode!: (options: CreateNodeOptions) => void;
+  @ns.panels.State('nodePanelVisible') private visible!: boolean;
+  @ns.dataflow.State('nodeTypes') private nodeTypes!: NodeType[];
+  @ns.dataflow.Mutation('createNode') private createNode!: (options: CreateNodeOptions) => void;
 
   /** Initializes the drag-and-drop behavior on the node buttons. */
   private initDrag() {

@@ -4,14 +4,9 @@ import Edge from '../edge/edge';
 import PortPanel from '../port-panel/port-panel';
 import $ from 'jquery';
 import _ from 'lodash';
-import { namespace } from 'vuex-class';
 
+import ns from '@/common/namespaces';
 import ContextMenu from '../context-menu/context-menu';
-
-const interaction = namespace('interaction');
-const panels = namespace('panels');
-const contextMenu = namespace('contextMenu');
-const dataflow = namespace('dataflow');
 
 @Component({
   components: {
@@ -30,13 +25,13 @@ export default class Port extends Vue {
   protected isAttachable: boolean = false;
   protected edges: Edge[] = [];
 
-  @interaction.Mutation('portDragStarted') private portDragStarted!: (port: Port) => void;
-  @interaction.Mutation('portDragged') private portDragged!: (coordinates: Point) => void;
-  @interaction.Mutation('portDragEnded') private portDragEnded!: (port: Port) => void;
-  @interaction.Mutation('dropPortOnPort') private dropPortOnPort!: (port: Port) => void;
-  @panels.Mutation('mountPortPanel') private mountPortPanel!: (panel: Vue) => void;
-  @contextMenu.Mutation('mount') private mountContextMenu!: (menu: ContextMenu) => void;
-  @dataflow.Mutation('disconnectPort') private disconnectPort!: (port: Port) => void;
+  @ns.interaction.Mutation('portDragStarted') private portDragStarted!: (port: Port) => void;
+  @ns.interaction.Mutation('portDragged') private portDragged!: (coordinates: Point) => void;
+  @ns.interaction.Mutation('portDragEnded') private portDragEnded!: (port: Port) => void;
+  @ns.interaction.Mutation('dropPortOnPort') private dropPortOnPort!: (port: Port) => void;
+  @ns.panels.Mutation('mountPortPanel') private mountPortPanel!: (panel: Vue) => void;
+  @ns.contextMenu.Mutation('mount') private mountContextMenu!: (menu: ContextMenu) => void;
+  @ns.dataflow.Mutation('disconnectPort') private disconnectPort!: (port: Port) => void;
 
   public hasCapacity(): boolean {
     return this.edges.length < this.MAX_CONNECTIONS;

@@ -1,10 +1,8 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
-import { namespace } from 'vuex-class';
 
+import ns from '@/common/namespaces';
 import DataTable from '../data-table/data-table';
 import { axiosPost, errorMessage, fileSizeDisplay } from '@/common/util';
-
-const user = namespace('user');
 
 export interface DatasetInfo {
   originalname: string;
@@ -19,7 +17,7 @@ export interface DatasetInfo {
   },
 })
 export default class DatasetLit extends Vue {
-  @user.State('username') private username!: string;
+  @ns.user.State('username') private username!: string;
 
   @Prop()
   private selectable!: boolean;
