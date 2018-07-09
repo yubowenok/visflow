@@ -1,6 +1,6 @@
-import Node from '@/components/node/node';
+import Node, { NodeSave } from '@/components/node/node';
 import Port from '@/components/port/port';
-import Edge from '@/components/edge/edge';
+import Edge, { EdgeSave } from '@/components/edge/edge';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 
 export interface DataflowState {
@@ -9,6 +9,9 @@ export interface DataflowState {
   nodes: Node[];
   numNodeLayers: number; // number of node layers, each node is on its own layer to define front/back ordering
   nodeIdCounter: number; // for assigning ids to new nodes
+
+  diagramName: string; // User-readable diagram name. This does not need to be unique.
+  filename: string; // Filename stored on the server. This must be unique must is invisible to the user.
 }
 
 export interface NodeType {
@@ -33,4 +36,9 @@ export interface CreateEdgeOptions {
 export interface ConnectionInfo {
   nodeId: string;
   portId: string;
+}
+
+export interface DiagramSave {
+  nodes: NodeSave[];
+  edges: EdgeSave[];
 }

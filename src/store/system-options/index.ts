@@ -27,13 +27,11 @@ const mutations = {
   },
 };
 
-const actions = {
-};
-
-export const systemOptions: Module<SystemOptionsState, RootState> = {
+const systemOptions: Module<SystemOptionsState, RootState> = {
   namespaced: true,
   state: initialState,
   getters,
   mutations,
-  actions,
 };
+
+export default systemOptions;

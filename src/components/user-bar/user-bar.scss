@@ -21,8 +21,7 @@
 }
 
 .label {
-  line-height: 2rem;
-  @extend %padding-tb;
+  @extend %input-label;
 }
 
 div.row {

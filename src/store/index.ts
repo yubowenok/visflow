@@ -1,16 +1,18 @@
 import Vue from 'vue';
-import Vuex, { StoreOptions } from 'vuex';
-import { dataflow } from './dataflow';
-import { systemOptions } from './system-options';
-import { panels } from './panels';
-import { interaction } from './interaction';
-import { message } from './message';
-import { contextMenu } from './context-menu';
-import { user } from './user';
-import { dataset } from './dataset';
-import { history } from './history';
-import { DataflowState } from '@/store/dataflow/types';
+import Vuex from 'vuex';
+import dataflow from './dataflow';
+import systemOptions from './system-options';
+import panels from './panels';
+import interaction from './interaction';
+import message from './message';
+import contextMenu from './context-menu';
+import user from './user';
+import dataset from './dataset';
+import modals from './modals';
+import history from './history';
+import { DataflowState } from '@/store/dataflow';
 import { InteractionState } from '@/store/interaction';
+import { UserState } from '@/store/user';
 
 Vue.use(Vuex);
 
@@ -20,18 +22,21 @@ export interface RootState {
   version?: number;
   dataflow: DataflowState;
   interaction: InteractionState;
+  user: UserState;
 }
 
 export const defaultStore = {
   modules: {
+    contextMenu,
     dataflow,
-    systemOptions,
-    panels,
+    dataset,
+    history,
     interaction,
     message,
-    contextMenu,
+    modals,
+    panels,
+    systemOptions,
     user,
-    dataset,
   },
 };
 

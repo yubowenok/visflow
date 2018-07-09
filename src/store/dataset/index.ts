@@ -70,9 +70,11 @@ const actions = {
   },
 };
 
-export const dataset: Module<DatasetState, RootState> = {
+const dataset: Module<DatasetState, RootState> = {
   namespaced: true,
   state: initialState,
   mutations,
   actions,
 };
+
+export default dataset;

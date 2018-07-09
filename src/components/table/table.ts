@@ -1,16 +1,23 @@
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import { mixins } from 'vue-class-component';
 
-import Node, { injectNodeTemplate } from '../node/node';
+import { injectNodeTemplate } from '../node/node';
 import Visualization from '../visualization/visualization';
 import template from './table.html';
+
 @Component({
   template: injectNodeTemplate(template),
 })
-export default class Table extends mixins(Visualization) {
+export default class Table extends Visualization {
   protected NODE_TYPE = 'table';
   protected containerClasses = ['node', 'visualization', 'table'];
-  protected DEFAULT_WIDTH = 300;
-  protected DEFAULT_HEIGHT = 300;
-  protected RESIZABLE = true;
+
+  protected update() {
+    if (this.checkNoDataset()) {
+      return;
+    }
+
+    const input = this.inputPorts[0]; // single input
+    const pkg = input.getPackage();
+    console.log(pkg);
+  }
 }

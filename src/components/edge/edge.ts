@@ -5,10 +5,21 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 
 import ns from '@/common/namespaces';
-import Port from '../port/port';
+import { InputPort, OutputPort } from '../port';
 
 import { ARROW_SIZE_PX, ARROW_WING_SIZE_PX, LONG_ANIMATION_DURATION_S } from '@/common/constants';
 import ContextMenu from '../context-menu/context-menu';
+
+/**
+ * EdgeSave stores the ids of nodes and ports.
+ * On deserialization we use this information to reconstruct the edge.
+ */
+export interface EdgeSave {
+  sourceNodeId: string;
+  sourcePortId: string;
+  targetNodeId: string;
+  targetPortId: string;
+}
 
 export const arrowPath = (base: Point, head: Point): string => {
   const p = new Victor(base.x, base.y);
@@ -36,8 +47,8 @@ export const arrowPath = (base: Point, head: Point): string => {
   },
 })
 export default class Edge extends Vue {
-  public source!: Port;
-  public target!: Port;
+  public source!: OutputPort;
+  public target!: InputPort;
 
   @ns.dataflow.Mutation('removeEdge') private dataflowRemoveEdge!: (edge: Vue) => void;
 
@@ -48,6 +59,15 @@ export default class Edge extends Vue {
   private edgePathStr: string = '';
 
   private isHovered: boolean = false;
+
+  public serialize(): EdgeSave {
+    return {
+      sourceNodeId: this.source.node.id,
+      sourcePortId: this.source.id,
+      targetNodeId: this.target.node.id,
+      targetPortId: this.target.id,
+    };
+  }
 
   public getEdgeSvgNode(): Element {
     return this.$refs.edge as Element;

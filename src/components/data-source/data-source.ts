@@ -1,15 +1,15 @@
 import { Component, Prop, Watch } from 'vue-property-decorator';
-import { mixins } from 'vue-class-component';
 
+import ns from '@/common/namespaces';
 import Node, { injectNodeTemplate } from '../node/node';
-import MultiplePort from '../port/multiple-port';
 import template from './data-source.html';
 import Port from '@/components/port/port';
+import OutputPort from '@/components/port/output-port';
 import DatasetPanel from '../dataset-panel/dataset-panel';
 import { DatasetInfo } from '@/components/dataset-list/dataset-list';
 import { systemMessageErrorHandler } from '@/common/util';
 import { FetchDatasetOptions } from '@/store/dataset';
-import ns from '@/common/namespaces';
+import { parseCsv } from '@/data/parser';
 
 @Component({
   template: injectNodeTemplate(template),
@@ -17,7 +17,7 @@ import ns from '@/common/namespaces';
     DatasetPanel,
   },
 })
-export default class DataSource extends mixins(Node) {
+export default class DataSource extends Node {
   protected NODE_TYPE = 'data-source';
   protected containerClasses = ['node', 'data-source'];
   protected DEFAULT_WIDTH = 120;
@@ -31,12 +31,18 @@ export default class DataSource extends mixins(Node) {
   private datasetName = '';
   private datasetLoaded = false;
 
+  /** Data source does not update unless triggered by UI. */
+  public update() {
+    // Nothing to do
+  }
+
   protected createPorts() {
     this.outputPorts = [
-      new MultiplePort({
+      new OutputPort({
         data: {
           id: 'out',
           node: this,
+          isMultiple: true,
         },
         store: this.$store,
       }),
@@ -50,10 +56,10 @@ export default class DataSource extends mixins(Node) {
     this.fetchDataset({
       username: this.username,
       filename: this.datasetInfo.filename,
-    }).then(csvStr => {
-      // TODO: parse csv string and generate data object
-      console.log(csvStr);
-      this.portUpdated(this.portMap.out);
+    }).then((csv: string) => {
+      const outputPort = this.outputPortMap.out;
+      outputPort.updatePackage(parseCsv(csv));
+      this.portUpdated(outputPort);
     }).catch(systemMessageErrorHandler);
   }
 }

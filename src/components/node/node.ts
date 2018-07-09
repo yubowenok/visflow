@@ -13,14 +13,25 @@ import NodeCover from './node-cover.vue';
 import NodeLabel from './node-label.vue';
 import OptionPanel from '../option-panel/option-panel';
 import Edge from '../edge/edge';
-import Port from '../port/port';
-import MultiplePort from '../port/multiple-port';
+import { Port, InputPort, OutputPort } from '../port';
 import { MessageOptions } from '@/store/message';
 import { DragNodePayload } from '@/store/interaction';
 import { checkEdgeConnectivity } from '@/store/dataflow';
 import ns from '@/common/namespaces';
 
 const GRID_SIZE = 10;
+export interface NodeSave {
+  id: string;
+  layer: number;
+  label: string;
+  displayWidth: number;
+  displayHeight: number;
+  x: number;
+  y: number;
+  isIconized: boolean;
+  isInVisMode: boolean;
+  isLabelVisible: boolean;
+}
 
 @Component({
   components: {
@@ -42,22 +53,22 @@ export default class Node extends Vue {
   public isActive: boolean = false;
   // whether the node is among the current selection, which may contain multiple nodes
   public isSelected: boolean = false;
+
   protected NODE_TYPE: string = 'node';
   protected DEFAULT_WIDTH: number = 50;
   protected DEFAULT_HEIGHT: number = 50;
   protected MIN_WIDTH: number = 30;
   protected MIN_HEIGHT: number = 30;
-
   protected RESIZABLE: boolean = false;
 
   protected label: string = '';
 
-  // ports: input and output ports ids must be unique
-  protected inputPorts: Port[] = [];
-  protected outputPorts: Port[] = [];
-
-  /** Maps port id to port. */
-  protected portMap: { [id: string]: Port } = {};
+  // ports: input/output port id's must be unique
+  protected inputPorts: InputPort[] = [];
+  protected outputPorts: OutputPort[] = [];
+  // Maps port id to port.
+  protected inputPortMap: { [id: string]: InputPort } = {};
+  protected outputPortMap: { [id: string]: OutputPort } = {};
 
   // Layout related properties.
   // Changing width and height will resize the node.
@@ -72,7 +83,7 @@ export default class Node extends Vue {
   protected isInVisMode: boolean = false;
   protected isLabelVisible: boolean = false;
 
-  /** A list of classes to be added to the container element so that CSS can take effect. */
+  // A list of classes to be added to the container element so that CSS can take effect.
   protected containerClasses: string[] = ['node'];
 
   protected coverText: string = '';
@@ -86,6 +97,10 @@ export default class Node extends Vue {
 
   get numOutputPorts(): number {
     return this.outputPorts.length;
+  }
+
+  get allPorts(): Port[] {
+    return _.concat(this.inputPorts as Port[], this.outputPorts);
   }
 
   get optionPanelInitialState() {
@@ -104,18 +119,33 @@ export default class Node extends Vue {
   @ns.dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
   @ns.dataflow.Mutation('removeNode') private dataflowRemoveNode!: (node: Node) => void;
   @ns.interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
-  @ns.interaction.Getter('numSelectedNodes') private numSelectedNodes!: number;
   @ns.interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
   @ns.interaction.Mutation('dragNode') private dragNode!: (payload: DragNodePayload) => void;
-  @ns.interaction.Mutation('dragNodeStopped') private dragNodeStopped!: () => void;
   @ns.interaction.Mutation('clickNode') private clickNode!: (node: Node) => void;
-  @ns.message.Mutation('showMessage') private showMessage!: (options: MessageOptions) => void;
   @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
   @ns.panels.Mutation('unmountOptionPanel') private unmountOptionPanel!: (panel: Vue) => void;
 
+  public serialize(): NodeSave {
+    return {
+      id: this.id,
+      layer: this.layer,
+      label: this.label,
+      displayWidth: this.displayWidth,
+      displayHeight: this.displayHeight,
+      x: this.x,
+      y: this.y,
+      isIconized: this.isIconized,
+      isInVisMode: this.isInVisMode,
+      isLabelVisible: this.isLabelVisible,
+    };
+  }
+
+  public deserialize(save: NodeSave) {
+    _.extend(this, save);
+  }
+
   public findConnectablePort(port: Port): Port | null {
-    // TODO: do not check connectivity. Just return the first input/output port.
     if (port.isInput) {
       for (const output of this.outputPorts) {
         const connectivity = checkEdgeConnectivity(output, port);
@@ -182,9 +212,17 @@ export default class Node extends Vue {
 
   public getAllEdges(): Edge[] {
     let edges: Edge[] = [];
-    _.each(this.portMap, port => {
+    for (const port of this.allPorts) {
       edges = edges.concat(port.getAllEdges());
-    });
+    }
+    return edges;
+  }
+
+  public getOutputEdges(): Edge[] {
+    let edges: Edge[] = [];
+    for (const port of this.outputPorts) {
+      edges = edges.concat(port.getAllEdges());
+    }
     return edges;
   }
 
@@ -201,10 +239,44 @@ export default class Node extends Vue {
   }
 
   /**
+   * Starts a node update by first checking if the update is necessary.
+   * An update is necessary when some input port has changed package.
+   */
+  public startUpdate() {
+    if (this.isUpdateNecessary()) {
+      this.update();
+    }
+  }
+
+  /** Clears the updated flags of all ports. */
+  public clearUpdatedPorts() {
+    for (const port of this.inputPorts) {
+      port.clearConnectionUpdate();
+    }
+    for (const port of this.outputPorts) {
+      port.clearPackageUpdate();
+      port.clearConnectionUpdate();
+    }
+  }
+
+  public getInputPort(id: string): InputPort {
+    return this.inputPortMap[id];
+  }
+
+  public getOutputPort(id: string): OutputPort {
+    return this.outputPortMap[id];
+  }
+
+  /**
    * Updates all outputs based on the (possibly) new inputs. This is called by dataflow propagation.
    * Inheriting node types should implement this method to define how they output data.
+   *
+   * Each node type is responsible for setting the packages of output ports and notify the global store
+   * to propagate the changes.
+   *
+   * @abstract
    */
-  public update() {
+  protected update() {
     console.error(`update() is not implemented for node type "${this.NODE_TYPE}"`);
   }
 
@@ -215,24 +287,26 @@ export default class Node extends Vue {
 
     this.createPorts();
     this.createPortMap();
+
+    this.update();
   }
 
   protected createPorts() {
     this.inputPorts = [
-      new Port({
+      new InputPort({
         data: {
           id: 'in',
           node: this,
-          isInput: true,
         },
         store: this.$store,
       }),
     ];
     this.outputPorts = [
-      new MultiplePort({
+      new OutputPort({
         data: {
           id: 'out',
           node: this,
+          isMultiple: true,
         },
         store: this.$store,
       }),
@@ -258,10 +332,10 @@ export default class Node extends Vue {
   /** Creates a mapping from port id to port component. */
   private createPortMap() {
     this.inputPorts.forEach(port => {
-      this.portMap[port.id] = port;
+      this.inputPortMap[port.id] = port;
     });
     this.outputPorts.forEach(port => {
-      this.portMap[port.id] = port;
+      this.outputPortMap[port.id] = port;
     });
   }
 
@@ -270,9 +344,9 @@ export default class Node extends Vue {
     // Port coordinates are Vue reactive and async.
     // We must update coordinates till Vue updates the ports.
     this.$nextTick(() => {
-      _.each(this.portMap, (port: Port) => {
+      for (const port of this.allPorts) {
         port.updateCoordinates();
-      });
+      }
     });
   }
 
@@ -333,7 +407,7 @@ export default class Node extends Vue {
 
   private initDrop() {
     // Ports can be dropped on nodes to create an edge.
-    $(this.$refs.content).droppable({
+    $(this.$refs.background).droppable({
       /**
        * General note on using jquery callback within vue components:
        * "this" of the callback function is the Vue component.
@@ -351,11 +425,11 @@ export default class Node extends Vue {
 
   private mountPorts() {
     const $node = $(this.$refs.node);
-    _.each(this.portMap, (port: Port) => {
+    for (const port of this.allPorts) {
       const container = $node.find(`#port-container-${port.id}`);
       port.$mount();
       container.append(port.$el);
-    });
+    }
   }
 
   private initCss() {
@@ -379,6 +453,16 @@ export default class Node extends Vue {
 
   private contextMenuRemove() {
     this.dataflowRemoveNode(this);
+  }
+
+  /** Checks if there is an input port that has updated package. */
+  private isUpdateNecessary(): boolean {
+    for (const port of this.inputPorts) {
+      if (port.isPackageUpdated() || port.isConnectionUpdated()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private onMouseup(evt: MouseEvent) {

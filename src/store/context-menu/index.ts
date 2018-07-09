@@ -24,8 +24,10 @@ const mutations = {
   },
 };
 
-export const contextMenu: Module<ContextMenuState, RootState> = {
+const contextMenu: Module<ContextMenuState, RootState> = {
   namespaced: true,
   state: initialState,
   mutations,
 };
+
+export default contextMenu;

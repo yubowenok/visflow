@@ -74,3 +74,10 @@ $section-margin: 1.25rem;
   margin-left: -$padding-lr-size / 2;
   margin-right: -$padding-lr-size / 2;
 }
+
+%input-label {
+  @extend %vertical-center;
+
+  height: 2.5rem;
+  justify-content: flex-start;
+}

@@ -10,6 +10,7 @@
     width: 100%;
     height: 100%;
     background: white;
+    padding: 2px; // anti-alias around the boundary
   }
 
   > .background {

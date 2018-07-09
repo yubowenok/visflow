@@ -9,6 +9,7 @@ import Edge from '@/components/edge/edge';
 import Port from '@/components/port/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 import * as helper from './helper';
+import * as save from './save';
 
 export * from './util';
 export { DataflowState } from './types';
@@ -16,13 +17,19 @@ export { DataflowState } from './types';
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
 
-const initialState: DataflowState = {
-  canvas: new DataflowCanvas(),
-  nodeTypes,
-  nodes: [],
-  numNodeLayers: 0,
-  nodeIdCounter: 0,
+export const getInitialState = (): DataflowState => {
+  return {
+    canvas: new DataflowCanvas(),
+    nodeTypes,
+    nodes: [],
+    numNodeLayers: 0,
+    nodeIdCounter: 0,
+    filename: '',
+    diagramName: '',
+  };
 };
+
+export const initialState: DataflowState = getInitialState();
 
 const getters = {
   topNodeLayer: (state: DataflowState) => state.numNodeLayers,
@@ -93,15 +100,23 @@ const mutations = {
     _.each(state.nodes, node => node.moveBy(dx, dy));
   },
 
-  /** Removes the nodes that are currently active. */
-  removeActiveNodes: (state: DataflowState) => {
-    helper.removeActiveNodes(state);
+  /** Removes the nodes that are currently selected. */
+  removeSelectedNodes: (state: DataflowState) => {
+    helper.removeSelectedNodes(state);
   },
+  ...save.mutations,
 };
 
-export const dataflow: Module<DataflowState, RootState> = {
+const actions = {
+  ...save.actions,
+};
+
+const dataflow: Module<DataflowState, RootState> = {
   namespaced: true,
   state: initialState,
   getters,
   mutations,
+  actions,
 };
+
+export default dataflow;

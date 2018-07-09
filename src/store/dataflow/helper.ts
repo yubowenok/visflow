@@ -11,10 +11,11 @@ import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
 import Port from '@/components/port/port';
 import store from '../index';
-import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from '@/store/dataflow/types';
+import { DataflowState, CreateNodeOptions, CreateEdgeOptions, DiagramSave } from '@/store/dataflow/types';
 import { getConstructor } from './node-types';
 import { propagateNode, propagateNodes } from './propagate';
 export * from './propagate';
+import { getInitialState } from './index';
 
 export const createNode = (state: DataflowState, options: CreateNodeOptions) => {
   const constructor = getConstructor(options.type) as VueConstructor;
@@ -84,29 +85,42 @@ export const removeNode = (state: DataflowState, node: Node, propagate: boolean)
   state.canvas.removeNode(node, () => node.$destroy());
 };
 
-export const removeActiveNodes = (state: DataflowState) => {
+export const removeSelectedNodes = (state: DataflowState) => {
   const affectedOutputNodes: Set<Node> = new Set();
-  const activeNodes = state.nodes.filter(node => node.isActive);
-  for (const node of activeNodes) {
+  const nodes = state.nodes.filter(node => node.isSelected);
+  for (const node of nodes) {
     for (const toNode of node.getOutputNodes()) {
-      if (_.indexOf(activeNodes, toNode) === -1) {
+      if (_.indexOf(nodes, toNode) === -1) {
         affectedOutputNodes.add(toNode);
       }
     }
   }
-  console.log('remove ', activeNodes);
-  for (const node of activeNodes) {
+  for (const node of nodes) {
     removeNode(state, node, false);
   }
   propagateNodes(Array.from(affectedOutputNodes));
 };
 
 export const disconnectPort = (state: DataflowState, port: Port, propagate: boolean) => {
-  const outputNodes = port.getConnectedNodes();
+  const affectedNodes = port.isInput ? [port.node] : port.getConnectedNodes();
   for (const edge of port.getAllEdges()) {
     removeEdge(state, edge, false);
   }
   if (propagate) {
-    propagateNodes(outputNodes);
+    propagateNodes(affectedNodes);
   }
+};
+
+export const resetDataflow = (state: DataflowState) => {
+  for (const node of state.nodes) {
+    removeNode(state, node, false);
+  }
+  _.extend(state, _.omit(getInitialState(), 'canvas'));
+};
+
+export const serializeDiagram = (state: DataflowState): DiagramSave => {
+  return {
+    nodes: [],
+    edges: [],
+  };
 };

@@ -53,8 +53,10 @@ const mutations = {
   },
 };
 
-export const panels: Module<PanelsState, RootState> = {
+const panels: Module<PanelsState, RootState> = {
   namespaced: true,
   state: initialState,
   mutations,
 };
+
+export default panels;

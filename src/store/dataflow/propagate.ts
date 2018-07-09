@@ -18,14 +18,21 @@ const traverse = (node: Node, visited: Set<Node>, order: Node[]) => {
 };
 
 const propagate = (nodes: Node[]) => {
+  // Obtain a topological order of the diagram.
   const visited = new Set<Node>();
   const order: Node[] = [];
   for (const node of nodes) {
     traverse(node, visited, order);
   }
   order.reverse();
+  // Update each node in the topological order.
   for (const node of order) {
-    node.update();
+    console.log('startUpdate', node.id);
+    node.startUpdate();
+  }
+  // Clear the isUpdated flags of all the nodes.
+  for (const node of order) {
+    node.clearUpdatedPorts();
   }
 };
 

@@ -10,6 +10,8 @@ interface InitialState {
 export default class OptionPanel extends Vue {
   @Prop()
   private initialState!: InitialState;
+  @Prop()
+  private nodeLabel!: string;
 
   private isIconized = false;
   private isInVisMode = false;

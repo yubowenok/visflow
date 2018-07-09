@@ -63,8 +63,10 @@ const mutations = {
   },
 };
 
-export const message: Module<MessageState, RootState> = {
+const message: Module<MessageState, RootState> = {
   namespaced: true,
   state: initialState,
   mutations,
 };
+
+export default message;

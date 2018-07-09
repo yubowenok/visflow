@@ -53,8 +53,8 @@ const getters = {
     return state.ctrlPressed;
   },
 
+  // TODO: check usage of this getter.
   numSelectedNodes: (state: InteractionState): number => {
-    console.warn(store.state.dataflow.nodes.filter(node => node.isSelected).length);
     return store.state.dataflow.nodes.filter(node => node.isSelected).length;
   },
 };
@@ -118,48 +118,59 @@ const mutations = {
   },
 
   keydown: (state: InteractionState, key: string) => {
-    switch (key) {
-      case 'Control':
+    switch (key.toLowerCase()) {
+      case 'control':
         state.ctrlPressed = true;
         break;
-      case 'Shift':
+      case 'shift':
         state.shiftPressed = true;
         break;
-      case 'Alt':
+      case 'alt':
         state.altPressed = true;
         break;
     }
   },
 
   keyup: (state: InteractionState, key: string) => {
-    switch (key) {
-      case 'Control':
+    switch (key.toLowerCase()) {
+      case 'control':
         state.ctrlPressed = false;
         break;
-      case 'Shift':
+      case 'shift':
         state.shiftPressed = false;
         break;
-      case 'Alt':
+      case 'alt':
         state.altPressed = false;
         break;
       case 'd':
         if (state.ctrlPressed) {
-          store.commit('dataflow/removeActiveNodes');
+          store.commit('dataflow/removeSelectedNodes');
+        }
+        break;
+      case 's':
+        if (state.ctrlPressed) {
+          if (state.shiftPressed) {
+            store.commit('modals/openSaveAsDiagramModal');
+          } else {
+            store.dispatch('dataflow/saveDiagram');
+          }
         }
         break;
       case 'x':
         if (state.ctrlPressed) {
           // TODO: change to cut nodes
-          store.commit('dataflow/removeActiveNodes');
+          store.commit('dataflow/removeSelectedNodes');
         }
         break;
     }
   },
 };
 
-export const interaction: Module<InteractionState, RootState> = {
+const interaction: Module<InteractionState, RootState> = {
   namespaced: true,
   state: initialState,
   getters,
   mutations,
 };
+
+export default interaction;

@@ -6,7 +6,7 @@
     @dblclick.prevent.stop="activate"
     @contextmenu.prevent.stop="openContextMenu"
     v-global-click="globalClick">
-    <span class="connectivity" v-if="MAX_CONNECTIONS === 1">
+    <span class="connectivity" v-if="maxConnections === 1">
       <i class="fas fa-circle"></i>
     </span>
     <transition name="slide-fade-right">
@@ -18,10 +18,9 @@
     </transition>
   </div>
   <context-menu ref="contextMenu">
-    <li @click="disconnect">Disconnect</li>
+    <li @click="disconnect"><i class="fas fa-unlink"></i>Disconnect</li>
   </context-menu>
 </div>
-
 </template>
 
 <style src="./port.scss"></style>

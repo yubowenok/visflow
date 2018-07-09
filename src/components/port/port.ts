@@ -7,6 +7,7 @@ import _ from 'lodash';
 
 import ns from '@/common/namespaces';
 import ContextMenu from '../context-menu/context-menu';
+import Package from '@/data/package/package';
 
 @Component({
   components: {
@@ -17,13 +18,15 @@ import ContextMenu from '../context-menu/context-menu';
 export default class Port extends Vue {
   public id!: string;
   public node!: Node;
-  public isInput: boolean = false;
-  public dataType: string = 'table';
+  public isInput = false;
+  public dataType = 'table';
 
-  protected MAX_CONNECTIONS: number = 1;
-  protected isActive: boolean = false;
-  protected isAttachable: boolean = false;
+  protected isMultiple = false;
+  protected isActive = false;
+  protected isAttachable = false;
+  protected isConnectionChanged = false;
   protected edges: Edge[] = [];
+  protected package: Package | null = null;
 
   @ns.interaction.Mutation('portDragStarted') private portDragStarted!: (port: Port) => void;
   @ns.interaction.Mutation('portDragged') private portDragged!: (coordinates: Point) => void;
@@ -33,18 +36,30 @@ export default class Port extends Vue {
   @ns.contextMenu.Mutation('mount') private mountContextMenu!: (menu: ContextMenu) => void;
   @ns.dataflow.Mutation('disconnectPort') private disconnectPort!: (port: Port) => void;
 
-  public hasCapacity(): boolean {
-    return this.edges.length < this.MAX_CONNECTIONS;
+  get maxConnections(): number {
+    return this.isMultiple ? Infinity : 1;
   }
 
-  /** Retrieves a list of nodes that this port connects to. */
+  /**
+   * Retrieves a list of nodes that this port connects to.
+   * @abstract
+   */
   public getConnectedNodes(): Node[] {
-    return this.edges.map(edge => this.isInput ? edge.source.node : edge.target.node);
+    console.error('using getConnectedNodes() of base class Port');
+    return [];
   }
 
-  /** Retrieves a list of ports that this port connects to. */
+  /**
+   * Retrieves a list of ports that this port connects to.
+   * @abstract
+   */
   public getConnectedPorts(): Port[] {
-    return this.edges.map(edge => this.isInput ? edge.source : edge.target);
+    console.error('using getConnectedPorts() of base class Port');
+    return [];
+  }
+
+  public hasCapacity(): boolean {
+    return this.edges.length < this.maxConnections;
   }
 
   public updateCoordinates() {
@@ -70,11 +85,50 @@ export default class Port extends Vue {
   /** Adds an edge to this port's incident list */
   public addIncidentEdge(edge: Edge) {
     this.edges.push(edge);
+    this.isConnectionChanged = true;
   }
 
   /** Removes an edge from this port's incident list */
   public removeIncidentEdge(edge: Edge) {
     _.pull(this.edges, edge);
+    this.isConnectionChanged = true;
+  }
+
+  /**
+   * Sets or returns isUpdated.
+   * @abstract
+   */
+  public isPackageUpdated(): boolean {
+    console.error('using isPackageUpdated() of base class Port');
+    return false;
+  }
+
+  /**
+   * Checks if the port has a package.
+   * @abstract
+   */
+  public hasPackage(): boolean {
+    console.error('using hasPackage() of base class Port');
+    return false;
+  }
+
+  /**
+   * Retrieves the package the port carries.
+   * @abstract
+   */
+  public getPackage(): Package | null {
+    console.error('using getPackage() of base class Port');
+    return null;
+  }
+
+  /** Checks if edges have been changed. */
+  public isConnectionUpdated(): boolean {
+    return this.isConnectionChanged;
+  }
+
+  /** Clears the connection changed flag. */
+  public clearConnectionUpdate() {
+    this.isConnectionChanged = false;
   }
 
   private activate() {

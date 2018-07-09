@@ -1,5 +1,6 @@
 import { validationResult } from 'express-validator/check';
 import { Request, Response, NextFunction } from 'express';
+import sha1 from 'crypto-js/sha1';
 
 export const checkValidationResults = (req: Request, res: Response, next: NextFunction) => {
   const errors = validationResult(req);
@@ -14,4 +15,10 @@ export const checkValidationResults = (req: Request, res: Response, next: NextFu
     return res.status(400).send(msg);
   }
   next();
+};
+
+export const DEFAULT_HASH_LENGTH = 40;
+
+export const randomHash = (length: number = DEFAULT_HASH_LENGTH): string => {
+  return sha1('' + Math.random()).toString().substr(0, length);
 };

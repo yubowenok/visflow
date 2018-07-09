@@ -3,7 +3,7 @@ import { RootState } from '../index';
 
 import { axiosPost, errorMessage } from '@/common/util';
 
-interface UserState {
+export interface UserState {
   username: string;
 
   // an error message displayed during the login/register process
@@ -94,10 +94,12 @@ const actions = {
   },
 };
 
-export const user: Module<UserState, RootState> = {
+const user: Module<UserState, RootState> = {
   namespaced: true,
   state: initialState,
   getters,
   mutations,
   actions,
 };
+
+export default user;

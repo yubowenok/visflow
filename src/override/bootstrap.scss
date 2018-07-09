@@ -1,6 +1,8 @@
 @import '../common/style/index';
 
 $primary: $theme-purple;
+$zindex-modal: $zIndexModalDialog;
+$zindex-modal-backdrop: $zIndexModalBackdrop;
 
 @import 'node_modules/bootstrap/scss/bootstrap';
 

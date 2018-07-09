@@ -5,6 +5,10 @@
   bottom: $icon-size * 2;
   z-index: $zIndexOptionPanel;
 
+  > .divider {
+    @extend %divider;
+  }
+
   > .header {
     margin-top: $margin-size;
     @extend %padding;
@@ -18,10 +22,13 @@
         background-color: $theme-green;
       }
     }
-  }
 
-  > .divider {
-    @extend %divider;
+    .divider {
+      @extend %secondary-divider;
+
+      margin-top: $margin-size-lg;
+      margin-bottom: $margin-size-lg;
+    }
   }
 
   > .content {
