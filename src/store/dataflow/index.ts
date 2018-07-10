@@ -1,18 +1,18 @@
 import { Module } from 'vuex';
-import { RootState } from '../index';
+import { RootState } from '@/store';
 import _ from 'lodash';
 
-import { nodeTypes } from './node-types';
-import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from './types';
+import { nodeTypes } from '@/store/dataflow/node-types';
+import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from '@/store/dataflow/types';
 import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
 import Port from '@/components/port/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
-import * as helper from './helper';
-import * as save from './save';
+import * as helper from '@/store/dataflow/helper';
+import * as saveLoad from '@/store/dataflow/save-load';
 
-export * from './util';
-export { DataflowState } from './types';
+export * from '@/store/dataflow/util';
+export * from '@/store/dataflow/types';
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
@@ -72,7 +72,11 @@ const mutations = {
 
   /** Creates an edge and propagates. */
   createEdge: (state: DataflowState, options: CreateEdgeOptions) => {
-    helper.createEdge(state, options, true);
+    if (options.targetNode) {
+      helper.createEdgeToNode(state, options.sourcePort, options.targetNode, true);
+    } else if (options.targetPort) {
+      helper.createEdge(state, options.sourcePort, options.targetPort, true);
+    }
   },
 
   /** Removes an edge and propagates. */
@@ -104,11 +108,11 @@ const mutations = {
   removeSelectedNodes: (state: DataflowState) => {
     helper.removeSelectedNodes(state);
   },
-  ...save.mutations,
+  ...saveLoad.mutations,
 };
 
 const actions = {
-  ...save.actions,
+  ...saveLoad.actions,
 };
 
 const dataflow: Module<DataflowState, RootState> = {

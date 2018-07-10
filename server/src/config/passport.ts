@@ -21,7 +21,7 @@ passport.use(new passportLocal.Strategy({ usernameField: 'username' }, (username
       return done(err);
     }
     if (!user) {
-      return done(undefined, false, { message: `Username "${username}" not found.` });
+      return done(undefined, false, { message: 'invalid username or password' });
     }
     bcrypt.compare(password, user.password, (bcryptErr: Error, isMatch: boolean) => {
       if (bcryptErr) {

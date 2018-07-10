@@ -1,7 +1,7 @@
 import { Component } from 'vue-property-decorator';
-import Node from '../node/node';
-import Port from './port';
-import OutputPort from './output-port';
+import Node from '@/components/node/node';
+import Port from '@/components/port/port';
+import OutputPort from '@/components/port/output-port';
 import { Package } from '@/data/package';
 
 @Component
@@ -44,11 +44,11 @@ export default class InputPort extends Port {
   /**
    * Retrieves the package from the connected output port.
    */
-  public getPackage(): Package | null {
+  public getPackage(): Package {
     const pkgList = this.edges.map(edge => {
-      return edge.source.getPackage();
-    }).filter(pkg => pkg !== null);
+      return edge.source.hasPackage() ? edge.source.getPackage() : null;
+    }).filter(pkg => pkg !== null) as Package[];
     // TODO: How to handle multiple packages for multiple connections of an input port?
-    return pkgList.length ? pkgList[0] : null;
+    return pkgList[0];
   }
 }

@@ -1,7 +1,7 @@
 import axios, { AxiosPromise, AxiosRequestConfig } from 'axios';
 import _ from 'lodash';
 
-import { API_URL } from '../url';
+import { API_URL } from '@/common/url';
 
 /** Joins base url with relative url. */
 export const urlJoin = (baseUrl: string, relativeUrl: string): string => {

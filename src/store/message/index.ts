@@ -3,8 +3,8 @@
  */
 
 import { Module } from 'vuex';
-import { RootState } from '../index';
-export * from './util';
+import { RootState } from '@/store';
+export * from '@/store/message/util';
 
 const DEFAULT_MESSAGE_DURATION = 5000;
 /** Minimum duration between two consecutive messages */

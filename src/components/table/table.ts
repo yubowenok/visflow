@@ -1,8 +1,9 @@
-import { Component, Prop, Watch } from 'vue-property-decorator';
+import { Component } from 'vue-property-decorator';
 
-import { injectNodeTemplate } from '../node/node';
-import Visualization from '../visualization/visualization';
+import { injectNodeTemplate } from '@/components/node/node';
+import Visualization from '@/components/visualization/visualization';
 import template from './table.html';
+import { SubsetPackage } from '@/data/package';
 
 @Component({
   template: injectNodeTemplate(template),
@@ -18,6 +19,7 @@ export default class Table extends Visualization {
 
     const input = this.inputPorts[0]; // single input
     const pkg = input.getPackage();
-    console.log(pkg);
+
+    console.log(this.selection, JSON.stringify(this.selection));
   }
 }

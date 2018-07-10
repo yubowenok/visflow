@@ -81,17 +81,19 @@ const datasetApi = (app: Express) => {
     datasetExists,
     checkValidationResults,
     (req: Request, res: Response, next: NextFunction) => {
+      const username = req.user.username;
       const filename = req.body.filename;
-      Dataset.findOneAndRemove({
-        username: req.user.username,
-        filename,
-      }, err => {
+      Dataset.findOneAndRemove({ username, filename }, (err: mongoose.Error) => {
         if (err) {
           return next(err);
         }
         const file = path.join(DATA_PATH, 'dataset/', req.user.username, filename);
-        fs.unlinkSync(file);
-        res.status(200).end();
+        fs.unlink(file, fsErr => {
+          if (fsErr) {
+            next(fsErr);
+          }
+          res.status(200).end();
+        });
       });
   });
 };

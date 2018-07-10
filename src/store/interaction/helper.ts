@@ -1,6 +1,6 @@
 import Node from '@/components/node/node';
 import { DataflowState } from '@/store/dataflow';
-import store from '../index';
+import store from '@/store';
 import _ from 'lodash';
 
 const dataflow = (): DataflowState => store.state.dataflow;

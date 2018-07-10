@@ -1,5 +1,5 @@
 import request from 'supertest';
-import app from '@src/app';
+import app, { appShutdown } from '@src/app';
 import User from '@src/models/user';
 import _ from 'lodash';
 
@@ -33,7 +33,10 @@ describe('POST /api/user/signup', () => {
       .expect(400);
 
     // remove the signed-up user
-    User.findOneAndRemove({ username: 'abc' }, () => {
+    User.findOneAndRemove({ username: 'abc' }, err => {
+      if (err) {
+        throw err;
+      }
       done();
     });
   });
@@ -73,3 +76,5 @@ describe('POST /api/user/signup', () => {
       .expect(400, done);
   });
 });
+
+afterAll(appShutdown);

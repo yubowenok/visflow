@@ -2,12 +2,12 @@ import { Component, Vue } from 'vue-property-decorator';
 import { TweenLite } from 'gsap';
 import $ from 'jquery';
 
-import ns from '@/common/namespaces';
-import Node from '../node/node';
-import Port from '../port/port';
-import Edge from '../edge/edge';
-import DrawingEdge from '../drawing-edge/drawing-edge';
-import Visualization from '../visualization/visualization';
+import ns from '@/store/namespaces';
+import Node from '@/components/node/node';
+import Port from '@/components/port/port';
+import Edge from '@/components/edge/edge';
+import DrawingEdge from '@/components/drawing-edge/drawing-edge';
+import Visualization from '@/components/visualization/visualization';
 import { DEFAULT_ANIMATION_DURATION_S } from '@/common/constants';
 
 enum DragMode {

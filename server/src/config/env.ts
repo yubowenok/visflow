@@ -30,6 +30,7 @@ export const MONGODB_URI = process.env.MONGODB_URI;
 export const PORT = process.env.PORT;
 export const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN.split(';');
 export const DATA_PATH = process.env.DATA_PATH;
+export const DEMO_USERNAME = process.env.DEMO_USERNAME || '*';
 
 if (!MONGODB_URI) {
   console.error('MONGODB_URI is not set');

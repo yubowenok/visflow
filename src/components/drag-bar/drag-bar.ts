@@ -1,5 +1,5 @@
 import { Component, Vue } from 'vue-property-decorator';
-import ns from '@/common/namespaces';
+import ns from '@/store/namespaces';
 
 @Component
 export default class DragBar extends Vue {

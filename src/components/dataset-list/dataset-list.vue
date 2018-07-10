@@ -9,7 +9,5 @@
 </div>
 </template>
 
-<style scoped src="./dataset-list.scss"></style>
-
 <script src="./dataset-list.ts">
 </script>

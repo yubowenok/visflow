@@ -4,11 +4,11 @@ import { TweenLite } from 'gsap';
 import * as d3 from 'd3';
 import _ from 'lodash';
 
-import ns from '@/common/namespaces';
-import { InputPort, OutputPort } from '../port';
+import ns from '@/store/namespaces';
+import { InputPort, OutputPort } from '@/components/port';
 
 import { ARROW_SIZE_PX, ARROW_WING_SIZE_PX, LONG_ANIMATION_DURATION_S } from '@/common/constants';
-import ContextMenu from '../context-menu/context-menu';
+import ContextMenu from '@/components/context-menu/context-menu';
 
 /**
  * EdgeSave stores the ids of nodes and ports.

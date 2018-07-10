@@ -1,10 +1,10 @@
 <template>
 <div class="bar">
-  <b-button ref="button" size="sm" variant="outline-secondary" @click="$refs.datasetPanel.open()">
+  <b-button ref="button" size="sm" variant="outline-secondary" @click="$refs.datasetModal.open()">
     <i class="fas fa-database"></i>
   </b-button>
   <b-tooltip :target="() => $refs.button" placement="bottom" delay="500">Manage Datasets</b-tooltip>
-  <dataset-panel ref="datasetPanel" :selectable="false"></dataset-panel>
+  <dataset-modal ref="datasetModal" :selectable="false"></dataset-modal>
 </div>
 </template>
 

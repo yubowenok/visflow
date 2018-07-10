@@ -1,3 +1,3 @@
-export * from './request';
-export * from './layout';
-export * from './display';
+export * from '@/common/util/request';
+export * from '@/common/util/layout';
+export * from '@/common/util/display';

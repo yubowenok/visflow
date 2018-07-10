@@ -4,6 +4,7 @@ import { mount, shallowMount, createLocalVue, TransitionStub, TransitionGroupStu
 
 import { RootState, defaultStore } from '@/store';
 import App from '@/components/app/app';
+import router from '@/router';
 
 const localVue = createLocalVue();
 
@@ -14,12 +15,12 @@ describe('app', () => {
 
   beforeEach(() => {
     store = new Vuex.Store(defaultStore);
-
   });
 
   it('renders entire App', () => {
     const wrapper = mount(App, {
       store,
+      router,
       localVue,
       stubs: {
         'system-message': '<div/>', // contains transition that breaks test after animation

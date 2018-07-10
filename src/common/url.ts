@@ -5,7 +5,7 @@
  *
  * During development we send API requests to localhost:3000, while in produciton we send to the same origin.
  */
-import { ENVIRONMENT } from './env';
+import { ENVIRONMENT } from '@/common/env';
 
 const isProd = ENVIRONMENT === 'production';
 const isTest = ENVIRONMENT === 'test';

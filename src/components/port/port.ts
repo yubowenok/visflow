@@ -1,12 +1,12 @@
 import { Component, Vue } from 'vue-property-decorator';
-import Node from '../node/node';
-import Edge from '../edge/edge';
-import PortPanel from '../port-panel/port-panel';
+import Node from '@/components/node/node';
+import Edge from '@/components/edge/edge';
+import PortPanel from '@/components/port-panel/port-panel';
 import $ from 'jquery';
 import _ from 'lodash';
 
-import ns from '@/common/namespaces';
-import ContextMenu from '../context-menu/context-menu';
+import ns from '@/store/namespaces';
+import ContextMenu from '@/components/context-menu/context-menu';
 import Package from '@/data/package/package';
 
 @Component({
@@ -116,9 +116,9 @@ export default class Port extends Vue {
    * Retrieves the package the port carries.
    * @abstract
    */
-  public getPackage(): Package | null {
+  public getPackage(): Package {
     console.error('using getPackage() of base class Port');
-    return null;
+    return new Package();
   }
 
   /** Checks if edges have been changed. */

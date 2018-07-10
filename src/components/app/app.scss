@@ -43,3 +43,13 @@ body {
 .bold {
   font-weight: bold;
 }
+
+.modal {
+  .input-label {
+    @extend %input-label;
+  }
+
+  .error-message {
+    @extend %error-message;
+  }
+}

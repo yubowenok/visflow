@@ -5,6 +5,7 @@ export interface DatasetModel extends mongoose.Document {
   filename: string;
   originalname: string;
   size: number; // bytes
+  updatedAt: Date;
 }
 
 const datasetSchema = new mongoose.Schema({

@@ -1,7 +1,8 @@
 import { Module, ActionContext } from 'vuex';
-import { RootState } from '../index';
+import { RootState } from '@/store';
 
 import { axiosPost, errorMessage } from '@/common/util';
+import { DatasetInfo } from '@/components/dataset-list/dataset-list';
 
 interface CachedDataset {
   username: string;
@@ -18,12 +19,12 @@ interface DatasetState {
   cache: DatasetCache;
 }
 
-export interface FetchDatasetOptions {
+export interface GetDatasetOptions {
   username: string;
   filename: string;
 }
 
-const fetchDatasetFromCache = (cache: DatasetCache, key: string): CachedDataset | undefined => {
+const getDatasetFromCache = (cache: DatasetCache, key: string): CachedDataset | undefined => {
   return key in cache ? cache[key] : undefined;
 };
 
@@ -44,12 +45,12 @@ const mutations = {
 };
 
 const actions = {
-  fetchDataset(context: ActionContext<DatasetState, RootState>, options: FetchDatasetOptions): Promise<string> {
+  getDataset(context: ActionContext<DatasetState, RootState>, options: GetDatasetOptions): Promise<string> {
     if (!options.username) {
       return Promise.reject('cannot fetch dataset without username');
     }
     const key = options.username + ',' + options.filename;
-    const cached = fetchDatasetFromCache(context.state.cache, key);
+    const cached = getDatasetFromCache(context.state.cache, key);
     if (cached) {
       return new Promise(resolve => {
         resolve(cached.data);
@@ -65,6 +66,25 @@ const actions = {
           });
           resolve(res.data);
         })
+        .catch(err => reject(errorMessage(err)));
+    });
+  },
+
+  deleteDataset(context: ActionContext<DatasetState, RootState>, filename: string): Promise<void> {
+    if (!context.rootState.user.username) {
+      return Promise.reject('must login to delete dataset');
+    }
+    return new Promise((resolve, reject) => {
+      axiosPost<void>('/dataset/delete', { filename })
+        .then(() => resolve())
+        .catch(err => reject(errorMessage(err)));
+    });
+  },
+
+  listDataset(conntext: ActionContext<DatasetState, RootState>): Promise<DatasetInfo[]> {
+    return new Promise((resolve, reject) => {
+      axiosPost<DatasetInfo[]>('/dataset/list')
+        .then(res => resolve(res.data))
         .catch(err => reject(errorMessage(err)));
     });
   },

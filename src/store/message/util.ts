@@ -1,4 +1,4 @@
-import store from '../index';
+import store from '@/store';
 
 export const showSystemMessage = (text: string, type: string, duration?: number) => {
   store.commit('message/showMessage', {
@@ -6,4 +6,8 @@ export const showSystemMessage = (text: string, type: string, duration?: number)
     class: type,
     duration,
   });
+};
+
+export const clearSystemMessage = () => {
+  store.commit('message/closeMessage');
 };

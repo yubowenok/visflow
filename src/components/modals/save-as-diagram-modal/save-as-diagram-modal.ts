@@ -1,36 +1,24 @@
 import { Vue, Component } from 'vue-property-decorator';
-import ns from '@/common/namespaces';
+import ns from '@/store/namespaces';
+import BaseModal from '../base-modal/base-modal';
+import { systemMessageErrorHandler } from '@/common/util';
 
-@Component
+@Component({
+  components: {
+    BaseModal,
+  },
+})
 export default class SaveAsDiagramModal extends Vue {
   @ns.modals.State('saveAsDiagramModalVisible') private saveAsDiagramModalVisible!: boolean;
   @ns.modals.Mutation('openSaveAsDiagramModal') private openSaveAsDiagramModal!: () => void;
   @ns.modals.Mutation('closeSaveAsDiagramModal') private closeSaveAsDiagramModal!: () => void;
-  @ns.dataflow.Action('saveAsDiagram') private saveAsDiagram!: (diagramName: string) => void;
+  @ns.dataflow.Action('saveAsDiagram') private dispatchSaveAsDiagram!: (diagramName: string) => Promise<string>;
 
   private diagramName = '';
 
-  get modalVisible(): boolean {
-    return this.saveAsDiagramModalVisible;
-  }
-
-  set modalVisible(value: boolean) {
-    if (value === this.modalVisible) {
-      return;
-    }
-    if (value) {
-      this.openSaveAsDiagramModal();
-    } else {
-      this.closeSaveAsDiagramModal();
-    }
-  }
-
-  private dispatchSaveAsDiagram() {
-    this.modalVisible = false;
-    this.saveAsDiagram(this.diagramName);
-  }
-
-  private close() {
-    this.modalVisible = false;
+  private saveAsDiagram() {
+    this.dispatchSaveAsDiagram(this.diagramName)
+      .catch(systemMessageErrorHandler)
+      .finally((this.$refs.modal as BaseModal).close);
   }
 }

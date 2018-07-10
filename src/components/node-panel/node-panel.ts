@@ -1,7 +1,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import $ from 'jquery';
 
-import ns from '@/common/namespaces';
+import ns from '@/store/namespaces';
 import { NodeType, CreateNodeOptions } from '@/store/dataflow/types';
 import { elementContains } from '@/common/util';
 import { DRAG_TIME_THRESHOLD } from '@/common/constants';
@@ -19,8 +19,8 @@ export default class NodePanel extends Vue {
     const clickHandler = (nodeType: NodeType) => {
       this.createNode({
         type: nodeType.id,
-        centerX: window.innerWidth * .5,
-        centerY: window.innerHeight * .45,
+        centerX: Math.floor(window.innerWidth * .5),
+        centerY: Math.floor(window.innerHeight * .45),
       });
     };
 
@@ -46,8 +46,8 @@ export default class NodePanel extends Vue {
           }
           this.createNode({
             type: nodeType.id,
-            centerX: x,
-            centerY: y,
+            centerX: Math.floor(x),
+            centerY: Math.floor(y),
           });
         },
       });

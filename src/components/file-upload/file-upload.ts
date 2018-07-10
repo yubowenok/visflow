@@ -1,6 +1,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
-import ns from '@/common/namespaces';
+import ns from '@/store/namespaces';
 import { axiosPost, errorMessage } from '@/common/util';
 
 const MESSAGE_DURATION = 5000;
@@ -19,8 +19,6 @@ export default class FileUpload extends Vue {
   private url!: string;
   @Prop()
   private field!: string;
-  @Prop()
-  private parentRefs!: any; // tslint:disable-line
 
   private successMessage = '';
   private errorMessage = '';
@@ -60,6 +58,7 @@ export default class FileUpload extends Vue {
     this.uploadState = UploadState.UPLOADING;
     this.uploadPercentage = 0;
 
+    // This is an exception to allow post request to be sent without going through the store.
     axiosPost<{ filename: string, originalname: string }>(this.url, data, {
       onUploadProgress: (progressEvt: ProgressEvent) => {
         this.uploadPercentage = Math.floor(progressEvt.loaded / progressEvt.total * 100);
@@ -68,9 +67,7 @@ export default class FileUpload extends Vue {
       this.uploadState = UploadState.WAITING;
       this.successMessage = `Uploaded: ${res.data.originalname}`;
       this.$emit('uploaded');
-      setTimeout(() => {
-        this.successMessage = '';
-      }, MESSAGE_DURATION);
+      setTimeout(() => this.successMessage = '', MESSAGE_DURATION);
     }).catch(err => {
       this.errorMessage = errorMessage(err);
       this.uploadState = UploadState.WAITING;

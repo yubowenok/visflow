@@ -1,5 +1,5 @@
 import { Module } from 'vuex';
-import { RootState } from '../index';
+import { RootState } from '@/store';
 import PortPanel from '@/components/port-panel/port-panel';
 import OptionPanel from '@/components/option-panel/option-panel';
 

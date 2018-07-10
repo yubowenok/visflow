@@ -5,45 +5,63 @@
 import { VueConstructor } from 'vue';
 import _ from 'lodash';
 
-import { checkEdgeConnectivity } from './util';
+import { checkEdgeConnectivity } from '@/store/dataflow/util';
 import { showSystemMessage } from '@/store/message';
-import Node from '@/components/node/node';
-import Edge from '@/components/edge/edge';
+import Node, { NodeSave } from '@/components/node/node';
+import Edge, { EdgeSave } from '@/components/edge/edge';
 import Port from '@/components/port/port';
-import store from '../index';
-import { DataflowState, CreateNodeOptions, CreateEdgeOptions, DiagramSave } from '@/store/dataflow/types';
-import { getConstructor } from './node-types';
-import { propagateNode, propagateNodes } from './propagate';
-export * from './propagate';
-import { getInitialState } from './index';
+import store from '@/store';
+import {
+  DataflowState,
+  CreateNodeOptions,
+  CreateEdgeOptions,
+  DiagramSave,
+} from '@/store/dataflow/types';
+import { getConstructor } from '@/store/dataflow/node-types';
+import { propagateNode, propagateNodes } from '@/store/dataflow/propagate';
+export * from '@/store/dataflow/propagate';
+import { getInitialState } from '@/store/dataflow';
+import { InputPort, OutputPort } from '@/components/port';
+import { DEFAULT_ANIMATION_DURATION_S } from '@/common/constants';
 
-export const createNode = (state: DataflowState, options: CreateNodeOptions) => {
+const getNodeDataOnCreate = (options: CreateNodeOptions): {} => {
+  const data = {};
+  if (options.x !== undefined && options.y !== undefined) {
+    _.extend(data, {
+      x: options.x,
+      y: options.y,
+    });
+  } else if (options.centerX !== undefined && options.centerY !== undefined) {
+    _.extend(data, {
+      centerX: options.centerX,
+      centerY: options.centerY,
+    });
+  }
+  return data;
+};
+
+export const createNode = (state: DataflowState, options: CreateNodeOptions): Node => {
   const constructor = getConstructor(options.type) as VueConstructor;
   const id = `node-${state.nodeIdCounter++}`;
+  const dataOnCreate = getNodeDataOnCreate(options);
   const node: Node = new constructor({
     data: {
       id,
-      // Floor the coordinates so that nodes are always aligned to integers.
-      x: Math.floor(options.centerX),
-      y: Math.floor(options.centerY),
+      dataOnCreate,
     },
     store,
   }) as Node;
   state.canvas.addNode(node);
   state.nodes.push(node);
+  return node;
 };
 
-export const createEdge = (state: DataflowState, options: CreateEdgeOptions, propagate: boolean) => {
-  const sourcePort = options.sourcePort;
-  const targetPort = options.targetPort || (options.targetNode as Node).findConnectablePort(sourcePort);
-  if (!targetPort) {
-    showSystemMessage('cannot find available port to connect', 'warn');
-    return;
-  }
+export const createEdge = (state: DataflowState, sourcePort: OutputPort, targetPort: InputPort,
+                           propagate: boolean): Edge | null => {
   const connectivity = checkEdgeConnectivity(sourcePort, targetPort);
   if (!connectivity.connectable) {
     showSystemMessage(connectivity.reason, 'warn');
-    return;
+    return null;
   }
   const edge = new Edge({
     data: {
@@ -56,10 +74,20 @@ export const createEdge = (state: DataflowState, options: CreateEdgeOptions, pro
   sourcePort.addIncidentEdge(edge);
   targetPort.addIncidentEdge(edge);
   state.canvas.addEdge(edge);
-
   if (propagate) {
     propagateNode(edge.target.node);
   }
+  return edge;
+};
+
+export const createEdgeToNode = (state: DataflowState, sourcePort: OutputPort, targetNode: Node,
+                                 propagate: boolean): Edge | null => {
+  const targetPort = targetNode.findConnectablePort(sourcePort) as InputPort;
+  if (!targetPort) {
+    showSystemMessage('cannot find available port to connect', 'warn');
+    return null;
+  }
+  return createEdge(state, sourcePort, targetPort, propagate);
 };
 
 export const removeEdge = (state: DataflowState, edge: Edge, propagate: boolean) => {
@@ -119,8 +147,40 @@ export const resetDataflow = (state: DataflowState) => {
 };
 
 export const serializeDiagram = (state: DataflowState): DiagramSave => {
+  const serializedEdges: EdgeSave[] = [];
+  for (const node of state.nodes) {
+    const edges = node.getOutputEdges();
+    for (const edge of edges) {
+      serializedEdges.push(edge.serialize());
+    }
+  }
   return {
-    nodes: [],
-    edges: [],
+    diagramName: state.diagramName,
+    nodes: state.nodes.map(node => node.serialize()),
+    edges: serializedEdges,
   };
+};
+
+export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) => {
+  // First clear the diagram.
+  resetDataflow(state);
+
+  const sources = diagram.nodes.map(nodeSave => {
+    const node = createNode(state, {
+      type: nodeSave.type,
+    });
+    node.deserialize(nodeSave);
+    node.deactivate(); // Avoid all nodes being active.
+    return node;
+  }).filter(node => node.isPropagationSource);
+
+  for (const edgeSave of diagram.edges) {
+    const sourceNode = state.nodes.find(node => node.id === edgeSave.sourceNodeId) as Node;
+    const targetNode = state.nodes.find(node => node.id === edgeSave.targetNodeId) as Node;
+    const sourcePort = sourceNode.getOutputPort(edgeSave.sourcePortId);
+    const targetPort = targetNode.getInputPort(edgeSave.targetPortId);
+    createEdge(state, sourcePort, targetPort, false);
+  }
+
+  propagateNodes(sources);
 };

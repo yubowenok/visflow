@@ -1,18 +1,26 @@
 import { Module } from 'vuex';
-import { RootState } from '../index';
-import { showSystemMessage } from '../message';
-import store from '../index';
+import { RootState } from '@/store';
+import { showSystemMessage } from '@/store/message';
+import store from '@/store';
 
 interface ModalsState {
   newDiagramModalVisible: boolean;
   saveAsDiagramModalVisible: boolean;
   loadDiagramModalVisible: boolean;
+
+  loginModalVisible: boolean;
+  signupModalVisible: boolean;
+  profileModalVisible: boolean;
 }
 
 const initialState: ModalsState = {
   newDiagramModalVisible: false,
   saveAsDiagramModalVisible: false,
   loadDiagramModalVisible: false,
+
+  loginModalVisible: false,
+  signupModalVisible: false,
+  profileModalVisible: false,
 };
 
 const mutations = {
@@ -42,6 +50,30 @@ const mutations = {
 
   closeLoadDiagramModal(state: ModalsState) {
     state.loadDiagramModalVisible = false;
+  },
+
+  openLoginModal(state: ModalsState) {
+    state.loginModalVisible = true;
+  },
+
+  closeLoginModal(state: ModalsState) {
+    state.loginModalVisible = false;
+  },
+
+  openSignupModal(state: ModalsState) {
+    state.signupModalVisible = true;
+  },
+
+  closeSignupModal(state: ModalsState) {
+    state.signupModalVisible = false;
+  },
+
+  openProfileModal(state: ModalsState) {
+    state.profileModalVisible = true;
+  },
+
+  closeProfileModal(state: ModalsState) {
+    state.profileModalVisible = false;
   },
 };
 

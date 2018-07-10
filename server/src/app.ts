@@ -9,7 +9,7 @@ import path from 'path';
 import passport from 'passport';
 import expressValidator from 'express-validator';
 import { PORT, ALLOW_ORIGIN, SESSION_SECRET, ENVIRONMENT } from './config/env';
-import { connectMongo, sessionStore } from './mongo';
+import { connectMongo, disconnectMongo, sessionStore } from './mongo';
 import { Response, Request, NextFunction } from 'express';
 
 // must import passport config for passport to take effect
@@ -66,5 +66,9 @@ app.use('/', express.static(path.join(__dirname, '../../dist')));
 app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '../../dist/index.html'));
 });
+
+export const appShutdown = () => {
+  disconnectMongo();
+};
 
 export default app;

@@ -1,9 +1,9 @@
 import { Component, Vue } from 'vue-property-decorator';
-import DatasetPanel from '../dataset-panel/dataset-panel';
+import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
 
 @Component({
   components: {
-    DatasetPanel,
+    DatasetModal,
   },
 })
 export default class DatasetBar extends Vue {

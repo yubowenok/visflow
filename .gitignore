@@ -26,3 +26,6 @@ inspect-output.js
 
 # flowsense executable
 server/flowsense
+
+# Coverage report
+coverage/

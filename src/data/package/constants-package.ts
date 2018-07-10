@@ -1,4 +1,4 @@
-import Package from './package';
+import Package from '@/data/package/package';
 
 export default class ConstantsPackage extends Package {
 

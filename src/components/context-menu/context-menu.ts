@@ -1,5 +1,5 @@
 import { Component, Prop, Vue } from 'vue-property-decorator';
-import GlobalClick from '../../directives/global-click';
+import GlobalClick from '@/directives/global-click';
 
 @Component({
   directives: {

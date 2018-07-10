@@ -1,13 +1,17 @@
 import { Module, ActionContext } from 'vuex';
-import { RootState } from '../index';
+import store, { RootState } from '@/store';
 
 import { axiosPost, errorMessage } from '@/common/util';
+import { State } from '../../../node_modules/vuex-class';
 
 export interface UserState {
   username: string;
 
-  // an error message displayed during the login/register process
+  // An error message displayed during the login/register process
   errorMessage: string;
+
+  // Function to be called after the user logins
+  loginCallback?: () => void;
 }
 
 export interface SignupProfile {
@@ -25,6 +29,8 @@ export interface LoginProfile {
 const initialState: UserState = {
   username: '',
   errorMessage: '',
+
+  loginCallback: undefined,
 };
 
 const getters = {
@@ -45,12 +51,24 @@ const mutations = {
 };
 
 const actions = {
+  /**
+   * Request login by showing a login modal.
+   * After the user successfully logins, callback will be executed.
+   */
+  requestLogin(context: ActionContext<UserState, RootState>, options: { loginCallback?: () => void }): void {
+    context.state.loginCallback = options.loginCallback;
+    store.commit('modals/openLoginModal');
+  },
+
   login(context: ActionContext<UserState, RootState>, profile: LoginProfile): Promise<string> {
     return new Promise((resolve, reject) => {
       axiosPost<{ username: string }>('/user/login', profile)
         .then(res => {
           context.commit('loginUser', res.data.username);
           resolve(res.data.username);
+          if (context.state.loginCallback) {
+            context.state.loginCallback();
+          }
         })
         .catch(err => reject(errorMessage(err)));
     });

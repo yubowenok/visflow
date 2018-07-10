@@ -1,7 +1,7 @@
 /**
  * @fileoverview Data parser that converts raw tabular data to visflow Data.
  */
-import TabularDataset, { TabularRows, TabularColumn } from './tabular-dataset';
+import TabularDataset, { TabularRows, TabularColumn } from '@/data/tabular-dataset';
 import { dsvFormat } from 'd3-dsv';
 import _ from 'lodash';
 

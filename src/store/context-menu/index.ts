@@ -1,5 +1,5 @@
 import { Module } from 'vuex';
-import { RootState } from '../index';
+import { RootState } from '@/store';
 import ContextMenu from '@/components/context-menu/context-menu';
 
 interface ContextMenuState {

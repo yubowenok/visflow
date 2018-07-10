@@ -27,3 +27,7 @@ export const isMongooseConnected = (req: Request, res: Response, next: NextFunct
   }
   return res.status(500).send('lost connection to db');
 };
+
+export const disconnectMongo = () => {
+  mongoose.disconnect();
+};

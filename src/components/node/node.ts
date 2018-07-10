@@ -5,23 +5,24 @@ import _ from 'lodash';
 
 import { getImgSrc } from '@/store/dataflow/node-types';
 import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX, ICONIZED_NODE_SIZE_PX } from '@/common/constants';
-export { injectNodeTemplate } from './template';
+export { injectNodeTemplate } from '@/components/node/template';
 import template from './node.html';
-import ContextMenu from '../context-menu/context-menu';
-import GlobalClick from '../../directives/global-click';
+import ContextMenu from '@/components/context-menu/context-menu';
+import GlobalClick from '@/directives/global-click';
 import NodeCover from './node-cover.vue';
 import NodeLabel from './node-label.vue';
-import OptionPanel from '../option-panel/option-panel';
-import Edge from '../edge/edge';
-import { Port, InputPort, OutputPort } from '../port';
-import { MessageOptions } from '@/store/message';
+import OptionPanel from '@/components/option-panel/option-panel';
+import Edge from '@/components/edge/edge';
+import { Port, InputPort, OutputPort } from '@/components/port';
 import { DragNodePayload } from '@/store/interaction';
 import { checkEdgeConnectivity } from '@/store/dataflow';
-import ns from '@/common/namespaces';
+import ns from '@/store/namespaces';
+import { CreateNodeData } from '@/store/dataflow/types';
 
 const GRID_SIZE = 10;
 export interface NodeSave {
   id: string;
+  type: string;
   layer: number;
   label: string;
   displayWidth: number;
@@ -48,20 +49,22 @@ export interface NodeSave {
 })
 export default class Node extends Vue {
   public id!: string;
-  public layer: number = 0;
+  public layer = 0;
   // whether the node is focused and its option panel is shown
-  public isActive: boolean = false;
+  public isActive = false;
   // whether the node is among the current selection, which may contain multiple nodes
-  public isSelected: boolean = false;
+  public isSelected = false;
+  // whether the propagation should start from this node
+  public isPropagationSource = false;
 
-  protected NODE_TYPE: string = 'node';
-  protected DEFAULT_WIDTH: number = 50;
-  protected DEFAULT_HEIGHT: number = 50;
-  protected MIN_WIDTH: number = 30;
-  protected MIN_HEIGHT: number = 30;
-  protected RESIZABLE: boolean = false;
+  protected NODE_TYPE = 'node';
+  protected DEFAULT_WIDTH = 50;
+  protected DEFAULT_HEIGHT = 50;
+  protected MIN_WIDTH = 30;
+  protected MIN_HEIGHT = 30;
+  protected RESIZABLE = false;
 
-  protected label: string = '';
+  protected label = '';
 
   // ports: input/output port id's must be unique
   protected inputPorts: InputPort[] = [];
@@ -72,19 +75,32 @@ export default class Node extends Vue {
 
   // Layout related properties.
   // Changing width and height will resize the node.
-  protected width: number = 0; // initialized in created()
-  protected height: number = 0; // initialized in created()
-  protected displayWidth: number = 0; // width when not iconized
-  protected displayHeight: number = 0; // height when not iconized
+  protected width = 0; // initialized in created()
+  protected height = 0; // initialized in created()
+  protected displayWidth = 0; // width when not iconized
+  protected displayHeight = 0; // height when not iconized
   // Changing x and y will change the position of the node.
-  protected x: number = 0; // CSS "left" of top-left corner
-  protected y: number = 0; // CSS "top" of top-left corner
-  protected isIconized: boolean = false;
-  protected isInVisMode: boolean = false;
-  protected isLabelVisible: boolean = false;
+  protected x = 0; // CSS "left" of top-left corner
+  protected y = 0; // CSS "top" of top-left corner
+  protected isIconized = false;
+  protected isInVisMode = false;
+  protected isLabelVisible = false;
+
+  // These are the options passed to the node on node creation, and are only used once in created().
+  protected dataOnCreate: CreateNodeData = {};
 
   // A list of classes to be added to the container element so that CSS can take effect.
   protected containerClasses: string[] = ['node'];
+
+  /**
+   * The serialization chain is a list of functions to be called to generate the serialized NodeSave.
+   * The functions are pushed to the list in the created() call of base node and inheritting node sequentially.
+   * We utilize the Vue design that all created() of base and inheritting node classes are called.
+   *
+   * The deserialization chain is similar and assigns values in NodeSave to the deserialized node.
+   */
+  protected serializationChain: Array<() => object> = [];
+  protected deserializationChain: Array<(save: NodeSave) => void> = [];
 
   protected coverText: string = '';
 
@@ -125,25 +141,6 @@ export default class Node extends Vue {
   @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
   @ns.panels.Mutation('unmountOptionPanel') private unmountOptionPanel!: (panel: Vue) => void;
-
-  public serialize(): NodeSave {
-    return {
-      id: this.id,
-      layer: this.layer,
-      label: this.label,
-      displayWidth: this.displayWidth,
-      displayHeight: this.displayHeight,
-      x: this.x,
-      y: this.y,
-      isIconized: this.isIconized,
-      isInVisMode: this.isInVisMode,
-      isLabelVisible: this.isLabelVisible,
-    };
-  }
-
-  public deserialize(save: NodeSave) {
-    _.extend(this, save);
-  }
 
   public findConnectablePort(port: Port): Port | null {
     if (port.isInput) {
@@ -260,11 +257,36 @@ export default class Node extends Vue {
   }
 
   public getInputPort(id: string): InputPort {
-    return this.inputPortMap[id];
+    if (!(id in this.inputPortMap)) {
+      console.error(`port "${id}" is not an input port of node "${id}"`);
+    }
+    return this.inputPortMap[id] as InputPort;
   }
 
   public getOutputPort(id: string): OutputPort {
-    return this.outputPortMap[id];
+    if (!(id in this.outputPortMap)) {
+      console.error(`port "${id}" is not an output port of node "${id}"`);
+    }
+    return this.outputPortMap[id] as OutputPort;
+  }
+
+  /**
+   * Serializes the node into a NodeSave object.
+   * serialize() shall not be overridden from its base class implementation.
+   */
+  public serialize(): NodeSave {
+    // Call each function in the serialization chain to store node attributes into the save object.
+    return this.serializationChain.reduce((save, f) => {
+      return _.extend(save, f());
+    }, {}) as NodeSave;
+  }
+
+  /**
+   * Deserializes the node from a NodeSave object.
+   * deserialize() shall not be overridden from its base class implementation.
+   */
+  public deserialize(save: NodeSave) {
+    _.extend(this, save);
   }
 
   /**
@@ -289,6 +311,23 @@ export default class Node extends Vue {
     this.createPortMap();
 
     this.update();
+
+    // Base serialization
+    this.serializationChain.push(() => {
+      return {
+        id: this.id,
+        type: this.NODE_TYPE,
+        layer: this.layer,
+        label: this.label,
+        displayWidth: this.displayWidth,
+        displayHeight: this.displayHeight,
+        x: this.x,
+        y: this.y,
+        isIconized: this.isIconized,
+        isInVisMode: this.isInVisMode,
+        isLabelVisible: this.isLabelVisible,
+      };
+    });
   }
 
   protected createPorts() {
@@ -434,10 +473,13 @@ export default class Node extends Vue {
 
   private initCss() {
     const $node = $(this.$refs.node);
-    // Note: When the node is created and initialized, the passed in x and y are coordinates for the center,
-    // not the top-left corner.
-    this.x -= this.DEFAULT_WIDTH / 2;
-    this.y -= this.DEFAULT_HEIGHT / 2;
+    if (this.dataOnCreate.x !== undefined && this.dataOnCreate.y !== undefined) {
+      this.x = this.dataOnCreate.x;
+      this.y = this.dataOnCreate.y;
+    } else if (this.dataOnCreate.centerX !== undefined && this.dataOnCreate.centerY !== undefined) {
+      this.x = this.dataOnCreate.centerX - this.DEFAULT_WIDTH / 2;
+      this.y = this.dataOnCreate.centerY - this.DEFAULT_HEIGHT / 2;
+    }
     $node.addClass(this.containerClasses)
       .css({
         // jQuery.draggable sets position to relative, we override here.
@@ -448,6 +490,9 @@ export default class Node extends Vue {
   private appear() {
     TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       scale: 1.5,
+      // Must update port coordinates because those are not reactive to $refs.node size changes.
+      onUpdate: this.updatePortCoordinates,
+      onComplete: this.updatePortCoordinates,
     });
   }
 

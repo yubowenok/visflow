@@ -13,8 +13,8 @@
     "watch-node": "nodemon --inspect dist/server.js",
     "watch-lint": "nodemon -x npm run lint",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-lint\" \"npm run watch-build\" \"npm run watch-node\"",
-    "test": "jest --forceExit --verbose",
-    "watch-test": "jest --forceExit --verbose --watch"
+    "test": "jest --detectOpenHandles --verbose --coverage",
+    "watch-test": "jest --verbose --watch"
   },
   "dependencies": {
     "bcrypt-nodejs": "^0.0.3",
@@ -23,6 +23,7 @@
     "compression": "^1.7.1",
     "connect-mongo": "^2.0.1",
     "cors": "^2.8.4",
+    "crypto-js": "^3.1.9-1",
     "dotenv": "^4.0.0",
     "errorhandler": "^1.5.0",
     "express": "^4.16.2",
@@ -47,6 +48,7 @@
     "@types/body-parser": "^1.16.8",
     "@types/compression": "^0.0.35",
     "@types/cors": "^2.8.4",
+    "@types/crypto-js": "^3.1.41",
     "@types/dotenv": "^4.0.2",
     "@types/errorhandler": "^0.0.32",
     "@types/express": "^4.16.0",
@@ -68,7 +70,7 @@
     "@types/winston": "^2.3.7",
     "chai": "^4.1.2",
     "concurrently": "^3.5.1",
-    "jest": "^22.0.4",
+    "jest": "^23.3.0",
     "nodemon": "^1.13.0",
     "supertest": "^3.0.0",
     "ts-jest": "^22.0.4",

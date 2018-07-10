@@ -1,30 +1,33 @@
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
-import ns from '@/common/namespaces';
-import Node, { injectNodeTemplate } from '../node/node';
+import ns from '@/store/namespaces';
+import Node, { injectNodeTemplate } from '@/components/node/node';
 import template from './data-source.html';
 import Port from '@/components/port/port';
 import OutputPort from '@/components/port/output-port';
-import DatasetPanel from '../dataset-panel/dataset-panel';
+import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
 import { DatasetInfo } from '@/components/dataset-list/dataset-list';
 import { systemMessageErrorHandler } from '@/common/util';
-import { FetchDatasetOptions } from '@/store/dataset';
+import { GetDatasetOptions } from '@/store/dataset';
 import { parseCsv } from '@/data/parser';
+import { SubsetPackage } from '@/data/package';
 
 @Component({
   template: injectNodeTemplate(template),
   components: {
-    DatasetPanel,
+    DatasetModal,
   },
 })
 export default class DataSource extends Node {
+  public isPropagationSource = true;
+
   protected NODE_TYPE = 'data-source';
   protected containerClasses = ['node', 'data-source'];
   protected DEFAULT_WIDTH = 120;
   protected DEFAULT_HEIGHT = 30;
 
   @ns.user.State('username') private username!: string;
-  @ns.dataset.Action('fetchDataset') private fetchDataset!: (options: FetchDatasetOptions) => Promise<string>;
+  @ns.dataset.Action('getDataset') private getDataset!: (options: GetDatasetOptions) => Promise<string>;
   @ns.dataflow.Mutation('portUpdated') private portUpdated!: (port: Port) => void;
 
   private datasetInfo: DatasetInfo | null = null;
@@ -53,12 +56,13 @@ export default class DataSource extends Node {
     this.datasetInfo = info;
     this.datasetName = info.originalname;
 
-    this.fetchDataset({
+    this.getDataset({
       username: this.username,
       filename: this.datasetInfo.filename,
     }).then((csv: string) => {
       const outputPort = this.outputPortMap.out;
-      outputPort.updatePackage(parseCsv(csv));
+      const dataset = parseCsv(csv);
+      outputPort.updatePackage(new SubsetPackage(dataset));
       this.portUpdated(outputPort);
     }).catch(systemMessageErrorHandler);
   }

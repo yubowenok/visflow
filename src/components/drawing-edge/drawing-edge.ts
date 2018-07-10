@@ -1,8 +1,8 @@
 import { Component, Vue } from 'vue-property-decorator';
 
-import ns from '@/common/namespaces';
-import Port from '../port/port';
-import { arrowPath } from '../edge/edge';
+import ns from '@/store/namespaces';
+import Port from '@/components/port/port';
+import { arrowPath } from '@/components/edge/edge';
 
 @Component
 export default class DrawingEdge extends Vue {

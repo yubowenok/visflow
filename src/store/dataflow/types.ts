@@ -1,5 +1,5 @@
 import Node, { NodeSave } from '@/components/node/node';
-import Port from '@/components/port/port';
+import { InputPort, OutputPort } from '@/components/port';
 import Edge, { EdgeSave } from '@/components/edge/edge';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 
@@ -23,13 +23,24 @@ export interface NodeType {
 
 export interface CreateNodeOptions {
   type: string;
-  centerX: number;
-  centerY: number;
+  // Either use (x, y) or (centerX, centerY) to set the node's position.
+  // Only one of them will be respected.
+  x?: number;
+  y?: number;
+  centerX?: number;
+  centerY?: number;
+}
+
+export interface CreateNodeData {
+  x?: number;
+  y?: number;
+  centerX?: number;
+  centerY?: number;
 }
 
 export interface CreateEdgeOptions {
-  sourcePort: Port;
-  targetPort?: Port;
+  sourcePort: OutputPort;
+  targetPort?: InputPort;
   targetNode?: Node;
 }
 
@@ -39,6 +50,13 @@ export interface ConnectionInfo {
 }
 
 export interface DiagramSave {
+  diagramName: string;
   nodes: NodeSave[];
   edges: EdgeSave[];
+}
+
+export interface DiagramInfo {
+  diagramName: string;
+  filename: string;
+  updatedAt: string;
 }

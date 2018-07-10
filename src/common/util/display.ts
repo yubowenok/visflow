@@ -1,10 +1,10 @@
-// import { ENVIRONMENT } from '@/common/env';
 import { showSystemMessage } from '@/store/message';
 
 interface ErrorResponse {
   message: string;
   response?: {
     data: string;
+    status: number;
   };
 }
 
@@ -13,6 +13,9 @@ type Error = ErrorResponse | string;
 export const errorMessage = (err: Error): string => {
   if (typeof err === 'string') {
     return err;
+  }
+  if (err.response && err.response.status === 404) {
+    return '404 not found';
   }
   return (err.response && err.response.data) || err.message;
 };

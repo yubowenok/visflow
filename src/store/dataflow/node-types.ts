@@ -1,6 +1,6 @@
 import { VueConstructor } from 'vue';
 
-import { NodeType } from './types';
+import { NodeType } from '@/store/dataflow/types';
 import Visualization from '@/components/visualization/visualization';
 import DataSource from '@/components/data-source/data-source';
 import Table from '@/components/table/table';

@@ -1,8 +1,8 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
 
-import ns from '@/common/namespaces';
-import DataTable from '../data-table/data-table';
-import { axiosPost, errorMessage, fileSizeDisplay } from '@/common/util';
+import ns from '@/store/namespaces';
+import DataTable from '@/components/data-table/data-table';
+import { fileSizeDisplay } from '@/common/util';
 
 export interface DatasetInfo {
   originalname: string;
@@ -18,6 +18,8 @@ export interface DatasetInfo {
 })
 export default class DatasetLit extends Vue {
   @ns.user.State('username') private username!: string;
+  @ns.dataset.Action('listDataset') private dispatchListDataset!: () => Promise<DatasetInfo[]>;
+  @ns.dataset.Action('deleteDataset') private dispatchDeleteDataset!: (filename: string) => Promise<void>;
 
   @Prop()
   private selectable!: boolean;
@@ -41,6 +43,7 @@ export default class DatasetLit extends Vue {
         },
         {
           targets: 2,
+          type: 'date',
           render: (updatedAt: Date) => updatedAt.toLocaleString(),
         },
         {
@@ -86,19 +89,15 @@ export default class DatasetLit extends Vue {
       this.list = [];
       return;
     }
-    axiosPost<DatasetInfo[]>('/dataset/list')
-      .then(res => this.list = res.data)
-      .catch(err => this.errorMessage = errorMessage(err));
-  }
-
-  @Watch('username')
-  private onUsernameChange() {
-    this.getList();
+    this.dispatchListDataset()
+      .then(res => this.list = res)
+      .catch((err: string) => this.errorMessage = err);
   }
 
   private deleteDataset(filename: string) {
-    axiosPost<void>('/dataset/delete', { filename })
-      .then(this.getList);
+    this.dispatchDeleteDataset(filename)
+      .then(this.getList)
+      .catch((err: string) => this.errorMessage = err);
   }
 
   private onDatasetSelect(indexes: number[]) {
@@ -107,5 +106,10 @@ export default class DatasetLit extends Vue {
 
   private onDatasetDeselect(indexes: number[]) {
     this.$emit('deselectDataset');
+  }
+
+  @Watch('username')
+  private onUsernameChange() {
+    this.getList();
   }
 }

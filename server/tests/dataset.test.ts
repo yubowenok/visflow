@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import _ from 'lodash';
 
-import app from '@src/app';
+import app, { appShutdown } from '@src/app';
 import User from '@src/models/user';
 import Dataset from '@src/models/dataset';
 import { DATA_PATH } from '@src/config/env';
@@ -119,8 +119,8 @@ describe('delete a dataset', () => {
   });
 });
 
-describe('list datasets after deletion', () => {
-  it('should list two datasets', done => {
+describe('list dataset after deletion', () => {
+  it('should list one dataset', done => {
     agent.post('/api/dataset/list')
       .expect((res: Response) => {
         expect(res.body).toHaveLength(1);
@@ -157,8 +157,15 @@ afterAll(done => {
     fs.removeSync(datasetDir);
   }
 
-  User.findOneAndRemove({ username: testUser.username }, () => {
-    Dataset.find({ username: testUser.username }).remove(() => {
+  User.findOneAndRemove({ username: testUser.username }, err => {
+    if (err) {
+      throw err;
+    }
+    Dataset.find({ username: testUser.username }).remove(err2 => {
+      if (err2) {
+        throw err2;
+      }
+      appShutdown();
       done();
     });
   });

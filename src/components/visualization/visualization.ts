@@ -1,10 +1,11 @@
 import { Component, Prop, Watch } from 'vue-property-decorator';
 
-import Node, { injectNodeTemplate, NodeSave } from '../node/node';
+import Node, { injectNodeTemplate, NodeSave } from '@/components/node/node';
 import template from './visualization.html';
+import { SubsetSelection } from '@/data/package';
 
 export interface VisualizationSave extends NodeSave {
-  selectedItems: number[];
+  selection: Selection;
 }
 
 @Component({
@@ -19,6 +20,8 @@ export default class Visualization extends Node {
 
   protected isInVisMode = true;
 
+  protected selection: SubsetSelection = new SubsetSelection();
+
   /**
    * Checks if there is input dataset. If not, shows a text message.
    */
@@ -29,6 +32,14 @@ export default class Visualization extends Node {
     }
     this.coverText = '';
     return false;
+  }
+
+  protected created() {
+    this.serializationChain.push(() => {
+      return {
+        selection: this.selection,
+      };
+    });
   }
 
   private testOption() {

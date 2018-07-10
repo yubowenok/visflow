@@ -1,7 +1,7 @@
 import { Component } from 'vue-property-decorator';
-import Node from '../node/node';
-import Port from './port';
-import InputPort from './input-port';
+import Node from '@/components/node/node';
+import Port from '@/components/port/port';
+import InputPort from '@/components/port/input-port';
 import { Package } from '@/data/package';
 
 @Component
@@ -34,7 +34,10 @@ export default class OutputPort extends Port {
     return this.package !== null;
   }
 
-  public getPackage(): Package | null {
-    return this.package;
+  public getPackage(): Package {
+    if (this.package === null) {
+      console.error('calling getPackage() when package is null');
+    }
+    return this.package as Package;
   }
 }

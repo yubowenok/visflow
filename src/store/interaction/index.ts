@@ -3,11 +3,11 @@
  */
 
 import { Module } from 'vuex';
-import { RootState } from '../index';
+import { RootState } from '@/store';
 import Port from '@/components/port/port';
 import Node from '@/components/node/node';
-import store from '../index';
-import * as helper from './helper';
+import store from '@/store';
+import * as helper from '@/store/interaction/helper';
 
 export interface DragNodePayload {
   node: Node;
@@ -132,35 +132,44 @@ const mutations = {
   },
 
   keyup: (state: InteractionState, key: string) => {
-    switch (key.toLowerCase()) {
-      case 'control':
+    key = key.toLowerCase();
+    switch (true) {
+      case key === 'control':
         state.ctrlPressed = false;
         break;
-      case 'shift':
+      case key === 'shift':
         state.shiftPressed = false;
         break;
-      case 'alt':
+      case key === 'alt':
         state.altPressed = false;
         break;
-      case 'd':
-        if (state.ctrlPressed) {
-          store.commit('dataflow/removeSelectedNodes');
-        }
+      case 'a' <= key && key <= 'z':
+        mutations.keyStroke(state, [
+          state.ctrlPressed ? 'ctrl' : '',
+          state.shiftPressed ? 'shift' : '',
+          key,
+        ].filter(s => s !== '').join('+'));
         break;
-      case 's':
-        if (state.ctrlPressed) {
-          if (state.shiftPressed) {
-            store.commit('modals/openSaveAsDiagramModal');
-          } else {
-            store.dispatch('dataflow/saveDiagram');
-          }
-        }
+    }
+  },
+
+  keyStroke(state: InteractionState, keys: string) {
+    switch (keys) {
+      case 'ctrl+d':
+      case 'ctrl+x': // TODO: change to cut nodes
+        store.commit('dataflow/removeSelectedNodes');
         break;
-      case 'x':
-        if (state.ctrlPressed) {
-          // TODO: change to cut nodes
-          store.commit('dataflow/removeSelectedNodes');
-        }
+      case 'ctrl+s':
+        store.dispatch('dataflow/saveDiagram');
+        break;
+      case 'ctrl+shift+s':
+        store.commit('modals/openSaveAsDiagramModal');
+        break;
+      case 'ctrl+l':
+        store.commit('modals/openLoadDiagramModal');
+        break;
+      case 'ctrl+n':
+        store.commit('modals/openNewDiagramModal');
         break;
     }
   },

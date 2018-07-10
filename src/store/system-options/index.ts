@@ -1,5 +1,5 @@
 import { Module } from 'vuex';
-import { RootState } from '../index';
+import { RootState } from '@/store';
 
 interface SystemOptionsState {
   nodeLabelsVisible: boolean;

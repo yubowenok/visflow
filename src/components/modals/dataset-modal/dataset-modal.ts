@@ -1,29 +1,36 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
-import FileUpload from '../file-upload/file-upload';
-import DatasetList, { DatasetInfo } from '../dataset-list/dataset-list';
+
+import FileUpload from '@/components/file-upload/file-upload';
+import DatasetList, { DatasetInfo } from '@/components/dataset-list/dataset-list';
+import BaseModal from '@/components/modals/base-modal/base-modal';
+import ns from '@/store/namespaces';
 
 @Component({
   components: {
     FileUpload,
     DatasetList,
+    BaseModal,
   },
 })
-export default class DatasetPanel extends Vue {
+export default class DatasetModal extends Vue {
   @Prop()
   private selectable!: boolean;
 
-  private modalVisible = false;
+  // Dataset modal manages the visible state in itself instead of the global store.
+  private visible = false;
 
   private datasetSelected: DatasetInfo | null = null;
 
   public open() {
-    this.modalVisible = true;
+    this.visible = true;
     (this.$refs.fileUpload as FileUpload).reset();
+
+    // Refresh the list on each open call.
     (this.$refs.datasetList as DatasetList).getList();
   }
 
   private close() {
-    this.modalVisible = false;
+    this.visible = false;
     this.datasetSelected = null;
   }
 
@@ -41,12 +48,13 @@ export default class DatasetPanel extends Vue {
   }
 
   private onFileUpload() {
+    // Refresh the list of datasets.
     (this.$refs.datasetList as DatasetList).getList();
   }
 
-  @Watch('modalVisible')
-  private onModalVisibleChange() {
-    if (!this.modalVisible) {
+  @Watch('visible')
+  private onvisibleChange() {
+    if (!this.visible) {
       this.close();
     }
   }

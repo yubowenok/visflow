@@ -4,6 +4,7 @@ export interface DiagramModel extends mongoose.Document {
   username: string;
   diagramName: string; // user-readable diagram name
   filename: string; // system filename, random hash
+  updatedAt: Date;
 }
 
 const diagramSchema = new mongoose.Schema({
