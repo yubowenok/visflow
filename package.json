@@ -8,13 +8,13 @@
   },
   "private": true,
   "scripts": {
-    "coverage": "mkdir -p coverage && istanbul-merge --out coverage/coverage-final.json client/coverage/coverage-final.json server/coverage/coverage-final.json"
+    "coverage": "bash coverage.sh"
   },
   "workspaces": [
     "client",
     "server"
   ],
   "devDependencies": {
-    "istanbul-merge": "^1.1.1"
+    "nyc": "^12.0.2"
   }
 }
