@@ -6,26 +6,25 @@ services:
 
 before_script:
   - yarn install
-  - yarn --cwd server install
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
-  - ./cc-test-reporter before-build --debug
+  - ./cc-test-reporter before-build
 
 script:
-  - yarn build
-  - yarn test
+  - yarn --cwd client build
+  - yarn --cwd client test
   - yarn --cwd server build
   - yarn --cwd server lint
   - yarn --cwd server test
 
 after_script:
-  - mv server/coverage .
+  - yarn coverage
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 cache:
   yarn: true
   directories:
-  - node_modules
+  - client/node_modules
   - server/node_modules
 
 env:

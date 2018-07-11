@@ -1,0 +1,19 @@
+.DS_Store
+node_modules/
+dist/
+
+# local env files
+.env
+.env.*
+!.env.test
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# vue-cli inspect output
+inspect-output.js
+
+# Coverage report
+coverage/

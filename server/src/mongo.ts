@@ -8,7 +8,7 @@ import { MONGODB_URI } from './config/env';
 
 export const connectMongo = () => {
   mongoose.Promise = bluebird;
-  mongoose.connect(MONGODB_URI)
+  mongoose.connect(MONGODB_URI, { useNewUrlParser: true })
     .then(() => {})
     .catch(err => console.error('cannot connect to MongoDB', err));
 };

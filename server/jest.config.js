@@ -1,22 +1,23 @@
 module.exports = {
+	verbose: true,
 	globals: {
 		'ts-jest': {
-			tsConfigFile: 'tsconfig.json'
-		}
+			tsConfigFile: 'tsconfig.json',
+		},
 	},
 	moduleFileExtensions: [
 		'ts',
-		'js'
+		'js',
 	],
 	transform: {
-		'^.+\\.(ts|tsx)$': './node_modules/ts-jest/preprocessor.js'
+		'^.+\\.(ts|tsx)$': 'ts-jest',
 	},
 	testMatch: [
-		'**/tests/**/*.test.(ts|js)'
+		'**/tests/**/*.test.(ts|js)',
 	],
 	moduleNameMapper: {
 		// Jest tests must use @src alias, while src code may use @/* as src/*.
-		'^@src(.*)$': '<rootDir>/src$1'
+		'^@src(.*)$': '<rootDir>/src$1',
 	},
-	testEnvironment: 'node'
+	testEnvironment: 'node',
 };

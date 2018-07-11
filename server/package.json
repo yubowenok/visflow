@@ -4,6 +4,7 @@
   "description": "VisFlow server",
   "author": "Bowen Yu",
   "license": "BSD-3-Clause",
+  "private": true,
   "scripts": {
     "serve": "npm run build && NODE_ENV=production node dist/server.js",
     "start": "npm run build && node dist/server.js",
@@ -13,8 +14,8 @@
     "watch-node": "nodemon --inspect dist/server.js",
     "watch-lint": "nodemon -x npm run lint",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-lint\" \"npm run watch-build\" \"npm run watch-node\"",
-    "test": "jest --detectOpenHandles --verbose --coverage",
-    "watch-test": "jest --verbose --watch"
+    "test": "jest --detectOpenHandles --coverage",
+    "watch-test": "jest --watch"
   },
   "dependencies": {
     "bcrypt-nodejs": "^0.0.3",
