@@ -4,14 +4,14 @@
   @extend %vertical-center;
 
   > i {
-    margin: $margin-size-lg;
-    margin-left: -$margin-size-lg;
+    margin: $margin-size;
+    margin-left: -$margin-size;
     color: #333;
   }
 }
 
 #btn-load-dataset {
-  margin-top: $margin-size-lg;
+  margin-top: $margin-size;
   color: #333;
 }
 

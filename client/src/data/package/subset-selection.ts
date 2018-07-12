@@ -5,6 +5,16 @@ export default class SubsetSelection {
   // Indices of items selected.
   private items: Set<number> = new Set();
 
+  constructor(items?: number[]) {
+    if (items) {
+      this.items = new Set(items);
+    }
+  }
+
+  public serialize(): number[] {
+    return Array.from(this.items);
+  }
+
   public hasItem(index: number): boolean {
     return this.items.has(index);
   }

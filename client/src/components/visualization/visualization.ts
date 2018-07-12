@@ -5,7 +5,7 @@ import template from './visualization.html';
 import { SubsetSelection } from '@/data/package';
 
 export interface VisualizationSave extends NodeSave {
-  selection: Selection;
+  selection: number[];
 }
 
 @Component({
@@ -23,7 +23,7 @@ export default class Visualization extends Node {
   protected selection: SubsetSelection = new SubsetSelection();
 
   /**
-   * Checks if there is input dataset. If not, shows a text message.
+   * Checks if there is input dataset. If not, shows a text message and returns true.
    */
   protected checkNoDataset(): boolean {
     if (!this.inputPortMap.in.hasPackage()) {
@@ -37,8 +37,12 @@ export default class Visualization extends Node {
   protected created() {
     this.serializationChain.push(() => {
       return {
-        selection: this.selection,
+        selection: this.selection.serialize(),
       };
+    });
+    this.deserializationChain.push(nodeSave => {
+      const save = nodeSave as VisualizationSave;
+      this.selection = new SubsetSelection(save.selection);
     });
   }
 

@@ -84,9 +84,10 @@ export default class Node extends Vue {
    * We utilize the Vue design that all created() of base and inheritting node classes are called.
    *
    * The deserialization chain is similar and assigns values in NodeSave to the deserialized node.
+   * Each function in the chain is called sequentially after the NodeSave is written to the node.
    */
   protected serializationChain: Array<() => object> = [];
-  protected deserializationChain: Array<(save: NodeSave) => void> = [];
+  protected deserializationChain: Array<(save?: NodeSave) => void> = [];
 
   protected coverText: string = '';
 
@@ -275,6 +276,7 @@ export default class Node extends Vue {
   public deserialize(save: NodeSave) {
     // TODO fix: Iconize cause the node position to be shifted when deserialized.
     _.extend(this, save);
+    this.deserializationChain.forEach(f => f(save));
   }
 
   /**
@@ -301,8 +303,7 @@ export default class Node extends Vue {
     this.update();
 
     // Base serialization
-    this.serializationChain.push(() => {
-      return {
+    this.serializationChain.push(() => ({
         id: this.id,
         type: this.NODE_TYPE,
         layer: this.layer,
@@ -314,7 +315,13 @@ export default class Node extends Vue {
         isIconized: this.isIconized,
         isInVisMode: this.isInVisMode,
         isLabelVisible: this.isLabelVisible,
-      };
+    }));
+    // Base deserialization
+    this.deserializationChain.push(() => {
+      if (!this.isIconized) {
+        this.width = this.displayWidth;
+        this.height = this.displayHeight;
+      }
     });
   }
 
@@ -567,11 +574,14 @@ export default class Node extends Vue {
     const targetY = this.y + this.height / 2 - newHeight / 2;
     const $node = $(this.$refs.node);
     this.isAnimating = true;
+
     TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       width: newWidth,
       height: newHeight,
       left: targetX,
       top: targetY,
+      // allow Vue transition to complete, otherwise elements will scatter when fading out
+      delay: DEFAULT_ANIMATION_DURATION_S,
       onUpdate: () => {
         this.width = $node.width() as number;
         this.height = $node.height() as number;

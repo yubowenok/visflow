@@ -8,7 +8,7 @@ import _ from 'lodash';
 /** Value types ordered from the strickest to weakest typing */
 export enum ValueType {
   EMPTY = 'empty',
-  TIME = 'time',
+  DATE = 'date',
   INT = 'int',
   FLOAT = 'float',
   STRING = 'string',
@@ -58,9 +58,9 @@ const checkToken = (text: string | number, ignoredTypes_?: ValueType[]):
       value: '',
     };
   }
-  if (!ignoredTypes.has(ValueType.TIME) && isProbablyDate(text)) {
+  if (!ignoredTypes.has(ValueType.DATE) && isProbablyDate(text)) {
     return {
-      type: ValueType.TIME,
+      type: ValueType.DATE,
       value: new Date(text).getTime(),
     };
   }
@@ -96,7 +96,7 @@ export const tokenize = (text: string, type?: ValueType): number | string => {
     switch (type) {
       case ValueType.INT:
       case ValueType.FLOAT:
-      case ValueType.TIME:
+      case ValueType.DATE:
         return 0;
       default:
         return '';
@@ -107,7 +107,7 @@ export const tokenize = (text: string, type?: ValueType): number | string => {
       return parseInt(text, 10);
     case ValueType.FLOAT:
       return parseFloat(text);
-    case ValueType.TIME:
+    case ValueType.DATE:
       return new Date(text).getTime();
     case ValueType.STRING:
       return '' + text;

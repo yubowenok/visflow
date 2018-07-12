@@ -19,6 +19,7 @@ $border-radius: 2px;
     text-align: center;
     margin-right: .75rem;
     margin-left: -.75rem;
+    line-height: 1.5em; // vertically center the icon
 
     &.placeholder {
       opacity: 0;
@@ -103,7 +104,7 @@ $border-radius: 2px;
 }
 
 %bar {
-  @extend %margin-lr;
+  @extend %margin-lr-sm;
 }
 
 %ellipsis-text {

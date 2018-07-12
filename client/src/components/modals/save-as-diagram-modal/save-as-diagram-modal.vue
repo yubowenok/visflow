@@ -3,6 +3,7 @@
   :visible-state="saveAsDiagramModalVisible"
   :on-open="openSaveAsDiagramModal"
   :on-close="closeSaveAsDiagramModal"
+  :on-enter="saveAsDiagram"
   >
   <template slot="content">
     <b-container fluid>

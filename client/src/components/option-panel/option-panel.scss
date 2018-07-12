@@ -16,7 +16,7 @@
     button {
       width: 2rem;
       font-size: .75rem;
-      margin: $margin-size;
+      margin: $margin-size-sm;
 
       &.active {
         background-color: $theme-green;
@@ -26,8 +26,8 @@
     .divider {
       @extend %secondary-divider;
 
-      margin-top: $margin-size-lg;
-      margin-bottom: $margin-size-lg;
+      margin-top: $margin-size;
+      margin-bottom: $margin-size;
     }
   }
 

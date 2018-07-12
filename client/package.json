@@ -64,6 +64,7 @@
     "ts-jest": "^22.4.6",
     "victor": "^1.1.0",
     "vue-router": "^3.0.1",
+    "vue-select": "^2.4.0",
     "vue-template-compiler": "^2.5.16",
     "vuex-class": "^0.3.1"
   },

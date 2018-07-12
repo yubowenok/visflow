@@ -17,6 +17,9 @@ export default class SaveAsDiagramModal extends Vue {
   private diagramName = '';
 
   private saveAsDiagram() {
+    if (this.diagramName === '') {
+      return;
+    }
     this.dispatchSaveAsDiagram(this.diagramName)
       .catch(systemMessageErrorHandler(this.$store))
       .finally((this.$refs.modal as BaseModal).close);

@@ -19,7 +19,7 @@
     display: inline-block;
     cursor: pointer;
     transition: all .1s ease-in-out;
-    @extend %margin;
+    margin: $margin-size-sm;
 
     &:hover {
       transform: scale(1.2);

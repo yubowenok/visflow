@@ -1,6 +1,8 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import $ from 'jquery';
 
+export const DEFAULT_LENGTH_MENU = [5, 10, 20, 50, 100];
+
 @Component
 export default class DataTable extends Vue {
   @Prop()

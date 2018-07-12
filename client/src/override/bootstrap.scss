@@ -47,6 +47,6 @@ button.btn {
   margin-top: 8rem;
 
   .btn {
-    @extend %margin-lr;
+    @extend %margin-lr-sm;
   }
 }

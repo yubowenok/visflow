@@ -12,7 +12,7 @@ $padding-size-lg: $padding-size * 2;
 $padding-tb-size: .25rem;
 $padding-lr-size: 1.5rem;
 
-%padding {
+%padding { // left/right padding are wider than top/bottom padding
   padding: $padding-tb-size $padding-lr-size;
 }
 %padding-lr {
@@ -24,20 +24,17 @@ $padding-lr-size: 1.5rem;
   padding-bottom: $padding-tb-size;
 }
 
-$margin-size: .1rem;
-$margin-size-lg: $margin-size * 5;
+$margin-size-sm: .1rem;
+$margin-size: .5rem;
 $section-margin: 1.25rem;
 
-%margin {
-  margin: $margin-size;
+%margin-lr-sm {
+  margin-left: $margin-size-sm;
+  margin-right: $margin-size-sm;
 }
-%margin-lr {
-  margin-left: $margin-size;
-  margin-right: $margin-size;
-}
-%margin-tb {
-  margin-top: $margin-size;
-  margin-bottom: $margin-size;
+%margin-tb-sm {
+  margin-top: $margin-size-sm;
+  margin-bottom: $margin-size-sm;
 }
 
 %left-panel {

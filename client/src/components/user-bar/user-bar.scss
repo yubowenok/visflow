@@ -1,7 +1,7 @@
 @import '../../common/style/index';
 
 .user-bar {
-  margin-left: $margin-size-lg;
+  margin-left: $margin-size;
 }
 
 .username > * {
@@ -15,11 +15,11 @@
 }
 
 .logout {
-  margin-left: $margin-size-lg;
+  margin-left: $margin-size;
   border: none;
   color: #555;
 }
 
 div.row {
-  @extend %margin-tb;
+  @extend %margin-tb-sm;
 }

@@ -23,6 +23,7 @@ export default class SubsetPackage extends Package {
   constructor(dataset?: TabularDataset) {
     super();
     this.dataset = dataset;
+    this.init();
   }
 
   public getDataset(): TabularDataset | undefined {
@@ -31,6 +32,10 @@ export default class SubsetPackage extends Package {
 
   public getItems(): SubsetItem[] {
     return _.toArray(this.items);
+  }
+
+  public getItemIndices(): number[] {
+    return _.keys(this.items).map(value => +value);
   }
 
   public addItem(item: SubsetItem) {
@@ -66,5 +71,17 @@ export default class SubsetPackage extends Package {
   public copyFrom(pkg: SubsetPackage) {
     this.dataset = pkg.dataset;
     this.items = _.extend({}, pkg.items);
+  }
+
+  private init() {
+    if (!this.dataset) {
+      return;
+    }
+    for (let index = 0; index < this.dataset.numRows(); index++) {
+      this.items[index] = {
+        index,
+        visuals: {},
+      };
+    }
   }
 }

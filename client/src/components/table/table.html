@@ -1,6 +1,10 @@
 <!-- node-content -->
-<div>table content</div>
+<data-table ref="table"
+  :config="tableConfig"
+  @selectRow="onItemSelect"
+  @deselectRow="onItemDeselect"
+></data-table>
 <!-- context-menu -->
 <template></template>
 <!-- option-panel -->
-<div>table options</div>
+<column-list></column-list>

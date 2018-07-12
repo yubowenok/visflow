@@ -1,8 +1,9 @@
-import { Component, Vue, Watch } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 
 import ns from '@/store/namespaces';
 import DataTable from '@/components/data-table/data-table';
 import { DiagramInfo } from '@/store/dataflow/types';
+import { dateDisplay } from '@/common/util';
 
 @Component({
   components: {
@@ -29,7 +30,7 @@ export default class DiagramList extends Vue {
         {
           targets: 1,
           type: 'date',
-          render: (updatedAt: Date) => updatedAt.toLocaleString(),
+          render: (updatedAt: Date) => dateDisplay(updatedAt.toLocaleString()),
         },
         {
           targets: 2,

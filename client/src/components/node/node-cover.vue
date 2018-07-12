@@ -22,7 +22,7 @@
   z-index: -1;
   width: 100%;
   height: 100%;
-  background-image: linear-gradient(to bottom, white 0, #eee 1);
+  background: linear-gradient(to bottom, white 0%, #eee 100%);
 }
 
 .text {

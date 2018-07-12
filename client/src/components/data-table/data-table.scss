@@ -1,14 +1,51 @@
 @import '../../common/style/index';
 
-/deep/ .btn-outline-secondary {
-  padding-left: $padding-size-lg;
-  padding-right: $padding-size-lg;
+#table {
+  /deep/ .btn-outline-secondary {
+    padding-left: $padding-size-lg;
+    padding-right: $padding-size-lg;
 
-  &:not(:hover) {
-    background-color: white;
+    &:not(:hover) {
+      background-color: white;
+    }
+
+    > i {
+      pointer-events: none;
+    }
   }
 
-  > i {
-    pointer-events: none;
+  /deep/ .dataTables_length {
+    .custom-select {
+      width: 3rem;
+      -webkit-appearance: none; // remove webkit <select> arrows
+      appearance: none;
+
+      background-size: 1rem .75rem; // control bootstrap select arrows
+      background-position: right;
+
+      padding-left: $padding-size-lg;
+      padding-right: $padding-size-lg;
+    }
+  }
+
+  /deep/ label {
+    margin-bottom: 0;
+  }
+
+  /deep/ .dataTables_filter {
+    label {
+      float: right;
+      text-align: right;
+
+      input.form-control {
+        max-width: 50%;
+      }
+    }
+  }
+
+  /deep/ .dataTables_info {
+    .select-info {
+      margin-left: $margin-size;
+    }
   }
 }

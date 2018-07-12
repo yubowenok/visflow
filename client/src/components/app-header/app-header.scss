@@ -20,8 +20,25 @@
 
   /deep/ .dropdown-item {
     outline: none;
+    display: flex;
 
     @extend %list-item;
+
+    .shortcut {
+      flex: 100%;
+      text-align: right;
+      margin-left: $margin-size;
+
+      font-size: .8rem;
+
+      &::before {
+        content: '( ';
+      }
+
+      &::after {
+        content: ' )';
+      }
+    }
   }
 
   .bar {

@@ -10,7 +10,7 @@
     </transition>
     <node-label v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
     <transition name="fade">
-      <div ref="content" v-if="!isIconized && !isAnimating" class="content">
+      <div ref="content" v-show="!isIconized && !isAnimating" class="content">
         <!-- node-content -->
       </div>
     </transition>

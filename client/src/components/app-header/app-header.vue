@@ -22,6 +22,7 @@
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto">
         <!-- tool bars -->
+        <diagram-bar></diagram-bar>
         <drag-bar></drag-bar>
         <dataset-bar></dataset-bar>
 

@@ -72,7 +72,7 @@ const diagramApi = (app: Express) => {
 
   app.post('/api/diagram/save-as/', [
     check('diagram').isString(),
-    check('diagramName').exists().isLength({ min: 1 }),
+    check('diagramName', 'missing diagram name').exists().isLength({ min: 1 }),
     checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
     const filename = randomHash();

@@ -2,7 +2,7 @@ import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
 
 import ns from '@/store/namespaces';
 import DataTable from '@/components/data-table/data-table';
-import { fileSizeDisplay } from '@/common/util';
+import { fileSizeDisplay, dateDisplay } from '@/common/util';
 
 export interface DatasetInfo {
   originalname: string;
@@ -44,7 +44,7 @@ export default class DatasetLit extends Vue {
         {
           targets: 2,
           type: 'date',
-          render: (updatedAt: Date) => updatedAt.toLocaleString(),
+          render: (updatedAt: Date) => dateDisplay(updatedAt.toLocaleString()),
         },
         {
           targets: 3,

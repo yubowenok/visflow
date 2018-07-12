@@ -1,4 +1,5 @@
 import { Component, Vue } from 'vue-property-decorator';
+import VueRouter from 'vue-router';
 import $ from 'jquery';
 import '@/common/jquery-ui';
 
@@ -27,6 +28,7 @@ export default class App extends Vue {
   @ns.contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
   @ns.interaction.Mutation('keydown') private interactionKeydown!: (key: string) => void;
   @ns.interaction.Mutation('keyup') private interactionKeyup!: (key: string) => void;
+  @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
 
   get diagramShareLink(): string {
     return this.$route.params.shareLink;
@@ -34,6 +36,10 @@ export default class App extends Vue {
 
   get diagramFilename(): string {
     return this.$route.params.filename;
+  }
+
+  private created() {
+    this.setRouter(this.$router);
   }
 
   private mounted() {
