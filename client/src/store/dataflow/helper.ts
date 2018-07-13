@@ -14,18 +14,17 @@ import store from '@/store';
 import {
   DataflowState,
   CreateNodeOptions,
-  CreateEdgeOptions,
   DiagramSave,
+  CreateNodeData,
 } from '@/store/dataflow/types';
 import { getConstructor } from '@/store/dataflow/node-types';
 import { propagateNode, propagateNodes } from '@/store/dataflow/propagate';
 export * from '@/store/dataflow/propagate';
 import { getInitialState } from '@/store/dataflow';
 import { InputPort, OutputPort } from '@/components/port';
-import { DEFAULT_ANIMATION_DURATION_S } from '@/common/constants';
 
-const getNodeDataOnCreate = (options: CreateNodeOptions): {} => {
-  const data = {};
+const getNodeDataOnCreate = (options: CreateNodeOptions): CreateNodeData => {
+  const data: CreateNodeData = {};
   if (options.x !== undefined && options.y !== undefined) {
     _.extend(data, {
       x: options.x,
@@ -37,12 +36,25 @@ const getNodeDataOnCreate = (options: CreateNodeOptions): {} => {
       centerY: options.centerY,
     });
   }
+  if (options.isIconized !== undefined) {
+    data.isIconized = options.isIconized;
+  }
   return data;
+};
+
+const assignNodeId = (state: DataflowState): string => {
+  const nodeIds = new Set(state.nodes.map(node => node.id));
+  for (let id = 1;; id++) {
+    const newId = `node-${id}`;
+    if (!nodeIds.has(newId)) {
+      return newId;
+    }
+  }
 };
 
 export const createNode = (state: DataflowState, options: CreateNodeOptions): Node => {
   const constructor = getConstructor(options.type) as VueConstructor;
-  const id = `node-${state.nodeIdCounter++}`;
+  const id = assignNodeId(state);
   const dataOnCreate = getNodeDataOnCreate(options);
   const node: Node = new constructor({
     data: {
@@ -110,6 +122,7 @@ export const removeNode = (state: DataflowState, node: Node, propagate: boolean)
     propagateNodes(outputNodes);
   }
 
+  _.pull(state.nodes, node);
   state.canvas.removeNode(node, () => node.$destroy());
 };
 
@@ -140,7 +153,7 @@ export const disconnectPort = (state: DataflowState, port: Port, propagate: bool
 };
 
 export const resetDataflow = (state: DataflowState) => {
-  for (const node of state.nodes) {
+  for (const node of _.clone(state.nodes)) { // Make a clone to avoid mutating a list currently being traversed.
     removeNode(state, node, false);
   }
   _.extend(state, _.omit(getInitialState(), 'canvas'));
@@ -168,11 +181,14 @@ export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) =
   const sources = diagram.nodes.map(nodeSave => {
     const node = createNode(state, {
       type: nodeSave.type,
+      isIconized: nodeSave.isIconized,
     });
     node.deserialize(nodeSave);
     node.deactivate(); // Avoid all nodes being active.
     return node;
   }).filter(node => node.isPropagationSource);
+
+  state.numNodeLayers = _.max(diagram.nodes.map(node => node.layer)) || 0;
 
   for (const edgeSave of diagram.edges) {
     const sourceNode = state.nodes.find(node => node.id === edgeSave.sourceNodeId) as Node;

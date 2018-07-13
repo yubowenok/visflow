@@ -23,7 +23,6 @@ export const getInitialState = (): DataflowState => {
     nodeTypes: nodeTypes.nodeTypes,
     nodes: [],
     numNodeLayers: 0,
-    nodeIdCounter: 0,
     filename: '',
     diagramName: '',
   };
@@ -32,7 +31,9 @@ export const getInitialState = (): DataflowState => {
 export const initialState: DataflowState = getInitialState();
 
 const getters = {
-  topNodeLayer: (state: DataflowState) => state.numNodeLayers,
+  topNodeLayer: (state: DataflowState): number => {
+    return state.numNodeLayers;
+  },
 
   /*
   canvasOffset: (state: DataflowState): JQuery.Coordinates => {

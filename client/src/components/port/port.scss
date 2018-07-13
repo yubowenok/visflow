@@ -15,11 +15,26 @@
   }
 }
 
-.connectivity {
+.icon {
   @extend %vertical-center;
+  span {
+    display: flex;
 
-  .fa-circle {
-    color: #555;
-    font-size: 5px;
+    .fas {
+      color: #555;
+    }
+
+    .fa-circle {
+      font-size: 5px;
+    }
+
+    .fa-square {
+      font-size: 9px;
+    }
+
+    .fa-caret-right {
+      font-size: 15px;
+      margin-left: 1px; // slight offset from left to center the caret
+    }
   }
 }

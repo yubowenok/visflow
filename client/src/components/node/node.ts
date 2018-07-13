@@ -3,7 +3,7 @@ import { TweenLite } from 'gsap';
 import $ from 'jquery';
 import _ from 'lodash';
 
-import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX, ICONIZED_NODE_SIZE_PX } from '@/common/constants';
+import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX, PORT_MARGIN_PX, ICONIZED_NODE_SIZE_PX } from '@/common/constants';
 import template from './node.html';
 import ContextMenu from '@/components/context-menu/context-menu';
 import GlobalClick from '@/directives/global-click';
@@ -42,6 +42,8 @@ export default class Node extends Vue {
   public isSelected = false;
   // whether the propagation should start from this node
   public isPropagationSource = false;
+
+  @ns.dataflow.Mutation('portUpdated') protected portUpdated!: (port: Port) => void;
 
   protected NODE_TYPE = 'node';
   protected DEFAULT_WIDTH = 50;
@@ -274,7 +276,6 @@ export default class Node extends Vue {
    * deserialize() shall not be overridden from its base class implementation.
    */
   public deserialize(save: NodeSave) {
-    // TODO fix: Iconize cause the node position to be shifted when deserialized.
     _.extend(this, save);
     this.deserializationChain.forEach(f => f(save));
   }
@@ -321,6 +322,9 @@ export default class Node extends Vue {
       if (!this.isIconized) {
         this.width = this.displayWidth;
         this.height = this.displayHeight;
+      } else {
+        this.x = this.x + ICONIZED_NODE_SIZE_PX / 2 - this.displayWidth / 2;
+        this.y = this.y + ICONIZED_NODE_SIZE_PX / 2 - this.displayHeight / 2;
       }
     });
   }
@@ -346,6 +350,8 @@ export default class Node extends Vue {
       }),
     ];
   }
+
+  protected onResize() {}
 
   /**
    * We make mounted() private so that inheriting class cannot add mounted behavior.
@@ -475,6 +481,11 @@ export default class Node extends Vue {
       this.x = this.dataOnCreate.centerX - this.DEFAULT_WIDTH / 2;
       this.y = this.dataOnCreate.centerY - this.DEFAULT_HEIGHT / 2;
     }
+
+    if (this.dataOnCreate.isIconized !== undefined) {
+      this.isIconized = this.dataOnCreate.isIconized;
+    }
+
     $node.addClass(this.containerClasses)
       .css({
         // jQuery.draggable sets position to relative, we override here.
@@ -593,6 +604,7 @@ export default class Node extends Vue {
         this.width = newWidth;
         this.height = newHeight;
         this.isAnimating = false;
+        this.$nextTick(this.onResize);
       },
     });
   }
@@ -625,18 +637,22 @@ export default class Node extends Vue {
   private onWidthChange() {
     $(this.$refs.node).css('width', this.width);
     this.updatePortCoordinates();
+    this.onResize();
   }
   @Watch('height')
   private onHeightChange() {
     $(this.$refs.node).css('height', this.height);
     this.updatePortCoordinates();
+    this.onResize();
   }
 
   /** Sets the locations of ports. */
   private portStyles(port: Port, index: number, isInputPort: boolean): { left: string, top: string } {
+    const length = isInputPort ? this.inputPorts.length : this.outputPorts.length;
+    const totalHeight = length * PORT_SIZE_PX + (length - 1) * PORT_MARGIN_PX;
     return {
       left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
-      top: ((index - .5) * PORT_SIZE_PX + this.height / 2) + 'px',
+      top: (this.height / 2 - totalHeight / 2 + index * (PORT_SIZE_PX + PORT_MARGIN_PX)) + 'px',
     };
   }
 }

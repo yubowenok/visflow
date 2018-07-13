@@ -11,6 +11,7 @@
     height: 100%;
     background: white;
     padding: $padding-size-lg; // >= 2px to have anti-alias around the boundary
+    overflow: hidden;
   }
 
   > .background {
@@ -34,9 +35,12 @@
     }
   }
 
+  .port-group {
+    z-index: $zIndexPortGroup;
+  }
+
   .port-container {
     position: absolute;
-    z-index: $zIndexPort;
   }
 
   // port class assigned by Port component

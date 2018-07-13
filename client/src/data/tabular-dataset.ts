@@ -1,5 +1,5 @@
 import { ValueType } from '@/data/parser';
-import _ from 'lodash';
+import sha256 from 'crypto-js/sha256';
 
 export type TabularRow = Array<number | string>;
 export type TabularRows = TabularRow[];
@@ -10,6 +10,11 @@ export interface TabularColumn {
   hasDuplicate: boolean;
 }
 
+export interface ColumnSelectOption {
+  value: number; // column index in the original table
+  label: string;
+}
+
 interface SubTableOptions {
   indexColumn?: boolean;
 }
@@ -18,9 +23,17 @@ const arrayIndices = (indices: Set<number> | number[]): number[] => {
   return indices instanceof Set ? Array.from(indices) : indices;
 };
 
+/** Creates a hash value based on the dataset content. */
+const hash = (columns: TabularColumn[], rows: TabularRows): string => {
+  const columnStr = columns.map(column => column.name).join(',');
+  const rowStr = rows.map(row => row.map(e => e.toString()).join(',')).join(',');
+  return sha256(columnStr + ',' + rowStr).toString();
+};
+
 export default class TabularDataset {
   private columns: TabularColumn[] = [];
   private rows: TabularRows = [];
+  private hash: string = '';
 
   constructor({ columns, rows }: {
     columns: TabularColumn[],
@@ -28,14 +41,23 @@ export default class TabularDataset {
   }) {
     this.columns = columns;
     this.rows = rows;
+    this.hash = hash(columns, rows);
   }
 
   public numRows(): number {
     return this.rows.length;
   }
 
+  public numColumns(): number {
+    return this.columns.length;
+  }
+
   public getColumn(index: number): TabularColumn {
     return this.columns[index];
+  }
+
+  public getColumns(): TabularColumn[] {
+    return this.columns;
   }
 
   public isDateColumn(index: number): boolean {
@@ -67,19 +89,12 @@ export default class TabularDataset {
                          options_?: SubTableOptions): TabularRow {
     const options: SubTableOptions = options_ || {};
     columnIndices = arrayIndices(columnIndices);
-    return _.concat(
-      options.indexColumn ? [rowIndex] : [],
-      _.pullAt(this.rows[rowIndex], columnIndices),
-    );
+    const row: TabularRow = options.indexColumn ? [rowIndex] : [];
+    columnIndices.forEach(columnIndex => row.push(this.rows[rowIndex][columnIndex]));
+    return row;
+  }
+
+  public getHash(): string {
+    return this.hash;
   }
 }
-
-/*
-
-  var typeHash = visflow.parser.dataTypeHash(data);
-  var dataHash = visflow.parser.dataHash(data);
-  return _.extend(data, {
-    type: typeHash,
-    hash: dataHash
-  });
-  */

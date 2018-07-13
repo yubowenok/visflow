@@ -20,13 +20,13 @@
       </div>
     </transition>
     <div ref="background" class="background" :class="{ active: isActive, selected: isSelected }"></div>
-    <div class="input">
+    <div class="input port-group">
       <div v-for="(port, index) in inputPorts" :key="port.id" :id="'port-container-' + port.id"
         class="input port-container"
         :style="portStyles(port, index, true)"
       ></div>
     </div>
-    <div class="output">
+    <div class="output port-group">
       <div v-for="(port, index) in outputPorts" :key="port.id" :id="'port-container-' + port.id"
         class="output port-container"
         :style="portStyles(port, index, false)"
@@ -36,7 +36,7 @@
   <context-menu ref="contextMenu">
     <!-- context-menu -->
     <!-- common menu items -->
-    <li @click="contextMenuRemove"><i class="fas fa-sm fa-times"></i>Remove</li>
+    <li @click="contextMenuRemove"><i class="fas fa-sm fa-times"></i>Remove Node</li>
   </context-menu>
   <transition name="slide-fade-right">
     <option-panel ref="optionPanel" v-if="isActive"

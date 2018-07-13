@@ -8,7 +8,6 @@ export interface DataflowState {
   nodeTypes: NodeType[];
   nodes: Node[];
   numNodeLayers: number; // number of node layers, each node is on its own layer to define front/back ordering
-  nodeIdCounter: number; // for assigning ids to new nodes
 
   diagramName: string; // User-readable diagram name. This does not need to be unique.
   filename: string; // Filename stored on the server. This must be unique must is invisible to the user.
@@ -21,14 +20,19 @@ export interface NodeType {
   constructor: Function; // tslint:disable-line ban-types
 }
 
-export interface CreateNodeOptions {
-  type: string;
+export interface CreateNodeData {
+  type?: string;
   // Either use (x, y) or (centerX, centerY) to set the node's position.
   // Only one of them will be respected.
   x?: number;
   y?: number;
   centerX?: number;
   centerY?: number;
+  isIconized?: boolean;
+}
+
+export interface CreateNodeOptions extends CreateNodeData {
+  type: string;
 }
 
 export interface CreateNodeData {

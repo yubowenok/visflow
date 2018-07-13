@@ -30,7 +30,7 @@ export default class Port extends Vue {
   protected isAttachable = false;
   protected isConnectionChanged = false;
   protected edges: Edge[] = [];
-  protected package: Package | null = null;
+  protected package: Package = new Package();
 
   @ns.interaction.Mutation('portDragStarted') private portDragStarted!: (port: Port) => void;
   @ns.interaction.Mutation('portDragged') private portDragged!: (coordinates: Point) => void;
@@ -62,6 +62,10 @@ export default class Port extends Vue {
     return [];
   }
 
+  public isConnected(): boolean {
+    return this.edges.length > 0;
+  }
+
   public hasCapacity(): boolean {
     return this.edges.length < this.maxConnections;
   }
@@ -83,7 +87,7 @@ export default class Port extends Vue {
   }
 
   public getAllEdges(): Edge[] {
-    return this.edges.concat();
+    return _.clone(this.edges);
   }
 
   /** Adds an edge to this port's incident list */
@@ -133,6 +137,11 @@ export default class Port extends Vue {
   /** Clears the connection changed flag. */
   public clearConnectionUpdate() {
     this.isConnectionChanged = false;
+  }
+
+  /** Generates a tooltip string for the port. */
+  protected tooltip(): string {
+    return '';
   }
 
   private activate() {

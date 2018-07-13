@@ -1,0 +1,60 @@
+@import '../../common/style/index';
+
+#select {
+  max-width: $max-option-panel-width;
+
+  /deep/ {
+    .dropdown-toggle {
+      padding: $padding-size;
+      border-radius: $border-radius;
+
+      .selected-tag {
+        width: 100%;
+
+        cursor: all-scroll;
+        line-height: 1.5rem;
+        height: auto;
+        border-radius: 0;
+        margin: $margin-size-sm 0;
+        background: white;
+
+        @extend %border;
+        @extend %ellipsis-text;
+
+        &:hover {
+          background-color: #eee;
+        }
+
+        .close {
+          float: right;
+          font-size: 1rem;
+          line-height: 1.5rem;
+          padding: 1rem;
+          margin: -1rem -1rem;
+
+          &:hover {
+            opacity: .5;
+          }
+        }
+      }
+    }
+
+    .open-indicator {
+      transform: scale(.75);
+    }
+  }
+
+  /deep/ .dropdown-menu {
+    min-width: 100%;
+
+    li {
+      &.highlight {
+        background-color: $theme-green;
+
+        a {
+          background: none;
+        }
+      }
+    }
+  }
+}

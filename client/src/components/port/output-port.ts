@@ -6,6 +6,9 @@ import { Package } from '@/data/package';
 
 @Component
 export default class OutputPort extends Port {
+  protected isMultiple = true;
+  protected isSelection = false;
+
   private isUpdated = false;
 
   public getConnectedNodes(): Node[] {
@@ -30,14 +33,7 @@ export default class OutputPort extends Port {
     this.isUpdated = false;
   }
 
-  public hasPackage(): boolean {
-    return this.package !== null;
-  }
-
   public getPackage(): Package {
-    if (this.package === null) {
-      console.error('calling getPackage() when package is null');
-    }
-    return this.package as Package;
+    return this.package;
   }
 }

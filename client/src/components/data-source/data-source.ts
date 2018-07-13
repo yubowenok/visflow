@@ -4,13 +4,13 @@ import ns from '@/store/namespaces';
 import { Node, injectNodeTemplate, NodeSave } from '@/components/node';
 import template from './data-source.html';
 import Port from '@/components/port/port';
-import OutputPort from '@/components/port/output-port';
 import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
 import { DatasetInfo } from '@/components/dataset-list/dataset-list';
 import { systemMessageErrorHandler } from '@/common/util';
 import { GetDatasetOptions } from '@/store/dataset';
 import { parseCsv } from '@/data/parser';
 import { SubsetPackage } from '@/data/package';
+import { SubsetOutputPort } from '@/components/port';
 
 export interface DataSourceSave extends NodeSave {
   datasetInfo: DatasetInfo | null;
@@ -33,7 +33,6 @@ export default class DataSource extends Node {
 
   @ns.user.State('username') private username!: string;
   @ns.dataset.Action('getDataset') private getDataset!: (options: GetDatasetOptions) => Promise<string>;
-  @ns.dataflow.Mutation('portUpdated') private portUpdated!: (port: Port) => void;
 
   private datasetInfo: DatasetInfo | null = null;
   private datasetName = '';
@@ -57,11 +56,10 @@ export default class DataSource extends Node {
 
   protected createPorts() {
     this.outputPorts = [
-      new OutputPort({
+      new SubsetOutputPort({
         data: {
           id: 'out',
           node: this,
-          isMultiple: true,
         },
         store: this.$store,
       }),

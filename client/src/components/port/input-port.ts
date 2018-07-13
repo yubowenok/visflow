@@ -30,25 +30,18 @@ export default class InputPort extends Port {
   }
 
   /**
-   * Input port's hasPackage() depends on its connected output ports.
+   * Input port's hasPackage() depends on whether it is connected.
    */
   public hasPackage(): boolean {
-    for (const edge of this.edges) {
-      if (edge.source.hasPackage()) {
-        return true;
-      }
-    }
-    return false;
+    return this.isConnected();
   }
 
   /**
    * Retrieves the package from the connected output port.
    */
   public getPackage(): Package {
-    const pkgList = this.edges.map(edge => {
-      return edge.source.hasPackage() ? edge.source.getPackage() : null;
-    }).filter(pkg => pkg !== null) as Package[];
+    const pkgs = this.edges.map(edge => edge.source.getPackage());
     // TODO: How to handle multiple packages for multiple connections of an input port?
-    return pkgList[0];
+    return pkgs[0];
   }
 }

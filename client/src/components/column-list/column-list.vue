@@ -1,5 +1,5 @@
 <template>
-<vue-select v-model="selected"></vue-select>
+<vue-select id="select" multiple v-model="selected" :options="columns"></vue-select>
 </template>
 
 <style scoped lang="scss" src="./column-list.scss"></style>

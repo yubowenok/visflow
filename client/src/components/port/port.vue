@@ -6,9 +6,17 @@
     @dblclick.prevent.stop="activate"
     @contextmenu.prevent.stop="openContextMenu"
     v-global-click="globalClick">
-    <span class="connectivity" v-if="maxConnections === 1">
-      <i class="fas fa-circle"></i>
-    </span>
+    <div class="icon"> <!-- port icon -->
+      <span v-if="maxConnections === 1">
+        <i class="fas fa-circle"></i>
+      </span>
+      <span v-else-if="isSelection">
+        <i class="far fa-square"></i>
+      </span>
+      <span v-else>
+        <i class="fas fa-caret-right"></i>
+      </span>
+    </div>
     <transition name="slide-fade-right">
       <port-panel ref="portPanel" v-if="isActive" :port-id="id">
         <div>
@@ -20,6 +28,7 @@
   <context-menu ref="contextMenu">
     <li @click="disconnect"><i class="fas fa-unlink"></i>Disconnect</li>
   </context-menu>
+  <b-tooltip :target="() => $el" placement="bottom" delay="500">{{ tooltip() }}</b-tooltip>
 </div>
 </template>
 

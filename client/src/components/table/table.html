@@ -7,4 +7,11 @@
 <!-- context-menu -->
 <template></template>
 <!-- option-panel -->
-<column-list></column-list>
+<div>
+  <div class="bold">Columns</div>
+  <column-list
+    :columns="columnSelectOptions"
+    :initialSelectedColumns="columns"
+    @selectColumns="onSelectColumns"
+  ></column-list>
+</div>
