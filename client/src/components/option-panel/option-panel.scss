@@ -9,18 +9,20 @@
     @extend %divider;
   }
 
+  /deep/ button.mini.btn-outline-secondary {
+    text-align: center;
+    min-width: 2rem;
+    font-size: .75rem;
+    margin: $margin-size-sm;
+    padding: $padding-size-sm;
+  }
+
   > .header {
     margin-top: $margin-size;
     @extend %padding;
 
-    button {
-      width: 2rem;
-      font-size: .75rem;
-      margin: $margin-size-sm;
-
-      &.active {
-        background-color: $theme-green;
-      }
+    button.active {
+      background-color: $theme-green;
     }
 
     .divider {

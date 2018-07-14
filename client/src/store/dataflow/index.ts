@@ -12,7 +12,6 @@ import * as saveLoad from '@/store/dataflow/save-load';
 import * as nodeTypes from './node-types';
 
 export * from '@/store/dataflow/util';
-export * from '@/store/dataflow/types';
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;

@@ -13,7 +13,7 @@ import router from '@/store/router';
 import systemOptions from '@/store/system-options';
 import user from '@/store/user';
 
-import { DataflowState } from '@/store/dataflow';
+import { DataflowState } from '@/store/dataflow/types';
 import { InteractionState } from '@/store/interaction';
 import { UserState } from '@/store/user';
 

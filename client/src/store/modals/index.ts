@@ -3,9 +3,11 @@ import { Module } from 'vuex';
 import { RootState } from '@/store';
 import { showSystemMessage } from '@/common/util';
 import store from '@/store';
+import { MessageModalOptions } from './types';
 
 interface ModalsState {
   nodeModalMount: Element;
+  nodeModalVisible: boolean;
 
   newDiagramModalVisible: boolean;
   saveAsDiagramModalVisible: boolean;
@@ -14,10 +16,14 @@ interface ModalsState {
   loginModalVisible: boolean;
   signupModalVisible: boolean;
   profileModalVisible: boolean;
+
+  messageModalVisible: boolean;
+  messageModalOptions: MessageModalOptions;
 }
 
 const initialState: ModalsState = {
   nodeModalMount: document.createElement('div'), // dummy element
+  nodeModalVisible: false,
 
   newDiagramModalVisible: false,
   saveAsDiagramModalVisible: false,
@@ -26,6 +32,12 @@ const initialState: ModalsState = {
   loginModalVisible: false,
   signupModalVisible: false,
   profileModalVisible: false,
+
+  messageModalVisible: false,
+  messageModalOptions: {
+    title: '',
+    message: '',
+  },
 };
 
 const mutations = {
@@ -47,6 +59,14 @@ const mutations = {
       return;
     }
     state.nodeModalMount.appendChild(modal);
+  },
+
+  openNodeModal(state: ModalsState) {
+    state.nodeModalVisible = true;
+  },
+
+  closeNodeModal(state: ModalsState) {
+    state.nodeModalVisible = false;
   },
 
   openNewDiagramModal(state: ModalsState) {
@@ -99,6 +119,15 @@ const mutations = {
 
   closeProfileModal(state: ModalsState) {
     state.profileModalVisible = false;
+  },
+
+  openMessageModal(state: ModalsState, options: MessageModalOptions) {
+    state.messageModalVisible = true;
+    state.messageModalOptions = options;
+  },
+
+  closeMessageModal(state: ModalsState) {
+    state.messageModalVisible = false;
   },
 };
 

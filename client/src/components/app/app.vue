@@ -1,6 +1,7 @@
 <template>
 <div id="app" @contextmenu.prevent>
   <app-header></app-header>
+  <app-modals></app-modals>
   <system-message></system-message>
   <node-panel></node-panel>
   <quick-node-panel></quick-node-panel>

@@ -43,6 +43,9 @@ export default class Visualization extends Node {
   protected ALT_DRAG_ELEMENT = '';
 
   @ns.interaction.Getter('isAltPressed') private isAltPressed!: boolean;
+  @ns.modals.State('nodeModalVisible') private nodeModalVisible!: boolean;
+  @ns.modals.Mutation('openNodeModal') private openNodeModal!: () => void;
+  @ns.modals.Mutation('closeNodeModal') private closeNodeModal!: () => void;
   @ns.modals.Mutation('mountNodeModal') private mountNodeModal!: (modal: Element) => void;
 
   // Tracks failed mouse drag so as to hint user about dragging a visualization with alt.
@@ -184,6 +187,7 @@ export default class Visualization extends Node {
   }
 
   protected enlarge() {
+    this.openNodeModal(); // Notify store that modal has been opened.
     $(this.$refs.node).css('z-index', ENLARGE_ZINDEX);
 
     this.isEnlarged = true;
@@ -209,6 +213,7 @@ export default class Visualization extends Node {
   }
 
   protected closeEnlargeModal() {
+    this.closeNodeModal(); // Notify store that modal has been closed.
     TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       left: this.x,
       top: this.y,
@@ -257,6 +262,14 @@ export default class Visualization extends Node {
       $(this.$refs.node).find(this.ALT_DRAG_ELEMENT).css('pointer-events', 'none');
     } else {
       $(this.$refs.node).find(this.ALT_DRAG_ELEMENT).css('pointer-events', '');
+    }
+  }
+
+  @Watch('nodeModalVisible')
+  private onNodeModalVisibleChange(value: boolean) {
+    if (!value && this.isEnlarged) {
+      // Close by global keystroke (escape).
+      this.closeEnlargeModal();
     }
   }
 }

@@ -4,6 +4,7 @@ import $ from 'jquery';
 import '@/common/jquery-ui';
 
 import AppHeader from '@/components/app-header/app-header';
+import AppModals from './app-modals/app-modals';
 import SystemMessage from '@/components/system-message/system-message';
 import ContextMenu from '@/components/context-menu/context-menu';
 import NodePanel from '@/components/node-panel/node-panel';
@@ -20,6 +21,7 @@ import { systemMessageErrorHandler } from '@/common/util';
     NodePanel,
     QuickNodePanel,
     DataflowCanvas,
+    AppModals,
   },
 })
 export default class App extends Vue {

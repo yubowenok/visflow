@@ -73,3 +73,7 @@ body {
 .modal-backdrop.custom {
   opacity: .5;
 }
+
+.tooltip {
+  z-index: $zIndexTooltip;
+}

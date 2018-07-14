@@ -8,6 +8,9 @@
       padding: $padding-size;
       border-radius: $border-radius;
 
+      max-height: 300px;
+      overflow-y: hidden;
+
       .selected-tag {
         width: 100%;
 
@@ -57,4 +60,15 @@
       }
     }
   }
+}
+
+.controls {
+  display: flex;
+  margin-top: $section-margin-sm;
+}
+
+.mini {
+  display: inline-flex;
+  justify-content: center;
+  flex: 0 0 32%;
 }

@@ -186,6 +186,10 @@ const mutations = {
       case 'escape':
         store.commit('modals/closeNodeModal');
         break;
+      case 'ctrl+r':
+        // TODO: debug use only
+        debugger; // tslint:disable-line
+        break;
     }
   },
 };

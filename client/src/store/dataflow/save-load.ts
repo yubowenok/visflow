@@ -1,5 +1,5 @@
 import { ActionContext } from 'vuex';
-import { DataflowState } from '@/store/dataflow';
+import { DataflowState } from '@/store/dataflow/types';
 import { RootState } from '@/store';
 import { resetDataflow } from '@/store/dataflow/helper';
 import { serializeDiagram, deserializeDiagram } from '@/store/dataflow/helper';

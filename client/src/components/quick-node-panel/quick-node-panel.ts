@@ -3,7 +3,7 @@ import { Vue, Component, Watch } from 'vue-property-decorator';
 import GlobalClick from '@/directives/global-click';
 import NodeList from '@/components/node-list/node-list';
 import ns from '@/store/namespaces';
-import { NodeType } from '@/store/dataflow';
+import { NodeType } from '@/store/dataflow/types';
 
 @Component({
   components: {

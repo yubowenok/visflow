@@ -596,10 +596,18 @@ export default class Node extends Vue {
   }
 
   private globalClick(evt: MouseEvent) {
+    if (!this.isActive) {
+      return;
+    }
     const element = evt.target as Element;
-    if ( // If the click is on the node or its option panel, do nothing.
+    if (
+      // If the click is on the node or its option panel, do nothing.
       this.$el.contains(element) ||
+      // If the click is on a modal, do nothing.
+      $(element).parents('.modal-dialog').length ||
+      // If the click is on modal backdrop, do nothing.
       $(element).hasClass('modal-backdrop') ||
+      // If the click is on the node's own option panel, do nothing.
       this.$refs.optionPanel && (this.$refs.optionPanel as Vue).$el.contains(evt.target as Element)) {
       return;
     }

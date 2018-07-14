@@ -3,14 +3,19 @@ import VueSelect from 'vue-select';
 import _ from 'lodash';
 import $ from 'jquery';
 
+import ns from '@/store/namespaces';
 import { ColumnSelectOption } from '@/data/tabular-dataset';
+import { MessageModalOptions } from '@/store/modals/types';
 
+const NUM_CLUTTER_COLUMNS = 10;
 @Component({
   components: {
     VueSelect,
   },
 })
 export default class ColumnList extends Vue {
+  @ns.modals.Mutation('openMessageModal') private openMessageModal!: (options: MessageModalOptions) => void;
+
   @Prop()
   private columns!: ColumnSelectOption[];
   @Prop()
@@ -62,6 +67,29 @@ export default class ColumnList extends Vue {
         return false;
       },
     });
+  }
+
+  private clear() {
+    this.selected = [];
+  }
+
+  private all() {
+    const select = () => {
+      this.selected = _.clone(this.columns);
+    };
+    if (this.columns.length > NUM_CLUTTER_COLUMNS) {
+      this.openMessageModal({
+        title: 'Too Many Columns',
+        message: `You have selected ${this.columns.length} columns that may cause clutter. Do you want to proceed?`,
+        onConfirm: select,
+      });
+      return;
+    }
+    select();
+  }
+
+  private sort() {
+    this.selected = _.sortBy(this.selected, 'value');
   }
 
   @Watch('selected')

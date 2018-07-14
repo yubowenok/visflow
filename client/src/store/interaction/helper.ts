@@ -1,5 +1,5 @@
 import Node from '@/components/node/node';
-import { DataflowState } from '@/store/dataflow';
+import { DataflowState } from '@/store/dataflow/types';
 import store from '@/store';
 import _ from 'lodash';
 
