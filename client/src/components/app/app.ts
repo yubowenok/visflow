@@ -8,6 +8,7 @@ import SystemMessage from '@/components/system-message/system-message';
 import ContextMenu from '@/components/context-menu/context-menu';
 import NodePanel from '@/components/node-panel/node-panel';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
+import QuickNodePanel from '@/components/quick-node-panel/quick-node-panel';
 import ns from '@/store/namespaces';
 import { systemMessageErrorHandler } from '@/common/util';
 
@@ -17,6 +18,7 @@ import { systemMessageErrorHandler } from '@/common/util';
     SystemMessage,
     ContextMenu,
     NodePanel,
+    QuickNodePanel,
     DataflowCanvas,
   },
 })
@@ -25,6 +27,8 @@ export default class App extends Vue {
   @ns.dataflow.Action('loadDiagram') private dispatchLoadDiagram!: (filename: string) => Promise<string>;
   @ns.panels.Mutation('setOptionPanelMount') private setOptionPanelMount!: (mount: Vue) => void;
   @ns.panels.Mutation('setPortPanelMount') private setPortPanelMount!: (mount: Vue) => void;
+  @ns.panels.Mutation('openQuickNodePanel') private openQuickNodePanel!: () => void;
+  @ns.modals.Mutation('setNodeModalMount') private setNodeModalMount!: (mount: Vue) => void;
   @ns.contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
   @ns.interaction.Mutation('keydown') private interactionKeydown!: (key: string) => void;
   @ns.interaction.Mutation('keyup') private interactionKeyup!: (key: string) => void;
@@ -47,6 +51,7 @@ export default class App extends Vue {
     this.setOptionPanelMount(this.$refs.optionPanelMount as Vue);
     this.setPortPanelMount(this.$refs.portPanelMount as Vue);
     this.setContextMenuMount(this.$refs.contextMenuMount as Vue);
+    this.setNodeModalMount(this.$refs.nodeModalMount as Vue);
 
     this.initKeyHandlers();
 
@@ -87,7 +92,7 @@ export default class App extends Vue {
   }
 
   private addNode() {
-    // TODO: add node menu item
+    this.openQuickNodePanel();
   }
 
   private beforeDestroy() {

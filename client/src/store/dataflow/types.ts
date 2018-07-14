@@ -18,6 +18,7 @@ export interface NodeType {
   title: string;
   imgSrc: string;
   constructor: Function; // tslint:disable-line ban-types
+  tags: string; // text description used for searching
 }
 
 export interface CreateNodeData {

@@ -25,6 +25,7 @@ export default class DataflowCanvas extends Vue {
   @ns.interaction.Getter('isAltPressed') private isAltPressed!: boolean;
   @ns.interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
   @ns.interaction.Mutation('clickBackground') private clickBackground!: () => void;
+  @ns.interaction.Mutation('trackMouseMove') private trackMouseMove!: (point: Point) => void;
   @ns.dataflow.Mutation('moveDiagram') private moveDiagram!: ({ dx, dy }: { dx: number, dy: number }) => void;
 
   private isPanning = false;
@@ -112,6 +113,7 @@ export default class DataflowCanvas extends Vue {
     }
     this.lastMouseX = evt.pageX;
     this.lastMouseY = evt.pageY;
+    this.trackMouseMove({ x: this.lastMouseX, y: this.lastMouseY });
   }
 
   private onMouseup(evt: JQuery.Event) {

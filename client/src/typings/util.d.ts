@@ -4,8 +4,8 @@ interface Point {
 }
 
 interface Box {
-  x: number; // coordinates of lower-left corner
+  x: number; // coordinates of top-left corner (x is towards right, y is towards bottom)
   y: number;
-  w: number; // width
-  h: number; // height
+  width: number;
+  height: number;
 }

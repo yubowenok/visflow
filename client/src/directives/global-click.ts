@@ -1,4 +1,4 @@
-import Vue, { VNodeDirective } from 'vue';
+import { VNodeDirective } from 'vue';
 
 interface CustomElement extends Element {
   handler: (evt: MouseEvent) => void;

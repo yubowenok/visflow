@@ -30,4 +30,8 @@
   &.error {
     @extend %error-message;
   }
+
+  &.info {
+    @extend %info-message;
+  }
 }

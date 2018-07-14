@@ -7,12 +7,14 @@ interface PanelsState {
   optionPanelMount: Element;
   portPanelMount: Element;
   nodePanelVisible: boolean;
+  quickNodePanelVisible: boolean;
 }
 
 const initialState: PanelsState = {
   optionPanelMount: document.createElement('div'), // dummy element
   portPanelMount: document.createElement('div'),
   nodePanelVisible: true,
+  quickNodePanelVisible: false,
 };
 
 const mutations = {
@@ -50,6 +52,14 @@ const mutations = {
 
   toggleNodePanel(state: PanelsState) {
     state.nodePanelVisible = !state.nodePanelVisible;
+  },
+
+  openQuickNodePanel(state: PanelsState) {
+    state.quickNodePanelVisible = true;
+  },
+
+  closeQuickNodePanel(state: PanelsState) {
+    state.quickNodePanelVisible = false;
   },
 };
 

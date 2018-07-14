@@ -1,23 +1,36 @@
 import { Component, Watch } from 'vue-property-decorator';
+import { Modal } from 'bootstrap-vue';
 
+import ns from '@/store/namespaces';
 import { Node, NodeSave } from '@/components/node';
 import { SubsetSelection, SubsetPackage } from '@/data/package';
 import { SubsetOutputPort, SubsetInputPort } from '@/components/port';
 import TabularDataset from '@/data/tabular-dataset';
 import { getColumnSelectOptions } from '@/data/util';
+import { showSystemMessage, elementContains } from '@/common/util';
+import { TweenLite } from 'gsap';
+import { DEFAULT_ANIMATION_DURATION_S, ENLARGE_ZINDEX } from '@/common/constants';
+import WindowResize from '@/directives/window-resize';
+
+const FAILED_DRAG_THRESHOLD = 3;
 
 export interface VisualizationSave extends NodeSave {
   selection: number[];
   lastDatasetHash: string;
 }
 
-@Component
+@Component({
+  directives: {
+    WindowResize,
+  },
+})
 export default class Visualization extends Node {
   protected NODE_TYPE = 'visualization';
   protected containerClasses = ['node', 'visualization'];
   protected DEFAULT_WIDTH = 300;
   protected DEFAULT_HEIGHT = 300;
   protected RESIZABLE = true;
+  protected ENLARGEABLE = true;
 
   protected isInVisMode = true;
 
@@ -25,6 +38,19 @@ export default class Visualization extends Node {
 
   protected dataset: TabularDataset | null = null;
   protected lastDatasetHash: string = '';
+
+  // Specifies an element that responds to dragging when alt-ed.
+  protected ALT_DRAG_ELEMENT = '';
+
+  @ns.interaction.Getter('isAltPressed') private isAltPressed!: boolean;
+  @ns.modals.Mutation('mountNodeModal') private mountNodeModal!: (modal: Element) => void;
+
+  // Tracks failed mouse drag so as to hint user about dragging a visualization with alt.
+  private failedDragCount = 0;
+
+  // Tracks node size during enlargement.
+  private beforeEnlargeWidth = 0;
+  private beforeEnlargeHeight = 0;
 
   /**
    * Updates the output ports when there is no input dataset.
@@ -121,5 +147,116 @@ export default class Visualization extends Node {
 
   protected get columnSelectOptions() {
     return getColumnSelectOptions(this.dataset);
+  }
+
+  /**
+   * Allows dragging a visualization only when alt is pressed, a.k.a. drag mode is on.
+   */
+  protected isDraggable(evt: MouseEvent, ui: JQueryUI.DraggableEventUIParams) {
+    if (this.ALT_DRAG_ELEMENT) {
+      const $element = $(this.$el).find(this.ALT_DRAG_ELEMENT);
+      if (!$element.length) {
+        console.error(`ALT_DRAG_ELEMENT "${this.ALT_DRAG_ELEMENT}" cannot be found in ${this.NODE_TYPE}`);
+        return true;
+      }
+      if (elementContains($element, evt.pageX, evt.pageY)) {
+        if (!this.isAltPressed) {
+          this.failedDragCount++;
+          if (this.failedDragCount === FAILED_DRAG_THRESHOLD) {
+            showSystemMessage(this.$store,
+               'Hold [Alt] key to drag a visualization node inside the plot area.', 'info');
+            this.failedDragCount = 0;
+          }
+        } else {
+          this.failedDragCount = 0;
+        }
+      } else {
+        // The click falls out of the alt drag element. Perform normal drag.
+        // This allows dragging outside the plot area.
+        return true;
+      }
+    }
+    return this.isAltPressed;
+  }
+
+  protected mountElements() {
+    // this.mountNodeModal(this.$refs.enlargeModal as Element);
+  }
+
+  protected enlarge() {
+    $(this.$refs.node).css('z-index', ENLARGE_ZINDEX);
+
+    this.isEnlarged = true;
+    this.beforeEnlargeWidth = this.width;
+    this.beforeEnlargeHeight = this.height;
+    const view = this.getEnlargedView();
+    TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
+      left: view.x,
+      top: view.y,
+      width: view.width,
+      height: view.height,
+      onComplete: () => {
+        this.width = view.width;
+        this.height = view.height;
+        this.onEnlarge();
+        this.disableDraggable();
+        this.disableResizable();
+      },
+    });
+
+    // Must come after setting isEnlarged
+    this.$nextTick(() => this.mountNodeModal(this.$refs.enlargeModal as Element));
+  }
+
+  protected closeEnlargeModal() {
+    TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
+      left: this.x,
+      top: this.y,
+      width: this.beforeEnlargeWidth,
+      height: this.beforeEnlargeHeight,
+      onComplete: () => {
+        $(this.$refs.node).css('z-index', this.layer);
+        this.isEnlarged = false;
+        this.width = this.beforeEnlargeWidth;
+        this.height = this.beforeEnlargeHeight;
+        this.enableDraggable();
+        this.enableResizable();
+      },
+    });
+  }
+
+  private onWindowResize(evt: Event) {
+    if (this.isEnlarged) {
+      const view = this.getEnlargedView();
+      $(this.$refs.node).css({
+        left: view.x,
+        top: view.y,
+        width: view.width,
+        height: view.height,
+      });
+    }
+  }
+
+  private getEnlargedView(): Box {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    return {
+      x: .1 * screenWidth,
+      y: .1 * screenHeight,
+      width: .8 * screenWidth,
+      height: .8 * screenHeight,
+    };
+  }
+
+  /**
+   * When Alt is pressed, disables mouse interaction on the plot area.
+   */
+  @Watch('isAltPressed')
+  private onAltPressedChange(value: boolean) {
+    if (value) {
+      $(this.$refs.node).find(this.ALT_DRAG_ELEMENT).css('pointer-events', 'none');
+    } else {
+      $(this.$refs.node).find(this.ALT_DRAG_ELEMENT).css('pointer-events', '');
+    }
   }
 }

@@ -9,7 +9,7 @@ import ContextMenu from '@/components/context-menu/context-menu';
 import GlobalClick from '@/directives/global-click';
 import NodeCover from './node-cover.vue';
 import NodeLabel from './node-label.vue';
-import OptionPanel from '@/components/option-panel/option-panel';
+import OptionPanel, { OptionPanelInitialState } from '@/components/option-panel/option-panel';
 import Edge from '@/components/edge/edge';
 import { Port, InputPort, OutputPort } from '@/components/port';
 import { DragNodePayload } from '@/store/interaction';
@@ -51,6 +51,7 @@ export default class Node extends Vue {
   protected MIN_WIDTH = 30;
   protected MIN_HEIGHT = 30;
   protected RESIZABLE = false;
+  protected ENLARGEABLE = false; // if the node can be enlarged to fullscreen modal
 
   protected label = '';
 
@@ -73,6 +74,8 @@ export default class Node extends Vue {
   protected isIconized = false;
   protected isInVisMode = false;
   protected isLabelVisible = false;
+  protected isEnlarged = false;
+  protected portsVisible = true;
 
   // These are the options passed to the node on node creation, and are only used once in created().
   protected dataOnCreate: CreateNodeData = {};
@@ -108,7 +111,7 @@ export default class Node extends Vue {
     return _.concat(this.inputPorts as Port[], this.outputPorts);
   }
 
-  get optionPanelInitialState() {
+  get optionPanelInitialState(): OptionPanelInitialState {
     return {
       isIconized: this.isIconized,
       isInVisMode: this.isInVisMode,
@@ -165,14 +168,14 @@ export default class Node extends Vue {
 
   public getBoundingBox(): Box {
     const $node = $(this.$refs.node);
-    const w = $node.width() as number;
-    const h = $node.height() as number;
+    const width = $node.width() as number;
+    const height = $node.height() as number;
     const offset = $node.offset() as JQueryCoordinates;
     return {
       x: offset.left,
       y: offset.top,
-      w,
-      h,
+      width,
+      height,
     };
   }
 
@@ -351,7 +354,51 @@ export default class Node extends Vue {
     ];
   }
 
+  /**
+   * Displays the node in fullscreen.
+   */
+  protected enlarge() {}
+
+  /**
+   * Responds to width/height changes.
+   */
   protected onResize() {}
+
+  /**
+   * Responds to node enlarge.
+   */
+  protected onEnlarge() {}
+
+  /**
+   * Determintes whether the node should respond to dragging.
+   * Override this method to disable dragging under some conditions, e.g. when visualization selection is prioritized.
+   */
+  protected isDraggable(evt: Event, ui: JQueryUI.DraggableEventUIParams) {
+    return true;
+  }
+
+  /**
+   * Performs the mount in this method if the node requires mounting elements, such as a global modal.
+   */
+  protected mountElements() {}
+
+
+  protected enableDraggable() {
+    $(this.$refs.node).draggable('enable');
+  }
+  protected disableDraggable() {
+    $(this.$refs.node).draggable('disable');
+  }
+  protected enableResizable() {
+    if (this.RESIZABLE) {
+      $(this.$refs.node).resizable('enable');
+    }
+  }
+  protected disableResizable() {
+    if (this.RESIZABLE) {
+      $(this.$refs.node).resizable('disable');
+    }
+  }
 
   /**
    * We make mounted() private so that inheriting class cannot add mounted behavior.
@@ -367,6 +414,7 @@ export default class Node extends Vue {
     this.initCss();
     this.mountPorts();
     this.appear(); // animate node appearance
+    this.mountElements();
   }
 
   /** Creates a mapping from port id to port component. */
@@ -381,6 +429,9 @@ export default class Node extends Vue {
 
   /** Update the ports' coordinates when the node moves. */
   private updatePortCoordinates() {
+    if (!this.portsVisible) {
+      return;
+    }
     // Port coordinates are Vue reactive and async.
     // We must update coordinates till Vue updates the ports.
     this.$nextTick(() => {
@@ -397,6 +448,9 @@ export default class Node extends Vue {
     $node.draggable({
       grid: [GRID_SIZE, GRID_SIZE],
       start: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
+        if (!this.isDraggable(evt, ui)) {
+          return false;
+        }
         lastDragPosition = ui.position;
         alreadySelected = this.isSelected;
       },
@@ -529,8 +583,7 @@ export default class Node extends Vue {
     }
   }
 
-  private onMousedown(evt: MouseEvent) {
-  }
+  private onMousedown(evt: MouseEvent) {}
 
   private toggleSelected() {
     if (this.isSelected) {
@@ -543,8 +596,10 @@ export default class Node extends Vue {
   }
 
   private globalClick(evt: MouseEvent) {
+    const element = evt.target as Element;
     if ( // If the click is on the node or its option panel, do nothing.
-      this.$el.contains(evt.target as Element) ||
+      this.$el.contains(element) ||
+      $(element).hasClass('modal-backdrop') ||
       this.$refs.optionPanel && (this.$refs.optionPanel as Vue).$el.contains(evt.target as Element)) {
       return;
     }
@@ -571,15 +626,11 @@ export default class Node extends Vue {
       this.displayWidth = this.width;
       this.displayHeight = this.height;
       newWidth = newHeight = ICONIZED_NODE_SIZE_PX;
-      if (this.RESIZABLE) {
-        $(this.$refs.node).resizable('disable');
-      }
+      this.disableResizable();
     } else {
       newWidth = this.displayWidth;
       newHeight = this.displayHeight;
-      if (this.RESIZABLE) {
-        $(this.$refs.node).resizable('enable');
-      }
+      this.enableResizable();
     }
     const targetX = this.x + this.width / 2 - newWidth / 2;
     const targetY = this.y + this.height / 2 - newHeight / 2;
@@ -646,6 +697,11 @@ export default class Node extends Vue {
     this.onResize();
   }
 
+  @Watch('isEnlarged')
+  private onEnlargedChange(isEnlarged: boolean) {
+    this.portsVisible = !isEnlarged;
+  }
+
   /** Sets the locations of ports. */
   private portStyles(port: Port, index: number, isInputPort: boolean): { left: string, top: string } {
     const length = isInputPort ? this.inputPorts.length : this.outputPorts.length;
@@ -654,5 +710,13 @@ export default class Node extends Vue {
       left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
       top: (this.height / 2 - totalHeight / 2 + index * (PORT_SIZE_PX + PORT_MARGIN_PX)) + 'px',
     };
+  }
+
+  private get isContentVisible(): boolean {
+    return this.isEnlarged || (!this.isIconized && !this.isAnimating);
+  }
+
+  private get isIconVisible(): boolean {
+    return !this.isEnlarged && (this.isIconized && !this.isAnimating);
   }
 }

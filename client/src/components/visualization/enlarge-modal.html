@@ -1,0 +1,11 @@
+<!--
+  Provides modal used to enlarge visualization in full screen.
+  The modal is mounted to the global modal on node creation.
+
+  The enlarge modal is implemented with resized node with a large z-index
+  and a modal backdrop.
+-->
+<transition name="fade">
+  <div ref="enlargeModal" v-if="isEnlarged" class="modal-backdrop custom"
+    @click="closeEnlargeModal" v-window-resize="onWindowResize"></div>
+</transition>

@@ -53,3 +53,23 @@ body {
     @extend %error-message;
   }
 }
+
+.shortcut {
+  flex: 100%;
+  text-align: right;
+  margin-left: $margin-size;
+
+  font-size: .8rem;
+
+  &::before {
+    content: '( ';
+  }
+
+  &::after {
+    content: ' )';
+  }
+}
+
+.modal-backdrop.custom {
+  opacity: .5;
+}

@@ -11,6 +11,14 @@ export default class DataTable extends Vue {
   @Prop()
   private config!: DataTables.Settings;
 
+  /**
+   * Mapping from table row index to the id of the data item in that row.
+   * If rowIds are set, the table will emit item ids on selection.
+   * If rowIds are not set, the table will emit row indices on selection.
+   */
+  @Prop()
+  private rowIds!: Array<number | string>;
+
   private table: DataTables.Api | null = null;
 
   @Watch('config')
@@ -30,16 +38,19 @@ export default class DataTable extends Vue {
     }
     // Clone the template and initialize DataTable on a clean Element.
     this.table = $(this.$refs.table).clone().appendTo(this.$el).DataTable(this.config);
-    this.table.on('select', (evt: Event, dt: DataTables.DataTables, type: string, indexes: number[]) => {
+
+    // Table selection indices are row index, rather than item index w.r.t. the dataset.
+    this.table.on('select', (evt: Event, dt: DataTables.DataTables, type: string, indices: number[]) => {
       if (type === 'row') {
-        this.$emit('selectRow', indexes);
+        this.$emit('selectRow', this.rowIds ? indices.map(index => this.rowIds[index]) : indices);
       }
     });
-    this.table.on('deselect', (evt: Event, dt: DataTables.DataTables, type: string, indexes: number[]) => {
+    this.table.on('deselect', (evt: Event, dt: DataTables.DataTables, type: string, indices: number[]) => {
       if (type === 'row') {
-        this.$emit('deselectRow', indexes);
+        this.$emit('deselectRow', this.rowIds ? indices.map(index => this.rowIds[index]) : indices);
       }
     });
+
     this.table.rows('.selected').select();
   }
 }

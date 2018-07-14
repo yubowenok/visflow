@@ -20,6 +20,8 @@ export interface InteractionState {
   draggedY1: number;
   draggedX2: number;
   draggedY2: number;
+  lastMouseX: number;
+  lastMouseY: number;
 
   altPressed: boolean;
   shiftPressed: boolean;
@@ -27,12 +29,14 @@ export interface InteractionState {
   altHold: boolean;
 }
 
-const initialState = {
+const initialState: InteractionState = {
   draggedPort: undefined,
   draggedX1: 0,
   draggedY1: 0,
   draggedX2: 0,
   draggedY2: 0,
+  lastMouseX: 0,
+  lastMouseY: 0,
 
   altPressed: false,
   shiftPressed: false,
@@ -117,6 +121,11 @@ const mutations = {
     helper.deselectAllNodes();
   },
 
+  trackMouseMove: (state: InteractionState, point: Point) => {
+    state.lastMouseX = point.x;
+    state.lastMouseY = point.y;
+  },
+
   keydown: (state: InteractionState, key: string) => {
     switch (key.toLowerCase()) {
       case 'control':
@@ -170,6 +179,12 @@ const mutations = {
         break;
       case 'ctrl+n':
         store.commit('modals/openNewDiagramModal');
+        break;
+      case 'a':
+        store.commit('panels/openQuickNodePanel');
+        break;
+      case 'escape':
+        store.commit('modals/closeNodeModal');
         break;
     }
   },

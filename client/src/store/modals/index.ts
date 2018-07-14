@@ -1,9 +1,12 @@
+import Vue from 'vue';
 import { Module } from 'vuex';
 import { RootState } from '@/store';
 import { showSystemMessage } from '@/common/util';
 import store from '@/store';
 
 interface ModalsState {
+  nodeModalMount: Element;
+
   newDiagramModalVisible: boolean;
   saveAsDiagramModalVisible: boolean;
   loadDiagramModalVisible: boolean;
@@ -14,6 +17,8 @@ interface ModalsState {
 }
 
 const initialState: ModalsState = {
+  nodeModalMount: document.createElement('div'), // dummy element
+
   newDiagramModalVisible: false,
   saveAsDiagramModalVisible: false,
   loadDiagramModalVisible: false,
@@ -24,6 +29,26 @@ const initialState: ModalsState = {
 };
 
 const mutations = {
+  setNodeModalMount(state: ModalsState, mount: Element) {
+    state.nodeModalMount = mount;
+  },
+
+  mountNodeModal(state: ModalsState, modal: Element) {
+    if (!modal) {
+      console.error('attempted to mount undefined node modal');
+      return;
+    }
+    state.nodeModalMount.appendChild(modal);
+  },
+
+  unmountNodeModal(state: ModalsState, modal: Element) {
+    if (modal.parentElement !== state.nodeModalMount) {
+      console.error('attempt to mount an unmounted node modal');
+      return;
+    }
+    state.nodeModalMount.appendChild(modal);
+  },
+
   openNewDiagramModal(state: ModalsState) {
     state.newDiagramModalVisible = true;
   },

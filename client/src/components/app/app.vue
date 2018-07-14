@@ -3,17 +3,18 @@
   <app-header></app-header>
   <system-message></system-message>
   <node-panel></node-panel>
+  <quick-node-panel></quick-node-panel>
   <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
     <dataflow-canvas ref="dataflowCanvas"></dataflow-canvas>
   </div>
-  <div id="option-panel-mount" ref="optionPanelMount"></div>
-  <div id="port-panel-mount" ref="portPanelMount"></div>
-  <div id="context-menu-mount" ref="contextMenuMount"></div>
+  <div ref="optionPanelMount"></div>
+  <div ref="portPanelMount"></div>
+  <div ref="contextMenuMount"></div>
+  <div ref="nodeModalMount"></div>
   <context-menu id="context-menu" ref="contextMenu">
     <template slot-scope="slotProps">
       <li @click="addNode">
-        <i class="fas fa-sm fa-plus"></i>
-        Add Node
+        <i class="fas fa-sm fa-plus"></i>Add Node<span class="shortcut">A</span>
       </li>
     </template>
   </context-menu>

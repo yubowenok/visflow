@@ -1,6 +1,6 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
-interface InitialState {
+export interface OptionPanelInitialState {
   isIconized: boolean;
   isInVisMode: boolean;
   isLabelVisible: boolean;
@@ -9,9 +9,11 @@ interface InitialState {
 @Component
 export default class OptionPanel extends Vue {
   @Prop()
-  private initialState!: InitialState;
+  private initialState!: OptionPanelInitialState;
   @Prop()
   private nodeLabel!: string;
+  @Prop({ default: false })
+  private enlargeable!: boolean;
 
   private isIconized = false;
   private isInVisMode = false;
@@ -33,5 +35,9 @@ export default class OptionPanel extends Vue {
 
   private toggleLabelVisible() {
     this.$emit('toggle:labelVisible', this.isLabelVisible);
+  }
+
+  private enlarge() {
+    this.$emit('enlarge');
   }
 }

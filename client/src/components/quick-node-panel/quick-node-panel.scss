@@ -1,0 +1,15 @@
+@import '../../common/style/index';
+
+.quick-node-panel {
+  position: absolute;
+  width: 170px;
+  height: auto;
+  z-index: $zIndexQuickNodePanel;
+
+  padding: $padding-size-lg;
+  @extend %box;
+
+  .section {
+    margin-top: $section-margin-sm;
+  }
+}

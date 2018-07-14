@@ -10,7 +10,8 @@ import { Visualization, VisualizationSave, injectVisualizationTemplate } from '@
 import ColumnList from '@/components/column-list/column-list';
 
 const DEFAULT_MAX_COLUMNS = 10;
-const DATATABLE_WRAPPER_HEIGHT = 70;
+// Approximate height of the datatables excluding its scroll body.
+const DATATABLE_WRAPPER_HEIGHT_PX = 70;
 
 export interface TableSave extends VisualizationSave {
   columns: number[]; // Dimensions
@@ -28,10 +29,12 @@ export default class Table extends Visualization {
   protected containerClasses = ['node', 'visualization', 'table'];
   protected MIN_WIDTH = 270;
   protected MIN_HEIGHT = 150;
+  protected ALT_DRAG_ELEMENT = '.dataTables_scroll';
 
   private pageLength: number = 10;
 
   private tableConfig: DataTables.Settings = {};
+  private rowIds: number[] = [];
 
   // Columns to show from the dataset.
   private columns: number[] = [];
@@ -59,19 +62,21 @@ export default class Table extends Visualization {
     this.updateScrollBodyHeight();
   }
 
+  protected onEnlarge() {
+    this.renderTable();
+  }
+
   private renderTable() {
     if (!this.dataset) {
-      console.warn('I render empty');
       this.tableConfig = {};
       return;
     }
 
-    this.$on('resize', (wtf: {}) => console.log(wtf));
-
     const pkg = this.inputPortMap.in.getPackage() as SubsetPackage;
     const dataset = pkg.getDataset() as TabularDataset;
 
-    const rows = dataset.subRowsOnSubColumns(pkg.getItemIndices(), this.columns, { indexColumn: true });
+    const items = pkg.getItemIndices();
+    const rows = dataset.subRowsOnSubColumns(items, this.columns, { indexColumn: true });
     const columns = [ { title: '#' } ] // Data item index column, which is also used to show visuals
       .concat(this.columns.map(columnIndex => {
         return { title: dataset.getColumn(columnIndex).name };
@@ -135,6 +140,7 @@ export default class Table extends Visualization {
       drawCallback: this.updateScrollBodyHeight,
     };
 
+    this.rowIds = items; // mapping from row to data id
     this.outputPortMap.out.updatePackage(pkg.clone());
     this.computeSelection();
   }
@@ -160,10 +166,14 @@ export default class Table extends Visualization {
     this.propagateSelection();
   }
 
+  /**
+   * Uses a dynamic height for DataTables scroll body. This overcomes the limitation that the default DataTables
+   * scrollY option can only take a fixed height.
+   */
   private updateScrollBodyHeight() {
     const content = $(this.$refs.content);
     const height = this.height - (content.find('.dataTables_scrollHead').height() as number) -
-      DATATABLE_WRAPPER_HEIGHT;
+      DATATABLE_WRAPPER_HEIGHT_PX;
     content.find('.dataTables_scrollBody')
       .css({
         'max-height': height,

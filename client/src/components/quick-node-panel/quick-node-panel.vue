@@ -1,0 +1,19 @@
+<template>
+<transition name="slide-fade-top">
+  <div class="quick-node-panel" v-if="quickNodePanelVisible"
+    v-global-click="globalClick"
+    :style="style">
+    <b-form-input v-model="searchText" placeholder="Search for nodes"></b-form-input>
+    <node-list class="section"
+      :nodeTypes="filteredNodeTypes"
+      :nodeTypesPerRow="4"
+      @nodeCreated="closeQuickNodePanel"
+    ></node-list>
+  </div>
+</transition>
+</template>
+
+<style lang="scss" src="./quick-node-panel.scss"></style>
+
+<script lang="ts" src="./quick-node-panel.ts">
+</script>

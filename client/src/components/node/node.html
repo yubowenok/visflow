@@ -8,25 +8,25 @@
     <transition name="fade">
       <node-cover v-if="!isIconized && coverText" :text="coverText"></node-cover>
     </transition>
-    <node-label v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
+    <node-label ref="nodeLabel" v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
     <transition name="fade">
-      <div ref="content" v-show="!isIconized && !isAnimating" class="content">
+      <div ref="content" v-show="isContentVisible" class="content">
         <!-- node-content -->
       </div>
     </transition>
     <transition name="fade">
-      <div ref="icon" v-if="isIconized && !isAnimating" class="icon">
+      <div ref="icon" v-if="isIconVisible" class="icon">
         <img :src="getIconPath">
       </div>
     </transition>
     <div ref="background" class="background" :class="{ active: isActive, selected: isSelected }"></div>
-    <div class="input port-group">
+    <div class="input port-group" v-show="portsVisible">
       <div v-for="(port, index) in inputPorts" :key="port.id" :id="'port-container-' + port.id"
         class="input port-container"
         :style="portStyles(port, index, true)"
       ></div>
     </div>
-    <div class="output port-group">
+    <div class="output port-group" v-show="portsVisible">
       <div v-for="(port, index) in outputPorts" :key="port.id" :id="'port-container-' + port.id"
         class="output port-container"
         :style="portStyles(port, index, false)"
@@ -42,9 +42,11 @@
     <option-panel ref="optionPanel" v-if="isActive"
         :nodeLabel="label"
         :initialState="optionPanelInitialState"
+        :enlargeable="ENLARGEABLE"
         @toggle:iconized="onToggleIconized"
         @toggle:inVisMode="onToggleInVisMode"
         @toggle:labelVisible="onToggleLabelVisible"
+        @enlarge="enlarge"
     >
       <!-- option-panel -->
     </option-panel>

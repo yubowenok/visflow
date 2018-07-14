@@ -120,8 +120,8 @@ export default class Edge extends Vue {
       let midy;
       const boxSource = this.source.node.getBoundingBox();
       const boxTarget = this.target.node.getBoundingBox();
-      const sourceYrange = [boxSource.y, boxSource.y + boxSource.h];
-      const targetYrange = [boxTarget.y, boxTarget.y + boxTarget.h];
+      const sourceYrange = [boxSource.y, boxSource.y + boxSource.height];
+      const targetYrange = [boxTarget.y, boxTarget.y + boxTarget.height];
       if (sourceYrange[0] <= targetYrange[1] &&
           sourceYrange[1] >= targetYrange[0]) {
         // two nodes have intersecting y range, get around
@@ -153,7 +153,7 @@ export default class Edge extends Vue {
   }
 
   private getArrowPoints(edgePath: string): { base: Point, head: Point } {
-    const segments = edgePath.match(/[CLM]([\d.]+,?)+/g) as string[];
+    const segments = edgePath.match(/[CLM]([\d.-]+,?)+/g) as string[];
     let distance: number = 0;
     const xyCoords = segments.join('').split(/[CLM,]/g).map(val => +val)
       .slice(1); // remove the leading empty string from [CLM]

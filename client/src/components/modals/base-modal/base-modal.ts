@@ -2,17 +2,11 @@ import { Vue, Component, Prop } from 'vue-property-decorator';
 
 @Component
 export default class BaseModal extends Vue {
-  @Prop({
-    default: () => {},
-  })
+  @Prop({ default: () => {} })
   private onOpen!: () => {};
-  @Prop({
-    default: () => {},
-  })
+  @Prop({ default: () => {} })
   private onClose!: () => {};
-  @Prop({
-    default: () => {},
-  })
+  @Prop({ default: () => {} })
   private onEnter!: () => {};
 
   @Prop()
