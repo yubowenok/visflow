@@ -11,3 +11,5 @@ export const DRAG_TIME_THRESHOLD = 100;
 export const ICONIZED_NODE_SIZE_PX = 45;
 
 export const ENLARGE_ZINDEX = 50000;
+
+export const SELECTED_COLOR = '#6699ee';

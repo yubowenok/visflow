@@ -1,4 +1,4 @@
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 import $ from 'jquery';
 
@@ -25,6 +25,8 @@ export default class Port extends Vue {
   public isInput = false;
   public dataType = 'table';
 
+  protected DATA_TYPE = '';
+
   protected isMultiple = false;
   protected isActive = false;
   protected isAttachable = false;
@@ -39,10 +41,6 @@ export default class Port extends Vue {
   @ns.panels.Mutation('mountPortPanel') private mountPortPanel!: (panel: Vue) => void;
   @ns.contextMenu.Mutation('mount') private mountContextMenu!: (menu: ContextMenu) => void;
   @ns.dataflow.Mutation('disconnectPort') private disconnectPort!: (port: Port) => void;
-
-  get maxConnections(): number {
-    return this.isMultiple ? Infinity : 1;
-  }
 
   /**
    * Retrieves a list of nodes that this port connects to.
@@ -92,13 +90,13 @@ export default class Port extends Vue {
 
   /** Adds an edge to this port's incident list */
   public addIncidentEdge(edge: Edge) {
-    this.edges.push(edge);
+    this.edges.push(edge); // push() is wrapped by Vue, and is reactive
     this.isConnectionChanged = true;
   }
 
   /** Removes an edge from this port's incident list */
   public removeIncidentEdge(edge: Edge) {
-    _.pull(this.edges, edge);
+    this.edges = _.clone(_.pull(this.edges, edge)); // _.pull is not reactive, do assignment
     this.isConnectionChanged = true;
   }
 
@@ -136,13 +134,27 @@ export default class Port extends Vue {
 
   /** Clears the connection changed flag. */
   public clearConnectionUpdate() {
+    if (this.isConnectionChanged) {
+      /**
+       * Using a watcher is sensitive to Vue clock. The following implementation may fail to call onConnectionChange():
+       *   @Watch('isConnectionChanged')
+       *   private watchConnectionChanged() {
+       *     this.onConnectionChange();
+       *   }
+       * This is because the watcher is executed on the next Vue tick. However, the isConnectionUpdated flag
+       * could be cleared before the next tick, as propagation is synchronous.
+       */
+      this.onConnectionChange();
+    }
     this.isConnectionChanged = false;
   }
 
   /** Generates a tooltip string for the port. */
   protected tooltip(): string {
-    return '';
+    return 'no data';
   }
+
+  protected onConnectionChange() {}
 
   private activate() {
     this.isActive = true;
@@ -209,5 +221,9 @@ export default class Port extends Vue {
         }
       },
     });
+  }
+
+  private get maxConnections(): number {
+    return this.isMultiple ? Infinity : 1;
   }
 }

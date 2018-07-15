@@ -1,4 +1,4 @@
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import Node from '@/components/node/node';
 import Port from '@/components/port/port';
 import OutputPort from '@/components/port/output-port';
@@ -40,6 +40,9 @@ export default class InputPort extends Port {
    * Retrieves the package from the connected output port.
    */
   public getPackage(): Package {
+    if (!this.edges.length) {
+      console.error('getPackage() called on input port when it is not connected');
+    }
     const pkgs = this.edges.map(edge => edge.source.getPackage());
     // TODO: How to handle multiple packages for multiple connections of an input port?
     return pkgs[0];

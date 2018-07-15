@@ -1,7 +1,7 @@
 import { Component } from 'vue-property-decorator';
 
 import ns from '@/store/namespaces';
-import { Node, injectNodeTemplate, NodeSave } from '@/components/node';
+import { Node, injectNodeTemplate } from '@/components/node';
 import template from './data-source.html';
 import Port from '@/components/port/port';
 import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
@@ -12,7 +12,7 @@ import { parseCsv } from '@/data/parser';
 import { SubsetPackage } from '@/data/package';
 import { SubsetOutputPort } from '@/components/port';
 
-export interface DataSourceSave extends NodeSave {
+export interface DataSourceSave {
   datasetInfo: DatasetInfo | null;
   datasetName: string;
 }
@@ -27,7 +27,6 @@ export default class DataSource extends Node {
   public isPropagationSource = true;
 
   protected NODE_TYPE = 'data-source';
-  protected containerClasses = ['node', 'data-source'];
   protected DEFAULT_WIDTH = 120;
   protected DEFAULT_HEIGHT = 30;
 

@@ -19,9 +19,8 @@
     </div>
     <transition name="slide-fade-right">
       <port-panel ref="portPanel" v-if="isActive" :port-id="id">
-        <div>
-          <a @click="clickLink">test link</a>
-        </div>
+        <div>Data Type: {{ this.DATA_TYPE }} </div>
+        <div>Number of connections: {{ this.edges.length }}</div>
       </port-panel>
     </transition>
   </div>

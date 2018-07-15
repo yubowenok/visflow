@@ -5,14 +5,12 @@
   @selectRow="onItemSelect"
   @deselectRow="onItemDeselect"
 ></data-table>
-<!-- context-menu -->
-<template></template>
 <!-- option-panel -->
 <div>
   <div class="bold">Columns</div>
   <column-list
     :columns="columnSelectOptions"
-    :initialSelectedColumns="columns"
+    :initialSelectedColumns="initialSelectedColumns"
     @selectColumns="onSelectColumns"
   ></column-list>
 </div>

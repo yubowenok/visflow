@@ -8,8 +8,7 @@ import { Package } from '@/data/package';
 export default class OutputPort extends Port {
   protected isMultiple = true;
   protected isSelection = false;
-
-  private isUpdated = false;
+  protected isUpdated = false;
 
   public getConnectedNodes(): Node[] {
     return this.edges.map(edge => edge.target.node);

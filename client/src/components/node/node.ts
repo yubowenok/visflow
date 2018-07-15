@@ -3,20 +3,20 @@ import { TweenLite } from 'gsap';
 import $ from 'jquery';
 import _ from 'lodash';
 
+import { checkEdgeConnectivity } from '@/store/dataflow';
+import { CreateNodeData } from '@/store/dataflow/types';
 import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX, PORT_MARGIN_PX, ICONIZED_NODE_SIZE_PX } from '@/common/constants';
-import template from './node.html';
+import { DragNodePayload } from '@/store/interaction';
+import { NodeSave } from './types';
+import { Port, InputPort, OutputPort } from '@/components/port';
 import ContextMenu from '@/components/context-menu/context-menu';
+import Edge from '@/components/edge/edge';
 import GlobalClick from '@/directives/global-click';
 import NodeCover from './node-cover.vue';
 import NodeLabel from './node-label.vue';
-import OptionPanel, { OptionPanelInitialState } from '@/components/option-panel/option-panel';
-import Edge from '@/components/edge/edge';
-import { Port, InputPort, OutputPort } from '@/components/port';
-import { DragNodePayload } from '@/store/interaction';
-import { checkEdgeConnectivity } from '@/store/dataflow';
 import ns from '@/store/namespaces';
-import { CreateNodeData } from '@/store/dataflow/types';
-import { NodeSave } from './types';
+import OptionPanel, { OptionPanelInitialState } from '@/components/option-panel/option-panel';
+import template from './node.html';
 
 const GRID_SIZE = 10;
 
@@ -80,9 +80,6 @@ export default class Node extends Vue {
   // These are the options passed to the node on node creation, and are only used once in created().
   protected dataOnCreate: CreateNodeData = {};
 
-  // A list of classes to be added to the container element so that CSS can take effect.
-  protected containerClasses: string[] = ['node'];
-
   /**
    * The serialization chain is a list of functions to be called to generate the serialized NodeSave.
    * The functions are pushed to the list in the created() call of base node and inheritting node sequentially.
@@ -91,8 +88,8 @@ export default class Node extends Vue {
    * The deserialization chain is similar and assigns values in NodeSave to the deserialized node.
    * Each function in the chain is called sequentially after the NodeSave is written to the node.
    */
-  protected serializationChain: Array<() => object> = [];
-  protected deserializationChain: Array<(save?: NodeSave) => void> = [];
+  protected serializationChain: Array<() => {}> = [];
+  protected deserializationChain: Array<(save: {}) => void> = [];
 
   protected coverText: string = '';
 
@@ -241,6 +238,8 @@ export default class Node extends Vue {
   /** Clears the updated flags of all ports. */
   public clearUpdatedPorts() {
     for (const port of this.inputPorts) {
+      // Packages of input ports solely depend on its connected output ports. So there are no packge update
+      // flags to clear.
       port.clearConnectionUpdate();
     }
     for (const port of this.outputPorts) {
@@ -540,11 +539,10 @@ export default class Node extends Vue {
       this.isIconized = this.dataOnCreate.isIconized;
     }
 
-    $node.addClass(this.containerClasses)
-      .css({
-        // jQuery.draggable sets position to relative, we override here.
-        position: 'absolute',
-      });
+    // jQuery.draggable sets position to relative, we override here.
+    $node.css({
+      position: 'absolute',
+    });
   }
 
   private appear() {
@@ -721,7 +719,7 @@ export default class Node extends Vue {
   }
 
   private get isContentVisible(): boolean {
-    return this.isEnlarged || (!this.isIconized && !this.isAnimating);
+    return !this.coverText && (this.isEnlarged || (!this.isIconized && !this.isAnimating));
   }
 
   private get isIconVisible(): boolean {

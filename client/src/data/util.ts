@@ -1,4 +1,5 @@
 import TabularDataset, { ColumnSelectOption, TabularColumn } from './tabular-dataset';
+import { ValueType } from '@/data/parser';
 
 export const getColumnSelectOptions = (dataset: TabularDataset | undefined | null): ColumnSelectOption[] => {
   if (!dataset) {
@@ -10,4 +11,14 @@ export const getColumnSelectOptions = (dataset: TabularDataset | undefined | nul
       label: column.name,
     };
   });
+};
+
+/** Returns if a value type is numerical. */
+export const isNumericalType = (type: ValueType): boolean => {
+  return type === ValueType.FLOAT || type === ValueType.INT;
+};
+
+/** Returns if a value type forms a continuous domain. */
+export const isContinuousDomain = (type: ValueType): boolean => {
+  return isNumericalType(type) || type === ValueType.DATE;
 };

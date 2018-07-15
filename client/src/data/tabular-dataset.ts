@@ -1,10 +1,14 @@
-import { ValueType } from '@/data/parser';
 import sha256 from 'crypto-js/sha256';
+import _ from 'lodash';
+import { ValueType } from '@/data/parser';
+import { SubsetItem } from '@/data/package/subset-package';
+import { isContinuousDomain } from '@/data/util';
 
 export type TabularRow = Array<number | string>;
 export type TabularRows = TabularRow[];
 
 export interface TabularColumn {
+  index: number;
   name: string;
   type: ValueType;
   hasDuplicate: boolean;
@@ -52,6 +56,14 @@ export default class TabularDataset {
     return this.columns.length;
   }
 
+  /**
+   * Retrieves the value of a cell, with a given row and column.
+   */
+  public getValue(item: number | SubsetItem, columnIndex: number): number | string {
+    const rowIndex = item instanceof Object ? (item as SubsetItem).index : item;
+    return this.rows[rowIndex][columnIndex];
+  }
+
   public getColumn(index: number): TabularColumn {
     return this.columns[index];
   }
@@ -92,6 +104,22 @@ export default class TabularDataset {
     const row: TabularRow = options.indexColumn ? [rowIndex] : [];
     columnIndices.forEach(columnIndex => row.push(this.rows[rowIndex][columnIndex]));
     return row;
+  }
+
+  /**
+   * Computes the value domain on a given column for a given set of items. If items are not given, then all items
+   * are considered.
+   */
+  public getDomain(columnIndex: number, items?: number[]): Array<number | string> {
+    items = items || _.range(this.rows.length);
+    if (isContinuousDomain(this.columns[columnIndex].type)) {
+      const values = items.map(index => this.rows[index][columnIndex]);
+      const max = _.max(values) as number;
+      const min = _.min(values) as number;
+      return [min, max];
+    } else { // discrete domain
+      return items.map(index => this.rows[index][columnIndex]);
+    }
   }
 
   public getHash(): string {

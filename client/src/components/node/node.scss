@@ -12,6 +12,10 @@
     background: white;
     padding: $padding-size-lg; // >= 2px to have anti-alias around the boundary
     overflow: hidden;
+
+    &.disabled {
+      pointer-events: none;
+    }
   }
 
   > .background {

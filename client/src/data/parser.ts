@@ -138,6 +138,7 @@ const checkColumnType = (rows: TabularRows, columnIndex: number, name: string): 
     }
   }
   return {
+    index: columnIndex,
     name,
     type: columnType,
     hasDuplicate,

@@ -4,6 +4,7 @@ import { NodeType } from '@/store/dataflow/types';
 import Visualization from '@/components/visualization/visualization';
 import DataSource from '@/components/data-source/data-source';
 import Table from '@/components/table/table';
+import Scatterplot from '@/components/scatterplot/scatterplot';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -27,7 +28,7 @@ export const nodeTypes: NodeType[] = [
     id: 'scatterplot',
     title: 'Scatterplot',
     imgSrc: require('@/imgs/scatterplot.svg'),
-    constructor: Visualization,
+    constructor: Scatterplot,
     tags: VISUALIZATION_TAGS + ' 2d',
   },
   {

@@ -6,15 +6,15 @@ import { SubsetPackage } from '@/data/package';
 import DataTable, { DEFAULT_LENGTH_MENU } from '@/components/data-table/data-table';
 import TabularDataset, { TabularRow, ColumnSelectOption } from '@/data/tabular-dataset';
 import template from './table.html';
-import { Visualization, VisualizationSave, injectVisualizationTemplate } from '@/components/visualization';
+import { Visualization, injectVisualizationTemplate } from '@/components/visualization';
 import ColumnList from '@/components/column-list/column-list';
 
 const DEFAULT_MAX_COLUMNS = 10;
 // Approximate height of the datatables excluding its scroll body.
 const DATATABLE_WRAPPER_HEIGHT_PX = 70;
 
-export interface TableSave extends VisualizationSave {
-  columns: number[]; // Dimensions
+export interface TableSave {
+  columns: number[]; // Columns to show in the table
 }
 
 @Component({
@@ -26,7 +26,6 @@ export interface TableSave extends VisualizationSave {
 })
 export default class Table extends Visualization {
   protected NODE_TYPE = 'table';
-  protected containerClasses = ['node', 'visualization', 'table'];
   protected MIN_WIDTH = 270;
   protected MIN_HEIGHT = 150;
   protected ALT_DRAG_ELEMENT = '.dataTables_scroll';
@@ -38,6 +37,10 @@ export default class Table extends Visualization {
 
   // Columns to show from the dataset.
   private columns: number[] = [];
+
+  get initialSelectedColumns(): number[] {
+    return this.dataset ? this.columns : [];
+  }
 
   protected created() {
     this.serializationChain.push(() => ({
@@ -68,6 +71,7 @@ export default class Table extends Visualization {
 
   private renderTable() {
     if (!this.dataset) {
+      console.warn('render empty table');
       this.tableConfig = {};
       return;
     }
@@ -149,6 +153,7 @@ export default class Table extends Visualization {
     // ColumnList will fire selectColumns event on initial selected assignment (passed by initialSelectedColumns).
     // We ignore this update by checking equality of the two column arrays.
     if (!_.isEqual(columnIndices, this.columns)) {
+      // console.log(this.columns, columnIndices);
       this.columns = columnIndices;
       this.renderTable();
     }

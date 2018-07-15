@@ -1,5 +1,5 @@
 <div>
-  <div ref="node" :id="id"
+  <div ref="node" class="node" :id="id"
     @mouseup="onMouseup"
     @mousedown="onMousedown"
     v-global-click="globalClick"
@@ -10,7 +10,7 @@
     </transition>
     <node-label ref="nodeLabel" v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
     <transition name="fade">
-      <div ref="content" v-show="isContentVisible" class="content">
+      <div ref="content" v-show="isContentVisible" :class="['content', { disabled: !isContentVisible }]">
         <!-- node-content -->
       </div>
     </transition>

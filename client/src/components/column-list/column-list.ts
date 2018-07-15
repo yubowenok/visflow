@@ -23,6 +23,9 @@ export default class ColumnList extends Vue {
 
   private selected: ColumnSelectOption[] = [];
 
+  // Used to avoid emission of "selectColumns" event on column list creation.
+  private isInit = true;
+
   private mounted() {
     this.selected = this.initialSelectedColumns.map(columnIndex => this.columns[columnIndex]);
   }
@@ -94,6 +97,10 @@ export default class ColumnList extends Vue {
 
   @Watch('selected')
   private onSelectedChange() {
+    if (this.isInit) {
+      this.isInit = false;
+      return;
+    }
     this.$emit('selectColumns', this.selected.map(column => column.value));
   }
 }

@@ -13,7 +13,7 @@ const injectVisualizationTemplate = (html: string): string => {
   if (!matched) {
     // The inheriting class's template does not have context-menu defined.
     // Just use Visualization's context menu.
-    html += contextMenuHtml;
+    html += '<!-- context-menu -->\n' + contextMenuHtml;
   } else {
     // Merge the two context menus. The inheriting class's context menu is at the bottom.
     // Insert Visualization's context menu template at the matched position.
