@@ -4,6 +4,7 @@
 import TabularDataset, { TabularRows, TabularColumn } from '@/data/tabular-dataset';
 import { dsvFormat } from 'd3-dsv';
 import _ from 'lodash';
+import { isNumericalType } from '@/data/util';
 
 /** Value types ordered from the strickest to weakest typing */
 export enum ValueType {
@@ -15,9 +16,22 @@ export enum ValueType {
   ERROR = 'error',
 }
 
+const ValueTypeOrder = {
+  empty: 0,
+  date: 1,
+  int: 2,
+  float: 3,
+  string: 4,
+  error: 5,
+};
+
 const isNumber = (text: string | number): boolean => {
   // Both sides can be NaN and NaN !== NaN.
   return Number(text) === +text;
+};
+
+const isLooserType = (a: ValueType, b: ValueType): boolean => {
+  return ValueTypeOrder[a] > ValueTypeOrder[b];
 };
 
 const VALID_DATE_START = Date.parse('1000 GMT');
@@ -121,7 +135,7 @@ const checkColumnType = (rows: TabularRows, columnIndex: number, name: string): 
   let columnType = ValueType.EMPTY;
   rows.forEach(row => {
     const type = checkToken(row[columnIndex]).type;
-    if (type > columnType) {
+    if (isLooserType(type, columnType)) {
       columnType = type;
     }
   });
@@ -143,6 +157,20 @@ const checkColumnType = (rows: TabularRows, columnIndex: number, name: string): 
     type: columnType,
     hasDuplicate,
   };
+};
+
+const formatColumnType = (rows: TabularRows, column: TabularColumn) => {
+  for (const row of rows) {
+    let value: number | string = row[column.index];
+    if (column.type === ValueType.DATE) {
+      value = new Date(value).getTime();
+    } else if (isNumericalType(column.type)) {
+      value = +value;
+    } else {
+      value = value.toString();
+    }
+    row[column.index] = value;
+  }
 };
 
 /** Parses a CSV string and generates its TabularDataset. */
@@ -179,6 +207,11 @@ export const parseCsv = (csv: string): TabularDataset => {
 
   const columns: TabularColumn[] = columnNames.map((name: string, columnIndex: number) =>
     checkColumnType(rows, columnIndex, name));
+
+  // Column type check does not make uniform the cell values. For example, it is possible that the first a few rows are
+  // recognized as numbers and the later rows are recognized as strings. If so, we need to convert the first a few rows
+  // to strings as well.
+  columns.forEach(column => formatColumnType(rows, column));
 
   return new TabularDataset({
     columns,

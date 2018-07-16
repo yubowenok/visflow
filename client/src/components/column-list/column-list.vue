@@ -1,6 +1,6 @@
 <template>
 <div>
-  <vue-select id="select" multiple v-model="selected" :options="columns"></vue-select>
+  <vue-select class="vf-select" multiple v-model="selected" :options="columns"></vue-select>
   <div class="controls">
     <b-button id="clear" class="mini" variant="outline-secondary" @click="clear">clear</b-button>
     <b-button id="all" class="mini" variant="outline-secondary" @click="all">all</b-button>

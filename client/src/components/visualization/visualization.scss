@@ -1,0 +1,21 @@
+.visualization {
+  .content > svg {
+    shape-rendering: geometricPrecision;
+
+    text.label {
+      fill: black;
+    }
+
+    .x {
+      text.label {
+        text-anchor: end;
+      }
+    }
+
+    .y {
+      text.label {
+        text-anchor: start;
+      }
+    }
+  }
+}

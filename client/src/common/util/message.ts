@@ -8,9 +8,9 @@ interface ErrorResponse {
   };
 }
 
-type Error = ErrorResponse | string;
+type ApiError = ErrorResponse | string;
 
-export const errorMessage = (err: Error): string => {
+export const errorMessage = (err: ApiError): string => {
   if (typeof err === 'string') {
     return err;
   }
@@ -35,6 +35,10 @@ export const clearSystemMessage = (store: Store<{}>) => {
 /** Displays an error message using the system message popup. */
 export const systemMessageErrorHandler = (store: Store<{}>) => {
   return (err: Error) => {
+    if (err.stack) { // Local execution error, just throw. do not display in system message.
+      throw err;
+      return;
+    }
     showSystemMessage(store, errorMessage(err), 'error');
   };
 };

@@ -78,16 +78,16 @@ export default class App extends Vue {
   }
 
   private onKeydown(evt: JQuery.Event) {
-    if (!evt.key) {
-      // On initial mouse click, form-control keydown event (from modal)
-      // may be bubbled up without key value set...
+    // On initial mouse click, form-control keydown event (from modal) may be bubbled up without key value set.
+    // The reason for !evt.key is unknown. We ignore event with falsy evt.key.
+    if (!evt.key || $(evt.target).is('input')) {
       return;
     }
     this.interactionKeydown(evt.key as string);
   }
 
   private onKeyup(evt: JQuery.Event) {
-    if (!evt.key) {
+    if (!evt.key || $(evt.target).is('input')) {
       return;
     }
     this.interactionKeyup(evt.key as string);

@@ -12,6 +12,7 @@ $padding-size: .25rem;
 $padding-size-lg: $padding-size * 2;
 $padding-tb-size: .25rem;
 $padding-lr-size: 1.5rem;
+$node-content-padding: 5px;
 
 %padding { // left/right padding are wider than top/bottom padding
   padding: $padding-tb-size $padding-lr-size;

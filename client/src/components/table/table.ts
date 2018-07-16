@@ -48,11 +48,8 @@ export default class Table extends Visualization {
     }));
   }
 
-  protected update() {
-    if (!this.checkDataset()) {
-      return;
-    }
-    this.renderTable();
+  protected draw() {
+    this.drawTable();
   }
 
   protected onDatasetChange() {
@@ -65,11 +62,7 @@ export default class Table extends Visualization {
     this.updateScrollBodyHeight();
   }
 
-  protected onEnlarge() {
-    this.renderTable();
-  }
-
-  private renderTable() {
+  private drawTable() {
     if (!this.dataset) {
       console.warn('render empty table');
       this.tableConfig = {};
@@ -145,7 +138,7 @@ export default class Table extends Visualization {
     };
 
     this.rowIds = items; // mapping from row to data id
-    this.outputPortMap.out.updatePackage(pkg.clone());
+    this.computeForwarding();
     this.computeSelection();
   }
 
@@ -155,7 +148,7 @@ export default class Table extends Visualization {
     if (!_.isEqual(columnIndices, this.columns)) {
       // console.log(this.columns, columnIndices);
       this.columns = columnIndices;
-      this.renderTable();
+      this.drawTable();
     }
   }
 

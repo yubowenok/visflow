@@ -1,10 +1,12 @@
-import Visualization, { TRANSITION_ELEMENT_LIMIT } from './visualization';
+import Visualization from './visualization';
 import injectVisualizationTemplate from './template';
 
 export {
   Visualization,
   injectVisualizationTemplate,
-  TRANSITION_ELEMENT_LIMIT,
 };
 
-export * from './util';
+export * from './visuals';
+export * from './scale';
+export * from './axis';
+export * from './types';

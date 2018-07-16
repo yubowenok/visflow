@@ -10,7 +10,7 @@
     width: 100%;
     height: 100%;
     background: white;
-    padding: $padding-size-lg; // >= 2px to have anti-alias around the boundary
+    padding: $node-content-padding; // >= 2px to have anti-alias around the boundary
     overflow: hidden;
 
     &.disabled {

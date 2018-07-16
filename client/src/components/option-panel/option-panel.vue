@@ -1,7 +1,7 @@
 <template>
 <div class="option-panel">
   <div class="header">
-    <div class="node-id">{{ nodeLabel }}</div>
+    <div class="node-id"><span class="bold">Label: </span>{{ nodeLabel }}</div>
     <hr class="divider">
     <b-button @click="toggleIconized" size="sm" :pressed.sync="isIconized" variant="outline-secondary" class="mini">
       <i class="fas fa-expand"></i>

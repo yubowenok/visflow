@@ -93,6 +93,9 @@ export default class Node extends Vue {
 
   protected coverText: string = '';
 
+  // A list of classes to be added to the node container. Push to this list on inheritting node's created() call.
+  protected containerClasses: string[] = ['node'];
+
   private isAnimating = false;
   private isDragged = false;
 
@@ -361,7 +364,9 @@ export default class Node extends Vue {
   /**
    * Responds to width/height changes.
    */
+  protected onResizeStart() {}
   protected onResize() {}
+  protected onResizeStop() {}
 
   /**
    * Responds to node enlarge.
@@ -377,9 +382,9 @@ export default class Node extends Vue {
   }
 
   /**
-   * Performs the mount in this method if the node requires mounting elements, such as a global modal.
+   * Responds to mouned life cycle.
    */
-  protected mountElements() {}
+  protected onMounted() {}
 
 
   protected enableDraggable() {
@@ -413,7 +418,7 @@ export default class Node extends Vue {
     this.initCss();
     this.mountPorts();
     this.appear(); // animate node appearance
-    this.mountElements();
+    this.onMounted();
   }
 
   /** Creates a mapping from port id to port component. */
@@ -488,11 +493,17 @@ export default class Node extends Vue {
         grid: GRID_SIZE,
         minWidth: this.MIN_WIDTH,
         minHeight: this.MIN_HEIGHT,
+        start: () => {
+          this.onResizeStart();
+        },
         resize: (evt: Event, ui: JQueryUI.ResizableUIParams) => {
           this.width = this.displayWidth = ui.size.width;
           this.height = this.displayHeight = ui.size.height;
           this.x = ui.position.left;
           this.y = ui.position.top;
+        },
+        stop: () => {
+          this.onResizeStop();
         },
       });
     }
@@ -527,6 +538,9 @@ export default class Node extends Vue {
 
   private initCss() {
     const $node = $(this.$refs.node);
+
+    $node.addClass(this.containerClasses);
+
     if (this.dataOnCreate.x !== undefined && this.dataOnCreate.y !== undefined) {
       this.x = this.dataOnCreate.x;
       this.y = this.dataOnCreate.y;

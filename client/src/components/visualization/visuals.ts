@@ -1,23 +1,6 @@
 import _ from 'lodash';
-import { ScaleLinear, ScaleOrdinal, ScaleBand, ScaleTime, ScalePoint } from 'd3-scale';
 
 import { VisualProperties } from '@/data/package/subset-package';
-
-type Value = number | string | Date;
-export type Scale = ScaleTime<Date | number, number> |
-  ScaleLinear<number, number> |
-  ScaleOrdinal<number | string, number> |
-  ScalePoint<number | string> | ScaleBand<number | string>;
-
-  /*
-export interface Scale {
-  (x: any): number; // tslint:disable-line
-  domain: (arg: Value[]) => Scale;
-  domain: () => Value[];
-  range: (arg: Value[]) => Scale;
-  range: () => Value[];
-}
-*/
 
 // Supports numerical property multipliers.
 interface VisualMultiplier {

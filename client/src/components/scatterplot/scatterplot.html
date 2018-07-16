@@ -2,6 +2,25 @@
 <svg ref="svg">
   <g ref="points"></g>
   <g ref="axes"></g>
+  <g ref="xAxis"></g>
+  <g ref="yAxis"></g>
 </svg>
 <!-- option-panel -->
-scatterplot
+<div class="section">
+  <div>X Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    :initialSelectedColumn="initialXColumn"
+    @selectColumn="onSelectXColumn"
+  >
+  </column-select>
+</div>
+<div class="section">
+  <div>Y Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    :initialSelectedColumn="initialYColumn"
+    @selectColumn="onSelectYColumn"
+  >
+  </column-select>
+</div>

@@ -7,8 +7,8 @@ export default class SubsetInPort extends InputPort {
   protected DATA_TYPE = 'subset';
   protected package: SubsetPackage = new SubsetPackage();
 
-  // Typing helper method
-  public getSubsetPackage() {
+  // (Typing helper method) Explicitly states the output to be SubsetPackage.
+  public getSubsetPackage(): SubsetPackage {
     return this.getPackage() as SubsetPackage;
   }
 

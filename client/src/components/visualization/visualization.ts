@@ -8,13 +8,10 @@ import TabularDataset from '@/data/tabular-dataset';
 import { getColumnSelectOptions } from '@/data/util';
 import { showSystemMessage, elementContains } from '@/common/util';
 import { TweenLite } from 'gsap';
-import { DEFAULT_ANIMATION_DURATION_S, ENLARGE_ZINDEX } from '@/common/constants';
+import { DEFAULT_ANIMATION_DURATION_S, ENLARGE_ZINDEX, NODE_CONTENT_PADDING_PX } from '@/common/constants';
 import WindowResize from '@/directives/window-resize';
-
-export const TRANSITION_ELEMENT_LIMIT = 5000;
-const FAILED_DRAG_THRESHOLD = 3;
-
-export interface VisualizationSave {
+import { TRANSITION_ELEMENT_LIMIT, FAILED_DRAG_THRESHOLD } from './types';
+interface VisualizationSave {
   selection: number[];
   lastDatasetHash: string;
 }
@@ -47,6 +44,13 @@ export default class Visualization extends Node {
 
   protected isTransitionAllowed = true;
 
+  protected get svgWidth(): number {
+    return this.width - NODE_CONTENT_PADDING_PX * 2;
+  }
+  protected get svgHeight(): number {
+    return this.height - NODE_CONTENT_PADDING_PX * 2;
+  }
+
   @ns.interaction.Getter('isAltPressed') private isAltPressed!: boolean;
   @ns.modals.State('nodeModalVisible') private nodeModalVisible!: boolean;
   @ns.modals.Mutation('openNodeModal') private openNodeModal!: () => void;
@@ -60,6 +64,21 @@ export default class Visualization extends Node {
   private beforeEnlargeWidth = 0;
   private beforeEnlargeHeight = 0;
 
+  protected update() {
+    if (!this.checkDataset()) {
+      return;
+    }
+    this.draw();
+  }
+
+  /**
+   * Base draw method for visualization. Note that "render()" is a reserved Vue life cycle method.
+   * @abstract
+   */
+  protected draw() {
+    console.error(`draw() is not implemented for node type ${this.NODE_TYPE}`);
+  }
+
   /**
    * Updates the output ports when there is no input dataset.
    */
@@ -69,13 +88,22 @@ export default class Visualization extends Node {
   }
 
   /**
-   * Computes the package for the selection port. This is the default implementation that assumes the visualization
+   * Computes the package for the selection port. This default implementation assumes the visualization
    * node has a single input port 'in' and a single selection port 'selection'.
    */
   protected computeSelection() {
-    const pkg = this.inputPortMap.in.getPackage() as SubsetPackage;
+    const pkg = this.inputPortMap.in.getSubsetPackage();
     const selectionPkg = pkg.subset(this.selection.getItems());
     this.outputPortMap.selection.updatePackage(selectionPkg);
+  }
+
+  /**
+   * Computes the package for the data forwarding port. This default implementation assumes the visualization
+   * node ha s asingle input port 'in'.
+   */
+  protected computeForwarding() {
+    const pkg = this.inputPortMap.in.getSubsetPackage();
+    this.outputPortMap.out.updatePackage(pkg.clone());
   }
 
   /**
@@ -145,6 +173,8 @@ export default class Visualization extends Node {
   }
 
   protected created() {
+    this.containerClasses.push('visualization');
+
     this.serializationChain.push((): VisualizationSave => {
       return {
         selection: this.selection.serialize(),
@@ -177,6 +207,22 @@ export default class Visualization extends Node {
 
   protected isTransitionFeasible(numItems: number) {
     return this.isTransitionAllowed && numItems < TRANSITION_ELEMENT_LIMIT;
+  }
+
+  protected onResizeStart() {
+    this.isTransitionAllowed = false;
+  }
+  protected onResize() {
+    if (this.dataset) {
+      this.draw();
+    }
+  }
+  protected onResizeStop() {
+    this.isTransitionAllowed = true;
+  }
+
+  protected onEnlarge() {
+    this.draw();
   }
 
   /**
@@ -215,17 +261,24 @@ export default class Visualization extends Node {
     this.beforeEnlargeWidth = this.width;
     this.beforeEnlargeHeight = this.height;
     const view = this.getEnlargedView();
+    this.onResizeStart();
     TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       left: view.x,
       top: view.y,
       width: view.width,
       height: view.height,
+      onUpdate: () => {
+        this.width = $(this.$refs.node).width() as number;
+        this.height = $(this.$refs.node).height() as number;
+        this.onResize();
+      },
       onComplete: () => {
         this.width = view.width;
         this.height = view.height;
         this.onEnlarge();
         this.disableDraggable();
         this.disableResizable();
+        this.onResizeStop();
       },
     });
 
@@ -235,11 +288,17 @@ export default class Visualization extends Node {
 
   protected closeEnlargeModal() {
     this.closeNodeModal(); // Notify store that modal has been closed.
+    this.onResizeStart();
     TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       left: this.x,
       top: this.y,
       width: this.beforeEnlargeWidth,
       height: this.beforeEnlargeHeight,
+      onUpdate: () => {
+        this.width = $(this.$refs.node).width() as number;
+        this.height = $(this.$refs.node).height() as number;
+        this.onResize();
+      },
       onComplete: () => {
         $(this.$refs.node).css('z-index', this.layer);
         this.isEnlarged = false;
@@ -247,6 +306,7 @@ export default class Visualization extends Node {
         this.height = this.beforeEnlargeHeight;
         this.enableDraggable();
         this.enableResizable();
+        this.onResizeStop();
       },
     });
   }

@@ -7,7 +7,7 @@ import ns from '@/store/namespaces';
 import { ColumnSelectOption } from '@/data/tabular-dataset';
 import { MessageModalOptions } from '@/store/modals/types';
 
-const NUM_CLUTTER_COLUMNS = 10;
+const NUM_CLUTTER_COLUMNS = 20;
 @Component({
   components: {
     VueSelect,

@@ -72,6 +72,14 @@ export default class TabularDataset {
     return this.columns;
   }
 
+  public getColumnType(columnIndex: number): ValueType {
+    return this.columns[columnIndex].type;
+  }
+
+  public getColumnName(columnIndex: number): string {
+    return this.columns[columnIndex].name;
+  }
+
   public isDateColumn(index: number): boolean {
     return this.columns[index].type === ValueType.DATE;
   }
@@ -111,14 +119,15 @@ export default class TabularDataset {
    * are considered.
    */
   public getDomain(columnIndex: number, items?: number[]): Array<number | string> {
-    items = items || _.range(this.rows.length);
+    items = items || _.range(this.numRows());
     if (isContinuousDomain(this.columns[columnIndex].type)) {
-      const values = items.map(index => this.rows[index][columnIndex]);
+      const values = items.map(itemIndex => this.rows[itemIndex][columnIndex]);
       const max = _.max(values) as number;
       const min = _.min(values) as number;
       return [min, max];
     } else { // discrete domain
-      return items.map(index => this.rows[index][columnIndex]);
+      // Find unique values in a discrete domain.
+      return _.uniq(items.map(index => this.rows[index][columnIndex]));
     }
   }
 
