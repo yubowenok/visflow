@@ -1,4 +1,5 @@
 import { Component, Watch } from 'vue-property-decorator';
+import _ from 'lodash';
 
 import ns from '@/store/namespaces';
 import { Node } from '@/components/node';
@@ -6,11 +7,17 @@ import { SubsetSelection, SubsetPackage } from '@/data/package';
 import { SubsetOutputPort, SubsetInputPort } from '@/components/port';
 import TabularDataset from '@/data/tabular-dataset';
 import { getColumnSelectOptions } from '@/data/util';
-import { showSystemMessage, elementContains } from '@/common/util';
+import { showSystemMessage, elementContains, elementOffset, mouseOffset } from '@/common/util';
 import { TweenLite } from 'gsap';
 import { DEFAULT_ANIMATION_DURATION_S, ENLARGE_ZINDEX, NODE_CONTENT_PADDING_PX } from '@/common/constants';
 import WindowResize from '@/directives/window-resize';
-import { TRANSITION_ELEMENT_LIMIT, FAILED_DRAG_THRESHOLD } from './types';
+import { TRANSITION_ELEMENT_LIMIT } from './types';
+
+const FAILED_DRAG_TIME_THRESHOLD = 300;
+const FAILED_DRAG_DISTANCE_THRESHOLD = 100;
+const INITIAL_FAILED_DRAGS_BEFORE_HINT = 3;
+const FAILED_DRAGS_BEFORE_HINT_INCREMENT = 2;
+
 interface VisualizationSave {
   selection: number[];
   lastDatasetHash: string;
@@ -41,6 +48,8 @@ export default class Visualization extends Node {
 
   // Specifies an element that responds to dragging when alt-ed.
   protected ALT_DRAG_ELEMENT = '.content';
+  // Specifies an element that responds to mouse brush selection.
+  protected BRUSH_ELEMENT = '.content > svg';
 
   protected isTransitionAllowed = true;
 
@@ -51,24 +60,36 @@ export default class Visualization extends Node {
     return this.height - NODE_CONTENT_PADDING_PX * 2;
   }
 
-  @ns.interaction.Getter('isAltPressed') private isAltPressed!: boolean;
-  @ns.modals.State('nodeModalVisible') private nodeModalVisible!: boolean;
-  @ns.modals.Mutation('openNodeModal') private openNodeModal!: () => void;
-  @ns.modals.Mutation('closeNodeModal') private closeNodeModal!: () => void;
-  @ns.modals.Mutation('mountNodeModal') private mountNodeModal!: (modal: Element) => void;
+  @ns.interaction.Getter('isAltPressed') protected isAltPressed!: boolean;
 
   // Tracks failed mouse drag so as to hint user about dragging a visualization with alt.
   private failedDragCount = 0;
+  private failedDragsBeforeHint = INITIAL_FAILED_DRAGS_BEFORE_HINT;
 
   // Tracks node size during enlargement.
   private beforeEnlargeWidth = 0;
   private beforeEnlargeHeight = 0;
+
+  private brushTime = 0;
+  private brushDistance = 0;
+
+  /**
+   * Adds onBrushStart, onBrushMove, onBrushStop to the plot area in inheritting class to keep track of brush points.
+   */
+  private isBrushing = false;
+  private brushPoints: Point[] = [];
+
+  @ns.modals.State('nodeModalVisible') private nodeModalVisible!: boolean;
+  @ns.modals.Mutation('openNodeModal') private openNodeModal!: () => void;
+  @ns.modals.Mutation('closeNodeModal') private closeNodeModal!: () => void;
+  @ns.modals.Mutation('mountNodeModal') private mountNodeModal!: (modal: Element) => void;
 
   protected update() {
     if (!this.checkDataset()) {
       return;
     }
     this.draw();
+    this.output();
   }
 
   /**
@@ -78,6 +99,19 @@ export default class Visualization extends Node {
   protected draw() {
     console.error(`draw() is not implemented for node type ${this.NODE_TYPE}`);
   }
+
+  /**
+   * Computes the outputs.
+   */
+  protected output() {
+    this.computeForwarding();
+    this.computeSelection();
+  }
+
+  /**
+   * Responds to brush movement.
+   */
+  protected brushed(brushPoints: Point[], isBrushStop?: boolean) {}
 
   /**
    * Updates the output ports when there is no input dataset.
@@ -226,31 +260,31 @@ export default class Visualization extends Node {
   }
 
   /**
+   * Adds mouse selection handler to the plot area.
+   */
+  protected onMounted() {
+    // TODO: check if this is necessary.
+  }
+
+  /**
    * Allows dragging a visualization only when alt is pressed, a.k.a. drag mode is on.
    */
-  protected isDraggable(evt: MouseEvent, ui: JQueryUI.DraggableEventUIParams) {
+  protected isDraggable(evt: MouseEvent, ui?: JQueryUI.DraggableEventUIParams) {
     const $element = $(this.$el).find(this.ALT_DRAG_ELEMENT);
     if (!$element.length) {
       // Element is draggable when the drag element is not visible. It may be when the node has no data.
       return true;
     }
-    if (elementContains($element, evt.pageX, evt.pageY)) {
-      if (!this.isAltPressed) {
-        this.failedDragCount++;
-        if (this.failedDragCount === FAILED_DRAG_THRESHOLD) {
-          showSystemMessage(this.$store,
-              'Hold [Alt] key to drag a visualization node inside the plot area.', 'info');
-          this.failedDragCount = 0;
-        }
-      } else {
-        this.failedDragCount = 0;
-      }
-    } else {
+    if (!elementContains($element, evt.pageX, evt.pageY)) {
       // The click falls out of the alt drag element. Perform normal drag.
       // This allows dragging outside the plot area.
       return true;
     }
     return this.isAltPressed;
+  }
+
+  protected isSelectionEmpty(): boolean {
+    return !this.selection.numItems();
   }
 
   protected enlarge() {
@@ -332,6 +366,73 @@ export default class Visualization extends Node {
       width: .8 * screenWidth,
       height: .8 * screenHeight,
     };
+  }
+
+  private onBrushStart(evt: MouseEvent) {
+    if (this.isAltPressed) {
+      // Dragging
+      return;
+    }
+    this.isBrushing = true;
+    this.brushTime = new Date().getTime();
+  }
+
+  private onBrushMove(evt: MouseEvent) {
+    if (!this.isBrushing) {
+      return;
+    }
+    const offset = mouseOffset(evt, $(this.BRUSH_ELEMENT));
+    this.brushPoints.push({ x: offset.left, y: offset.top });
+    this.brushed(this.brushPoints);
+  }
+
+  private onBrushLeave(evt: MouseEvent) {
+    if (!this.isBrushing) {
+      return;
+    }
+    this.onBrushStop(evt);
+  }
+
+  private onBrushStop(evt: MouseEvent) {
+    if (!this.isBrushing) {
+      return;
+    }
+    this.isBrushing = false;
+    this.brushed(this.brushPoints, true);
+    if (this.brushPoints.length) {
+      const [p, q] = [_.first(this.brushPoints), _.last(this.brushPoints)] as [Point, Point];
+      this.brushDistance = Math.abs(p.x - q.x) + Math.abs(p.y - q.y);
+    } else {
+      this.brushDistance = 0;
+    }
+    this.brushTime = new Date().getTime() - this.brushTime;
+    this.brushPoints = [];
+
+    if (this.isProbablyFailedDrag()) {
+      this.onFailedDrag();
+    } else {
+      this.failedDragCount = 0; // clear failed count on successful brush
+    }
+  }
+
+  private isProbablyFailedDrag(): boolean {
+    if (!this.isSelectionEmpty()) {
+      return false;
+    }
+    return this.brushDistance > FAILED_DRAG_DISTANCE_THRESHOLD ||
+      this.brushTime < FAILED_DRAG_TIME_THRESHOLD;
+  }
+
+  private onFailedDrag() {
+    this.failedDragCount++;
+    if (this.failedDragCount === this.failedDragsBeforeHint) {
+      showSystemMessage(this.$store,
+          'Hold [Alt] key to drag a visualization node inside the plot area.', 'info');
+      this.failedDragCount = 0;
+      // TODO: check this?
+      // Increases the number of failed drags required before showing the hint again.
+      this.failedDragsBeforeHint += FAILED_DRAGS_BEFORE_HINT_INCREMENT;
+    }
   }
 
   /**

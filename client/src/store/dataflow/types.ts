@@ -11,6 +11,8 @@ export interface DataflowState {
 
   diagramName: string; // User-readable diagram name. This does not need to be unique.
   filename: string; // Filename stored on the server. This must be unique must is invisible to the user.
+
+  isDeserializing: boolean;
 }
 
 export interface NodeType {

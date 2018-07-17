@@ -178,6 +178,9 @@ export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) =
   // First clear the diagram.
   resetDataflow(state);
 
+  // Turn on deserializing flag to avoid nodes trigger propagation.
+  state.isDeserializing = true;
+
   const sources = diagram.nodes.map(nodeSave => {
     const node = createNode(state, {
       type: nodeSave.type,
@@ -198,5 +201,6 @@ export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) =
     createEdge(state, sourcePort, targetPort, false);
   }
 
+  state.isDeserializing = false;
   propagateNodes(sources);
 };

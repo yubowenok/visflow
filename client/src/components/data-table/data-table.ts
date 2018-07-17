@@ -39,6 +39,9 @@ export default class DataTable extends Vue {
     // Clone the template and initialize DataTable on a clean Element.
     this.table = $(this.$refs.table).clone().appendTo(this.$el).DataTable(this.config);
 
+    // Select before setting select handlers to avoid triggering selectRow events on initialization.
+    this.table.rows('.selected').select();
+
     // Table selection indices are row index, rather than item index w.r.t. the dataset.
     this.table.on('select', (evt: Event, dt: DataTables.DataTables, type: string, indices: number[]) => {
       if (type === 'row') {
@@ -50,7 +53,5 @@ export default class DataTable extends Vue {
         this.$emit('deselectRow', this.rowIds ? indices.map(index => this.rowIds[index]) : indices);
       }
     });
-
-    this.table.rows('.selected').select();
   }
 }

@@ -138,8 +138,6 @@ export default class Table extends Visualization {
     };
 
     this.rowIds = items; // mapping from row to data id
-    this.computeForwarding();
-    this.computeSelection();
   }
 
   private onSelectColumns(columnIndices: number[]) {

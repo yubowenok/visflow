@@ -28,3 +28,16 @@ export const elementOffset = (e1: JQuery, e2: JQuery): JQuery.Coordinates => {
     top: offset1.top - offset2.top,
   };
 };
+
+/**
+ * Gets the offset of a mouse event relative to a given element.
+ */
+export const mouseOffset = (evt: MouseEvent, e: JQuery): JQuery.Coordinates => {
+  const offset = e.offset() as JQuery.Coordinates;
+  const paddingLeft = parseInt(e.css('padding-left'), 10);
+  const paddingTop = parseInt(e.css('padding-top'), 10);
+  return {
+    left: evt.pageX - offset.left - paddingLeft,
+    top: evt.pageY - offset.top - paddingTop,
+  };
+};

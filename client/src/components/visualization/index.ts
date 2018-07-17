@@ -10,3 +10,4 @@ export * from './visuals';
 export * from './scale';
 export * from './axis';
 export * from './types';
+export * from './selection';

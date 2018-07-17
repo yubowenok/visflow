@@ -13,6 +13,9 @@ import {
   DEFAULT_PLOT_MARGINS,
   LABEL_OFFSET,
   PlotMargins,
+  drawBrushBox,
+  getBrushBox,
+  isPointInBox,
 } from '@/components/visualization';
 import template from './scatterplot.html';
 import TabularDataset from '@/data/tabular-dataset';
@@ -33,7 +36,7 @@ interface ScatterplotItemProps {
   x: number | string;
   y: number | string;
   visuals: VisualProperties;
-  bound: boolean;
+  hasVisuals: boolean;
   selected: boolean;
 }
 
@@ -62,6 +65,8 @@ export default class Scatterplot extends Visualization {
   private xColumn: number = 0;
   private yColumn: number = 0;
   private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, left: 30, bottom: 20 };
+  private xScale!: Scale;
+  private yScale!: Scale;
 
   get initialXColumn(): number | null {
     return this.dataset ? this.xColumn : null;
@@ -85,12 +90,22 @@ export default class Scatterplot extends Visualization {
     }
     this.coverText = '';
     const itemProps = this.getItemProps();
-    const [xScale, yScale] = this.computeScales();
-    this.updateLeftMargin(xScale, yScale);
+    this.computeScales();
+    this.updateLeftMargin();
     // Drawing must occur after scale computations.
-    this.drawXAxis(xScale);
-    this.drawYAxis(yScale);
-    this.drawPoints(itemProps, xScale, yScale);
+    this.drawXAxis();
+    this.drawYAxis();
+    this.drawPoints(itemProps);
+  }
+
+  protected brushed(brushPoints: Point[], isBrushStop?: boolean) {
+    if (isBrushStop) {
+      this.computeBrushedItems(brushPoints);
+      this.computeSelection();
+      this.drawPoints(this.getItemProps());
+      this.propagateSelection();
+    }
+    drawBrushBox(this.$refs.brush as SVGElement, !isBrushStop ? brushPoints : []);
   }
 
   protected onDatasetChange() {
@@ -98,6 +113,24 @@ export default class Scatterplot extends Visualization {
     const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type)).slice(0, 2);
     this.xColumn = numericalColumns.length >= 1 ? numericalColumns[0].index : 0;
     this.yColumn = numericalColumns.length >= 2 ? numericalColumns[1].index : 0;
+  }
+
+  private computeBrushedItems(brushPoints: Point[]) {
+    if (!this.isShiftPressed || !brushPoints.length) {
+      this.selection.clear(); // reset selection if shift key is not down
+      if (!brushPoints.length) {
+        return;
+      }
+    }
+    const box = getBrushBox(brushPoints);
+    const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
+    for (const itemIndex of items) {
+      const x = this.xScale(this.getDataset().getValue(itemIndex, this.xColumn));
+      const y = this.yScale(this.getDataset().getValue(itemIndex, this.yColumn));
+      if (isPointInBox({ x, y }, box)) {
+        this.selection.addItem(itemIndex);
+      }
+    }
   }
 
   private getItemProps(): ScatterplotItemProps[] {
@@ -109,7 +142,7 @@ export default class Scatterplot extends Visualization {
         x: this.getDataset().getValue(item, this.xColumn),
         y: this.getDataset().getValue(item, this.yColumn),
         visuals: _.extend(defaultItemVisuals(), item.visuals),
-        bound: _.isEmpty(item.visuals),
+        hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),
       };
       if (this.selection.hasItem(item.index)) {
@@ -121,7 +154,7 @@ export default class Scatterplot extends Visualization {
     return itemProps;
   }
 
-  private drawPoints(itemProps: ScatterplotItemProps[], xScale: Scale, yScale: Scale) {
+  private drawPoints(itemProps: ScatterplotItemProps[]) {
     const svgPoints = select(this.$refs.points as SVGElement);
     let points = (svgPoints.selectAll('circle') as Selection<SVGElement, ScatterplotItemProps, SVGElement, {}>);
     points = points.data(itemProps, d => d.index.toString());
@@ -131,26 +164,38 @@ export default class Scatterplot extends Visualization {
     points = points.enter().append<SVGElement>('circle')
       .attr('id', d => d.index.toString())
       .merge(points)
-      .attr('bound', d => d.bound)
+      .attr('has-visuals', d => d.hasVisuals)
       .attr('selected', d => d.selected);
 
     const updatedPoints = this.isTransitionFeasible(itemProps.length) ? points.transition() : points;
     updatedPoints
-      .attr('cx', d => xScale(d.x))
-      .attr('cy', d => yScale(d.y))
+      .attr('cx', d => this.xScale(d.x))
+      .attr('cy', d => this.yScale(d.y))
       .attr('r', d => d.visuals.size + 'px')
       .style('fill', d => d.visuals.color as string)
       .style('stroke', d => d.visuals.borderColor as string)
       .style('stroke-width', d => d.visuals.borderWidth as number)
       .style('opacity', d => d.visuals.opacity as number);
+
+    this.moveSelectedPointsToFront();
   }
 
-  private computeScales(): [Scale, Scale] {
+  /**
+   * Moves the selected points so that they appear above the other points to be clearly visible.
+   * Elements that appear later in an SVG are rendered on the top.
+   */
+  private moveSelectedPointsToFront() {
+    const $points = $(this.$refs.points);
+    $points.children('circle[has-visuals=false]').appendTo(this.$refs.points as SVGGElement);
+    $points.children('circle[selected=true]').appendTo(this.$refs.points as SVGGElement);
+  }
+
+  private computeScales() {
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     const dataset = this.getDataset();
     const xDomain = dataset.getDomain(this.xColumn, items);
     const yDomain = dataset.getDomain(this.yColumn, items);
-    return [
+    [this.xScale, this.yScale] = [
       getScale(dataset.getColumnType(this.xColumn), xDomain,
         [this.margins.left, this.svgWidth - this.margins.right], {
           domainMargin: DOMAIN_MARGIN,
@@ -162,8 +207,8 @@ export default class Scatterplot extends Visualization {
     ];
   }
 
-  private drawXAxis(xScale: Scale) {
-    drawAxis(this.$refs.xAxis as SVGElement, xScale, {
+  private drawXAxis() {
+    drawAxis(this.$refs.xAxis as SVGElement, this.xScale, {
       classes: 'x',
       orient: 'bottom',
       transform: getTransform([0, this.svgHeight - this.margins.bottom]),
@@ -174,8 +219,8 @@ export default class Scatterplot extends Visualization {
     });
   }
 
-  private drawYAxis(yScale: Scale) {
-    drawAxis(this.$refs.yAxis as SVGElement, yScale, {
+  private drawYAxis() {
+    drawAxis(this.$refs.yAxis as SVGElement, this.yScale, {
       classes: 'y',
       orient: 'left',
       transform: getTransform([this.margins.left, 0]),
@@ -191,14 +236,14 @@ export default class Scatterplot extends Visualization {
    * We render the axis once and fetch the SVG elements to determine this width, and then set xScale's range
    * to reflect the new left margin.
    */
-  private updateLeftMargin(xScale: Scale, yScale: Scale) {
-    this.drawYAxis(yScale);
+  private updateLeftMargin() {
+    this.drawYAxis();
     $(this.$refs.content).show(); // getBBox() requires the SVG to be visible to return valid sizes
     const maxTickWidth = _.max($(this.$refs.yAxis as SVGGElement)
       .find('.y > .tick > text')
       .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
     this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
-    (xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+    (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
   }
 
   private onSelectXColumn(columnIndex: number) {

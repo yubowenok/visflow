@@ -4,6 +4,10 @@
   :rowIds="rowIds"
   @selectRow="onItemSelect"
   @deselectRow="onItemDeselect"
+  @mousedown.native="onBrushStart"
+  @mousemove.native="onBrushMove"
+  @mouseup.native="onBrushStop"
+  @mouseleave.native="onBrushLeave"
 ></data-table>
 <!-- option-panel -->
 <div>

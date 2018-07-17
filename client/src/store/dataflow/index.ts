@@ -16,16 +16,15 @@ export * from '@/store/dataflow/util';
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
 
-export const getInitialState = (): DataflowState => {
-  return {
-    canvas: new DataflowCanvas(),
-    nodeTypes: nodeTypes.nodeTypes,
-    nodes: [],
-    numNodeLayers: 0,
-    filename: '',
-    diagramName: '',
-  };
-};
+export const getInitialState = (): DataflowState => ({
+  canvas: new DataflowCanvas(),
+  nodeTypes: nodeTypes.nodeTypes,
+  nodes: [],
+  numNodeLayers: 0,
+  filename: '',
+  diagramName: '',
+  isDeserializing: false,
+});
 
 export const initialState: DataflowState = getInitialState();
 
@@ -97,11 +96,19 @@ const mutations = {
 
   /** Notifies of port data change and propagates the change. */
   portUpdated: (state: DataflowState, port: Port) => {
+    if (state.isDeserializing) {
+      console.log('propagation blocked during deserialization from port of node', port.node.id);
+      return;
+    }
     helper.propagatePort(port);
   },
 
   /** Notifies of node data change and propagates the change. */
   nodeUpdated: (state: DataflowState, node: Node) => {
+    if (state.isDeserializing) {
+      console.log('propagation blocked during deserialization from node', node.id);
+      return;
+    }
     helper.propagateNode(node);
   },
 

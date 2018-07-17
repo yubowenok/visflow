@@ -1,3 +1,5 @@
+@import '../../common/style/index';
+
 .visualization {
   .content > svg {
     shape-rendering: geometricPrecision;
@@ -16,6 +18,14 @@
       text.label {
         text-anchor: start;
       }
+    }
+
+    .brush-box {
+      fill: $selected-color;
+      fill-opacity: .5;
+      pointer-events: none;
+      stroke: #333;
+      stroke-width: 1px;
     }
   }
 }

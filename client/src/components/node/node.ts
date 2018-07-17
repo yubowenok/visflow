@@ -80,6 +80,8 @@ export default class Node extends Vue {
   // These are the options passed to the node on node creation, and are only used once in created().
   protected dataOnCreate: CreateNodeData = {};
 
+  protected isDragging = false;
+
   /**
    * The serialization chain is a list of functions to be called to generate the serialized NodeSave.
    * The functions are pushed to the list in the created() call of base node and inheritting node sequentially.
@@ -95,6 +97,8 @@ export default class Node extends Vue {
 
   // A list of classes to be added to the node container. Push to this list on inheritting node's created() call.
   protected containerClasses: string[] = ['node'];
+
+  @ns.interaction.Getter('isShiftPressed') protected isShiftPressed!: boolean;
 
   private isAnimating = false;
   private isDragged = false;
@@ -127,7 +131,6 @@ export default class Node extends Vue {
   @ns.dataflow.Getter('getImgSrc') private getImgSrc!: (type: string) => string;
   @ns.dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
   @ns.dataflow.Mutation('removeNode') private dataflowRemoveNode!: (node: Node) => void;
-  @ns.interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
   @ns.interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
   @ns.interaction.Mutation('dragNode') private dragNode!: (payload: DragNodePayload) => void;
   @ns.interaction.Mutation('clickNode') private clickNode!: (node: Node) => void;
@@ -455,6 +458,7 @@ export default class Node extends Vue {
         if (!this.isDraggable(evt, ui)) {
           return false;
         }
+        this.isDragging = true;
         lastDragPosition = ui.position;
         alreadySelected = this.isSelected;
       },
@@ -483,6 +487,7 @@ export default class Node extends Vue {
         this.x = ui.position.left;
         this.y = ui.position.top;
         this.isDragged = false;
+        this.isDragging = false;
         this.activate();
       },
     });

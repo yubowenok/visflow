@@ -15,8 +15,16 @@ export default class SubsetSelection {
     return Array.from(this.items);
   }
 
+  public numItems(): number {
+    return _.size(this.items);
+  }
+
   public setItems(items: number[]) {
     this.items = new Set(items);
+  }
+
+  public addItem(index: number) {
+    this.items.add(index);
   }
 
   public addItems(items: number[]) {

@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import $ from 'jquery';
+import _ from 'lodash';
 
 import 'datatables.net';
 import 'datatables.net-bs4';

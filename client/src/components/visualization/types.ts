@@ -1,5 +1,4 @@
 export const TRANSITION_ELEMENT_LIMIT = 5000;
-export const FAILED_DRAG_THRESHOLD = 3;
 export const LABEL_OFFSET = 5;
 
 export interface PlotMargins {
