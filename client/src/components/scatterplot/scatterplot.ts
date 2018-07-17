@@ -11,7 +11,7 @@ import {
   getScale,
   drawAxis,
   DEFAULT_PLOT_MARGINS,
-  LABEL_OFFSET,
+  LABEL_OFFSET_PX,
   PlotMargins,
   drawBrushBox,
   getBrushBox,
@@ -42,15 +42,15 @@ interface ScatterplotItemProps {
 
 const defaultItemVisuals = (): VisualProperties => ({
   color: '#333',
-  borderColor: 'black',
-  borderWidth: 1,
+  border: 'black',
+  width: 1,
   size: 3,
   opacity: 1,
 });
 
 const selectedItemVisuals = (): VisualProperties => ({
   color: 'white',
-  borderColor: SELECTED_COLOR,
+  border: SELECTED_COLOR,
 });
 
 @Component({
@@ -64,7 +64,7 @@ export default class Scatterplot extends Visualization {
 
   private xColumn: number = 0;
   private yColumn: number = 0;
-  private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, left: 30, bottom: 20 };
+  private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, bottom: 20 };
   private xScale!: Scale;
   private yScale!: Scale;
 
@@ -77,7 +77,7 @@ export default class Scatterplot extends Visualization {
   }
 
   protected created() {
-    this.serializationChain.push(() => ({
+    this.serializationChain.push((): ScatterplotSave => ({
       xColumn: this.xColumn,
       yColumn: this.yColumn,
     }));
@@ -125,8 +125,8 @@ export default class Scatterplot extends Visualization {
     const box = getBrushBox(brushPoints);
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     for (const itemIndex of items) {
-      const x = this.xScale(this.getDataset().getValue(itemIndex, this.xColumn));
-      const y = this.yScale(this.getDataset().getValue(itemIndex, this.yColumn));
+      const x = this.xScale(this.getDataset().getCell(itemIndex, this.xColumn));
+      const y = this.yScale(this.getDataset().getCell(itemIndex, this.yColumn));
       if (isPointInBox({ x, y }, box)) {
         this.selection.addItem(itemIndex);
       }
@@ -139,8 +139,8 @@ export default class Scatterplot extends Visualization {
     const itemProps: ScatterplotItemProps[] = items.map(item => {
       const props: ScatterplotItemProps = {
         index: item.index,
-        x: this.getDataset().getValue(item, this.xColumn),
-        y: this.getDataset().getValue(item, this.yColumn),
+        x: this.getDataset().getCell(item, this.xColumn),
+        y: this.getDataset().getCell(item, this.yColumn),
         visuals: _.extend(defaultItemVisuals(), item.visuals),
         hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),
@@ -156,12 +156,13 @@ export default class Scatterplot extends Visualization {
 
   private drawPoints(itemProps: ScatterplotItemProps[]) {
     const svgPoints = select(this.$refs.points as SVGElement);
-    let points = (svgPoints.selectAll('circle') as Selection<SVGElement, ScatterplotItemProps, SVGElement, {}>);
+    let points = svgPoints.selectAll('circle') as
+      Selection<SVGGraphicsElement, ScatterplotItemProps, SVGGElement, {}>;
     points = points.data(itemProps, d => d.index.toString());
 
     fadeOut(points.exit());
 
-    points = points.enter().append<SVGElement>('circle')
+    points = points.enter().append<SVGGraphicsElement>('circle')
       .attr('id', d => d.index.toString())
       .merge(points)
       .attr('has-visuals', d => d.hasVisuals)
@@ -173,8 +174,8 @@ export default class Scatterplot extends Visualization {
       .attr('cy', d => this.yScale(d.y))
       .attr('r', d => d.visuals.size + 'px')
       .style('fill', d => d.visuals.color as string)
-      .style('stroke', d => d.visuals.borderColor as string)
-      .style('stroke-width', d => d.visuals.borderWidth as number)
+      .style('stroke', d => d.visuals.border as string)
+      .style('stroke-width', d => d.visuals.width as number)
       .style('opacity', d => d.visuals.opacity as number);
 
     this.moveSelectedPointsToFront();
@@ -185,9 +186,10 @@ export default class Scatterplot extends Visualization {
    * Elements that appear later in an SVG are rendered on the top.
    */
   private moveSelectedPointsToFront() {
-    const $points = $(this.$refs.points);
-    $points.children('circle[has-visuals=false]').appendTo(this.$refs.points as SVGGElement);
-    $points.children('circle[selected=true]').appendTo(this.$refs.points as SVGGElement);
+    const gPoints = this.$refs.points as SVGGElement;
+    const $points = $(gPoints);
+    $points.children('circle[has-visuals=false]').appendTo(gPoints);
+    $points.children('circle[selected=true]').appendTo(gPoints);
   }
 
   private computeScales() {
@@ -214,7 +216,7 @@ export default class Scatterplot extends Visualization {
       transform: getTransform([0, this.svgHeight - this.margins.bottom]),
       label: {
         text: this.getDataset().getColumnName(this.xColumn),
-        transform: getTransform([this.svgWidth - this.margins.right, -LABEL_OFFSET]),
+        transform: getTransform([this.svgWidth - this.margins.right, -LABEL_OFFSET_PX]),
       },
     });
   }
@@ -226,7 +228,7 @@ export default class Scatterplot extends Visualization {
       transform: getTransform([this.margins.left, 0]),
       label: {
         text: this.getDataset().getColumnName(this.yColumn),
-        transform: getTransform([LABEL_OFFSET, this.margins.top], 1, 90),
+        transform: getTransform([LABEL_OFFSET_PX, this.margins.top], 1, 90),
       },
     });
   }

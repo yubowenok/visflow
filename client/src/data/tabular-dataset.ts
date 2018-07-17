@@ -59,7 +59,7 @@ export default class TabularDataset {
   /**
    * Retrieves the value of a cell, with a given row and column.
    */
-  public getValue(item: number | SubsetItem, columnIndex: number): number | string {
+  public getCell(item: number | SubsetItem, columnIndex: number): number | string {
     const rowIndex = item instanceof Object ? (item as SubsetItem).index : item;
     return this.rows[rowIndex][columnIndex];
   }
@@ -97,7 +97,7 @@ export default class TabularDataset {
   /**
    * Gets all the rows with values on a subset of columns.
    */
-  public rowsOnSubColumns(columnIndices: Set<number> | number[], options?: SubTableOptions): TabularRows {
+  public allRowsOnSubColumns(columnIndices: Set<number> | number[], options?: SubTableOptions): TabularRows {
     columnIndices = arrayIndices(columnIndices);
     return this.rows.map((row, rowIndex) => this.rowOnSubColumns(rowIndex, columnIndices, options));
   }

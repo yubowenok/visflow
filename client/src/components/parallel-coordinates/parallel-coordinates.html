@@ -1,0 +1,20 @@
+<!-- node-content -->
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+>
+  <g ref="lines" class="lines"></g>
+  <g ref="axes"></g>
+  <g ref="brush" class="brush"></g>
+</svg>
+<!-- option-panel -->
+<div>
+  <div class="bold">Columns</div>
+  <column-list
+    :columns="columnSelectOptions"
+    :initialSelectedColumns="initialSelectedColumns"
+    @selectColumns="onSelectColumns"
+  ></column-list>
+</div>

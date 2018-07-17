@@ -5,7 +5,7 @@ import { VisualProperties } from '@/data/package/subset-package';
 // Supports numerical property multipliers.
 interface VisualMultiplier {
   size?: number;
-  borderWidth?: number;
+  width?: number;
   opacity?: number;
 }
 
@@ -14,15 +14,15 @@ interface VisualMultiplier {
  */
 const selectedVisualMultiplier: VisualMultiplier = {
   size: 1.2,
-  borderWidth: 1.2,
+  width: 1.2,
 };
 
 export const multiplyVisuals = (visuals: VisualProperties, multiplier: VisualMultiplier = selectedVisualMultiplier) => {
   if (visuals.size !== undefined && multiplier.size !== undefined) {
     visuals.size *= multiplier.size;
   }
-  if (visuals.borderWidth !== undefined && multiplier.borderWidth !== undefined) {
-    visuals.borderWidth *= multiplier.borderWidth;
+  if (visuals.width !== undefined && multiplier.width !== undefined) {
+    visuals.width *= multiplier.width;
   }
   if (visuals.opacity !== undefined && multiplier.opacity !== undefined) {
     visuals.opacity *= multiplier.opacity;

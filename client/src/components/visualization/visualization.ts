@@ -51,8 +51,6 @@ export default class Visualization extends Node {
   // Specifies an element that responds to mouse brush selection.
   protected BRUSH_ELEMENT = '.content > svg';
 
-  protected isTransitionAllowed = true;
-
   protected get svgWidth(): number {
     return this.width - NODE_CONTENT_PADDING_PX * 2;
   }
@@ -78,6 +76,8 @@ export default class Visualization extends Node {
    */
   private isBrushing = false;
   private brushPoints: Point[] = [];
+
+  private isTransitionAllowed = true;
 
   @ns.modals.State('nodeModalVisible') private nodeModalVisible!: boolean;
   @ns.modals.Mutation('openNodeModal') private openNodeModal!: () => void;
@@ -381,7 +381,11 @@ export default class Visualization extends Node {
     if (!this.isBrushing) {
       return;
     }
-    const offset = mouseOffset(evt, $(this.BRUSH_ELEMENT));
+    const $brushElement = $(this.BRUSH_ELEMENT);
+    if (!$brushElement.length) {
+      return;
+    }
+    const offset = mouseOffset(evt, $brushElement);
     this.brushPoints.push({ x: offset.left, y: offset.top });
     this.brushed(this.brushPoints);
   }
@@ -440,6 +444,10 @@ export default class Visualization extends Node {
    */
   @Watch('isAltPressed')
   private onAltPressedChange(value: boolean) {
+    if (this.isShiftPressed) {
+      // Ignore other key combination.
+      return;
+    }
     if (value) {
       $(this.$refs.node).find(this.ALT_DRAG_ELEMENT).css('pointer-events', 'none');
     } else {

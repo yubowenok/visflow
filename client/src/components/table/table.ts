@@ -9,7 +9,7 @@ import template from './table.html';
 import { Visualization, injectVisualizationTemplate } from '@/components/visualization';
 import ColumnList from '@/components/column-list/column-list';
 
-const DEFAULT_MAX_COLUMNS = 10;
+const DEFAULT_MAX_COLUMNS = 6;
 // Approximate height of the datatables excluding its scroll body.
 const DATATABLE_WRAPPER_HEIGHT_PX = 70;
 
@@ -43,7 +43,7 @@ export default class Table extends Visualization {
   }
 
   protected created() {
-    this.serializationChain.push(() => ({
+    this.serializationChain.push((): TableSave => ({
       columns: this.columns,
     }));
   }
@@ -85,7 +85,7 @@ export default class Table extends Visualization {
         const item = pkg.getItem(index);
         return `<span class="table-prop" style="
           ${item.visuals.color ? 'background-color: ' + item.visuals.color : ''};
-          ${item.visuals.borderColor ? 'border: 1px solid ' + item.visuals.borderColor : ''};
+          ${item.visuals.border ? 'border: 1px solid ' + item.visuals.border : ''};
         ></span>`;
       },
     }];
@@ -147,6 +147,8 @@ export default class Table extends Visualization {
       // console.log(this.columns, columnIndices);
       this.columns = columnIndices;
       this.drawTable();
+    } else {
+      console.log('passed');
     }
   }
 

@@ -1,5 +1,5 @@
 export const TRANSITION_ELEMENT_LIMIT = 5000;
-export const LABEL_OFFSET = 5;
+export const LABEL_OFFSET_PX = 5;
 
 export interface PlotMargins {
   left: number;

@@ -10,8 +10,8 @@ export interface VisualProperties {
   opacity?: number;
   color?: string;
   size?: number;
-  borderColor?: string;
-  borderWidth?: number;
+  border?: string;
+  width?: number;
 }
 
 export interface SubsetItem {

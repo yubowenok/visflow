@@ -5,6 +5,7 @@ import Visualization from '@/components/visualization/visualization';
 import DataSource from '@/components/data-source/data-source';
 import Table from '@/components/table/table';
 import Scatterplot from '@/components/scatterplot/scatterplot';
+import ParallelCoordinates from '@/components/parallel-coordinates/parallel-coordinates';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -35,7 +36,7 @@ export const nodeTypes: NodeType[] = [
     id: 'parallel-coordinates',
     title: 'Parallel Coordinates',
     imgSrc: require('@/imgs/parallel-coordinates.svg'),
-    constructor: Visualization,
+    constructor: ParallelCoordinates,
     tags: VISUALIZATION_TAGS + MULTIDIMENSIONAL_TAGS,
   },
   {

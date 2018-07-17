@@ -23,11 +23,8 @@ export const getBrushBox = (brushPoints: Point[]): Box => {
 };
 
 export const drawBrushBox = (svg: SVGElement, brushPoints: Point[]) => {
-  let box = select(svg).select('.brush-box');
-  if (!box.empty()) {
-    box.remove();
-  }
-  box = select(svg).append('rect')
+  select(svg).select('.brush-box').remove();
+  const box = select(svg).append('rect')
     .classed('brush-box', true);
   if (!brushPoints.length) {
     return;
@@ -45,6 +42,7 @@ export const drawBrushLasso = (svg: SVGElement, brushPoints: Point[]) => {
     .x(d => d.x)
     .y(d => d.y);
 
+  select(svg).select('.lasso').remove();
   select(svg).append('path')
     .classed('lasso', true)
     .attr('d', l(brushPoints) as string);
