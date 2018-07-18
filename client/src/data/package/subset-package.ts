@@ -79,11 +79,16 @@ export default class SubsetPackage extends Package {
     this.items = {};
   }
 
+  /**
+   * Clears the dataset and items.
+   */
+  public clearDataset() {
+    this.dataset = undefined;
+  }
+
   public numItems(): number {
     return _.size(this.items);
   }
-
-
 
   /**
    * Returns a deep copy of the package.

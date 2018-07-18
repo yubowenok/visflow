@@ -4,8 +4,8 @@ import _ from 'lodash';
 import $ from 'jquery';
 
 import ns from '@/store/namespaces';
-import { ColumnSelectOption } from '@/data/tabular-dataset';
 import { MessageModalOptions } from '@/store/modals/types';
+import { ColumnSelectOption } from '@/components/column-select/column-select';
 
 const NUM_CLUTTER_COLUMNS = 20;
 @Component({
@@ -21,9 +21,10 @@ export default class ColumnList extends Vue {
   @Prop()
   private initialSelectedColumns!: number[];
 
+  // All selectColumns events are fired through changing this array.
   private selected: ColumnSelectOption[] = [];
 
-  // Used to avoid emission of "selectColumns" event on column list creation.
+  // Flag to track vue-select initialization to avoid emitting selectColumns event twice.
   private isInit = true;
 
   private mounted() {
@@ -62,10 +63,11 @@ export default class ColumnList extends Vue {
         });
       },
       change: (evt, ui) => {
+        // Emits the change but does not touch this.selected, which will be updated on sortable stop().
         this.$emit('selectColumns', getNewOrder(evt, ui).map(column => column.value));
       },
       stop: (evt, ui) => {
-        this.selected = getNewOrder(evt, ui);
+        // The change has already been emitted on change(), so we do not set this.selected here.
         // Return false to cancel JQuery sortable to avoid changing the DOM at the same time with vue-select!
         return false;
       },
@@ -95,8 +97,7 @@ export default class ColumnList extends Vue {
     this.selected = _.sortBy(this.selected, 'value');
   }
 
-  @Watch('selected')
-  private onSelectedChange() {
+  private onListSelect() {
     if (this.isInit) {
       this.isInit = false;
       return;

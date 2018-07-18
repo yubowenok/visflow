@@ -1,0 +1,49 @@
+<!-- node-content -->
+<div class="attribute-filter">
+  <div v-if="filterType === 'pattern'">
+    pattern
+  </div>
+  <div v-if="filterType === 'range'">
+    range
+  </div>
+  <div v-if="filterType === 'sampling'">
+    sampling
+  </div>
+</div>
+
+<!-- context-menu -->
+<li>filter option</li>
+
+<!-- option-panel -->
+<div>
+  <div>Filter Type</div>
+  <vue-select class="vf-select"
+    :options="filterTypeOptions"
+    v-model="filterType"
+    @input="onSelectFilterType"
+  ></vue-select>
+</div>
+<div>
+  <div>Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    :initialSelectedColumn="initialColumn"
+    @selectColumn="onSelectColumn"
+  ></column-select>
+</div>
+<div v-if="filterType === 'pattern'">
+  <div class="subsection">Patterns</div>
+  <b-form-input></b-form-input>
+  <div class="subsection">Mode</div>
+  <vue-select class="vf-select" id="pattern-match-mode"
+    :options="patternMatchModeOptions"
+    v-model="patternParams.mode"
+    :getOptionLabel="getPatternMatchModeLabel"
+  ></vue-select>
+</div>
+<div v-if="filterType === 'range'">
+  range
+</div>
+<div v-if="filterType === 'sampling'">
+  sampling
+</div>

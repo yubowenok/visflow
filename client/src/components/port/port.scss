@@ -6,6 +6,10 @@
   background-color: white;
   @extend %box;
 
+  &.constants {
+    background-color: #ddd;
+  }
+
   &.hover, &:hover {
     @extend %bold-border;
   }

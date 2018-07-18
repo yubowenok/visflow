@@ -23,7 +23,6 @@ export default class Port extends Vue {
   public id!: string;
   public node!: Node;
   public isInput = false;
-  public dataType = 'table';
 
   protected DATA_TYPE = '';
 
@@ -62,6 +61,10 @@ export default class Port extends Vue {
 
   public isConnected(): boolean {
     return this.edges.length > 0;
+  }
+
+  public isTypeMatched(port: Port): boolean {
+    return this.DATA_TYPE === port.DATA_TYPE;
   }
 
   public hasCapacity(): boolean {
@@ -154,7 +157,15 @@ export default class Port extends Vue {
     return 'no data';
   }
 
+  protected get iconClasses(): string {
+    return this.maxConnections === 1 ? 'fas fa-circle' : 'fas fa-caret-right';
+  }
+
   protected onConnectionChange() {}
+
+  protected get maxConnections(): number {
+    return this.isMultiple ? Infinity : 1;
+  }
 
   private activate() {
     this.isActive = true;
@@ -221,9 +232,5 @@ export default class Port extends Vue {
         }
       },
     });
-  }
-
-  private get maxConnections(): number {
-    return this.isMultiple ? Infinity : 1;
   }
 }

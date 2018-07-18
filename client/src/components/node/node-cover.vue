@@ -27,9 +27,9 @@
 
 .text {
   position: absolute;
-  top: calc(50% - 1em * .75);
   width: 100%;
   text-align: center;
+  @extend %vertical-center;
 }
 </style>
 

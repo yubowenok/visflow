@@ -1,17 +1,15 @@
 import { Component, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 
-import ns from '@/store/namespaces';
-import { Node } from '@/components/node';
-import { SubsetSelection, SubsetPackage } from '@/data/package';
-import { SubsetOutputPort, SubsetInputPort } from '@/components/port';
-import TabularDataset from '@/data/tabular-dataset';
-import { getColumnSelectOptions } from '@/data/util';
-import { showSystemMessage, elementContains, elementOffset, mouseOffset } from '@/common/util';
-import { TweenLite } from 'gsap';
 import { DEFAULT_ANIMATION_DURATION_S, ENLARGE_ZINDEX, NODE_CONTENT_PADDING_PX } from '@/common/constants';
-import WindowResize from '@/directives/window-resize';
+import { showSystemMessage, elementContains, mouseOffset } from '@/common/util';
+import { SubsetNode } from '@/components/subset-node';
+import { SubsetOutputPort, SubsetInputPort } from '@/components/port';
+import { SubsetSelection } from '@/data/package';
 import { TRANSITION_ELEMENT_LIMIT } from './types';
+import { TweenLite } from 'gsap';
+import ns from '@/store/namespaces';
+import WindowResize from '@/directives/window-resize';
 
 const FAILED_DRAG_TIME_THRESHOLD = 300;
 const FAILED_DRAG_DISTANCE_THRESHOLD = 100;
@@ -20,7 +18,6 @@ const FAILED_DRAGS_BEFORE_HINT_INCREMENT = 2;
 
 interface VisualizationSave {
   selection: number[];
-  lastDatasetHash: string;
 }
 
 @Component({
@@ -28,7 +25,7 @@ interface VisualizationSave {
     WindowResize,
   },
 })
-export default class Visualization extends Node {
+export default class Visualization extends SubsetNode {
   protected NODE_TYPE = 'visualization';
   protected DEFAULT_WIDTH = 300;
   protected DEFAULT_HEIGHT = 300;
@@ -39,12 +36,6 @@ export default class Visualization extends Node {
 
   protected selection: SubsetSelection = new SubsetSelection();
 
-  // Overwrite port typings
-  protected inputPortMap: { [id: string]: SubsetInputPort } = {};
-  protected outputPortMap: { [id: string]: SubsetOutputPort } = {};
-
-  protected dataset: TabularDataset | null = null; // new TabularDataset({ rows: [], columns: [] });
-  protected lastDatasetHash: string = '';
 
   // Specifies an element that responds to dragging when alt-ed.
   protected ALT_DRAG_ELEMENT = '.content';
@@ -117,8 +108,8 @@ export default class Visualization extends Node {
    * Updates the output ports when there is no input dataset.
    */
   protected updateNoDatasetOutput() {
-    (this.outputPortMap.out as SubsetOutputPort).clearPackageItems();
-    (this.outputPortMap.selection as SubsetOutputPort).clearPackageItems();
+    this.outputPortMap.out.clear();
+    this.outputPortMap.selection.clear();
   }
 
   /**
@@ -136,8 +127,7 @@ export default class Visualization extends Node {
    * node ha s asingle input port 'in'.
    */
   protected computeForwarding() {
-    const pkg = this.inputPortMap.in.getSubsetPackage();
-    this.outputPortMap.out.updatePackage(pkg.clone());
+    this.forwardSubset(this.inputPortMap.in, this.outputPortMap.out);
   }
 
   /**
@@ -145,36 +135,6 @@ export default class Visualization extends Node {
    */
   protected propagateSelection() {
     this.portUpdated(this.outputPortMap.selection);
-  }
-
-  /**
-   * Checks if there is no input dataset.
-   */
-  protected hasNoDataset(): boolean {
-    return !this.inputPortMap.in.isConnected() ||
-      !(this.inputPortMap.in.getPackage() as SubsetPackage).hasDataset();
-  }
-
-  /**
-   * Checks if there is no input dataset, and if so, shows a text message and returns false.
-   */
-  protected checkDataset(): boolean {
-    if (this.hasNoDataset()) {
-      this.dataset = null;
-      this.coverText = 'No Dataset';
-      this.updateNoDatasetOutput();
-      return false;
-    }
-    this.dataset = (this.inputPortMap.in.getPackage() as SubsetPackage).getDataset() as TabularDataset;
-    // Check if we have switched from one dataset to another dataset. Datasets must not be undefined and must
-    // have a valid hash value. Changing hash from '' (no data) does not trigger onDatasetChange(). This is
-    // to preserve node state such as column selection.
-    if (this.dataset.getHash() !== this.lastDatasetHash) {
-      this.onDatasetChange();
-      this.lastDatasetHash = this.dataset.getHash();
-    }
-    this.coverText = '';
-    return true;
   }
 
   protected createPorts() {
@@ -212,31 +172,12 @@ export default class Visualization extends Node {
     this.serializationChain.push((): VisualizationSave => {
       return {
         selection: this.selection.serialize(),
-        lastDatasetHash: this.lastDatasetHash,
       };
     });
     this.deserializationChain.push(nodeSave => {
       const save = nodeSave as VisualizationSave;
       this.selection = new SubsetSelection(save.selection);
     });
-  }
-
-  /**
-   * Performs updates on dataset change, such as re-selecting plotting columns.
-   * When this function is called, this.dataset is guaranteed to be defined.
-   * @abstract
-   */
-  protected onDatasetChange() {
-    console.error(`onDatasetChange() is not implemented for ${this.NODE_TYPE}`);
-  }
-
-  // Typing helper method
-  protected getDataset(): TabularDataset {
-    return this.dataset as TabularDataset;
-  }
-
-  protected get columnSelectOptions() {
-    return getColumnSelectOptions(this.dataset);
   }
 
   protected isTransitionFeasible(numItems: number) {
@@ -381,11 +322,11 @@ export default class Visualization extends Node {
     if (!this.isBrushing) {
       return;
     }
-    const $brushElement = $(this.BRUSH_ELEMENT);
+    const $brushElement = $(this.$refs.node).find(this.BRUSH_ELEMENT);
     if (!$brushElement.length) {
       return;
     }
-    const offset = mouseOffset(evt, $brushElement);
+    const offset = mouseOffset(evt, $brushElement as JQuery<HTMLElement>);
     this.brushPoints.push({ x: offset.left, y: offset.top });
     this.brushed(this.brushPoints);
   }
@@ -423,7 +364,7 @@ export default class Visualization extends Node {
     if (!this.isSelectionEmpty()) {
       return false;
     }
-    return this.brushDistance > FAILED_DRAG_DISTANCE_THRESHOLD ||
+    return this.brushDistance > FAILED_DRAG_DISTANCE_THRESHOLD &&
       this.brushTime < FAILED_DRAG_TIME_THRESHOLD;
   }
 

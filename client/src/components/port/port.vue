@@ -1,21 +1,13 @@
 <template>
 <div>
   <div ref="port"
-    :class="['port', { active: isActive }]"
+    :class="['port', { active: isActive }, DATA_TYPE]"
     @mousedown="mousedown"
     @dblclick.prevent.stop="activate"
     @contextmenu.prevent.stop="openContextMenu"
     v-global-click="globalClick">
     <div class="icon"> <!-- port icon -->
-      <span v-if="maxConnections === 1">
-        <i class="fas fa-circle"></i>
-      </span>
-      <span v-else-if="isSelection">
-        <i class="far fa-square"></i>
-      </span>
-      <span v-else>
-        <i class="fas fa-caret-right"></i>
-      </span>
+      <span><i :class="iconClasses"></i></span>
     </div>
     <transition name="slide-fade-right">
       <port-panel ref="portPanel" v-if="isActive" :port-id="id">

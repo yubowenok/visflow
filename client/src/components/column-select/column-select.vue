@@ -1,6 +1,11 @@
 <template>
 <div>
-  <vue-select class="vf-select" v-model="selected" :options="columns"></vue-select>
+  <vue-select class="vf-select"
+    v-model="selected"
+    :options="columns"
+    @input="onListSelect">
+    <span slot="no-options">No Matching Columns</span>
+  </vue-select>
 </div>
 </template>
 

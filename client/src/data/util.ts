@@ -1,7 +1,7 @@
-import TabularDataset, { ColumnSelectOption, TabularColumn } from './tabular-dataset';
+import TabularDataset, { TabularColumn } from './tabular-dataset';
 import { ValueType } from '@/data/parser';
 
-export const getColumnSelectOptions = (dataset: TabularDataset | undefined | null): ColumnSelectOption[] => {
+export const getColumnSelectOptions = (dataset: TabularDataset | undefined | null): SelectOption[] => {
   if (!dataset) {
     return [];
   }

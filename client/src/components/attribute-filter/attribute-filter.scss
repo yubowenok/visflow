@@ -1,0 +1,33 @@
+@import '../../common/style/index';
+
+.vf-select {
+  max-width: $max-option-panel-width;
+
+  /deep/ {
+    // Though we pass in string filter type id's like "pattern",
+    // display with first letter capitalized for aesthetics.
+    .selected-tag::first-letter,
+    .dropdown-menu li::first-letter {
+      text-transform: uppercase
+    }
+  }
+}
+
+/deep/ .form-control {
+  max-width: $max-option-panel-width;
+}
+
+#pattern-match-mode.v-select {
+  /deep/ {
+    .dropdown-toggle .clear {
+      display: none;
+    }
+    .dropdown-menu {
+      overflow-y: hidden;
+    }
+  }
+}
+
+.subsection {
+  margin-top: $margin-size;
+}

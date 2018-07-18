@@ -39,5 +39,9 @@
     .divider {
       @extend %secondary-divider;
     }
+
+    > div {
+      margin-bottom: $section-margin-sm;
+    }
   }
 }

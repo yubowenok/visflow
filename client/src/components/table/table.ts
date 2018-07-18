@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { dateDisplay } from '@/common/util';
 import { SubsetPackage } from '@/data/package';
 import DataTable, { DEFAULT_LENGTH_MENU } from '@/components/data-table/data-table';
-import TabularDataset, { TabularRow, ColumnSelectOption } from '@/data/tabular-dataset';
+import TabularDataset, { TabularRow } from '@/data/tabular-dataset';
 import template from './table.html';
 import { Visualization, injectVisualizationTemplate } from '@/components/visualization';
 import ColumnList from '@/components/column-list/column-list';
@@ -141,15 +141,12 @@ export default class Table extends Visualization {
   }
 
   private onSelectColumns(columnIndices: number[]) {
-    // ColumnList will fire selectColumns event on initial selected assignment (passed by initialSelectedColumns).
-    // We ignore this update by checking equality of the two column arrays.
-    if (!_.isEqual(columnIndices, this.columns)) {
-      // console.log(this.columns, columnIndices);
-      this.columns = columnIndices;
-      this.drawTable();
-    } else {
-      console.log('passed');
+    if (_.isEqual(columnIndices, this.columns)) {
+      console.error('onSelectColumns() called with unchanged columnIndices on table');
+      return;
     }
+    this.columns = columnIndices;
+    this.drawTable();
   }
 
   private onItemSelect(items: number[]) {

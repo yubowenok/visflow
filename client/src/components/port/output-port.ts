@@ -7,7 +7,6 @@ import { Package } from '@/data/package';
 @Component
 export default class OutputPort extends Port {
   protected isMultiple = true;
-  protected isSelection = false;
   protected isUpdated = false;
 
   public getConnectedNodes(): Node[] {

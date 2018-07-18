@@ -6,6 +6,7 @@ import DataSource from '@/components/data-source/data-source';
 import Table from '@/components/table/table';
 import Scatterplot from '@/components/scatterplot/scatterplot';
 import ParallelCoordinates from '@/components/parallel-coordinates/parallel-coordinates';
+import AttributeFilter from '@/components/attribute-filter/attribute-filter';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -82,25 +83,25 @@ export const nodeTypes: NodeType[] = [
     tags: 'color render dye property',
   },
   {
-    id: 'filter',
-    title: 'Filter',
+    id: 'attribute-filter',
+    title: 'Attribute Filter',
     imgSrc: require('@/imgs/filter.svg'),
-    constructor: Visualization,
-    tags: 'subset attribute remove find',
+    constructor: AttributeFilter,
+    tags: 'subset attribute remove find pattern range sample',
   },
   {
     id: 'set-operator',
     title: 'Set Operator',
     imgSrc: require('@/imgs/set-operator.svg'),
     constructor: Visualization,
-    tags: 'subset join',
+    tags: 'subset union intersection difference',
   },
   {
     id: 'value-generator',
     title: 'Value Generator',
     imgSrc: require('@/imgs/value-generator.svg'),
     constructor: Visualization,
-    tags: 'constant',
+    tags: 'constant extraction',
   },
 ];
 

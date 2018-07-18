@@ -14,11 +14,6 @@ export interface TabularColumn {
   hasDuplicate: boolean;
 }
 
-export interface ColumnSelectOption {
-  value: number; // column index in the original table
-  label: string;
-}
-
 interface SubTableOptions {
   indexColumn?: boolean;
 }
