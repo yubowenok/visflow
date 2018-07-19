@@ -102,20 +102,21 @@ export default class Node extends Vue {
 
   private isAnimating = false;
   private isDragged = false;
+  private isMousedowned = false;
 
-  get numInputPorts(): number {
+  private get numInputPorts(): number {
     return this.inputPorts.length;
   }
 
-  get numOutputPorts(): number {
+  private get numOutputPorts(): number {
     return this.outputPorts.length;
   }
 
-  get allPorts(): Port[] {
+  private get allPorts(): Port[] {
     return _.concat(this.inputPorts as Port[], this.outputPorts);
   }
 
-  get optionPanelInitialState(): OptionPanelInitialState {
+  private get optionPanelInitialState(): OptionPanelInitialState {
     return {
       isIconized: this.isIconized,
       isInVisMode: this.isInVisMode,
@@ -123,7 +124,7 @@ export default class Node extends Vue {
     };
   }
 
-  get getIconPath() {
+  private get getIconPath() {
     return this.getImgSrc(this.NODE_TYPE);
   }
 
@@ -587,7 +588,16 @@ export default class Node extends Vue {
     return false;
   }
 
+  private onMousedown(evt: MouseEvent) {
+    this.isMousedowned = true;
+  }
+
+
   private onMouseup(evt: MouseEvent) {
+    if (!this.isMousedowned) {
+      return;
+    }
+    this.isMousedowned = false;
     if (!this.isDragged) {
       if (this.isShiftPressed) {
         // When shift is pressed, clicking a node toggles its selection.
@@ -599,8 +609,6 @@ export default class Node extends Vue {
       }
     }
   }
-
-  private onMousedown(evt: MouseEvent) {}
 
   private toggleSelected() {
     if (this.isSelected) {

@@ -35,7 +35,7 @@ export default class DataflowCanvas extends Vue {
   private dragMode: DragMode = DragMode.NONE;
 
   get dragClass(): string {
-    return this.isPanning ? 'panning' : '';
+    return this.isPanning || this.isAltPressed ? 'panning' : '';
   }
 
   public addNode(node: Node) {

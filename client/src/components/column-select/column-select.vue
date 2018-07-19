@@ -1,7 +1,8 @@
 <template>
 <div>
-  <vue-select class="vf-select"
+  <vue-select id="select"
     v-model="selected"
+    :clearable="false"
     :options="columns"
     @input="onListSelect">
     <span slot="no-options">No Matching Columns</span>

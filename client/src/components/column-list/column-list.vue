@@ -1,6 +1,7 @@
 <template>
 <div>
-  <vue-select class="vf-select" multiple
+  <vue-select id="select"
+    multiple
     v-model="selected"
     :options="columns"
     @input="onListSelect">

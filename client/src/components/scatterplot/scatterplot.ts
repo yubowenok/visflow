@@ -1,4 +1,4 @@
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 import { select, Selection } from 'd3-selection';
 
@@ -246,15 +246,5 @@ export default class Scatterplot extends Visualization {
       .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
     this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
     (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
-  }
-
-  private onSelectXColumn(columnIndex: number) {
-    this.xColumn = columnIndex;
-    this.draw();
-  }
-
-  private onSelectYColumn(columnIndex: number) {
-    this.yColumn = columnIndex;
-    this.draw();
   }
 }

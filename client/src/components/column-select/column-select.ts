@@ -1,5 +1,5 @@
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import VueSelect from 'vue-select';
+import { Vue, Component, Prop } from 'vue-property-decorator';
+import VueSelect from '@/components/vue-select/vue-select';
 
 export interface ColumnSelectOption {
   label: string;
@@ -15,24 +15,23 @@ export default class ColumnSelect extends Vue {
   @Prop()
   private columns!: ColumnSelectOption[];
   @Prop({ type: Number })
-  private initialSelectedColumn!: number | null;
+  private value!: number | null;
 
-  private selected: ColumnSelectOption | null = null;
+  private selected: number | null = null;
 
-  // Used to avoid emission of "selectColumns" event on column list creation.
-  // Note that when initialSelectedColumn is null, <vue-select> does not fire input event.
+  // Used to avoid emission of "input" event on column list creation.
+  // Note that when the initial value is null, <vue-select> does not fire input event.
   private isInit = true;
 
   private mounted() {
-    this.selected = this.initialSelectedColumn !== null ? this.columns[this.initialSelectedColumn] : null;
+    this.selected = this.value;
   }
 
   private onListSelect() {
-    if (this.isInit && this.initialSelectedColumn) {
+    if (this.isInit) {
       this.isInit = false;
       return;
     }
-    this.$emit('selectColumn', this.selected ?
-      (typeof this.selected === 'string' ? this.selected : this.selected.value) : null);
+    this.$emit('input', this.selected);
   }
 }

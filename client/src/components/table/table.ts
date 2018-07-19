@@ -29,6 +29,7 @@ export default class Table extends Visualization {
   protected MIN_WIDTH = 270;
   protected MIN_HEIGHT = 150;
   protected ALT_DRAG_ELEMENT = '.dataTables_scroll';
+  protected BRUSH_ELEMENT = '.dataTables_scroll';
 
   private pageLength: number = 10;
 
@@ -37,10 +38,6 @@ export default class Table extends Visualization {
 
   // Columns to show from the dataset.
   private columns: number[] = [];
-
-  get initialSelectedColumns(): number[] {
-    return this.dataset ? this.columns : [];
-  }
 
   protected created() {
     this.serializationChain.push((): TableSave => ({
@@ -138,15 +135,6 @@ export default class Table extends Visualization {
     };
 
     this.rowIds = items; // mapping from row to data id
-  }
-
-  private onSelectColumns(columnIndices: number[]) {
-    if (_.isEqual(columnIndices, this.columns)) {
-      console.error('onSelectColumns() called with unchanged columnIndices on table');
-      return;
-    }
-    this.columns = columnIndices;
-    this.drawTable();
   }
 
   private onItemSelect(items: number[]) {

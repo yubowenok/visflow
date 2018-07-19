@@ -13,8 +13,8 @@
 <div>
   <div class="bold">Columns</div>
   <column-list
+    v-model="columns"
+    @input="draw"
     :columns="columnSelectOptions"
-    :initialSelectedColumns="initialSelectedColumns"
-    @selectColumns="onSelectColumns"
   ></column-list>
 </div>

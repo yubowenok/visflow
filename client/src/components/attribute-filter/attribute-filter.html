@@ -17,33 +17,64 @@
 <!-- option-panel -->
 <div>
   <div>Filter Type</div>
-  <vue-select class="vf-select"
+  <vue-select
     :options="filterTypeOptions"
     v-model="filterType"
     @input="onSelectFilterType"
+    :clearable="false"
   ></vue-select>
 </div>
 <div>
   <div>Column</div>
   <column-select
     :columns="columnSelectOptions"
-    :initialSelectedColumn="initialColumn"
-    @selectColumn="onSelectColumn"
+    v-model="column"
+    @input="onSelectColumn"
   ></column-select>
 </div>
+<hr class="divider"/>
 <div v-if="filterType === 'pattern'">
-  <div class="subsection">Patterns</div>
-  <b-form-input></b-form-input>
-  <div class="subsection">Mode</div>
-  <vue-select class="vf-select" id="pattern-match-mode"
-    :options="patternMatchModeOptions"
-    v-model="patternParams.mode"
-    :getOptionLabel="getPatternMatchModeLabel"
-  ></vue-select>
+  <div class="subsection">
+    Patterns
+    <b-form-input></b-form-input>
+  </div>
+  <div class="subsection">
+    Mode
+    <vue-select id="pattern-match-mode"
+      :options="patternMatchModeOptions"
+      v-model="patternParams.mode"
+      :clearable="false"
+      @input="onSelectPatternMatchMode"
+    ></vue-select>
+  </div>
 </div>
 <div v-if="filterType === 'range'">
-  range
+  <div class="subsection">
+    Min
+    <b-form-input v-model="rangeParams.min"></b-form-input>
+  </div>
+  <div class="subsection">
+    Max
+    <b-form-input v-model="rangeParams.max"></b-form-input>
+  </div>
 </div>
 <div v-if="filterType === 'sampling'">
-  sampling
+  <div class="subsection">
+    <column-select
+    v-model="samplingParams.groupByColumn"
+    :columns="columnSelectOptions"
+    @input="onSelectSamplingColumn"
+    ></column-select>
+  </div>
+  <div class="subsection">
+    Amount Type
+    <b-form-input v-model="samplingParams.amountType"></b-form-input>
+  </div>
+  <div class="subsection">
+    Amount
+    <b-form-input v-model="samplingParams.amount"></b-form-input>
+  </div>
+  <div class="subsection">
+    <b-form-checkbox v-model="samplingParams.isOnDistinctValues">Sample By Distinct Values</b-form-checkbox>
+  </div>
 </div>

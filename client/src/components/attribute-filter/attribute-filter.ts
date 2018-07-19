@@ -1,5 +1,5 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import VueSelect from 'vue-select';
+import VueSelect from '@/components/vue-select/vue-select';
 import _ from 'lodash';
 
 import template from './attribute-filter.html';
@@ -95,10 +95,6 @@ export default class AttributeFilter extends SubsetNode {
   private rangeParams = _.clone(DEFAULT_RANGE_PARAMS);
   private samplingParams = _.clone(DEFAULT_SAMPLING_PARAMS);
 
-  private get initialColumn(): number | null {
-    return this.dataset ? this.column : null;
-  }
-
   protected onDatasetChange() {
   }
 
@@ -190,23 +186,22 @@ export default class AttributeFilter extends SubsetNode {
 
   private get filterTypeOptions(): SelectOption[] {
     return [
-      FilterType.PATTERN,
-      FilterType.RANGE,
-      FilterType.SAMPLING,
+      { label: 'Pattern', value: FilterType.PATTERN },
+      { label: 'Range', value: FilterType.RANGE },
+      { label: 'Sampling', value: FilterType.SAMPLING },
     ];
   }
 
   private get patternMatchModeOptions(): SelectOption[] {
-    return [PatternMatchMode.SUBSTRING, PatternMatchMode.FULL_STRING];
+    return [
+      { label: 'Substring', value: PatternMatchMode.SUBSTRING },
+      { label: 'Full String', value: PatternMatchMode.FULL_STRING },
+    ];
   }
 
-  private getPatternMatchModeLabel(option: PatternMatchMode): string {
-    return PATTERN_MATCH_MODE_LABEL[option];
-  }
-
-  private onSelectPatternMatchMode(mode: SelectOptionObject) {
-    console.log(mode);
-    this.patternParams.mode = mode.value as PatternMatchMode;
+  private onSelectPatternMatchMode(mode: PatternMatchMode) {
+    console.log(mode, this.patternParams.mode);
+    this.patternParams.mode = mode;
   }
 
   private onSelectFilterType() {

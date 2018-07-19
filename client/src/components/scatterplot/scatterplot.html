@@ -15,8 +15,8 @@
   <div>X Column</div>
   <column-select
     :columns="columnSelectOptions"
-    :initialSelectedColumn="initialXColumn"
-    @selectColumn="onSelectXColumn"
+    v-model="xColumn"
+    @input="draw"
   >
   </column-select>
 </div>
@@ -24,8 +24,8 @@
   <div>Y Column</div>
   <column-select
     :columns="columnSelectOptions"
-    :initialSelectedColumn="initialYColumn"
-    @selectColumn="onSelectYColumn"
+    v-model="yColumn"
+    @input="draw"
   >
   </column-select>
 </div>

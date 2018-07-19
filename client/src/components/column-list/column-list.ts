@@ -1,5 +1,5 @@
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import VueSelect from 'vue-select';
+import { Vue, Component, Prop } from 'vue-property-decorator';
+import VueSelect from '@/components/vue-select/vue-select';
 import _ from 'lodash';
 import $ from 'jquery';
 
@@ -18,27 +18,26 @@ export default class ColumnList extends Vue {
 
   @Prop()
   private columns!: ColumnSelectOption[];
-  @Prop()
-  private initialSelectedColumns!: number[];
+  @Prop({ type: Array })
+  private value!: number[];
 
-  // All selectColumns events are fired through changing this array.
-  private selected: ColumnSelectOption[] = [];
+  // All "input" events are fired when changing this array.
+  private selected: number[] = [];
 
   // Flag to track vue-select initialization to avoid emitting selectColumns event twice.
   private isInit = true;
 
   private mounted() {
-    this.selected = this.initialSelectedColumns.map(columnIndex => this.columns[columnIndex]);
+    this.selected = this.value.concat();
   }
 
   /**
    * Handles dragging re-order.
    */
   private updated() {
-    const valueMap: { [index: number]: ColumnSelectOption } = {};
     const $el = $(this.$el);
 
-    const getNewOrder = (evt: Event, ui: JQueryUI.SortableUIParams): ColumnSelectOption[] => {
+    const getNewOrder = (evt: Event, ui: JQueryUI.SortableUIParams): number[] => {
       const tags = $el.find('.selected-tag').not('.ui-sortable-helper');
       const values: number[] = [];
       for (const tag of tags) {
@@ -49,7 +48,7 @@ export default class ColumnList extends Vue {
           values.push(+($(tag).attr('id') as string));
         }
       }
-      const newSelected = values.map(value => valueMap[value]);
+      const newSelected = values;
       return newSelected;
     };
 
@@ -58,15 +57,16 @@ export default class ColumnList extends Vue {
       start: () => {
         const tags = $el.find('.selected-tag').not('.ui-sortable-placeholder');
         _.each(tags, (tag, index) => {
-          $(tag).attr('id', this.selected[index].value);
-          valueMap[this.selected[index].value] = this.selected[index];
+          $(tag).attr('id', this.selected[index].toString());
         });
       },
       change: (evt, ui) => {
         // Emits the change but does not touch this.selected, which will be updated on sortable stop().
-        this.$emit('selectColumns', getNewOrder(evt, ui).map(column => column.value));
+        this.$emit('input', getNewOrder(evt, ui));
       },
       stop: (evt, ui) => {
+        // Finalize the selected values with child component.
+        this.selected = getNewOrder(evt, ui);
         // The change has already been emitted on change(), so we do not set this.selected here.
         // Return false to cancel JQuery sortable to avoid changing the DOM at the same time with vue-select!
         return false;
@@ -80,7 +80,7 @@ export default class ColumnList extends Vue {
 
   private all() {
     const select = () => {
-      this.selected = _.clone(this.columns);
+      this.selected = this.columns.map(column => column.value);
     };
     if (this.columns.length > NUM_CLUTTER_COLUMNS) {
       this.openMessageModal({
@@ -94,7 +94,9 @@ export default class ColumnList extends Vue {
   }
 
   private sort() {
-    this.selected = _.sortBy(this.selected, 'value');
+    // First concat then sort, otherwise the child's value will be sorted as well, and no input event will be fired
+    // from child if its old value equals its new value.
+    this.selected = this.selected.concat().sort();
   }
 
   private onListSelect() {
@@ -102,6 +104,6 @@ export default class ColumnList extends Vue {
       this.isInit = false;
       return;
     }
-    this.$emit('selectColumns', this.selected.map(column => column.value));
+    this.$emit('input', this.selected);
   }
 }

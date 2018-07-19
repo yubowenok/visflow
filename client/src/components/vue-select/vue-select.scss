@@ -1,0 +1,101 @@
+@import '../../common/style/index';
+
+.vf-select {
+  /deep/ {
+    .dropdown-toggle {
+      max-height: 300px;
+      overflow-y: auto;
+      border-radius: $border-radius;
+      padding: $padding-size;
+
+      .selected-tag {
+        width: 100%;
+        border-radius: 0;
+        margin: $margin-size-sm 0;
+        background: white;
+
+        @extend %ellipsis-text;
+
+        .close {
+          float: right;
+          font-size: 1rem;
+          line-height: 1.5rem;
+          padding: 1rem;
+          margin: -1rem -1rem;
+
+          &:hover {
+            opacity: .75;
+          }
+        }
+      }
+    }
+
+    .open-indicator {
+      transform: scale(.6);
+
+      &:hover::before {
+        border-color: rgba(60, 60, 60, .75);
+      }
+    }
+
+    &.single {
+      .dropdown-toggle {
+        overflow-y: hidden;
+        height: 2.75rem;
+
+        .selected-tag {
+          width: calc(100% - 2rem); // use 2rem to aviod overlapping with the close and dropdown toggle
+          pointer-events: none; // avoid interference with search input
+        }
+      }
+
+      input.form-control {
+        // position: absolute;
+        height: 100%;
+      }
+
+      button.clear {
+        font-size: 1.25rem;
+        right: 2rem;
+        top: .5rem;
+
+        &:hover {
+          color: #555;
+        }
+      }
+
+      .open-indicator {
+        top: .75rem;
+      }
+    }
+
+    &:not(.single) { // hover background for multiple select
+      .selected-tag:hover {
+        background-color: #eee;
+      }
+    }
+
+    .dropdown-menu {
+      // min-width: 100%;
+
+      li {
+        &.highlight {
+          background-color: $theme-green;
+
+          a {
+            background: none;
+          }
+        }
+      }
+    }
+  }
+
+  &.clearable /deep/ {
+    .dropdown-toggle .clear {
+      display: none;
+    }
+    .dropdown-menu {
+      overflow-y: hidden;
+    }
+  }
+}

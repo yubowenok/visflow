@@ -21,7 +21,7 @@ import {
 import { fadeOut, getTransform, areSegmentsIntersected } from '@/common/util';
 import { SELECTED_COLOR } from '@/common/constants';
 import { VisualProperties } from '@/data/package/subset-package';
-import { isNumericalType, isContinuousDomain } from '@/data/util';
+import { isContinuousDomain } from '@/data/util';
 
 const DEFAULT_NUM_COLUMNS = 6;
 const ORDINAL_DOMAIN_LENGTH_THRESHOLD = 10;
@@ -60,6 +60,8 @@ const selectedItemVisuals = (): VisualProperties => ({
 })
 export default class ParallelCoordinates extends Visualization {
   protected NODE_TYPE = 'parallel-coordinates';
+  protected DEFAULT_WIDTH = 450;
+  protected DEFAULT_HEIGHT = 250;
 
   private columns: number[] = [];
   private xScale!: Scale;
@@ -67,10 +69,6 @@ export default class ParallelCoordinates extends Visualization {
   private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, left: 30, bottom: 20 };
   private areTicksVisible: boolean = true;
   private areAxesLabelsVisible: boolean = true;
-
-  get initialSelectedColumns(): number[] {
-    return this.dataset ? this.columns : [];
-  }
 
   protected created() {
     this.serializationChain.push((): ParallelCoordinatesSave => ({
@@ -87,7 +85,7 @@ export default class ParallelCoordinates extends Visualization {
     }
     this.coverText = '';
     this.computeScales();
-    this.updateLeftRightMargins();
+    this.updateLeftMargin();
     const itemProps = this.getItemProps();
     this.drawLines(itemProps);
     this.drawAxes();
@@ -155,14 +153,14 @@ export default class ParallelCoordinates extends Visualization {
       );
     });
 
-    this.updateLeftRightMargins();
+    this.updateLeftMargin();
     this.xScale = scaleLinear()
       .domain([0, this.columns.length - 1])
       .range([this.margins.left, this.svgWidth - this.margins.right]) as Scale;
   }
 
-  private updateLeftRightMargins() {
-    // TODO: check if this is really necessary.
+  private updateLeftMargin() {
+    // TODO: update the left margin based on how wide the first axis label is.
   }
 
   private getItemProps(): ParallelCoordinatesItemProps[] {
@@ -220,8 +218,8 @@ export default class ParallelCoordinates extends Visualization {
 
   private drawAxes() {
     const exitAxes = (select(this.$refs.axes as SVGGElement).selectAll('g.axis') as
-      Selection<SVGGElement, {}, SVGGElement, {}>)
-      .data(this.columns)
+      Selection<SVGGElement, string, SVGGElement, {}>)
+      .data(this.columns, columnIndex => columnIndex.toString())
       .exit();
     fadeOut(exitAxes);
     this.columns.forEach((columnIndex, axisIndex) => {
@@ -234,12 +232,13 @@ export default class ParallelCoordinates extends Visualization {
     const id = 'axis-' + columnIndex.toString();
     const axis = axisLeft(yScale)
       .tickValues(this.areTicksVisible ? yScale.domain() : []);
-    const svgAxes = select(this.$refs.axes as SVGGElement);
-    let g: Selection<SVGGElement, {}, null, undefined> = svgAxes.select('#' + id);
+    const svgAxes: Selection<SVGGElement, string, null, undefined> = select(this.$refs.axes as SVGGElement);
+    let g = svgAxes.select<SVGGElement>('#' + id);
     const gTransform = getTransform([this.xScale(axisIndex), 0]);
     if (g.empty()) {
-      g = (svgAxes.append('g') as Selection<SVGGElement, {}, null, undefined>)
+      g = svgAxes.append<SVGGElement>('g').datum(columnIndex.toString())
         .attr('id', id)
+        .classed('axis', true)
         .attr('transform', gTransform);
     }
     g.call(axis);
@@ -267,13 +266,7 @@ export default class ParallelCoordinates extends Visualization {
     }
   }
 
-  private onSelectColumns(columnIndices: number[]) {
-    // ColumnList will fire selectColumns event on initial selected assignment (passed by initialSelectedColumns).
-    // We ignore this update by checking equality of the two column arrays.
-    if (!_.isEqual(columnIndices, this.columns)) {
-      // console.log(this.columns, columnIndices);
-      this.columns = columnIndices;
-      this.draw();
-    }
+  private onSelectColumns() {
+    this.draw();
   }
 }
