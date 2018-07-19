@@ -62,6 +62,22 @@ export default class SubsetPackage extends Package {
     }
   }
 
+  public addItemIndex(index: number) {
+    if (!(index in this.items)) {
+      this.items[index] = { index, visuals: {} };
+    }
+  }
+
+  public filterItems(condition: (item: SubsetItem) => boolean) {
+    const indices = this.getItemIndices();
+    for (const index of indices) {
+      const item = this.items[index];
+      if (!condition(item)) {
+        this.removeItem(item);
+      }
+    }
+  }
+
   public getItem(index: number): SubsetItem {
     return this.items[index];
   }
@@ -69,6 +85,12 @@ export default class SubsetPackage extends Package {
   public removeItem(item: SubsetItem) {
     if (item.index in this.items) {
       delete this.items[item.index];
+    }
+  }
+
+  public removeItemIndex(index: number) {
+    if (index in this.items) {
+      delete this.items[index];
     }
   }
 

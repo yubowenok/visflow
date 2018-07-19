@@ -1,13 +1,17 @@
 <!-- node-content -->
-<div class="attribute-filter">
+<div class="display" v-if="dataset">
   <div v-if="filterType === 'pattern'">
-    pattern
+    <span class="bold">{{ columnName }}</span>
+    <span class="display-text">{{ getPatternFilterDisplayText }}</span>
   </div>
   <div v-if="filterType === 'range'">
-    range
+    <span class="bold">{{ columnName }}</span>
+    <span class="display-text">{{ getRangeFilterDisplayText }}</span>
+
   </div>
   <div v-if="filterType === 'sampling'">
-    sampling
+    <span class="display-text">{{ getSamplingFilterDisplayText }}</span>
+    <span class="bold">{{ columnName }}</span>
   </div>
 </div>
 
@@ -20,7 +24,7 @@
   <vue-select
     :options="filterTypeOptions"
     v-model="filterType"
-    @input="onSelectFilterType"
+    @input="filterAndPropagate"
     :clearable="false"
   ></vue-select>
 </div>
@@ -29,14 +33,19 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="column"
-    @input="onSelectColumn"
+    @input="filterAndPropagate"
   ></column-select>
 </div>
 <hr class="divider"/>
+
+<!-- pattern filter -->
 <div v-if="filterType === 'pattern'">
   <div class="subsection">
     Patterns
-    <b-form-input></b-form-input>
+    <constants-list
+      v-model="patternParams.patterns"
+      @input="filterAndPropagate"
+    ></constants-list>
   </div>
   <div class="subsection">
     Mode
@@ -44,37 +53,63 @@
       :options="patternMatchModeOptions"
       v-model="patternParams.mode"
       :clearable="false"
-      @input="onSelectPatternMatchMode"
+      @input="filterAndPropagate"
     ></vue-select>
   </div>
+  <div class="subsection" v-if="patternParams.mode !== 'regex'">
+    <b-form-checkbox v-model="patternParams.isCaseSensitive">Case Sensitive</b-form-checkbox>
+  </div>
 </div>
+
+<!-- range filter -->
 <div v-if="filterType === 'range'">
   <div class="subsection">
     Min
-    <b-form-input v-model="rangeParams.min"></b-form-input>
+    <input v-model="rangeParams.min" class="form-control" @input="filterAndPropagate"></input>
   </div>
   <div class="subsection">
     Max
-    <b-form-input v-model="rangeParams.max"></b-form-input>
+    <input v-model="rangeParams.max" class="form-control" @input="filterAndPropagate"></input>
   </div>
 </div>
+
+<!-- sampling filter -->
 <div v-if="filterType === 'sampling'">
   <div class="subsection">
-    <column-select
-    v-model="samplingParams.groupByColumn"
-    :columns="columnSelectOptions"
-    @input="onSelectSamplingColumn"
-    ></column-select>
+    Criterion
+    <vue-select
+      v-model="samplingParams.criterion"
+      :clearable="false"
+      :options="samplingCriterionOptions"
+    >
+    </vue-select>
   </div>
   <div class="subsection">
     Amount Type
-    <b-form-input v-model="samplingParams.amountType"></b-form-input>
+    <vue-select
+      v-model="samplingParams.amountType"
+      :clearable="false"
+      :options="samplingAmountTypeOptions"
+    >
+    </vue-select>
   </div>
   <div class="subsection">
     Amount
-    <b-form-input v-model="samplingParams.amount"></b-form-input>
+    <input v-model="samplingParams.amount" class="form-control" @input="filterAndPropagate"></input>
   </div>
   <div class="subsection">
-    <b-form-checkbox v-model="samplingParams.isOnDistinctValues">Sample By Distinct Values</b-form-checkbox>
+    Group By Column
+    <column-select
+      v-model="samplingParams.groupByColumn"
+      :clearable="true"
+      :columns="columnSelectOptions"
+      @input="filterAndPropagate"
+    ></column-select>
+  </div>
+  <div class="subsection">
+    <b-form-checkbox
+      v-model="samplingParams.isOnDistinctValues"
+      @input="filterAndPropagate"
+    >Sample By Distinct Values</b-form-checkbox>
   </div>
 </div>

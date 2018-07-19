@@ -16,6 +16,8 @@ export default class ColumnSelect extends Vue {
   private columns!: ColumnSelectOption[];
   @Prop({ type: Number })
   private value!: number | null;
+  @Prop({ default: false })
+  private clearable!: boolean;
 
   private selected: number | null = null;
 

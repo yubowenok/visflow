@@ -1,13 +1,13 @@
 @import '../../common/style/index';
 
-.vf-select {
-  max-width: $max-option-panel-width;
-}
-
-/deep/ .form-control {
-  max-width: $max-option-panel-width;
-}
-
 .subsection {
   margin-top: $margin-size;
+}
+
+.display {
+  @extend %ellipsis-text;
+  @extend %vertical-center;
+  padding: $padding-size;
+  white-space: normal;
+  overflow: auto;
 }

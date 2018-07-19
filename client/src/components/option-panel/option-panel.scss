@@ -5,6 +5,10 @@
   bottom: $icon-size * 2;
   z-index: $zIndexOptionPanel;
 
+  * {
+    max-width: $max-option-panel-width;
+  }
+
   > .divider {
     @extend %divider;
   }

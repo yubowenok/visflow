@@ -104,19 +104,19 @@ export default class Node extends Vue {
   private isDragged = false;
   private isMousedowned = false;
 
-  private get numInputPorts(): number {
+  get numInputPorts(): number {
     return this.inputPorts.length;
   }
 
-  private get numOutputPorts(): number {
+  get numOutputPorts(): number {
     return this.outputPorts.length;
   }
 
-  private get allPorts(): Port[] {
+  get allPorts(): Port[] {
     return _.concat(this.inputPorts as Port[], this.outputPorts);
   }
 
-  private get optionPanelInitialState(): OptionPanelInitialState {
+  get optionPanelInitialState(): OptionPanelInitialState {
     return {
       isIconized: this.isIconized,
       isInVisMode: this.isInVisMode,
@@ -124,8 +124,16 @@ export default class Node extends Vue {
     };
   }
 
-  private get getIconPath() {
+  get getIconPath() {
     return this.getImgSrc(this.NODE_TYPE);
+  }
+
+  get isContentVisible(): boolean {
+    return !this.coverText && (this.isEnlarged || (!this.isIconized && !this.isAnimating));
+  }
+
+  get isIconVisible(): boolean {
+    return !this.isEnlarged && (this.isIconized && !this.isAnimating);
   }
 
   @ns.dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
@@ -137,7 +145,6 @@ export default class Node extends Vue {
   @ns.interaction.Mutation('clickNode') private clickNode!: (node: Node) => void;
   @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
-  @ns.panels.Mutation('unmountOptionPanel') private unmountOptionPanel!: (panel: Vue) => void;
 
   public findConnectablePort(port: Port): Port | null {
     if (port.isInput) {
@@ -743,13 +750,5 @@ export default class Node extends Vue {
       left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
       top: (this.height / 2 - totalHeight / 2 + index * (PORT_SIZE_PX + PORT_MARGIN_PX)) + 'px',
     };
-  }
-
-  private get isContentVisible(): boolean {
-    return !this.coverText && (this.isEnlarged || (!this.isIconized && !this.isAnimating));
-  }
-
-  private get isIconVisible(): boolean {
-    return !this.isEnlarged && (this.isIconized && !this.isAnimating);
   }
 }

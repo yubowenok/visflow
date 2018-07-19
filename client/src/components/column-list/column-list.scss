@@ -1,8 +1,6 @@
 @import '../../common/style/index';
 
 #select {
-  max-width: $max-option-panel-width;
-
   /deep/ {
     .dropdown-toggle {
       cursor: all-scroll;

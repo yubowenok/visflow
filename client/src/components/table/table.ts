@@ -28,6 +28,7 @@ export default class Table extends Visualization {
   protected NODE_TYPE = 'table';
   protected MIN_WIDTH = 270;
   protected MIN_HEIGHT = 150;
+  protected DEFAULT_WIDTH = 450;
   protected ALT_DRAG_ELEMENT = '.dataTables_scroll';
   protected BRUSH_ELEMENT = '.dataTables_scroll';
 

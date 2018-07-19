@@ -2,7 +2,7 @@
 <div>
   <vue-select id="select"
     v-model="selected"
-    :clearable="false"
+    :clearable="clearable"
     :options="columns"
     @input="onListSelect">
     <span slot="no-options">No Matching Columns</span>

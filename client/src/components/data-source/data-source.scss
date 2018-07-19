@@ -21,6 +21,5 @@
 }
 
 .panel-name {
-  max-width: $max-option-panel-width;
   @extend %ellipsis-text;
 }

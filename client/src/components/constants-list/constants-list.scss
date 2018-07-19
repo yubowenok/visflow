@@ -1,0 +1,38 @@
+@import '../../common/style/index';
+
+.close {
+  font-size: .75rem;
+  padding: 1rem;
+  margin: -1rem;
+  top: .5rem;
+  position: relative;
+  color: #aaa;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.constant {
+  color: #555;
+  padding: $padding-size-sm $padding-size-lg;
+  background-color: #eee;
+  @extend %margin-tb-sm;
+
+  &:hover {
+    background-color: #ccc;
+    cursor: all-scroll;
+
+    .close {
+      color: black;
+    }
+  }
+}
+
+.controls {
+  margin-top: $margin-size;
+}
+
+.entry {
+  margin-bottom: $margin-size-sm;
+}
