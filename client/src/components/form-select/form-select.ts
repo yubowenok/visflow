@@ -23,6 +23,9 @@ export default class FormSelect extends Vue {
   @Prop({ default: false })
   private multiple!: boolean;
 
+  @Prop({ default: 'label' })
+  private label!: string;
+
   // Property binded with v-select
   private childSelected: SelectOption | SelectOption[] | null = null;
 

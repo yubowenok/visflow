@@ -1,29 +1,44 @@
 <!-- node-content -->
-<div v-if="mode === 'assignment'" class="display-wrap">
-  <div class="display" v-if="visuals.color || visuals.border">
+<div v-if="mode === 'assignment'" class="display">
+  <template v-if="visuals.color || visuals.border">
     <i class="color" :style="{ 'background-color': visuals.color || visuals.border }"></i>
-  </div>
-  <div class="display center" v-else-if="visuals.size || visuals.width || visuals.opacity">
+  </template>
+  <template v-else-if="visuals.size || visuals.width || visuals.opacity">
     <div>
       {{ visuals.size ? 'size' : (visuals.width ? 'width' : 'opacity') }}
       {{ visuals.size || visuals.width || visuals.opacity }}
     </div>
-  </div>
-  <div v-else class="display center">
-    <div>No Visuals</div>
-  </div>
+  </template>
+  <template v-else >
+    <div>(No Visuals)</div>
+  </template>
 </div>
-<div v-if="mode === 'encoding'">
-  encoding
-  <!-- TODO: add encoding display -->
+<div v-if="mode === 'encoding'" class="display">
+  <div class="bold" v-if="dataset && encoding.column">{{ dataset.getColumnName(encoding.column) }}</div>
+  <div v-else>(No Column)</div>
+  <template v-if="encoding.type === 'color' || encoding.type === 'border'">
+    <div>{{ encoding.type }}</div>
+    <color-scale-display v-if="encoding.colorScale.id" class="color-scale-display"
+      :id="encoding.colorScale.id"></color-scale-display>
+    <div v-else>(no scale)</div>
+  </template>
+  <template v-else-if="encoding.type === 'size' || encoding.type === 'width' || encoding.type === 'opacity'">
+    <div>{{ encoding.type }}</div>
+    <div>[{{ encoding.numericalScale.min }}, {{ encoding.numericalScale.max }}]</div>
+  </template>
+  <template v-else>
+    <div>(No Encoding)</div>
+  </template>
 </div>
 
 <!-- option-panel -->
+Mode
 <form-select
   v-model="mode"
   :options="modeOptions"
   :clearable="false"
 ></form-select>
+<hr class="divider">
 <div v-if="mode === 'assignment'">
   <div class="subsection">
     Color
@@ -47,4 +62,29 @@
   </div>
 </div>
 <div v-if="mode === 'encoding'">
+  <div class="subsection">
+    <div>Column</div>
+    <column-select
+      v-model="encoding.column"
+      :columns="columnSelectOptions"
+      :clearable="false"
+      @input="dyeAndPropagate"
+    ></column-select>
+  </div>
+  <div class="subsection">
+    <div>Property</div>
+    <form-select
+      v-model="encoding.type"
+      :options="encodingTypeOptions"
+      @input="dyeAndPropagate"
+      :clearable="false"
+    ></form-select>
+  </div>
+  <div class="subsection">
+    <div>Scale</div>
+    <color-scale-select
+      v-model="encoding.colorScale.id"
+      @input="dyeAndPropagate"
+    ></color-scale-select>
+  </div>
 </div>

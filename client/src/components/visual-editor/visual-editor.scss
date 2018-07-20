@@ -4,27 +4,29 @@
   margin-top: $margin-size;
 }
 
-.display-wrap {
-  height: 100%;
-}
-
 .display {
   height: 100%;
+  @extend %vertical-center;
+  text-align: center;
 
   > div {
-    text-align: center;
-  }
+    width: 100%;
 
-  &.center > div {
-    @extend %vertical-center;
+    &:first-child {
+      @extend %ellipsis-text;
+    }
   }
 
   i.color {
     display: block;
-    width: 30px;
-    height: 30px;
-    margin: 5px;
+    width: 80%;
+    height: 80%;
     border-radius: 4px;
     border: 1.25px solid #555;
   }
+}
+
+.color-scale-display {
+  height: 1rem;
+  width: 90%;
 }

@@ -26,6 +26,7 @@ export interface InteractionState {
   altPressed: boolean;
   shiftPressed: boolean;
   ctrlPressed: boolean;
+  metaPressed: boolean;
   altHold: boolean;
 }
 
@@ -41,6 +42,7 @@ const initialState: InteractionState = {
   altPressed: false,
   shiftPressed: false,
   ctrlPressed: false,
+  metaPressed: false,
   altHold: false,
 };
 
@@ -137,6 +139,9 @@ const mutations = {
       case 'alt':
         state.altPressed = true;
         break;
+      case 'meta':
+        state.metaPressed = true;
+        break;
     }
   },
 
@@ -151,6 +156,9 @@ const mutations = {
         break;
       case key === 'alt':
         state.altPressed = false;
+        break;
+      case key === 'meta':
+        state.metaPressed = false;
         break;
       case 'a' <= key && key <= 'z':
         mutations.keyStroke(state, [

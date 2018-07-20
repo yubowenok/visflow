@@ -2,11 +2,22 @@
   <v-select id="select" :class="['vf-select', { clearable: !clearable }]"
     :options="options"
     :multiple="multiple"
+    :label="label"
     v-model="childSelected"
     @input="onListSelect"
   >
     <template slot="no-options">
       <slot name="no-options"></slot>
+    </template>
+    <template slot="option" slot-scope="option">
+      <slot name="option" :option="option">
+        <li>{{ option[label] }}</li>
+      </slot>
+    </template>
+    <template slot="selected-option" slot-scope="option">
+      <slot name="selected-option" :option="option">
+        {{ option[label] }}
+      </slot>
     </template>
   </v-select>
 </template>

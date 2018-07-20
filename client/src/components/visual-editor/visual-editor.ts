@@ -1,14 +1,20 @@
 import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
+import { scaleLinear } from 'd3-scale';
 
 import template from './visual-editor.html';
 import { injectNodeTemplate } from '@/components/node';
 import SubsetNode from '@/components/subset-node/subset-node';
-import { VisualProperties, VisualPropertyType } from '@/data/visuals';
+import { VisualProperties, VisualPropertyType, isNumericalVisual } from '@/data/visuals';
 import { SubsetPackage } from '@/data/package';
 import FormSelect from '@/components/form-select/form-select';
 import FormInput from '@/components/form-input/form-input';
 import ColorInput from '@/components/color-input/color-input';
+import ColumnSelect from '@/components/column-select/column-select';
+import ColorScaleSelect from '@/components/color-scale-select/color-scale-select';
+import ColorScaleDisplay from '@/components/color-scale-display/color-scale-display';
+import { getScale } from '@/components/visualization';
+import { getColorScale } from '@/common/color-scale';
 
 enum VisualEditorMode {
   ASSIGNMENT = 'assignment',
@@ -37,12 +43,16 @@ interface EncodingParams {
   template: injectNodeTemplate(template),
   components: {
     FormSelect,
+    ColumnSelect,
+    ColorScaleSelect,
     FormInput,
     ColorInput,
+    ColorScaleDisplay,
   },
 })
 export default class VisualEditor extends SubsetNode {
   protected NODE_TYPE = 'visual-editor';
+  protected RESIZABLE = true;
 
   private mode: VisualEditorMode = VisualEditorMode.ASSIGNMENT;
   private visuals: VisualProperties = {};
@@ -57,6 +67,16 @@ export default class VisualEditor extends SubsetNode {
     return [
       { label: 'Assignment', value: VisualEditorMode.ASSIGNMENT },
       { label: 'Encoding', value: VisualEditorMode.ENCODING },
+    ];
+  }
+
+  get encodingTypeOptions(): SelectOption[] {
+    return [
+      { label: 'Color', value: VisualPropertyType.COLOR },
+      { label: 'Border', value: VisualPropertyType.BORDER },
+      { label: 'Size', value: VisualPropertyType.SIZE },
+      { label: 'Width', value: VisualPropertyType.WIDTH },
+      { label: 'Opacity', value: VisualPropertyType.OPACITY },
     ];
   }
 
@@ -106,9 +126,35 @@ export default class VisualEditor extends SubsetNode {
 
   private dyeEncoding(): SubsetPackage {
     const pkg = this.inputPortMap.in.getSubsetPackage().clone();
+    if (this.encoding.column === null || !this.encoding.colorScale.id) {
+      return pkg;
+    }
     const dataset = this.getDataset();
 
-    // TODO: add encoding dyeing
+    if (isNumericalVisual(this.encoding.type)) {
+      const scale = getScale(
+        dataset.getColumnType(this.encoding.column),
+        dataset.getDomain(this.encoding.column, pkg.getItemIndices()),
+        [this.encoding.numericalScale.min, this.encoding.numericalScale.max],
+      );
+      pkg.getItems().forEach(item => {
+        const value = dataset.getCell(item, this.encoding.column as number);
+        _.extend(item.visuals, { [this.encoding.type]: scale(value) });
+      });
+    } else {
+      const colorScale = getColorScale(this.encoding.colorScale.id) as (value: number) => string;
+      // Create a scale that maps dataset values to [0, 1] to be further used by colorScale.
+      const scale = getScale(
+        dataset.getColumnType(this.encoding.column),
+        dataset.getDomain(this.encoding.column, pkg.getItemIndices()),
+        [0, 1],
+      );
+      pkg.getItems().forEach(item => {
+        const value = dataset.getCell(item, this.encoding.column as number);
+        const colorScaleValue = scale(value);
+        _.extend(item.visuals, { [this.encoding.type]: colorScale(colorScaleValue) });
+      });
+    }
     return pkg;
   }
 

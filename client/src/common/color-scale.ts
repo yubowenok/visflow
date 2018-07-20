@@ -64,7 +64,7 @@ export const yellowBlue: ColorScaleInfo = {
 export const categorical: ColorScaleInfo = {
   id: 'categorical',
   label: 'Categorical',
-  type: ScaleType.LINEAR,
+  type: ScaleType.ORDINAL,
   contrastColor: 'white',
   domain: _.range(10),
   range: schemeCategory10 as string[],
@@ -88,20 +88,20 @@ const findColorScale = (id: string): ColorScaleInfo => {
 };
 
 export const getColorScale = (id: string):
-  ScaleLinear<string | number, string> | ScaleOrdinal<string | number, string> => {
+  ScaleLinear<string, string> | ScaleOrdinal<number, string> => {
   const scale = findColorScale(id);
   if (scale.type === ScaleType.LINEAR) {
-    return scaleLinear<string | number, string>()
+    return scaleLinear<string, string>()
       .domain(scale.domain)
       .range(scale.range);
   } else { // ScaleType.ORDINAL
-    return scaleOrdinal<string | number, string>()
+    return scaleOrdinal<number, string>()
       .domain(scale.domain)
       .range(scale.range);
   }
 };
 
-const getColorScaleGradient = (id: string): string => {
+export const getColorScaleGradient = (id: string): string => {
   const scale = findColorScale(id);
   let gradient = 'linear-gradient(to right,';
   if (scale.type === ScaleType.LINEAR) {
@@ -114,11 +114,4 @@ const getColorScaleGradient = (id: string): string => {
   }
   gradient += ')';
   return gradient;
-};
-
-export const colorScaleGradientElement = (id: string, element: Element): Element => {
-  const gradientCss = getColorScaleGradient(id);
-  return $('<div></div>')
-    .addClass('gradient-div')
-    .css('background', gradientCss)[0];
 };

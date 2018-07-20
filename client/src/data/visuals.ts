@@ -14,3 +14,9 @@ export interface VisualProperties {
   opacity?: number;
   [prop: string]: number | string | undefined;
 }
+
+export const isNumericalVisual = (type: VisualPropertyType): boolean => {
+  return type === VisualPropertyType.SIZE ||
+    type === VisualPropertyType.WIDTH ||
+    type === VisualPropertyType.OPACITY;
+};
