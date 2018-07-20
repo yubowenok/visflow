@@ -6,6 +6,7 @@ import template from './attribute-filter.html';
 import { SubsetPackage } from '@/data/package';
 import ConstantsList from '@/components/constants-list/constants-list';
 import { injectNodeTemplate } from '@/components/node';
+import FormInput from '@/components/form-input/form-input';
 import { SubsetInputPort, SubsetOutputPort, ConstantsInputPort } from '@/components/port';
 import { SubsetNode } from '@/components/subset-node';
 import ColumnSelect from '@/components/column-select/column-select';
@@ -89,6 +90,7 @@ const DEFAULT_SAMPLING_PARAMS: SamplingParams = {
     ColumnSelect,
     VueSelect,
     ConstantsList,
+    FormInput,
   },
 })
 export default class AttributeFilter extends SubsetNode {
@@ -105,6 +107,11 @@ export default class AttributeFilter extends SubsetNode {
 
   get columnName(): string {
     return this.dataset && this.column !== null ? this.getDataset().getColumnName(this.column) : '';
+  }
+
+  get samplingGroupByColumnName(): string {
+    return this.dataset && this.samplingParams.groupByColumn !== null ?
+      this.getDataset().getColumnName(this.samplingParams.groupByColumn) : '';
   }
 
   get columnType(): ValueType {
@@ -243,7 +250,7 @@ export default class AttributeFilter extends SubsetNode {
     this.outputPortMap.out.updatePackage(pkg);
   }
 
-  private filterByPattern() {
+  private filterByPattern(): SubsetPackage {
     const pkg = this.inputPortMap.in.getSubsetPackage().clone();
     const dataset = this.getDataset();
     const mode = this.patternParams.mode;
@@ -280,7 +287,7 @@ export default class AttributeFilter extends SubsetNode {
     return pkg;
   }
 
-  private filterByRange() {
+  private filterByRange(): SubsetPackage {
     const pkg = this.inputPortMap.in.getSubsetPackage().clone();
     const dataset = this.getDataset();
     pkg.filterItems(item => {
@@ -298,11 +305,98 @@ export default class AttributeFilter extends SubsetNode {
     return pkg;
   }
 
-  private filterBySampling() {
+  private filterBySampling(): SubsetPackage {
+    if (this.samplingParams.isOnDistinctValues) {
+      return this.sampleOnDistinctValues();
+    } else {
+      return this.sampleOnDataItems();
+    }
+  }
+
+  private sampleOnDataItems(): SubsetPackage {
     const pkg = this.inputPortMap.in.getSubsetPackage().clone();
     const dataset = this.getDataset();
+    const itemGroups = pkg.groupItems(this.samplingParams.groupByColumn);
+    pkg.clearItems();
 
-    // TODO: add sampler code here
+    for (const group of itemGroups) {
+      const groupWithValues = group.map(itemIndex => ({
+        index: itemIndex,
+        value: dataset.getCell(itemIndex, this.column as number),
+      }));
+      const sortedItems = _.sortBy(groupWithValues, 'value').map(pair => pair.index);
+      let count = this.samplingParams.amountType === SamplingAmountType.COUNT ?
+        this.samplingParams.amount : Math.ceil(this.samplingParams.amount / 100 * sortedItems.length);
+      if (count > sortedItems.length) {
+        count = sortedItems.length;
+      }
+      let acceptedItems: number[] = [];
+      switch (this.samplingParams.criterion) {
+        case SamplingCriterion.MAXIMUM:
+          sortedItems.reverse();
+        case SamplingCriterion.MINIMUM:
+          acceptedItems = sortedItems.slice(0, count);
+          break;
+        case SamplingCriterion.RANDOM:
+          acceptedItems = _.shuffle(sortedItems).slice(0, count);
+          break;
+      }
+      pkg.addItemIndices(acceptedItems);
+    }
+    return pkg;
+  }
+
+  private sampleOnDistinctValues(): SubsetPackage {
+    const pkg = this.inputPortMap.in.getSubsetPackage().clone();
+    const dataset = this.getDataset();
+    const itemGroups = pkg.groupItems(this.samplingParams.groupByColumn);
+    pkg.clearItems();
+
+    for (const group of itemGroups) {
+      let columnValues: Array<number | string | null> = dataset.getDomainValues(this.column as number, group, true);
+      let count = this.samplingParams.amountType === SamplingAmountType.COUNT ?
+        this.samplingParams.amount : Math.ceil(this.samplingParams.amount / 100 * columnValues.length);
+      if (count > columnValues.length) {
+        count = columnValues.length;
+      }
+
+      let acceptedValues: Array<number | string | null> = [];
+      switch (this.samplingParams.criterion) {
+        case SamplingCriterion.MAXIMUM:
+          if (this.samplingParams.criterion === SamplingCriterion.MAXIMUM) {
+            columnValues.reverse();
+          }
+        case SamplingCriterion.MINIMUM:
+          acceptedValues = columnValues.slice(0, count);
+          break;
+        case SamplingCriterion.RANDOM:
+          let i = 0;
+          const percentage = this.samplingParams.amount / 100;
+          while (count > 0) {
+            if (i === columnValues.length) {
+              i = 0;
+              columnValues = _.filter(columnValues, value => value !== null);
+            }
+            const rand = Math.random();
+            if (rand < percentage) {
+              acceptedValues.push(columnValues[i]);
+              columnValues[i] = null;
+              count--;
+            }
+            i++;
+          }
+          // Last batch of filtering
+          columnValues = _.filter(columnValues, value => value !== null);
+          break;
+      }
+      const acceptedValueSet = new Set(acceptedValues);
+      for (const itemIndex of group) {
+        const value = dataset.getCell(itemIndex, this.column as number);
+        if (acceptedValueSet.has(value)) {
+          pkg.addItemIndex(itemIndex);
+        }
+      }
+    }
     return pkg;
   }
 

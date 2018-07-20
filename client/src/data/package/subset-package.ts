@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Package from '@/data/package/package';
 import TabularDataset from '@/data/tabular-dataset';
+import { INDEX_COLUMN } from '@/common/constants';
 
 interface Items {
   [index: number]: SubsetItem;
@@ -68,6 +69,12 @@ export default class SubsetPackage extends Package {
     }
   }
 
+  public addItemIndices(indices: number[]) {
+    for (const index of indices) {
+      this.addItemIndex(index);
+    }
+  }
+
   public filterItems(condition: (item: SubsetItem) => boolean) {
     const indices = this.getItemIndices();
     for (const index of indices) {
@@ -128,6 +135,33 @@ export default class SubsetPackage extends Package {
     const pkg = new SubsetPackage();
     pkg.subsetFrom(this, items);
     return pkg;
+  }
+
+
+  /**
+   * Produces a 2D array in which each subarray is a group of items.
+   * Items with the same value on "column" are placed in a group.
+   */
+  public groupItems(columnIndex: number | null): number[][] {
+    if (columnIndex === null) {
+      return [this.getItemIndices()]; // No groupBy column gives everything in a single group.
+    }
+    const groups: number[][] = [];
+    const valueSet: { [value: string]: number } = {};
+    let groupCounter = 0;
+    _.each(this.items, (item: SubsetItem, itemIndexStr: string) => {
+      const itemIndex = +itemIndexStr;
+      const value = columnIndex === INDEX_COLUMN ? itemIndex :
+        (this.dataset as TabularDataset).getCell(itemIndex, columnIndex);
+      if (value in valueSet) {
+        const group = valueSet[value];
+        groups[group].push(itemIndex);
+      } else {
+        valueSet[value] = groupCounter;
+        groups[groupCounter++] = [itemIndex];
+      }
+    });
+    return groups;
   }
 
   /**

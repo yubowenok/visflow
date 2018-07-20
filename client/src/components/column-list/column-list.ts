@@ -24,9 +24,6 @@ export default class ColumnList extends Vue {
   // All "input" events are fired when changing this array.
   private selected: number[] = [];
 
-  // Flag to track vue-select initialization to avoid emitting selectColumns event twice.
-  private isInit = true;
-
   private mounted() {
     this.selected = this.value.concat();
   }
@@ -96,14 +93,10 @@ export default class ColumnList extends Vue {
   private sort() {
     // First concat then sort, otherwise the child's value will be sorted as well, and no input event will be fired
     // from child if its old value equals its new value.
-    this.selected = this.selected.concat().sort();
+    this.selected = this.selected.concat().sort((a, b) => a - b);
   }
 
   private onListSelect() {
-    if (this.isInit) {
-      this.isInit = false;
-      return;
-    }
     this.$emit('input', this.selected);
   }
 }

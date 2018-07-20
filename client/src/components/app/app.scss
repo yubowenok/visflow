@@ -54,6 +54,15 @@ body {
   }
 }
 
+.hint {
+  flex: 5%;
+  text-align: right;
+  margin-left: $margin-size;
+  color: #999;
+  line-height: 2rem;
+  cursor: help;
+}
+
 .shortcut {
   flex: 100%;
   text-align: right;

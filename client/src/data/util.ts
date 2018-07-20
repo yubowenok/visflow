@@ -22,3 +22,10 @@ export const isNumericalType = (type: ValueType): boolean => {
 export const isContinuousDomain = (type: ValueType): boolean => {
   return isNumericalType(type) || type === ValueType.DATE;
 };
+
+export const valueComparator = (type: ValueType): ((a: number | string, b: number | string) => number) => {
+  if (type === ValueType.DATE) {
+    return (a, b) => new Date(a).getTime() - new Date(b).getTime();
+  }
+  return (a, b) => a === b ? 0 : (a < b ? -1 : 1);
+};

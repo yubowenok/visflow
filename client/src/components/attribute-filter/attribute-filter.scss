@@ -11,3 +11,7 @@
   white-space: normal;
   overflow: auto;
 }
+
+#sampling-on-distinct-values /deep/ .custom-control-label {
+  display: flex;
+}

@@ -15,3 +15,6 @@ export const ENLARGE_ZINDEX = 50000;
 export const SELECTED_COLOR = '#6699ee';
 
 export const NODE_CONTENT_PADDING_PX = 5;
+
+// Virtual column representing subset item index
+export const INDEX_COLUMN = -1;

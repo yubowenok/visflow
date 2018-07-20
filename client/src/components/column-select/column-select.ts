@@ -19,18 +19,23 @@ export default class ColumnSelect extends Vue {
   @Prop({ default: false })
   private clearable!: boolean;
 
+  private initialValue: number | null = null;
   private selected: number | null = null;
 
   // Used to avoid emission of "input" event on column list creation.
   // Note that when the initial value is null, <vue-select> does not fire input event.
   private isInit = true;
 
+  private created() {
+    this.initialValue = this.value;
+  }
+
   private mounted() {
     this.selected = this.value;
   }
 
   private onListSelect() {
-    if (this.isInit) {
+    if (this.isInit && this.initialValue !== null) {
       this.isInit = false;
       return;
     }

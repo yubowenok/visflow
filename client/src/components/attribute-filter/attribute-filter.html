@@ -7,11 +7,14 @@
   <div v-if="filterType === 'range'">
     <span class="bold">{{ columnName }}</span>
     <span class="display-text">{{ getRangeFilterDisplayText }}</span>
-
   </div>
   <div v-if="filterType === 'sampling'">
     <span class="display-text">{{ getSamplingFilterDisplayText }}</span>
     <span class="bold">{{ columnName }}</span>
+    <span class="display-text" v-if="samplingParams.groupByColumn">
+      per
+      <span class="bold">{{ samplingGroupByColumnName }}</span>
+    </span>
   </div>
 </div>
 
@@ -65,11 +68,11 @@
 <div v-if="filterType === 'range'">
   <div class="subsection">
     Min
-    <input v-model="rangeParams.min" class="form-control" @input="filterAndPropagate"></input>
+    <form-input v-model="rangeParams.min" class="form-control" @input="filterAndPropagate"></form-input>
   </div>
   <div class="subsection">
     Max
-    <input v-model="rangeParams.max" class="form-control" @input="filterAndPropagate"></input>
+    <form-input v-model="rangeParams.max" class="form-control" @input="filterAndPropagate"></form-input>
   </div>
 </div>
 
@@ -81,6 +84,7 @@
       v-model="samplingParams.criterion"
       :clearable="false"
       :options="samplingCriterionOptions"
+      @input="filterAndPropagate"
     >
     </vue-select>
   </div>
@@ -90,12 +94,13 @@
       v-model="samplingParams.amountType"
       :clearable="false"
       :options="samplingAmountTypeOptions"
+      @input="filterAndPropagate"
     >
     </vue-select>
   </div>
   <div class="subsection">
     Amount
-    <input v-model="samplingParams.amount" class="form-control" @input="filterAndPropagate"></input>
+    <form-input v-model="samplingParams.amount" class="form-control" @input="filterAndPropagate"></form-input>
   </div>
   <div class="subsection">
     Group By Column
@@ -106,10 +111,14 @@
       @input="filterAndPropagate"
     ></column-select>
   </div>
-  <div class="subsection">
+  <div id="sampling-on-distinct-values" class="subsection">
     <b-form-checkbox
       v-model="samplingParams.isOnDistinctValues"
       @input="filterAndPropagate"
-    >Sample By Distinct Values</b-form-checkbox>
+    >
+      Sample On Distinct Values
+      <i id="sampling-on-distinct-values-hint" class="fas fa-question-circle hint"></i>
+    </b-form-checkbox>
+    <b-tooltip target="sampling-on-distinct-values-hint">Sample on distinct attribute values instead of individual data items</b-tooltip>
   </div>
 </div>

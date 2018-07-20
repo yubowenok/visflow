@@ -2,7 +2,7 @@ import sha256 from 'crypto-js/sha256';
 import _ from 'lodash';
 import { ValueType } from '@/data/parser';
 import { SubsetItem } from '@/data/package/subset-package';
-import { isContinuousDomain } from '@/data/util';
+import { isContinuousDomain, valueComparator } from '@/data/util';
 
 export type TabularRow = Array<number | string>;
 export type TabularRows = TabularRow[];
@@ -124,6 +124,19 @@ export default class TabularDataset {
       // Find unique values in a discrete domain.
       return _.uniq(items.map(index => this.rows[index][columnIndex]));
     }
+  }
+
+  /**
+   * Computes the sorted values that appear on a column, w.r.t. to an optional list of items.
+   * If "distinct" is set, return only unique values.
+   */
+  public getDomainValues(columnIndex: number, items?: number[], distinct?: boolean): Array<number | string> {
+    if (!items) {
+      items = _.range(this.rows.length);
+    }
+    const values = items.map(index => this.rows[index][columnIndex])
+      .sort(valueComparator(this.getColumnType(columnIndex)));
+    return distinct ? _.uniq(values) : values;
   }
 
   public getHash(): string {

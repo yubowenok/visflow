@@ -104,7 +104,7 @@ const checkToken = (text: string | number, ignoredTypes_?: ValueType[]):
 };
 
 /** Tokenizes the input value to form a value of chosen type. */
-export const tokenize = (text: string, type?: ValueType): number | string => {
+export const parseToken = (text: string, type?: ValueType): number | string => {
   type = !type ? checkToken(text).type : type;
   if (text === '') {
     switch (type) {
@@ -142,7 +142,7 @@ const checkColumnType = (rows: TabularRows, columnIndex: number, name: string): 
   let hasDuplicate = false;
   const existing: Set<number | string> = new Set();
   for (const row of rows) {
-    const value = tokenize('' + row[columnIndex], columnType);
+    const value = parseToken('' + row[columnIndex], columnType);
     row[columnIndex] = value;
     if (existing.has(value)) {
       hasDuplicate = true;
