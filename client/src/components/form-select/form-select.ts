@@ -10,7 +10,7 @@ import _ from 'lodash';
     vSelect,
   },
 })
-export default class VueSelect extends Vue {
+export default class FormSelect extends Vue {
   @Prop()
   private options!: SelectOption[];
 

@@ -1,12 +1,12 @@
 <template>
 <div>
-  <vue-select id="select"
+  <form-select id="select"
     multiple
     v-model="selected"
     :options="columns"
     @input="onListSelect">
     <span slot="no-options">No Matching Columns</span>
-  </vue-select>
+  </form-select>
   <div class="controls">
     <b-button id="clear" class="mini" variant="outline-secondary" @click="clear">clear</b-button>
     <b-button id="all" class="mini" variant="outline-secondary" @click="all">all</b-button>

@@ -22,6 +22,7 @@ import { propagateNode, propagateNodes } from '@/store/dataflow/propagate';
 export * from '@/store/dataflow/propagate';
 import { getInitialState } from '@/store/dataflow';
 import { InputPort, OutputPort } from '@/components/port';
+import { ENVIRONMENT } from '@/common/env';
 
 const getNodeDataOnCreate = (options: CreateNodeOptions): CreateNodeData => {
   const data: CreateNodeData = {};

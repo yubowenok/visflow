@@ -1,5 +1,5 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import VueSelect from '@/components/vue-select/vue-select';
+import FormSelect from '@/components/form-select/form-select';
 import _ from 'lodash';
 import $ from 'jquery';
 
@@ -10,7 +10,7 @@ import { ColumnSelectOption } from '@/components/column-select/column-select';
 const NUM_CLUTTER_COLUMNS = 20;
 @Component({
   components: {
-    VueSelect,
+    FormSelect,
   },
 })
 export default class ColumnList extends Vue {

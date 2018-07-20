@@ -1,5 +1,5 @@
 import { Vue, Component, Prop } from 'vue-property-decorator';
-import VueSelect from '@/components/vue-select/vue-select';
+import FormSelect from '@/components/form-select/form-select';
 
 export interface ColumnSelectOption {
   label: string;
@@ -8,7 +8,7 @@ export interface ColumnSelectOption {
 
 @Component({
   components: {
-    VueSelect,
+    FormSelect,
   },
 })
 export default class ColumnSelect extends Vue {
@@ -23,7 +23,7 @@ export default class ColumnSelect extends Vue {
   private selected: number | null = null;
 
   // Used to avoid emission of "input" event on column list creation.
-  // Note that when the initial value is null, <vue-select> does not fire input event.
+  // Note that when the initial value is null, <form-select> does not fire input event.
   private isInit = true;
 
   private created() {

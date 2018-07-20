@@ -2,7 +2,7 @@ import sha256 from 'crypto-js/sha256';
 import _ from 'lodash';
 import { ValueType } from '@/data/parser';
 import { SubsetItem } from '@/data/package/subset-package';
-import { isContinuousDomain, valueComparator } from '@/data/util';
+import { isContinuousDomain, valueComparator, isNumericalType } from '@/data/util';
 
 export type TabularRow = Array<number | string>;
 export type TabularRows = TabularRow[];
@@ -115,7 +115,8 @@ export default class TabularDataset {
    */
   public getDomain(columnIndex: number, items?: number[]): Array<number | string> {
     items = items || _.range(this.numRows());
-    if (isContinuousDomain(this.columns[columnIndex].type)) {
+    const columnType = this.columns[columnIndex].type;
+    if (isContinuousDomain(columnType)) {
       const values = items.map(itemIndex => this.rows[itemIndex][columnIndex]);
       const max = _.max(values) as number;
       const min = _.min(values) as number;
@@ -131,9 +132,7 @@ export default class TabularDataset {
    * If "distinct" is set, return only unique values.
    */
   public getDomainValues(columnIndex: number, items?: number[], distinct?: boolean): Array<number | string> {
-    if (!items) {
-      items = _.range(this.rows.length);
-    }
+    items = items || _.range(this.numRows());
     const values = items.map(index => this.rows[index][columnIndex])
       .sort(valueComparator(this.getColumnType(columnIndex)));
     return distinct ? _.uniq(values) : values;

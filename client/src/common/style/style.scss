@@ -1,4 +1,5 @@
 @import './colors';
+@import './transition';
 
 $font-size: 13px;
 $font-size-sm: .85rem;
@@ -85,7 +86,7 @@ $border-radius: 2px;
 }
 
 %transition {
-  transition: .2s;
+  transition: $default-transition-time;
 }
 
 %bar {

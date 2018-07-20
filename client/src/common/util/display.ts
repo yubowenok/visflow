@@ -1,7 +1,9 @@
 import moment from 'moment';
 import { ValueType } from '@/data/parser';
 
+const YEAR_MS = 31536000000;
 export const DATE_FORMAT = 'M/D/YY HH:mm:ss';
+export const DATE_FORMAT_NO_HMS = 'M/D/YY';
 
 export const isNumber = (value: string): boolean => {
   return !isNaN(+value);
@@ -20,14 +22,20 @@ export const fileSizeDisplay = (size: number): string => {
 
 export const dateDisplay = (value: string | number): string => {
   const valueStr = value.toString().trim();
-  if (isNumber(valueStr) &&
-    valueStr.match(/^\d{4}$/) !== null) {
+  if (isNumber(valueStr) && valueStr.match(/^\d{4}$/) !== null) {
     // Note that we cannot create new Date() with UTC time string like
     // '1490285474832', which would throw "Invalid Date".
     // The exception is four-digit string year, which we should keep intact.
     return (+valueStr).toString();
   }
-  return moment(new Date(value)).format(DATE_FORMAT);
+  const date = new Date(value);
+  if (date.toString() !== 'Invalid Date') {
+    // If the date contains no hh:mm:ss values, only display up to day.
+    if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0) {
+      return moment(date).format(DATE_FORMAT_NO_HMS);
+    }
+  }
+  return moment(date).format(DATE_FORMAT);
 };
 
 

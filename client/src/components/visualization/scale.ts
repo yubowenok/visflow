@@ -56,7 +56,8 @@ export const getScale = (type: ValueType, domain: Array<number | string>, range:
     const span = max - min || 1;
     return scaleTime()
       .domain([min - span * domainMargin, max + span * domainMargin])
-      .range(range) as Scale;
+      .range(range)
+      .nice() as Scale;
   } else { // ordinal
     const ordinalOptions: OrdinalScaleOptions = options.ordinal || { type: OrdinalScaleType.POINT };
     const ordinalPadding = (options.ordinal && options.ordinal.padding) || .5;

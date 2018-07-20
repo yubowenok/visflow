@@ -20,7 +20,7 @@ import {
 } from '@/components/visualization';
 import { fadeOut, getTransform, areSegmentsIntersected } from '@/common/util';
 import { SELECTED_COLOR } from '@/common/constants';
-import { VisualProperties } from '@/data/package/subset-package';
+import { VisualProperties } from '@/data/visuals';
 import { isContinuousDomain } from '@/data/util';
 
 const DEFAULT_NUM_COLUMNS = 6;
@@ -203,7 +203,7 @@ export default class ParallelCoordinates extends Visualization {
     updatedLines
       .attr('d', d => l(d.values))
       .style('stroke', d => d.visuals.color as string)
-      .style('stroke-width', d => d.visuals.width as number)
+      .style('stroke-width', d => d.visuals.width + 'px')
       .style('opacity', d => d.visuals.opacity as number);
 
     this.moveSelectedLinesToFront();

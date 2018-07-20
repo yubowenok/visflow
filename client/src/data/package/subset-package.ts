@@ -2,17 +2,10 @@ import _ from 'lodash';
 import Package from '@/data/package/package';
 import TabularDataset from '@/data/tabular-dataset';
 import { INDEX_COLUMN } from '@/common/constants';
+import { VisualProperties } from '@/data/visuals';
 
 interface Items {
   [index: number]: SubsetItem;
-}
-
-export interface VisualProperties {
-  opacity?: number;
-  color?: string;
-  size?: number;
-  border?: string;
-  width?: number;
 }
 
 export interface SubsetItem {

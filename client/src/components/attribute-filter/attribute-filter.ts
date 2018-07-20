@@ -1,5 +1,5 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
-import VueSelect from '@/components/vue-select/vue-select';
+import FormSelect from '@/components/form-select/form-select';
 import _ from 'lodash';
 
 import template from './attribute-filter.html';
@@ -88,7 +88,7 @@ const DEFAULT_SAMPLING_PARAMS: SamplingParams = {
   template: injectNodeTemplate(template),
   components: {
     ColumnSelect,
-    VueSelect,
+    FormSelect,
     ConstantsList,
     FormInput,
   },
@@ -400,15 +400,11 @@ export default class AttributeFilter extends SubsetNode {
     return pkg;
   }
 
-  private filterAndPropagate() {
-    this.filter();
-    this.propagate();
-  }
-
   /**
-   * Notifies dataflow of filter changes.
+   * Fitlers and notifies dataflow of filter changes.
    */
-  private propagate() {
+  private filterAndPropagate() {
+    this.update();
     this.portUpdated(this.outputPortMap.out);
   }
 }

@@ -22,8 +22,8 @@ import TabularDataset from '@/data/tabular-dataset';
 import ColumnSelect from '@/components/column-select/column-select';
 import { SELECTED_COLOR } from '@/common/constants';
 import { isNumericalType } from '@/data/util';
-import { fadeOut, getTransform, elementContains } from '@/common/util';
-import { VisualProperties } from '@/data/package/subset-package';
+import { fadeOut, getTransform } from '@/common/util';
+import { VisualProperties } from '@/data/visuals';
 
 const DOMAIN_MARGIN = .1;
 interface ScatterplotSave {
@@ -175,7 +175,7 @@ export default class Scatterplot extends Visualization {
       .attr('r', d => d.visuals.size + 'px')
       .style('fill', d => d.visuals.color as string)
       .style('stroke', d => d.visuals.border as string)
-      .style('stroke-width', d => d.visuals.width as number)
+      .style('stroke-width', d => d.visuals.width + 'px')
       .style('opacity', d => d.visuals.opacity as number);
 
     this.moveSelectedPointsToFront();

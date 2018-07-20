@@ -1,0 +1,30 @@
+@import '../../common/style/index';
+
+.subsection {
+  margin-top: $margin-size;
+}
+
+.display-wrap {
+  height: 100%;
+}
+
+.display {
+  height: 100%;
+
+  > div {
+    text-align: center;
+  }
+
+  &.center > div {
+    @extend %vertical-center;
+  }
+
+  i.color {
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    border-radius: 4px;
+    border: 1.25px solid #555;
+  }
+}

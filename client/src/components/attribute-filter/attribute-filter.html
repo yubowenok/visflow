@@ -24,12 +24,12 @@
 <!-- option-panel -->
 <div>
   <div>Filter Type</div>
-  <vue-select
+  <form-select
     :options="filterTypeOptions"
     v-model="filterType"
     @input="filterAndPropagate"
     :clearable="false"
-  ></vue-select>
+  ></form-select>
 </div>
 <div>
   <div>Column</div>
@@ -52,12 +52,12 @@
   </div>
   <div class="subsection">
     Mode
-    <vue-select id="pattern-match-mode"
+    <form-select id="pattern-match-mode"
       :options="patternMatchModeOptions"
       v-model="patternParams.mode"
       :clearable="false"
       @input="filterAndPropagate"
-    ></vue-select>
+    ></form-select>
   </div>
   <div class="subsection" v-if="patternParams.mode !== 'regex'">
     <b-form-checkbox v-model="patternParams.isCaseSensitive">Case Sensitive</b-form-checkbox>
@@ -68,11 +68,11 @@
 <div v-if="filterType === 'range'">
   <div class="subsection">
     Min
-    <form-input v-model="rangeParams.min" class="form-control" @input="filterAndPropagate"></form-input>
+    <form-input v-model="rangeParams.min" @input="filterAndPropagate"></form-input>
   </div>
   <div class="subsection">
     Max
-    <form-input v-model="rangeParams.max" class="form-control" @input="filterAndPropagate"></form-input>
+    <form-input v-model="rangeParams.max" @input="filterAndPropagate"></form-input>
   </div>
 </div>
 
@@ -80,27 +80,27 @@
 <div v-if="filterType === 'sampling'">
   <div class="subsection">
     Criterion
-    <vue-select
+    <form-select
       v-model="samplingParams.criterion"
       :clearable="false"
       :options="samplingCriterionOptions"
       @input="filterAndPropagate"
     >
-    </vue-select>
+    </form-select>
   </div>
   <div class="subsection">
     Amount Type
-    <vue-select
+    <form-select
       v-model="samplingParams.amountType"
       :clearable="false"
       :options="samplingAmountTypeOptions"
       @input="filterAndPropagate"
     >
-    </vue-select>
+    </form-select>
   </div>
   <div class="subsection">
     Amount
-    <form-input v-model="samplingParams.amount" class="form-control" @input="filterAndPropagate"></form-input>
+    <form-input v-model="samplingParams.amount" @input="filterAndPropagate"></form-input>
   </div>
   <div class="subsection">
     Group By Column

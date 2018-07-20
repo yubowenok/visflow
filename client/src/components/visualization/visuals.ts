@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-import { VisualProperties } from '@/data/package/subset-package';
+import { VisualProperties } from '@/data/visuals';
 
 // Supports numerical property multipliers.
 interface VisualMultiplier {

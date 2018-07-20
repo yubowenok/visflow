@@ -1,7 +1,7 @@
 /**
  * @fileOverview Provides a wrapper on input for typing normalization.
  */
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { ValueType, parseToken } from '@/data/parser';
 
 @Component
@@ -13,6 +13,11 @@ export default class FormInput extends Vue {
   private type!: ValueType;
 
   private text: string = '';
+
+  @Watch('value')
+  private onValueChange(value: string | number) {
+    this.text = value.toString();
+  }
 
   private created() {
     this.text = this.value;

@@ -11,7 +11,7 @@
   </v-select>
 </template>
 
-<style scoped lang="scss" src="./vue-select.scss"></style>
+<style scoped lang="scss" src="./form-select.scss"></style>
 
-<script lang="ts" src="./vue-select.ts">
+<script lang="ts" src="./form-select.ts">
 </script>

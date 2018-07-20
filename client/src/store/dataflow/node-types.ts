@@ -7,6 +7,7 @@ import Table from '@/components/table/table';
 import Scatterplot from '@/components/scatterplot/scatterplot';
 import ParallelCoordinates from '@/components/parallel-coordinates/parallel-coordinates';
 import AttributeFilter from '@/components/attribute-filter/attribute-filter';
+import VisualEditor from '@/components/visual-editor/visual-editor';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -79,7 +80,7 @@ export const nodeTypes: NodeType[] = [
     id: 'visual-editor',
     title: 'Visual Editor',
     imgSrc: require('@/imgs/visual-editor.svg'),
-    constructor: Visualization,
+    constructor: VisualEditor,
     tags: 'color render dye property',
   },
   {

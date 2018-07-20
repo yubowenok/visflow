@@ -1,3 +1,5 @@
+$default-transition-time: .2s;
+
 .slide-fade-right-enter-active,
 .slide-fade-right-leave-active,
 .slide-fade-left-enter-active,
@@ -6,7 +8,7 @@
 .slide-fade-top-leave-active,
 .slide-fade-bottom-enter-active,
 .slide-fade-bottom-leave-active {
-  transition: all .2s;
+  transition: all $default-transition-time;
 }
 
 .slide-fade-right-enter,

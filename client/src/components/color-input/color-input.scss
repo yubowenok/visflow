@@ -1,0 +1,28 @@
+@import '../../common/style/index';
+
+/deep/ .vc-chrome {
+  position: absolute;
+  right: $padding-lr-size;
+  z-index: $zIndexVueColor;
+}
+
+.color-display {
+  position: absolute;
+  right: 1.5rem;
+
+  background-color: #eee;
+  cursor: pointer;
+  @extend %border;
+  transition: $default-transition-time;
+
+  &:hover {
+    background-color: #ccc;
+  }
+
+  > i {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: .375rem; // matching form-control padding-top/bottom
+  }
+}

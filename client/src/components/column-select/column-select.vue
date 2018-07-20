@@ -1,12 +1,12 @@
 <template>
 <div>
-  <vue-select id="select"
+  <form-select id="select"
     v-model="selected"
     :clearable="clearable"
     :options="columns"
     @input="onListSelect">
     <span slot="no-options">No Matching Columns</span>
-  </vue-select>
+  </form-select>
 </div>
 </template>
 
