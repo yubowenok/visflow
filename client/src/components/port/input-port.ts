@@ -37,14 +37,19 @@ export default class InputPort extends Port {
   }
 
   /**
-   * Retrieves the package from the connected output port.
+   * Retrieves the package from the connected output port's first edge.
    */
   public getPackage(): Package {
     if (!this.edges.length) {
       console.error('getPackage() called on input port when it is not connected');
     }
-    const pkgs = this.edges.map(edge => edge.source.getPackage());
-    // TODO: How to handle multiple packages for multiple connections of an input port?
-    return pkgs[0];
+    return this.edges[0].source.getPackage();
+  }
+
+  /**
+   * Retrieves the packages from all the connected upflow nodes one by one and puts the packages in a list.
+   */
+  public getPackageList(): Package[] {
+    return this.edges.map(edge => edge.source.getPackage());
   }
 }

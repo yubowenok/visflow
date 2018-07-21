@@ -3,7 +3,7 @@ import InputPort from '../input-port';
 import { SubsetPackage } from '@/data/package';
 
 @Component
-export default class SubsetInPort extends InputPort {
+export default class SubsetInputPort extends InputPort {
   protected DATA_TYPE = 'subset';
   protected package: SubsetPackage = new SubsetPackage();
 
@@ -12,10 +12,14 @@ export default class SubsetInPort extends InputPort {
     return this.getPackage() as SubsetPackage;
   }
 
+  public getSubsetPackageList(): SubsetPackage[] {
+    return this.getPackageList() as SubsetPackage[];
+  }
+
   protected tooltip(): string {
     if (!this.hasPackage()) {
       return 'no input';
     }
-    return `${this.getSubsetPackage().numItems()} items`;
+    return !this.isMultiple ? `${this.getSubsetPackage().numItems()} items` : `${this.edges.length} connections`;
   }
 }

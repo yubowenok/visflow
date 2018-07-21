@@ -53,7 +53,7 @@ export default class DataSource extends Node {
     });
   }
 
-  protected createPorts() {
+  protected createOutputPorts() {
     this.outputPorts = [
       new SubsetOutputPort({
         data: {

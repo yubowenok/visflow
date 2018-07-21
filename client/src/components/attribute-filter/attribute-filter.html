@@ -2,14 +2,14 @@
 <div class="display" v-if="dataset">
   <div v-if="filterType === 'pattern'">
     <span class="bold">{{ columnName }}</span>
-    <span class="display-text">{{ getPatternFilterDisplayText }}</span>
+    <span class="display-text">{{ patternFilterDisplayText }}</span>
   </div>
   <div v-if="filterType === 'range'">
     <span class="bold">{{ columnName }}</span>
-    <span class="display-text">{{ getRangeFilterDisplayText }}</span>
+    <span class="display-text">{{ rangeFilterDisplayText }}</span>
   </div>
   <div v-if="filterType === 'sampling'">
-    <span class="display-text">{{ getSamplingFilterDisplayText }}</span>
+    <span class="display-text">{{ samplingFilterDisplayText }}</span>
     <span class="bold">{{ columnName }}</span>
     <span class="display-text" v-if="samplingParams.groupByColumn">
       per
@@ -27,7 +27,7 @@
   <form-select
     :options="filterTypeOptions"
     v-model="filterType"
-    @input="filterAndPropagate"
+    @input="updateAndPropagate"
     :clearable="false"
   ></form-select>
 </div>
@@ -36,7 +36,7 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="column"
-    @input="filterAndPropagate"
+    @input="updateAndPropagate"
   ></column-select>
 </div>
 <hr class="divider"/>
@@ -45,10 +45,11 @@
 <div v-if="filterType === 'pattern'">
   <div class="subsection">
     Patterns
-    <constants-list
+    <constants-list v-if="!inputDisabled"
       v-model="patternParams.patterns"
-      @input="filterAndPropagate"
+      @input="updateAndPropagate"
     ></constants-list>
+    <constants-list v-else :value="constants" :disabled="true"></constants-list>
   </div>
   <div class="subsection">
     Mode
@@ -56,7 +57,7 @@
       :options="patternMatchModeOptions"
       v-model="patternParams.mode"
       :clearable="false"
-      @input="filterAndPropagate"
+      @input="updateAndPropagate"
     ></form-select>
   </div>
   <div class="subsection" v-if="patternParams.mode !== 'regex'">
@@ -68,11 +69,13 @@
 <div v-if="filterType === 'range'">
   <div class="subsection">
     Min
-    <form-input v-model="rangeParams.min" @input="filterAndPropagate"></form-input>
+    <form-input v-if="!inputDisabled" v-model="rangeParams.min" @input="updateAndPropagate"></form-input>
+    <form-input v-else :value="firstConstant" disabled></form-input>
   </div>
   <div class="subsection">
     Max
-    <form-input v-model="rangeParams.max" @input="filterAndPropagate"></form-input>
+    <form-input v-if="!inputDisabled" v-model="rangeParams.max" @input="updateAndPropagate"></form-input>
+    <form-input v-else :value="secondConstant" disabled></form-input>
   </div>
 </div>
 
@@ -84,7 +87,7 @@
       v-model="samplingParams.criterion"
       :clearable="false"
       :options="samplingCriterionOptions"
-      @input="filterAndPropagate"
+      @input="updateAndPropagate"
     >
     </form-select>
   </div>
@@ -94,13 +97,14 @@
       v-model="samplingParams.amountType"
       :clearable="false"
       :options="samplingAmountTypeOptions"
-      @input="filterAndPropagate"
+      @input="updateAndPropagate"
     >
     </form-select>
   </div>
   <div class="subsection">
     Amount
-    <form-input v-model="samplingParams.amount" @input="filterAndPropagate"></form-input>
+    <form-input v-if="!inputDisabled" v-model.number="samplingParams.amount" @input="updateAndPropagate"></form-input>
+    <form-input v-else :value="firstConstant" disabled></form-input>
   </div>
   <div class="subsection">
     Group By Column
@@ -108,13 +112,13 @@
       v-model="samplingParams.groupByColumn"
       :clearable="true"
       :columns="columnSelectOptions"
-      @input="filterAndPropagate"
+      @input="updateAndPropagate"
     ></column-select>
   </div>
   <div id="sampling-on-distinct-values" class="subsection">
     <b-form-checkbox
       v-model="samplingParams.isOnDistinctValues"
-      @input="filterAndPropagate"
+      @input="updateAndPropagate"
     >
       Sample On Distinct Values
       <i id="sampling-on-distinct-values-hint" class="fas fa-question-circle hint"></i>

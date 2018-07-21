@@ -54,6 +54,12 @@ export const getScale = (type: ValueType, domain: Array<number | string>, range:
   } else if (type === ValueType.DATE) {
     const [min, max] = [new Date(domain[0]).getTime(), new Date(domain[1]).getTime()];
     const span = max - min || 1;
+    // Use timestamp to ensure correctness of timescale. Using string values may cause unexpected behaviors:
+    // scale.domain(['1970', '1980'])('1975') => .333
+    // scale.domain([new Date('1970'), new Date('1980')])('1975') => 6.259254188471056e-9
+    //   (also with new Date().getTime() / new Date().valueOf())
+    // scale.domain([new Date('1970').toString(), new Date('1980').toString()])('1975') => NaN
+    // When using ScaleTime, always pass a Date/timestamp for safety.
     return scaleTime()
       .domain([min - span * domainMargin, max + span * domainMargin])
       .range(range)

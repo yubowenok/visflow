@@ -8,6 +8,8 @@ import Scatterplot from '@/components/scatterplot/scatterplot';
 import ParallelCoordinates from '@/components/parallel-coordinates/parallel-coordinates';
 import AttributeFilter from '@/components/attribute-filter/attribute-filter';
 import VisualEditor from '@/components/visual-editor/visual-editor';
+import SetOperator from '@/components/set-operator/set-operator';
+import ConstantsGenerator from '@/components/constants-generator/constants-generator';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -94,14 +96,14 @@ export const nodeTypes: NodeType[] = [
     id: 'set-operator',
     title: 'Set Operator',
     imgSrc: require('@/imgs/set-operator.svg'),
-    constructor: Visualization,
+    constructor: SetOperator,
     tags: 'subset union intersection difference',
   },
   {
-    id: 'value-generator',
-    title: 'Value Generator',
-    imgSrc: require('@/imgs/value-generator.svg'),
-    constructor: Visualization,
+    id: 'constants-generator',
+    title: 'Constants Generator',
+    imgSrc: require('@/imgs/constants-generator.svg'),
+    constructor: ConstantsGenerator,
     tags: 'constant extraction',
   },
 ];

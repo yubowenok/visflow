@@ -10,12 +10,12 @@
     </div>
   </template>
   <template v-else >
-    <div>(No Visuals)</div>
+    <div>(no visuals)</div>
   </template>
 </div>
 <div v-if="mode === 'encoding'" class="display">
   <div class="bold" v-if="dataset && encoding.column">{{ dataset.getColumnName(encoding.column) }}</div>
-  <div v-else>(No Column)</div>
+  <div v-else>(no column)</div>
   <template v-if="encoding.type === 'color' || encoding.type === 'border'">
     <div>{{ encoding.type }}</div>
     <color-scale-display v-if="encoding.colorScale.id" class="color-scale-display"
@@ -27,7 +27,7 @@
     <div>[{{ encoding.numericalScale.min }}, {{ encoding.numericalScale.max }}]</div>
   </template>
   <template v-else>
-    <div>(No Encoding)</div>
+    <div>(no encoding)</div>
   </template>
 </div>
 
@@ -37,28 +37,29 @@ Mode
   v-model="mode"
   :options="modeOptions"
   :clearable="false"
+  @input="updateAndPropagate"
 ></form-select>
 <hr class="divider">
 <div v-if="mode === 'assignment'">
   <div class="subsection">
     Color
-    <color-input v-model="visuals.color" @input="dyeAndPropagate"></color-input>
+    <color-input v-model="visuals.color" @input="updateAndPropagate"></color-input>
   </div>
   <div class="subsection">
     Border
-    <color-input v-model="visuals.border" @input="dyeAndPropagate"></color-input>
+    <color-input v-model="visuals.border" @input="updateAndPropagate"></color-input>
   </div>
   <div class="subsection">
     Size
-    <form-input v-model.number="visuals.size" @input="dyeAndPropagate"></form-input>
+    <form-input v-model.number="visuals.size" @input="updateAndPropagate"></form-input>
   </div>
   <div class="subsection">
     Width
-    <form-input v-model.number="visuals.width" @input="dyeAndPropagate"></form-input>
+    <form-input v-model.number="visuals.width" @input="updateAndPropagate"></form-input>
   </div>
   <div class="subsection">
     Opacity
-    <form-input v-model.number="visuals.opacity" @input="dyeAndPropagate"></form-input>
+    <form-input v-model.number="visuals.opacity" @input="updateAndPropagate"></form-input>
   </div>
 </div>
 <div v-if="mode === 'encoding'">
@@ -68,7 +69,7 @@ Mode
       v-model="encoding.column"
       :columns="columnSelectOptions"
       :clearable="false"
-      @input="dyeAndPropagate"
+      @input="updateAndPropagate"
     ></column-select>
   </div>
   <div class="subsection">
@@ -76,7 +77,7 @@ Mode
     <form-select
       v-model="encoding.type"
       :options="encodingTypeOptions"
-      @input="dyeAndPropagate"
+      @input="updateAndPropagate"
       :clearable="false"
     ></form-select>
   </div>
@@ -84,7 +85,7 @@ Mode
     <div>Scale</div>
     <color-scale-select
       v-model="encoding.colorScale.id"
-      @input="dyeAndPropagate"
+      @input="updateAndPropagate"
     ></color-scale-select>
   </div>
 </div>

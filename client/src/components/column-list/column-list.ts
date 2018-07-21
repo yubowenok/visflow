@@ -24,14 +24,12 @@ export default class ColumnList extends Vue {
   // All "input" events are fired when changing this array.
   private selected: number[] = [];
 
-  private mounted() {
-    this.selected = this.value.concat();
+  private created() {
+    this.selected = this.value.concat().filter(index => index < this.columns.length);
   }
 
-  /**
-   * Handles dragging re-order.
-   */
-  private updated() {
+  // Handles dragging re-order.
+  private mounted() {
     const $el = $(this.$el);
 
     const getNewOrder = (evt: Event, ui: JQueryUI.SortableUIParams): number[] => {

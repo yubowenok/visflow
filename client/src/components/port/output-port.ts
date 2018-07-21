@@ -34,4 +34,12 @@ export default class OutputPort extends Port {
   public getPackage(): Package {
     return this.package;
   }
+
+  /**
+   * Clears the port's package and its associated data.
+   * @abstract
+   */
+  public clear() {
+    throw new Error('using clear() of base class OutputPort');
+  }
 }

@@ -81,9 +81,9 @@ export default class Table extends Visualization {
       orderable: false,
       render: (index: number) => {
         const item = pkg.getItem(index);
-        return `<span class="table-prop" style="
+        return `<span class="visuals" style="
           ${item.visuals.color ? 'background-color: ' + item.visuals.color : ''};
-          ${item.visuals.border ? 'border: 1px solid ' + item.visuals.border : ''};
+          ${item.visuals.border ? 'border: 1px solid ' + item.visuals.border : ''};"
         ></span>`;
       },
     }];

@@ -18,10 +18,12 @@ export default class SubsetPackage extends Package {
   // Mapping from item indices to SubsetItem.
   private items: Items = {};
 
-  constructor(dataset?: TabularDataset) {
+  constructor(dataset?: TabularDataset, includeItems?: boolean) {
     super();
     this.dataset = dataset;
-    this.init();
+    if (includeItems !== false) {
+      this.initItems();
+    }
   }
 
   public hasDataset(): boolean {
@@ -40,8 +42,8 @@ export default class SubsetPackage extends Package {
     return _.keys(this.items).map(index => +index);
   }
 
-  public hasItem(index: number): boolean {
-    return index in this.items;
+  public hasItem(item: number | SubsetItem): boolean {
+    return (item instanceof Object ? (item as SubsetItem).index : item) in this.items;
   }
 
   public addItem(item: SubsetItem) {
@@ -177,7 +179,7 @@ export default class SubsetPackage extends Package {
     }
   }
 
-  private init() {
+  private initItems() {
     if (!this.dataset) {
       return;
     }

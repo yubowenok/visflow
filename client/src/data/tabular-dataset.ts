@@ -16,6 +16,7 @@ export interface TabularColumn {
 
 interface SubTableOptions {
   indexColumn?: boolean;
+  forScale?: boolean;
 }
 
 const arrayIndices = (indices: Set<number> | number[]): number[] => {
@@ -52,11 +53,20 @@ export default class TabularDataset {
   }
 
   /**
-   * Retrieves the value of a cell, with a given row and column.
+   * Retrieves the raw value of a cell, with a given row and column.
    */
   public getCell(item: number | SubsetItem, columnIndex: number): number | string {
     const rowIndex = item instanceof Object ? (item as SubsetItem).index : item;
     return this.rows[rowIndex][columnIndex];
+  }
+
+  /**
+   * Retrieves a normalized value of a cell that works with ScaleTime.
+   */
+  public getCellForScale(item: number | SubsetItem, columnIndex: number): number | string {
+    const rowIndex = item instanceof Object ? (item as SubsetItem).index : item;
+    const value = this.rows[rowIndex][columnIndex];
+    return this.columns[columnIndex].type === ValueType.DATE ? new Date(value).getTime() : value;
   }
 
   public getColumn(index: number): TabularColumn {
@@ -105,7 +115,14 @@ export default class TabularDataset {
     const options: SubTableOptions = options_ || {};
     columnIndices = arrayIndices(columnIndices);
     const row: TabularRow = options.indexColumn ? [rowIndex] : [];
-    columnIndices.forEach(columnIndex => row.push(this.rows[rowIndex][columnIndex]));
+    columnIndices.forEach(columnIndex => {
+      const value = this.rows[rowIndex][columnIndex];
+      if (options.forScale && this.columns[columnIndex].type === ValueType.DATE) {
+        row.push(new Date(value).getTime());
+      } else {
+        row.push(value);
+      }
+    });
     return row;
   }
 
@@ -115,11 +132,26 @@ export default class TabularDataset {
    */
   public getDomain(columnIndex: number, items?: number[]): Array<number | string> {
     items = items || _.range(this.numRows());
+    if (!items.length) {
+      return [];
+    }
     const columnType = this.columns[columnIndex].type;
+    const comparator = valueComparator(columnType);
     if (isContinuousDomain(columnType)) {
-      const values = items.map(itemIndex => this.rows[itemIndex][columnIndex]);
-      const max = _.max(values) as number;
-      const min = _.min(values) as number;
+      let min: string | number | undefined;
+      let max: string | number | undefined;
+      items.forEach(itemIndex => {
+        const value = this.rows[itemIndex][columnIndex];
+        if (min === undefined || comparator(value, min) < 0) {
+          min = value;
+        }
+        if (max === undefined || comparator(value, max) > 0) {
+          max = value;
+        }
+      });
+      if (min === undefined || max === undefined) { // for typing purpose
+        return [];
+      }
       return [min, max];
     } else { // discrete domain
       // Find unique values in a discrete domain.

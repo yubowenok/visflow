@@ -1,0 +1,7 @@
+@import '../../common/style/index';
+
+.display {
+  @extend %vertical-center;
+  overflow: auto;
+  padding: $padding-size;
+}

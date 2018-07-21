@@ -2,8 +2,8 @@
 
 .close {
   font-size: .75rem;
-  padding: 1rem;
-  margin: -1rem;
+  padding: .5rem;
+  margin: -.5rem;
   top: .5rem;
   position: relative;
   color: #aaa;
@@ -27,6 +27,16 @@
       color: black;
     }
   }
+}
+
+.disabled > .constant:hover {
+  cursor: default;
+}
+
+.constant-list {
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .controls {

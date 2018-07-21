@@ -99,6 +99,12 @@ export default class VisualEditor extends SubsetNode {
     }));
   }
 
+  protected updateAndPropagate() {
+    this.removeFalsyVisuals(); // Adding this to the default updateAndPropagate()
+    this.update();
+    this.propagate();
+  }
+
   private dye() {
     let pkg: SubsetPackage;
     if (this.mode === VisualEditorMode.ASSIGNMENT) {
@@ -156,12 +162,6 @@ export default class VisualEditor extends SubsetNode {
       });
     }
     return pkg;
-  }
-
-  private dyeAndPropagate() {
-    this.removeFalsyVisuals();
-    this.update();
-    this.portUpdated(this.outputPortMap.out);
   }
 
   // Reset unset falsy properties to undefined to avoid sending falsy values like

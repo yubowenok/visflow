@@ -1,0 +1,23 @@
+<!-- node-content -->
+<div class="display">
+  <template v-if="mode === 'union'">
+    <span class="icon union">∪</span>
+  </template>
+  <template v-else-if="mode === 'intersection'">
+    <span class="icon intersection">∩</span>
+  </template>
+  <template v-else-if="mode === 'difference'">
+    <i class="fas fa-minus icon"></i>
+  </template>
+</div>
+
+<!-- option-panel -->
+<div>
+  Mode
+  <form-select
+    v-model="mode"
+    :options="modeOptions"
+    @input="updateAndPropagate"
+    :clearable="false"
+  ></form-select>
+</div>

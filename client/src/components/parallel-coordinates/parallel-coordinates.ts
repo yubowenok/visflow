@@ -128,7 +128,7 @@ export default class ParallelCoordinates extends Visualization {
       if (this.selection.hasItem(itemIndex)) {
         continue;
       }
-      const points: Point[] = dataset.rowOnSubColumns(itemIndex, this.columns)
+      const points: Point[] = dataset.rowOnSubColumns(itemIndex, this.columns, { forScale: true })
         .map((value, axisIndex) => ({ x: this.xScale(axisIndex), y: this.yScales[axisIndex](value) }));
       let hit = false;
       for (let axisIndex = 0; axisIndex < this.columns.length - 1 && !hit; axisIndex++) {
@@ -169,7 +169,7 @@ export default class ParallelCoordinates extends Visualization {
     const itemProps: ParallelCoordinatesItemProps[] = items.map(item => {
       const props: ParallelCoordinatesItemProps = {
         index: item.index,
-        values: this.getDataset().rowOnSubColumns(item.index, this.columns),
+        values: this.getDataset().rowOnSubColumns(item.index, this.columns, { forScale: true }),
         visuals: _.extend(defaultItemVisuals(), item.visuals),
         hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),

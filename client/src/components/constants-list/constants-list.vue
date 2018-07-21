@@ -1,12 +1,12 @@
 <template>
 <div>
-  <div ref="constants">
+  <div ref="constants" :class="['constant-list', { disabled }]">
     <div class="constant" v-for="(val, index) in value" :key="index" :id="index">
-      {{ val }}
-      <i class="close fas fa-times" @click="remove(index)"></i>
+      {{ display(val) }}
+      <i v-if="!disabled" class="close fas fa-times" @click="remove(index)"></i>
     </div>
   </div>
-  <div class="controls">
+  <div class="controls" v-if="!disabled">
     <b-form-input class="entry" v-model="entry" @keydown.enter.native.prevent="add"></b-form-input>
     <b-button id="add" class="mini" variant="outline-secondary" :disabled="!entry" @click="add"><i class="fas fa-plus"></i></b-button>
     <b-button id="clear" class="mini" variant="outline-secondary" @click="clear">clear</b-button>

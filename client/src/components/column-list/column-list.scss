@@ -7,6 +7,10 @@
 
       .selected-tag {
         @extend %border;
+
+        .close {
+          top: 0;
+        }
       }
     }
   }

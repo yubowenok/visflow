@@ -345,26 +345,18 @@ export default class Node extends Vue {
     });
   }
 
-  protected createPorts() {
-    this.inputPorts = [
-      new InputPort({
-        data: {
-          id: 'in',
-          node: this,
-        },
-        store: this.$store,
-      }),
-    ];
-    this.outputPorts = [
-      new OutputPort({
-        data: {
-          id: 'out',
-          node: this,
-          isMultiple: true,
-        },
-        store: this.$store,
-      }),
-    ];
+  /**
+   * Defines the input ports for the node. Inheriting nodes may override this method.
+   */
+  protected createInputPorts() {
+    this.inputPorts = [];
+  }
+
+  /**
+   * Defines the output ports for the node. Inheriting nodes may override this method.
+   */
+  protected createOutputPorts() {
+    this.outputPorts = [];
   }
 
   /**
@@ -415,6 +407,16 @@ export default class Node extends Vue {
     }
   }
 
+  /** Checks if there is an input port that has updated package. */
+  protected isUpdateNecessary(): boolean {
+    for (const port of this.inputPorts) {
+      if (port.isPackageUpdated() || port.isConnectionUpdated()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   /**
    * We make mounted() private so that inheriting class cannot add mounted behavior.
    * Though vue supports all mounted() to be called sequentially, any inheriting class should update their
@@ -430,6 +432,11 @@ export default class Node extends Vue {
     this.mountPorts();
     this.appear(); // animate node appearance
     this.onMounted();
+  }
+
+  private createPorts() {
+    this.createInputPorts();
+    this.createOutputPorts();
   }
 
   /** Creates a mapping from port id to port component. */
@@ -583,16 +590,6 @@ export default class Node extends Vue {
 
   private contextMenuRemove() {
     this.dataflowRemoveNode(this);
-  }
-
-  /** Checks if there is an input port that has updated package. */
-  private isUpdateNecessary(): boolean {
-    for (const port of this.inputPorts) {
-      if (port.isPackageUpdated() || port.isConnectionUpdated()) {
-        return true;
-      }
-    }
-    return false;
   }
 
   private onMousedown(evt: MouseEvent) {

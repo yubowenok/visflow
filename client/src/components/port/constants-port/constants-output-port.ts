@@ -13,6 +13,6 @@ export default class ConstantsOutputPort extends OutputPort {
   }
 
   protected tooltip(): string {
-    return `${this.package.numConstants} constants`;
+    return `${this.package.numConstants()} constants`;
   }
 }

@@ -1,7 +1,6 @@
 import moment from 'moment';
-import { ValueType } from '@/data/parser';
+import { ValueType, isProbablyTimestamp } from '@/data/parser';
 
-const YEAR_MS = 31536000000;
 export const DATE_FORMAT = 'M/D/YY HH:mm:ss';
 export const DATE_FORMAT_NO_HMS = 'M/D/YY';
 
@@ -28,7 +27,7 @@ export const dateDisplay = (value: string | number): string => {
     // The exception is four-digit string year, which we should keep intact.
     return (+valueStr).toString();
   }
-  const date = new Date(value);
+  const date = isProbablyTimestamp(valueStr) ? new Date(+valueStr) : new Date(value);
   if (date.toString() !== 'Invalid Date') {
     // If the date contains no hh:mm:ss values, only display up to day.
     if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0) {

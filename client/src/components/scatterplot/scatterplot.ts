@@ -125,8 +125,8 @@ export default class Scatterplot extends Visualization {
     const box = getBrushBox(brushPoints);
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     for (const itemIndex of items) {
-      const x = this.xScale(this.getDataset().getCell(itemIndex, this.xColumn));
-      const y = this.yScale(this.getDataset().getCell(itemIndex, this.yColumn));
+      const x = this.xScale(this.getDataset().getCellForScale(itemIndex, this.xColumn));
+      const y = this.yScale(this.getDataset().getCellForScale(itemIndex, this.yColumn));
       if (isPointInBox({ x, y }, box)) {
         this.selection.addItem(itemIndex);
       }
@@ -139,8 +139,8 @@ export default class Scatterplot extends Visualization {
     const itemProps: ScatterplotItemProps[] = items.map(item => {
       const props: ScatterplotItemProps = {
         index: item.index,
-        x: this.getDataset().getCell(item, this.xColumn),
-        y: this.getDataset().getCell(item, this.yColumn),
+        x: this.getDataset().getCellForScale(item, this.xColumn),
+        y: this.getDataset().getCellForScale(item, this.yColumn),
         visuals: _.extend(defaultItemVisuals(), item.visuals),
         hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),

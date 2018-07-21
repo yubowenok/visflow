@@ -32,6 +32,7 @@ export default class NodeList extends Vue {
         centerX: Math.floor(window.innerWidth * .5),
         centerY: Math.floor(window.innerHeight * .45),
       });
+      this.$emit('nodeCreated');
     };
 
     this.nodeTypes.forEach((nodeType: NodeType) => {

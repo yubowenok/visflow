@@ -86,3 +86,11 @@ body {
 .tooltip {
   z-index: $zIndexTooltip;
 }
+
+.section {
+  margin-top: $margin-size;
+}
+
+.subsection {
+  margin-top: $margin-size;
+}

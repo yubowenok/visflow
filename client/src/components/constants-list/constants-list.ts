@@ -1,17 +1,23 @@
 /**
  * @fileOverview Provides a UI for editing a list of constants.
  */
-import { Component, Vue, Prop } from 'vue-property-decorator';
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import $ from 'jquery';
 import _ from 'lodash';
 
+import { ValueType } from '@/data/parser';
+import { valueDisplay } from '@/common/util';
+
 @Component
 export default class ConstantsList extends Vue {
-  @Prop({
-    type: Array,
-    default: [],
-  })
+  @Prop({ type: Array, default: [] })
   private value!: string[];
+
+  @Prop({ default: false })
+  private disabled!: boolean;
+
+  @Prop({ type: String, default: null })
+  private type!: ValueType | null;
 
   private constants: string[] = [];
 
@@ -23,8 +29,31 @@ export default class ConstantsList extends Vue {
   }
 
   private mounted() {
-    const $constants = $(this.$refs.constants);
+    this.sortable();
+    if (this.disabled) {
+      this.disableSortable();
+    }
+  }
 
+  @Watch('disabled')
+  private onDisabledChange() {
+    if (this.disabled) {
+      this.disableSortable();
+    } else {
+      this.enableSortable();
+    }
+  }
+
+  private enableSortable() {
+    $(this.$refs.constants).sortable('enable');
+  }
+
+  private disableSortable() {
+    $(this.$refs.constants).sortable('disable');
+  }
+
+  private sortable() {
+    const $constants = $(this.$refs.constants);
     const getNewOrder = (evt: Event, ui: JQueryUI.SortableUIParams): string[] => {
       const tags = $constants.find('.constant').not('.ui-sortable-helper');
       const values: string[] = [];
@@ -37,7 +66,7 @@ export default class ConstantsList extends Vue {
       return values;
     };
 
-    $(this.$refs.constants).sortable({
+    $constants.sortable({
       change: (evt, ui) => {
         this.$emit('input', getNewOrder(evt, ui));
       },
@@ -45,6 +74,10 @@ export default class ConstantsList extends Vue {
         this.constants = getNewOrder(evt, ui);
       },
     });
+  }
+
+  private display(text: string) {
+    return !this.type ? text : valueDisplay(text, this.type);
   }
 
   private add() {

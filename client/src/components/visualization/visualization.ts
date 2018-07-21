@@ -137,16 +137,7 @@ export default class Visualization extends SubsetNode {
     this.portUpdated(this.outputPortMap.selection);
   }
 
-  protected createPorts() {
-    this.inputPorts = [
-      new SubsetInputPort({
-        data: {
-          id: 'in',
-          node: this,
-        },
-        store: this.$store,
-      }),
-    ];
+  protected createOutputPorts() {
     this.outputPorts = [
       new SubsetOutputPort({
         data: {

@@ -1,4 +1,4 @@
-import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import { Vue, Component } from 'vue-property-decorator';
 import FormSelect from '@/components/form-select/form-select';
 import _ from 'lodash';
 
@@ -8,10 +8,10 @@ import ConstantsList from '@/components/constants-list/constants-list';
 import { injectNodeTemplate } from '@/components/node';
 import FormInput from '@/components/form-input/form-input';
 import { SubsetInputPort, SubsetOutputPort, ConstantsInputPort } from '@/components/port';
-import { SubsetNode } from '@/components/subset-node';
 import ColumnSelect from '@/components/column-select/column-select';
 import { ValueType } from '@/data/parser';
 import { valueDisplay } from '@/common/util';
+import { SubsetNodeBase } from '@/components/subset-node';
 
 enum FilterType {
   PATTERN = 'pattern',
@@ -23,6 +23,11 @@ enum PatternMatchMode {
   FULL_STRING = 'full-string',
   SUBSTRING = 'substring',
   REGEX = 'regex',
+}
+
+enum ConstantsMode {
+  INPUT = 'input',
+  RECEIVED = 'received',
 }
 
 enum SamplingCriterion {
@@ -93,10 +98,14 @@ const DEFAULT_SAMPLING_PARAMS: SamplingParams = {
     FormInput,
   },
 })
-export default class AttributeFilter extends SubsetNode {
+export default class AttributeFilter extends SubsetNodeBase {
   protected NODE_TYPE = 'attribute-filter';
   protected DEFAULT_WIDTH = 120;
   protected RESIZABLE = true;
+
+  // Typing
+  protected inputPortMap: { [id: string]: SubsetInputPort | ConstantsInputPort } = {};
+  protected outputPortMap: { [id: string]: SubsetOutputPort } = {};
 
   private column: number | null = null;
   private filterType: FilterType = FilterType.PATTERN;
@@ -104,6 +113,18 @@ export default class AttributeFilter extends SubsetNode {
   private patternParams = _.clone(DEFAULT_PATTERN_PARAMS);
   private rangeParams = _.clone(DEFAULT_RANGE_PARAMS);
   private samplingParams = _.clone(DEFAULT_SAMPLING_PARAMS);
+
+  get constantsMode(): ConstantsMode {
+    return this.inputPortMap.constants.isConnected() ? ConstantsMode.RECEIVED : ConstantsMode.INPUT;
+  }
+
+  get inputDisabled(): boolean {
+    return this.constantsMode === ConstantsMode.RECEIVED;
+  }
+
+  get constants(): Array<string | number> {
+    return (this.inputPortMap.constants as ConstantsInputPort).getConstantsPackage().getConstants();
+  }
 
   get columnName(): string {
     return this.dataset && this.column !== null ? this.getDataset().getColumnName(this.column) : '';
@@ -118,21 +139,30 @@ export default class AttributeFilter extends SubsetNode {
     return this.dataset && this.column !== null ? this.getDataset().getColumnType(this.column) : ValueType.EMPTY;
   }
 
-  get getPatternFilterDisplayText(): string {
+  get firstConstant(): string | number {
+    return this.constants.length ? this.constants[0] : '';
+  }
+
+  get secondConstant(): string | number {
+    return this.constants.length >= 2 ? this.constants[1] : (this.constants.length ? this.constants[1] : '');
+  }
+
+  get patternFilterDisplayText(): string {
     let conjunction = 'is';
     if (this.patternParams.mode === PatternMatchMode.SUBSTRING) {
       conjunction = 'contains';
     } else if (this.patternParams.mode === PatternMatchMode.REGEX) {
       conjunction = 'matches';
     }
-    const patternStr = this.patternParams.patterns.length ?
-      this.patternParams.patterns.join(', ') : '(no pattern specified)';
+    const patterns: string[] = this.inputDisabled ?
+      this.constants.map(value => value.toString()) : this.patternParams.patterns;
+    const patternStr = patterns.length ? patterns.join(', ') : '(no pattern)';
     return ` ${conjunction} ${patternStr}`;
   }
 
-  get getRangeFilterDisplayText(): string {
-    const min = this.rangeParams.min;
-    const max = this.rangeParams.max;
+  get rangeFilterDisplayText(): string {
+    const min = this.inputDisabled ? this.firstConstant : this.rangeParams.min;
+    const max = this.inputDisabled ? this.secondConstant : this.rangeParams.max;
     let rangeText = '';
     if (min !== null && max !== null) {
       rangeText = ` in [${valueDisplay(min, this.columnType)}, ${valueDisplay(max, this.columnType)}]`;
@@ -141,13 +171,14 @@ export default class AttributeFilter extends SubsetNode {
     } else if (min !== null && max === null) {
       rangeText = ' ≥ ' + valueDisplay(min, this.columnType);
     } else {
-      rangeText = '(no range specified)';
+      rangeText = '(no range)';
     }
     return rangeText;
   }
 
-  get getSamplingFilterDisplayText(): string {
-    return `${this.samplingParams.amount}${this.samplingParams.amountType === SamplingAmountType.PERCENTAGE ? '%' : ''}
+  get samplingFilterDisplayText(): string {
+    const amount = (this.inputDisabled ? this.firstConstant : this.samplingParams.amount) || '(no amount)';
+    return `${amount}${this.samplingParams.amountType === SamplingAmountType.PERCENTAGE ? '%' : ''}
       ${this.samplingParams.criterion} `;
   }
 
@@ -197,7 +228,7 @@ export default class AttributeFilter extends SubsetNode {
     }));
   }
 
-  protected createPorts() {
+  protected createInputPorts() {
     this.inputPorts = [
       new SubsetInputPort({
         data: {
@@ -209,15 +240,6 @@ export default class AttributeFilter extends SubsetNode {
       new ConstantsInputPort({
         data: {
           id: 'constants',
-          node: this,
-        },
-        store: this.$store,
-      }),
-    ];
-    this.outputPorts = [
-      new SubsetOutputPort({
-        data: {
-          id: 'out',
           node: this,
         },
         store: this.$store,
@@ -235,7 +257,7 @@ export default class AttributeFilter extends SubsetNode {
   protected filter() {
     if (this.column === null) {
       this.coverText = 'No column';
-      this.forwardSubset(this.inputPortMap.in, this.outputPortMap.out);
+      this.forwardSubset(this.inputPortMap.in as SubsetInputPort, this.outputPortMap.out);
       return;
     }
     this.coverText = '';
@@ -251,11 +273,11 @@ export default class AttributeFilter extends SubsetNode {
   }
 
   private filterByPattern(): SubsetPackage {
-    const pkg = this.inputPortMap.in.getSubsetPackage().clone();
+    const pkg = (this.inputPortMap.in as SubsetInputPort).getSubsetPackage().clone();
     const dataset = this.getDataset();
     const mode = this.patternParams.mode;
 
-    let patterns = this.patternParams.patterns;
+    let patterns = this.inputDisabled ? this.constants.map(value => value.toString()) : this.patternParams.patterns;
     if (this.patternParams.isCaseSensitive && mode !== PatternMatchMode.REGEX) {
       patterns = patterns.map(pattern => pattern.toLowerCase());
     }
@@ -288,12 +310,12 @@ export default class AttributeFilter extends SubsetNode {
   }
 
   private filterByRange(): SubsetPackage {
-    const pkg = this.inputPortMap.in.getSubsetPackage().clone();
+    const pkg = (this.inputPortMap.in as SubsetInputPort).getSubsetPackage().clone();
     const dataset = this.getDataset();
+    const min = this.inputDisabled ? (this.firstConstant || null) : this.rangeParams.min;
+    const max = this.inputDisabled ? (this.secondConstant || null) : this.rangeParams.max;
     pkg.filterItems(item => {
       const value = dataset.getCell(item, this.column as number);
-      const min = this.rangeParams.min;
-      const max = this.rangeParams.max;
       if (min !== null && !(min <= value)) {
         return false;
       }
@@ -314,10 +336,11 @@ export default class AttributeFilter extends SubsetNode {
   }
 
   private sampleOnDataItems(): SubsetPackage {
-    const pkg = this.inputPortMap.in.getSubsetPackage().clone();
+    const pkg = (this.inputPortMap.in as SubsetInputPort).getSubsetPackage().clone();
     const dataset = this.getDataset();
     const itemGroups = pkg.groupItems(this.samplingParams.groupByColumn);
     pkg.clearItems();
+    const amount = +(this.inputDisabled ? (this.firstConstant || 0) : this.samplingParams.amount);
 
     for (const group of itemGroups) {
       const groupWithValues = group.map(itemIndex => ({
@@ -326,7 +349,7 @@ export default class AttributeFilter extends SubsetNode {
       }));
       const sortedItems = _.sortBy(groupWithValues, 'value').map(pair => pair.index);
       let count = this.samplingParams.amountType === SamplingAmountType.COUNT ?
-        this.samplingParams.amount : Math.ceil(this.samplingParams.amount / 100 * sortedItems.length);
+        amount : Math.ceil(amount / 100 * sortedItems.length);
       if (count > sortedItems.length) {
         count = sortedItems.length;
       }
@@ -347,15 +370,16 @@ export default class AttributeFilter extends SubsetNode {
   }
 
   private sampleOnDistinctValues(): SubsetPackage {
-    const pkg = this.inputPortMap.in.getSubsetPackage().clone();
+    const pkg = (this.inputPortMap.in as SubsetInputPort).getSubsetPackage().clone();
     const dataset = this.getDataset();
     const itemGroups = pkg.groupItems(this.samplingParams.groupByColumn);
     pkg.clearItems();
+    const amount = +(this.inputDisabled ? (this.firstConstant || 0) : this.samplingParams.amount);
 
     for (const group of itemGroups) {
       let columnValues: Array<number | string | null> = dataset.getDomainValues(this.column as number, group, true);
       let count = this.samplingParams.amountType === SamplingAmountType.COUNT ?
-        this.samplingParams.amount : Math.ceil(this.samplingParams.amount / 100 * columnValues.length);
+        amount : Math.ceil(amount / 100 * columnValues.length);
       if (count > columnValues.length) {
         count = columnValues.length;
       }
@@ -398,13 +422,5 @@ export default class AttributeFilter extends SubsetNode {
       }
     }
     return pkg;
-  }
-
-  /**
-   * Fitlers and notifies dataflow of filter changes.
-   */
-  private filterAndPropagate() {
-    this.update();
-    this.portUpdated(this.outputPortMap.out);
   }
 }

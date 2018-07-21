@@ -1,0 +1,27 @@
+@import '../../common/style/index';
+
+.display {
+  width: 100%;
+  height: 100%;
+
+  .icon {
+    @extend %vertical-center;
+  }
+
+  span.icon {
+    &.union {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-top: -.2rem;
+    }
+    &.intersection {
+      font-size: 1.75rem;
+      font-weight: bold;
+      margin-top: 0;
+    }
+  }
+
+  i.icon {
+    font-size: 1.25rem;
+  }
+}

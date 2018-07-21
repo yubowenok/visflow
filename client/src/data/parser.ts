@@ -37,6 +37,10 @@ const isLooserType = (a: ValueType, b: ValueType): boolean => {
 const VALID_DATE_START = Date.parse('1000 GMT');
 const VALID_DATE_END = Date.parse('2200 GMT');
 
+export const isProbablyTimestamp = (text: string): boolean => {
+  return isNumber(text) && VALID_DATE_START <= +text && +text <= VALID_DATE_END && text.length >= 9;
+};
+
 export const isProbablyDate = (text: string | null | undefined): boolean => {
   if (text === null || text === undefined) {
     return false;
@@ -52,7 +56,7 @@ export const isProbablyDate = (text: string | null | undefined): boolean => {
     }
     // Handle large millisecond timestamp.
     // Require length to be at least 9 to be conservative on smaller integers.
-    if (VALID_DATE_START <= +text && +text <= VALID_DATE_END && text.length >= 9) {
+    if (isProbablyTimestamp(text)) {
       return true;
     }
     return false;
@@ -122,7 +126,7 @@ export const parseToken = (text: string, type?: ValueType): number | string => {
     case ValueType.FLOAT:
       return parseFloat(text);
     case ValueType.DATE:
-      return new Date(text).getTime();
+      return text; // new Date(text).getTime();
     case ValueType.STRING:
       return '' + text;
     default:
@@ -142,7 +146,7 @@ const checkColumnType = (rows: TabularRows, columnIndex: number, name: string): 
   let hasDuplicate = false;
   const existing: Set<number | string> = new Set();
   for (const row of rows) {
-    const value = parseToken('' + row[columnIndex], columnType);
+    const value = parseToken(row[columnIndex].toString(), columnType);
     row[columnIndex] = value;
     if (existing.has(value)) {
       hasDuplicate = true;
@@ -163,7 +167,7 @@ const formatColumnType = (rows: TabularRows, column: TabularColumn) => {
   for (const row of rows) {
     let value: number | string = row[column.index];
     if (column.type === ValueType.DATE) {
-      value = new Date(value).getTime();
+      value = value.toString(); // new Date(value).getTime();
     } else if (isNumericalType(column.type)) {
       value = +value;
     } else {

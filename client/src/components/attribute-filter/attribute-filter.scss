@@ -1,9 +1,5 @@
 @import '../../common/style/index';
 
-.subsection {
-  margin-top: $margin-size;
-}
-
 .display {
   @extend %ellipsis-text;
   @extend %vertical-center;

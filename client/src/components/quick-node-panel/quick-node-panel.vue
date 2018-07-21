@@ -4,7 +4,7 @@
     v-global-click="globalClick"
     :style="style">
     <b-form-input v-model="searchText" placeholder="Search for nodes"></b-form-input>
-    <node-list class="section"
+    <node-list class="node-list"
       :nodeTypes="filteredNodeTypes"
       :nodeTypesPerRow="4"
       @nodeCreated="closeQuickNodePanel"
