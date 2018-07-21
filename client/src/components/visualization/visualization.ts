@@ -31,7 +31,6 @@ export default class Visualization extends SubsetNode {
   protected DEFAULT_HEIGHT = 300;
   protected RESIZABLE = true;
   protected ENLARGEABLE = true;
-
   protected isInVisMode = true;
 
   protected selection: SubsetSelection = new SubsetSelection();

@@ -4,7 +4,7 @@ import Edge, { EdgeSave } from '@/components/edge/edge';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 
 export interface DataflowState {
-  canvas: DataflowCanvas;
+  canvas: DataflowCanvas | undefined;
   nodeTypes: NodeType[];
   nodes: Node[];
   numNodeLayers: number; // number of node layers, each node is on its own layer to define front/back ordering

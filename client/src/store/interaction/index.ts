@@ -28,6 +28,8 @@ export interface InteractionState {
   ctrlPressed: boolean;
   metaPressed: boolean;
   altHold: boolean;
+
+  isSystemInVisMode: boolean;
 }
 
 const initialState: InteractionState = {
@@ -44,6 +46,8 @@ const initialState: InteractionState = {
   ctrlPressed: false,
   metaPressed: false,
   altHold: false,
+
+  isSystemInVisMode: false,
 };
 
 const getters = {
@@ -199,6 +203,18 @@ const mutations = {
         debugger; // tslint:disable-line
         break;
     }
+  },
+
+  startSystemVisMode: (state: InteractionState) => {
+    state.isSystemInVisMode = true;
+  },
+
+  endSystemVisMode: (state: InteractionState) => {
+    state.isSystemInVisMode = false;
+  },
+
+  toggleSystemVisMode: (state: InteractionState) => {
+    state.isSystemInVisMode = !state.isSystemInVisMode;
   },
 };
 

@@ -8,13 +8,15 @@
   <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
     <dataflow-canvas ref="dataflowCanvas"></dataflow-canvas>
   </div>
+
   <div ref="optionPanelMount"></div>
   <div ref="portPanelMount"></div>
   <div ref="contextMenuMount"></div>
   <div ref="nodeModalMount"></div>
+
   <context-menu id="context-menu" ref="contextMenu">
     <template slot-scope="slotProps">
-      <li @click="addNode">
+      <li @click="addNode" :class="{ disabled: isSystemInVisMode }">
         <i class="fas fa-sm fa-plus"></i>Add Node<span class="shortcut">A</span>
       </li>
     </template>

@@ -32,6 +32,7 @@ export default class App extends Vue {
   @ns.panels.Mutation('openQuickNodePanel') private openQuickNodePanel!: () => void;
   @ns.modals.Mutation('setNodeModalMount') private setNodeModalMount!: (mount: Vue) => void;
   @ns.contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
+  @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
   @ns.interaction.Mutation('keydown') private interactionKeydown!: (key: string) => void;
   @ns.interaction.Mutation('keyup') private interactionKeyup!: (key: string) => void;
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;

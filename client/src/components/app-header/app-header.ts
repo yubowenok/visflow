@@ -8,6 +8,7 @@ import UserBar from '@/components/user-bar/user-bar';
 import DiagramBar from '@/components/diagram-bar/diagram-bar';
 import DatasetBar from '@/components/dataset-bar/dataset-bar';
 import DragBar from '@/components/drag-bar/drag-bar';
+import VisModeBar from '@/components/vis-mode-bar/vis-mode-bar';
 
 @Component({
   components: {
@@ -19,6 +20,7 @@ import DragBar from '@/components/drag-bar/drag-bar';
     DiagramBar,
     DatasetBar,
     DragBar,
+    VisModeBar,
   },
 })
 export default class AppHeader extends Vue {

@@ -1,5 +1,5 @@
 import { Module } from 'vuex';
-import { RootState } from '@/store';
+import store, { RootState } from '@/store';
 import _ from 'lodash';
 
 import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from '@/store/dataflow/types';
@@ -17,7 +17,7 @@ export * from '@/store/dataflow/util';
 const MAX_NODE_LAYERS = 300;
 
 export const getInitialState = (): DataflowState => ({
-  canvas: new DataflowCanvas(),
+  canvas: undefined,
   nodeTypes: nodeTypes.nodeTypes,
   nodes: [],
   numNodeLayers: 0,
@@ -114,7 +114,7 @@ const mutations = {
 
   /** Moves all nodes by (dx, dy). */
   moveDiagram: (state: DataflowState, { dx, dy }: { dx: number, dy: number }) => {
-    _.each(state.nodes, node => node.moveBy(dx, dy));
+    _.each(state.nodes.filter(node => node.isNodeVisible), node => node.moveBy(dx, dy));
   },
 
   /** Removes the nodes that are currently selected. */

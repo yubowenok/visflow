@@ -4,6 +4,7 @@
     @mousedown="onMousedown"
     v-global-click="globalClick"
     @contextmenu.prevent.stop="$refs.contextMenu.open"
+    v-show="isNodeVisible"
   >
     <transition name="fade">
       <node-cover v-if="!isIconized && coverText" :text="coverText"></node-cover>
@@ -20,13 +21,13 @@
       </div>
     </transition>
     <div ref="background" class="background" :class="{ active: isActive, selected: isSelected }"></div>
-    <div class="input port-group" v-show="portsVisible">
+    <div class="input port-group" v-show="arePortsVisible">
       <div v-for="(port, index) in inputPorts" :key="port.id" :id="'port-container-' + port.id"
         class="input port-container"
         :style="portStyles(port, index, true)"
       ></div>
     </div>
-    <div class="output port-group" v-show="portsVisible">
+    <div class="output port-group" v-show="arePortsVisible">
       <div v-for="(port, index) in outputPorts" :key="port.id" :id="'port-container-' + port.id"
         class="output port-container"
         :style="portStyles(port, index, false)"

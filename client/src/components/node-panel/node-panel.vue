@@ -1,6 +1,6 @@
 <template>
 <transition name="slide-fade-left">
-  <div class="node-panel">
+  <div class="node-panel" v-if="isVisible">
     <node-list :nodeTypes="nodeTypes"></node-list>
   </div>
 </transition>

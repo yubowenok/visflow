@@ -1,7 +1,8 @@
 import { Module } from 'vuex';
-import { RootState } from '@/store';
+import store, { RootState } from '@/store';
 import PortPanel from '@/components/port-panel/port-panel';
 import OptionPanel from '@/components/option-panel/option-panel';
+import { showSystemMessage } from '@/common/util';
 
 interface PanelsState {
   optionPanelMount: Element;
@@ -55,6 +56,10 @@ const mutations = {
   },
 
   openQuickNodePanel(state: PanelsState) {
+    if (store.state.interaction.isSystemInVisMode) {
+      showSystemMessage(store, 'cannot create node in VisMode', 'warn');
+      return;
+    }
     state.quickNodePanelVisible = true;
   },
 

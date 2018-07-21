@@ -6,6 +6,8 @@
   height: auto;
   z-index: $zIndexQuickNodePanel;
 
+  background-color: white;
+
   padding: $padding-size-lg;
   @extend %box;
 

@@ -23,6 +23,14 @@ export * from '@/store/dataflow/propagate';
 import { getInitialState } from '@/store/dataflow';
 import { InputPort, OutputPort } from '@/components/port';
 import { ENVIRONMENT } from '@/common/env';
+import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
+
+const getCanvas = (state: DataflowState): DataflowCanvas => {
+  if (!state.canvas) {
+    console.error('getCanvas() called with undefined canvas');
+  }
+  return state.canvas as DataflowCanvas;
+};
 
 const getNodeDataOnCreate = (options: CreateNodeOptions): CreateNodeData => {
   const data: CreateNodeData = {};
@@ -64,7 +72,7 @@ export const createNode = (state: DataflowState, options: CreateNodeOptions): No
     },
     store,
   }) as Node;
-  state.canvas.addNode(node);
+  getCanvas(state).addNode(node);
   state.nodes.push(node);
   return node;
 };
@@ -86,7 +94,7 @@ export const createEdge = (state: DataflowState, sourcePort: OutputPort, targetP
   });
   sourcePort.addIncidentEdge(edge);
   targetPort.addIncidentEdge(edge);
-  state.canvas.addEdge(edge);
+  getCanvas(state).addEdge(edge);
   if (propagate) {
     propagateNode(edge.target.node);
   }
@@ -111,7 +119,7 @@ export const removeEdge = (state: DataflowState, edge: Edge, propagate: boolean)
     propagateNode(edge.target.node);
   }
 
-  state.canvas.removeEdge(edge, () => edge.$destroy());
+  getCanvas(state).removeEdge(edge, () => edge.$destroy());
 };
 
 export const removeNode = (state: DataflowState, node: Node, propagate: boolean) => {
@@ -124,7 +132,7 @@ export const removeNode = (state: DataflowState, node: Node, propagate: boolean)
   }
 
   _.pull(state.nodes, node);
-  state.canvas.removeNode(node, () => node.$destroy());
+  getCanvas(state).removeNode(node, () => node.$destroy());
 };
 
 export const removeSelectedNodes = (state: DataflowState) => {

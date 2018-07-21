@@ -2,7 +2,7 @@
 <div class="bar">
   <b-button ref="button" size="sm" variant="outline-secondary" @click="saveDiagram">
     <i class="fas fa-file"></i>
-    <span class="diagram-name">{{ diagramName }}</span>
+    <span class="diagram-name" v-if="diagramName">{{ diagramName }}</span>
   </b-button>
   <b-tooltip :target="() => $el" placement="bottom" delay="500">
     <div v-if="diagramName">Save diagram "{{ diagramName }}"</div>

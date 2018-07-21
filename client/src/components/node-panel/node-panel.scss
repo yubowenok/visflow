@@ -4,4 +4,6 @@
   @extend %left-panel;
   @extend %padding;
   z-index: $zIndexNodePanel;
+
+  background: white;
 }

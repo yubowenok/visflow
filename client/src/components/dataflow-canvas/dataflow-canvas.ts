@@ -1,4 +1,4 @@
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Vue, Watch } from 'vue-property-decorator';
 import { TweenLite } from 'gsap';
 import $ from 'jquery';
 
@@ -22,6 +22,7 @@ enum DragMode {
 })
 export default class DataflowCanvas extends Vue {
   @ns.interaction.State('draggedPort') private draggedPort!: Port;
+  @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
   @ns.interaction.Getter('isAltPressed') private isAltPressed!: boolean;
   @ns.interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
   @ns.interaction.Mutation('clickBackground') private clickBackground!: () => void;
@@ -147,5 +148,18 @@ export default class DataflowCanvas extends Vue {
 
   private beforeDestroy() {
     this.removeDrag();
+  }
+
+  @Watch('isSystemInVisMode')
+  private onVisModeChange(isSystemInVisMode: boolean) {
+    if (isSystemInVisMode) {
+      TweenLite.to(this.$refs.edges, DEFAULT_ANIMATION_DURATION_S, {
+        opacity: 0,
+      });
+    } else {
+      TweenLite.to(this.$refs.edges, DEFAULT_ANIMATION_DURATION_S, {
+        opacity: 1,
+      });
+    }
   }
 }
