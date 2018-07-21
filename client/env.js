@@ -3,6 +3,7 @@ const fs = require('fs');
 
 let envFile;
 let environment = process.env.NODE_ENV;
+
 switch (process.env.NODE_ENV) {
   case 'production':
     envFile = '.env';
@@ -12,7 +13,7 @@ switch (process.env.NODE_ENV) {
     break;
   default:
     environment = 'development';
-    envFile = '.env.local';
+    envFile = '.env';
 }
 
 if (!fs.existsSync(envFile)) {
@@ -23,9 +24,11 @@ if (!fs.existsSync(envFile)) {
 }
 
 const ENVIRONMENT = environment;
-const BASE_URL = process.env.BASE_URL;
+const BASE_URL = process.env.BASE_URL || '';
+const TIME_ZONE = process.env.TIME_ZONE || '';
 
 module.exports = {
   ENVIRONMENT,
   BASE_URL,
+  TIME_ZONE,
 };

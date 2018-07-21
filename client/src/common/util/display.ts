@@ -1,5 +1,7 @@
 import moment from 'moment';
+import 'moment-timezone';
 import { ValueType, isProbablyTimestamp } from '@/data/parser';
+import { TIME_ZONE } from '@/common/env';
 
 export const DATE_FORMAT = 'M/D/YY HH:mm:ss';
 export const DATE_FORMAT_NO_HMS = 'M/D/YY';
@@ -27,14 +29,15 @@ export const dateDisplay = (value: string | number): string => {
     // The exception is four-digit string year, which we should keep intact.
     return (+valueStr).toString();
   }
-  const date = isProbablyTimestamp(valueStr) ? new Date(+valueStr) : new Date(value);
-  if (date.toString() !== 'Invalid Date') {
-    // If the date contains no hh:mm:ss values, only display up to day.
-    if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0) {
-      return moment(date).format(DATE_FORMAT_NO_HMS);
-    }
+  const isTimestamp = isProbablyTimestamp(valueStr);
+  // When the date is a timestamp (number), we always format the date to an env-configured TIME_ZONE.
+  // If the date is string-like, e.g. 02/23/18, we consider the date to be of
+  // local time, which is also assumed by Date and moment.
+  const t = isTimestamp ? moment(+valueStr).tz(TIME_ZONE) : moment(new Date(value));
+  if (t.isValid() && t.hours() + t.minutes() + t.seconds() + t.milliseconds() === 0) {
+    return t.format(DATE_FORMAT_NO_HMS);
   }
-  return moment(date).format(DATE_FORMAT);
+  return t.format(DATE_FORMAT);
 };
 
 

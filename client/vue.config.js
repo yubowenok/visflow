@@ -1,4 +1,6 @@
 const StyleLintPlugin = require('stylelint-webpack-plugin');
+const webpack = require('webpack');
+
 const env = require('./env');
 let baseUrl = env.BASE_URL;
 
@@ -11,6 +13,9 @@ module.exports = {
   configureWebpack: config => {
     const plugins = [
       new StyleLintPlugin(),
+      new webpack.DefinePlugin({
+        'process.env.TIME_ZONE': JSON.stringify(env.TIME_ZONE),
+      }),
     ];
     if (env.ENVIRONMENT === 'production') {
       config.output.publicPath = baseUrl;
@@ -40,11 +45,11 @@ module.exports = {
   chainWebpack: config => {
     if (env.ENVIRONMENT === 'production') {
       config
-      .plugin('html')
-      .tap(args => {
-        args[0].baseUrl = baseUrl;
-        return args;
-      });
+        .plugin('html')
+        .tap(args => {
+          args[0].baseUrl = baseUrl;
+          return args;
+        });
     }
   }
 }
