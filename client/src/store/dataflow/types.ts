@@ -27,22 +27,22 @@ export interface CreateNodeData {
   type?: string;
   // Either use (x, y) or (centerX, centerY) to set the node's position.
   // Only one of them will be respected.
-  x?: number;
-  y?: number;
-  centerX?: number;
-  centerY?: number;
-  isIconized?: boolean;
+  dataflowX?: number;
+  dataflowY?: number;
+  dataflowCenterX?: number;
+  dataflowCenterY?: number;
 }
 
 export interface CreateNodeOptions extends CreateNodeData {
   type: string;
+  activate?: boolean;
 }
 
 export interface CreateNodeData {
-  x?: number;
-  y?: number;
-  centerX?: number;
-  centerY?: number;
+  dataflowX?: number;
+  dataflowY?: number;
+  dataflowCenterX?: number;
+  dataflowCenterY?: number;
 }
 
 export interface CreateEdgeOptions {

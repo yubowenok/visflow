@@ -240,11 +240,19 @@ export default class Scatterplot extends Visualization {
    */
   private updateLeftMargin() {
     this.drawYAxis();
-    $(this.$refs.content).show(); // getBBox() requires the SVG to be visible to return valid sizes
+    const $content = $(this.$refs.content);
+    const isVisible = $content.is(':visible');
+    if (!isVisible) {
+      // getBBox() requires the SVG to be visible to return valid sizes
+      $content.show();
+    }
     const maxTickWidth = _.max($(this.$refs.yAxis as SVGGElement)
       .find('.y > .tick > text')
       .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
     this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
     (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+    if (!isVisible) {
+      $content.hide();
+    }
   }
 }

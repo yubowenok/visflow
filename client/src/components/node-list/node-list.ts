@@ -29,8 +29,9 @@ export default class NodeList extends Vue {
     const clickHandler = (nodeType: NodeType) => {
       this.createNode({
         type: nodeType.id,
-        centerX: Math.floor(window.innerWidth * .5),
-        centerY: Math.floor(window.innerHeight * .45),
+        dataflowCenterX: Math.floor(window.innerWidth * .5),
+        dataflowCenterY: Math.floor(window.innerHeight * .45),
+        activate: true,
       });
       this.$emit('nodeCreated');
     };
@@ -57,8 +58,9 @@ export default class NodeList extends Vue {
           }
           this.createNode({
             type: nodeType.id,
-            centerX: Math.floor(x),
-            centerY: Math.floor(y),
+            dataflowCenterY: Math.floor(y),
+            dataflowCenterX: Math.floor(x),
+            activate: true,
           });
           this.$emit('nodeCreated');
         },

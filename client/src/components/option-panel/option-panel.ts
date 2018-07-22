@@ -1,5 +1,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator';
 
+import ns from '@/store/namespaces';
+
 export interface OptionPanelInitialState {
   isIconized: boolean;
   isInVisMode: boolean;
@@ -8,6 +10,8 @@ export interface OptionPanelInitialState {
 
 @Component
 export default class OptionPanel extends Vue {
+  @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
+
   @Prop()
   private initialState!: OptionPanelInitialState;
   @Prop()

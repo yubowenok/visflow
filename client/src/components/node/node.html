@@ -4,10 +4,10 @@
     @mousedown="onMousedown"
     v-global-click="globalClick"
     @contextmenu.prevent.stop="$refs.contextMenu.open"
-    v-show="isNodeVisible"
+    v-show="isVisible"
   >
     <transition name="fade">
-      <node-cover v-if="!isIconized && coverText" :text="coverText"></node-cover>
+      <node-cover v-if="isExpanded && coverText" :text="coverText"></node-cover>
     </transition>
     <node-label ref="nodeLabel" v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
     <transition name="fade">

@@ -178,7 +178,8 @@ export default class Visualization extends SubsetNode {
     this.isTransitionAllowed = false;
   }
   protected onResize() {
-    if (this.dataset) {
+    if (this.dataset && !this.isAnimating && this.isExpanded) {
+      console.log('render', this.NODE_TYPE);
       this.draw();
     }
   }
@@ -190,11 +191,23 @@ export default class Visualization extends SubsetNode {
     this.draw();
   }
 
-  /**
-   * Adds mouse selection handler to the plot area.
-   */
-  protected onMounted() {
-    // TODO: check if this is necessary.
+  protected selectAll() {
+    const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
+    this.selection.addItems(items);
+    this.draw();
+    this.computeSelection();
+    this.propagateSelection();
+  }
+
+  protected deselectAll() {
+    this.selection.clear();
+    this.draw();
+    this.computeSelection();
+    this.propagateSelection();
+  }
+
+  protected isSelectionEmpty(): boolean {
+    return !this.selection.numItems();
   }
 
   /**
@@ -212,10 +225,6 @@ export default class Visualization extends SubsetNode {
       return true;
     }
     return this.isAltPressed;
-  }
-
-  protected isSelectionEmpty(): boolean {
-    return !this.selection.numItems();
   }
 
   protected enlarge() {

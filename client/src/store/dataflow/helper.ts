@@ -22,7 +22,6 @@ import { propagateNode, propagateNodes } from '@/store/dataflow/propagate';
 export * from '@/store/dataflow/propagate';
 import { getInitialState } from '@/store/dataflow';
 import { InputPort, OutputPort } from '@/components/port';
-import { ENVIRONMENT } from '@/common/env';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 
 const getCanvas = (state: DataflowState): DataflowCanvas => {
@@ -34,19 +33,12 @@ const getCanvas = (state: DataflowState): DataflowCanvas => {
 
 const getNodeDataOnCreate = (options: CreateNodeOptions): CreateNodeData => {
   const data: CreateNodeData = {};
-  if (options.x !== undefined && options.y !== undefined) {
-    _.extend(data, {
-      x: options.x,
-      y: options.y,
-    });
-  } else if (options.centerX !== undefined && options.centerY !== undefined) {
-    _.extend(data, {
-      centerX: options.centerX,
-      centerY: options.centerY,
-    });
-  }
-  if (options.isIconized !== undefined) {
-    data.isIconized = options.isIconized;
+  if (options.dataflowX !== undefined && options.dataflowY !== undefined) {
+    data.dataflowX = options.dataflowX;
+    data.dataflowY = options.dataflowY;
+  } else if (options.dataflowCenterX !== undefined && options.dataflowCenterY !== undefined) {
+    data.dataflowCenterX = options.dataflowCenterX;
+    data.dataflowCenterY = options.dataflowCenterY;
   }
   return data;
 };
@@ -61,7 +53,7 @@ const assignNodeId = (state: DataflowState): string => {
   }
 };
 
-export const createNode = (state: DataflowState, options: CreateNodeOptions): Node => {
+export const createNode = (state: DataflowState, options: CreateNodeOptions, nodeSave?: object): Node => {
   const constructor = getConstructor(options.type) as VueConstructor;
   const id = assignNodeId(state);
   const dataOnCreate = getNodeDataOnCreate(options);
@@ -69,11 +61,15 @@ export const createNode = (state: DataflowState, options: CreateNodeOptions): No
     data: {
       id,
       dataOnCreate,
+      ...(nodeSave || {}),
     },
     store,
   }) as Node;
   getCanvas(state).addNode(node);
   state.nodes.push(node);
+  if (options.activate) {
+    node.activate();
+  }
   return node;
 };
 
@@ -191,10 +187,14 @@ export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) =
   state.isDeserializing = true;
 
   const sources = diagram.nodes.map(nodeSave => {
-    const node = createNode(state, {
-      type: nodeSave.type,
-      isIconized: nodeSave.isIconized,
-    });
+    const node = createNode(
+      state,
+      {
+        type: nodeSave.type,
+        // isIconized: nodeSave.isIconized,
+      },
+      nodeSave,
+    );
     node.deserialize(nodeSave);
     node.deactivate(); // Avoid all nodes being active.
     return node;

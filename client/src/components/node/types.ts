@@ -11,8 +11,6 @@ export interface NodeSave {
   type: string;
   layer: number;
   label: string;
-  x: number;
-  y: number;
   isIconized: boolean;
   isInVisMode: boolean;
   isLabelVisible: boolean;

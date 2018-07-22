@@ -143,12 +143,13 @@ export default class ParallelCoordinates extends Visualization {
   }
 
   private computeScales() {
+    const pkg = this.inputPortMap.in.getSubsetPackage();
     const yRange = [this.svgHeight - this.margins.bottom, this.margins.top];
     const dataset = this.getDataset();
     this.yScales = this.columns.map(columnIndex => {
       return getScale(
         dataset.getColumnType(columnIndex),
-        dataset.getDomain(columnIndex),
+        dataset.getDomain(columnIndex, pkg.getItemIndices()),
         yRange,
       );
     });
@@ -228,10 +229,11 @@ export default class ParallelCoordinates extends Visualization {
   }
 
   private drawAxis(axisIndex: number, columnIndex: number) {
+    const pkg = this.inputPortMap.in.getSubsetPackage();
     const yScale = this.yScales[axisIndex];
     const id = 'axis-' + columnIndex.toString();
     const axis = axisLeft(yScale)
-      .tickValues(this.areTicksVisible ? yScale.domain() : []);
+      .tickValues(this.areTicksVisible && pkg.numItems() ? yScale.domain() : []);
     const svgAxes: Selection<SVGGElement, string, null, undefined> = select(this.$refs.axes as SVGGElement);
     let g = svgAxes.select<SVGGElement>('#' + id);
     const gTransform = getTransform([this.xScale(axisIndex), 0]);

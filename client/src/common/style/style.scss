@@ -24,6 +24,7 @@ $border-radius: 2px;
 
     &.placeholder {
       opacity: 0;
+      pointer-events: none;
     }
   }
 

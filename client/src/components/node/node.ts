@@ -43,7 +43,7 @@ export default class Node extends Vue {
   // whether the propagation should start from this node
   public isPropagationSource = false;
 
-  public get isNodeVisible(): boolean {
+  public get isVisible(): boolean {
     return !this.isSystemInVisMode || this.isInVisMode;
   }
 
@@ -103,9 +103,12 @@ export default class Node extends Vue {
   // A list of classes to be added to the node container. Push to this list on inheritting node's created() call.
   protected containerClasses: string[] = ['node'];
 
+  // Flag to indicate the node is in transition to its next position / size. When this is true, the node should avoid
+  // costly operation such as re-rendering.
+  protected isAnimating = false;
+
   @ns.interaction.Getter('isShiftPressed') protected isShiftPressed!: boolean;
 
-  private isAnimating = false;
   private isDragged = false;
   private isMousedowned = false;
 
@@ -113,6 +116,8 @@ export default class Node extends Vue {
   private visModeY = 0;
   private visModeWidth = 0;
   private visModeHeight = 0;
+
+  private isIconizedBeforeVisMode = false;
 
   get numInputPorts(): number {
     return this.inputPorts.length;
@@ -139,15 +144,62 @@ export default class Node extends Vue {
   }
 
   get isContentVisible(): boolean {
-    return !this.coverText && (this.isEnlarged || (!this.isIconized && !this.isAnimating));
+    return !this.coverText && !this.isAnimating && this.isExpanded;
   }
 
   get isIconVisible(): boolean {
-    return !this.isEnlarged && (this.isIconized && !this.isAnimating);
+    return !this.isExpanded && !this.isAnimating;
+  }
+
+  get isExpanded(): boolean {
+    return this.isEnlarged || !this.isIconized || (this.isSystemInVisMode && this.isInVisMode);
   }
 
   get arePortsVisible(): boolean {
     return !this.isEnlarged && !this.isSystemInVisMode;
+  }
+
+  get displayX(): number {
+    if (this.isSystemInVisMode) {
+      return this.visModeX;
+    }
+    if (this.isIconized) {
+      return this.dataflowX + this.dataflowWidth / 2 - ICONIZED_NODE_SIZE_PX / 2;
+    }
+    return this.dataflowX;
+  }
+
+  get displayY(): number {
+    if (this.isSystemInVisMode) {
+      return this.visModeY;
+    }
+    if (this.isIconized) {
+      return this.dataflowY + this.dataflowHeight / 2 - ICONIZED_NODE_SIZE_PX / 2;
+    }
+    return this.dataflowY;
+  }
+
+  get displayWidth(): number {
+    if (this.isSystemInVisMode) {
+      return this.visModeWidth;
+    }
+    return this.isIconized ? ICONIZED_NODE_SIZE_PX : this.dataflowWidth;
+  }
+
+  get displayHeight(): number {
+    if (this.isSystemInVisMode) {
+      return this.visModeHeight;
+    }
+    return this.isIconized ? ICONIZED_NODE_SIZE_PX : this.dataflowHeight;
+  }
+
+  get displayCss(): { left: number, top: number, width: number, height: number} {
+    return {
+      left: this.displayX,
+      top: this.displayY,
+      width: this.displayWidth,
+      height: this.displayHeight,
+    };
   }
 
   @ns.dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
@@ -307,7 +359,7 @@ export default class Node extends Vue {
    * deserialize() shall not be overridden from its base class implementation.
    */
   public deserialize(save: NodeSave) {
-    _.extend(this, save);
+    // _.extend(this, save);
     this.deserializationChain.forEach(f => f(save));
   }
 
@@ -326,13 +378,11 @@ export default class Node extends Vue {
 
   protected created() {
     this.label = this.id;
-    this.width = this.dataflowWidth = this.DEFAULT_WIDTH;
-    this.height = this.dataflowHeight = this.DEFAULT_HEIGHT;
 
     this.createPorts();
     this.createPortMap();
 
-    this.update();
+    this.update(); // Update to show proper coverText even when there is no connection
 
     // Base serialization
     this.serializationChain.push((): NodeSave => ({
@@ -340,8 +390,6 @@ export default class Node extends Vue {
         type: this.NODE_TYPE,
         layer: this.layer,
         label: this.label,
-        x: this.x,
-        y: this.y,
         isIconized: this.isIconized,
         isInVisMode: this.isInVisMode,
         isLabelVisible: this.isLabelVisible,
@@ -355,16 +403,6 @@ export default class Node extends Vue {
         visModeWidth: this.visModeWidth,
         visModeHeight: this.visModeHeight,
     }));
-    // Base deserialization
-    this.deserializationChain.push(() => {
-      if (!this.isIconized) {
-        this.width = this.dataflowWidth;
-        this.height = this.dataflowHeight;
-      } else {
-        this.x = this.x + ICONIZED_NODE_SIZE_PX / 2 - this.dataflowWidth / 2;
-        this.y = this.y + ICONIZED_NODE_SIZE_PX / 2 - this.dataflowHeight / 2;
-      }
-    });
   }
 
   /**
@@ -406,12 +444,6 @@ export default class Node extends Vue {
     return true;
   }
 
-  /**
-   * Responds to mouned life cycle.
-   */
-  protected onMounted() {}
-
-
   protected enableDraggable() {
     $(this.$refs.node).draggable('enable');
   }
@@ -447,13 +479,12 @@ export default class Node extends Vue {
    * before we set up things here.
    */
   private mounted() {
-    this.isActive = true;
     this.initDragAndResize();
     this.initDrop();
-    this.initCss();
+    this.initPositionAndSize();
     this.mountPorts();
+    this.initDeserializedProperties();
     this.appear(); // animate node appearance
-    this.onMounted();
   }
 
   private createPorts() {
@@ -579,36 +610,43 @@ export default class Node extends Vue {
     }
   }
 
-  private initCss() {
+  private initPositionAndSize() {
     const $node = $(this.$refs.node);
-
     $node.addClass(this.containerClasses);
 
-    if (this.dataOnCreate.x !== undefined && this.dataOnCreate.y !== undefined) {
-      this.x = this.dataOnCreate.x;
-      this.y = this.dataOnCreate.y;
-    } else if (this.dataOnCreate.centerX !== undefined && this.dataOnCreate.centerY !== undefined) {
-      this.x = this.dataOnCreate.centerX - this.DEFAULT_WIDTH / 2;
-      this.y = this.dataOnCreate.centerY - this.DEFAULT_HEIGHT / 2;
+    if (this.dataflowWidth === 0) {
+      this.dataflowWidth = this.DEFAULT_WIDTH;
+      this.dataflowHeight = this.DEFAULT_HEIGHT;
     }
-
-    if (this.dataOnCreate.isIconized !== undefined) {
-      this.isIconized = this.dataOnCreate.isIconized;
+    if (this.dataOnCreate.dataflowX !== undefined && this.dataOnCreate.dataflowY !== undefined) {
+      this.dataflowX = this.dataOnCreate.dataflowX;
+      this.dataflowY = this.dataOnCreate.dataflowY;
+    } else if (this.dataOnCreate.dataflowCenterX !== undefined && this.dataOnCreate.dataflowCenterY !== undefined) {
+      this.dataflowX = this.dataOnCreate.dataflowCenterX - this.dataflowWidth / 2;
+      this.dataflowY = this.dataOnCreate.dataflowCenterY - this.dataflowHeight / 2;
     }
-
     // jQuery.draggable sets position to relative, we override here.
     $node.css({
       position: 'absolute',
     });
+
+    this.updateDisplay();
+  }
+
+  private initDeserializedProperties() {
+    this.onIconizedChangeResizable();
+    // When the node is deserialized, layer is never changed and we trigger z-index setting manually.
+    this.onLayerChange();
   }
 
   private appear() {
+    /*
     TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       scale: 1.5,
-      // Must update port coordinates because those are not reactive to $refs.node size changes.
-      onUpdate: this.updatePortCoordinates,
+      // When the node is deserialized, without this the port coordinates are never computed.
       onComplete: this.updatePortCoordinates,
     });
+    */
   }
 
   private contextMenuRemove() {
@@ -678,48 +716,6 @@ export default class Node extends Vue {
     this.isLabelVisible = val;
   }
 
-  @Watch('isIconized')
-  private onIconizedChange() {
-    let newWidth: number;
-    let newHeight: number;
-    if (this.isIconized) {
-      this.dataflowWidth = this.width;
-      this.dataflowHeight = this.height;
-      newWidth = newHeight = ICONIZED_NODE_SIZE_PX;
-      this.disableResizable();
-    } else {
-      newWidth = this.dataflowWidth;
-      newHeight = this.dataflowHeight;
-      this.enableResizable();
-    }
-    const targetX = this.x + this.width / 2 - newWidth / 2;
-    const targetY = this.y + this.height / 2 - newHeight / 2;
-    const $node = $(this.$refs.node);
-    this.isAnimating = true;
-
-    TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
-      width: newWidth,
-      height: newHeight,
-      left: targetX,
-      top: targetY,
-      // allow Vue transition to complete, otherwise elements will scatter when fading out
-      delay: DEFAULT_ANIMATION_DURATION_S,
-      onUpdate: () => {
-        this.width = $node.width() as number;
-        this.height = $node.height() as number;
-        const offset = $node.offset() as JQuery.Coordinates;
-        this.x = offset.left;
-        this.y = offset.top;
-      },
-      onComplete: () => {
-        this.width = newWidth;
-        this.height = newHeight;
-        this.isAnimating = false;
-        this.$nextTick(this.onResize);
-      },
-    });
-  }
-
   @Watch('isActive')
   private onActivatedChange(newVal: boolean) {
     if (newVal) {
@@ -729,8 +725,52 @@ export default class Node extends Vue {
   }
 
   @Watch('layer')
-  private onLayerChange(newLayer: number) {
+  private onLayerChange() {
     $(this.$refs.node).css('z-index', this.layer);
+  }
+
+  private recordX() {
+    if (this.isSystemInVisMode) {
+      this.visModeX = this.x;
+      return;
+    }
+    if (!this.isIconized) {
+      this.dataflowX = this.x;
+    } else {
+      this.dataflowX = this.x + (ICONIZED_NODE_SIZE_PX - this.dataflowWidth) / 2;
+    }
+  }
+
+  private recordY() {
+    if (this.isSystemInVisMode) {
+      this.visModeY = this.y;
+      return;
+    }
+    if (!this.isIconized) {
+      this.dataflowY = this.y;
+    } else {
+      this.dataflowY = this.y + (ICONIZED_NODE_SIZE_PX - this.dataflowHeight) / 2;
+    }
+  }
+
+  private recordWidth() {
+    if (!this.isIconized) {
+      if (!this.isSystemInVisMode) {
+        this.dataflowWidth = this.width;
+      } else {
+        this.visModeWidth = this.width;
+      }
+    }
+  }
+
+  private recordHeight() {
+    if (!this.isIconized) {
+      if (!this.isSystemInVisMode) {
+        this.dataflowHeight = this.height;
+      } else {
+        this.visModeHeight = this.height;
+      }
+    }
   }
 
   // Watch layout parameter changes to re-position the node and its ports reactively.
@@ -738,47 +778,70 @@ export default class Node extends Vue {
   private onXChange() {
     $(this.$refs.node).css('left', this.x);
     this.updatePortCoordinates();
-    if (!this.isSystemInVisMode) {
-      this.dataflowX = this.x;
-    } else {
-      this.visModeX = this.x;
-    }
+    this.recordX();
   }
+
   @Watch('y')
   private onYChange() {
     $(this.$refs.node).css('top', this.y);
     this.updatePortCoordinates();
-    if (!this.isSystemInVisMode) {
-      this.dataflowY = this.y;
-    } else {
-      this.visModeY = this.y;
-    }
+    this.recordY();
   }
+
   @Watch('width')
   private onWidthChange() {
     $(this.$refs.node).css('width', this.width);
     this.updatePortCoordinates();
     this.onResize();
-    if (!this.isSystemInVisMode) {
-      this.dataflowWidth = this.width;
-    } else {
-      this.visModeWidth = this.width;
-    }
+    this.recordWidth();
   }
+
   @Watch('height')
   private onHeightChange() {
     $(this.$refs.node).css('height', this.height);
     this.updatePortCoordinates();
     this.onResize();
-    if (!this.isSystemInVisMode) {
-      this.dataflowHeight = this.height;
-    } else {
-      this.visModeHeight = this.height;
-    }
+    this.recordHeight();
   }
 
   @Watch('isEnlarged')
   private onEnlargedChange(isEnlarged: boolean) {
+  }
+
+  @Watch('isIconized')
+  private onIconizedChange() {
+    this.onIconizedChangeResizable();
+    if (this.isSystemInVisMode) {
+      return;
+    }
+    const $node = $(this.$refs.node);
+    this.isAnimating = true;
+    TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
+      ...this.displayCss,
+      // allow Vue transition to complete, otherwise elements will scatter when fading out
+      delay: DEFAULT_ANIMATION_DURATION_S,
+      onUpdate: () => {
+        this.width = $node.width() as number;
+        this.height = $node.height() as number;
+        const offset = $node.offset() as JQuery.Coordinates;
+        this.x = offset.left;
+        this.y = offset.top;
+        this.updatePortCoordinates();
+      },
+      onComplete: () => {
+        this.isAnimating = false;
+        this.updatePortCoordinates();
+        this.onResize();
+      },
+    });
+  }
+
+  private onIconizedChangeResizable() {
+    if (this.isIconized) {
+      this.disableResizable();
+    } else {
+      this.enableResizable();
+    }
   }
 
   @Watch('isSystemInVisMode')
@@ -786,30 +849,32 @@ export default class Node extends Vue {
     if (!this.isInVisMode) {
       return;
     }
-    if (this.isSystemInVisMode) {
-      if (this.visModeWidth === 0) {
-        // First time entering visMode. Initialize the size and location.
-        this.visModeX = this.x;
-        this.visModeY = this.y;
-        this.visModeWidth = this.width;
-        this.visModeHeight = this.height;
-      }
-      TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
-        left: this.visModeX,
-        top: this.visModeY,
-        width: this.visModeWidth,
-        height: this.visModeHeight,
-        onComplete: this.updatePortCoordinates,
-      });
-    } else {
-      TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
-        left: this.dataflowX,
-        top: this.dataflowY,
-        width: this.dataflowWidth,
-        height: this.dataflowHeight,
-        onComplete: this.updatePortCoordinates,
-      });
+    if (this.isSystemInVisMode && this.visModeWidth === 0) {
+      // First time entering visMode. Initialize the size and location.
+      this.visModeX = this.x;
+      this.visModeY = this.y;
+      this.visModeWidth = this.width;
+      this.visModeHeight = this.height;
     }
+    if (this.isIconized) {
+      // Turn on animating flag to hide rendered node in transition (which looks awkward).
+      this.isAnimating = true;
+      if (this.isSystemInVisMode) {
+        this.isIconizedBeforeVisMode = this.isIconized;
+        this.isIconized = false;
+      }
+    }
+    TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
+      ...this.displayCss,
+      onComplete: () => {
+        this.isAnimating = false;
+        if (!this.isSystemInVisMode && this.isIconizedBeforeVisMode) {
+          this.isIconized = true; // This will animate and we thus do not updateDisplay.
+        } else {
+          this.updateDisplay();
+        }
+      },
+    });
   }
 
   /** Sets the locations of ports. */
@@ -820,5 +885,12 @@ export default class Node extends Vue {
       left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
       top: (this.height / 2 - totalHeight / 2 + index * (PORT_SIZE_PX + PORT_MARGIN_PX)) + 'px',
     };
+  }
+
+  private updateDisplay() {
+    this.x = this.displayX;
+    this.y = this.displayY;
+    this.width = this.displayWidth;
+    this.height = this.displayHeight;
   }
 }

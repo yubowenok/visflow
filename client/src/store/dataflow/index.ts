@@ -114,7 +114,7 @@ const mutations = {
 
   /** Moves all nodes by (dx, dy). */
   moveDiagram: (state: DataflowState, { dx, dy }: { dx: number, dy: number }) => {
-    _.each(state.nodes.filter(node => node.isNodeVisible), node => node.moveBy(dx, dy));
+    _.each(state.nodes.filter(node => node.isVisible), node => node.moveBy(dx, dy));
   },
 
   /** Removes the nodes that are currently selected. */
