@@ -14,7 +14,7 @@
   </template>
 </div>
 <div v-if="mode === 'encoding'" class="display">
-  <div class="bold" v-if="dataset && encoding.column">{{ dataset.getColumnName(encoding.column) }}</div>
+  <div class="bold" v-if="dataset && encoding.column !== null">{{ dataset.getColumnName(encoding.column) }}</div>
   <div v-else>(no column)</div>
   <template v-if="encoding.type === 'color' || encoding.type === 'border'">
     <div>{{ encoding.type }}</div>

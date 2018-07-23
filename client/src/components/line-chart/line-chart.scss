@@ -1,0 +1,19 @@
+@import '../../common/style/index';
+
+#legends {
+  rect {
+    height: 10px;
+    width: 10px;
+  }
+}
+
+.warn {
+  padding: $padding-size-lg;
+  margin-top: $margin-size;
+  margin-bottom: $margin-size;
+  @extend %warn-message;
+}
+
+#lines path {
+  fill: none;
+}

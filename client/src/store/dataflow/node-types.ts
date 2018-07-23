@@ -12,6 +12,7 @@ import AttributeFilter from '@/components/attribute-filter/attribute-filter';
 import VisualEditor from '@/components/visual-editor/visual-editor';
 import SetOperator from '@/components/set-operator/set-operator';
 import ConstantsGenerator from '@/components/constants-generator/constants-generator';
+import LineChart from '@/components/line-chart/line-chart';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -63,7 +64,7 @@ export const nodeTypes: NodeType[] = [
     id: 'line-chart',
     title: 'Line Chart',
     imgSrc: require('@/imgs/line-chart.svg'),
-    constructor: Visualization,
+    constructor: LineChart,
     tags: VISUALIZATION_TAGS + ' series time trend',
   },
   {
