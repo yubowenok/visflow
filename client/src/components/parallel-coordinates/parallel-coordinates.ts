@@ -98,7 +98,8 @@ export default class ParallelCoordinates extends Visualization {
         return isContinuousDomain(column.type) ||
           dataset.getDomain(column.index).length <= ORDINAL_DOMAIN_LENGTH_THRESHOLD;
       })
-      .slice(0, DEFAULT_NUM_COLUMNS).map(column => column.index);
+      .slice(0, DEFAULT_NUM_COLUMNS)
+      .map(column => column.index);
   }
 
   protected brushed(brushPoints: Point[], isBrushStop?: boolean) {
@@ -188,13 +189,12 @@ export default class ParallelCoordinates extends Visualization {
     const l = line<number | string>()
       .x((p, axisIndex) => this.xScale(axisIndex))
       .y((p, axisIndex) => this.yScales[axisIndex](p));
-    let lines = (select(this.$refs.lines as SVGGElement).selectAll('path') as
-      Selection<SVGGraphicsElement, ParallelCoordinatesItemProps, SVGGElement, {}>);
-    lines = lines.data(itemProps, d => d.index.toString());
+    let lines = select(this.$refs.lines as SVGGElement).selectAll<SVGPathElement, ParallelCoordinatesItemProps>('path')
+      .data(itemProps, d => d.index.toString());
 
     fadeOut(lines.exit());
 
-    lines = lines.enter().append<SVGGraphicsElement>('path')
+    lines = lines.enter().append<SVGPathElement>('path')
       .attr('id', d => d.index.toString())
       .merge(lines)
       .attr('has-visuals', d => d.hasVisuals)
@@ -218,8 +218,7 @@ export default class ParallelCoordinates extends Visualization {
   }
 
   private drawAxes() {
-    const exitAxes = (select(this.$refs.axes as SVGGElement).selectAll('g.axis') as
-      Selection<SVGGElement, string, SVGGElement, {}>)
+    const exitAxes = select(this.$refs.axes as SVGGElement).selectAll<SVGGElement, number>('g.axis')
       .data(this.columns, columnIndex => columnIndex.toString())
       .exit();
     fadeOut(exitAxes);

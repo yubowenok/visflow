@@ -87,17 +87,19 @@ const findColorScale = (id: string): ColorScaleInfo => {
   return scale as ColorScaleInfo;
 };
 
-export const getColorScale = (id: string):
-  ScaleLinear<string, string> | ScaleOrdinal<number, string> => {
+type ColorScaleCallable = (value: number | string) => string;
+
+// Returns ScaleLinear<string, string> | ScaleOrdinal<number, string> but as an alternative signature.
+export const getColorScale = (id: string): ColorScaleCallable => {
   const scale = findColorScale(id);
   if (scale.type === ScaleType.LINEAR) {
     return scaleLinear<string, string>()
       .domain(scale.domain)
-      .range(scale.range);
+      .range(scale.range) as ColorScaleCallable;
   } else { // ScaleType.ORDINAL
     return scaleOrdinal<number, string>()
       .domain(scale.domain)
-      .range(scale.range);
+      .range(scale.range) as ColorScaleCallable;
   }
 };
 

@@ -1,7 +1,10 @@
-import { Selection } from 'd3-selection';
+import { Selection, BaseType } from 'd3-selection';
 
-// tslint:disable-next-line no-any
-export const fadeOut = (obj: Selection<SVGGraphicsElement, any, SVGGElement | null, any>) => {
+/**
+ * Provides D3 fade out on any selected element.
+ */
+export const fadeOut = <GElement extends BaseType, Datum, PElement extends BaseType, PDatum>
+  (obj: Selection<GElement, Datum, PElement, PDatum>) => {
   obj.transition()
     .style('opacity', 0)
     .remove();

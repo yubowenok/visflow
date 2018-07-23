@@ -148,7 +148,7 @@ export default class VisualEditor extends SubsetNode {
         _.extend(item.visuals, { [this.encoding.type]: scale(value) });
       });
     } else {
-      const colorScale = getColorScale(this.encoding.colorScale.id) as (value: number) => string;
+      const colorScale = getColorScale(this.encoding.colorScale.id);
       // Create a scale that maps dataset values to [0, 1] to be further used by colorScale.
       const scale = getScale(
         dataset.getColumnType(this.encoding.column),

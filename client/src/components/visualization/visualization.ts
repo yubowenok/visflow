@@ -285,6 +285,23 @@ export default class Visualization extends SubsetNode {
     });
   }
 
+  /**
+   * Most visualizations require margin computation by first rendering the labels / ticks and then check the sizes of
+   * those texts. The texts must be visible for the check. This is a helper function that momentarily shows the node
+   * content, calls the margin update "callback", and then resets the node content's visibility to its original value.
+   */
+  protected updateMargins(callback: () => void) {
+    const $content = $(this.$refs.content);
+    const isVisible = $content.is(':visible');
+    if (!isVisible) { // getBBox() requires the SVG to be visible to return valid sizes
+      $content.show();
+    }
+    callback();
+    if (!isVisible) {
+      $content.hide();
+    }
+  }
+
   private onWindowResize(evt: Event) {
     if (this.isEnlarged) {
       const view = this.getEnlargedView();

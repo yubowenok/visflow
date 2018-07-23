@@ -6,6 +6,7 @@ import DataSource from '@/components/data-source/data-source';
 import Table from '@/components/table/table';
 import Scatterplot from '@/components/scatterplot/scatterplot';
 import Histogram from '@/components/histogram/histogram';
+import Heatmap from '@/components/heatmap/heatmap';
 import ParallelCoordinates from '@/components/parallel-coordinates/parallel-coordinates';
 import AttributeFilter from '@/components/attribute-filter/attribute-filter';
 import VisualEditor from '@/components/visual-editor/visual-editor';
@@ -55,7 +56,7 @@ export const nodeTypes: NodeType[] = [
     id: 'heatmap',
     title: 'Heatmap',
     imgSrc: require('@/imgs/heatmap.svg'),
-    constructor: Visualization,
+    constructor: Heatmap,
     tags: VISUALIZATION_TAGS + MULTIDIMENSIONAL_TAGS,
   },
   {

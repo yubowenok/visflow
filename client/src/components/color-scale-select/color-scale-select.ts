@@ -14,6 +14,8 @@ import { allColorScaleInfo } from '@/common/color-scale';
 export default class ColorScaleSelect extends Vue {
   @Prop({ type: String })
   private value!: string;
+  @Prop({ default: true })
+  private clearable!: boolean;
 
   private scaleId: string | null = null;
 

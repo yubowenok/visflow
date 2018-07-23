@@ -1,0 +1,17 @@
+ #row-labels {
+   /deep/ .label {
+     stroke-width: .5px;
+     text-anchor: end;
+     dominant-baseline: middle;
+   }
+ }
+
+ #column-labels {
+  /deep/ .label {
+    text-anchor: middle;
+  }
+
+  &.vertical /deep/ .label {
+    text-anchor: start;
+  }
+}

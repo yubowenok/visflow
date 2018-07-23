@@ -334,11 +334,11 @@ export default class Histogram extends Visualization {
     const numItems = this.inputPortMap.in.getSubsetPackage().numItems();
 
     const binTransform = (bin: HistogramBinProps) => getTransform([this.xScale(bin.x0), 0]);
-    let bins = select(this.$refs.bars as SVGGElement).selectAll<SVGGElement, {}>('g')
+    let bins = select(this.$refs.bars as SVGGElement).selectAll<SVGGElement, HistogramBinProps>('g')
       .data(this.bins);
     fadeOut(bins.exit());
     bins = bins.enter().append<SVGGElement>('g')
-      .attr('id', d => d.id as string)
+      .attr('id', d => d.id)
       .style('opacity', 0)
       .attr('transform', binTransform)
       .merge(bins);
@@ -352,7 +352,7 @@ export default class Histogram extends Visualization {
       getTransform([BAR_INTERVAL, Math.floor(this.yScale(group.y + group.dy))]);
 
     let bars = bins.selectAll<SVGGraphicsElement, HistogramBarProps>('rect')
-      .data<HistogramBarProps>(d => d.bars, bar => bar.id);
+      .data(d => d.bars, bar => bar.id);
 
     fadeOut(bars.exit());
 
@@ -409,19 +409,12 @@ export default class Histogram extends Visualization {
    */
   private updateLeftMargin() {
     this.drawYAxis();
-    const $content = $(this.$refs.content);
-    const isVisible = $content.is(':visible');
-    if (!isVisible) {
-      // getBBox() requires the SVG to be visible to return valid sizes
-      $content.show();
-    }
-    const maxTickWidth = _.max($(this.$refs.yAxis as SVGGElement)
+    this.updateMargins(() => {
+      const maxTickWidth = _.max($(this.$refs.yAxis as SVGGElement)
       .find('.y > .tick > text')
       .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
-    this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
-    (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
-    if (!isVisible) {
-      $content.hide();
-    }
+      this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
+      (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+    });
   }
 }

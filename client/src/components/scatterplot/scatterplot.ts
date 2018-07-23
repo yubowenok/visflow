@@ -1,6 +1,6 @@
-import { Component, Watch } from 'vue-property-decorator';
+import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
-import { select, Selection } from 'd3-selection';
+import { select, Selection, BaseType } from 'd3-selection';
 
 import {
   Visualization,
@@ -18,7 +18,6 @@ import {
   isPointInBox,
 } from '@/components/visualization';
 import template from './scatterplot.html';
-import TabularDataset from '@/data/tabular-dataset';
 import ColumnSelect from '@/components/column-select/column-select';
 import { SELECTED_COLOR } from '@/common/constants';
 import { isNumericalType } from '@/data/util';
@@ -67,6 +66,7 @@ export default class Scatterplot extends Visualization {
   private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, bottom: 20 };
   private xScale!: Scale;
   private yScale!: Scale;
+  private itemProps: ScatterplotItemProps[] = [];
 
   get initialXColumn(): number | null {
     return this.dataset ? this.xColumn : null;
@@ -89,20 +89,21 @@ export default class Scatterplot extends Visualization {
       return;
     }
     this.coverText = '';
-    const itemProps = this.getItemProps();
+    this.computeItemProps();
     this.computeScales();
     this.updateLeftMargin();
     // Drawing must occur after scale computations.
     this.drawXAxis();
     this.drawYAxis();
-    this.drawPoints(itemProps);
+    this.drawPoints();
   }
 
   protected brushed(brushPoints: Point[], isBrushStop?: boolean) {
     if (isBrushStop) {
       this.computeBrushedItems(brushPoints);
       this.computeSelection();
-      this.drawPoints(this.getItemProps());
+      this.computeItemProps();
+      this.drawPoints();
       this.propagateSelection();
     }
     drawBrushBox(this.$refs.brush as SVGElement, !isBrushStop ? brushPoints : []);
@@ -133,10 +134,10 @@ export default class Scatterplot extends Visualization {
     }
   }
 
-  private getItemProps(): ScatterplotItemProps[] {
+  private computeItemProps() {
     const pkg = this.inputPortMap.in.getSubsetPackage();
     const items = pkg.getItems();
-    const itemProps: ScatterplotItemProps[] = items.map(item => {
+    this.itemProps = items.map(item => {
       const props: ScatterplotItemProps = {
         index: item.index,
         x: this.getDataset().getCellForScale(item, this.xColumn),
@@ -145,20 +146,18 @@ export default class Scatterplot extends Visualization {
         hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),
       };
-      if (this.selection.hasItem(item.index)) {
+      if (props.selected) {
         _.extend(props.visuals, SELECTED_ITEM_VISUALS);
         multiplyVisuals(props.visuals);
       }
       return props;
     });
-    return itemProps;
   }
 
-  private drawPoints(itemProps: ScatterplotItemProps[]) {
-    const svgPoints = select(this.$refs.points as SVGElement);
-    let points = svgPoints.selectAll('circle') as
-      Selection<SVGGraphicsElement, ScatterplotItemProps, SVGGElement, {}>;
-    points = points.data(itemProps, d => d.index.toString());
+  private drawPoints() {
+    const svgPoints = select(this.$refs.points as SVGGElement);
+    let points = svgPoints.selectAll<SVGGraphicsElement, ScatterplotItemProps>('circle')
+      .data(this.itemProps, d => d.index.toString());
 
     fadeOut(points.exit());
 
@@ -168,7 +167,7 @@ export default class Scatterplot extends Visualization {
       .attr('has-visuals', d => d.hasVisuals)
       .attr('selected', d => d.selected);
 
-    const updatedPoints = this.isTransitionFeasible(itemProps.length) ? points.transition() : points;
+    const updatedPoints = this.isTransitionFeasible(this.itemProps.length) ? points.transition() : points;
     updatedPoints
       .attr('cx', d => this.xScale(d.x))
       .attr('cy', d => this.yScale(d.y))
@@ -238,19 +237,12 @@ export default class Scatterplot extends Visualization {
    */
   private updateLeftMargin() {
     this.drawYAxis();
-    const $content = $(this.$refs.content);
-    const isVisible = $content.is(':visible');
-    if (!isVisible) {
-      // getBBox() requires the SVG to be visible to return valid sizes
-      $content.show();
-    }
-    const maxTickWidth = _.max($(this.$refs.yAxis as SVGGElement)
-      .find('.y > .tick > text')
-      .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
-    this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
-    (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
-    if (!isVisible) {
-      $content.hide();
-    }
+    this.updateMargins(() => {
+      const maxTickWidth = _.max($(this.$refs.yAxis as SVGGElement)
+        .find('.y > .tick > text')
+        .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
+      this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
+      (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+    });
   }
 }

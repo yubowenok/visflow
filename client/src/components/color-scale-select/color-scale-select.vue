@@ -3,6 +3,7 @@
   v-model="scaleId"
   :options="colorScaleOptions"
   @input="onScaleSelect"
+  :clearable="clearable"
 >
   <template slot="option" slot-scope="{ option }">
     <li>

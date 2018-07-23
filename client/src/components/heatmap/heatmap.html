@@ -1,0 +1,49 @@
+<!-- node-content -->
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+>
+  <g ref="grid"></g>
+  <g id="row-labels" ref="rowLabels"></g>
+  <g id="column-labels" ref="columnLabels"></g>
+  <g ref="brush"></g>
+</svg>
+<!-- option-panel -->
+<div>
+  <div>Columns</div>
+  <column-list
+    v-model="columns"
+    :columns="columnSelectOptions"
+    @input="draw"
+  ></column-list>
+</div>
+<div>
+  <div>Color Scale</div>
+  <color-scale-select
+    v-model="colorScaleId"
+    @input="draw"
+    :clearable="false"
+  ></color-scale-select>
+</div>
+<div>
+  <div>Sort By</div>
+  <column-select
+    v-model="sortByColumn"
+    :columns="columnSelectOptions"
+    @input="draw"
+  ></column-select>
+</div>
+<div>
+  <div>Row Label Column</div>
+  <column-select
+    v-model="rowLabelColumn"
+    :columns="columnSelectOptions"
+    @input="draw"
+    :clearable="true"
+  ></column-select>
+</div>
+<div>
+  <b-form-checkbox v-model="areColumnLabelsVisible" @input="draw">Column Labels</b-form-checkbox>
+</div>
