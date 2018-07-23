@@ -47,6 +47,10 @@ export default class Node extends Vue {
     return !this.isSystemInVisMode || this.isInVisMode;
   }
 
+  public get nodeType(): string {
+    return this.NODE_TYPE;
+  }
+
   @ns.dataflow.Mutation('portUpdated') protected portUpdated!: (port: Port) => void;
 
   protected NODE_TYPE = 'node';
@@ -640,13 +644,11 @@ export default class Node extends Vue {
   }
 
   private appear() {
-    /*
     TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       scale: 1.5,
-      // When the node is deserialized, without this the port coordinates are never computed.
+      // When the node is deserialized, without this the port coordinates are never computed after scaling.
       onComplete: this.updatePortCoordinates,
     });
-    */
   }
 
   private contextMenuRemove() {

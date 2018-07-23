@@ -65,6 +65,11 @@ export const createNode = (state: DataflowState, options: CreateNodeOptions, nod
     },
     store,
   }) as Node;
+
+  if (node.nodeType !== options.type) {
+    console.error(`NODE_TYPE not set on node ${options.type}`);
+  }
+
   getCanvas(state).addNode(node);
   state.nodes.push(node);
   if (options.activate) {

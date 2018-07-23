@@ -40,18 +40,18 @@ interface ScatterplotItemProps {
   selected: boolean;
 }
 
-const defaultItemVisuals = (): VisualProperties => ({
+const DEFAULT_ITEM_VISUALS: VisualProperties = {
   color: '#333',
   border: 'black',
   width: 1,
   size: 3,
   opacity: 1,
-});
+};
 
-const selectedItemVisuals = (): VisualProperties => ({
+const SELECTED_ITEM_VISUALS: VisualProperties = {
   color: 'white',
   border: SELECTED_COLOR,
-});
+};
 
 @Component({
   template: injectVisualizationTemplate(template),
@@ -109,7 +109,7 @@ export default class Scatterplot extends Visualization {
   }
 
   protected onDatasetChange() {
-    const dataset = this.dataset as TabularDataset;
+    const dataset = this.getDataset();
     const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type)).slice(0, 2);
     this.xColumn = numericalColumns.length >= 1 ? numericalColumns[0].index : 0;
     this.yColumn = numericalColumns.length >= 2 ? numericalColumns[1].index : 0;
@@ -141,12 +141,12 @@ export default class Scatterplot extends Visualization {
         index: item.index,
         x: this.getDataset().getCellForScale(item, this.xColumn),
         y: this.getDataset().getCellForScale(item, this.yColumn),
-        visuals: _.extend(defaultItemVisuals(), item.visuals),
+        visuals: _.extend({}, DEFAULT_ITEM_VISUALS, item.visuals),
         hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),
       };
       if (this.selection.hasItem(item.index)) {
-        _.extend(props.visuals, selectedItemVisuals());
+        _.extend(props.visuals, SELECTED_ITEM_VISUALS);
         multiplyVisuals(props.visuals);
       }
       return props;
@@ -234,9 +234,7 @@ export default class Scatterplot extends Visualization {
   }
 
   /**
-   * The left margin of a scatterplot depends on the longest tick label of the chosen column.
-   * We render the axis once and fetch the SVG elements to determine this width, and then set xScale's range
-   * to reflect the new left margin.
+   * Determines the maximum length of the y axis ticks and sets the left margin accordingly.
    */
   private updateLeftMargin() {
     this.drawYAxis();

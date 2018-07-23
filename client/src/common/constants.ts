@@ -12,7 +12,7 @@ export const ICONIZED_NODE_SIZE_PX = 45;
 
 export const ENLARGE_ZINDEX = 50000;
 
-export const SELECTED_COLOR = '#6699ee';
+export const SELECTED_COLOR = '#98ca3c'; // theme green
 
 export const NODE_CONTENT_PADDING_PX = 5;
 

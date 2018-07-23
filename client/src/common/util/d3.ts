@@ -1,7 +1,7 @@
 import { Selection } from 'd3-selection';
 
 // tslint:disable-next-line no-any
-export const fadeOut = (obj: Selection<SVGGraphicsElement, any, SVGGraphicsElement | null, any>) => {
+export const fadeOut = (obj: Selection<SVGGraphicsElement, any, SVGGElement | null, any>) => {
   obj.transition()
     .style('opacity', 0)
     .remove();

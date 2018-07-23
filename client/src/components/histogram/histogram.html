@@ -1,0 +1,26 @@
+<!-- node-content -->
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+>
+  <g ref="bars"></g>
+  <g ref="xAxis"></g>
+  <g ref="yAxis"></g>
+  <g ref="brush"></g>
+</svg>
+<!-- option-panel -->
+<div>
+  <div>Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="column"
+    @input="draw"
+  >
+  </column-select>
+</div>
+<div>
+  Number of Bins
+  <form-input v-model="numBins" @input="updateAndPropagate"></form-input>
+</div>

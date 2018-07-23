@@ -40,17 +40,17 @@ interface ParallelCoordinatesItemProps {
   visuals: VisualProperties;
 }
 
-const defaultItemVisuals = (): VisualProperties => ({
+const DEFAULT_ITEM_VISUALS: VisualProperties = {
   color: 'black',
   width: 1.5,
   border: 'none',
   opacity: .15,
-});
+};
 
-const selectedItemVisuals = (): VisualProperties => ({
+const SELECTED_ITEM_VISUALS: VisualProperties = {
   color: SELECTED_COLOR,
   opacity: .75,
-});
+};
 
 @Component({
   template: injectVisualizationTemplate(template),
@@ -171,12 +171,12 @@ export default class ParallelCoordinates extends Visualization {
       const props: ParallelCoordinatesItemProps = {
         index: item.index,
         values: this.getDataset().rowOnSubColumns(item.index, this.columns, { forScale: true }),
-        visuals: _.extend(defaultItemVisuals(), item.visuals),
+        visuals: _.extend({}, DEFAULT_ITEM_VISUALS, item.visuals),
         hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),
       };
       if (this.selection.hasItem(item.index)) {
-        _.extend(props.visuals, selectedItemVisuals());
+        _.extend(props.visuals, SELECTED_ITEM_VISUALS);
         multiplyVisuals(props.visuals);
       }
       return props;

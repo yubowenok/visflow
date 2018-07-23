@@ -5,6 +5,7 @@ import Visualization from '@/components/visualization/visualization';
 import DataSource from '@/components/data-source/data-source';
 import Table from '@/components/table/table';
 import Scatterplot from '@/components/scatterplot/scatterplot';
+import Histogram from '@/components/histogram/histogram';
 import ParallelCoordinates from '@/components/parallel-coordinates/parallel-coordinates';
 import AttributeFilter from '@/components/attribute-filter/attribute-filter';
 import VisualEditor from '@/components/visual-editor/visual-editor';
@@ -47,7 +48,7 @@ export const nodeTypes: NodeType[] = [
     id: 'histogram',
     title: 'Histogram',
     imgSrc: require('@/imgs/histogram.svg'),
-    constructor: Visualization,
+    constructor: Histogram,
     tags: VISUALIZATION_TAGS + ' 1d',
   },
   {
