@@ -13,6 +13,7 @@ import VisualEditor from '@/components/visual-editor/visual-editor';
 import SetOperator from '@/components/set-operator/set-operator';
 import ConstantsGenerator from '@/components/constants-generator/constants-generator';
 import LineChart from '@/components/line-chart/line-chart';
+import Network from '@/components/network/network';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -71,7 +72,7 @@ export const nodeTypes: NodeType[] = [
     id: 'network',
     title: 'Network',
     imgSrc: require('@/imgs/network.svg'),
-    constructor: Visualization,
+    constructor: Network,
     tags: VISUALIZATION_TAGS + ' graph topology',
   },
   {

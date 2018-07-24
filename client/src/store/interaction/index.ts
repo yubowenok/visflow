@@ -132,6 +132,14 @@ const mutations = {
     state.lastMouseY = point.y;
   },
 
+  mouseup: (state: InteractionState) => {
+    // Clear lagging states for safety. Sometimes key combinations fail to trigger key releases, resulting in the
+    // page getting stuck on pressed keys.
+    state.ctrlPressed = false;
+    state.altPressed = false;
+    state.shiftPressed = false;
+  },
+
   keydown: (state: InteractionState, key: string) => {
     switch (key.toLowerCase()) {
       case 'control':
@@ -202,6 +210,9 @@ const mutations = {
         // TODO: debug use only
         debugger; // tslint:disable-line
         break;
+      default:
+        // Pass the keyboard command to selected nodes.
+        store.state.dataflow.nodes.filter(node => node.isSelected).forEach(node => node.onKeys(keys));
     }
   },
 

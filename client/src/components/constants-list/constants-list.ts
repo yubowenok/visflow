@@ -89,6 +89,16 @@ export default class ConstantsList extends Vue {
     this.entry = '';
   }
 
+  private addList() {
+    if (!this.entry) {
+      return;
+    }
+    const values = this.entry.split(',').map(s => s.trim());
+    this.constants = this.constants.concat(values);
+    this.$emit('input', this.constants);
+    this.entry = '';
+  }
+
   private clear() {
     this.constants = [];
     this.$emit('input', this.constants);

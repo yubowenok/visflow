@@ -46,3 +46,9 @@
 .entry {
   margin-bottom: $margin-size-sm;
 }
+
+#add-list {
+  > i {
+    font-size: .9em;
+  }
+}

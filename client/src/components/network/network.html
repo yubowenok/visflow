@@ -1,0 +1,58 @@
+<!-- node-content -->
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+>
+  <g id="edges" ref="edges" class="zoom-group"></g>
+  <g ref="nodes" class="zoom-group"></g>
+  <g id="node-labels" ref="nodeLabels" class="zoom-group"></g>
+  <g ref="brush"></g>
+</svg>
+<!-- option-panel -->
+<div>
+  <div>Node ID column</div>
+  <column-select
+    :columns="nodeColumnSelectOptions"
+    v-model="nodeIdColumn"
+    @input="draw"
+  ></column-select>
+</div>
+<div>
+  <div>Edge Source Column</div>
+  <column-select
+    :columns="edgeColumnSelectOptions"
+    v-model="edgeSourceColumn"
+    @input="draw"
+  ></column-select>
+</div>
+<div>
+  <div>Edge Target Column</div>
+  <column-select
+    :columns="edgeColumnSelectOptions"
+    v-model="edgeTargetColumn"
+    @input="draw"
+  ></column-select>
+</div>
+<div>
+  <div>Node Label Column</div>
+  <column-select
+    :columns="nodeColumnSelectOptions"
+    v-model="nodeLabelColumn"
+    @input="computeProps(); drawNetwork();"
+    :clearable="true"
+  ></column-select>
+</div>
+<div>
+  <div>Edge Link Distance</div>
+  <form-input v-model.number="linkDistance" @input="draw"></form-input>
+</div>
+<div>
+  <b-form-checkbox v-model="isNavigating">Navigation</b-form-checkbox>
+</div>
+<!-- context-menu -->
+<li @click="toggleNavigating">
+  <i :class="['far fa-sm', isNavigating ? 'fa-check-square' :  'fa-square']"></i>Navigation
+  <span class="shortcut">N</span>
+</li>

@@ -1,6 +1,6 @@
-import { scaleLinear, scaleOrdinal, schemeCategory10, ScaleLinear, ScaleOrdinal } from 'd3';
+import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import { schemeCategory10 } from 'd3-scale-chromatic';
 import _ from 'lodash';
-import $ from 'jquery';
 
 enum ScaleType {
   LINEAR = 'linear',

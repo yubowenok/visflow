@@ -1,3 +1,8 @@
+/**
+ * Provides all the subset node methods, but without typing helpers. This is not intended to be a base class to
+ * inherit. Use SubsetNode instead, which provides typing helpers. Without typing helpers, fetching datasets/packages
+ * can be tedious in requiring type cast, e.g. from Package to SubsetPackage.
+ */
 import { Component } from 'vue-property-decorator';
 import { Node } from '@/components/node';
 import TabularDataset from '@/data/tabular-dataset';

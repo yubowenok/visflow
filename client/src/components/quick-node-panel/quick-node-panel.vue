@@ -7,6 +7,7 @@
     <node-list class="node-list"
       :nodeTypes="filteredNodeTypes"
       :nodeTypesPerRow="4"
+      :createNodeAtMouseOnClick="true"
       @nodeCreated="closeQuickNodePanel"
     ></node-list>
   </div>

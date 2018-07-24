@@ -35,7 +35,6 @@ export default class Visualization extends SubsetNode {
 
   protected selection: SubsetSelection = new SubsetSelection();
 
-
   // Specifies an element that responds to dragging when alt-ed.
   protected ALT_DRAG_ELEMENT = '.content';
   // Specifies an element that responds to mouse brush selection.
@@ -178,7 +177,7 @@ export default class Visualization extends SubsetNode {
     this.isTransitionAllowed = false;
   }
   protected onResize() {
-    if (this.dataset && !this.isAnimating && this.isExpanded) {
+    if (!this.hasNoDataset() && !this.isAnimating && this.isExpanded) {
       console.log('render', this.NODE_TYPE);
       this.draw();
     }
@@ -244,7 +243,6 @@ export default class Visualization extends SubsetNode {
       onUpdate: () => {
         this.width = $(this.$refs.node).width() as number;
         this.height = $(this.$refs.node).height() as number;
-        this.onResize();
       },
       onComplete: () => {
         this.width = view.width;
@@ -271,7 +269,6 @@ export default class Visualization extends SubsetNode {
       onUpdate: () => {
         this.width = $(this.$refs.node).width() as number;
         this.height = $(this.$refs.node).height() as number;
-        this.onResize();
       },
       onComplete: () => {
         $(this.$refs.node).css('z-index', this.layer);
@@ -281,9 +278,16 @@ export default class Visualization extends SubsetNode {
         this.enableDraggable();
         this.enableResizable();
         this.onResizeStop();
+        this.onEnlargeClose();
       },
     });
   }
+
+  /**
+   * Responds to enlarge close. Typically nothing needs to be done. But nodes like network (which applies force based
+   * on view size) may want to update specially.
+   */
+  protected onEnlargeClose() {}
 
   /**
    * Most visualizations require margin computation by first rendering the labels / ticks and then check the sizes of
@@ -300,6 +304,13 @@ export default class Visualization extends SubsetNode {
     if (!isVisible) {
       $content.hide();
     }
+  }
+
+  /**
+   * Allows the visualization to disable brushing conditionally (e.g. network is not brushable in navigation mode).
+   */
+  protected isBrushable(): boolean {
+    return true;
   }
 
   private onWindowResize(evt: Event) {
@@ -326,7 +337,7 @@ export default class Visualization extends SubsetNode {
   }
 
   private onBrushStart(evt: MouseEvent) {
-    if (this.isAltPressed) {
+    if (this.isAltPressed || !this.isBrushable()) {
       // Dragging
       return;
     }

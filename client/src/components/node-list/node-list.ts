@@ -11,6 +11,10 @@ import { elementContains } from '@/common/util';
 export default class NodeList extends Vue {
   @ns.dataflow.Mutation('createNode') private createNode!: (options: CreateNodeOptions) => void;
 
+  // Creates node at the mouse's location on click.
+  @Prop({ default: false })
+  private createNodeAtMouseOnClick!: boolean;
+
   @Prop()
   private nodeTypes!: NodeType[];
 
@@ -26,11 +30,12 @@ export default class NodeList extends Vue {
 
   /** Initializes the drag-and-drop behavior on the node buttons. */
   private initDrag() {
-    const clickHandler = (nodeType: NodeType) => {
+    const clickHandler = (nodeType: NodeType, x?: number, y?: number) => {
+      // If "createNodeAtMouseOnClick" is not set, create the node at the screen's center.
       this.createNode({
         type: nodeType.id,
-        dataflowCenterX: Math.floor(window.innerWidth * .5),
-        dataflowCenterY: Math.floor(window.innerHeight * .45),
+        dataflowCenterX: this.createNodeAtMouseOnClick && x !== undefined ? x : Math.floor(window.innerWidth * .5),
+        dataflowCenterY: this.createNodeAtMouseOnClick && y !== undefined ? y : Math.floor(window.innerHeight * .45),
         activate: true,
       });
       this.$emit('nodeCreated');
@@ -66,7 +71,7 @@ export default class NodeList extends Vue {
         },
       });
       // If the button is clicked instead of dragged, create the node near the center of the screen.
-      button.click(() => clickHandler(nodeType));
+      button.click((evt: JQuery.Event) => clickHandler(nodeType, evt.pageX, evt.pageY));
     });
   }
 

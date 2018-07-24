@@ -368,6 +368,11 @@ export default class Node extends Vue {
   }
 
   /**
+   * Handles local keyboard combinations.
+   */
+  public onKeys(keys: string) {}
+
+  /**
    * Updates all outputs based on the (possibly) new inputs. This is called by dataflow propagation.
    * Inheriting node types should implement this method to define how they output data.
    *
@@ -474,6 +479,30 @@ export default class Node extends Vue {
     }
     return false;
   }
+
+  /**
+   * Default click behavior is for node selection and activation when the node is NOT dragged.
+   * If shift is held, a click toggles node selection.
+   * Otherwise the click selects the node excusively (deselecting all other nodes) and shows its option panel by
+   * activating it.
+   */
+  protected onClick() {
+    if (!this.isDragged) {
+      if (this.isShiftPressed) {
+        // When shift is pressed, clicking a node toggles its selection.
+        this.toggleSelected();
+      } else {
+        this.clickNode(this);
+        this.select();
+        this.activate();
+      }
+    }
+  }
+
+  /**
+   * Responds to mounted life cycle.
+   */
+  protected onMounted() {}
 
   /**
    * We make mounted() private so that inheriting class cannot add mounted behavior.
@@ -608,7 +637,8 @@ export default class Node extends Vue {
   private mountPorts() {
     const $node = $(this.$refs.node);
     for (const port of this.allPorts) {
-      const container = $node.find(`#port-container-${port.id}`);
+      const container = $node.find(port.isInput ? '.input.port-group' : '.output.port-group')
+        .find(`#port-container-${port.id}`);
       port.$mount();
       container.append(port.$el);
     }
@@ -647,7 +677,10 @@ export default class Node extends Vue {
     TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       scale: 1.5,
       // When the node is deserialized, without this the port coordinates are never computed after scaling.
-      onComplete: this.updatePortCoordinates,
+      onComplete: () => {
+        this.updatePortCoordinates();
+        this.onMounted();
+      },
     });
   }
 
@@ -659,22 +692,12 @@ export default class Node extends Vue {
     this.isMousedowned = true;
   }
 
-
   private onMouseup(evt: MouseEvent) {
     if (!this.isMousedowned) {
       return;
     }
     this.isMousedowned = false;
-    if (!this.isDragged) {
-      if (this.isShiftPressed) {
-        // When shift is pressed, clicking a node toggles its selection.
-        this.toggleSelected();
-      } else {
-        this.clickNode(this);
-        this.select();
-        this.activate();
-      }
-    }
+    this.onClick();
   }
 
   private toggleSelected() {
@@ -804,10 +827,6 @@ export default class Node extends Vue {
     this.updatePortCoordinates();
     this.onResize();
     this.recordHeight();
-  }
-
-  @Watch('isEnlarged')
-  private onEnlargedChange(isEnlarged: boolean) {
   }
 
   @Watch('isIconized')

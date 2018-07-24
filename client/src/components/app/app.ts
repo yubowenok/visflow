@@ -35,6 +35,7 @@ export default class App extends Vue {
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
   @ns.interaction.Mutation('keydown') private interactionKeydown!: (key: string) => void;
   @ns.interaction.Mutation('keyup') private interactionKeyup!: (key: string) => void;
+  @ns.interaction.Mutation('mouseup') private interactionMouseup!: () => void;
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
 
   get diagramShareLink(): string {
@@ -69,7 +70,8 @@ export default class App extends Vue {
   private initKeyHandlers() {
     $(document)
       .keydown(this.onKeydown)
-      .keyup(this.onKeyup);
+      .keyup(this.onKeyup)
+      .mouseup(this.onMouseup);
   }
 
   private removeKeyHandlers() {
@@ -92,6 +94,10 @@ export default class App extends Vue {
       return;
     }
     this.interactionKeyup(evt.key as string);
+  }
+
+  private onMouseup(evt: JQuery.Event) {
+    this.interactionMouseup();
   }
 
   private addNode() {
