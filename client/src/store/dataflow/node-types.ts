@@ -14,6 +14,7 @@ import SetOperator from '@/components/set-operator/set-operator';
 import ConstantsGenerator from '@/components/constants-generator/constants-generator';
 import LineChart from '@/components/line-chart/line-chart';
 import Network from '@/components/network/network';
+import Map from '@/components/map/map';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -79,7 +80,7 @@ export const nodeTypes: NodeType[] = [
     id: 'map',
     title: 'Map',
     imgSrc: require('@/imgs/map.svg'),
-    constructor: Visualization,
+    constructor: Map,
     tags: VISUALIZATION_TAGS + ' geo',
   },
   {

@@ -1,4 +1,17 @@
-import { isProbablyDate } from '@/data/parser';
+import { isProbablyDate, isProbablyTimestamp } from '@/data/parser';
+
+describe('isProbablyTimestamp', () => {
+  it('timestamps', () => {
+    expect(isProbablyTimestamp('-2208988800000')).toBe(true); // 1900
+    expect(isProbablyTimestamp('946684800000')).toBe(true); // 2000
+    expect(isProbablyTimestamp('1532472158832')).toBe(true); // a day in 2018
+  });
+
+  it('small integer', () => {
+    expect(isProbablyTimestamp('10')).toBe(false);
+  });
+});
+
 
 describe('isProbablyDate', () => {
   it('integer 10', () => {

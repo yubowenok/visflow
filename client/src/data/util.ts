@@ -1,11 +1,16 @@
 import TabularDataset, { TabularColumn } from './tabular-dataset';
 import { ValueType } from '@/data/parser';
 
-export const getColumnSelectOptions = (dataset: TabularDataset | undefined | null): SelectOption[] => {
+export const getColumnSelectOptions = (dataset: TabularDataset | undefined | null,
+                                       condition?: (column: TabularColumn) => boolean): SelectOption[] => {
   if (!dataset) {
     return [];
   }
-  return dataset.getColumns().map((column: TabularColumn, columnIndex: number) => {
+  let columns = dataset.getColumns();
+  if (condition) {
+    columns = columns.filter(condition);
+  }
+  return columns.map((column: TabularColumn, columnIndex: number) => {
     return {
       value: columnIndex,
       label: column.name,

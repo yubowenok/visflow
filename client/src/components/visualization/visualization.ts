@@ -11,7 +11,7 @@ import { TweenLite } from 'gsap';
 import ns from '@/store/namespaces';
 import WindowResize from '@/directives/window-resize';
 
-const FAILED_DRAG_TIME_THRESHOLD = 300;
+const FAILED_DRAG_TIME_THRESHOLD = 500;
 const FAILED_DRAG_DISTANCE_THRESHOLD = 100;
 const INITIAL_FAILED_DRAGS_BEFORE_HINT = 3;
 const FAILED_DRAGS_BEFORE_HINT_INCREMENT = 2;
@@ -213,6 +213,10 @@ export default class Visualization extends SubsetNode {
    * Allows dragging a visualization only when alt is pressed, a.k.a. drag mode is on.
    */
   protected isDraggable(evt: MouseEvent, ui?: JQueryUI.DraggableEventUIParams) {
+    return this.isDraggableBase(evt);
+  }
+
+  protected isDraggableBase(evt: MouseEvent) {
     const $element = $(this.$el).find(this.ALT_DRAG_ELEMENT);
     if (!$element.length) {
       // Element is draggable when the drag element is not visible. It may be when the node has no data.
@@ -382,13 +386,12 @@ export default class Visualization extends SubsetNode {
 
     if (this.isProbablyFailedDrag()) {
       this.onFailedDrag();
-    } else {
-      this.failedDragCount = 0; // clear failed count on successful brush
     }
   }
 
   private isProbablyFailedDrag(): boolean {
     if (!this.isSelectionEmpty()) {
+      this.failedDragCount = 0; // clear failed count on successful brush
       return false;
     }
     return this.brushDistance > FAILED_DRAG_DISTANCE_THRESHOLD &&

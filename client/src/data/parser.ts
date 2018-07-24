@@ -38,7 +38,8 @@ const VALID_DATE_START = Date.parse('1000 GMT');
 const VALID_DATE_END = Date.parse('2200 GMT');
 
 export const isProbablyTimestamp = (text: string): boolean => {
-  return isNumber(text) && VALID_DATE_START <= +text && +text <= VALID_DATE_END && text.length >= 9;
+  return isNumber(text) && text.match(/^-?[0-9]+$/) !== null &&
+    VALID_DATE_START <= +text && +text <= VALID_DATE_END && text.length >= 9;
 };
 
 export const isProbablyDate = (text: string | null | undefined): boolean => {

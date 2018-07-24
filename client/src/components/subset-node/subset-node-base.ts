@@ -8,7 +8,8 @@ import { Node } from '@/components/node';
 import TabularDataset from '@/data/tabular-dataset';
 import { SubsetPackage } from '@/data/package';
 import { SubsetInputPort, SubsetOutputPort } from '@/components/port';
-import { getColumnSelectOptions } from '@/data/util';
+import { getColumnSelectOptions, isNumericalType } from '@/data/util';
+import { ValueType } from '@/data/parser';
 
 interface SubsetNodeSave {
   lastDatasetHash: string;
@@ -98,6 +99,10 @@ export default class SubsetNodeBase extends Node {
 
   protected get columnSelectOptions() {
     return getColumnSelectOptions(this.dataset);
+  }
+
+  protected get numericalColumnSelectOptions() {
+    return getColumnSelectOptions(this.dataset, column => isNumericalType(column.type));
   }
 
   protected forwardSubset(input: SubsetInputPort, output: SubsetOutputPort) {

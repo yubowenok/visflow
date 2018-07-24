@@ -121,7 +121,8 @@ export default class Node extends Vue {
   private visModeWidth = 0;
   private visModeHeight = 0;
 
-  private isIconizedBeforeVisMode = false;
+  // Used to hide ports when visMode is exiting.
+  private isExitingVisMode = false;
 
   get numInputPorts(): number {
     return this.inputPorts.length;
@@ -133,14 +134,6 @@ export default class Node extends Vue {
 
   get allPorts(): Port[] {
     return _.concat(this.inputPorts as Port[], this.outputPorts);
-  }
-
-  get optionPanelInitialState(): OptionPanelInitialState {
-    return {
-      isIconized: this.isIconized,
-      isInVisMode: this.isInVisMode,
-      isLabelVisible: this.isLabelVisible,
-    };
   }
 
   get getIconPath() {
@@ -160,7 +153,7 @@ export default class Node extends Vue {
   }
 
   get arePortsVisible(): boolean {
-    return !this.isEnlarged && !this.isSystemInVisMode;
+    return !this.isEnlarged && !this.isSystemInVisMode && !this.isExitingVisMode;
   }
 
   get displayX(): number {
@@ -370,7 +363,9 @@ export default class Node extends Vue {
   /**
    * Handles local keyboard combinations.
    */
-  public onKeys(keys: string) {}
+  public onKeys(keys: string) {
+    this.onKeysBase(keys);
+  }
 
   /**
    * Updates all outputs based on the (possibly) new inputs. This is called by dataflow propagation.
@@ -503,6 +498,20 @@ export default class Node extends Vue {
    * Responds to mounted life cycle.
    */
   protected onMounted() {}
+
+  /**
+   * Base responds of keyboard that are shared by all node types.
+   */
+  protected onKeysBase(keys: string) {
+    switch (keys) {
+      case 'm':
+        this.toggleIconized();
+        break;
+      case 'v':
+        this.toggleVisMode();
+        break;
+    }
+  }
 
   /**
    * We make mounted() private so that inheriting class cannot add mounted behavior.
@@ -729,21 +738,36 @@ export default class Node extends Vue {
     this.deactivate();
   }
 
-  private onToggleIconized(val: boolean) {
-    this.isIconized = val;
+  private toggleIconized() {
+    if (this.isSystemInVisMode) {
+      return; // iconized cannot be toggled in visMode
+    }
+    this.isIconized = !this.isIconized;
   }
 
-  private onToggleInVisMode(val: boolean) {
-    this.isInVisMode = val;
+  private toggleVisMode() {
+    this.isInVisMode = !this.isInVisMode;
   }
 
-  private onToggleLabelVisible(val: boolean) {
-    this.isLabelVisible = val;
+  private togglelabelVisible() {
+    this.isLabelVisible = !this.isLabelVisible;
+  }
+
+  private onInputIconized(value: boolean) {
+    this.isIconized = value;
+  }
+
+  private onInputInVisMode(value: boolean) {
+    this.isInVisMode = value;
+  }
+
+  private onInputLabelVisible(value: boolean) {
+    this.isLabelVisible = value;
   }
 
   @Watch('isActive')
-  private onActivatedChange(newVal: boolean) {
-    if (newVal) {
+  private onActivatedChange(newValue: boolean) {
+    if (newValue) {
       this.incrementNodeLayer();
       this.layer = this.topNodeLayer;
     }
@@ -755,6 +779,9 @@ export default class Node extends Vue {
   }
 
   private recordX() {
+    if (this.isAnimating) {
+      return;
+    }
     if (this.isSystemInVisMode) {
       this.visModeX = this.x;
       return;
@@ -767,6 +794,9 @@ export default class Node extends Vue {
   }
 
   private recordY() {
+    if (this.isAnimating) {
+      return;
+    }
     if (this.isSystemInVisMode) {
       this.visModeY = this.y;
       return;
@@ -779,6 +809,9 @@ export default class Node extends Vue {
   }
 
   private recordWidth() {
+    if (this.isAnimating) {
+      return;
+    }
     if (!this.isIconized) {
       if (!this.isSystemInVisMode) {
         this.dataflowWidth = this.width;
@@ -789,6 +822,9 @@ export default class Node extends Vue {
   }
 
   private recordHeight() {
+    if (this.isAnimating) {
+      return;
+    }
     if (!this.isIconized) {
       if (!this.isSystemInVisMode) {
         this.dataflowHeight = this.height;
@@ -880,20 +916,17 @@ export default class Node extends Vue {
     if (this.isIconized) {
       // Turn on animating flag to hide rendered node in transition (which looks awkward).
       this.isAnimating = true;
-      if (this.isSystemInVisMode) {
-        this.isIconizedBeforeVisMode = this.isIconized;
-        this.isIconized = false;
-      }
+    }
+    if (!this.isSystemInVisMode) {
+      // If visMode is exiting, ports will not be shown (which otherwise would fly around).
+      this.isExitingVisMode = true;
     }
     TweenLite.to(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       ...this.displayCss,
       onComplete: () => {
+        this.isExitingVisMode = false;
         this.isAnimating = false;
-        if (!this.isSystemInVisMode && this.isIconizedBeforeVisMode) {
-          this.isIconized = true; // This will animate and we thus do not updateDisplay.
-        } else {
-          this.updateDisplay();
-        }
+        this.updateDisplay();
       },
     });
   }

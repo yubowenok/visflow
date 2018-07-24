@@ -163,6 +163,7 @@ export default class Network extends Visualization {
     if (keys === 'n') {
       this.toggleNavigating();
     }
+    this.onKeysBase(keys);
   }
 
   /**
@@ -365,17 +366,7 @@ export default class Network extends Visualization {
     if (this.isContentVisible && this.isNavigating) {
       return false; // If the network is in navigation mode, then node drag is disabled.
     }
-    const $element = $(this.$el).find(this.ALT_DRAG_ELEMENT);
-    if (!$element.length) {
-      // Element is draggable when the drag element is not visible. It may be when the node has no data.
-      return true;
-    }
-    if (!elementContains($element, evt.pageX, evt.pageY)) {
-      // The click falls out of the alt drag element. Perform normal drag.
-      // This allows dragging outside the plot area.
-      return true;
-    }
-    return this.isAltPressed;
+    return this.isDraggableBase(evt);
   }
 
   protected isBrushable(): boolean {

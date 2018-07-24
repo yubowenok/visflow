@@ -1,0 +1,10 @@
+.leaflet-map {
+  height: 100%;
+  width: 100%;
+}
+
+svg { // SVG is used to draw selectBox
+  position: absolute;
+  top: 0;
+  z-index: 500; // Leaflet has large z-index
+}

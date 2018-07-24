@@ -42,11 +42,13 @@
   <transition name="slide-fade-right">
     <option-panel ref="optionPanel" v-if="isActive"
         :nodeLabel="label"
-        :initialState="optionPanelInitialState"
+        :isIconized="isIconized"
+        :isInVisMode="isInVisMode"
+        :isLabelVisible="isLabelVisible"
         :enlargeable="ENLARGEABLE"
-        @toggle:iconized="onToggleIconized"
-        @toggle:inVisMode="onToggleInVisMode"
-        @toggle:labelVisible="onToggleLabelVisible"
+        @input:iconized="onInputIconized"
+        @input:inVisMode="onInputInVisMode"
+        @input:labelVisible="onInputLabelVisible"
         @enlarge="enlarge"
     >
       <!-- option-panel -->
