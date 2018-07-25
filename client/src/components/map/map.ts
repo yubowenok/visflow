@@ -2,7 +2,6 @@ import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
 import $ from 'jquery';
 import L, { Map as LeafletMap, LeafletEvent, LeafletMouseEvent, Circle } from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 
 import template from './map.html';
 import ColumnSelect from '@/components/column-select/column-select';

@@ -1,6 +1,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import ns from '@/store/namespaces';
+import EditableText from '@/components/editable-text/editable-text';
 
 export interface OptionPanelInitialState {
   isIconized: boolean;
@@ -8,7 +9,11 @@ export interface OptionPanelInitialState {
   isLabelVisible: boolean;
 }
 
-@Component
+@Component({
+  components: {
+    EditableText,
+  },
+})
 export default class OptionPanel extends Vue {
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
 
@@ -26,6 +31,20 @@ export default class OptionPanel extends Vue {
   private iconize = false;
   private inVisMode = false;
   private labelVisible = false;
+  private label = '';
+
+  private created() {
+    this.label = this.nodeLabel;
+  }
+
+  @Watch('nodeLabel')
+  private onNodeLabelChange() {
+    this.label = this.nodeLabel;
+  }
+
+  private onLabelChange() {
+    this.$emit('input:nodeLabel', this.label);
+  }
 
   @Watch('isIconized')
   private onIconizedChange(value: boolean) {

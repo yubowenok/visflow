@@ -765,6 +765,10 @@ export default class Node extends Vue {
     this.isLabelVisible = value;
   }
 
+  private onInputLabel(value: string) {
+    this.label = value;
+  }
+
   @Watch('isActive')
   private onActivatedChange(newValue: boolean) {
     if (newValue) {

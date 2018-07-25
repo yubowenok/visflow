@@ -1,12 +1,13 @@
 import Vue from 'vue';
 import BootstrapVue from 'bootstrap-vue';
 import $ from 'jquery';
-import _ from 'lodash';
 
 import 'datatables.net';
 import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'datatables.net-select';
+
+import 'leaflet/dist/leaflet.css';
 
 // Global stylesheets
 import 'jqueryui/jquery-ui.min.css';

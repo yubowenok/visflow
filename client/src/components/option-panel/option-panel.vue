@@ -1,7 +1,9 @@
 <template>
 <div class="option-panel">
   <div class="header">
-    <div class="node-id"><span class="bold">Label: </span>{{ nodeLabel }}</div>
+    <div class="node-id"><span class="bold">Label: </span>
+      <editable-text v-model="label" @input="onLabelChange"></editable-text>
+    </div>
     <hr class="divider">
     <b-button @click="toggleIconized" size="sm" :pressed="isIconized" variant="outline-secondary" class="mini"
       :disabled="isSystemInVisMode"
