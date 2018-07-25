@@ -15,8 +15,9 @@ import GlobalClick from '@/directives/global-click';
 import NodeCover from './node-cover.vue';
 import NodeLabel from './node-label.vue';
 import ns from '@/store/namespaces';
-import OptionPanel, { OptionPanelInitialState } from '@/components/option-panel/option-panel';
+import OptionPanel from '@/components/option-panel/option-panel';
 import template from './node.html';
+import { HistoryNodeEvent } from '@/store/history/types';
 
 const GRID_SIZE = 10;
 
@@ -209,6 +210,14 @@ export default class Node extends Vue {
   @ns.interaction.Mutation('clickNode') private clickNode!: (node: Node) => void;
   @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
+
+  public undo(evt: HistoryNodeEvent) {
+
+  }
+
+  public redo(evt: HistoryNodeEvent) {
+
+  }
 
   public findConnectablePort(port: Port): Port | null {
     if (port.isInput) {

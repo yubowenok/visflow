@@ -2,17 +2,19 @@ import { Module } from 'vuex';
 import store, { RootState } from '@/store';
 import _ from 'lodash';
 
-import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from '@/store/dataflow/types';
+import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from './types';
+import * as helper from './helper';
+import * as saveLoad from './save-load';
+import * as nodeTypes from './node-types';
+import * as history from './history';
+export * from './util';
+
 import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
 import Port from '@/components/port/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
-import * as helper from '@/store/dataflow/helper';
-import * as saveLoad from '@/store/dataflow/save-load';
-import * as nodeTypes from './node-types';
-import { OutputPort } from '@/components/port';
+import { HistoryDiagramEvent } from '@/store/history/types';
 
-export * from '@/store/dataflow/util';
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
 const MAX_NODE_LAYERS = 300;
@@ -30,24 +32,27 @@ export const getInitialState = (): DataflowState => ({
 export const initialState: DataflowState = getInitialState();
 
 const getters = {
+  /**
+   * Gets the z-index of the largest node layer. This is used to move activated node to the front and above
+   * all other nodes.
+   */
   topNodeLayer: (state: DataflowState): number => {
     return state.numNodeLayers;
   },
 
-  /*
-  canvasOffset: (state: DataflowState): JQuery.Coordinates => {
-    return $(state.canvas.$el).offset() as JQuery.Coordinates;
-  },
-  */
-
-  /** Retrieves the img source for a given type of node. */
+  /**
+   * Retrieves the img source for a given type of node.
+   */
   getImgSrc: (state: DataflowState) => {
     return (type: string) => nodeTypes.getImgSrc(type);
   },
 };
 
 const mutations = {
-  /** Sets the rendering canvas to the global Vue Dataflow instance. */
+  /**
+   * Sets the rendering canvas to the global Vue Dataflow instance.
+   * This is called exactly once when App component is mounted.
+   */
   setCanvas: (state: DataflowState, canvas: DataflowCanvas) => {
     state.canvas = canvas;
   },
@@ -74,19 +79,7 @@ const mutations = {
     if (store.state.interaction.mouseupEdge) {
       // If the node button is dropped on an edge, attempt to insert the new node onto this edge.
       const edge = store.state.interaction.mouseupEdge;
-      const edgeSource = edge.source;
-      const edgeTarget = edge.target;
-      // Removes the existing edge first to avoid connectiviy check failing because of existing connection.
-      helper.removeEdge(state, edge, false);
-      const nodeOutputPort = node.findConnectablePort(edgeTarget) as OutputPort;
-      if (nodeOutputPort) {
-        helper.createEdgeToNode(state, edge.source, node, false);
-        helper.createEdge(state, nodeOutputPort, edgeTarget, false);
-      } else {
-        // Recover the previous edge
-        helper.createEdge(state, edgeSource, edgeTarget, false);
-      }
-      helper.propagatePort(edgeSource);
+      helper.createNodeOnEdge(state, node, edge);
       store.commit('interaction/clearMouseupEdge');
     }
   },
@@ -98,15 +91,20 @@ const mutations = {
 
   /** Creates an edge and propagates. */
   createEdge: (state: DataflowState, options: CreateEdgeOptions) => {
+    let edge: Edge | null = null;
     if (options.targetNode) {
-      helper.createEdgeToNode(state, options.sourcePort, options.targetNode, true);
+      edge = helper.createEdgeToNode(state, options.sourcePort, options.targetNode, true);
     } else if (options.targetPort) {
-      helper.createEdge(state, options.sourcePort, options.targetPort, true);
+      edge = helper.createEdge(state, options.sourcePort, options.targetPort, true);
+    }
+    if (edge !== null) {
+      store.commit('history/commit', history.createEdgeHistory(edge));
     }
   },
 
   /** Removes an edge and propagates. */
   removeEdge: (state: DataflowState, edge: Edge) => {
+    store.commit('history/commit', history.removeEdgeHistory(edge));
     helper.removeEdge(state, edge, true);
   },
 
@@ -142,6 +140,15 @@ const mutations = {
   removeSelectedNodes: (state: DataflowState) => {
     helper.removeSelectedNodes(state);
   },
+
+  undo: (state: DataflowState, evt: HistoryDiagramEvent) => {
+    history.undo(state, evt);
+  },
+
+  redo: (state: DataflowState, evt: HistoryDiagramEvent) => {
+    history.redo(state, evt);
+  },
+
   ...saveLoad.mutations,
 };
 

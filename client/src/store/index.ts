@@ -16,6 +16,7 @@ import user from '@/store/user';
 import { DataflowState } from '@/store/dataflow/types';
 import { InteractionState } from '@/store/interaction';
 import { UserState } from '@/store/user';
+import { HistoryState } from '@/store/history/types';
 
 Vue.use(Vuex);
 
@@ -24,6 +25,7 @@ export interface RootState {
   dataflow: DataflowState;
   interaction: InteractionState;
   user: UserState;
+  history: HistoryState;
 }
 
 export const defaultStore = {

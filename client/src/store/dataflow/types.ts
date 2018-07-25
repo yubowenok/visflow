@@ -67,3 +67,10 @@ export interface DiagramInfo {
   filename: string;
   updatedAt: string;
 }
+
+export enum DiagramHistoryEventType {
+  CREATE_NODE = 'create-node',
+  REMOVE_NODE = 'remove-node',
+  CREATE_EDGE = 'create-edge',
+  REMOVE_EDGE = 'remove-edge',
+}

@@ -3,12 +3,6 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import ns from '@/store/namespaces';
 import EditableText from '@/components/editable-text/editable-text';
 
-export interface OptionPanelInitialState {
-  isIconized: boolean;
-  isInVisMode: boolean;
-  isLabelVisible: boolean;
-}
-
 @Component({
   components: {
     EditableText,

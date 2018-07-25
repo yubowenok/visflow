@@ -18,11 +18,12 @@ import {
   CreateNodeData,
 } from '@/store/dataflow/types';
 import { getConstructor } from '@/store/dataflow/node-types';
-import { propagateNode, propagateNodes } from '@/store/dataflow/propagate';
-export * from '@/store/dataflow/propagate';
+import { propagateNode, propagateNodes, propagatePort } from '@/store/dataflow/propagate';
 import { getInitialState } from '@/store/dataflow';
 import { InputPort, OutputPort } from '@/components/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
+import * as history from './history';
+export * from '@/store/dataflow/propagate';
 
 const getCanvas = (state: DataflowState): DataflowCanvas => {
   if (!state.canvas) {
@@ -76,6 +77,22 @@ export const createNode = (state: DataflowState, options: CreateNodeOptions, nod
     node.activate();
   }
   return node;
+};
+
+export const createNodeOnEdge = (state: DataflowState, node: Node, edge: Edge) => {
+  const edgeSource = edge.source;
+  const edgeTarget = edge.target;
+  // Removes the existing edge first to avoid connectiviy check failing because of existing connection.
+  removeEdge(state, edge, false);
+  const nodeOutputPort = node.findConnectablePort(edgeTarget) as OutputPort;
+  if (nodeOutputPort) {
+    createEdgeToNode(state, edge.source, node, false);
+    createEdge(state, nodeOutputPort, edgeTarget, false);
+  } else {
+    // Recover the previous edge
+    createEdge(state, edgeSource, edgeTarget, false);
+  }
+  propagatePort(edgeSource);
 };
 
 export const createEdge = (state: DataflowState, sourcePort: OutputPort, targetPort: InputPort,

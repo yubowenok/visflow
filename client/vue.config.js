@@ -15,6 +15,7 @@ module.exports = {
       new StyleLintPlugin(),
       new webpack.DefinePlugin({
         'process.env.TIME_ZONE': JSON.stringify(env.TIME_ZONE),
+        'process.env.VERSION': JSON.stringify(env.VERSION),
       }),
     ];
     if (env.ENVIRONMENT === 'production') {

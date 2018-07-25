@@ -219,6 +219,12 @@ const mutations = {
       case 'ctrl+n':
         store.commit('modals/openNewDiagramModal');
         break;
+      case 'ctrl+z':
+        store.commit('history/undo');
+        break;
+      case 'ctrl+shift+z':
+        store.commit('history/redo');
+        break;
       case 'a':
         store.commit('panels/openQuickNodePanel');
         break;

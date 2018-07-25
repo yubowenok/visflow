@@ -23,6 +23,7 @@ if (!fs.existsSync(envFile)) {
   dotenv.config({path: envFile});
 }
 
+const VERSION = JSON.parse(fs.readFileSync('package.json').toString()).version;
 const ENVIRONMENT = environment;
 const BASE_URL = process.env.BASE_URL || '';
 const TIME_ZONE = process.env.TIME_ZONE || '';
@@ -31,4 +32,5 @@ module.exports = {
   ENVIRONMENT,
   BASE_URL,
   TIME_ZONE,
+  VERSION,
 };
