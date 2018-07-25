@@ -18,6 +18,7 @@ import {
   drawAxis,
   LABEL_OFFSET_PX,
   multiplyVisuals,
+  OrdinalScaleType,
 } from '@/components/visualization';
 import FormInput from '@/components/form-input/form-input';
 import template from './histogram.html';
@@ -95,6 +96,14 @@ export default class Histogram extends Visualization {
   private selectedBars: Set<string> = new Set();
 
   private margins: PlotMargins = _.extend({}, DEFAULT_PLOT_MARGINS, { bottom: 20 });
+
+  /**
+   * Disables the num bins input when the chosen column is not continuous.
+   */
+  get isNumBinsDisabled(): boolean {
+    return !this.hasNoDataset() && this.column != null &&
+      !isContinuousDomain(this.getDataset().getColumnType(this.column));
+  }
 
   protected created() {
     this.serializationChain.push((): HistogramSave => ({
@@ -186,8 +195,8 @@ export default class Histogram extends Visualization {
     }
     const box = getBrushBox(brushPoints);
     this.bins.forEach(bin => {
-      const xl = this.xScale(bin.x0);
-      const xr = this.xScale(bin.x1);
+      const xl = bin.x0;
+      const xr = bin.x1;
       if (xr < box.x || xl > box.x + box.width) {
         return;
       }
@@ -209,13 +218,13 @@ export default class Histogram extends Visualization {
     const xDomain = dataset.getDomain(this.column as number, items);
     this.xScale = getScale(dataset.getColumnType(this.column as number), xDomain,
       [this.margins.left, this.svgWidth - this.margins.right],
-      { domainMargin: DOMAIN_MARGIN },
+      { domainMargin: DOMAIN_MARGIN, ordinal: { type: OrdinalScaleType.BAND, paddingInner: 0, paddingOuter: .5 } },
     );
   }
 
   private computeBins() {
-    // Histogram range.
-    let range: Array<number | string> = [];
+    // Histogram uses the xScale's range (screen range) as its domain to subdivide bins.
+    const range = this.xScale.range() as number[];
     // Bins value for histogram layout.
     let thresholds: number[] = [];
 
@@ -223,37 +232,32 @@ export default class Histogram extends Visualization {
     const columnType = dataset.getColumnType(this.column as number);
     const continuousDomain = isContinuousDomain(columnType);
     if (continuousDomain) {
-      range = this.xScale.domain() as Array<number | string>;
       // If xScale domain has only a single value, the ticks will return empty
       // array. That is bins = [].
-      thresholds = (this.xScale as AnyScale).ticks(this.numBins);
-    }
-    // Map dates to POSIX.
-    if (columnType === ValueType.DATE) {
-      range = range.map(date => new Date(date).getTime());
-      thresholds = thresholds.map(date => new Date(date).getTime());
-    } else if (!isContinuousDomain) {
+      thresholds = (this.xScale as AnyScale).ticks(this.numBins).map(value => this.xScale(value));
+      // Map dates to POSIX.
+      if (columnType === ValueType.DATE) {
+        // range = range.map(date => new Date(date).getTime());
+        // thresholds = thresholds.map(date => new Date(date).getTime());
+      }
+    } else if (!continuousDomain) {
       const ordinals = this.xScale.domain();
       thresholds = ordinals.map(value => this.xScale(value)) as number[];
       thresholds.push(this.xScale(_.last(ordinals) as string) + (this.xScale as ScaleBand<string>).bandwidth());
-      range = this.xScale.range();
     }
     const pkg = this.inputPortMap.in.getSubsetPackage();
 
     const values = pkg.getItemIndices().map(itemIndex => {
-      let value = dataset.getCellForScale(itemIndex, this.column as number);
-      if (!continuousDomain) {
-        value = this.xScale(value);
-      }
+      const value = dataset.getCellForScale(itemIndex, this.column as number);
       return {
-        value: +value,
+        value: this.xScale(value),
         index: itemIndex,
       };
     });
 
     this.valueBins = histogram<HistogramValueBinProps, number>()
       .value(d => d.value)
-      .domain(this.xScale.domain() as [number, number])
+      .domain(range as [number, number])
       .thresholds(thresholds)(values);
   }
 
@@ -333,7 +337,7 @@ export default class Histogram extends Visualization {
   private drawBars() {
     const numItems = this.inputPortMap.in.getSubsetPackage().numItems();
 
-    const binTransform = (bin: HistogramBinProps) => getTransform([this.xScale(bin.x0), 0]);
+    const binTransform = (bin: HistogramBinProps) => getTransform([bin.x0, 0]);
     let bins = select(this.$refs.bars as SVGGElement).selectAll<SVGGElement, HistogramBinProps>('g')
       .data(this.bins);
     fadeOut(bins.exit());
@@ -368,7 +372,7 @@ export default class Histogram extends Visualization {
     updatedBars
       .attr('transform', barTransform)
       .attr('width', group => {
-        const width = this.xScale(group.dx) - this.xScale(0) - BAR_INTERVAL;
+        const width = group.dx - BAR_INTERVAL;
         // In case interval is larger than width. At least 1 pixel wide.
         return width < 0 ? 1 : width;
       })
@@ -409,12 +413,17 @@ export default class Histogram extends Visualization {
    */
   private updateLeftMargin() {
     this.drawYAxis();
+    const prevLeftMargin = this.margins.left;
     this.updateMargins(() => {
       const maxTickWidth = _.max($(this.$refs.yAxis as SVGGElement)
       .find('.y > .tick > text')
       .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
       this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
-      (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+      if (this.margins.left !== prevLeftMargin) {
+        // Bins are based on left margin, we must update the bins if left margin changes.
+        this.computeXScale();
+        this.computeBins();
+      }
     });
   }
 }

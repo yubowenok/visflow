@@ -8,6 +8,7 @@ import Port from '@/components/port/port';
 import Node from '@/components/node/node';
 import store from '@/store';
 import * as helper from '@/store/interaction/helper';
+import Edge from '@/components/edge/edge';
 
 export interface DragNodePayload {
   node: Node;
@@ -30,6 +31,10 @@ export interface InteractionState {
   altHold: boolean;
 
   isSystemInVisMode: boolean;
+  // Whether a node is being dragged out of a node list to be created.
+  isNodeListDragging: boolean;
+
+  mouseupEdge: Edge | undefined;
 }
 
 const initialState: InteractionState = {
@@ -48,6 +53,9 @@ const initialState: InteractionState = {
   altHold: false,
 
   isSystemInVisMode: false,
+  isNodeListDragging: false,
+
+  mouseupEdge: undefined,
 };
 
 const getters = {
@@ -70,6 +78,14 @@ const getters = {
 };
 
 const mutations = {
+  nodeListDragStarted: (state: InteractionState) => {
+    state.isNodeListDragging = true;
+  },
+
+  nodeListDragEnded: (state: InteractionState) => {
+    state.isNodeListDragging = false;
+  },
+
   portDragStarted: (state: InteractionState, port: Port) => {
     state.draggedPort = port;
     const $port = $(port.$el);
@@ -103,6 +119,14 @@ const mutations = {
     });
   },
 
+  mouseupOnEdge: (state: InteractionState, edge: Edge) => {
+    state.mouseupEdge = edge;
+  },
+
+  clearMouseupEdge: (state: InteractionState) => {
+    state.mouseupEdge = undefined;
+  },
+
   toggleAltHold: (state: InteractionState, value?: boolean) => {
     if (value === undefined) {
       state.altHold = !state.altHold;
@@ -133,11 +157,6 @@ const mutations = {
   },
 
   mouseup: (state: InteractionState) => {
-    // Clear lagging states for safety. Sometimes key combinations fail to trigger key releases, resulting in the
-    // page getting stuck on pressed keys.
-    state.ctrlPressed = false;
-    state.altPressed = false;
-    state.shiftPressed = false;
   },
 
   keydown: (state: InteractionState, key: string) => {
@@ -214,6 +233,11 @@ const mutations = {
         // Pass the keyboard command to selected nodes.
         store.state.dataflow.nodes.filter(node => node.isSelected).forEach(node => node.onKeys(keys));
     }
+    // Clear lagging states for safety. Sometimes key combinations fail to trigger key releases, resulting in the
+    // page getting stuck on pressed keys.
+    state.ctrlPressed = false;
+    state.altPressed = false;
+    state.shiftPressed = false;
   },
 
   startSystemVisMode: (state: InteractionState) => {

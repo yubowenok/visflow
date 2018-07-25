@@ -19,7 +19,7 @@ export default class ColorScaleSelect extends Vue {
 
   private scaleId: string | null = null;
 
-  private get colorScaleOptions() {
+  get colorScaleOptions() {
     return allColorScaleInfo.map(info => _.extend({}, info, { value: info.id }));
   }
 

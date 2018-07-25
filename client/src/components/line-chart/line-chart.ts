@@ -106,7 +106,7 @@ export default class LineChart extends Visualization {
   private itemProps: LineChartItemProps[] = [];
   private lineProps: LineChartLineProps[] = [];
 
-  private get columnSelectOptionsWithIndexColumn(): SelectOption[] {
+  get columnSelectOptionsWithIndexColumn(): SelectOption[] {
     return [{ label: '[index]', value: INDEX_COLUMN } as SelectOption]
       .concat(getColumnSelectOptions(this.dataset));
   }

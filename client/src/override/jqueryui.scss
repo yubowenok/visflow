@@ -2,3 +2,8 @@
 .ui-icon-gripsmall-diagonal-se {
   opacity: 0;
 }
+
+// Avoids draggable helper interferes with mouse hovering.
+.ui-draggable-handle.ui-draggable-dragging {
+  pointer-events: none;
+}

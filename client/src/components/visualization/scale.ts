@@ -21,6 +21,8 @@ export enum OrdinalScaleType {
 interface OrdinalScaleOptions {
   type: OrdinalScaleType; // default is POINT
   padding?: number;
+  paddingOuter?: number;
+  paddingInner?: number;
 }
 
 export interface GetScaleOptions {
@@ -66,7 +68,14 @@ export const getScale = (type: ValueType, domain: Array<number | string>, range:
       .nice() as Scale;
   } else { // ordinal
     const ordinalOptions: OrdinalScaleOptions = options.ordinal || { type: OrdinalScaleType.POINT };
-    const ordinalPadding = (options.ordinal && options.ordinal.padding) || .5;
+    let padding = .5;
+    let paddingInner: number | undefined;
+    let paddingOuter: number | undefined;
+    if (options.ordinal) {
+      padding = options.ordinal.padding || padding;
+      paddingInner = options.ordinal.paddingInner;
+      paddingOuter = options.ordinal.paddingOuter;
+    }
     const stringDomain = domain.map(value => value.toString()) as string[];
     switch (ordinalOptions.type) {
       case OrdinalScaleType.ORDINAL:
@@ -74,16 +83,23 @@ export const getScale = (type: ValueType, domain: Array<number | string>, range:
           .domain(stringDomain)
           .range(range) as Scale;
       case OrdinalScaleType.BAND:
-        return scaleBand()
+        const scale = scaleBand()
           .domain(stringDomain)
-          .range(range as [number, number])
-          .padding(ordinalPadding) as Scale;
+          .range(range as [number, number]);
+        if (paddingInner !== undefined || paddingOuter !== undefined) {
+          // If either inner or outer is specified, set paddings separately.
+          scale.paddingInner(paddingInner || 0)
+            .paddingOuter(paddingOuter || 0);
+        } else {
+          scale.padding(padding);
+        }
+        return scale as Scale;
       case OrdinalScaleType.POINT:
       default:
         return scalePoint()
           .domain(stringDomain)
           .range(range as [number, number])
-          .padding(ordinalPadding) as Scale;
+          .padding(padding) as Scale;
     }
   }
 };

@@ -28,7 +28,7 @@ export default class SetOperator extends SubsetNode {
 
   private mode: SetOperatorMode = SetOperatorMode.UNION;
 
-  private get modeOptions(): SelectOption[] {
+  get modeOptions(): SelectOption[] {
     return [
       { label: 'Union', value: SetOperatorMode.UNION },
       { label: 'Intersection', value: SetOperatorMode.INTERSECTION },

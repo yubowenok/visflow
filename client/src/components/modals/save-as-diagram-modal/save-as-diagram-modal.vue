@@ -1,5 +1,5 @@
 <template>
-<base-modal ref="modal" title="Save Diagram"
+<base-modal ref="modal" :title="title"
   :visible-state="saveAsDiagramModalVisible"
   :on-open="openSaveAsDiagramModal"
   :on-close="closeSaveAsDiagramModal"

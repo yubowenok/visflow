@@ -1,5 +1,6 @@
 import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
+import Victor from 'victor';
 import { select, Selection, BaseType } from 'd3-selection';
 
 import {
@@ -124,14 +125,14 @@ export default class Scatterplot extends Visualization {
       }
     }
     const box = getBrushBox(brushPoints);
-    const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
-    for (const itemIndex of items) {
-      const x = this.xScale(this.getDataset().getCellForScale(itemIndex, this.xColumn));
-      const y = this.yScale(this.getDataset().getCellForScale(itemIndex, this.yColumn));
-      if (isPointInBox({ x, y }, box)) {
-        this.selection.addItem(itemIndex);
+    this.itemProps.forEach(props => {
+      const point = { x: this.xScale(props.x), y: this.yScale(props.y) };
+      const clickToPointDistance = new Victor(point.x, point.y)
+        .subtract(new Victor(brushPoints[0].x, brushPoints[0].y)).length();
+      if (isPointInBox(point, box) || clickToPointDistance < (props.visuals.size as number)) {
+        this.selection.addItem(props.index);
       }
-    }
+    });
   }
 
   private computeItemProps() {

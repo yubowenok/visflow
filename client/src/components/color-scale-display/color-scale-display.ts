@@ -6,7 +6,7 @@ export default class ColorScaleDisplay extends Vue {
   @Prop()
   private id!: string;
 
-  private get gradient(): { background: string } {
+  get gradient(): { background: string } {
     if (!this.id) {
       return { background: 'none' };
     }

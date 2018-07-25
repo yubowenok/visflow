@@ -22,5 +22,5 @@
 </div>
 <div>
   Number of Bins
-  <form-input v-model="numBins" @input="updateAndPropagate"></form-input>
+  <form-input v-model.number="numBins" @input="updateAndPropagate" :disabled="isNumBinsDisabled"></form-input>
 </div>

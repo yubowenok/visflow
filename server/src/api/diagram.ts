@@ -100,10 +100,17 @@ const diagramApi = (app: Express) => {
     checkDiagramExists,
     checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
-    const json = req.body.diagram;
-    const file = path.join(DATA_PATH, 'diagram/', req.user.username, req.body.filename);
-    fs.writeFileSync(file, json);
-    res.status(200).end();
+    Diagram.findOneAndUpdate({ username: req.user.username, filename: req.body.filename }, { updatedAt: new Date() },
+      err => {
+        if (err) {
+          return next(err);
+        }
+        const json = req.body.diagram;
+        const file = path.join(DATA_PATH, 'diagram/', req.user.username, req.body.filename);
+        fs.writeFileSync(file, json);
+        res.status(200).end();
+      },
+    );
   });
 
   app.post('/api/diagram/delete', [

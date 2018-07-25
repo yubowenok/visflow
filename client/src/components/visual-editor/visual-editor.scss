@@ -5,6 +5,7 @@
   pointer-events: none;
   height: 100%;
   text-align: center;
+  overflow-y: auto;
 
   > div {
     width: 100%;
@@ -16,10 +17,8 @@
 
   i.color {
     display: block;
-    width: 80%;
-    height: 80%;
     border-radius: 4px;
-    border: 1.25px solid #555;
+    border-style: solid;
   }
 }
 

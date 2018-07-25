@@ -151,11 +151,11 @@ export default class Network extends Visualization {
   private force: Simulation<NetworkNode, undefined> | null = null;
   private isFirstForce = true; // Used to avoid resetting transform on deserialization.
 
-  private get nodeColumnSelectOptions(): SelectOption[] {
+  get nodeColumnSelectOptions(): SelectOption[] {
     return getColumnSelectOptions(this.nodeDataset);
   }
 
-  private get edgeColumnSelectOptions(): SelectOption[] {
+  get edgeColumnSelectOptions(): SelectOption[] {
     return getColumnSelectOptions(this.edgeDataset);
   }
 

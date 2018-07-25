@@ -1,4 +1,4 @@
-
+@import '../../common/style/index';
 
 .edge {
   pointer-events: auto;
@@ -19,6 +19,12 @@
   .hover-path {
     opacity: 0;
     stroke-width: 10px;
+    transition: $default-transition-time;
+
+    &.droppable {
+      opacity: .1;
+      stroke-width: 20px;
+    }
   }
 
   &.hovered {

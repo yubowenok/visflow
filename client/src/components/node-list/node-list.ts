@@ -10,6 +10,8 @@ import { elementContains } from '@/common/util';
 @Component
 export default class NodeList extends Vue {
   @ns.dataflow.Mutation('createNode') private createNode!: (options: CreateNodeOptions) => void;
+  @ns.interaction.Mutation('nodeListDragStarted') private nodeListDragStarted!: () => void;
+  @ns.interaction.Mutation('nodeListDragEnded') private nodeListDragEnded!: () => void;
 
   // Creates node at the mouse's location on click.
   @Prop({ default: false })
@@ -48,8 +50,10 @@ export default class NodeList extends Vue {
         helper: 'clone',
         start: (evt: Event) => {
           startTime = new Date();
+          this.nodeListDragStarted();
         },
         stop: (evt: Event) => {
+          this.nodeListDragEnded();
           const x = (evt as MouseEvent).pageX;
           const y = (evt as MouseEvent).pageY;
           if (new Date().getTime() - startTime.getTime() <= DRAG_TIME_THRESHOLD) {

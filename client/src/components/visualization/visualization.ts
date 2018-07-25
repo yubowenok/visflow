@@ -340,6 +340,15 @@ export default class Visualization extends SubsetNode {
     };
   }
 
+  private recordBrushPoint(evt: MouseEvent) {
+    const $brushElement = $(this.$refs.node).find(this.BRUSH_ELEMENT);
+    if (!$brushElement.length) {
+      return;
+    }
+    const offset = mouseOffset(evt, $brushElement as JQuery<HTMLElement>);
+    this.brushPoints.push({ x: offset.left, y: offset.top });
+  }
+
   private onBrushStart(evt: MouseEvent) {
     if (this.isAltPressed || !this.isBrushable()) {
       // Dragging
@@ -347,18 +356,14 @@ export default class Visualization extends SubsetNode {
     }
     this.isBrushing = true;
     this.brushTime = new Date().getTime();
+    this.recordBrushPoint(evt);
   }
 
   private onBrushMove(evt: MouseEvent) {
     if (!this.isBrushing) {
       return;
     }
-    const $brushElement = $(this.$refs.node).find(this.BRUSH_ELEMENT);
-    if (!$brushElement.length) {
-      return;
-    }
-    const offset = mouseOffset(evt, $brushElement as JQuery<HTMLElement>);
-    this.brushPoints.push({ x: offset.left, y: offset.top });
+    this.recordBrushPoint(evt);
     this.brushed(this.brushPoints);
   }
 
@@ -375,6 +380,7 @@ export default class Visualization extends SubsetNode {
     }
     this.isBrushing = false;
     this.brushed(this.brushPoints, true);
+
     if (this.brushPoints.length) {
       const [p, q] = [_.first(this.brushPoints), _.last(this.brushPoints)] as [Point, Point];
       this.brushDistance = Math.abs(p.x - q.x) + Math.abs(p.y - q.y);

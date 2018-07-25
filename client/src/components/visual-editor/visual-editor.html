@@ -1,13 +1,12 @@
 <!-- node-content -->
 <div v-if="mode === 'assignment'" class="display">
   <template v-if="visuals.color || visuals.border">
-    <i class="color" :style="{ 'background-color': visuals.color || visuals.border }"></i>
+    <i class="color" :style="displayStyle"></i>
   </template>
   <template v-else-if="visuals.size || visuals.width || visuals.opacity">
-    <div>
-      {{ visuals.size ? 'size' : (visuals.width ? 'width' : 'opacity') }}
-      {{ visuals.size || visuals.width || visuals.opacity }}
-    </div>
+    <div v-if="visuals.size !== undefined">size {{ visuals.size }}</div>
+    <div v-if="visuals.width !== undefined">width {{ visuals.width }}</div>
+    <div v-if="visuals.opacity !== undefined">opacity {{ visuals.opacity }}</div>
   </template>
   <template v-else >
     <div>(no visuals)</div>
@@ -81,11 +80,21 @@ Mode
       :clearable="false"
     ></form-select>
   </div>
-  <div class="subsection">
+  <div class="subsection" v-if="!isNumericalEncoding">
     <div>Scale</div>
     <color-scale-select
       v-model="encoding.colorScale.id"
       @input="updateAndPropagate"
     ></color-scale-select>
   </div>
+  <template v-if="isNumericalEncoding">
+    <div class="subsection">
+      Min
+      <form-input v-model.number="encoding.numericalScale.min" @input="updateAndPropagate"></form-input>
+    </div>
+    <div class="subsection">
+      Max
+      <form-input v-model.number="encoding.numericalScale.max" @input="updateAndPropagate"></form-input>
+    </div>
+  </template>
 </div>

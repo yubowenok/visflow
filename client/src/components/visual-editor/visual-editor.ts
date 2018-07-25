@@ -80,6 +80,30 @@ export default class VisualEditor extends SubsetNode {
     ];
   }
 
+  get isNumericalEncoding(): boolean {
+    return this.encoding.column !== null && isNumericalVisual(this.encoding.type);
+  }
+
+  get displayStyle() {
+    const width = this.visuals.width ? Math.min(this.visuals.width, this.width / 2) : 0;
+    const baseSize = Math.min(this.width, this.height);
+    const size = this.visuals.size ?
+      // If size is defined, we use the defined size.
+      Math.min(baseSize, this.visuals.size) :
+      // Otherwise we use 75% of node size.
+      baseSize * .75;
+    return {
+      'background-color': this.visuals.color || '',
+      'border-color': this.visuals.border || '',
+      'border-width': width + 'px',
+      'left': (this.width - size) / 2 + 'px',
+      'top': (this.height - size) / 2 + 'px',
+      'width': size + 'px',
+      'height': size + 'px',
+      'opacity': this.visuals.opacity || 1,
+    };
+  }
+
   protected onDatasetChange() {
     this.encoding.column = null; // Avoid unexpected encoding on new dataset column.
   }
@@ -132,11 +156,10 @@ export default class VisualEditor extends SubsetNode {
 
   private dyeEncoding(): SubsetPackage {
     const pkg = this.inputPortMap.in.getSubsetPackage().clone();
-    if (this.encoding.column === null || !this.encoding.colorScale.id) {
+    if (this.encoding.column === null || (!this.isNumericalEncoding && !this.encoding.colorScale.id)) {
       return pkg;
     }
     const dataset = this.getDataset();
-
     if (isNumericalVisual(this.encoding.type)) {
       const scale = getScale(
         dataset.getColumnType(this.encoding.column),

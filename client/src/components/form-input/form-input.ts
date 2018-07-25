@@ -12,6 +12,9 @@ export default class FormInput extends Vue {
   @Prop({ type: [String, Number], default: ValueType.STRING })
   private type!: ValueType;
 
+  @Prop({ default: false })
+  private disabled!: boolean;
+
   private text: string = '';
 
   @Watch('value')

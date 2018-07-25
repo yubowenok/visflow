@@ -13,8 +13,13 @@ export default class SaveAsDiagramModal extends Vue {
   @ns.modals.Mutation('openSaveAsDiagramModal') private openSaveAsDiagramModal!: () => void;
   @ns.modals.Mutation('closeSaveAsDiagramModal') private closeSaveAsDiagramModal!: () => void;
   @ns.dataflow.Action('saveAsDiagram') private dispatchSaveAsDiagram!: (diagramName: string) => Promise<string>;
+  @ns.dataflow.State('diagramName') private dataflowDiagramName!: string;
 
   private diagramName = '';
+
+  get title(): string {
+    return this.dataflowDiagramName ? 'Save Diagram As' : 'Save Diagram';
+  }
 
   private saveAsDiagram() {
     if (this.diagramName === '') {

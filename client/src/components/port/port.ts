@@ -226,10 +226,9 @@ export default class Port extends Vue {
     $port.droppable({
       hoverClass: 'hover',
       tolerance: 'pointer',
+      accept: '.port',
       drop: (evt: Event, ui: JQueryUI.DroppableEventUIParam) => {
-        if (ui.draggable.hasClass('port')) {
-          this.dropPortOnPort(this);
-        }
+        this.dropPortOnPort(this);
       },
     });
   }

@@ -2,6 +2,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import Victor from 'victor';
 import { TweenLite } from 'gsap';
 import * as d3 from 'd3';
+import $ from 'jquery';
 import _ from 'lodash';
 
 import ns from '@/store/namespaces';
@@ -51,6 +52,8 @@ export default class Edge extends Vue {
   public target!: InputPort;
 
   @ns.dataflow.Mutation('removeEdge') private dataflowRemoveEdge!: (edge: Vue) => void;
+  @ns.interaction.Mutation('mouseupOnEdge') private mouseupOnEdge!: (edge: Vue) => void;
+  @ns.interaction.State('isNodeListDragging') private isNodeListDragging!: boolean;
 
   private x1: number = 0;
   private y1: number = 0;
@@ -59,40 +62,6 @@ export default class Edge extends Vue {
   private edgePathStr: string = '';
 
   private isHovered: boolean = false;
-
-  public serialize(): EdgeSave {
-    return {
-      sourceNodeId: this.source.node.id,
-      sourcePortId: this.source.id,
-      targetNodeId: this.target.node.id,
-      targetPortId: this.target.id,
-    };
-  }
-
-  public getEdgeSvgNode(): Element {
-    return this.$refs.edge as Element;
-  }
-
-  public updateCoordinates() {
-    const sourceCenter = this.source.getCenterCoordinates();
-    this.x1 = sourceCenter.x;
-    this.y1 = sourceCenter.y;
-    const targetCenter = this.target.getCenterCoordinates();
-    this.x2 = targetCenter.x;
-    this.y2 = targetCenter.y;
-  }
-
-  private contextMenuRemove() {
-    this.dataflowRemoveEdge(this);
-  }
-
-  private mounted() {
-    this.updateCoordinates();
-
-    TweenLite.from(this.$refs.edge, LONG_ANIMATION_DURATION_S, {
-      opacity: 0,
-    });
-  }
 
   get getCurvePath(): string {
     const sx = this.x1;
@@ -150,6 +119,47 @@ export default class Edge extends Vue {
   get getArrowPath(): string {
     const points = this.getArrowPoints(this.edgePathStr);
     return arrowPath(points.base, points.head);
+  }
+
+  public serialize(): EdgeSave {
+    return {
+      sourceNodeId: this.source.node.id,
+      sourcePortId: this.source.id,
+      targetNodeId: this.target.node.id,
+      targetPortId: this.target.id,
+    };
+  }
+
+  public getEdgeSvgNode(): Element {
+    return this.$refs.edge as Element;
+  }
+
+  public updateCoordinates() {
+    const sourceCenter = this.source.getCenterCoordinates();
+    this.x1 = sourceCenter.x;
+    this.y1 = sourceCenter.y;
+    const targetCenter = this.target.getCenterCoordinates();
+    this.x2 = targetCenter.x;
+    this.y2 = targetCenter.y;
+  }
+
+  private contextMenuRemove() {
+    this.dataflowRemoveEdge(this);
+  }
+
+  private onMouseup() {
+    this.mouseupOnEdge(this);
+  }
+
+  private mounted() {
+    this.updateCoordinates();
+    this.appear();
+  }
+
+  private appear() {
+    TweenLite.from(this.$refs.edge, LONG_ANIMATION_DURATION_S, {
+      opacity: 0,
+    });
   }
 
   private getArrowPoints(edgePath: string): { base: Point, head: Point } {

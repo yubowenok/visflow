@@ -10,6 +10,7 @@ import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 import * as helper from '@/store/dataflow/helper';
 import * as saveLoad from '@/store/dataflow/save-load';
 import * as nodeTypes from './node-types';
+import { OutputPort } from '@/components/port';
 
 export * from '@/store/dataflow/util';
 
@@ -65,9 +66,29 @@ const mutations = {
     state.numNodeLayers++;
   },
 
-  /** Creates a node without propagation. This assumes the new node does not connect to any other node. */
+  /**
+   * Creates a node without propagation. This assumes the new node does not connect to any other node.
+   */
   createNode: (state: DataflowState, options: CreateNodeOptions) => {
-    helper.createNode(state, options);
+    const node = helper.createNode(state, options);
+    if (store.state.interaction.mouseupEdge) {
+      // If the node button is dropped on an edge, attempt to insert the new node onto this edge.
+      const edge = store.state.interaction.mouseupEdge;
+      const edgeSource = edge.source;
+      const edgeTarget = edge.target;
+      // Removes the existing edge first to avoid connectiviy check failing because of existing connection.
+      helper.removeEdge(state, edge, false);
+      const nodeOutputPort = node.findConnectablePort(edgeTarget) as OutputPort;
+      if (nodeOutputPort) {
+        helper.createEdgeToNode(state, edge.source, node, false);
+        helper.createEdge(state, nodeOutputPort, edgeTarget, false);
+      } else {
+        // Recover the previous edge
+        helper.createEdge(state, edgeSource, edgeTarget, false);
+      }
+      helper.propagatePort(edgeSource);
+      store.commit('interaction/clearMouseupEdge');
+    }
   },
 
   /** Removes a node and propagates. */
