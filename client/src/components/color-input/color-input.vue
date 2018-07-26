@@ -5,6 +5,7 @@
   </span>
   <form-input ref="textInput" v-model="text"
     @input="onTextInput"
+    @change="onTextChange"
     @click.native="onTextClick"
   ></form-input>
   <transition name="fade">

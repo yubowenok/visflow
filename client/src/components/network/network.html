@@ -16,7 +16,7 @@
   <column-select
     :columns="nodeColumnSelectOptions"
     v-model="nodeIdColumn"
-    @input="draw"
+    @input="onInputNodeIdColumn"
   ></column-select>
 </div>
 <div>
@@ -24,7 +24,7 @@
   <column-select
     :columns="edgeColumnSelectOptions"
     v-model="edgeSourceColumn"
-    @input="draw"
+    @input="onInputEdgeSourceColumn"
   ></column-select>
 </div>
 <div>
@@ -32,7 +32,7 @@
   <column-select
     :columns="edgeColumnSelectOptions"
     v-model="edgeTargetColumn"
-    @input="draw"
+    @input="onInputEdgeTargetColumn"
   ></column-select>
 </div>
 <div>
@@ -40,16 +40,19 @@
   <column-select
     :columns="nodeColumnSelectOptions"
     v-model="nodeLabelColumn"
-    @input="computeProps(); drawNetwork();"
+    @input="onInputNodeLabelColumn"
     :clearable="true"
   ></column-select>
 </div>
 <div>
-  <div>Edge Link Distance</div>
-  <form-input v-model.number="linkDistance" @input="draw"></form-input>
+  <div>Edge Distance</div>
+  <form-input v-model.number="linkDistance"
+    @input="onInputLinkDistance"
+    @change="onChangeLinkDistance"
+  ></form-input>
 </div>
 <div>
-  <b-form-checkbox v-model="isNavigating">Navigation</b-form-checkbox>
+  <b-form-checkbox v-model="isNavigating" @input="onToggleNavigating">Navigation</b-form-checkbox>
 </div>
 <!-- context-menu -->
 <li @click="toggleNavigating">

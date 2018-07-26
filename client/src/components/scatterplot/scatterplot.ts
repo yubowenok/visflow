@@ -24,6 +24,8 @@ import { SELECTED_COLOR } from '@/common/constants';
 import { isNumericalType } from '@/data/util';
 import { fadeOut, getTransform } from '@/common/util';
 import { VisualProperties } from '@/data/visuals';
+import * as history from './history';
+import { HistoryNodeEvent } from '@/store/history/types';
 
 const DOMAIN_MARGIN = .1;
 interface ScatterplotSave {
@@ -69,12 +71,14 @@ export default class Scatterplot extends Visualization {
   private yScale!: Scale;
   private itemProps: ScatterplotItemProps[] = [];
 
-  get initialXColumn(): number | null {
-    return this.dataset ? this.xColumn : null;
+  public setXColumn(column: number) {
+    this.xColumn = column;
+    this.draw();
   }
 
-  get initialYColumn(): number | null {
-    return this.dataset ? this.yColumn : null;
+  public setYColumn(column: number) {
+    this.yColumn = column;
+    this.draw();
   }
 
   protected created() {
@@ -245,5 +249,15 @@ export default class Scatterplot extends Visualization {
       this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
       (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
     });
+  }
+
+  private onSelectXColumn(column: number, prevColumn: number | null) {
+    this.commitHistory(history.selectXColumnEvent(this, column, prevColumn));
+    this.setXColumn(column);
+  }
+
+  private onSelectYColumn(column: number, prevColumn: number | null) {
+    this.commitHistory(history.selectYColumnEvent(this, column, prevColumn));
+    this.setYColumn(column);
   }
 }

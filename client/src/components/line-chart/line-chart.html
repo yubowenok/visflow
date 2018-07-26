@@ -21,7 +21,7 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="seriesColumn"
-    @input="draw"
+    @input="onInputSeriesColumn"
     :clearable="true"
   ></column-select>
 </div>
@@ -30,7 +30,7 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="valueColumn"
-    @input="draw"
+    @input="onInputValueColumn"
     :clearable="true"
   ></column-select>
 </div>
@@ -39,16 +39,16 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="groupByColumn"
-    @input="draw"
+    @input="onInputGroupByColumn"
     :clearable="true"
   ></column-select>
 </div>
 <div>
-  <b-form-checkbox v-model="arePointsVisible" @input="draw">Draw Points</b-form-checkbox>
+  <b-form-checkbox v-model="arePointsVisible" @input="onTogglePointsVisible">Draw Points</b-form-checkbox>
 </div>
 <div>
-  <b-form-checkbox v-model="isCurveDrawing" @input="draw">Draw Curve</b-form-checkbox>
+  <b-form-checkbox v-model="isCurveDrawing" @input="onToggleCurveDrawing">Draw Curve</b-form-checkbox>
 </div>
 <div>
-  <b-form-checkbox v-model="areLegendsVisible" @input="draw">Legends</b-form-checkbox>
+  <b-form-checkbox v-model="areLegendsVisible" @input="onToggleLegendsVisible">Legends</b-form-checkbox>
 </div>

@@ -42,18 +42,6 @@ export default class Table extends Visualization {
   // Columns to show from the dataset.
   private columns: number[] = [];
 
-  public undo(evt: HistoryNodeEvent) {
-    if (!history.undo(evt)) {
-      this.undoBase(evt);
-    }
-  }
-
-  public redo(evt: HistoryNodeEvent) {
-    if (!history.redo(evt)) {
-      this.redoBase(evt);
-    }
-  }
-
   public setColumns(columns: number[]) {
     this.columns = columns;
     this.draw();
@@ -184,8 +172,8 @@ export default class Table extends Visualization {
       });
   }
 
-  private onInputColumns(columns: number[], prevColumns: number[]) {
-    this.draw();
+  private onSelectColumns(columns: number[], prevColumns: number[]) {
     this.commitHistory(history.selectColumnsEvent(this, columns, prevColumns));
+    this.setColumns(columns);
   }
 }

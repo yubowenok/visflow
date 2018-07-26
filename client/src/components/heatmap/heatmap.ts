@@ -24,16 +24,14 @@ import { VisualProperties } from '@/data/visuals';
 import ColorScaleSelect from '@/components/color-scale-select/color-scale-select';
 import ColumnList from '@/components/column-list/column-list';
 import ColumnSelect from '@/components/column-select/column-select';
+import * as history from './history';
+import { HistoryNodeEvent } from '@/store/history/types';
 
 const DEFAULT_NUM_COLUMNS = 6;
 const ROW_LABEL_X_OFFSET_PX = 8;
 const COLUMN_LABEL_Y_OFFSET_PX = 8;
 const LABEL_SIZE_X_PX = 6;
 const LABEL_SIZE_Y_PX = 9;
-
-const DEFAULT_ITEM_VISUALS = {
-  color: '#555',
-};
 
 const SELECTED_ITEM_VISUALS = {
   border: SELECTED_COLOR,
@@ -94,6 +92,31 @@ export default class Heatmap extends Visualization {
   private itemProps: HeatmapItemProps[] = [];
 
   private margins: PlotMargins = _.clone(DEFAULT_PLOT_MARGINS);
+
+  public setColumns(columns: number[]) {
+    this.columns = columns;
+    this.draw();
+  }
+
+  public setColorScale(colorScaleId: string) {
+    this.colorScaleId = colorScaleId;
+    this.draw();
+  }
+
+  public setSortByColumn(column: number | null) {
+    this.sortByColumn = column;
+    this.draw();
+  }
+
+  public setRowLabelColumn(column: number | null) {
+    this.rowLabelColumn = column;
+    this.draw();
+  }
+
+  public setColumnLabelsVisible(value: boolean) {
+    this.areColumnLabelsVisible = value;
+    this.draw();
+  }
 
   protected created() {
     this.serializationChain.push((): HeatmapSave => ({
@@ -373,5 +396,30 @@ export default class Heatmap extends Visualization {
         });
     }
     updatedLabels.attr('transform', labelTransform);
+  }
+
+  private onSelectColumns(columns: number[], prevColumns: number[]) {
+    this.commitHistory(history.selectColumnsEvent(this, columns, prevColumns));
+    this.setColumns(columns);
+  }
+
+  private onSelectColorScale(colorScaleId: string, prevColorScaleId: string) {
+    this.commitHistory(history.selectColorScaleEvent(this, colorScaleId, prevColorScaleId));
+    this.setColorScale(colorScaleId);
+  }
+
+  private onSelectSortByColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectSortByColumnEvent(this, column, prevColumn));
+    this.setSortByColumn(column);
+  }
+
+  private onSelectRowLabelColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectRowLabelColumnEvent(this, column, prevColumn));
+    this.setRowLabelColumn(column);
+  }
+
+  private onToggleColumnLabelsVisible(value: boolean) {
+    this.commitHistory(history.toggleColumnLabelsVisibleEvent(this, value));
+    this.setColumnLabelsVisible(value);
   }
 }

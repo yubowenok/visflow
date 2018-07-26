@@ -16,14 +16,15 @@
   <column-list
     v-model="columns"
     :columns="columnSelectOptions"
-    @input="draw"
+    @input="onSelectColumns"
+    @change="setColumns"
   ></column-list>
 </div>
 <div>
   <div>Color Scale</div>
   <color-scale-select
     v-model="colorScaleId"
-    @input="draw"
+    @input="onSelectColorScale"
     :clearable="false"
   ></color-scale-select>
 </div>
@@ -32,7 +33,7 @@
   <column-select
     v-model="sortByColumn"
     :columns="columnSelectOptions"
-    @input="draw"
+    @input="onSelectSortByColumn"
   ></column-select>
 </div>
 <div>
@@ -40,10 +41,12 @@
   <column-select
     v-model="rowLabelColumn"
     :columns="columnSelectOptions"
-    @input="draw"
+    @input="onSelectRowLabelColumn"
     :clearable="true"
   ></column-select>
 </div>
 <div>
-  <b-form-checkbox v-model="areColumnLabelsVisible" @input="draw">Column Labels</b-form-checkbox>
+  <b-form-checkbox v-model="areColumnLabelsVisible"
+    @input="onToggleColumnLabelsVisible"
+  >Column Labels</b-form-checkbox>
 </div>

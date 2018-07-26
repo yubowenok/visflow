@@ -16,7 +16,7 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="xColumn"
-    @input="draw"
+    @input="onSelectXColumn"
   ></column-select>
 </div>
 <div>
@@ -24,6 +24,6 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="yColumn"
-    @input="draw"
+    @input="onSelectYColumn"
   ></column-select>
 </div>

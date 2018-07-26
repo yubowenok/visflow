@@ -1,14 +1,15 @@
+// tslint:disable no-any
 import { Node } from '@/components/node';
 import {
   HistoryEventLevel,
   HistoryNodeEvent,
   HistoryDiagramEvent,
   HistoryDiagramBatchEvent,
+  HistoryNodeOptionEvent,
  } from '@/store/history/types';
 import { DiagramEventType } from '@/store/dataflow/types';
 
 
-// tslint:disable-next-line no-any
 export const diagramEvent = (type: DiagramEventType, message: string, data: any): HistoryDiagramEvent => {
   return {
     level: HistoryEventLevel.DIAGRAM,
@@ -18,7 +19,6 @@ export const diagramEvent = (type: DiagramEventType, message: string, data: any)
   };
 };
 
-// tslint:disable-next-line no-any
 export const diagramBatchEvent = (type: string, message: string, events: HistoryDiagramEvent[], data?: any):
   HistoryDiagramBatchEvent => {
   return {
@@ -30,13 +30,25 @@ export const diagramBatchEvent = (type: string, message: string, events: History
   };
 };
 
-// tslint:disable-next-line no-any
 export const nodeEvent = (type: string, message: string, node: Node, data: any): HistoryNodeEvent => {
   return {
     level: HistoryEventLevel.NODE,
     type,
-    node,
     message,
+    node,
     data,
+  };
+};
+
+export const nodeOptionEvent = (type: string, message: string, node: Node,
+                                setter: (value: any) => void, value: any, prevValue: any):
+  HistoryNodeOptionEvent => {
+  return {
+    level: HistoryEventLevel.NODE,
+    type,
+    message,
+    node,
+    setter,
+    data: { value, prevValue },
   };
 };

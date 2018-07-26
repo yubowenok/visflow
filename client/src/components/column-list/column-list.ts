@@ -25,6 +25,8 @@ export default class ColumnList extends Vue {
   private selected: number[] = [];
   // Used for tracing history.
   private prevSelected: number[] = [];
+  // Tracks the status of list being dragged and sorted.
+  private isSorting = false;
 
   private created() {
     this.selected = this.value.concat().filter(index => index < this.columns.length);
@@ -33,8 +35,11 @@ export default class ColumnList extends Vue {
 
   @Watch('value')
   private onValueChange() {
-    this.selected = this.value;
-    this.prevSelected = this.selected.concat();
+    if (!this.isSorting) {
+      // We ignore changes to selected from the parent component to avoid binded selected affecting
+      // the selected list while it is being sorted.
+      this.selected = this.value;
+    }
   }
 
   // Handles dragging re-order.
@@ -63,12 +68,14 @@ export default class ColumnList extends Vue {
         _.each(tags, (tag, index) => {
           $(tag).attr('id', this.selected[index].toString());
         });
+        this.isSorting = true;
       },
       change: (evt, ui) => {
         // Emits the change but does not touch this.selected, which will be updated on sortable stop().
-        this.$emit('ordering', getNewOrder(evt, ui), this.prevSelected);
+        this.$emit('change', getNewOrder(evt, ui), this.prevSelected);
       },
       stop: (evt, ui) => {
+        this.isSorting = false;
         // Finalize the selected values with child component.
         this.selected = getNewOrder(evt, ui);
 

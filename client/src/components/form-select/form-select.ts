@@ -34,22 +34,26 @@ export default class FormSelect extends Vue {
   private value!: string | number | Array<string | number> | null;
 
   private selected: string | number | Array<string | number> | null = null;
+  private prevSelected: string | number | Array<string | number> | null = null;
 
   private created() {
     // Pass initial value assignment to child select, without emitting input event.
-    this.updateSelectedFromValue();
-  }
-
-  private updateSelectedFromValue() {
-    this.selected = this.value;
-    this.childSelected = this.childSelectedOption();
+    this.save(this.value, true);
   }
 
   @Watch('value')
   private onValueChange() {
-    if (!_.isEqual(this.selected, this.value)) {
-      this.updateSelectedFromValue();
-      this.$emit('input', this.selected);
+    this.save(this.value);
+  }
+
+  private save(value: string | number | Array<string | number> | null, noEvent?: boolean) {
+    this.selected = value;
+    this.childSelected = this.childSelectedOption();
+    if (!_.isEqual(this.selected, this.prevSelected)) {
+      if (noEvent !== true) {
+        this.$emit('input', this.selected, this.prevSelected);
+      }
+      this.prevSelected = this.selected;
     }
   }
 
@@ -86,9 +90,6 @@ export default class FormSelect extends Vue {
     } else {
       newSelected = this.getValue(this.childSelected as SelectOption);
     }
-    if (!_.isEqual(this.selected, newSelected)) {
-      this.selected = newSelected;
-      this.$emit('input', this.selected);
-    }
+    this.save(newSelected);
   }
 }

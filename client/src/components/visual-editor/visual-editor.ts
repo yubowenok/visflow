@@ -15,24 +15,32 @@ import ColorScaleSelect from '@/components/color-scale-select/color-scale-select
 import ColorScaleDisplay from '@/components/color-scale-display/color-scale-display';
 import { getScale } from '@/components/visualization';
 import { getColorScale } from '@/common/color-scale';
+import * as history from './history';
 
-enum VisualEditorMode {
+export enum VisualEditorMode {
   ASSIGNMENT = 'assignment',
   ENCODING = 'encoding',
 }
 
+interface NullableVisualProperties {
+  color: string | null;
+  border: string | null;
+  size: number | null;
+  width: number | null;
+  opacity: number | null;
+  [prop: string]: number | string | null;
+}
+
 interface VisualEditorSave {
   mode: VisualEditorMode;
-  visuals: VisualProperties;
+  visuals: NullableVisualProperties;
   encoding: EncodingParams;
 }
 
 interface EncodingParams {
   column: number | null;
   type: VisualPropertyType;
-  colorScale: {
-    id: string;
-  };
+  colorScaleId: string;
   numericalScale: {
     min: number;
     max: number;
@@ -55,11 +63,17 @@ export default class VisualEditor extends SubsetNode {
   protected RESIZABLE = true;
 
   private mode: VisualEditorMode = VisualEditorMode.ASSIGNMENT;
-  private visuals: VisualProperties = {};
+  private visuals: NullableVisualProperties = {
+    color: null,
+    border: null,
+    size: null,
+    width: null,
+    opacity: null,
+  };
   private encoding: EncodingParams = {
     column: null,
     type: VisualPropertyType.COLOR,
-    colorScale: { id: 'red-green' },
+    colorScaleId: 'red-green' ,
     numericalScale: { min: 1, max: 1 },
   };
 
@@ -85,7 +99,10 @@ export default class VisualEditor extends SubsetNode {
   }
 
   get displayStyle() {
-    const width = this.visuals.width ? Math.min(this.visuals.width, this.width / 2) : 0;
+    let width = this.visuals.width ? Math.min(this.visuals.width, this.width / 2) : 0;
+    if (this.visuals.border && width === 0) {
+      width = 1; // If the border color is set, show at least 1px of border.
+    }
     const baseSize = Math.min(this.width, this.height);
     const size = this.visuals.size ?
       // If size is defined, we use the defined size.
@@ -102,6 +119,65 @@ export default class VisualEditor extends SubsetNode {
       'height': size + 'px',
       'opacity': this.visuals.opacity || 1,
     };
+  }
+
+  public setMode(mode: VisualEditorMode) {
+    this.mode = mode;
+    this.updateAndPropagate();
+  }
+
+  public setVisualsColor(color: string | null) {
+    this.visuals.color = color;
+    this.updateAndPropagate();
+  }
+
+  public setVisualsBorder(border: string | null) {
+    this.visuals.border = border;
+    this.updateAndPropagate();
+  }
+
+  public setVisualsSize(size: number | null) {
+    this.visuals.size = size;
+    this.updateAndPropagate();
+  }
+
+  public setVisualsWidth(width: number | null) {
+    this.visuals.width = width;
+    this.updateAndPropagate();
+  }
+
+  public setVisualsOpacity(opacity: number | null) {
+    if (opacity === null) {
+      delete this.visuals.opacity;
+    } else {
+      this.visuals.opacity = opacity;
+    }
+    this.updateAndPropagate();
+  }
+
+  public setEncodingColumn(column: number | null) {
+    this.encoding.column = column;
+    this.updateAndPropagate();
+  }
+
+  public setEncodingType(type: VisualPropertyType) {
+    this.encoding.type = type;
+    this.updateAndPropagate();
+  }
+
+  public setEncodingColorScale(colorScaleId: string) {
+    this.encoding.colorScaleId = colorScaleId;
+    this.updateAndPropagate();
+  }
+
+  public setEncodingScaleMin(value: number | null) {
+    this.encoding.numericalScale.min = value || 0;
+    this.updateAndPropagate();
+  }
+
+  public setEncodingScaleMax(value: number | null) {
+    this.encoding.numericalScale.max = value || 0;
+    this.updateAndPropagate();
   }
 
   protected onDatasetChange() {
@@ -124,7 +200,6 @@ export default class VisualEditor extends SubsetNode {
   }
 
   protected updateAndPropagate() {
-    this.removeFalsyVisuals(); // Adding this to the default updateAndPropagate()
     this.update();
     this.propagate();
   }
@@ -141,7 +216,7 @@ export default class VisualEditor extends SubsetNode {
 
   private dyeAssignment(): SubsetPackage {
     const pkg = this.inputPortMap.in.getSubsetPackage().clone();
-    const visuals = _.clone(this.visuals) as VisualProperties;
+    const visuals = this.removeNullVisuals(this.visuals);
     // Remove undefined to use _.extend later.
     _.each(visuals, (value, prop) => {
       if (visuals[prop] === undefined) {
@@ -156,7 +231,7 @@ export default class VisualEditor extends SubsetNode {
 
   private dyeEncoding(): SubsetPackage {
     const pkg = this.inputPortMap.in.getSubsetPackage().clone();
-    if (this.encoding.column === null || (!this.isNumericalEncoding && !this.encoding.colorScale.id)) {
+    if (this.encoding.column === null || (!this.isNumericalEncoding && !this.encoding.colorScaleId)) {
       return pkg;
     }
     const dataset = this.getDataset();
@@ -171,7 +246,7 @@ export default class VisualEditor extends SubsetNode {
         _.extend(item.visuals, { [this.encoding.type]: scale(value) });
       });
     } else {
-      const colorScale = getColorScale(this.encoding.colorScale.id);
+      const colorScale = getColorScale(this.encoding.colorScaleId);
       // Create a scale that maps dataset values to [0, 1] to be further used by colorScale.
       const scale = getScale(
         dataset.getColumnType(this.encoding.column),
@@ -189,12 +264,68 @@ export default class VisualEditor extends SubsetNode {
 
   // Reset unset falsy properties to undefined to avoid sending falsy values like
   // color = '' or color = null to the downflow.
-  private removeFalsyVisuals() {
-    const visuals = this.visuals;
-    _.each(visuals, (value: string | number | undefined, prop: string) => {
-      if (visuals[prop] === null || visuals[prop] === '') {
-        visuals[prop] = undefined;
+  private removeNullVisuals(visuals: NullableVisualProperties): VisualProperties {
+    const cleanVisuals: VisualProperties = {};
+    _.each(visuals, (value: string | number | null, prop: string) => {
+      if (value !== null) {
+        cleanVisuals[prop] = value;
       }
     });
+    return cleanVisuals;
+  }
+
+  private onSelectMode(mode: VisualEditorMode, prevMode: VisualEditorMode) {
+    this.commitHistory(history.selectModeEvent(this, mode, prevMode));
+    this.setMode(mode);
+  }
+
+  private onInputVisualsColor(color: string | null, prevColor: string | null) {
+    this.commitHistory(history.inputVisualsColorEvent(this, color, prevColor));
+    this.setVisualsColor(color);
+  }
+
+  private onInputVisualsBorder(border: string | null, prevBorder: string | null) {
+    this.commitHistory(history.inputVisualsBorderEvent(this, border, prevBorder));
+    this.setVisualsBorder(border);
+  }
+
+  private onInputVisualsSize(size: number | null, prevSize: number | null) {
+    this.commitHistory(history.inputVisualsSizeEvent(this, size, prevSize));
+    this.setVisualsSize(size);
+  }
+
+  private onInputVisualsWidth(width: number | null, prevWidth: number | null) {
+    this.commitHistory(history.inputVisualsWidthEvent(this, width, prevWidth));
+    this.setVisualsWidth(width);
+  }
+
+  private onInputVisualsOpacity(opacity: number | null, prevOpacity: number | null) {
+    this.commitHistory(history.inputVisualsOpacityEvent(this, opacity, prevOpacity));
+    this.setVisualsOpacity(opacity);
+  }
+
+  private onSelectEncodingColumn(column: number, prevColumn: number | null) {
+    this.commitHistory(history.selectEncodingColumnEvent(this, column, prevColumn));
+    this.setEncodingColumn(column);
+  }
+
+  private onSelectEncodingType(type: VisualPropertyType, prevType: VisualPropertyType) {
+    this.commitHistory(history.selectEncodingType(this, type, prevType));
+    this.setEncodingType(type);
+  }
+
+  private onSelectEncodingColorScale(colorScaleId: string, prevColorScaleId: string) {
+    this.commitHistory(history.selectEncodingColorScale(this, colorScaleId, prevColorScaleId));
+    this.setEncodingColorScale(colorScaleId);
+  }
+
+  private onInputEncodingScaleMin(value: number | null, prevValue: number | null) {
+    this.commitHistory(history.inputEncodingScaleMin(this, value, prevValue));
+    this.setEncodingScaleMin(value);
+  }
+
+  private onInputEncodingScaleMax(value: number | null, prevValue: number | null) {
+    this.commitHistory(history.inputEncodingScaleMax(this, value, prevValue));
+    this.setEncodingScaleMax(value);
   }
 }

@@ -3,7 +3,6 @@ import { Component } from 'vue-property-decorator';
 import ns from '@/store/namespaces';
 import { Node, injectNodeTemplate } from '@/components/node';
 import template from './data-source.html';
-import Port from '@/components/port/port';
 import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
 import { DatasetInfo } from '@/components/dataset-list/dataset-list';
 import { systemMessageErrorHandler } from '@/common/util';
@@ -11,10 +10,10 @@ import { GetDatasetOptions } from '@/store/dataset';
 import { parseCsv } from '@/data/parser';
 import { SubsetPackage } from '@/data/package';
 import { SubsetOutputPort } from '@/components/port';
+import * as history from './history';
 
 export interface DataSourceSave {
   datasetInfo: DatasetInfo | null;
-  datasetName: string;
 }
 
 @Component({
@@ -34,7 +33,16 @@ export default class DataSource extends Node {
   @ns.dataset.Action('getDataset') private getDataset!: (options: GetDatasetOptions) => Promise<string>;
 
   private datasetInfo: DatasetInfo | null = null;
-  private datasetName = '';
+
+  public setDatasetInfo(datasetInfo: DatasetInfo) {
+    this.datasetInfo = datasetInfo;
+    if (this.datasetInfo) {
+      this.fetchDataset();
+    } else {
+      this.outputPortMap.out.updatePackage(new SubsetPackage());
+      this.portUpdated(this.outputPortMap.out);
+    }
+  }
 
   /** Data source does not update unless triggered by UI. */
   public update() {
@@ -44,7 +52,6 @@ export default class DataSource extends Node {
   protected created() {
     this.serializationChain.push(() => ({
       datasetInfo: this.datasetInfo,
-      datasetName: this.datasetName,
     }));
     this.deserializationChain.push(() => {
       if (this.datasetInfo) {
@@ -65,12 +72,6 @@ export default class DataSource extends Node {
     ];
   }
 
-  private onSelectDataset(info: DatasetInfo) {
-    this.datasetInfo = info;
-    this.datasetName = info.originalname;
-    this.fetchDataset();
-  }
-
   private fetchDataset() {
     if (!this.datasetInfo) {
       console.error('fetchDataset() called when data source has no dataset set');
@@ -85,5 +86,10 @@ export default class DataSource extends Node {
       outputPort.updatePackage(new SubsetPackage(dataset));
       this.portUpdated(outputPort);
     }).catch(systemMessageErrorHandler(this.$store));
+  }
+
+  private onSelectDataset(info: DatasetInfo) {
+    this.commitHistory(history.setDatasetInfoEvent(this, info, this.datasetInfo));
+    this.setDatasetInfo(info);
   }
 }

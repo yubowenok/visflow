@@ -16,6 +16,7 @@ import {
 import { VisualProperties } from '@/data/visuals';
 import { SELECTED_COLOR } from '@/common/constants';
 import { isNumericalType } from '@/data/util';
+import * as history from './history';
 
 const MAP_ATTRIBUTION = `<a href="http://mapbox.com" target="_blank">© Mapbox</a> |
   <a href="http://openstreetmap.org" target="_blank">© OpenStreetMap</a> |
@@ -87,6 +88,20 @@ export default class Map extends Visualization {
       return;
     }
     this.onKeysBase(keys);
+  }
+
+  public setLatitudeColumn(column: number) {
+    this.latitudeColumn = column;
+    this.draw();
+  }
+
+  public setLongitudeColumn(column: number) {
+    this.longitudeColumn = column;
+    this.draw();
+  }
+
+  public setNavigating(value: boolean) {
+    this.isNavigating = value;
   }
 
   /**
@@ -216,15 +231,16 @@ export default class Map extends Visualization {
     const radiusRatio = Math.pow(2, DEFAULT_ZOOM_LEVEL - map.getZoom());
     this.itemProps.forEach(props => {
       if (!(props.index in this.circles)) {
-        this.circles[props.index] = L.circle([props.lat, props.lon]).addTo(map);
+        this.circles[props.index] = L.circle([0, 0]).addTo(map);
       }
       const circle = this.circles[props.index];
+      circle.setLatLng([props.lat, props.lon]);
       circle.setRadius((props.visuals.size as number) * radiusRatio);
       circle.setStyle({
         color: props.visuals.border,
         weight: props.visuals.width,
         fillColor: props.visuals.color,
-        fillOpacity: props.visuals.opacity,
+        opacity: props.visuals.opacity,
       });
     });
   }
@@ -290,5 +306,19 @@ export default class Map extends Visualization {
 
   private toggleNavigating() {
     this.isNavigating = !this.isNavigating;
+  }
+
+  private onSelectLatitudeColumn(column: number, prevColumn: number | null) {
+    this.commitHistory(history.selectLatitudeColumnEvent(this, column, prevColumn));
+    this.setLatitudeColumn(column);
+  }
+
+  private onSelectLongitudeColumn(column: number, prevColumn: number | null) {
+    this.commitHistory(history.selectLongitudeColumnEvent(this, column, prevColumn));
+    this.setLongitudeColumn(column);
+  }
+
+  private onToggleNavigating(value: boolean) {
+    this.commitHistory(history.toggleNavigatingEvent(this, value));
   }
 }

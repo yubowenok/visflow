@@ -28,6 +28,8 @@ import { VisualProperties, visualsComparator } from '@/data/visuals';
 import { SELECTED_COLOR } from '@/common/constants';
 import { getTransform, fadeOut } from '@/common/util';
 import ColumnSelect from '@/components/column-select/column-select';
+import * as history from './history';
+import { HistoryNodeEvent } from '@/store/history/types';
 
 const DOMAIN_MARGIN = .2;
 const BAR_INTERVAL = 1;
@@ -103,6 +105,16 @@ export default class Histogram extends Visualization {
   get isNumBinsDisabled(): boolean {
     return !this.hasNoDataset() && this.column != null &&
       !isContinuousDomain(this.getDataset().getColumnType(this.column));
+  }
+
+  public setColumn(column: number) {
+    this.column = column;
+    this.draw();
+  }
+
+  public setNumBins(value: number) {
+    this.numBins = value;
+    this.draw();
   }
 
   protected created() {
@@ -431,5 +443,15 @@ export default class Histogram extends Visualization {
         this.computeBins();
       }
     });
+  }
+
+  private onSelectColumn(column: number, prevColumn: number | null) {
+    this.commitHistory(history.selectColumnEvent(this, column, prevColumn));
+    this.setColumn(column);
+  }
+
+  private onInputNumBins(value: number, prevValue: number) {
+    this.commitHistory(history.inputNumBinsEvent(this, value, prevValue));
+    this.setNumBins(value);
   }
 }

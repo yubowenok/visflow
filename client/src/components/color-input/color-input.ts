@@ -1,4 +1,4 @@
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import { Chrome as VueColor } from 'vue-color';
 
 import GlobalClick from '@/directives/global-click';
@@ -20,35 +20,50 @@ interface SelectedColor {
 })
 export default class ColorInput extends Vue {
   @Prop({ type: String, default: '' })
-  private value!: string | null;
+  private value!: string;
 
   private text: string = '';
+  // Color communicated with <vue-color>
   private color: string = '';
+
+  private prevColor: string = '';
 
   private isFocused = false;
 
+  @Watch('value')
+  private onValueChange() {
+    this.color = this.text = this.value;
+  }
+
   private created() {
-    this.text = this.color = (this.value === null ? '' : this.value);
+    this.text = this.prevColor = this.color = this.value || '';
   }
 
   private toggleFocused(value?: boolean) {
-    this.isFocused = value !== undefined ? value : !this.isFocused;
+    const newValue = value !== undefined ? value : !this.isFocused;
+    if (!newValue && newValue !== this.isFocused) {
+      this.save();
+    }
+    this.isFocused = newValue;
   }
 
   private onTextClick() {
-    const $input = $(this.$refs.textInput);
     this.toggleFocused();
   }
 
   private onTextInput() {
     this.color = this.text;
-    this.$emit('input', this.color === '' ? null : this.color);
+    this.save();
+  }
+
+  private onTextChange() {
+    this.$emit('change', this.text, this.prevColor);
   }
 
   private onPaletteInput(newColor: SelectedColor) {
     const hex = newColor.hex.toLowerCase();
-    this.color = this.text = hex;
-    this.$emit('input', this.color === '' ? null : this.color);
+    this.text = this.color = hex; // change event will be fired through onTextChange()
+    this.$emit('change', hex, this.prevColor);
   }
 
   private globalClick(evt: MouseEvent) {
@@ -59,5 +74,16 @@ export default class ColorInput extends Vue {
       return;
     }
     this.toggleFocused(false);
+  }
+
+  private save() {
+    if (this.color !== this.prevColor) {
+      this.$emit('input', this.color === '' ? null : this.color, this.prevColor);
+      this.prevColor = this.color;
+    }
+  }
+
+  private destroyed() {
+    this.save();
   }
 }

@@ -1,4 +1,4 @@
-import { HistoryNodeEvent, HistoryEventLevel } from '@/store/history/types';
+import { HistoryNodeEvent, HistoryEventLevel, HistoryNodeOptionEvent } from '@/store/history/types';
 import { Node } from '@/components/node';
 import { RootStore } from '@/store/types';
 
@@ -72,6 +72,10 @@ export const undo = (store: RootStore, evt: HistoryNodeEvent) => {
       undoResizeNode(store, evt);
       break;
   }
+  const optionEvt = evt as HistoryNodeOptionEvent;
+  if (optionEvt.setter) {
+    optionEvt.setter(optionEvt.data.prevValue);
+  }
 };
 
 export const redo = (store: RootStore, evt: HistoryNodeEvent) => {
@@ -82,5 +86,9 @@ export const redo = (store: RootStore, evt: HistoryNodeEvent) => {
     case HistoryNodeEventType.RESIZE:
       redoResizeNode(store, evt);
       break;
+  }
+  const optionEvt = evt as HistoryNodeOptionEvent;
+  if (optionEvt.setter) {
+    optionEvt.setter(optionEvt.data.value);
   }
 };

@@ -15,7 +15,7 @@
   <column-select
     :columns="numericalColumnSelectOptions"
     v-model="latitudeColumn"
-    @input="draw"
+    @input="onSelectLatitudeColumn"
   ></column-select>
 </div>
 <div>
@@ -23,11 +23,11 @@
   <column-select
     :columns="numericalColumnSelectOptions"
     v-model="longitudeColumn"
-    @input="draw"
+    @input="onSelectLongitudeColumn"
   ></column-select>
 </div>
 <div>
-  <b-form-checkbox v-model="isNavigating">Navigation</b-form-checkbox>
+  <b-form-checkbox v-model="isNavigating" @input="onToggleNavigating">Navigation</b-form-checkbox>
 </div>
 <!-- context-menu -->
 <li @click="toggleNavigating">

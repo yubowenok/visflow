@@ -23,6 +23,7 @@ import { VisualProperties } from '@/data/visuals';
 import { SELECTED_COLOR, INDEX_COLUMN } from '@/common/constants';
 import { getColumnSelectOptions, valueComparator } from '@/data/util';
 import { getTransform, fadeOut } from '@/common/util';
+import * as history from './history';
 
 const DOMAIN_MARGIN = .1;
 const LABEL_OFFSET_PX = 5;
@@ -109,6 +110,36 @@ export default class LineChart extends Visualization {
   get columnSelectOptionsWithIndexColumn(): SelectOption[] {
     return [{ label: '[index]', value: INDEX_COLUMN } as SelectOption]
       .concat(getColumnSelectOptions(this.dataset));
+  }
+
+  public setSeriesColumn(column: number | null) {
+    this.seriesColumn = column;
+    this.draw();
+  }
+
+  public setValueColumn(column: number | null) {
+    this.valueColumn = column;
+    this.draw();
+  }
+
+  public setGroupByColumn(column: number | null) {
+    this.groupByColumn = column;
+    this.draw();
+  }
+
+  public setPointsVisible(value: boolean) {
+    this.arePointsVisible = value;
+    this.draw();
+  }
+
+  public setCurveDrawing(value: boolean) {
+    this.isCurveDrawing = value;
+    this.draw();
+  }
+
+  public setLegendsVisible(value: boolean) {
+    this.areLegendsVisible = value;
+    this.draw();
   }
 
   protected created() {
@@ -421,15 +452,48 @@ export default class LineChart extends Visualization {
     const boxes = svgLegends.selectAll<SVGGElement, LineChartLineProps>('g').data(this.lineProps);
     fadeOut(boxes.exit());
 
-    const enterBoxes = boxes.enter().append<SVGGElement>('g')
+    const enteredBoxes = boxes.enter().append<SVGGElement>('g')
       .attr('transform', (props, index) =>
         getTransform([LEGEND_X_OFFSET_PX, (index + 1) * LEGEND_Y_OFFSET_PX]));
 
     const labelTransform = getTransform([LEGEND_LABEL_X_OFFSET_PX, LEGEND_LABEL_Y_OFFSET_PX]);
-    enterBoxes.append('rect') // color box
+    enteredBoxes.append('rect'); // color box
+    enteredBoxes.append('text'); // label
+    const updatedBoxes = enteredBoxes.merge(boxes);
+    updatedBoxes.select('rect')
       .style('fill', d => d.visuals.color as string);
-    enterBoxes.append('text') // label
+    updatedBoxes.select('text')
       .attr('transform', labelTransform)
       .text(d => d.label);
+  }
+
+  private onInputSeriesColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectSeriesColumnEvent(this, column, prevColumn));
+    this.setSeriesColumn(column);
+  }
+
+  private onInputValueColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectValueColumnEvent(this, column, prevColumn));
+    this.setValueColumn(column);
+  }
+
+  private onInputGroupByColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectGroupByColumnEvent(this, column, prevColumn));
+    this.setGroupByColumn(column);
+  }
+
+  private onTogglePointsVisible(value: boolean) {
+    this.commitHistory(history.togglePointsVisibleEvent(this, value));
+    this.setPointsVisible(value);
+  }
+
+  private onToggleCurveDrawing(value: boolean) {
+    this.commitHistory(history.toggleCurveDrawingEvent(this, value));
+    this.setCurveDrawing(value);
+  }
+
+  private onToggleLegendsVisible(value: boolean) {
+    this.commitHistory(history.toggleLegendsVisibleEvent(this, value));
+    this.setLegendsVisible(value);
   }
 }

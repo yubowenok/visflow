@@ -21,10 +21,11 @@ import { VisualProperties } from '@/data/visuals';
 import { SELECTED_COLOR } from '@/common/constants';
 import { SubsetInputPort, SubsetOutputPort } from '@/components/port';
 import { SubsetSelection } from '@/data/package';
-import { elementContains, getTransform, fadeOut, areSegmentsIntersected } from '@/common/util';
+import { getTransform, fadeOut, areSegmentsIntersected } from '@/common/util';
 import TabularDataset from '@/data/tabular-dataset';
 import { mirrorPoint } from '@/common/vector';
 import { getColumnSelectOptions } from '@/data/util';
+import * as history from './history';
 
 // A mouse must move at least this distance to be considered a zoom.
 const ZOOM_DISTANCE_THRESHOLD = 5;
@@ -164,6 +165,36 @@ export default class Network extends Visualization {
       this.toggleNavigating();
     }
     this.onKeysBase(keys);
+  }
+
+  public setNodeIdColumn(column: number) {
+    this.nodeIdColumn = column;
+    this.draw();
+  }
+
+  public setEdgeSourceColumn(column: number) {
+    this.edgeSourceColumn = column;
+    this.draw();
+  }
+
+  public setEdgeTargetColumn(column: number) {
+    this.edgeTargetColumn = column;
+    this.draw();
+  }
+
+  public setNodeLabelColumn(column: number) {
+    this.nodeLabelColumn = column;
+    this.draw();
+  }
+
+  public setLinkDistance(value: number) {
+    this.linkDistance = value;
+    this.draw();
+  }
+
+  public setNavigating(value: boolean) {
+    this.isNavigating = value;
+    this.draw();
   }
 
   /**
@@ -788,5 +819,41 @@ export default class Network extends Visualization {
     if (this.isNavigating) {
       this.setZoomTransform();
     }
+  }
+
+  private onInputNodeIdColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectNodeIdColumnEvent(this, column, prevColumn));
+    this.draw();
+  }
+
+  private onInputEdgeSourceColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectEdgeSourceColumnEvent(this, column, prevColumn));
+    this.draw();
+  }
+
+  private onInputEdgeTargetColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectEdgeTargetColumnEvent(this, column, prevColumn));
+    this.draw();
+  }
+
+  private onInputNodeLabelColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectNodeLabelColumn(this, column, prevColumn));
+    this.computeProps();
+    this.drawNetwork();
+  }
+
+  private onInputLinkDistance(value: number, prevValue: number) {
+    this.commitHistory(history.inputLinkDistanceEvent(this, value, prevValue));
+    this.draw();
+  }
+
+  private onChangeLinkDistance(value: number, prevValue: number) {
+    this.commitHistory(history.inputLinkDistanceEvent(this, value, prevValue));
+    this.linkDistance = value;
+    this.draw();
+  }
+
+  private onToggleNavigating(value: boolean) {
+    this.commitHistory(history.toggleNavigating(this, value));
   }
 }

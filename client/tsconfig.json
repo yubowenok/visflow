@@ -15,7 +15,7 @@
       "node",
       "jest",
       "promise.prototype.finally",
-      "d3",
+      "d3"
     ],
     "paths": {
       "@/*": [
