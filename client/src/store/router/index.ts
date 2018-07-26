@@ -1,5 +1,5 @@
 import { Module } from 'vuex';
-import { RootState } from '@/store';
+import { RootState } from '@/store/types';
 import VueRouter from 'vue-router';
 
 export interface RouterState {

@@ -22,7 +22,6 @@ import { propagateNode, propagateNodes, propagatePort } from '@/store/dataflow/p
 import { getInitialState } from '@/store/dataflow';
 import { InputPort, OutputPort } from '@/components/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
-import * as history from './history';
 export * from '@/store/dataflow/propagate';
 
 const getCanvas = (state: DataflowState): DataflowCanvas => {
@@ -79,27 +78,45 @@ export const createNode = (state: DataflowState, options: CreateNodeOptions, nod
   return node;
 };
 
-export const createNodeOnEdge = (state: DataflowState, node: Node, edge: Edge) => {
+/**
+ * Creates a new node X on an edge going from port a to b, and replace the connection (a, b) by
+ * (a, X) and (X, b). Note that (a, X) and (X, b) may not always be connectable, so the newly created edges may contain
+ * zero, one, or two edges.
+ */
+export const insertNodeOnEdge = (state: DataflowState, node: Node, edge: Edge):
+  { createdEdges: Edge[], removedEdge: Edge } => {
   const edgeSource = edge.source;
   const edgeTarget = edge.target;
   // Removes the existing edge first to avoid connectiviy check failing because of existing connection.
   removeEdge(state, edge, false);
   const nodeOutputPort = node.findConnectablePort(edgeTarget) as OutputPort;
+  const result: { createdEdges: Edge[], removedEdge: Edge } = {
+    createdEdges: [],
+    removedEdge: edge,
+  };
+  let e1: Edge | null = null;
+  let e2: Edge | null = null;
   if (nodeOutputPort) {
-    createEdgeToNode(state, edge.source, node, false);
-    createEdge(state, nodeOutputPort, edgeTarget, false);
-  } else {
-    // Recover the previous edge
-    createEdge(state, edgeSource, edgeTarget, false);
+    e1 = createEdgeToNode(state, edge.source, node, false, { disableMessage: true });
+    e2 = createEdge(state, nodeOutputPort, edgeTarget, false, { disableMessage: true });
+    result.createdEdges = [e1, e2].filter(e => e !== null) as Edge[];
   }
-  propagatePort(edgeSource);
+  if (e1) {
+    propagatePort(edgeSource);
+  }
+  if (e2 && !e1) {
+    propagateNode(node);
+  }
+  return result;
 };
 
 export const createEdge = (state: DataflowState, sourcePort: OutputPort, targetPort: InputPort,
-                           propagate: boolean): Edge | null => {
+                           propagate: boolean, options?: { disableMessage: boolean }): Edge | null => {
   const connectivity = checkEdgeConnectivity(sourcePort, targetPort);
   if (!connectivity.connectable) {
-    showSystemMessage(store, connectivity.reason, 'warn');
+    if (!(options && options.disableMessage)) {
+      showSystemMessage(store, connectivity.reason, 'warn');
+    }
     return null;
   }
   const edge = new Edge({
@@ -120,10 +137,12 @@ export const createEdge = (state: DataflowState, sourcePort: OutputPort, targetP
 };
 
 export const createEdgeToNode = (state: DataflowState, sourcePort: OutputPort, targetNode: Node,
-                                 propagate: boolean): Edge | null => {
+                                 propagate: boolean, options?: { disableMessage: boolean }): Edge | null => {
   const targetPort = targetNode.findConnectablePort(sourcePort) as InputPort;
   if (!targetPort) {
-    showSystemMessage(store, 'cannot find available port to connect', 'warn');
+    if (!(options && options.disableMessage)) {
+      showSystemMessage(store, 'cannot find available port to connect', 'warn');
+    }
     return null;
   }
   return createEdge(state, sourcePort, targetPort, propagate);
@@ -140,9 +159,11 @@ export const removeEdge = (state: DataflowState, edge: Edge, propagate: boolean)
   getCanvas(state).removeEdge(edge, () => edge.$destroy());
 };
 
-export const removeNode = (state: DataflowState, node: Node, propagate: boolean) => {
+
+export const removeNode = (state: DataflowState, node: Node, propagate: boolean): { removedEdges: Edge[] } => {
   const outputNodes = node.getOutputNodes();
-  for (const edge of node.getAllEdges()) {
+  const edgesToRemove = node.getAllEdges();
+  for (const edge of edgesToRemove) {
     removeEdge(state, edge, false);
   }
   if (propagate) {
@@ -151,9 +172,11 @@ export const removeNode = (state: DataflowState, node: Node, propagate: boolean)
 
   _.pull(state.nodes, node);
   getCanvas(state).removeNode(node, () => node.$destroy());
+  return { removedEdges: edgesToRemove };
 };
 
-export const removeSelectedNodes = (state: DataflowState) => {
+// Returns removed nodes and edges.
+export const removeSelectedNodes = (state: DataflowState): { removedNodes: Node[], removedEdges: Edge[] } => {
   const affectedOutputNodes: Set<Node> = new Set();
   const nodes = state.nodes.filter(node => node.isSelected);
   for (const node of nodes) {
@@ -163,10 +186,15 @@ export const removeSelectedNodes = (state: DataflowState) => {
       }
     }
   }
+  let removedEdges: Edge[] = [];
   for (const node of nodes) {
-    removeNode(state, node, false);
+    removedEdges = removedEdges.concat(removeNode(state, node, false).removedEdges);
   }
   propagateNodes(Array.from(affectedOutputNodes));
+  return {
+    removedNodes: nodes,
+    removedEdges,
+  };
 };
 
 export const disconnectPort = (state: DataflowState, port: Port, propagate: boolean) => {
@@ -211,10 +239,7 @@ export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) =
   const sources = diagram.nodes.map(nodeSave => {
     const node = createNode(
       state,
-      {
-        type: nodeSave.type,
-        // isIconized: nodeSave.isIconized,
-      },
+      { type: nodeSave.type },
       nodeSave,
     );
     node.deserialize(nodeSave);

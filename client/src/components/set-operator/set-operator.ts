@@ -95,7 +95,6 @@ export default class SetOperator extends SubsetNode {
         unionPkg.addItem(item);
       });
     }
-    console.log(unionPkg.numItems());
     return unionPkg;
   }
 

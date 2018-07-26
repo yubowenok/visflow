@@ -1,5 +1,6 @@
 <template>
 <div id="dataflow-canvas" :class="dragClass">
+  <div v-if="dragMode === 'select'" class="select-box" :style="selectBoxStyle"></div>
   <div ref="nodes"></div>
   <div v-if="isSystemInVisMode" id="vis-mode-background"></div>
   <svg ref="edges">

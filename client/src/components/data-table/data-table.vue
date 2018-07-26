@@ -1,5 +1,5 @@
 <template>
-<div id="table">
+<div id="table" v-global-click="globalClick">
   <div v-show="false"> <!-- Provides table template which DataTables can initialize with. -->
     <!--
       Use inline style "width: 100%" to override width settings so that DataTables resizes to the container width.

@@ -133,6 +133,9 @@ export default class Histogram extends Visualization {
   }
 
   protected selectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     this.selection.addItems(items);
     this.bins.forEach(bin => {
@@ -146,6 +149,9 @@ export default class Histogram extends Visualization {
   }
 
   protected deselectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
     this.selectedBars.clear();
     this.selection.clear();
     this.draw();

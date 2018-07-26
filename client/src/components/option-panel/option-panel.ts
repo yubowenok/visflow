@@ -22,13 +22,16 @@ export default class OptionPanel extends Vue {
   @Prop({ default: false })
   private enlargeable!: boolean;
 
-  private iconize = false;
+  private iconized = false;
   private inVisMode = false;
   private labelVisible = false;
   private label = '';
 
   private created() {
     this.label = this.nodeLabel;
+    this.iconized = this.isIconized;
+    this.inVisMode = this.isInVisMode;
+    this.labelVisible = this.isLabelVisible;
   }
 
   @Watch('nodeLabel')
@@ -42,7 +45,7 @@ export default class OptionPanel extends Vue {
 
   @Watch('isIconized')
   private onIconizedChange(value: boolean) {
-    this.iconize = value;
+    this.iconized = value;
   }
 
   @Watch('isInVisMode')
@@ -56,8 +59,8 @@ export default class OptionPanel extends Vue {
   }
 
   private toggleIconized() {
-    this.iconize = !this.iconize;
-    this.$emit('input:iconized', this.iconize);
+    this.iconized = !this.iconized;
+    this.$emit('input:iconized', this.iconized);
   }
 
   private toggleInVisMode() {

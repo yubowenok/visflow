@@ -341,6 +341,9 @@ export default class Network extends Visualization {
   }
 
   protected selectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
     const nodes = this.inputPortMap.node.getSubsetPackage().getItemIndices();
     this.nodeSelection.addItems(nodes);
     const edges = this.inputPortMap.edge.getSubsetPackage().getItemIndices();
@@ -351,6 +354,9 @@ export default class Network extends Visualization {
   }
 
   protected deselectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
     this.nodeSelection.clear();
     this.edgeSelection.clear();
     this.draw();

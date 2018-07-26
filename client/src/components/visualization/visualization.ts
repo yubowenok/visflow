@@ -191,6 +191,9 @@ export default class Visualization extends SubsetNode {
   }
 
   protected selectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     this.selection.addItems(items);
     this.draw();
@@ -199,6 +202,9 @@ export default class Visualization extends SubsetNode {
   }
 
   protected deselectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
     this.selection.clear();
     this.draw();
     this.computeSelection();

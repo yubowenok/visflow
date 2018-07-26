@@ -1,43 +1,21 @@
 /**
  * @fileoverview This is the state handler for system-wise interaction.
  */
-
 import { Module } from 'vuex';
-import { RootState } from '@/store';
-import Port from '@/components/port/port';
+
 import Node from '@/components/node/node';
-import store from '@/store';
+import Port from '@/components/port/port';
+import store, { RootState } from '@/store';
 import * as helper from '@/store/interaction/helper';
 import Edge from '@/components/edge/edge';
-
-export interface DragNodePayload {
-  node: Node;
-  dx: number;
-  dy: number;
-}
-export interface InteractionState {
-  draggedPort?: Port;
-  draggedX1: number;
-  draggedY1: number;
-  draggedX2: number;
-  draggedY2: number;
-  lastMouseX: number;
-  lastMouseY: number;
-
-  altPressed: boolean;
-  shiftPressed: boolean;
-  ctrlPressed: boolean;
-  metaPressed: boolean;
-  altHold: boolean;
-
-  isSystemInVisMode: boolean;
-  // Whether a node is being dragged out of a node list to be created.
-  isNodeListDragging: boolean;
-
-  mouseupEdge: Edge | undefined;
-}
+import { InteractionState } from './types';
+import { areBoxesIntersected } from '@/common/util';
 
 const initialState: InteractionState = {
+  isNodeDragging: false,
+  isNodeListDragging: false,
+
+  draggedNode: undefined,
   draggedPort: undefined,
   draggedX1: 0,
   draggedY1: 0,
@@ -53,7 +31,6 @@ const initialState: InteractionState = {
   altHold: false,
 
   isSystemInVisMode: false,
-  isNodeListDragging: false,
 
   mouseupEdge: undefined,
 };
@@ -71,19 +48,53 @@ const getters = {
     return state.ctrlPressed;
   },
 
-  // TODO: check usage of this getter.
   numSelectedNodes: (state: InteractionState): number => {
     return store.state.dataflow.nodes.filter(node => node.isSelected).length;
+  },
+
+  /**
+   * Gets all the selected nodes.
+   */
+  selectedNodes: (state: InteractionState): Node[] => {
+    return store.state.dataflow.nodes.filter(node => node.isSelected);
+  },
+
+  isDraggedNodeDroppable: (state: InteractionState): boolean => {
+    if (!state.draggedNode) {
+      return false;
+    }
+    // A dragged node is only droppable when it has no connections.
+    // This is because a node with connections is most likely unable to be inserted onto an edge.
+    // When multiple nodes are selected, none of them is droppable.
+    return !state.draggedNode.getAllEdges().length && getters.numSelectedNodes(state) === 1;
   },
 };
 
 const mutations = {
   nodeListDragStarted: (state: InteractionState) => {
     state.isNodeListDragging = true;
+    state.mouseupEdge = undefined; // Clear potential leftover mouseup edge from last mouse interaction.
   },
 
   nodeListDragEnded: (state: InteractionState) => {
     state.isNodeListDragging = false;
+  },
+
+  nodeDragStarted: (state: InteractionState, node: Node) => {
+    state.isNodeDragging = true;
+    state.draggedNode = node;
+    state.mouseupEdge = undefined; // Clear potential leftover mouseup edge from last mouse interaction.
+  },
+
+  nodeDragEnded: (state: InteractionState) => {
+    if (state.mouseupEdge && getters.isDraggedNodeDroppable(state)) {
+      store.commit('dataflow/insertNodeOnEdge', {
+        node: state.draggedNode,
+        edge: state.mouseupEdge,
+      });
+    }
+    state.isNodeDragging = false;
+    state.draggedNode = undefined;
   },
 
   portDragStarted: (state: InteractionState, port: Port) => {
@@ -127,6 +138,17 @@ const mutations = {
     state.mouseupEdge = undefined;
   },
 
+  /**
+   * Selects nodes that intersect the box on the canvas.
+   */
+  selectNodesInBoxOnCanvas: (state: InteractionState, box: Box) => {
+    store.state.dataflow.nodes.forEach(node => {
+      if (areBoxesIntersected(box, node.getBoundingBox())) {
+        node.select();
+      }
+    });
+  },
+
   toggleAltHold: (state: InteractionState, value?: boolean) => {
     if (value === undefined) {
       state.altHold = !state.altHold;
@@ -135,12 +157,16 @@ const mutations = {
     }
   },
 
-  dragNode: (state: InteractionState, { dx, dy, node }: DragNodePayload) => {
+  dragNode: (state: InteractionState, { node, dx, dy }: { node: Node, dx: number, dy: number }) => {
     helper.dragSelectedNodes(node, dx, dy);
   },
 
-  dragNodeStopped: (state: InteractionState) => {
-    // helper.dragSelectedNodesStopped();
+  // Directly moves node(s). These methods are called by programs controlling the history.
+  moveNode: (state: InteractionState, { node, dx, dy }: { node: Node, dx: number, dy: number }) => {
+    helper.moveNode(node, dx, dy);
+  },
+  moveNodes: (state: InteractionState, { nodes, dx, dy }: { nodes: Node[], dx: number, dy: number }) => {
+    helper.moveNodes(nodes, dx, dy);
   },
 
   clickNode: (state: InteractionState, clicked: Node) => {
@@ -203,6 +229,7 @@ const mutations = {
 
   keyStroke(state: InteractionState, keys: string) {
     switch (keys) {
+      case 'delete':
       case 'ctrl+d':
       case 'ctrl+x': // TODO: change to cut nodes
         store.commit('dataflow/removeSelectedNodes');

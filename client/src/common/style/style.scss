@@ -23,6 +23,7 @@ $border-radius: 2px;
     line-height: 1.5em; // vertically center the icon
 
     &.placeholder {
+      width: 1.25rem;
       opacity: 0;
       pointer-events: none;
     }

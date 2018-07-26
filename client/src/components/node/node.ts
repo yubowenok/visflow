@@ -6,7 +6,6 @@ import _ from 'lodash';
 import { checkEdgeConnectivity } from '@/store/dataflow';
 import { CreateNodeData } from '@/store/dataflow/types';
 import { DEFAULT_ANIMATION_DURATION_S, PORT_SIZE_PX, PORT_MARGIN_PX, ICONIZED_NODE_SIZE_PX } from '@/common/constants';
-import { DragNodePayload } from '@/store/interaction';
 import { NodeSave } from './types';
 import { Port, InputPort, OutputPort } from '@/components/port';
 import ContextMenu from '@/components/context-menu/context-menu';
@@ -18,6 +17,7 @@ import ns from '@/store/namespaces';
 import OptionPanel from '@/components/option-panel/option-panel';
 import template from './node.html';
 import { HistoryNodeEvent } from '@/store/history/types';
+import * as history from './history';
 
 const GRID_SIZE = 10;
 
@@ -113,6 +113,7 @@ export default class Node extends Vue {
   protected isAnimating = false;
 
   @ns.interaction.Getter('isShiftPressed') protected isShiftPressed!: boolean;
+  @ns.history.Mutation('commit') protected commitHistory!: (evt: HistoryNodeEvent) => void;
 
   private isDragged = false;
   private isMousedowned = false;
@@ -203,20 +204,24 @@ export default class Node extends Vue {
   @ns.dataflow.Getter('topNodeLayer') private topNodeLayer!: number;
   @ns.dataflow.Getter('getImgSrc') private getImgSrc!: (type: string) => string;
   @ns.dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
-  @ns.dataflow.Mutation('removeNode') private dataflowRemoveNode!: (node: Node) => void;
+  @ns.dataflow.Mutation('removeSelectedNodes') private removeSelectedNodes!: (node: Node) => void;
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
+  @ns.interaction.Getter('numSelectedNodes') private numSelectedNodes!: number;
+  @ns.interaction.Getter('selectedNodes') private selectedNodes!: Node[];
   @ns.interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
-  @ns.interaction.Mutation('dragNode') private dragNode!: (payload: DragNodePayload) => void;
+  @ns.interaction.Mutation('dragNode') private dragNode!: (payload: { node: Node, dx: number, dy: number}) => void;
   @ns.interaction.Mutation('clickNode') private clickNode!: (node: Node) => void;
+  @ns.interaction.Mutation('nodeDragStarted') private nodeDragStarted!: (node: Node) => void;
+  @ns.interaction.Mutation('nodeDragEnded') private nodeDragEnded!: () => void;
   @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
 
   public undo(evt: HistoryNodeEvent) {
-
+    this.undoBase(evt);
   }
 
   public redo(evt: HistoryNodeEvent) {
-
+    this.redoBase(evt);
   }
 
   public findConnectablePort(port: Port): Port | null {
@@ -310,6 +315,14 @@ export default class Node extends Vue {
   public moveBy(dx: number, dy: number) {
     this.x += dx;
     this.y += dy;
+  }
+
+  /** Sets the location and size of the node. */
+  public setView(view: Box) {
+    this.x = view.x;
+    this.y = view.y;
+    this.width = view.width;
+    this.height = view.height;
   }
 
   /**
@@ -504,6 +517,20 @@ export default class Node extends Vue {
   }
 
   /**
+   * Provides base node level operation undo.
+   */
+  protected undoBase(evt: HistoryNodeEvent) {
+    history.undo(this.$store, evt);
+  }
+
+  /**
+   * Provides base node level operation redo.
+   */
+  protected redoBase(evt: HistoryNodeEvent) {
+    history.redo(this.$store, evt);
+  }
+
+  /**
    * Responds to mounted life cycle.
    */
   protected onMounted() {}
@@ -569,7 +596,8 @@ export default class Node extends Vue {
 
   private initDragAndResize() {
     const $node = $(this.$refs.node);
-    let lastDragPosition: { left: number, top: number };
+    let lastDragPosition: Point;
+    let dragStartPosition: Point;
     let alreadySelected: boolean;
     $node.draggable({
       grid: [GRID_SIZE, GRID_SIZE],
@@ -577,14 +605,15 @@ export default class Node extends Vue {
         if (!this.isDraggable(evt, ui)) {
           return false;
         }
+        this.nodeDragStarted(this);
         this.isDragging = true;
-        lastDragPosition = ui.position;
+        lastDragPosition = dragStartPosition = { x: ui.position.left, y: ui.position.top };
         alreadySelected = this.isSelected;
       },
       drag: (evt: Event, ui: JQueryUI.DraggableEventUIParams) => {
         const x = ui.position.left;
         const y = ui.position.top;
-        if (x !== lastDragPosition.left || y !== lastDragPosition.top) {
+        if (x !== lastDragPosition.x || y !== lastDragPosition.y) {
           this.isDragged = true;
           if (!alreadySelected) {
             if (!this.isShiftPressed) {
@@ -594,11 +623,10 @@ export default class Node extends Vue {
           }
           this.dragNode({
             node: this,
-            dx: x - lastDragPosition.left,
-            dy: y - lastDragPosition.top,
+            dx: x - lastDragPosition.x,
+            dy: y - lastDragPosition.y,
           });
-          lastDragPosition.left = x;
-          lastDragPosition.top = y;
+          lastDragPosition = { x, y };
           this.x = x;
           this.y = y;
         }
@@ -609,10 +637,13 @@ export default class Node extends Vue {
         this.isDragged = false;
         this.isDragging = false;
         this.activate();
+        this.nodeDragEnded();
+        history.moveNode(this.$store, this, this.selectedNodes, { x: this.x, y: this.y }, dragStartPosition);
       },
     });
 
     if (this.RESIZABLE) {
+      let resizeStartView: Box;
       $node.resizable({
         handles: 'all',
         grid: GRID_SIZE,
@@ -620,6 +651,12 @@ export default class Node extends Vue {
         minHeight: this.MIN_HEIGHT,
         start: () => {
           this.onResizeStart();
+          resizeStartView = {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+          };
         },
         resize: (evt: Event, ui: JQueryUI.ResizableUIParams) => {
           this.x = ui.position.left;
@@ -629,6 +666,13 @@ export default class Node extends Vue {
         },
         stop: () => {
           this.onResizeStop();
+          const newView = {
+            x: this.x,
+            y: this.y,
+            width: this.width,
+            height: this.height,
+          };
+          history.resizeNode(this.$store, this, newView, resizeStartView);
         },
       });
     }
@@ -703,7 +747,12 @@ export default class Node extends Vue {
   }
 
   private contextMenuRemove() {
-    this.dataflowRemoveNode(this);
+    // The user may right click on an unselected node. We consider it first clicked and to be exclusively selected.
+    if (!this.isSelected) {
+      this.select();
+      this.clickNode(this);
+    }
+    this.removeSelectedNodes(this);
   }
 
   private onMousedown(evt: MouseEvent) {
@@ -715,7 +764,9 @@ export default class Node extends Vue {
       return;
     }
     this.isMousedowned = false;
-    this.onClick();
+    if (evt.which === 1) { // Only click with left mouse button
+      this.onClick();
+    }
   }
 
   private toggleSelected() {
@@ -959,5 +1010,9 @@ export default class Node extends Vue {
     this.y = this.displayY;
     this.width = this.displayWidth;
     this.height = this.displayHeight;
+  }
+
+  private openContextMenu(evt: MouseEvent) {
+    (this.$refs.contextMenu as ContextMenu).open(evt);
   }
 }

@@ -1,8 +1,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import Victor from 'victor';
 import { TweenLite } from 'gsap';
-import * as d3 from 'd3';
-import $ from 'jquery';
+import { line, curveLinearClosed, curveBundle } from 'd3-shape';
 import _ from 'lodash';
 
 import ns from '@/store/namespaces';
@@ -39,7 +38,7 @@ export const arrowPath = (base: Point, head: Point): string => {
     root.clone().add(pqLeft.multiplyScalar(ARROW_WING_SIZE_PX)).toArray(),
     root.clone().add(pqRight.multiplyScalar(ARROW_WING_SIZE_PX)).toArray(),
   ];
-  return d3.line().curve(d3.curveLinearClosed)(points as Array<[number, number]>) as string;
+  return line().curve(curveLinearClosed)(points as Array<[number, number]>) as string;
 };
 
 @Component({
@@ -54,6 +53,8 @@ export default class Edge extends Vue {
   @ns.dataflow.Mutation('removeEdge') private dataflowRemoveEdge!: (edge: Vue) => void;
   @ns.interaction.Mutation('mouseupOnEdge') private mouseupOnEdge!: (edge: Vue) => void;
   @ns.interaction.State('isNodeListDragging') private isNodeListDragging!: boolean;
+  @ns.interaction.State('isNodeDragging') private isNodeDragging!: boolean;
+  @ns.interaction.Getter('isDraggedNodeDroppable') private isDraggedNodeDroppable!: boolean;
 
   private x1: number = 0;
   private y1: number = 0;
@@ -111,7 +112,7 @@ export default class Edge extends Vue {
     const lastPoint: [number, number] = [ex, ey];
     points.push(lastPoint);
 
-    const edgePath = d3.line().curve(d3.curveBundle.beta(1))(points) as string;
+    const edgePath = line().curve(curveBundle.beta(1))(points) as string;
     this.edgePathStr = edgePath;
     return edgePath;
   }
@@ -145,10 +146,6 @@ export default class Edge extends Vue {
 
   private contextMenuRemove() {
     this.dataflowRemoveEdge(this);
-  }
-
-  private onMouseup() {
-    this.mouseupOnEdge(this);
   }
 
   private mounted() {
@@ -212,5 +209,21 @@ export default class Edge extends Vue {
       base,
       head,
     };
+  }
+
+  private onMouseup() {
+    this.mouseupOnEdge(this);
+  }
+
+  private onMouseover() {
+    if (this.isNodeDragging && !this.isDraggedNodeDroppable) {
+      // Do not highlight a hovered edge when the dragged node cannot be dropped onto it.
+      return;
+    }
+    this.isHovered = true;
+  }
+
+  private onMouseout() {
+    this.isHovered = false;
   }
 }

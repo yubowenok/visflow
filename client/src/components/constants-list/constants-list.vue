@@ -14,7 +14,7 @@
       <i class="fas fa-plus"></i>
     </b-button>
     <b-button id="clear" class="mini" variant="outline-secondary" @click="clear">clear</b-button>
-    <b-tooltip target="add-list" delay="300">Add a list of values separated by comma</b-tooltip>
+    <b-tooltip target="add-list" delay="300" placement="bottom">Add a list of values separated by comma</b-tooltip>
   </div>
 </div>
 </template>

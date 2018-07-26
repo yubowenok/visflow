@@ -1,4 +1,4 @@
-import { Vue, Component, Prop } from 'vue-property-decorator';
+import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 import FormSelect from '@/components/form-select/form-select';
 import _ from 'lodash';
 import $ from 'jquery';
@@ -23,9 +23,18 @@ export default class ColumnList extends Vue {
 
   // All "input" events are fired when changing this array.
   private selected: number[] = [];
+  // Used for tracing history.
+  private prevSelected: number[] = [];
 
   private created() {
     this.selected = this.value.concat().filter(index => index < this.columns.length);
+    this.prevSelected = this.selected.concat();
+  }
+
+  @Watch('value')
+  private onValueChange() {
+    this.selected = this.value;
+    this.prevSelected = this.selected.concat();
   }
 
   // Handles dragging re-order.
@@ -57,12 +66,12 @@ export default class ColumnList extends Vue {
       },
       change: (evt, ui) => {
         // Emits the change but does not touch this.selected, which will be updated on sortable stop().
-        this.$emit('input', getNewOrder(evt, ui));
+        this.$emit('ordering', getNewOrder(evt, ui), this.prevSelected);
       },
       stop: (evt, ui) => {
         // Finalize the selected values with child component.
         this.selected = getNewOrder(evt, ui);
-        // The change has already been emitted on change(), so we do not set this.selected here.
+
         // Return false to cancel JQuery sortable to avoid changing the DOM at the same time with vue-select!
         return false;
       },
@@ -95,6 +104,7 @@ export default class ColumnList extends Vue {
   }
 
   private onListSelect() {
-    this.$emit('input', this.selected);
+    this.$emit('input', this.selected, this.prevSelected);
+    this.prevSelected = this.selected.concat();
   }
 }

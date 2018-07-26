@@ -2,8 +2,7 @@ $zIndexTooltip: 60000;
 $zIndexEnlargedNode: 50000;
 $zIndexModalDialog: 40001;
 $zIndexModalBackdrop: 40000;
-$zIndexSystemMessage: 30000;
-$zIndexAppHeader: 30000;
+$zIndexAppHeader: 30001;
 $zIndexSystemMessage: 30000;
 $zIndexCanvasCover: 20000;
 $zIndexVueColor: 10001;
@@ -12,6 +11,7 @@ $zIndexQuickNodePanel: 5004;
 $zIndexPortPanel: 5003;
 $zIndexOptionPanel: 5002;
 $zIndexNodePanel: 5001;
+$zIndexCanvasSelectBox: 1000;
 
 $zIndexNodeCover: 1;
 $zIndexPort: -1;

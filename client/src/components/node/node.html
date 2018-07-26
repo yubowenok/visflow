@@ -3,7 +3,7 @@
     @mouseup="onMouseup"
     @mousedown="onMousedown"
     v-global-click="globalClick"
-    @contextmenu.prevent.stop="$refs.contextMenu.open"
+    @contextmenu.prevent.stop="openContextMenu"
     v-show="isVisible"
   >
     <transition name="fade">
@@ -34,11 +34,15 @@
       ></div>
     </div>
   </div><!--node-->
+
   <context-menu ref="contextMenu">
     <!-- context-menu -->
     <!-- common menu items -->
-    <li @click="contextMenuRemove"><i class="fas fa-sm fa-times"></i>Remove Node</li>
+    <li @click="contextMenuRemove"><i class="fas fa-sm fa-times"></i>
+      <span>Remove Node{{ numSelectedNodes > 1 ? 's' : '' }}</span>
+    </li>
   </context-menu>
+
   <transition name="slide-fade-right">
     <option-panel ref="optionPanel" v-if="isActive"
         :nodeLabel="label"

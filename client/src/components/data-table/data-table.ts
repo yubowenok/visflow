@@ -1,12 +1,14 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
+import GlobalClick from '@/directives/global-click';
 import $ from 'jquery';
 
 export const DEFAULT_LENGTH_MENU = [5, 10, 20, 50, 100];
 
-/*
-
-*/
-@Component
+@Component({
+  directives: {
+    GlobalClick,
+  },
+})
 export default class DataTable extends Vue {
   @Prop()
   private config!: DataTables.Settings;
@@ -53,5 +55,16 @@ export default class DataTable extends Vue {
         this.$emit('deselectRow', this.rowIds ? indices.map(index => this.rowIds[index]) : indices);
       }
     });
+  }
+
+  /**
+   * Mitigates the problem of search input box not blurred when clicking outside the node.
+   */
+  private globalClick(evt: MouseEvent) {
+    const target = evt.target as Element;
+    if (this.$el.contains(target)) {
+      return;
+    }
+    $(this.$el).find('.form-control[type=search]').blur();
   }
 }

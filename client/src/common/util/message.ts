@@ -1,4 +1,5 @@
 import { Store } from 'vuex';
+import { RootStore } from '@/store/types';
 
 interface ErrorResponse {
   message: string;
@@ -20,7 +21,7 @@ export const errorMessage = (err: ApiError): string => {
   return (err.response && err.response.data) || err.message;
 };
 
-export const showSystemMessage = (store: Store<{}>, text: string, type: string, duration?: number) => {
+export const showSystemMessage = (store: RootStore, text: string, type: string, duration?: number) => {
   store.commit('message/showMessage', {
     text,
     class: type,
@@ -28,12 +29,12 @@ export const showSystemMessage = (store: Store<{}>, text: string, type: string, 
   });
 };
 
-export const clearSystemMessage = (store: Store<{}>) => {
+export const clearSystemMessage = (store: RootStore) => {
   store.commit('message/closeMessage');
 };
 
 /** Displays an error message using the system message popup. */
-export const systemMessageErrorHandler = (store: Store<{}>) => {
+export const systemMessageErrorHandler = (store: RootStore) => {
   return (err: Error) => {
     if (err.stack) { // Local execution error, just throw. do not display in system message.
       throw err;

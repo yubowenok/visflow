@@ -1,5 +1,5 @@
 import Node from '@/components/node/node';
-import { DiagramHistoryEventType } from '@/store/dataflow/types';
+import { DiagramEventType } from '@/store/dataflow/types';
 
 export enum HistoryEventLevel {
   DIAGRAM = 'diagram',
@@ -18,7 +18,7 @@ export interface HistoryNodeEvent extends HistoryEvent {
 }
 
 export interface HistoryDiagramEvent extends HistoryEvent {
-  type: DiagramHistoryEventType;
+  type: DiagramEventType;
 }
 
 // Batch event that creates/removes multiple nodes/edges
@@ -26,8 +26,9 @@ export interface HistoryDiagramBatchEvent extends HistoryEvent {
   events: HistoryDiagramEvent[];
 }
 
-
 export interface HistoryState {
   undoStack: HistoryEvent[];
   redoStack: HistoryEvent[];
 }
+
+export * from './util';

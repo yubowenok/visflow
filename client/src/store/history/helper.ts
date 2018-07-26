@@ -48,7 +48,6 @@ const executeUndo = (evt: HistoryEvent) => {
 };
 
 export const undo = (state: HistoryState) => {
-  console.log('undo');
   const evt = state.undoStack.pop();
   if (evt) {
     executeUndo(evt);

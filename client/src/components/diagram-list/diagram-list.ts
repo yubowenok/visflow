@@ -61,7 +61,7 @@ export default class DiagramList extends Vue {
       pageLength: 5,
       select: this.selectable ? 'single' : false,
       order: [1, 'desc'],
-      searching: false,
+      searching: true,
       info: false,
       language: {
         emptyTable: 'You have no saved diagrams',

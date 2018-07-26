@@ -43,7 +43,7 @@ const getters = {
   /**
    * Retrieves the img source for a given type of node.
    */
-  getImgSrc: (state: DataflowState) => {
+  getImgSrc: (state: DataflowState): (type: string) => string => {
     return (type: string) => nodeTypes.getImgSrc(type);
   },
 };
@@ -78,15 +78,33 @@ const mutations = {
     const node = helper.createNode(state, options);
     if (store.state.interaction.mouseupEdge) {
       // If the node button is dropped on an edge, attempt to insert the new node onto this edge.
-      const edge = store.state.interaction.mouseupEdge;
-      helper.createNodeOnEdge(state, node, edge);
+      const result = helper.insertNodeOnEdge(state, node, store.state.interaction.mouseupEdge);
       store.commit('interaction/clearMouseupEdge');
+      store.commit('history/commit', history.createNodeOnEdgeEvent([
+          history.removeEdgeEvent(result.removedEdge),
+          history.createNodeEvent(node),
+        ].concat(result.createdEdges.map(edge => history.createEdgeEvent(edge)))),
+      );
+    } else {
+      store.commit('history/commit', history.createNodeEvent(node));
     }
   },
 
   /** Removes a node and propagates. */
   removeNode: (state: DataflowState, node: Node) => {
+    // Commit history before removing the node. Otherwise incident edges would be incorrect.
+    store.commit('history/commit', history.removeNodeAndIncidentEdgesEvent(node));
     helper.removeNode(state, node, true);
+  },
+
+  /** Removes the nodes that are currently selected. */
+  removeSelectedNodes: (state: DataflowState) => {
+    const result = helper.removeSelectedNodes(state);
+    store.commit('history/commit', history.removeNodesEvent(
+      result.removedEdges.map(edge => history.removeEdgeEvent(edge)).concat(
+        result.removedNodes.map(node => history.removeNodeEvent(node)),
+      ),
+    ));
   },
 
   /** Creates an edge and propagates. */
@@ -98,14 +116,25 @@ const mutations = {
       edge = helper.createEdge(state, options.sourcePort, options.targetPort, true);
     }
     if (edge !== null) {
-      store.commit('history/commit', history.createEdgeHistory(edge));
+      store.commit('history/commit', history.createEdgeEvent(edge));
     }
   },
 
   /** Removes an edge and propagates. */
   removeEdge: (state: DataflowState, edge: Edge) => {
-    store.commit('history/commit', history.removeEdgeHistory(edge));
+    store.commit('history/commit', history.removeEdgeEvent(edge));
     helper.removeEdge(state, edge, true);
+  },
+
+  /**
+   * Inerts a node onto the given edge.
+   * This happens when the user drags a node on canvas onto an edge on canvas, and is triggered by store/interaction.
+   */
+  insertNodeOnEdge: (state: DataflowState, { node, edge }: { node: Node, edge: Edge }) => {
+    const result = helper.insertNodeOnEdge(state, node, edge);
+    store.commit('interaction/clearMouseupEdge');
+    store.commit('history/commit', history.insertNodeOnEdgeEvent([history.removeEdgeEvent(edge)].concat(
+      result.createdEdges.map(e => history.createEdgeEvent(e)))));
   },
 
   /** Removes all incident edges to a port and propagates. */
@@ -134,11 +163,6 @@ const mutations = {
   /** Moves all nodes by (dx, dy). */
   moveDiagram: (state: DataflowState, { dx, dy }: { dx: number, dy: number }) => {
     _.each(state.nodes.filter(node => node.isVisible), node => node.moveBy(dx, dy));
-  },
-
-  /** Removes the nodes that are currently selected. */
-  removeSelectedNodes: (state: DataflowState) => {
-    helper.removeSelectedNodes(state);
   },
 
   undo: (state: DataflowState, evt: HistoryDiagramEvent) => {

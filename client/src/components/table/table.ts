@@ -8,6 +8,8 @@ import TabularDataset, { TabularRow } from '@/data/tabular-dataset';
 import template from './table.html';
 import { Visualization, injectVisualizationTemplate } from '@/components/visualization';
 import ColumnList from '@/components/column-list/column-list';
+import * as history from './history';
+import { HistoryNodeEvent } from '@/store/history/types';
 
 const DEFAULT_MAX_COLUMNS = 6;
 // Approximate height of the datatables excluding its scroll body.
@@ -39,6 +41,23 @@ export default class Table extends Visualization {
 
   // Columns to show from the dataset.
   private columns: number[] = [];
+
+  public undo(evt: HistoryNodeEvent) {
+    if (!history.undo(evt)) {
+      this.undoBase(evt);
+    }
+  }
+
+  public redo(evt: HistoryNodeEvent) {
+    if (!history.redo(evt)) {
+      this.redoBase(evt);
+    }
+  }
+
+  public setColumns(columns: number[]) {
+    this.columns = columns;
+    this.draw();
+  }
 
   protected created() {
     this.serializationChain.push((): TableSave => ({
@@ -163,5 +182,10 @@ export default class Table extends Visualization {
         'max-height': height,
         'height': height,
       });
+  }
+
+  private onInputColumns(columns: number[], prevColumns: number[]) {
+    this.draw();
+    this.commitHistory(history.selectColumnsEvent(this, columns, prevColumns));
   }
 }

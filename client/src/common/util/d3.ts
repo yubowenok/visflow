@@ -48,3 +48,18 @@ const areOnTwoSides = (p: Point, q: Point, r: Point, s: Point): boolean => {
 export const areSegmentsIntersected = (p: Point, q: Point, r: Point, s: Point): boolean => {
   return areOnTwoSides(p, q, r, s) && areOnTwoSides(r, s, p, q);
 };
+
+/**
+ * Returns if two ranges intersect.
+ */
+export const areRangesIntersected = (p: [number, number], q: [number, number]): boolean => {
+  return p[0] <= q[1] && p[1] >= q[0];
+};
+
+/**
+ * Returns if the two given boxes intersect.
+ */
+export const areBoxesIntersected = (a: Box, b: Box): boolean => {
+  return areRangesIntersected([a.x, a.x + a.width], [b.x, b.x + b.width]) &&
+    areRangesIntersected([a.y, a.y + a.height], [b.y, b.y + b.height]);
+};

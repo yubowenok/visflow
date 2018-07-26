@@ -1,3 +1,5 @@
+@import '../../common/style/index';
+
 #dataflow-canvas {
   svg {
     position: absolute;
@@ -10,10 +12,17 @@
   }
 }
 
-
 #vis-mode-background {
   width: 100%;
   height: 100%;
   position: fixed;
   background-color: #eee;
+}
+
+.select-box {
+  position: fixed;
+  border: 1px solid #333;
+  background-color: $theme-green;
+  opacity: .5;
+  z-index: $zIndexCanvasSelectBox;
 }

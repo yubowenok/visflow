@@ -8,6 +8,8 @@ import Port from '@/components/port/port';
 import Edge from '@/components/edge/edge';
 import DrawingEdge from '@/components/drawing-edge/drawing-edge';
 import { DEFAULT_ANIMATION_DURATION_S } from '@/common/constants';
+import * as history from './history';
+import { HistoryDiagramEvent } from '@/store/history/types';
 
 enum DragMode {
   NONE = 'none',
@@ -27,16 +29,42 @@ export default class DataflowCanvas extends Vue {
   @ns.interaction.Getter('isShiftPressed') private isShiftPressed!: boolean;
   @ns.interaction.Mutation('clickBackground') private clickBackground!: () => void;
   @ns.interaction.Mutation('trackMouseMove') private trackMouseMove!: (point: Point) => void;
+  @ns.interaction.Mutation('selectNodesInBoxOnCanvas') private selectNodesInBoxOnCanvas!: (box: Box) => void;
   @ns.dataflow.Mutation('moveDiagram') private moveDiagram!: ({ dx, dy }: { dx: number, dy: number }) => void;
+  @ns.history.Mutation('commit') private commitHistory!: (evt: HistoryDiagramEvent) => void;
 
-  private isPanning = false;
   private lastMouseX: number = 0;
   private lastMouseY: number = 0;
   private draggedDistance: number = 0;
+  private dragStartPoint: Point = { x: 0, y: 0 };
+  private dragEndPoint: Point = { x: 0, y: 0 };
   private dragMode: DragMode = DragMode.NONE;
 
   get dragClass(): string {
-    return this.isPanning || this.isAltPressed ? 'panning' : '';
+    return this.dragMode === DragMode.PAN || this.isAltPressed ? 'panning' : '';
+  }
+
+  get selectBox(): Box {
+    const xl = Math.min(this.dragStartPoint.x, this.dragEndPoint.x);
+    const xr = Math.max(this.dragStartPoint.x, this.dragEndPoint.x);
+    const yl = Math.min(this.dragStartPoint.y, this.dragEndPoint.y);
+    const yr = Math.max(this.dragStartPoint.y, this.dragEndPoint.y);
+    return {
+      x: xl,
+      y: yl,
+      width: xr - xl,
+      height: yr - yl,
+    };
+  }
+
+  get selectBoxStyle() {
+    const box = this.selectBox;
+    return {
+      left: box.x + 'px',
+      top: box.y + 'px',
+      width: box.width + 'px',
+      height: box.height + 'px',
+    };
   }
 
   public addNode(node: Node) {
@@ -92,25 +120,28 @@ export default class DataflowCanvas extends Vue {
     }
 
     this.dragMode = this.isShiftPressed ? DragMode.SELECT : DragMode.PAN;
+    this.dragStartPoint = this.dragEndPoint = { x: evt.pageX, y: evt.pageY };
 
     if (this.dragMode === DragMode.PAN) {
-      this.isPanning = true;
       this.draggedDistance = 0;
     } else if (this.dragMode === DragMode.SELECT) {
-
     }
     this.lastMouseX = evt.pageX;
     this.lastMouseY = evt.pageY;
+    evt.preventDefault();
   }
 
   private onMousemove(evt: JQuery.Event) {
-    if (this.dragMode === DragMode.PAN && this.isPanning) {
+    if (this.dragMode === DragMode.NONE) {
+      return;
+    }
+    this.dragEndPoint = { x: evt.pageX, y: evt.pageY };
+    if (this.dragMode === DragMode.PAN) {
       const dx = evt.pageX - this.lastMouseX;
       const dy = evt.pageY - this.lastMouseY;
       this.moveDiagram({ dx, dy });
       this.draggedDistance += Math.abs(dx) + Math.abs(dy);
     } else if (this.dragMode === DragMode.SELECT) {
-
     }
     this.lastMouseX = evt.pageX;
     this.lastMouseY = evt.pageY;
@@ -118,14 +149,21 @@ export default class DataflowCanvas extends Vue {
   }
 
   private onMouseup(evt: JQuery.Event) {
+    if (this.dragMode === DragMode.NONE) {
+      return;
+    }
     if (this.dragMode === DragMode.PAN) {
-      this.isPanning = false;
       if (this.draggedDistance === 0) {
         // Click on the background deselects all selected nodes.
         this.clickBackground();
+      } else {
+        this.commitHistory(history.panningEvent(this.dragEndPoint, this.dragStartPoint));
       }
     } else if (this.dragMode === DragMode.SELECT) {
+      this.selectNodesInBoxOnCanvas(this.selectBox);
     }
+    this.dragMode = DragMode.NONE;
+    this.dragEndPoint = this.dragStartPoint = { x: 0, y: 0 };
   }
 
   private initDrag() {

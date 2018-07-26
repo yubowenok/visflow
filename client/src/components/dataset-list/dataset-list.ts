@@ -76,7 +76,7 @@ export default class DatasetLit extends Vue {
       pageLength: 5,
       select: this.selectable ? 'single' : false,
       order: [2, 'desc'],
-      searching: false,
+      searching: true,
       info: false,
       language: {
         emptyTable: 'You have no uploaded datasets',

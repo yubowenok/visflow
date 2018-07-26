@@ -1,8 +1,7 @@
-import Vue from 'vue';
 import { Module } from 'vuex';
-import { RootState } from '@/store';
+
+import store, { RootState } from '@/store';
 import { showSystemMessage } from '@/common/util';
-import store from '@/store';
 import { MessageModalOptions } from './types';
 
 interface ModalsState {

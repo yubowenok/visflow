@@ -22,6 +22,8 @@ import { fadeOut, getTransform, areSegmentsIntersected } from '@/common/util';
 import { SELECTED_COLOR } from '@/common/constants';
 import { VisualProperties } from '@/data/visuals';
 import { isContinuousDomain } from '@/data/util';
+import * as history from './history';
+import { HistoryNodeEvent } from '@/store/history/types';
 
 const DEFAULT_NUM_COLUMNS = 6;
 const ORDINAL_DOMAIN_LENGTH_THRESHOLD = 10;
@@ -69,6 +71,23 @@ export default class ParallelCoordinates extends Visualization {
   private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, left: 30, bottom: 20 };
   private areTicksVisible: boolean = true;
   private areAxesLabelsVisible: boolean = true;
+
+  public undo(evt: HistoryNodeEvent) {
+    if (!history.undo(evt)) {
+      this.undoBase(evt);
+    }
+  }
+
+  public redo(evt: HistoryNodeEvent) {
+    if (!history.redo(evt)) {
+      this.redoBase(evt);
+    }
+  }
+
+  public setColumns(columns: number[]) {
+    this.columns = columns;
+    this.draw();
+  }
 
   protected created() {
     this.serializationChain.push((): ParallelCoordinatesSave => ({
@@ -267,7 +286,8 @@ export default class ParallelCoordinates extends Visualization {
     }
   }
 
-  private onSelectColumns() {
+  private onInputColumns(columns: number[], prevColumns: number[]) {
     this.draw();
+    this.commitHistory(history.selectColumnsEvent(this, columns, prevColumns));
   }
 }
