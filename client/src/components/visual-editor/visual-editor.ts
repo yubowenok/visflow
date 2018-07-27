@@ -16,6 +16,7 @@ import ColorScaleDisplay from '@/components/color-scale-display/color-scale-disp
 import { getScale } from '@/components/visualization';
 import { getColorScale } from '@/common/color-scale';
 import * as history from './history';
+import { NODE_CONTENT_PADDING_PX } from '@/common/constants';
 
 export enum VisualEditorMode {
   ASSIGNMENT = 'assignment',
@@ -103,7 +104,7 @@ export default class VisualEditor extends SubsetNode {
     if (this.visuals.border && width === 0) {
       width = 1; // If the border color is set, show at least 1px of border.
     }
-    const baseSize = Math.min(this.width, this.height);
+    const baseSize = Math.min(this.width, this.height) - NODE_CONTENT_PADDING_PX * 2;
     const size = this.visuals.size ?
       // If size is defined, we use the defined size.
       Math.min(baseSize, this.visuals.size) :

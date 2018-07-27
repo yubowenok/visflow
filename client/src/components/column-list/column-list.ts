@@ -8,6 +8,24 @@ import { MessageModalOptions } from '@/store/modals/types';
 import { ColumnSelectOption } from '@/components/column-select/column-select';
 
 const NUM_CLUTTER_COLUMNS = 20;
+
+export const getColumnListInputType = (columns: number[], prevColumns: number[]): string => {
+  const columnsSorted = columns.concat().sort();
+  if (columnsSorted.length && _.isEqual(columnsSorted, prevColumns.concat().sort())) {
+    return 'order columns';
+  } else if (columns.length - prevColumns.length === 1) {
+    return 'add column';
+  } else if (columns.length - prevColumns.length === -1) {
+    return 'remove column';
+  } else if (columns.length && !prevColumns.length) {
+    return 'all columns';
+  } else if (!columns.length && prevColumns.length) {
+    return 'clear columns';
+  } else {
+    return 'select columns';
+  }
+};
+
 @Component({
   components: {
     FormSelect,
@@ -25,6 +43,7 @@ export default class ColumnList extends Vue {
   private selected: number[] = [];
   // Used for tracing history.
   private prevSelected: number[] = [];
+
   // Tracks the status of list being dragged and sorted.
   private isSorting = false;
 
@@ -110,8 +129,12 @@ export default class ColumnList extends Vue {
     this.selected = this.selected.concat().sort((a, b) => a - b);
   }
 
-  private onListSelect() {
-    this.$emit('input', this.selected, this.prevSelected);
-    this.prevSelected = this.selected.concat();
+  private onChildSelect() {
+    if (!_.isEqual(this.selected, this.prevSelected)) {
+      // TODO: See if it is possible to differentiate different inputs for better history, i.e.
+      // add/remove/order/clear/sort columns.
+      this.$emit('input', this.selected, this.prevSelected);
+      this.prevSelected = this.selected.concat();
+    }
   }
 }

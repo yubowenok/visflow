@@ -4,7 +4,7 @@
     multiple
     v-model="selected"
     :options="columns"
-    @input="onListSelect">
+    @input="onChildSelect">
     <span slot="no-options">No Matching Columns</span>
   </form-select>
   <div class="controls">

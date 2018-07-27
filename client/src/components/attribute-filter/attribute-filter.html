@@ -27,7 +27,7 @@
   <form-select
     :options="filterTypeOptions"
     v-model="filterType"
-    @input="updateAndPropagate"
+    @input="onSelectFilterType"
     :clearable="false"
   ></form-select>
 </div>
@@ -36,7 +36,7 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="column"
-    @input="updateAndPropagate"
+    @input="onSelectColumn"
   ></column-select>
 </div>
 <hr class="divider"/>
@@ -47,7 +47,7 @@
     Patterns
     <constants-list v-if="!inputDisabled"
       v-model="patternParams.patterns"
-      @input="updateAndPropagate"
+      @input="onInputPatterns"
     ></constants-list>
     <constants-list v-else :value="constants" :disabled="true"></constants-list>
   </div>
@@ -57,7 +57,7 @@
       :options="patternMatchModeOptions"
       v-model="patternParams.mode"
       :clearable="false"
-      @input="updateAndPropagate"
+      @input="onSelectPatternMatchMode"
     ></form-select>
   </div>
   <div class="subsection" v-if="patternParams.mode !== 'regex'">
@@ -69,12 +69,14 @@
 <div v-if="filterType === 'range'">
   <div class="subsection">
     Min
-    <form-input v-if="!inputDisabled" v-model="rangeParams.min" @input="updateAndPropagate"></form-input>
+    <form-input v-if="!inputDisabled" v-model="rangeParams.min"
+      @input="onInputRangeMin" @change="setRangeMin"></form-input>
     <form-input v-else :value="firstConstant" disabled></form-input>
   </div>
   <div class="subsection">
     Max
-    <form-input v-if="!inputDisabled" v-model="rangeParams.max" @input="updateAndPropagate"></form-input>
+    <form-input v-if="!inputDisabled" v-model="rangeParams.max"
+      @input="onInputRangeMax" @change="setRangeMax"></form-input>
     <form-input v-else :value="secondConstant" disabled></form-input>
   </div>
 </div>
@@ -87,7 +89,7 @@
       v-model="samplingParams.criterion"
       :clearable="false"
       :options="samplingCriterionOptions"
-      @input="updateAndPropagate"
+      @input="onSelectSamplingCriterion"
     >
     </form-select>
   </div>
@@ -97,13 +99,14 @@
       v-model="samplingParams.amountType"
       :clearable="false"
       :options="samplingAmountTypeOptions"
-      @input="updateAndPropagate"
+      @input="onSelectSamplingAmountType"
     >
     </form-select>
   </div>
   <div class="subsection">
     Amount
-    <form-input v-if="!inputDisabled" v-model.number="samplingParams.amount" @input="updateAndPropagate"></form-input>
+    <form-input v-if="!inputDisabled" v-model.number="samplingParams.amount"
+      @input="onInputSamplingAmount" @change="setSamplingAmount"></form-input>
     <form-input v-else :value="firstConstant" disabled></form-input>
   </div>
   <div class="subsection">
@@ -112,13 +115,13 @@
       v-model="samplingParams.groupByColumn"
       :clearable="true"
       :columns="columnSelectOptions"
-      @input="updateAndPropagate"
+      @input="onSelectSamplingGroupByColumn"
     ></column-select>
   </div>
   <div id="sampling-on-distinct-values" class="subsection">
     <b-form-checkbox
       v-model="samplingParams.isOnDistinctValues"
-      @input="updateAndPropagate"
+      @input="onToggleSamplingOnDistinctValues"
     >
       Sample On Distinct Values
       <i id="sampling-on-distinct-values-hint" class="fas fa-question-circle hint"></i>

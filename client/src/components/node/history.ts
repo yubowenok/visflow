@@ -1,4 +1,9 @@
-import { HistoryNodeEvent, HistoryEventLevel, HistoryNodeOptionEvent } from '@/store/history/types';
+import {
+  HistoryNodeEvent,
+  HistoryEventLevel,
+  HistoryNodeOptionEvent,
+  nodeEvent,
+} from '@/store/history/types';
 import { Node } from '@/components/node';
 import { RootStore } from '@/store/types';
 
@@ -19,20 +24,18 @@ export const moveNodeEvent = (node: Node, selectedNodes: Node[], to: Point, from
       from,
       to,
     },
+    icon: { value: 'fas fa-arrows-alt' },
   };
 };
 
 export const resizeNodeEvent = (node: Node, newView: Box, prevView: Box): HistoryNodeEvent => {
-  return {
-    level: HistoryEventLevel.NODE,
-    type: HistoryNodeEventType.RESIZE,
-    message: 'resize node',
+  return nodeEvent(
+    HistoryNodeEventType.RESIZE,
+    'resize node',
     node,
-    data: {
-      newView,
-      prevView,
-    },
-  };
+    { prevView, newView },
+    { value: 'fas fa-expand-arrows-alt' },
+  );
 };
 
 export const moveNode = (store: RootStore, node: Node, selectedNodes: Node[], to: Point, from: Point) => {
@@ -46,21 +49,29 @@ export const resizeNode =  (store: RootStore, node: Node, newView: Box, prevView
 const undoMoveNode = (store: RootStore, evt: HistoryNodeEvent) => {
   const from: Point = evt.data.from;
   const to: Point = evt.data.to;
-  store.commit('interaction/moveNodes', { nodes: evt.data.selectedNodes, dx: from.x - to.x, dy: from.y - to.y });
+  const nodes = evt.data.selectedNodes as Node[];
+  nodes.forEach(node => node.moveBy(from.x - to.x, from.y - to.y));
 };
 
 const redoMoveNode = (store: RootStore, evt: HistoryNodeEvent) => {
   const from: Point = evt.data.from;
   const to: Point = evt.data.to;
-  store.commit('interaction/moveNodes', { nodes: evt.data.selectedNodes, dx: to.x - from.x, dy: to.y - from.y });
+  const nodes = evt.data.selectedNodes as Node[];
+  nodes.forEach(node => node.moveBy(to.x - from.x, to.y - from.y));
 };
 
 const undoResizeNode = (store: RootStore, evt: HistoryNodeEvent) => {
-  evt.node.setView(evt.data.prevView as Box);
+  const from: Box = evt.data.prevView;
+  const to: Box = evt.data.newView;
+  evt.node.moveBy(from.x - to.x, from.y - to.y);
+  evt.node.setSize(from.width, from.height);
 };
 
 const redoResizeNode = (store: RootStore, evt: HistoryNodeEvent) => {
-  evt.node.setView(evt.data.newView as Box);
+  const from: Box = evt.data.prevView;
+  const to: Box = evt.data.newView;
+  evt.node.moveBy(to.x - from.x, to.y - from.y);
+  evt.node.setSize(to.width, to.height);
 };
 
 export const undo = (store: RootStore, evt: HistoryNodeEvent) => {

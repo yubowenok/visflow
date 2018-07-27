@@ -1,5 +1,6 @@
 import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import ParallelCoordinates from './parallel-coordinates';
+import { getColumnListInputType } from '@/components/column-list/column-list';
 
 enum ParallelCoordinatesEventType {
   SELECT_COLUMNS = 'select-columns',
@@ -9,7 +10,7 @@ export const selectColumnsEvent = (node: ParallelCoordinates, columns: number[],
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     ParallelCoordinatesEventType.SELECT_COLUMNS,
-    'select columns',
+    getColumnListInputType(columns, prevColumns),
     node,
     node.setColumns,
     columns,

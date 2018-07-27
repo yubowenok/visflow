@@ -317,12 +317,14 @@ export default class Node extends Vue {
     this.y += dy;
   }
 
-  /** Sets the location and size of the node. */
-  public setView(view: Box) {
-    this.x = view.x;
-    this.y = view.y;
-    this.width = view.width;
-    this.height = view.height;
+  /**
+   * Sets the size of the node.
+   * Note that setView or setLocation is not provided, because a node's (x, y) location also depends on the global
+   * translation. Use moveBy with relative movement instead.
+   */
+  public setSize(width: number, height: number) {
+    this.width = width;
+    this.height = height;
   }
 
   /**

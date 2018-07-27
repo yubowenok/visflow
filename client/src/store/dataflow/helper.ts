@@ -197,14 +197,16 @@ export const removeSelectedNodes = (state: DataflowState): { removedNodes: Node[
   };
 };
 
-export const disconnectPort = (state: DataflowState, port: Port, propagate: boolean) => {
+export const disconnectPort = (state: DataflowState, port: Port, propagate: boolean): Edge[] => {
   const affectedNodes = port.isInput ? [port.node] : port.getConnectedNodes();
-  for (const edge of port.getAllEdges()) {
+  const removedEdges = port.getAllEdges();
+  for (const edge of removedEdges) {
     removeEdge(state, edge, false);
   }
   if (propagate) {
     propagateNodes(affectedNodes);
   }
+  return removedEdges;
 };
 
 export const resetDataflow = (state: DataflowState) => {
@@ -212,6 +214,7 @@ export const resetDataflow = (state: DataflowState) => {
     removeNode(state, node, false);
   }
   _.extend(state, _.omit(getInitialState(), 'canvas'));
+  store.commit('history/clear');
 };
 
 export const serializeDiagram = (state: DataflowState): DiagramSave => {

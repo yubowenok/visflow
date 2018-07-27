@@ -8,11 +8,14 @@ export enum HistoryEventLevel {
   NODE = 'node',
 }
 
+export type HistoryEventIcon = { isNodeIcon: true, nodeType: string } | { isNodeIcon?: false, value: string };
+
 export interface HistoryEvent {
   level: HistoryEventLevel;
   type: string;
   message: string;
   data: any;
+  icon?: HistoryEventIcon;
 }
 
 export interface HistoryNodeEvent extends HistoryEvent {

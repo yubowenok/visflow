@@ -1,5 +1,4 @@
-import { Vue, Component } from 'vue-property-decorator';
-import FormSelect from '@/components/form-select/form-select';
+import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
 
 import template from './attribute-filter.html';
@@ -12,14 +11,16 @@ import ColumnSelect from '@/components/column-select/column-select';
 import { ValueType } from '@/data/parser';
 import { valueDisplay } from '@/common/util';
 import { SubsetNodeBase } from '@/components/subset-node';
+import FormSelect from '@/components/form-select/form-select';
+import * as history from './history';
 
-enum FilterType {
+export enum FilterType {
   PATTERN = 'pattern',
   RANGE = 'range',
   SAMPLING = 'sampling',
 }
 
-enum PatternMatchMode {
+export enum PatternMatchMode {
   FULL_STRING = 'full-string',
   SUBSTRING = 'substring',
   REGEX = 'regex',
@@ -30,13 +31,13 @@ enum ConstantsMode {
   RECEIVED = 'received',
 }
 
-enum SamplingCriterion {
+export enum SamplingCriterion {
   MINIMUM = 'minimum',
   MAXIMUM = 'maximum',
   RANDOM = 'random',
 }
 
-enum SamplingAmountType {
+export enum SamplingAmountType {
   COUNT = 'count',
   PERCENTAGE = 'percentage',
 }
@@ -87,7 +88,6 @@ const DEFAULT_SAMPLING_PARAMS: SamplingParams = {
   amount: 5,
   isOnDistinctValues: false,
 };
-
 
 @Component({
   template: injectNodeTemplate(template),
@@ -211,6 +211,66 @@ export default class AttributeFilter extends SubsetNodeBase {
       { label: 'Minimum', value: SamplingCriterion.MINIMUM },
       { label: 'Random', value: SamplingCriterion.RANDOM },
     ];
+  }
+
+  public setFilterType(type: FilterType) {
+    this.filterType = type;
+    this.updateAndPropagate();
+  }
+
+  public setColumn(column: number | null) {
+    this.column = column;
+    this.updateAndPropagate();
+  }
+
+  public setPatterns(patterns: string[]) {
+    this.patternParams.patterns = patterns;
+    this.updateAndPropagate();
+  }
+
+  public setPatternMatchMode(mode: PatternMatchMode) {
+    this.patternParams.mode = mode;
+    this.updateAndPropagate();
+  }
+
+  public setPatternCaseSensitive(value: boolean) {
+    this.patternParams.isCaseSensitive = value;
+    this.updateAndPropagate();
+  }
+
+  public setRangeMin(value: number | null) {
+    this.rangeParams.min = value;
+    this.updateAndPropagate();
+  }
+
+  public setRangeMax(value: number | null) {
+    this.rangeParams.max = value;
+    this.updateAndPropagate();
+  }
+
+  public setSamplingCriterion(criterion: SamplingCriterion) {
+    this.samplingParams.criterion = criterion;
+    this.updateAndPropagate();
+  }
+
+  public setSamplingAmountType(type: SamplingAmountType) {
+    this.samplingParams.amountType = type;
+    this.updateAndPropagate();
+  }
+
+  public setSamplingAmount(amount: number | null) {
+    this.samplingParams.amount = amount || 0;
+    this.updateAndPropagate();
+  }
+
+  public setSamplingGroupByColumn(column: number | null) {
+    this.samplingParams.groupByColumn = column;
+    this.updateAndPropagate();
+  }
+
+  public setSamplingOnDistinctValues(value: boolean) {
+    this.samplingParams.isOnDistinctValues = value;
+    this.updateAndPropagate();
   }
 
   protected onDatasetChange() {
@@ -422,5 +482,66 @@ export default class AttributeFilter extends SubsetNodeBase {
       }
     }
     return pkg;
+  }
+
+  private onSelectFilterType(type: FilterType, prevType: FilterType) {
+    this.commitHistory(history.selectFilterTypeEvent(this, type, prevType));
+    this.setFilterType(type);
+  }
+
+  private onSelectColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectColumnEvent(this, column, prevColumn));
+    this.setColumn(column);
+  }
+
+  private onInputPatterns(patterns: string[], prevPatterns: string[]) {
+    this.commitHistory(history.inputPatternsEvent(this, patterns, prevPatterns));
+    this.setPatterns(patterns);
+  }
+
+  private onSelectPatternMatchMode(mode: PatternMatchMode, prevMode: PatternMatchMode) {
+    this.commitHistory(history.selectPatternMatchModeEvent(this, mode, prevMode));
+    this.setPatternMatchMode(mode);
+  }
+
+  private onTogglePatternCaseSensitive(value: boolean) {
+    this.commitHistory(history.togglePatternCaseSensitiveEvent(this, value));
+    this.setPatternCaseSensitive(value);
+  }
+
+  private onInputRangeMin(value: number | null, prevValue: number | null) {
+    console.log(value, prevValue);
+    this.commitHistory(history.inputRangeMin(this, value, prevValue));
+    this.setRangeMin(value);
+  }
+
+  private onInputRangeMax(value: number | null, prevValue: number | null) {
+    this.commitHistory(history.inputRangeMax(this, value, prevValue));
+    this.setRangeMax(value);
+  }
+
+  private onSelectSamplingCriterion(criterion: SamplingCriterion, prevCriterion: SamplingCriterion) {
+    this.commitHistory(history.selectSamplingCriterion(this, criterion, prevCriterion));
+    this.setSamplingCriterion(criterion);
+  }
+
+  private onSelectSamplingAmountType(type: SamplingAmountType, prevType: SamplingAmountType) {
+    this.commitHistory(history.selectSamplingAmountType(this, type, prevType));
+    this.setSamplingAmountType(type);
+  }
+
+  private onInputSamplingAmount(amount: number | null, prevAmount: number | null) {
+    this.commitHistory(history.inputSamplingAmount(this, amount, prevAmount));
+    this.setSamplingAmount(amount);
+  }
+
+  private onSelectSamplingGroupByColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectSamplingGroupByColumn(this, column, prevColumn));
+    this.setSamplingGroupByColumn(column);
+  }
+
+  private onToggleSamplingOnDistinctValues(value: boolean) {
+    this.commitHistory(history.toggleSamplingOnDistinctValues(this, value));
+    this.setSamplingOnDistinctValues(value);
   }
 }

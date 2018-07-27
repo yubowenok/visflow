@@ -10,6 +10,7 @@ import { getColumnSelectOptions } from '@/data/util';
 import TabularDataset from '@/data/tabular-dataset';
 import { ValueType } from '@/data/parser';
 import { valueDisplay } from '@/common/util';
+import * as history from './history';
 
 enum ConstantsGeneratorMode {
   INPUT = 'input',
@@ -70,6 +71,26 @@ export default class ConstantsGenerator extends Node {
     }
     const dataset = this.inputPortMap.in.getSubsetPackage().getDataset() as TabularDataset;
     return dataset.getColumnType(this.column);
+  }
+
+  public setInputConstants(constants: string[]) {
+    this.inputConstants = constants;
+    this.updateAndPropagate();
+  }
+
+  public setColumn(column: number | null) {
+    this.column = column;
+    this.updateAndPropagate();
+  }
+
+  public setDistinct(value: boolean) {
+    this.distinct = value;
+    this.updateAndPropagate();
+  }
+
+  public setSort(value: boolean) {
+    this.sort = value;
+    this.updateAndPropagate();
   }
 
   protected created() {
@@ -148,5 +169,25 @@ export default class ConstantsGenerator extends Node {
   private updateAndPropagate() {
     this.update();
     this.portUpdated(this.outputPortMap.out);
+  }
+
+  private onInputConstants(constants: string[], prevConstants: string[]) {
+    this.commitHistory(history.inputConstantsEvent(this, constants, prevConstants));
+    this.setInputConstants(constants);
+  }
+
+  private onSelectColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectColumnEvent(this, column, prevColumn));
+    this.setColumn(column);
+  }
+
+  private onToggleDistinct(value: boolean) {
+    this.commitHistory(history.toggleDistinctEvent(this, value));
+    this.setDistinct(value);
+  }
+
+  private onToggleSort(value: boolean) {
+    this.commitHistory(history.toggleSortEvent(this, value));
+    this.setSort(value);
   }
 }

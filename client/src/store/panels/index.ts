@@ -9,6 +9,7 @@ interface PanelsState {
   portPanelMount: Element;
   nodePanelVisible: boolean;
   quickNodePanelVisible: boolean;
+  historyPanelVisible: boolean;
 }
 
 const initialState: PanelsState = {
@@ -16,6 +17,7 @@ const initialState: PanelsState = {
   portPanelMount: document.createElement('div'),
   nodePanelVisible: true,
   quickNodePanelVisible: false,
+  historyPanelVisible: true,
 };
 
 const mutations = {
@@ -65,6 +67,10 @@ const mutations = {
 
   closeQuickNodePanel(state: PanelsState) {
     state.quickNodePanelVisible = false;
+  },
+
+  toggleHistoryPanel(state: PanelsState) {
+    state.historyPanelVisible = !state.historyPanelVisible;
   },
 };
 

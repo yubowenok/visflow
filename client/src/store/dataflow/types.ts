@@ -77,5 +77,6 @@ export enum DiagramEventType {
   INSERT_NODE_ON_EDGE = 'insert-node-on-edge',
   REMOVE_NODES = 'remove-nodes',
   REMOVE_NODE_AND_INCIDENT_EDGES = 'remove-node-and-incident-edges',
+  DISCONNECT_PORT = 'disconnect-port',
   PANNING = 'panning',
 }

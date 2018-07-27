@@ -45,7 +45,7 @@ export default class FormInput extends Vue {
     }
   }
 
-  private destory() {
+  private destroyed() {
     this.save();
   }
 }

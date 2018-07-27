@@ -1,7 +1,6 @@
 import Node from '@/components/node/node';
 import Edge, { EdgeSave } from '@/components/edge/edge';
 import {
-  HistoryEventLevel,
   HistoryDiagramEvent,
   HistoryDiagramBatchEvent,
   diagramEvent,
@@ -17,6 +16,10 @@ export const createNodeEvent = (node: Node): HistoryDiagramEvent => {
     DiagramEventType.CREATE_NODE,
     'create node',
     { nodeSave: node.serialize() },
+    {
+      isNodeIcon: true,
+      nodeType: node.nodeType,
+    },
   );
 };
 
@@ -25,6 +28,7 @@ export const createEdgeEvent = (edge: Edge): HistoryDiagramEvent => {
     DiagramEventType.CREATE_EDGE,
     'create edge',
     { edgeSave: edge.serialize() },
+    { value: 'fas fa-link' },
   );
 };
 
@@ -34,6 +38,7 @@ export const removeNodeEvent = (node: Node): HistoryDiagramEvent => {
     DiagramEventType.REMOVE_NODE,
     'remove node',
     { nodeSave: node.serialize() },
+    { value: 'fas fa-trash' },
   );
 };
 
@@ -43,6 +48,7 @@ export const removeNodeAndIncidentEdgesEvent = (node: Node): HistoryDiagramBatch
     DiagramEventType.REMOVE_NODE,
     'remove node',
     edges.map(edge => removeEdgeEvent(edge)).concat([removeNodeEvent(node)]),
+    { value: 'fas fa-trash' },
   );
 };
 
@@ -51,33 +57,47 @@ export const removeEdgeEvent = (edge: Edge): HistoryDiagramEvent => {
     DiagramEventType.REMOVE_EDGE,
     'remove edge',
     { edgeSave: edge.serialize() },
+    { value: 'fas fa-unlink' },
   );
 };
 
 export const removeNodesEvent = (events: HistoryDiagramEvent[]): HistoryDiagramBatchEvent => {
+  const countNodes = events.filter(evt => evt.data.nodeSave).length;
   return diagramBatchEvent(
     DiagramEventType.REMOVE_NODES,
-    'remove nodes',
+    'remove ' + (countNodes > 1 ? 'nodes' : 'node'),
     events,
+    { value: 'fas fa-trash' },
   );
 };
 
 export const createNodeOnEdgeEvent = (events: HistoryDiagramEvent[]): HistoryDiagramBatchEvent => {
+  const nodeEvent = events.filter(evt => evt.data.nodeSave)[0];
   return diagramBatchEvent(
     DiagramEventType.CREATE_NODE_ON_EDGE,
     'create node on edge',
     events,
+    { isNodeIcon: true, nodeType: nodeEvent.data.nodeSave.type },
   );
 };
 
-export const insertNodeOnEdgeEvent = (events: HistoryDiagramEvent[]): HistoryDiagramBatchEvent => {
+export const insertNodeOnEdgeEvent = (events: HistoryDiagramEvent[], node: Node): HistoryDiagramBatchEvent => {
   return diagramBatchEvent(
     DiagramEventType.INSERT_NODE_ON_EDGE,
     'insert node on edge',
     events,
+    { isNodeIcon: true, nodeType: node.nodeType },
   );
 };
 
+export const disconnectPortEvent = (events: HistoryDiagramEvent[]): HistoryDiagramBatchEvent => {
+  return diagramBatchEvent(
+    DiagramEventType.DISCONNECT_PORT,
+    'disconnect port',
+    events,
+    { value: 'fas fa-unlink' },
+  );
+};
 
 const createNodeFromSave = (state: DataflowState, nodeSave: NodeSave) => {
   const node = helper.createNode(
@@ -168,9 +188,7 @@ export const undo = (state: DataflowState, evt: HistoryDiagramEvent) => {
     case DiagramEventType.PANNING:
       undoPanning(state, evt.data);
       break;
-    case DiagramEventType.CREATE_NODE_ON_EDGE:
-    case DiagramEventType.REMOVE_NODE_AND_INCIDENT_EDGES:
-    case DiagramEventType.REMOVE_NODES:
+    default: // Batch events
       undoEvents(state, (evt as HistoryDiagramBatchEvent).events);
       break;
   }
@@ -193,9 +211,7 @@ export const redo = (state: DataflowState, evt: HistoryDiagramEvent) => {
     case DiagramEventType.PANNING:
       redoPanning(state, evt.data);
       break;
-    case DiagramEventType.CREATE_NODE_ON_EDGE:
-    case DiagramEventType.REMOVE_NODE_AND_INCIDENT_EDGES:
-    case DiagramEventType.REMOVE_NODES:
+    default: // Batch events
       redoEvents(state, (evt as HistoryDiagramBatchEvent).events);
       break;
   }

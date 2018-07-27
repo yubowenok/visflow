@@ -133,13 +133,16 @@ const mutations = {
   insertNodeOnEdge: (state: DataflowState, { node, edge }: { node: Node, edge: Edge }) => {
     const result = helper.insertNodeOnEdge(state, node, edge);
     store.commit('interaction/clearMouseupEdge');
-    store.commit('history/commit', history.insertNodeOnEdgeEvent([history.removeEdgeEvent(edge)].concat(
-      result.createdEdges.map(e => history.createEdgeEvent(e)))));
+    const events = [history.removeEdgeEvent(edge)].concat(
+      result.createdEdges.map(e => history.createEdgeEvent(e)),
+    );
+    store.commit('history/commit', history.insertNodeOnEdgeEvent(events, node));
   },
 
   /** Removes all incident edges to a port and propagates. */
   disconnectPort: (state: DataflowState, port: Port) => {
-    helper.disconnectPort(state, port, true);
+    const removedEdges = helper.disconnectPort(state, port, true);
+    store.commit('history/commit', history.disconnectPortEvent(removedEdges.map(e => history.removeEdgeEvent(e))));
   },
 
   /** Notifies of port data change and propagates the change. */

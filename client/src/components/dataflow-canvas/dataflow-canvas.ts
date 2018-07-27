@@ -132,10 +132,6 @@ export default class DataflowCanvas extends Vue {
   }
 
   private onMousemove(evt: JQuery.Event) {
-    if (this.dragMode === DragMode.NONE) {
-      return;
-    }
-    this.dragEndPoint = { x: evt.pageX, y: evt.pageY };
     if (this.dragMode === DragMode.PAN) {
       const dx = evt.pageX - this.lastMouseX;
       const dy = evt.pageY - this.lastMouseY;
@@ -143,6 +139,7 @@ export default class DataflowCanvas extends Vue {
       this.draggedDistance += Math.abs(dx) + Math.abs(dy);
     } else if (this.dragMode === DragMode.SELECT) {
     }
+    this.dragEndPoint = { x: evt.pageX, y: evt.pageY };
     this.lastMouseX = evt.pageX;
     this.lastMouseY = evt.pageY;
     this.trackMouseMove({ x: this.lastMouseX, y: this.lastMouseY });
@@ -157,7 +154,11 @@ export default class DataflowCanvas extends Vue {
         // Click on the background deselects all selected nodes.
         this.clickBackground();
       } else {
-        this.commitHistory(history.panningEvent(this.dragEndPoint, this.dragStartPoint));
+        // TODO: find a good design for global translation.
+        // Currently we use relative movement always to ensure that every movement can be correctly reproduced
+        // even if the canvas is translated. We do not make canvas panning an undoable event because it would pile up
+        // the undo stack and seem counter-intuitive.
+        // this.commitHistory(history.panningEvent(this.dragEndPoint, this.dragStartPoint));
       }
     } else if (this.dragMode === DragMode.SELECT) {
       this.selectNodesInBoxOnCanvas(this.selectBox);

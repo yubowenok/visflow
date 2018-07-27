@@ -1,0 +1,81 @@
+@import '../../common/style/index';
+
+.history-panel {
+  position: absolute;
+  min-width: 150px;
+  width: 150px;
+  top: 50%;
+  bottom: $panel-bottom;
+  z-index: $zIndexHistoryPanel;
+  background-color: white;
+  @extend %box, %box-shadow;
+  overflow: hidden;
+
+  .events {
+    direction: rtl;
+    height: 100%;
+  }
+
+  .title {
+    padding: $padding-size;
+  }
+
+  .divider {
+    margin: 0;
+  }
+
+  .icon {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    text-align: center;
+    margin-right: $margin-size;
+
+    img {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  .redo {
+    img {
+      opacity: .5;
+    }
+
+    &:hover img {
+      opacity: 1;
+    }
+  }
+
+  .event {
+    direction: ltr;
+    border: 1px solid #eee;
+    padding: $padding-size;
+    @extend %ellipsis-text;
+
+    &:hover {
+      cursor: pointer;
+      background-color: #ccc;
+      transition: $default-transition-time;
+    }
+
+    &.redo {
+      color: #ccc;
+
+      &:hover {
+        color: black;
+      }
+    }
+  }
+
+  .undo-group {
+    .event:first-child {
+      background-color: $theme-green-light;
+      cursor: default;
+
+      &:hover {
+        margin-left: 0;
+      }
+    }
+  }
+}

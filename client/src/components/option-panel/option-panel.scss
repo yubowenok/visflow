@@ -2,7 +2,7 @@
 
 .option-panel {
   @extend %right-panel;
-  bottom: $icon-size * 2;
+  bottom: $panel-bottom;
   z-index: $zIndexOptionPanel;
 
   * {

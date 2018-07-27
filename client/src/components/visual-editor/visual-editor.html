@@ -4,9 +4,9 @@
     <i class="color" :style="displayStyle"></i>
   </template>
   <template v-else-if="visuals.size || visuals.width || visuals.opacity">
-    <div v-if="visuals.size !== undefined">size {{ visuals.size }}</div>
-    <div v-if="visuals.width !== undefined">width {{ visuals.width }}</div>
-    <div v-if="visuals.opacity !== undefined">opacity {{ visuals.opacity }}</div>
+    <div v-if="visuals.size !== null">size {{ visuals.size }}</div>
+    <div v-if="visuals.width !== null">width {{ visuals.width }}</div>
+    <div v-if="visuals.opacity !== null">opacity {{ visuals.opacity }}</div>
   </template>
   <template v-else >
     <div>(no visuals)</div>

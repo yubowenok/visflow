@@ -47,9 +47,9 @@ export default class FormSelect extends Vue {
   }
 
   private save(value: string | number | Array<string | number> | null, noEvent?: boolean) {
-    this.selected = value;
-    this.childSelected = this.childSelectedOption();
-    if (!_.isEqual(this.selected, this.prevSelected)) {
+    if (!_.isEqual(this.selected, value)) {
+      this.selected = value;
+      this.childSelected = this.childSelectedOption();
       if (noEvent !== true) {
         this.$emit('input', this.selected, this.prevSelected);
       }

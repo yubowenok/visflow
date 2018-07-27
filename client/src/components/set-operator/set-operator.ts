@@ -6,8 +6,9 @@ import template from './set-operator.html';
 import FormSelect from '@/components/form-select/form-select';
 import { SubsetPackage } from '@/data/package';
 import { SubsetInputPort } from '@/components/port';
+import * as history from './history';
 
-enum SetOperatorMode {
+export enum SetOperatorMode {
   UNION = 'union',
   INTERSECTION = 'intersection',
   DIFFERENCE = 'difference',
@@ -34,6 +35,11 @@ export default class SetOperator extends SubsetNode {
       { label: 'Intersection', value: SetOperatorMode.INTERSECTION },
       { label: 'Difference', value: SetOperatorMode.DIFFERENCE },
     ];
+  }
+
+  public setMode(mode: SetOperatorMode) {
+    this.mode = mode;
+    this.updateAndPropagate();
   }
 
   protected createInputPorts() {
@@ -134,5 +140,10 @@ export default class SetOperator extends SubsetNode {
       pkg.getItems().forEach(item => differencePkg.removeItem(item));
     }
     return differencePkg;
+  }
+
+  private onSelectMode(mode: SetOperatorMode, prevMode: SetOperatorMode) {
+    this.commitHistory(history.selectModeEvent(this, mode, prevMode));
+    this.setMode(mode);
   }
 }

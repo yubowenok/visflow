@@ -1,5 +1,6 @@
 import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import Heatmap from './heatmap';
+import { getColumnListInputType } from '@/components/column-list/column-list';
 
 enum HeatmapEventType {
   SELECT_COLUMNS = 'select-columns',
@@ -13,7 +14,7 @@ export const selectColumnsEvent = (node: Heatmap, columns: number[], prevColumns
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     HeatmapEventType.SELECT_COLUMNS,
-    'select columns',
+    getColumnListInputType(columns, prevColumns),
     node,
     node.setColumns,
     columns,
@@ -49,7 +50,7 @@ export const selectRowLabelColumnEvent = (node: Heatmap, column: number | null, 
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     HeatmapEventType.SELECT_ROW_LABEL_COLUMN,
-    'select row label column',
+    (column !== null ? 'select' : 'clear') + ' row label column',
     node,
     node.setRowLabelColumn,
     column,

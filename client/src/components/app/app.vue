@@ -5,6 +5,7 @@
   <system-message></system-message>
   <node-panel></node-panel>
   <quick-node-panel></quick-node-panel>
+  <history-panel></history-panel>
   <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
     <dataflow-canvas ref="dataflowCanvas"></dataflow-canvas>
   </div>

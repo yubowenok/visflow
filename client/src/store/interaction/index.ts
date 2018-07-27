@@ -268,9 +268,11 @@ const mutations = {
     }
     // Clear lagging states for safety. Sometimes key combinations fail to trigger key releases, resulting in the
     // page getting stuck on pressed keys.
+    /*
     state.ctrlPressed = false;
     state.altPressed = false;
     state.shiftPressed = false;
+    */
   },
 
   startSystemVisMode: (state: InteractionState) => {

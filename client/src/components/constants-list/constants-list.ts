@@ -8,6 +8,21 @@ import _ from 'lodash';
 import { ValueType } from '@/data/parser';
 import { valueDisplay } from '@/common/util';
 
+export const getConstantsListInputType = (constants: string[], prevConstants: string[],
+                                          semantic: string = 'constant'): string => {
+  if (constants.length && _.isEqual(constants.concat().sort(), prevConstants.concat().sort())) {
+    return `order ${semantic}s`;
+  } else if (constants.length - prevConstants.length > 0) {
+    return 'add ' + semantic + (constants.length - prevConstants.length > 1 ? 's' : '');
+  } else if (constants.length - prevConstants.length === -1) {
+    return 'remove ' + semantic;
+  } else if (!constants.length && prevConstants.length) {
+    return `clear ${semantic}s`;
+  } else {
+    return `input ${semantic}s`;
+  }
+};
+
 @Component
 export default class ConstantsList extends Vue {
   @Prop({ type: Array, default: [] })
@@ -20,12 +35,14 @@ export default class ConstantsList extends Vue {
   private type!: ValueType | null;
 
   private constants: string[] = [];
+  private prevConstants: string[] = [];
 
   // User typed text to be added as constant
   private entry: string = '';
 
   private created() {
-    this.constants = this.value;
+    this.constants = this.value.concat();
+    this.prevConstants = this.constants.concat();
   }
 
   private mounted() {
@@ -68,10 +85,10 @@ export default class ConstantsList extends Vue {
 
     $constants.sortable({
       change: (evt, ui) => {
-        this.$emit('input', getNewOrder(evt, ui));
+        this.$emit('change', getNewOrder(evt, ui));
       },
       stop: (evt, ui) => {
-        this.constants = getNewOrder(evt, ui);
+        this.save(getNewOrder(evt, ui));
       },
     });
   }
@@ -84,8 +101,7 @@ export default class ConstantsList extends Vue {
     if (!this.entry) {
       return; // avoid adding empty entry on Enter key
     }
-    this.constants.push(this.entry);
-    this.$emit('input', this.constants);
+    this.save(this.constants.concat([this.entry]));
     this.entry = '';
   }
 
@@ -94,18 +110,24 @@ export default class ConstantsList extends Vue {
       return;
     }
     const values = this.entry.split(',').map(s => s.trim());
-    this.constants = this.constants.concat(values);
-    this.$emit('input', this.constants);
+    this.save(this.constants.concat(values));
     this.entry = '';
   }
 
   private clear() {
-    this.constants = [];
-    this.$emit('input', this.constants);
+    this.save([]);
   }
 
   private remove(index: number) {
-    this.constants.splice(index, 1);
-    this.$emit('input', this.constants);
+    _.pullAt(this.constants, index);
+    this.save(this.constants);
+  }
+
+  private save(values: string[]) {
+    if (!_.isEqual(this.constants, values)) {
+      this.constants = values.concat();
+      this.$emit('input', this.constants, this.prevConstants);
+      this.prevConstants = this.constants.concat();
+    }
   }
 }

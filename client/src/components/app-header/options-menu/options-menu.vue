@@ -4,6 +4,10 @@
     <i :class="['far fa-sm', nodePanelVisible && !isSystemInVisMode ? 'fa-check-square' : 'fa-square']"></i>
     Node Panel
   </b-dropdown-item>
+  <b-dropdown-item @click="toggleHistoryPanel">
+    <i :class="['far fa-sm', historyPanelVisible ? 'fa-check-square' :  'fa-square']"></i>
+    History Panel
+  </b-dropdown-item>
   <b-dropdown-item @click="toggleNodeLabels">
     <i :class="['far fa-sm', nodeLabelsVisible ? 'fa-check-square' :  'fa-square']"></i>
     Node Labels

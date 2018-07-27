@@ -10,6 +10,7 @@ import ContextMenu from '@/components/context-menu/context-menu';
 import NodePanel from '@/components/node-panel/node-panel';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 import QuickNodePanel from '@/components/quick-node-panel/quick-node-panel';
+import HistoryPanel from '@/components/history-panel/history-panel';
 import ns from '@/store/namespaces';
 import { systemMessageErrorHandler } from '@/common/util';
 
@@ -20,6 +21,7 @@ import { systemMessageErrorHandler } from '@/common/util';
     ContextMenu,
     NodePanel,
     QuickNodePanel,
+    HistoryPanel,
     DataflowCanvas,
     AppModals,
   },

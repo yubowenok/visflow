@@ -33,6 +33,29 @@ const mutations = {
     helper.undo(state);
   },
 
+  clear(state: HistoryState) {
+    state.undoStack = [];
+    state.redoStack = [];
+  },
+
+  /**
+   * Undoes the latest k events.
+   */
+  undoEvents(state: HistoryState, k: number) {
+    while (k--) {
+      helper.undo(state);
+    }
+  },
+
+  /**
+   * Redoes the last k events.
+   */
+  redoEvents(state: HistoryState, k: number) {
+    while (k--) {
+      helper.redo(state);
+    }
+  },
+
   commit(state: HistoryState, evt: HistoryEvent) {
     state.undoStack.push(evt);
     state.redoStack = [];
