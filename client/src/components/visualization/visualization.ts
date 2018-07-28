@@ -10,6 +10,8 @@ import { TRANSITION_ELEMENT_LIMIT } from './types';
 import { TweenLite } from 'gsap';
 import ns from '@/store/namespaces';
 import WindowResize from '@/directives/window-resize';
+import * as history from './history';
+import { HistoryNodeEvent } from '@/store/history/types';
 
 const FAILED_DRAG_TIME_THRESHOLD = 500;
 const FAILED_DRAG_DISTANCE_THRESHOLD = 100;
@@ -34,6 +36,9 @@ export default class Visualization extends SubsetNode {
   protected isInVisMode = true;
 
   protected selection: SubsetSelection = new SubsetSelection();
+
+  // Tracks the selected items before a selection.
+  protected prevSelection: SubsetSelection = new SubsetSelection();
 
   // Specifies an element that responds to dragging when alt-ed.
   protected ALT_DRAG_ELEMENT = '.content';
@@ -73,6 +78,23 @@ export default class Visualization extends SubsetNode {
   @ns.modals.Mutation('closeNodeModal') private closeNodeModal!: () => void;
   @ns.modals.Mutation('mountNodeModal') private mountNodeModal!: (modal: Element) => void;
 
+  public undo(evt: HistoryNodeEvent) {
+    if (!history.undo(evt)) {
+      this.undoBase(evt);
+    }
+  }
+
+  public redo(evt: HistoryNodeEvent) {
+    if (!history.redo(evt)) {
+      this.redoBase(evt);
+    }
+  }
+
+  public setSelection(selection: SubsetSelection) {
+    this.selection.copyFrom(selection);
+    this.onSelectionUpdate();
+  }
+
   protected update() {
     if (!this.checkDataset()) {
       return;
@@ -101,6 +123,15 @@ export default class Visualization extends SubsetNode {
    * Responds to brush movement.
    */
   protected brushed(brushPoints: Point[], isBrushStop?: boolean) {}
+
+  /**
+   * Responds to selection update.
+   */
+  protected onSelectionUpdate() {
+    this.draw();
+    this.computeSelection();
+    this.propagateSelection();
+  }
 
   /**
    * Updates the output ports when there is no input dataset.
@@ -188,27 +219,6 @@ export default class Visualization extends SubsetNode {
 
   protected onEnlarge() {
     this.draw();
-  }
-
-  protected selectAll() {
-    if (this.hasNoDataset()) {
-      return;
-    }
-    const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
-    this.selection.addItems(items);
-    this.draw();
-    this.computeSelection();
-    this.propagateSelection();
-  }
-
-  protected deselectAll() {
-    if (this.hasNoDataset()) {
-      return;
-    }
-    this.selection.clear();
-    this.draw();
-    this.computeSelection();
-    this.propagateSelection();
   }
 
   protected isSelectionEmpty(): boolean {
@@ -323,6 +333,56 @@ export default class Visualization extends SubsetNode {
     return true;
   }
 
+  /**
+   * Records the selection before a brush in order to commit selection history.
+   */
+  protected recordPrevSelection() {
+    this.prevSelection = this.selection.clone();
+  }
+
+  /**
+   * Commits the seleciton history post a brush.
+   */
+  protected commitSelectionHistory(message?: string) {
+    this.commitHistory(history.interactiveSelectionEvent(this, this.selection, this.prevSelection, message));
+  }
+
+  /**
+   * Places every data item into the selection.
+   * If a node has additional visual entities to be selected, such as a bar in the history,
+   * override this method.
+   */
+  protected executeSelectAll() {
+    const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
+    this.selection.addItems(items);
+  }
+
+  /**
+   * Removes every data item from the selection, similar to executeSelectAll.
+   */
+  protected executeDeselectAll() {
+    this.selection.clear();
+  }
+
+  private selectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
+    this.recordPrevSelection();
+    this.executeSelectAll();
+    this.commitSelectionHistory('select all');
+    this.onSelectionUpdate();
+  }
+
+  private deselectAll() {
+    if (this.hasNoDataset()) {
+      return;
+    }
+    this.recordPrevSelection();
+    this.commitSelectionHistory('deselect all');
+    this.onSelectionUpdate();
+  }
+
   private onWindowResize(evt: Event) {
     if (this.isEnlarged) {
       const view = this.getEnlargedView();
@@ -356,8 +416,9 @@ export default class Visualization extends SubsetNode {
   }
 
   private onBrushStart(evt: MouseEvent) {
-    if (this.isAltPressed || !this.isBrushable()) {
-      // Dragging
+    if (this.isAltPressed || // dragging
+      !this.isBrushable() || // other blocking interaction, e.g. navigation
+      evt.which !== 1) { // not left click
       return;
     }
     this.isBrushing = true;
@@ -385,7 +446,10 @@ export default class Visualization extends SubsetNode {
       return;
     }
     this.isBrushing = false;
+
+    this.recordPrevSelection();
     this.brushed(this.brushPoints, true);
+    this.commitSelectionHistory();
 
     if (this.brushPoints.length) {
       const [p, q] = [_.first(this.brushPoints), _.last(this.brushPoints)] as [Point, Point];

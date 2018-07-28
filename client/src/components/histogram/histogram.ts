@@ -10,7 +10,6 @@ import {
   drawBrushBox,
   getBrushBox,
   Scale,
-  isPointInBox,
   PlotMargins,
   DEFAULT_PLOT_MARGINS,
   AnyScale,
@@ -29,10 +28,15 @@ import { SELECTED_COLOR } from '@/common/constants';
 import { getTransform, fadeOut } from '@/common/util';
 import ColumnSelect from '@/components/column-select/column-select';
 import * as history from './history';
-import { HistoryNodeEvent } from '@/store/history/types';
+import { SubsetSelection } from '@/data/package';
 
 const DOMAIN_MARGIN = .2;
 const BAR_INTERVAL = 1;
+
+export interface HistogramSelection {
+  selection: SubsetSelection;
+  selectedBars: Set<string>;
+}
 
 interface HistogramSave {
   column: number | null;
@@ -96,6 +100,7 @@ export default class Histogram extends Visualization {
   private valueBins: Array<Bin<HistogramValueBinProps, number>> = [];
   private bins: HistogramBinProps[] = [];
   private selectedBars: Set<string> = new Set();
+  private prevSelectedBars: Set<string> = new Set();
 
   private margins: PlotMargins = _.extend({}, DEFAULT_PLOT_MARGINS, { bottom: 20 });
 
@@ -105,6 +110,12 @@ export default class Histogram extends Visualization {
   get isNumBinsDisabled(): boolean {
     return !this.hasNoDataset() && this.column != null &&
       !isContinuousDomain(this.getDataset().getColumnType(this.column));
+  }
+
+  public setHistogramSelection(selection: HistogramSelection) {
+    this.selection.copyFrom(selection.selection);
+    this.selectedBars = _.clone(selection.selectedBars);
+    this.onSelectionUpdate();
   }
 
   public setColumn(column: number) {
@@ -144,10 +155,7 @@ export default class Histogram extends Visualization {
     drawBrushBox(this.$refs.brush as SVGElement, !isBrushStop ? brushPoints : []);
   }
 
-  protected selectAll() {
-    if (this.hasNoDataset()) {
-      return;
-    }
+  protected executeSelectAll() {
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     this.selection.addItems(items);
     this.bins.forEach(bin => {
@@ -155,20 +163,24 @@ export default class Histogram extends Visualization {
         this.selectedBars.add(bar.id);
       });
     });
-    this.draw();
-    this.computeSelection();
-    this.propagateSelection();
   }
 
-  protected deselectAll() {
-    if (this.hasNoDataset()) {
-      return;
-    }
+  protected executeDeselectAll() {
     this.selectedBars.clear();
     this.selection.clear();
-    this.draw();
-    this.computeSelection();
-    this.propagateSelection();
+  }
+
+  protected commitSelectionHistory(message: string) {
+    this.commitHistory(history.interactiveSelectionEvent(this,
+      { selection: this.selection, selectedBars: this.selectedBars },
+      { selection: this.prevSelection, selectedBars: this.prevSelectedBars },
+      message,
+    ));
+  }
+
+  protected recordPrevSelection() {
+    this.prevSelection = this.selection.clone();
+    this.prevSelectedBars = _.clone(this.selectedBars);
   }
 
   protected draw() {

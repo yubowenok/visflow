@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { HistoryEvent, HistoryState } from './types';
 import * as helper from './helper';
 
-const UNDO_STACK_SIZE = 30;
+const UNDO_STACK_SIZE = 100;
 
 const initialState: HistoryState = {
   undoStack: [],
@@ -58,6 +58,7 @@ const mutations = {
 
   commit(state: HistoryState, evt: HistoryEvent) {
     state.undoStack.push(evt);
+    helper.cancelToggles(state);
     state.redoStack = [];
     if (state.undoStack.length > UNDO_STACK_SIZE) {
       state.undoStack.shift();

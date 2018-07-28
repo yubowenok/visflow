@@ -15,6 +15,18 @@ export default class SubsetSelection {
     return Array.from(this.items);
   }
 
+  public deserialize(items: number[]) {
+    this.items = new Set(items);
+  }
+
+  public clone(): SubsetSelection {
+    return new SubsetSelection(this.serialize());
+  }
+
+  public copyFrom(selection: SubsetSelection) {
+    this.items = _.clone(selection.items);
+  }
+
   public numItems(): number {
     return _.size(this.items);
   }

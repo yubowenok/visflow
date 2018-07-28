@@ -72,6 +72,10 @@ const mutations = {
   toggleHistoryPanel(state: PanelsState) {
     state.historyPanelVisible = !state.historyPanelVisible;
   },
+
+  closeHistoryPanel(state: PanelsState) {
+    state.historyPanelVisible = false;
+  },
 };
 
 const panels: Module<PanelsState, RootState> = {

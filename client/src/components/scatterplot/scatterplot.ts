@@ -25,7 +25,6 @@ import { isNumericalType } from '@/data/util';
 import { fadeOut, getTransform } from '@/common/util';
 import { VisualProperties } from '@/data/visuals';
 import * as history from './history';
-import { HistoryNodeEvent } from '@/store/history/types';
 
 const DOMAIN_MARGIN = .1;
 interface ScatterplotSave {
@@ -176,7 +175,7 @@ export default class Scatterplot extends Visualization {
     updatedPoints
       .attr('cx', d => this.xScale(d.x))
       .attr('cy', d => this.yScale(d.y))
-      .attr('r', d => d.visuals.size + 'px')
+      .attr('r', d => (d.visuals.size as number / 2) + 'px')
       .style('fill', d => d.visuals.color as string)
       .style('stroke', d => d.visuals.border as string)
       .style('stroke-width', d => d.visuals.width + 'px')

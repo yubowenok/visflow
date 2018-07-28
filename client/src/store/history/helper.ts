@@ -54,3 +54,21 @@ export const undo = (state: HistoryState) => {
     state.redoStack.push(evt);
   }
 };
+
+/**
+ * If the last two actions on the undo stack are toggling a same node option, remove them both as they cancel each
+ * other and clutter the history.
+ */
+export const cancelToggles = (state: HistoryState) => {
+  const undoStack = state.undoStack;
+  if (undoStack.length < 2) {
+    return;
+  }
+  const evt1 = undoStack[undoStack.length - 1] as HistoryNodeEvent;
+  const evt2 = undoStack[undoStack.length - 2] as HistoryNodeEvent;
+  if (evt1.node && evt2.node && evt1.type === evt2.type &&
+    evt1.data.prevValue === evt2.data.value &&
+    evt1.data.value === evt2.data.prevValue) {
+    undoStack.splice(-2);
+  }
+};

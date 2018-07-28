@@ -1,7 +1,8 @@
 import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
-import Network from './network';
+import Network, { NetworkSelection } from './network';
 
 enum NetworkEventType {
+  NETWORK_INTERACTIVE_SELECTION = 'network-interactive-selection',
   SELECT_NODE_ID_COLUMN = 'select-node-id-column',
   SELECT_EDGE_SOURCE_COLUMN = 'select-edge-source-column',
   SELECT_EDGE_TARGET_COLUMN = 'select-edge-target-column',
@@ -46,7 +47,7 @@ export const selectEdgeTargetColumnEvent = (node: Network, column: number | null
   );
 };
 
-export const selectNodeLabelColumn = (node: Network, column: number | null, prevColumn: number | null):
+export const selectNodeLabelColumnEvent = (node: Network, column: number | null, prevColumn: number | null):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     NetworkEventType.SELECT_NODE_LABEL_COLUMN,
@@ -70,7 +71,7 @@ export const inputLinkDistanceEvent = (node: Network, value: number, prevValue: 
   );
 };
 
-export const toggleNavigating = (node: Network, value: boolean): HistoryNodeOptionEvent => {
+export const toggleNavigatingEvent = (node: Network, value: boolean): HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     NetworkEventType.TOGGLE_NAVIGATING,
     'toggle navigation',
@@ -78,5 +79,17 @@ export const toggleNavigating = (node: Network, value: boolean): HistoryNodeOpti
     node.setNavigating,
     value,
     !value,
+  );
+};
+
+export const interactiveSelectionEvent = (node: Network, selection: NetworkSelection, prevSelection: NetworkSelection,
+                                          message: string = 'select items'): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    NetworkEventType.NETWORK_INTERACTIVE_SELECTION,
+    message,
+    node,
+    node.setNetworkSelection,
+    selection,
+    prevSelection,
   );
 };

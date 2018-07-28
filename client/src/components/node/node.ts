@@ -224,6 +224,18 @@ export default class Node extends Vue {
     this.redoBase(evt);
   }
 
+  public setIconized(value: boolean) {
+    this.isIconized = value;
+  }
+
+  public setInVisMode(value: boolean) {
+    this.isInVisMode = value;
+  }
+
+  public setLabelVisible(value: boolean) {
+    this.isLabelVisible = value;
+  }
+
   public findConnectablePort(port: Port): Port | null {
     if (port.isInput) {
       for (const output of this.outputPorts) {
@@ -815,16 +827,19 @@ export default class Node extends Vue {
     this.isLabelVisible = !this.isLabelVisible;
   }
 
-  private onInputIconized(value: boolean) {
-    this.isIconized = value;
+  private onToggleIconized(value: boolean) {
+    this.setIconized(value);
+    this.commitHistory(history.toggleIconizedEvent(this, value));
   }
 
-  private onInputInVisMode(value: boolean) {
-    this.isInVisMode = value;
+  private onToggleInVisMode(value: boolean) {
+    this.setInVisMode(value);
+    this.commitHistory(history.toggleInVisModeEvent(this, value));
   }
 
-  private onInputLabelVisible(value: boolean) {
-    this.isLabelVisible = value;
+  private onToggleLabelVisible(value: boolean) {
+    this.setLabelVisible(value);
+    this.commitHistory(history.toggleLabelVisibleEvent(this, value));
   }
 
   private onInputLabel(value: string) {

@@ -33,7 +33,7 @@ const ZOOM_DISTANCE_THRESHOLD = 5;
 const NODE_LABEL_SIZE_PX = 12;
 const NODE_LABEL_X_OFFSET_PX = 10;
 const NODE_LABEL_Y_OFFSET_PX = NODE_LABEL_SIZE_PX / 2;
-const NODE_SIZE_PX = 6;
+const NODE_SIZE_PX = 5;
 
 const EDGE_ARROW_LENGTH = 10;
 const EDGE_CURVE_SHIFT = .1;
@@ -62,6 +62,11 @@ const SELECTED_NODE_VISUALS: VisualProperties = {
 const SELECTED_EDGE_VISUALS: VisualProperties = {
   color: SELECTED_COLOR,
 };
+
+export interface NetworkSelection {
+  nodeSelection: SubsetSelection;
+  edgeSelection: SubsetSelection;
+}
 
 interface NetworkSave {
   nodeIdColumn: number | null;
@@ -102,6 +107,7 @@ interface NetworkNode {
   label: string;
   x: number;
   y: number;
+  size: number;
 }
 
 interface NetworkEdge {
@@ -130,6 +136,8 @@ export default class Network extends Visualization {
 
   private nodeSelection: SubsetSelection = new SubsetSelection();
   private edgeSelection: SubsetSelection = new SubsetSelection();
+  private prevNodeSelection: SubsetSelection = new SubsetSelection();
+  private prevEdgeSelection: SubsetSelection = new SubsetSelection();
 
   // References to rendered node objects.
   private nodes: { [index: number]: NetworkNode } = {};
@@ -165,6 +173,12 @@ export default class Network extends Visualization {
       this.toggleNavigating();
     }
     this.onKeysBase(keys);
+  }
+
+  public setNetworkSelection(selection: NetworkSelection) {
+    this.nodeSelection = selection.nodeSelection.clone();
+    this.edgeSelection = selection.edgeSelection.clone();
+    this.onSelectionUpdate();
   }
 
   public setNodeIdColumn(column: number) {
@@ -263,7 +277,7 @@ export default class Network extends Visualization {
       .on('start', this.onZoomStart) // Zoom will block mouse event. This avoids option panel getting stuck.
       .on('zoom', this.onZoom)
       .on('end', this.onZoomEnd)
-      .filter(() => this.isNavigating);
+      .filter(this.isZoomable);
     this.zoomBahavior = z;
     svg.call(z);
     this.setZoomTransform(); // Set the saved zoom transform to zoomBehavior
@@ -339,10 +353,7 @@ export default class Network extends Visualization {
   protected brushed(brushPoints: Point[], isBrushStop?: boolean) {
     if (isBrushStop) {
       this.computeBrushedItems(brushPoints);
-      this.computeSelection();
-      this.computeProps();
-      this.drawNetwork();
-      this.propagateSelection();
+      this.onSelectionUpdate();
     }
     drawBrushBox(this.$refs.brush as SVGElement, !isBrushStop ? brushPoints : []);
   }
@@ -371,28 +382,36 @@ export default class Network extends Visualization {
     this.outputPortMap.edgeSelection.updatePackage(edgePkg.subset(this.edgeSelection.getItems()));
   }
 
-  protected selectAll() {
-    if (this.hasNoDataset()) {
-      return;
-    }
+  protected executeSelectAll() {
     const nodes = this.inputPortMap.node.getSubsetPackage().getItemIndices();
     this.nodeSelection.addItems(nodes);
     const edges = this.inputPortMap.edge.getSubsetPackage().getItemIndices();
     this.edgeSelection.addItems(edges);
-    this.draw();
+  }
+
+  protected executeDeselectAll() {
+    this.nodeSelection.clear();
+    this.edgeSelection.clear();
+  }
+
+  protected onSelectionUpdate() {
+    this.computeProps();
+    this.drawNetwork();
     this.computeSelection();
     this.propagateSelection();
   }
 
-  protected deselectAll() {
-    if (this.hasNoDataset()) {
-      return;
-    }
-    this.nodeSelection.clear();
-    this.edgeSelection.clear();
-    this.draw();
-    this.computeSelection();
-    this.propagateSelection();
+  protected recordPrevSelection() {
+    this.prevNodeSelection = this.nodeSelection.clone();
+    this.prevEdgeSelection = this.edgeSelection.clone();
+  }
+
+  protected commitSelectionHistory(message?: string) {
+    this.commitHistory(history.interactiveSelectionEvent(this,
+      { nodeSelection: this.nodeSelection, edgeSelection: this.edgeSelection },
+      { nodeSelection: this.prevNodeSelection, edgeSelection: this.prevEdgeSelection },
+      message,
+    ));
   }
 
   protected isSelectionEmpty(): boolean {
@@ -459,13 +478,15 @@ export default class Network extends Visualization {
     const coordinate = rand();
     const nodeDataset = this.getNodeDataset();
     const pkg = this.inputPortMap.node.getSubsetPackage();
-    pkg.getItemIndices().forEach(nodeIndex => {
+    pkg.getItems().forEach(node => {
+      const nodeIndex = node.index;
       const hasNode = nodeIndex in this.nodes;
       this.nodes[nodeIndex] = {
         nodeIndex,
         label: this.nodeLabelColumn !== null ? nodeDataset.getCell(nodeIndex, this.nodeLabelColumn).toString() : '',
         x: !hasNode ? coordinate.next().value % this.svgWidth : this.nodes[nodeIndex].x,
         y: !hasNode ? coordinate.next().value % this.svgHeight : this.nodes[nodeIndex].y,
+        size: node.visuals.size || NODE_SIZE_PX,
       };
     });
   }
@@ -598,11 +619,22 @@ export default class Network extends Visualization {
       .attr('has-visuals', d => d.hasVisuals)
       .attr('selected', d => d.selected)
       .attr('transform', d => getTransform([d.node.x, d.node.y]))
-      .attr('r', d => (d.visuals.size as number) / this.zoomScale)
+      .attr('r', d => (d.visuals.size as number / 2) / this.zoomScale)
       .style('stroke', d => d.visuals.border as string)
       .style('stroke-width', d => (d.visuals.width as number) / this.zoomScale + 'px')
       .style('fill', d => d.visuals.color as string)
       .style('opacity', d => d.visuals.opacity as number);
+  }
+
+  /**
+   * Creates a shifted point around the middle of the edge to be the control
+   * point of the edge's curve.
+   */
+  private getShiftPoint(p: Victor, q: Victor): Victor {
+    const m = p.clone().add(q).multiplyScalar(.5);
+    let d = p.clone().subtract(q);
+    d = new Victor(-d.y, d.x).normalize().multiplyScalar(d.length() * EDGE_CURVE_SHIFT);
+    return m.add(d);
   }
 
   private updateEdges() {
@@ -610,18 +642,9 @@ export default class Network extends Visualization {
       .attr('has-visuals', d => d.hasVisuals)
       .attr('selected', d => d.selected);
 
-    // Creates a shifted point around the middle of the edge to be the control
-    // point of the edge's curve.
-    const getShiftPoint = (p: Victor, q: Victor): Victor => {
-      const m = p.clone().add(q).multiplyScalar(.5);
-      let d = p.clone().subtract(q);
-      d = new Victor(-d.y, d.x).normalize().multiplyScalar(d.length() * EDGE_CURVE_SHIFT);
-      return m.add(d);
-    };
-
     // Creates a stroke that looks like an arrow.
     const getArrowPoints = (p: Victor, q: Victor): Victor[] => {
-      const m = getShiftPoint(p, q);
+      const m = this.getShiftPoint(p, q);
       const ds = p.clone().subtract(q).normalize();
       const dm = m.clone().subtract(q).normalize();
       const p1 = q.clone().add(dm.multiplyScalar(NODE_SIZE_PX / this.zoomScale));
@@ -638,7 +661,7 @@ export default class Network extends Visualization {
       .attr('d', d => {
         const s = new Victor(d.source.x, d.source.y);
         const t = new Victor(d.target.x, d.target.y);
-        return dCurve([s, getShiftPoint(s, t), t]);
+        return dCurve([s, this.getShiftPoint(s, t), t]);
       });
 
     const dLine = line<Victor>().curve(curveLinearClosed).x(d => d.x).y(d => d.y);
@@ -659,8 +682,8 @@ export default class Network extends Visualization {
       .text(d => d.label)
       .style('font-size', () => NODE_LABEL_SIZE_PX / this.zoomScale)
       .attr('transform', d => getTransform([
-        d.node.x + NODE_LABEL_X_OFFSET_PX / this.zoomScale,
-        d.node.y + NODE_LABEL_Y_OFFSET_PX / this.zoomScale,
+        d.node.x + (d.visuals.size as number / 2 || 0) + NODE_LABEL_X_OFFSET_PX / this.zoomScale,
+        d.node.y + (d.visuals.size as number / 2 || 0) + NODE_LABEL_Y_OFFSET_PX / this.zoomScale,
       ]));
   }
 
@@ -678,13 +701,19 @@ export default class Network extends Visualization {
       .force('charge', forceManyBody())
       .force('center', forceCenter(this.svgWidth / 2, this.svgHeight / 2))
       .velocityDecay(FORCE_FRICTION)
-      .on('tick', this.updateNetwork);
+      .on('tick', this.updateNetwork)
+      .restart();
+  }
 
-    this.force.restart();
+  private isZoomable() {
+    if (d3Event.type === 'wheel') {
+      return true;
+    }
+    return this.isNavigating;
   }
 
   private onZoomStart() {
-    if (!this.isNavigating || !d3Event.sourceEvent) {
+    if (!d3Event.sourceEvent) {
       return;
     }
     this.zoomStartPosition = {
@@ -694,9 +723,6 @@ export default class Network extends Visualization {
   }
 
   private onZoom() {
-    if (!this.isNavigating) {
-      return;
-    }
     const transform: { x: number, y: number, k: number } = d3Event.transform;
     const translate: [number, number] = [transform.x, transform.y];
     const scale = transform.k;
@@ -709,10 +735,13 @@ export default class Network extends Visualization {
   }
 
   private onZoomEnd() {
-    if (!this.isNavigating || !d3Event.sourceEvent) {
+    if (!d3Event.sourceEvent) {
       return;
     }
-    const [x, y] = [d3Event.sourceEvent.pageX, d3Event.sourceEvent.pageY];
+    const [x, y] = [
+      d3Event.sourceEvent.pageX,
+      d3Event.sourceEvent.pageY,
+    ];
     const distance = Math.abs(x - this.zoomStartPosition.x) + Math.abs(y - this.zoomStartPosition.y);
     if (distance < ZOOM_DISTANCE_THRESHOLD) {
       // If the user clicks the node, it is not a valid zoom and we call the click handler to respond to
@@ -741,7 +770,9 @@ export default class Network extends Visualization {
 
     const box = getBrushBox(brushPoints);
     _.each(this.nodes, node => {
-      if (isPointInBox(applyTransform(node.x, node.y), box)) {
+      const point = applyTransform(node.x, node.y);
+      const clickToNodeDistance = new Victor(point.x, point.y).subtract(new Victor(box.x, box.y)).length();
+      if (isPointInBox(point, box) || clickToNodeDistance <= node.size / 2 * this.zoomScale) {
         this.nodeSelection.addItem(node.nodeIndex);
       }
     });
@@ -756,8 +787,10 @@ export default class Network extends Visualization {
     _.each(this.edges, edge => {
       const p = applyTransform(edge.source.x, edge.source.y);
       const q = applyTransform(edge.target.x, edge.target.y);
+      const m = new Victor(p.x + q.x, p.y + q.y).multiplyScalar(.5);
       for (let i = 0; i < 4; i++) {
-        if (areSegmentsIntersected(p, q, boxPoints[i], boxPoints[(i + 1) % 4])) {
+        if (areSegmentsIntersected(p, m, boxPoints[i], boxPoints[(i + 1) % 4]) ||
+            areSegmentsIntersected(m, q, boxPoints[i], boxPoints[(i + 1) % 4])) {
           this.edgeSelection.addItem(edge.edgeIndex);
           return;
         }
@@ -837,23 +870,24 @@ export default class Network extends Visualization {
   }
 
   private onInputNodeLabelColumn(column: number | null, prevColumn: number | null) {
-    this.commitHistory(history.selectNodeLabelColumn(this, column, prevColumn));
+    this.commitHistory(history.selectNodeLabelColumnEvent(this, column, prevColumn));
     this.computeProps();
     this.drawNetwork();
   }
 
   private onInputLinkDistance(value: number, prevValue: number) {
     this.commitHistory(history.inputLinkDistanceEvent(this, value, prevValue));
-    this.draw();
+    this.drawNetwork();
   }
 
   private onChangeLinkDistance(value: number, prevValue: number) {
-    this.commitHistory(history.inputLinkDistanceEvent(this, value, prevValue));
     this.linkDistance = value;
-    this.draw();
+    if (this.force) {
+      this.startForce();
+    }
   }
 
   private onToggleNavigating(value: boolean) {
-    this.commitHistory(history.toggleNavigating(this, value));
+    this.commitHistory(history.toggleNavigatingEvent(this, value));
   }
 }

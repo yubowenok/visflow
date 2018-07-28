@@ -3,6 +3,7 @@ import {
   HistoryEventLevel,
   HistoryNodeOptionEvent,
   nodeEvent,
+  nodeOptionEvent,
 } from '@/store/history/types';
 import { Node } from '@/components/node';
 import { RootStore } from '@/store/types';
@@ -10,7 +11,9 @@ import { RootStore } from '@/store/types';
 export enum HistoryNodeEventType {
   MOVE = 'move',
   RESIZE = 'resize',
-  ICONIZE = 'iconize',
+  TOGGLE_ICONIZED = 'toggle-iconized',
+  TOGGLE_IN_VIS_MODE = 'toggle-in-vis-mode',
+  TOGGLE_LABEL_VISIBLE = 'toggle-label-visible',
 }
 
 export const moveNodeEvent = (node: Node, selectedNodes: Node[], to: Point, from: Point): HistoryNodeEvent => {
@@ -35,6 +38,42 @@ export const resizeNodeEvent = (node: Node, newView: Box, prevView: Box): Histor
     node,
     { prevView, newView },
     { value: 'fas fa-expand-arrows-alt' },
+  );
+};
+
+export const toggleIconizedEvent = (node: Node, value: boolean): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    HistoryNodeEventType.TOGGLE_ICONIZED,
+    'toggle iconizing',
+    node,
+    node.setIconized,
+    value,
+    !value,
+    { value: 'fas fa-expand' },
+  );
+};
+
+export const toggleInVisModeEvent = (node: Node, value: boolean): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    HistoryNodeEventType.TOGGLE_IN_VIS_MODE,
+    'toggle node in VisMode',
+    node,
+    node.setInVisMode,
+    value,
+    !value,
+    { value: 'fas fa-tv' },
+  );
+};
+
+export const toggleLabelVisibleEvent = (node: Node, value: boolean): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    HistoryNodeEventType.TOGGLE_LABEL_VISIBLE,
+    'toggle node label',
+    node,
+    node.setLabelVisible,
+    value,
+    !value,
+    { value: 'fas fa-tag' },
   );
 };
 

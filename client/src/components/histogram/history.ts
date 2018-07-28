@@ -1,9 +1,12 @@
-import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
-import Histogram from './histogram';
+import { HistoryNodeOptionEvent, nodeOptionEvent, nodeEvent } from '@/store/history/types';
+import Histogram, { HistogramSelection } from './histogram';
+import { SubsetSelection } from '@/data/package';
 
 enum HistogramEventType {
   SELECT_COLUMN = 'select-column',
   INPUT_NUM_BINS = 'input-num-bins',
+  // Prefix to avoid conflict with visualization base class
+  HISTOGRAM_INTERACTIVE_SELECTION = 'histogram-interactive-selection',
 }
 
 export const selectColumnEvent = (node: Histogram, column: number | null, prevColumn: number | null):
@@ -27,5 +30,18 @@ export const inputNumBinsEvent = (node: Histogram, value: number, prevValue: num
     node.setNumBins,
     value,
     prevValue,
+  );
+};
+
+export const interactiveSelectionEvent = (node: Histogram, selection: HistogramSelection,
+                                          prevSelection: HistogramSelection, message: string = 'select items'):
+                                          HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    HistogramEventType.HISTOGRAM_INTERACTIVE_SELECTION,
+    message,
+    node,
+    node.setHistogramSelection,
+    selection,
+    prevSelection,
   );
 };
