@@ -67,6 +67,14 @@ export default class DataflowCanvas extends Vue {
     };
   }
 
+  public getWidth(): number {
+    return $(this.$el).width() as number;
+  }
+
+  public getHeight() {
+    return $(this.$el).height() as number;
+  }
+
   public addNode(node: Node) {
     node.$mount();
     (this.$refs.nodes as Element).appendChild(node.$el);

@@ -1,6 +1,6 @@
+import _ from 'lodash';
 import { HistoryNodeOptionEvent, nodeOptionEvent, nodeEvent } from '@/store/history/types';
 import Histogram, { HistogramSelection } from './histogram';
-import { SubsetSelection } from '@/data/package';
 
 enum HistogramEventType {
   SELECT_COLUMN = 'select-column',
@@ -34,8 +34,14 @@ export const inputNumBinsEvent = (node: Histogram, value: number, prevValue: num
 };
 
 export const interactiveSelectionEvent = (node: Histogram, selection: HistogramSelection,
-                                          prevSelection: HistogramSelection, message: string = 'select items'):
+                                          prevSelection: HistogramSelection, message?: string):
                                           HistoryNodeOptionEvent => {
+  if (message === undefined) {
+    const countItems = selection.selection.numItems();
+    const countBars = _.size(selection.selectedBars);
+    message = `select ${countItems} item` + (countItems === 1 ? '' : 's');
+    message += ` , ${countBars} stacked bar` + (countBars === 1 ? '' : 's');
+  }
   return nodeOptionEvent(
     HistogramEventType.HISTOGRAM_INTERACTIVE_SELECTION,
     message,

@@ -7,6 +7,7 @@ import * as helper from './helper';
 import * as saveLoad from './save-load';
 import * as nodeTypes from './node-types';
 import * as history from './history';
+import * as layout from './layout';
 export * from './util';
 
 import Node from '@/components/node/node';
@@ -82,18 +83,18 @@ const mutations = {
       store.commit('interaction/clearMouseupEdge');
       store.commit('history/commit', history.createNodeOnEdgeEvent([
           history.removeEdgeEvent(result.removedEdge),
-          history.createNodeEvent(node),
+          history.createNodeEvent(node, state.nodes),
         ].concat(result.createdEdges.map(edge => history.createEdgeEvent(edge)))),
       );
     } else {
-      store.commit('history/commit', history.createNodeEvent(node));
+      store.commit('history/commit', history.createNodeEvent(node, state.nodes));
     }
   },
 
   /** Removes a node and propagates. */
   removeNode: (state: DataflowState, node: Node) => {
     // Commit history before removing the node. Otherwise incident edges would be incorrect.
-    store.commit('history/commit', history.removeNodeAndIncidentEdgesEvent(node));
+    store.commit('history/commit', history.removeNodeAndIncidentEdgesEvent(node, state.nodes));
     helper.removeNode(state, node, true);
   },
 
@@ -102,7 +103,7 @@ const mutations = {
     const result = helper.removeSelectedNodes(state);
     store.commit('history/commit', history.removeNodesEvent(
       result.removedEdges.map(edge => history.removeEdgeEvent(edge)).concat(
-        result.removedNodes.map(node => history.removeNodeEvent(node)),
+        result.removedNodes.map(node => history.removeNodeEvent(node, state.nodes)),
       ),
     ));
   },
@@ -174,6 +175,12 @@ const mutations = {
 
   redo: (state: DataflowState, evt: HistoryDiagramEvent) => {
     history.redo(state, evt);
+  },
+
+  autoLayout: (state: DataflowState, movableNodes?: Node[]) => {
+    layout.autoLayout(state, movableNodes, (result: layout.AutoLayoutResult) => {
+      store.commit('history/commit', history.autoLayoutEvent(result));
+    });
   },
 
   ...saveLoad.mutations,

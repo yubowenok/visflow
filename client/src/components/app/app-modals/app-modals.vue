@@ -7,6 +7,7 @@
   <signup-modal></signup-modal>
   <profile-modal></profile-modal>
   <message-modal></message-modal>
+  <progress-modal></progress-modal>
 </div>
 </template>
 

@@ -79,4 +79,5 @@ export enum DiagramEventType {
   REMOVE_NODE_AND_INCIDENT_EDGES = 'remove-node-and-incident-edges',
   DISCONNECT_PORT = 'disconnect-port',
   PANNING = 'panning',
+  AUTO_LAYOUT = 'auto-layout',
 }

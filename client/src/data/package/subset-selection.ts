@@ -67,4 +67,8 @@ export default class SubsetSelection {
     });
     return pkg;
   }
+
+  public isEqual(selection: SubsetSelection): boolean {
+    return _.isEqual(this.items, selection.items);
+  }
 }

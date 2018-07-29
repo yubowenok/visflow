@@ -18,6 +18,10 @@ interface ModalsState {
 
   messageModalVisible: boolean;
   messageModalOptions: MessageModalOptions;
+
+  inProgress: boolean;
+  progressMessage: string;
+  progressPercentage: number;
 }
 
 const initialState: ModalsState = {
@@ -37,6 +41,10 @@ const initialState: ModalsState = {
     title: '',
     message: '',
   },
+
+  inProgress: false,
+  progressMessage: '',
+  progressPercentage: 0,
 };
 
 const mutations = {
@@ -127,6 +135,19 @@ const mutations = {
 
   closeMessageModal(state: ModalsState) {
     state.messageModalVisible = false;
+  },
+
+  startProgress(state: ModalsState, message?: string) {
+    state.inProgress = true;
+    state.progressMessage = message || '';
+  },
+
+  endProgress(state: ModalsState) {
+    state.inProgress = false;
+  },
+
+  setProgressPercentage(state: ModalsState, percentage: number) {
+    state.progressPercentage = percentage;
   },
 };
 

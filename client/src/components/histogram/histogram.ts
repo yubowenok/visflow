@@ -171,6 +171,9 @@ export default class Histogram extends Visualization {
   }
 
   protected commitSelectionHistory(message: string) {
+    if (_.isEqual(this.selectedBars, this.prevSelectedBars)) {
+      return;
+    }
     this.commitHistory(history.interactiveSelectionEvent(this,
       { selection: this.selection, selectedBars: this.selectedBars },
       { selection: this.prevSelection, selectedBars: this.prevSelectedBars },

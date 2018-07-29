@@ -280,6 +280,13 @@ export default class Node extends Vue {
     };
   }
 
+  public getCenter(): Point {
+    return {
+      x: this.x + this.width / 2,
+      y: this.y + this.height / 2,
+    };
+  }
+
   /** Makes the node activated. This is typically auto-triggered by mouse click on the node. */
   public activate() {
     this.isActive = true;
@@ -321,6 +328,25 @@ export default class Node extends Vue {
   public moveTo(x: number, y: number) {
     this.x = x;
     this.y = y;
+  }
+
+  /** Moves the node to a given position with transition */
+  public moveToWithTransition(x: number, y: number, duration: number) {
+    const $node = $(this.$refs.node);
+    TweenLite.to(this.$refs.node, duration, {
+      left: x,
+      top: y,
+      onUpdate: () => {
+        const offset = $node.offset() as JQuery.Coordinates;
+        this.x = offset.left;
+        this.y = offset.top;
+        this.updatePortCoordinates();
+      },
+      onComplete: () => {
+        this.x = x;
+        this.y = y;
+      },
+    });
   }
 
   /** Moves the node by the given (dx, dy) from its current position. */
@@ -817,14 +843,17 @@ export default class Node extends Vue {
       return; // iconized cannot be toggled in visMode
     }
     this.isIconized = !this.isIconized;
+    this.commitHistory(history.toggleIconizedEvent(this, this.isIconized));
   }
 
   private toggleVisMode() {
     this.isInVisMode = !this.isInVisMode;
+    this.commitHistory(history.toggleIconizedEvent(this, this.isInVisMode));
   }
 
-  private togglelabelVisible() {
+  private toggleLabelVisible() {
     this.isLabelVisible = !this.isLabelVisible;
+    this.commitHistory(history.toggleLabelVisibleEvent(this, this.isLabelVisible));
   }
 
   private onToggleIconized(value: boolean) {

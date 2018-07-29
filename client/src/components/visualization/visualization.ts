@@ -344,7 +344,9 @@ export default class Visualization extends SubsetNode {
    * Commits the seleciton history post a brush.
    */
   protected commitSelectionHistory(message?: string) {
-    this.commitHistory(history.interactiveSelectionEvent(this, this.selection, this.prevSelection, message));
+    if (!this.selection.isEqual(this.prevSelection)) {
+      this.commitHistory(history.interactiveSelectionEvent(this, this.selection, this.prevSelection, message));
+    }
   }
 
   /**

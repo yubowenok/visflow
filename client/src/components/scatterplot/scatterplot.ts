@@ -45,7 +45,7 @@ const DEFAULT_ITEM_VISUALS: VisualProperties = {
   color: '#333',
   border: 'black',
   width: 1,
-  size: 3,
+  size: 5,
   opacity: 1,
 };
 

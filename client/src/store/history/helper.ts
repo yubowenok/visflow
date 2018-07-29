@@ -6,6 +6,7 @@ import {
   HistoryEventLevel,
 } from '@/store/history/types';
 import store from '@/store';
+import { SubsetSelection } from '@/data/package';
 
 const executeDiagramRedo = (evt: HistoryDiagramEvent) => {
   store.commit('dataflow/redo', evt);
@@ -66,7 +67,8 @@ export const cancelToggles = (state: HistoryState) => {
   }
   const evt1 = undoStack[undoStack.length - 1] as HistoryNodeEvent;
   const evt2 = undoStack[undoStack.length - 2] as HistoryNodeEvent;
-  if (evt1.node && evt2.node && evt1.type === evt2.type &&
+  if (evt1.node && evt2.node &&
+    evt1.type === evt2.type && evt1.type.match(/toggle/) !== null &&
     evt1.data.prevValue === evt2.data.value &&
     evt1.data.value === evt2.data.prevValue) {
     undoStack.splice(-2);

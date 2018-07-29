@@ -8,10 +8,11 @@ enum VisualizationEventType {
 
 export const interactiveSelectionEvent = (node: Visualization, selection: SubsetSelection,
                                           prevSelection: SubsetSelection,
-                                          message: string = 'select items') => {
+                                          message?: string) => {
+  const count = selection.numItems();
   return nodeEvent(
     VisualizationEventType.INTERACTIVE_SELECTION,
-    message,
+    !message ? `select ${count} item${count !== 1 ? 's' : ''}` : message,
     node,
     {
       // Use clone to avoid selection being changed later in the node
