@@ -1,6 +1,7 @@
 ## VisFlow - Web-based Visualization Framework for Tabular Data with Subset Flow Model
 
 [![Build Status](https://travis-ci.org/yubowenok/visflow.svg?branch=master)](https://travis-ci.org/yubowenok/visflow)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyubowenok%2Fvisflow.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyubowenok%2Fvisflow?ref=badge_shield)
 
 VisFlow is a web-based visualization framework that facilitates creation of interactive visualizations for tabular data based on data flow diagram editing.
 VisFlow employs a [subset flow model](https://visflow.org/doc.html#fd-subset-flow-model) that features simpler data flow usage, as well as brushing and linking support for visual data exploration.
@@ -63,3 +64,7 @@ You need to configure the web server https for VisFlow. Here is a sample config 
   </Directory>
 </VirtualHost>
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fyubowenok%2Fvisflow.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fyubowenok%2Fvisflow?ref=badge_large)
