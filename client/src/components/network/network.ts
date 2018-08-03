@@ -175,9 +175,9 @@ export default class Network extends Visualization {
     this.onKeysBase(keys);
   }
 
-  public setNetworkSelection(selection: NetworkSelection) {
-    this.nodeSelection = selection.nodeSelection.clone();
-    this.edgeSelection = selection.edgeSelection.clone();
+  public setNetworkSelection({ nodeSelection, edgeSelection }: { nodeSelection: number[], edgeSelection: number[] }) {
+    this.nodeSelection.setItems(nodeSelection);
+    this.edgeSelection.setItems(edgeSelection);
     this.onSelectionUpdate();
   }
 

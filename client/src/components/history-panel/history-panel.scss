@@ -71,10 +71,9 @@
   .undo-group {
     .event:first-child {
       background-color: $theme-green-light;
-      cursor: default;
 
       &:hover {
-        margin-left: 0;
+        background-color: darken($theme-green-light, 10%);
       }
     }
   }

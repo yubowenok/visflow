@@ -196,7 +196,8 @@ export default class Heatmap extends Visualization {
       items.sort((a, b) => {
         const aValue = dataset.getCell(a.index, this.sortByColumn as number);
         const bValue = dataset.getCell(b.index, this.sortByColumn as number);
-        return valueComparator(columnType)(aValue, bValue);
+        // Heatmap draws from bottom to top. We want to sort from top to botto so we invert the sign.
+        return -valueComparator(columnType)(aValue, bValue);
       });
     }
 

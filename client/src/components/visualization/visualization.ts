@@ -90,8 +90,8 @@ export default class Visualization extends SubsetNode {
     }
   }
 
-  public setSelection(selection: SubsetSelection) {
-    this.selection.copyFrom(selection);
+  public setSelection(selectedItems: number[]) {
+    this.selection.setItems(selectedItems);
     this.onSelectionUpdate();
   }
 

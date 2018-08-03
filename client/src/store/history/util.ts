@@ -7,6 +7,7 @@ import {
   HistoryDiagramBatchEvent,
   HistoryNodeOptionEvent,
   HistoryEventIcon,
+  HistoryInteractionEvent,
  } from '@/store/history/types';
 import { DiagramEventType } from '@/store/dataflow/types';
 
@@ -68,5 +69,16 @@ export const nodeOptionEvent = (type: string, message: string, node: Node,
     setter,
     data: { value, prevValue },
     icon: icon || { value: defaultIconValue },
+  };
+};
+
+export const interactionEvent = (type: string, message: string, data: any, icon?: HistoryEventIcon):
+  HistoryInteractionEvent => {
+  return {
+    level: HistoryEventLevel.INTERACTION,
+    type,
+    message,
+    data,
+    icon,
   };
 };

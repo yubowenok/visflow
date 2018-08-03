@@ -47,7 +47,13 @@ export const interactiveSelectionEvent = (node: Histogram, selection: HistogramS
     message,
     node,
     node.setHistogramSelection,
-    selection,
-    prevSelection,
+    {
+      selection: selection.selection.serialize(),
+      selectedBars: Array.from(selection.selectedBars),
+    },
+    {
+      selection: prevSelection.selection.serialize(),
+      selectedBars: Array.from(prevSelection.selectedBars),
+    },
   );
 };

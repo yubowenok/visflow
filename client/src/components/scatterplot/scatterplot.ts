@@ -191,7 +191,7 @@ export default class Scatterplot extends Visualization {
   private moveSelectedPointsToFront() {
     const gPoints = this.$refs.points as SVGGElement;
     const $points = $(gPoints);
-    $points.children('circle[has-visuals=false]').appendTo(gPoints);
+    $points.children('circle[has-visuals=true]').appendTo(gPoints);
     $points.children('circle[selected=true]').appendTo(gPoints);
   }
 

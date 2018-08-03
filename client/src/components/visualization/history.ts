@@ -15,9 +15,8 @@ export const interactiveSelectionEvent = (node: Visualization, selection: Subset
     !message ? `select ${count} item${count !== 1 ? 's' : ''}` : message,
     node,
     {
-      // Use clone to avoid selection being changed later in the node
-      selection: selection.clone(),
-      prevSelection: prevSelection.clone(),
+      selection: selection.serialize(),
+      prevSelection: prevSelection.serialize(),
     },
     { isNodeIcon: true, nodeType: node.nodeType },
   );

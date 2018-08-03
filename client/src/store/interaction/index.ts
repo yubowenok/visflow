@@ -10,6 +10,8 @@ import * as helper from '@/store/interaction/helper';
 import Edge from '@/components/edge/edge';
 import { InteractionState } from './types';
 import { areBoxesIntersected } from '@/common/util';
+import * as history from './history';
+import { HistoryInteractionEvent } from '@/store/history/types';
 
 const initialState: InteractionState = {
   isNodeDragging: false,
@@ -277,14 +279,25 @@ const mutations = {
 
   startSystemVisMode: (state: InteractionState) => {
     state.isSystemInVisMode = true;
+    store.commit('history/commit', history.toggleSystemVisModeEvent(true));
   },
 
   endSystemVisMode: (state: InteractionState) => {
     state.isSystemInVisMode = false;
+    store.commit('history/commit', history.toggleSystemVisModeEvent(false));
   },
 
   toggleSystemVisMode: (state: InteractionState) => {
     state.isSystemInVisMode = !state.isSystemInVisMode;
+    store.commit('history/commit', history.toggleSystemVisModeEvent(state.isSystemInVisMode));
+  },
+
+  redo: (state: InteractionState, evt: HistoryInteractionEvent) => {
+    history.redo(state, evt);
+  },
+
+  undo: (state: InteractionState, evt: HistoryInteractionEvent) => {
+    history.undo(state, evt);
   },
 };
 

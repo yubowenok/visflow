@@ -112,9 +112,9 @@ export default class Histogram extends Visualization {
       !isContinuousDomain(this.getDataset().getColumnType(this.column));
   }
 
-  public setHistogramSelection(selection: HistogramSelection) {
-    this.selection.copyFrom(selection.selection);
-    this.selectedBars = _.clone(selection.selectedBars);
+  public setHistogramSelection({ selection, selectedBars }: { selection: number[], selectedBars: string[] }) {
+    this.selection.setItems(selection);
+    this.selectedBars = new Set(selectedBars);
     this.onSelectionUpdate();
   }
 

@@ -83,13 +83,25 @@ export const toggleNavigatingEvent = (node: Network, value: boolean): HistoryNod
 };
 
 export const interactiveSelectionEvent = (node: Network, selection: NetworkSelection, prevSelection: NetworkSelection,
-                                          message: string = 'select items'): HistoryNodeOptionEvent => {
+                                          message?: string): HistoryNodeOptionEvent => {
+  const numNodes = selection.nodeSelection.numItems();
+  const numEdges = selection.edgeSelection.numItems();
+  if (!message) {
+    message = `select ${numNodes} node${numNodes !== 1 ? 's' : ''}`;
+    message += ` , ${numEdges} edge${numEdges !== 1 ? 's' : ''}`;
+  }
   return nodeOptionEvent(
     NetworkEventType.NETWORK_INTERACTIVE_SELECTION,
     message,
     node,
     node.setNetworkSelection,
-    selection,
-    prevSelection,
+    {
+      nodeSelection: selection.nodeSelection.serialize(),
+      edgeSelection: selection.edgeSelection.serialize(),
+    },
+    {
+      nodeSelection: prevSelection.nodeSelection.serialize(),
+      edgeSelection: prevSelection.edgeSelection.serialize(),
+    },
   );
 };

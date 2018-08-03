@@ -6,6 +6,7 @@ import { DiagramEventType } from '@/store/dataflow/types';
 export enum HistoryEventLevel {
   DIAGRAM = 'diagram',
   NODE = 'node',
+  INTERACTION = 'interaction',
 }
 
 export type HistoryEventIcon = { isNodeIcon: true, nodeType: string } | { isNodeIcon?: false, value: string };
@@ -19,7 +20,12 @@ export interface HistoryEvent {
 }
 
 export interface HistoryNodeEvent extends HistoryEvent {
+  level: HistoryEventLevel.NODE;
   node: Node;
+}
+
+export interface HistoryInteractionEvent extends HistoryEvent {
+  level: HistoryEventLevel.INTERACTION;
 }
 
 /**
@@ -36,11 +42,13 @@ export interface HistoryNodeOptionEvent extends HistoryNodeEvent {
 }
 
 export interface HistoryDiagramEvent extends HistoryEvent {
+  level: HistoryEventLevel.DIAGRAM;
   type: DiagramEventType;
 }
 
 // Batch event that creates/removes multiple nodes/edges
 export interface HistoryDiagramBatchEvent extends HistoryEvent {
+  level: HistoryEventLevel.DIAGRAM;
   events: HistoryDiagramEvent[];
 }
 

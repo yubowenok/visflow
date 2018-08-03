@@ -32,7 +32,7 @@ export default class ColorInput extends Vue {
 
   @Watch('value')
   private onValueChange() {
-    this.color = this.text = this.value;
+    this.color = this.text = this.value || '';
   }
 
   private created() {

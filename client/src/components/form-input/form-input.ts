@@ -3,6 +3,7 @@
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 import { ValueType, parseToken } from '@/data/parser';
+import { isNumericalType } from '@/data/util';
 
 @Component
 export default class FormInput extends Vue {
@@ -31,7 +32,11 @@ export default class FormInput extends Vue {
     if (value === '') {
       return null;
     }
-    return parseToken(value, this.type);
+    const typedValue = parseToken(value, this.type);
+    if (isNumericalType(this.type) && isNaN(typedValue as number)) {
+      return null;
+    }
+    return typedValue;
   }
 
   private onInput() {

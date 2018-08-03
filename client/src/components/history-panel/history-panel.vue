@@ -20,7 +20,7 @@
       </div>
       <div class="undo-group">
         <div v-for="(evt, index) in undoStack.concat().reverse()" :key="index" class="event undo"
-          @click="undoEvents(index)">
+          @click="undoEvents(Math.max(index, 1))">
           <span class="icon" v-if="evt.icon">
             <img class="node-icon" :src="getIconPath(evt.icon.nodeType)" v-if="evt.icon.isNodeIcon">
             <i :class="evt.icon.value" v-else></i>
