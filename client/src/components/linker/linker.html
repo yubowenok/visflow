@@ -1,0 +1,34 @@
+<!-- node-content -->
+<div class="display">
+  <span>Link by</span>
+  <span class="bold">{{ extractColumnName }}</span>
+  <span>{{ constantsDisplayText }}</span>
+</div>
+
+<!-- option-panel -->
+<div>
+  Extract Column
+  <column-select
+    v-model="extractColumn"
+    :columns="columnSelectOptions"
+    @input="onSelectExtractColumn"
+    :clearable="false"
+  ></column-select>
+</div>
+<div>
+  Filter Column
+  <column-select
+    v-model="filterColumn"
+    :columns="filterColumnSelectOptions"
+    @input="onSelectFilterColumn"
+    :clearable="false"
+  ></column-select>
+</div>
+<hr class="divider">
+<div class="display">
+  <constants-list
+  :value="constants"
+  :disabled="true"
+  :type="extractColumnType"
+  ></constants-list>
+</div>

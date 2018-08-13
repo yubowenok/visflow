@@ -15,6 +15,7 @@ import ConstantsGenerator from '@/components/constants-generator/constants-gener
 import LineChart from '@/components/line-chart/line-chart';
 import Network from '@/components/network/network';
 import Map from '@/components/map/map';
+import Linker from '@/components/linker/linker';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -110,6 +111,13 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/constants-generator.svg'),
     constructor: ConstantsGenerator,
     tags: 'constant extraction',
+  },
+  {
+    id: 'linker',
+    title: 'Linker',
+    imgSrc: require('@/imgs/linker.svg'),
+    constructor: Linker,
+    tags: 'link filter extract join',
   },
 ];
 

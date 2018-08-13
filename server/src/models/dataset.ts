@@ -5,7 +5,9 @@ export interface DatasetModel extends mongoose.Document {
   filename: string;
   originalname: string;
   size: number; // bytes
-  updatedAt: Date;
+  lastUsedAt: Date; // last accessed by user
+  createdAt: Date; // uploaded at
+  updatedAt: Date; // last downloaded at
 }
 
 const datasetSchema = new mongoose.Schema({
@@ -13,6 +15,7 @@ const datasetSchema = new mongoose.Schema({
   filename: String,
   originalname: String,
   size: Number,
+  lastUsedAt: Date,
 }, { timestamps: true });
 
 datasetSchema.index({

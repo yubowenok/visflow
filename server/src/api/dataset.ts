@@ -42,6 +42,7 @@ const datasetApi = (app: Express) => {
       filename: req.file.filename,
       originalname: req.file.originalname,
       size: req.file.size,
+      lastUsedAt: new Date(),
     });
     dataset.save((err: mongoose.Error) => {
       if (err) {
@@ -59,7 +60,12 @@ const datasetApi = (app: Express) => {
     checkValidationResults,
     (req: Request, res: Response, next: NextFunction) => {
     const filename = req.body.filename;
-    res.sendFile(filename, { root: path.join(DATA_PATH, 'dataset/', req.user.username)});
+    Dataset.findOneAndUpdate({ username: req.user.username, filename }, { lastUsedAt: new Date() }, err => {
+      if (err) {
+        return next(err);
+      }
+      res.sendFile(filename, { root: path.join(DATA_PATH, 'dataset/', req.user.username)});
+    });
   });
 
   app.post('/api/dataset/list', (req: Request, res: Response, next: NextFunction) => {
@@ -72,7 +78,8 @@ const datasetApi = (app: Express) => {
         'filename',
         'originalname',
         'size',
-        'updatedAt',
+        'lastUsedAt',
+        'createdAt',
       ])));
     });
   });

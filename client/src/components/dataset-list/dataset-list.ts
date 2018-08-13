@@ -8,7 +8,8 @@ export interface DatasetInfo {
   originalname: string;
   filename: string;
   size: number;
-  updatedAt: string;
+  lastUsedAt: string;
+  createdAt: string;
 }
 
 @Component({
@@ -33,7 +34,8 @@ export default class DatasetLit extends Vue {
       columns: [
         { title: 'Name' },
         { title: 'Size' },
-        { title: 'Last Updated' },
+        { title: 'Last Used'},
+        { title: 'Uploaded' },
         { title: '', orderable: false },
       ],
       columnDefs: [
@@ -44,10 +46,15 @@ export default class DatasetLit extends Vue {
         {
           targets: 2,
           type: 'date',
-          render: (updatedAt: Date) => dateDisplay(updatedAt.toLocaleString()),
+          render: (lastUsedAt: Date) => dateDisplay(lastUsedAt.toLocaleString()),
         },
         {
           targets: 3,
+          type: 'date',
+          render: (createdAt: Date) => dateDisplay(createdAt.toLocaleString()),
+        },
+        {
+          targets: 4,
           render: (filename: string) => {
             return '<button class="btn btn-outline-secondary trash"' +
               `data-filename="${filename}">` +
@@ -69,7 +76,8 @@ export default class DatasetLit extends Vue {
       data: this.list.map(info => [
         info.originalname,
         info.size,
-        new Date(info.updatedAt),
+        new Date(info.lastUsedAt),
+        new Date(info.createdAt),
         info.filename,
       ]),
       lengthChange: false,
