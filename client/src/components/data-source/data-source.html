@@ -5,12 +5,13 @@
   <div v-else>No Dataset</div>
 </div>
 <!-- context-menu -->
-<li @click="$refs.datasetModal.open()"><i class="fas fa-sm fa-database"></i>Load Dataset</li>
+<li @click="openDatasetModal"><i class="fas fa-sm fa-database"></i><span>Load Dataset</span></li>
+
 <!-- option-panel -->
 <div class="bold">Dataset</div>
 <div class="panel-name">{{ datasetInfo ? datasetInfo.originalname : 'none' }}</div>
 <b-button variant="outline-secondary" id="btn-load-dataset"
-  @click="$refs.datasetModal.open()">Load Dataset</b-button>
+  @click="openDatasetModal">Load Dataset</b-button>
 <hr class="divider">
 
 <dataset-modal ref="datasetModal" selectable @selectDataset="onSelectDataset"></dataset-modal>

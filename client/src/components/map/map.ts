@@ -82,12 +82,12 @@ export default class Map extends Visualization {
   private circles: { [index: number]: Circle } = {};
   private isMapCreated = false;
 
-  public onKeys(keys: string) {
+  public onKeys(keys: string): boolean {
     if (keys === 'n') {
       this.toggleNavigating();
-      return;
+      return true;
     }
-    this.onKeysBase(keys);
+    return this.onKeysVisualization(keys);
   }
 
   public setLatitudeColumn(column: number) {

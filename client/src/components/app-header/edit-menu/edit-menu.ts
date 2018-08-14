@@ -9,6 +9,7 @@ export default class EditMenu extends Vue {
   @ns.history.Mutation('undo') private undo!: () => void;
   @ns.history.Mutation('redo') private redo!: () => void;
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
+  @ns.interaction.State('osCtrlKeyChar') private osCtrlKeyChar!: string;
   @ns.dataflow.Mutation('autoLayout') private dispatchAutoLayout!: () => void;
 
   private autoLayout() {

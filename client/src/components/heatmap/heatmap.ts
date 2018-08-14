@@ -183,7 +183,7 @@ export default class Heatmap extends Visualization {
   private moveSelectedRowsToFront() {
     const $grid = $(this.$refs.grid);
     $grid.find('g[has-visuals=true]').appendTo(this.$refs.grid as SVGGElement);
-    $grid.find('g[selected=true]').appendTo(this.$refs.grid as SVGGElement);
+    $grid.find('g[is-selected=true]').appendTo(this.$refs.grid as SVGGElement);
   }
 
   private computeItemProps() {
@@ -290,7 +290,7 @@ export default class Heatmap extends Visualization {
       .attr('id', d => d.index)
       .merge(rows)
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected);
+      .attr('is-selected', d => d.selected);
 
     const updatedRows = this.isTransitionFeasible(this.itemProps.length) ? rows.transition() : rows;
     updatedRows

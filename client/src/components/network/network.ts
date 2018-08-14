@@ -168,11 +168,12 @@ export default class Network extends Visualization {
     return getColumnSelectOptions(this.edgeDataset);
   }
 
-  public onKeys(keys: string) {
+  public onKeys(keys: string): boolean {
     if (keys === 'n') {
       this.toggleNavigating();
+      return true;
     }
-    this.onKeysBase(keys);
+    return this.onKeysVisualization(keys);
   }
 
   public setNetworkSelection({ nodeSelection, edgeSelection }: { nodeSelection: number[], edgeSelection: number[] }) {
@@ -617,7 +618,7 @@ export default class Network extends Visualization {
     const nodes = select(this.$refs.nodes as SVGGElement).selectAll<SVGCircleElement, NetworkNodeProps>('circle');
     nodes
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected)
+      .attr('is-selected', d => d.selected)
       .attr('transform', d => getTransform([d.node.x, d.node.y]))
       .attr('r', d => (d.visuals.size as number / 2) / this.zoomScale)
       .style('stroke', d => d.visuals.border as string)
@@ -640,7 +641,7 @@ export default class Network extends Visualization {
   private updateEdges() {
     const edges = select(this.$refs.edges as SVGGElement).selectAll<SVGGElement, NetworkEdgeProps>('g')
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected);
+      .attr('is-selected', d => d.selected);
 
     // Creates a stroke that looks like an arrow.
     const getArrowPoints = (p: Victor, q: Victor): Victor[] => {
@@ -801,10 +802,10 @@ export default class Network extends Visualization {
   private moveSelectedNodesAndEdgesToFront() {
     const $nodes = $(this.$refs.nodes as SVGGElement);
     $nodes.children('circle[has-visuals=true]').appendTo(this.$refs.nodes as SVGGElement);
-    $nodes.children('circle[selected=true]').appendTo(this.$refs.nodes as SVGGElement);
+    $nodes.children('circle[is-selected=true]').appendTo(this.$refs.nodes as SVGGElement);
     const $edges = $(this.$refs.edges as SVGGElement);
     $edges.children('g[has-visuals=true]').appendTo(this.$refs.edges as SVGGElement);
-    $edges.children('g[selected=true]').appendTo(this.$refs.edges as SVGGElement);
+    $edges.children('g[is-selected=true]').appendTo(this.$refs.edges as SVGGElement);
   }
 
   private getNodeDataset(): TabularDataset {

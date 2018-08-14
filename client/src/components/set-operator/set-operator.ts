@@ -7,6 +7,7 @@ import FormSelect from '@/components/form-select/form-select';
 import { SubsetPackage } from '@/data/package';
 import { SubsetInputPort } from '@/components/port';
 import * as history from './history';
+import TabularDataset from '@/data/tabular-dataset';
 
 export enum SetOperatorMode {
   UNION = 'union',
@@ -69,7 +70,28 @@ export default class SetOperator extends SubsetNode {
     if (!this.checkDataset()) {
       return;
     }
+    if (!this.checkDatasetCompatibility()) {
+      return;
+    }
     this.runOperation();
+  }
+
+  /**
+   * Only allows subsets from the same tabular dataset to be processed.
+   */
+  private checkDatasetCompatibility() {
+    const pkgs = (this.inputPortMap.in.getPackageList() as SubsetPackage[]).filter(pkg => pkg.hasDataset());
+    const datasetHashes: Set<string> = new Set();
+    for (const pkg of pkgs) {
+      datasetHashes.add((pkg.getDataset() as TabularDataset).getHash());
+    }
+    if (datasetHashes.size !== 1) {
+      this.coverText = 'datasets mismatch';
+      this.updateNoDatasetOutput();
+      return false;
+    }
+    this.coverText = '';
+    return true;
   }
 
   private runOperation() {

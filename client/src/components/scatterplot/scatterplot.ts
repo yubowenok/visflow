@@ -132,7 +132,7 @@ export default class Scatterplot extends Visualization {
       const point = { x: this.xScale(props.x), y: this.yScale(props.y) };
       const clickToPointDistance = new Victor(point.x, point.y)
         .subtract(new Victor(brushPoints[0].x, brushPoints[0].y)).length();
-      if (isPointInBox(point, box) || clickToPointDistance < (props.visuals.size as number)) {
+      if (isPointInBox(point, box) || clickToPointDistance <= (props.visuals.size  as number) / 2) {
         this.selection.addItem(props.index);
       }
     });
@@ -169,7 +169,7 @@ export default class Scatterplot extends Visualization {
       .attr('id', d => d.index.toString())
       .merge(points)
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected);
+      .attr('is-selected', d => d.selected);
 
     const updatedPoints = this.isTransitionFeasible(this.itemProps.length) ? points.transition() : points;
     updatedPoints
@@ -192,7 +192,7 @@ export default class Scatterplot extends Visualization {
     const gPoints = this.$refs.points as SVGGElement;
     const $points = $(gPoints);
     $points.children('circle[has-visuals=true]').appendTo(gPoints);
-    $points.children('circle[selected=true]').appendTo(gPoints);
+    $points.children('circle[is-selected=true]').appendTo(gPoints);
   }
 
   private computeScales() {

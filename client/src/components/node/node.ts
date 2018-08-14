@@ -425,8 +425,8 @@ export default class Node extends Vue {
   /**
    * Handles local keyboard combinations.
    */
-  public onKeys(keys: string) {
-    this.onKeysBase(keys);
+  public onKeys(keys: string): boolean {
+    return this.onKeysNode(keys);
   }
 
   /**
@@ -578,7 +578,7 @@ export default class Node extends Vue {
   /**
    * Base responds of keyboard that are shared by all node types.
    */
-  protected onKeysBase(keys: string) {
+  protected onKeysNode(keys: string): boolean {
     switch (keys) {
       case 'm':
         this.toggleIconized();
@@ -586,7 +586,10 @@ export default class Node extends Vue {
       case 'v':
         this.toggleVisMode();
         break;
+      default:
+        return false;
     }
+    return true;
   }
 
   /**

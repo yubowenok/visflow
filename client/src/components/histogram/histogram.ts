@@ -213,7 +213,7 @@ export default class Histogram extends Visualization {
     svgBars.find('rect[has-visuals=true]').each((index, element) => {
       $(element).appendTo($(element as HTMLElement).closest('g'));
     });
-    svgBars.find('rect[selected=true]').each((index, element) => {
+    svgBars.find('rect[is-selected=true]').each((index, element) => {
       $(element).appendTo($(element as HTMLElement).closest('g'));
     });
   }
@@ -399,7 +399,7 @@ export default class Histogram extends Visualization {
       .attr('transform', barTransform)
       .merge(bars)
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected);
+      .attr('is-selected', d => d.selected);
 
     const updatedBars = this.isTransitionFeasible(numItems) ? bars.transition() : bars;
     updatedBars

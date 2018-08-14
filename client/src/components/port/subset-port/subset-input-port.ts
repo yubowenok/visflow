@@ -1,12 +1,12 @@
 import { Component } from 'vue-property-decorator';
+import { mixins } from 'vue-class-component';
+
+import SubsetPort from './subset-port';
 import InputPort from '../input-port';
 import { SubsetPackage } from '@/data/package';
 
 @Component
-export default class SubsetInputPort extends InputPort {
-  protected DATA_TYPE = 'subset';
-  protected package: SubsetPackage = new SubsetPackage();
-
+export default class SubsetInputPort extends mixins(InputPort, SubsetPort) {
   // (Typing helper method) Explicitly states the output to be SubsetPackage.
   public getSubsetPackage(): SubsetPackage {
     return this.getPackage() as SubsetPackage;

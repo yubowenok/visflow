@@ -35,8 +35,8 @@ export default class App extends Vue {
   @ns.modals.Mutation('setNodeModalMount') private setNodeModalMount!: (mount: Vue) => void;
   @ns.contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
-  @ns.interaction.Mutation('keydown') private interactionKeydown!: (key: string) => void;
-  @ns.interaction.Mutation('keyup') private interactionKeyup!: (key: string) => void;
+  @ns.interaction.Mutation('keydown') private interactionKeydown!: (evt: JQuery.Event) => void;
+  @ns.interaction.Mutation('keyup') private interactionKeyup!: (evt: JQuery.Event) => void;
   @ns.interaction.Mutation('mouseup') private interactionMouseup!: () => void;
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
 
@@ -85,17 +85,17 @@ export default class App extends Vue {
   private onKeydown(evt: JQuery.Event) {
     // On initial mouse click, form-control keydown event (from modal) may be bubbled up without key value set.
     // The reason for !evt.key is unknown. We ignore event with falsy evt.key.
-    if (!evt.key || $(evt.target).is('input')) {
+    if (!evt.key || $(evt.target).is('input, *[contenteditable=true]')) {
       return;
     }
-    this.interactionKeydown(evt.key as string);
+    this.interactionKeydown(evt);
   }
 
   private onKeyup(evt: JQuery.Event) {
-    if (!evt.key || $(evt.target).is('input')) {
+    if (!evt.key || $(evt.target).is('input, *[contenteditable=true]')) {
       return;
     }
-    this.interactionKeyup(evt.key as string);
+    this.interactionKeyup(evt);
   }
 
   private onMouseup(evt: JQuery.Event) {

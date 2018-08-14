@@ -1,3 +1,7 @@
 <!-- context menu options for Visualization base class -->
-<li @click="selectAll" :class="{ disabled: hasNoDataset() }"><i class="fas placeholder"></i>Select All</li>
-<li @click="deselectAll" :class="{ disabled: hasNoDataset() }"><i class="fas placeholder"></i>Deselect All</li>
+<li @click="selectAll" :class="{ disabled: hasNoDataset() }">
+  <i class="fas placeholder"></i>Select All<span class="shortcut">{{osCtrlKeyChar}}A</span>
+</li>
+<li @click="deselectAll" :class="{ disabled: hasNoDataset() }">
+  <i class="fas placeholder"></i>Deselect All<span class="shortcut">{{osCtrlKeyChar}}⇧A</span>
+</li>

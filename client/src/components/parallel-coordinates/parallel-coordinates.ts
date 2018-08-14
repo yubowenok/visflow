@@ -205,7 +205,7 @@ export default class ParallelCoordinates extends Visualization {
       .attr('id', d => d.index.toString())
       .merge(lines)
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected);
+      .attr('is-selected', d => d.selected);
 
     const updatedLines = this.isTransitionFeasible(itemProps.length) ? lines.transition() : lines;
     updatedLines
@@ -221,7 +221,7 @@ export default class ParallelCoordinates extends Visualization {
     const gLines = this.$refs.lines as SVGGElement;
     const $lines = $(gLines);
     $lines.children('path[has-visuals=true]').appendTo(gLines);
-    $lines.children('path[selected=true]').appendTo(gLines);
+    $lines.children('path[is-selected=true]').appendTo(gLines);
   }
 
   private drawAxes() {

@@ -92,4 +92,9 @@ export default class DataSource extends Node {
     this.commitHistory(history.setDatasetInfoEvent(this, info, this.datasetInfo));
     this.setDatasetInfo(info);
   }
+
+  private openDatasetModal() {
+    this.activate(); // Make sure that the option panel is mounted before using datasetModal.
+    this.$nextTick(() => (this.$refs.datasetModal as DatasetModal).open());
+  }
 }

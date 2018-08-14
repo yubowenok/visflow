@@ -77,6 +77,8 @@ export default class Visualization extends SubsetNode {
   @ns.modals.Mutation('openNodeModal') private openNodeModal!: () => void;
   @ns.modals.Mutation('closeNodeModal') private closeNodeModal!: () => void;
   @ns.modals.Mutation('mountNodeModal') private mountNodeModal!: (modal: Element) => void;
+  @ns.interaction.State('osCtrlKey') private osCtrlKey!: string;
+  @ns.interaction.State('osCtrlKeyChar') private osCtrlKeyChar!: string;
 
   public undo(evt: HistoryNodeEvent) {
     if (!history.undo(evt)) {
@@ -88,6 +90,10 @@ export default class Visualization extends SubsetNode {
     if (!history.redo(evt)) {
       this.redoBase(evt);
     }
+  }
+
+  public onKeys(keys: string): boolean {
+    return this.onKeysVisualization(keys);
   }
 
   public setSelection(selectedItems: number[]) {
@@ -350,6 +356,21 @@ export default class Visualization extends SubsetNode {
   }
 
   /**
+   * Keys actions for all visualizations.
+   */
+  protected onKeysVisualization(keys: string): boolean {
+    if (keys === this.osCtrlKey + '+a') {
+      this.selectAll();
+      return true;
+    }
+    if (keys === this.osCtrlKey + '+shift+a') {
+      this.deselectAll();
+      return true;
+    }
+    return this.onKeysNode(keys);
+  }
+
+  /**
    * Places every data item into the selection.
    * If a node has additional visual entities to be selected, such as a bar in the history,
    * override this method.
@@ -381,6 +402,7 @@ export default class Visualization extends SubsetNode {
       return;
     }
     this.recordPrevSelection();
+    this.executeDeselectAll();
     this.commitSelectionHistory('deselect all');
     this.onSelectionUpdate();
   }

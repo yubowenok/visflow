@@ -59,6 +59,10 @@ export default class Port extends Vue {
     return [];
   }
 
+  public dataType(): string {
+    return this.DATA_TYPE;
+  }
+
   public isConnected(): boolean {
     return this.edges.length > 0;
   }

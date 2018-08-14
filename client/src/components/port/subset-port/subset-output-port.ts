@@ -1,11 +1,11 @@
 import { Component } from 'vue-property-decorator';
+import { mixins } from 'vue-class-component';
 import OutputPort from '../output-port';
+import SubsetPort from './subset-port';
 import { SubsetPackage } from '@/data/package';
 
 @Component
-export default class SubsetOutputPort extends OutputPort {
-  protected DATA_TYPE = 'subset';
-  protected package: SubsetPackage = new SubsetPackage();
+export default class SubsetOutputPort extends mixins(OutputPort, SubsetPort) {
   protected isSelection = false;
 
   /** Clears package items but retains the dataset. */

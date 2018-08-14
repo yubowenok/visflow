@@ -13,6 +13,8 @@ import { areBoxesIntersected } from '@/common/util';
 import * as history from './history';
 import { HistoryInteractionEvent } from '@/store/history/types';
 
+const IS_MAC = navigator.appVersion.match(/mac/i) !== null;
+
 const initialState: InteractionState = {
   isNodeDragging: false,
   isNodeListDragging: false,
@@ -35,6 +37,9 @@ const initialState: InteractionState = {
   isSystemInVisMode: false,
 
   mouseupEdge: undefined,
+
+  osCtrlKey: IS_MAC ? 'meta' : 'ctrl',
+  osCtrlKeyChar: IS_MAC ? '⌘' : '⇧',
 };
 
 const getters = {
@@ -177,6 +182,7 @@ const mutations = {
 
   clickBackground: (state: InteractionState) => {
     helper.deselectAllNodes();
+    window.getSelection().removeAllRanges(); // clear accidental browser range selection
   },
 
   trackMouseMove: (state: InteractionState, point: Point) => {
@@ -187,8 +193,9 @@ const mutations = {
   mouseup: (state: InteractionState) => {
   },
 
-  keydown: (state: InteractionState, key: string) => {
-    switch (key.toLowerCase()) {
+  keydown: (state: InteractionState, evt: JQuery.Event) => {
+    const key = (evt.key as string).toLowerCase();
+    switch (key) {
       case 'control':
         state.ctrlPressed = true;
         break;
@@ -201,11 +208,20 @@ const mutations = {
       case 'meta':
         state.metaPressed = true;
         break;
+      default:
+        if ('a' <= key && key <= 'z') {
+          helper.keyStroke(state, [
+            state.metaPressed ? 'meta' : '',
+            state.ctrlPressed ? 'ctrl' : '',
+            state.shiftPressed ? 'shift' : '',
+            key,
+          ].filter(s => s !== '').join('+'), evt);
+        }
     }
   },
 
-  keyup: (state: InteractionState, key: string) => {
-    key = key.toLowerCase();
+  keyup: (state: InteractionState, evt: JQuery.Event) => {
+    const key = (evt.key as string).toLowerCase();
     switch (true) {
       case key === 'control':
         state.ctrlPressed = false;
@@ -219,62 +235,7 @@ const mutations = {
       case key === 'meta':
         state.metaPressed = false;
         break;
-      case 'a' <= key && key <= 'z':
-        mutations.keyStroke(state, [
-          state.ctrlPressed ? 'ctrl' : '',
-          state.shiftPressed ? 'shift' : '',
-          key,
-        ].filter(s => s !== '').join('+'));
-        break;
     }
-  },
-
-  keyStroke(state: InteractionState, keys: string) {
-    switch (keys) {
-      case 'delete':
-      case 'ctrl+d':
-      case 'ctrl+x': // TODO: change to cut nodes
-        store.commit('dataflow/removeSelectedNodes');
-        break;
-      case 'ctrl+s':
-        store.dispatch('dataflow/saveDiagram');
-        break;
-      case 'ctrl+shift+s':
-        store.commit('modals/openSaveAsDiagramModal');
-        break;
-      case 'ctrl+l':
-        store.commit('modals/openLoadDiagramModal');
-        break;
-      case 'ctrl+n':
-        store.commit('modals/openNewDiagramModal');
-        break;
-      case 'ctrl+z':
-        store.commit('history/undo');
-        break;
-      case 'ctrl+shift+z':
-        store.commit('history/redo');
-        break;
-      case 'a':
-        store.commit('panels/openQuickNodePanel');
-        break;
-      case 'escape':
-        store.commit('modals/closeNodeModal');
-        break;
-      case 'ctrl+r':
-        // TODO: debug use only
-        debugger; // tslint:disable-line
-        break;
-      default:
-        // Pass the keyboard command to selected nodes.
-        store.state.dataflow.nodes.filter(node => node.isSelected).forEach(node => node.onKeys(keys));
-    }
-    // Clear lagging states for safety. Sometimes key combinations fail to trigger key releases, resulting in the
-    // page getting stuck on pressed keys.
-    /*
-    state.ctrlPressed = false;
-    state.altPressed = false;
-    state.shiftPressed = false;
-    */
   },
 
   startSystemVisMode: (state: InteractionState) => {

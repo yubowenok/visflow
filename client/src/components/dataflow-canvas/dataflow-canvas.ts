@@ -41,7 +41,10 @@ export default class DataflowCanvas extends Vue {
   private dragMode: DragMode = DragMode.NONE;
 
   get dragClass(): string {
-    return this.dragMode === DragMode.PAN || this.isAltPressed ? 'panning' : '';
+    return [
+      this.dragMode === DragMode.PAN || this.isAltPressed ? 'panning' : '',
+      this.isShiftPressed ? 'shifted' : '',
+    ].join(' ');
   }
 
   get selectBox(): Box {

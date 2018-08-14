@@ -244,7 +244,7 @@ export default class LineChart extends Visualization {
   private moveSelectedLinesToFront() {
     const $lines = $(this.$refs.lines as SVGGElement);
     $lines.children('path[has-visuals=true]').appendTo(this.$refs.lines as SVGGElement);
-    $lines.children('path[selected=true]').appendTo(this.$refs.lines as SVGGElement);
+    $lines.children('path[is-selected=true]').appendTo(this.$refs.lines as SVGGElement);
   }
 
   private computeScales() {
@@ -385,7 +385,7 @@ export default class LineChart extends Visualization {
       .attr('id', d => d.lineIndex)
       .merge(lines)
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected);
+      .attr('is-selected', d => d.selected);
 
     const updatedLines = this.isTransitionFeasible(this.itemProps.length) ? lines.transition() : lines;
     updatedLines
@@ -409,7 +409,7 @@ export default class LineChart extends Visualization {
       .attr('cy', d => this.yScale(d.y))
       .attr('r', d => d.visuals.size as number)
       .attr('has-visuals', d => d.hasVisuals)
-      .attr('selected', d => d.selected);
+      .attr('is-selected', d => d.selected);
 
     const updatedPoints = this.isTransitionFeasible(this.itemProps.length) ? points.transition() : points;
     updatedPoints

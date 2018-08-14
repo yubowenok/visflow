@@ -27,4 +27,7 @@ export interface InteractionState {
   isSystemInVisMode: boolean;
 
   mouseupEdge: Edge | undefined;
+
+  osCtrlKey: string; // 'ctrl' or 'meta'
+  osCtrlKeyChar: string; // '⇧' (ctrl) or '⌘' (meta)
 }
