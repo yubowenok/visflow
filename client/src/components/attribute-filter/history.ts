@@ -1,25 +1,26 @@
 import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import AttributeFilter, {
+  AmountType,
+  ExtremumCriterion,
   FilterType,
   PatternMatchMode,
-  SamplingCriterion,
-  SamplingAmountType,
 } from './attribute-filter';
 import { getConstantsListInputType } from '@/components/constants-list/constants-list';
 
 enum AttributeFilterEventType {
-  SELECT_FILTER_TYPE = 'select-filter-type',
-  SELECT_COLUMN = 'select-column',
+  INPUT_AMOUNT = 'input-amount',
   INPUT_PATTERNS = 'input-patterns',
-  SELECT_PATTERN_MATCH_MODE = 'pattern-match-mode',
-  TOGGLE_PATTERN_CASE_SENSITIVE = 'toggle-pattern-case-sensitive',
-  INPUT_RANGE_MIN = 'input-range-min',
   INPUT_RANGE_MAX = 'input-range-max',
+  INPUT_RANGE_MIN = 'input-range-min',
+  SELECT_AMOUNT_TYPE = 'select-amount-type',
+  SELECT_COLUMN = 'select-column',
+  SELECT_EXTREMUM_CRITERION = 'select-extremum-criterion',
+  SELECT_FILTER_TYPE = 'select-filter-type',
+  SELECT_GROUP_BY_COLUMN = 'select-group-by-column',
+  SELECT_PATTERN_MATCH_MODE = 'pattern-match-mode',
   SELECT_SAMPLING_CRITERION = 'select-sampling-criterion',
-  SELECT_SAMPLING_AMOUNT_TYPE = 'select-sampling-amount-type',
-  INPUT_SAMPLING_AMOUNT = 'input-sampling-amount',
-  SELECT_SAMPLING_GROUP_BY_COLUMN = 'select-sampling-group-by-column',
-  TOGGLE_SAMPLING_ON_DISTINCT_VALUES = 'toggle-sampling-on-distinct-values',
+  TOGGLE_ON_DISTINCT_VALUES = 'toggle-on-distinct-values',
+  TOGGLE_PATTERN_CASE_SENSITIVE = 'toggle-pattern-case-sensitive',
 }
 
 export const selectFilterTypeEvent = (node: AttributeFilter, type: FilterType, prevType: FilterType):
@@ -106,60 +107,60 @@ export const inputRangeMax = (node: AttributeFilter, value: number | null, prevV
   );
 };
 
-export const selectSamplingCriterion = (node: AttributeFilter, criterion: SamplingCriterion,
-                                        prevCriterion: SamplingCriterion): HistoryNodeOptionEvent => {
+export const selectExtremumCriterion = (node: AttributeFilter, criterion: ExtremumCriterion,
+                                        prevCriterion: ExtremumCriterion): HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     AttributeFilterEventType.SELECT_SAMPLING_CRITERION,
-    'select sampling criterion',
+    'select extremum criterion',
     node,
-    node.setSamplingCriterion,
+    node.setExtremumCriterion,
     criterion,
     prevCriterion,
   );
 };
 
-export const selectSamplingAmountType = (node: AttributeFilter, type: SamplingAmountType, prevType: SamplingAmountType):
+export const selectAmountType = (node: AttributeFilter, type: AmountType, prevType: AmountType):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
-    AttributeFilterEventType.SELECT_SAMPLING_AMOUNT_TYPE,
-    'select sampling amount type',
+    AttributeFilterEventType.SELECT_AMOUNT_TYPE,
+    'select amount type',
     node,
-    node.setSamplingAmountType,
+    node.setAmountType,
     type,
     prevType,
   );
 };
 
-export const inputSamplingAmount = (node: AttributeFilter, amount: number | null, prevAmount: number | null):
+export const inputAmount = (node: AttributeFilter, amount: number | null, prevAmount: number | null):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
-    AttributeFilterEventType.INPUT_SAMPLING_AMOUNT,
-    'input sampling amount',
+    AttributeFilterEventType.INPUT_AMOUNT,
+    'input amount',
     node,
-    node.setSamplingAmount,
+    node.setAmount,
     amount,
     prevAmount,
   );
 };
 
-export const selectSamplingGroupByColumn = (node: AttributeFilter, column: number | null, prevColumn: number | null):
+export const selectGroupByColumn = (node: AttributeFilter, column: number | null, prevColumn: number | null):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
-    AttributeFilterEventType.SELECT_SAMPLING_GROUP_BY_COLUMN,
-    'select sampling group by column',
+    AttributeFilterEventType.SELECT_GROUP_BY_COLUMN,
+    'select group by column',
     node,
-    node.setSamplingGroupByColumn,
+    node.setGroupByColumn,
     column,
     prevColumn,
   );
 };
 
-export const toggleSamplingOnDistinctValues = (node: AttributeFilter, value: boolean): HistoryNodeOptionEvent => {
+export const toggleOnDistinctValues = (node: AttributeFilter, value: boolean): HistoryNodeOptionEvent => {
   return nodeOptionEvent(
-    AttributeFilterEventType.TOGGLE_SAMPLING_ON_DISTINCT_VALUES,
-    'toggle sampling on distinct values',
+    AttributeFilterEventType.TOGGLE_ON_DISTINCT_VALUES,
+    'toggle on distinct values',
     node,
-    node.setSamplingOnDistinctValues,
+    node.setOnDistinctValues,
     value,
     !value,
   );

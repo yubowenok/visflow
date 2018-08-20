@@ -1,8 +1,10 @@
-import sha256 from 'crypto-js/sha256';
 import _ from 'lodash';
-import { ValueType } from '@/data/parser';
+import sha256 from 'crypto-js/sha256';
+
+import { INDEX_COLUMN } from '@/common/constants';
 import { SubsetItem } from '@/data/package/subset-package';
-import { isContinuousDomain, valueComparator, isNumericalType } from '@/data/util';
+import { ValueType } from '@/data/parser';
+import { isContinuousDomain, valueComparator } from '@/data/util';
 
 export type TabularRow = Array<number | string>;
 export type TabularRows = TabularRow[];
@@ -57,6 +59,9 @@ export default class TabularDataset {
    */
   public getCell(item: number | SubsetItem, columnIndex: number): number | string {
     const rowIndex = item instanceof Object ? (item as SubsetItem).index : item;
+    if (columnIndex === INDEX_COLUMN) {
+      return rowIndex;
+    }
     return this.rows[rowIndex][columnIndex];
   }
 
@@ -66,6 +71,9 @@ export default class TabularDataset {
   public getCellForScale(item: number | SubsetItem, columnIndex: number): number | string {
     const rowIndex = item instanceof Object ? (item as SubsetItem).index : item;
     const value = this.rows[rowIndex][columnIndex];
+    if (columnIndex === INDEX_COLUMN) {
+      return rowIndex;
+    }
     return this.columns[columnIndex].type === ValueType.DATE ? new Date(value).getTime() : value;
   }
 
@@ -78,10 +86,16 @@ export default class TabularDataset {
   }
 
   public getColumnType(columnIndex: number): ValueType {
+    if (columnIndex === INDEX_COLUMN) {
+      return ValueType.INT;
+    }
     return this.columns[columnIndex].type;
   }
 
   public getColumnName(columnIndex: number): string {
+    if (columnIndex === INDEX_COLUMN) {
+      return '[index]';
+    }
     return this.columns[columnIndex].name;
   }
 
@@ -165,6 +179,9 @@ export default class TabularDataset {
    */
   public getDomainValues(columnIndex: number, items?: number[], distinct?: boolean): Array<number | string> {
     items = items || _.range(this.numRows());
+    if (columnIndex === INDEX_COLUMN) {
+      return items;
+    }
     const values = items.map(index => this.rows[index][columnIndex])
       .sort(valueComparator(this.getColumnType(columnIndex)));
     return distinct ? _.uniq(values) : values;

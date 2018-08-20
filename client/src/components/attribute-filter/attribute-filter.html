@@ -8,12 +8,15 @@
     <span class="bold">{{ columnName }}</span>
     <span class="display-text">{{ rangeFilterDisplayText }}</span>
   </div>
-  <div v-if="filterType === 'sampling'">
-    <span class="display-text">{{ samplingFilterDisplayText }}</span>
+  <div v-if="filterType === 'extremum' || filterType === 'sampling'">
+    <span class="display-text">{{ amountDisplayText }}</span>
+    <span v-if="filterType === 'extremum'">{{ extremumCriterion }}</span>
+    <span v-if="filterType === 'sampling'">{{ samplingCriterion }}</span>
     <span class="bold">{{ columnName }}</span>
-    <span class="display-text" v-if="samplingParams.groupByColumn">
-      per
-      <span class="bold">{{ samplingGroupByColumnName }}</span>
+    <span v-if="isOnDistinctValues">{{'value' + (amountType === 'count' && +amount === 1 ? '' : 's')}}</span>
+    <span class="display-text" v-if="groupByColumn">
+      per distinct
+      <span class="bold">{{ groupByColumnName }}</span>
     </span>
   </div>
 </div>
@@ -31,9 +34,10 @@
 <div>
   <div>Column</div>
   <column-select
-    :columns="columnSelectOptions"
+    :columns="columnSelectOptionsWithIndex"
     v-model="column"
     @input="onSelectColumn"
+    :clearable="true"
   ></column-select>
 </div>
 <hr class="divider"/>
@@ -78,51 +82,53 @@
   </div>
 </div>
 
-<!-- sampling filter -->
-<div v-if="filterType === 'sampling'">
-  <div class="subsection">
+<!-- extremum/sampling filter -->
+<div v-if="filterType === 'sampling' || filterType === 'extremum'">
+  <div class="subsection" v-if="filterType === 'extremum'">
     Criterion
     <form-select
-      v-model="samplingParams.criterion"
+      v-model="extremumCriterion"
       :clearable="false"
-      :options="samplingCriterionOptions"
-      @input="onSelectSamplingCriterion"
-    >
-    </form-select>
+      :options="extremumCriterionOptions"
+      @input="onSelectExtremumCriterion"
+    ></form-select>
   </div>
   <div class="subsection">
     Amount Type
     <form-select
-      v-model="samplingParams.amountType"
+      v-model="amountType"
       :clearable="false"
-      :options="samplingAmountTypeOptions"
-      @input="onSelectSamplingAmountType"
+      :options="amountTypeOptions"
+      @input="onSelectAmountType"
     >
     </form-select>
   </div>
   <div class="subsection">
     Amount
-    <form-input v-if="!inputDisabled" v-model.number="samplingParams.amount"
-      @input="onInputSamplingAmount" @change="setSamplingAmount"></form-input>
+    <form-input v-if="!inputDisabled" v-model="amount"
+      @input="onInputAmount" @change="setAmount"></form-input>
     <form-input v-else :value="firstConstant" disabled></form-input>
   </div>
   <div class="subsection">
     Group By Column
     <column-select
-      v-model="samplingParams.groupByColumn"
+      v-model="groupByColumn"
       :clearable="true"
       :columns="columnSelectOptions"
-      @input="onSelectSamplingGroupByColumn"
+      @input="onSelectGroupByColumn"
     ></column-select>
   </div>
-  <div id="sampling-on-distinct-values" class="subsection">
+  <div id="on-distinct-values" class="subsection">
     <b-form-checkbox
-      v-model="samplingParams.isOnDistinctValues"
-      @input="onToggleSamplingOnDistinctValues"
+      v-model="isOnDistinctValues"
+      @input="onToggleOnDistinctValues"
     >
-      Sample On Distinct Values
-      <i id="sampling-on-distinct-values-hint" class="fas fa-question-circle hint"></i>
+      Distinct Values
+      <i id="on-distinct-values-hint" class="fas fa-question-circle hint"></i>
     </b-form-checkbox>
-    <b-tooltip target="sampling-on-distinct-values-hint">Sample on distinct attribute values instead of individual data items</b-tooltip>
+    <b-tooltip target="on-distinct-values-hint">
+      Amount is based on distinct attribute values instead of data items,
+      e.g. "maximum count 1" will accept all data items with the maximum attribute value.
+    </b-tooltip>
   </div>
 </div>

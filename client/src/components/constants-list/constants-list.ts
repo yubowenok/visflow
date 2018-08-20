@@ -119,8 +119,9 @@ export default class ConstantsList extends Vue {
   }
 
   private remove(index: number) {
-    _.pullAt(this.constants, index);
-    this.save(this.constants);
+    const newConstants = this.constants.concat();
+    _.pullAt(newConstants, index);
+    this.save(newConstants);
   }
 
   private save(values: string[]) {
