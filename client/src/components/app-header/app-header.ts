@@ -9,6 +9,7 @@ import DiagramBar from '@/components/diagram-bar/diagram-bar';
 import DatasetBar from '@/components/dataset-bar/dataset-bar';
 import DragBar from '@/components/drag-bar/drag-bar';
 import VisModeBar from '@/components/vis-mode-bar/vis-mode-bar';
+import FlowsenseBar from '@/components/flowsense-bar/flowsense-bar';
 
 @Component({
   components: {
@@ -21,6 +22,7 @@ import VisModeBar from '@/components/vis-mode-bar/vis-mode-bar';
     DatasetBar,
     DragBar,
     VisModeBar,
+    FlowsenseBar,
   },
 })
 export default class AppHeader extends Vue {

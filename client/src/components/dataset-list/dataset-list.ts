@@ -3,14 +3,7 @@ import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
 import ns from '@/store/namespaces';
 import DataTable from '@/components/data-table/data-table';
 import { fileSizeDisplay, dateDisplay } from '@/common/util';
-
-export interface DatasetInfo {
-  originalname: string;
-  filename: string;
-  size: number;
-  lastUsedAt: string;
-  createdAt: string;
-}
+import { DatasetInfo } from '@/store/dataset/types';
 
 @Component({
   components: {

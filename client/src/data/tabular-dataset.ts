@@ -33,6 +33,7 @@ const hash = (columns: TabularColumn[], rows: TabularRows): string => {
 };
 
 export default class TabularDataset {
+  private name: string = ''; // dataset name (originalname)
   private columns: TabularColumn[] = [];
   private rows: TabularRows = [];
   private hash: string = '';
@@ -44,6 +45,14 @@ export default class TabularDataset {
     this.columns = columns;
     this.rows = rows;
     this.hash = hash(columns, rows);
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+
+  public setName(name: string) {
+    this.name = name;
   }
 
   public numRows(): number {

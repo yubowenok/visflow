@@ -1,7 +1,8 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
 import FileUpload from '@/components/file-upload/file-upload';
-import DatasetList, { DatasetInfo } from '@/components/dataset-list/dataset-list';
+import DatasetList from '@/components/dataset-list/dataset-list';
+import { DatasetInfo } from '@/store/dataset/types';
 import BaseModal from '@/components/modals/base-modal/base-modal';
 import ns from '@/store/namespaces';
 

@@ -7,6 +7,9 @@ import { isNumericalType } from '@/data/util';
 
 @Component
 export default class FormInput extends Vue {
+  @Prop({ default: 1000 })
+  private maxlength!: number;
+
   @Prop({ type: [String, Number], default: '' })
   private value!: string | null;
 
@@ -21,6 +24,7 @@ export default class FormInput extends Vue {
 
   @Watch('value')
   private onValueChange(value: string | number) {
+    console.log('new value', value);
     this.text = value !== null ? value.toString() : '';
   }
 

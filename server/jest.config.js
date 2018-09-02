@@ -13,7 +13,7 @@ module.exports = {
 		'^.+\\.(ts|tsx)$': 'ts-jest',
 	},
 	testMatch: [
-		'**/tests/**/*.test.(ts|js)',
+		'<rootDir>/tests/**/*.test.(ts|js)',
 	],
 	moduleNameMapper: {
 		// Jest tests must use @src alias, while src code may use @/* as src/*.

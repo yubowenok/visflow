@@ -15,7 +15,10 @@ describe('POST /api/user/signup', () => {
     request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData))
-      .expect({ username: 'abc' })
+      .expect({
+        username: signupData.username,
+        email: signupData.email,
+      })
       .expect(200, done);
   });
 

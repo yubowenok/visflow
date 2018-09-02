@@ -280,6 +280,10 @@ export default class Node extends Vue {
     };
   }
 
+  public getLabel(): string {
+    return this.label;
+  }
+
   public getCenter(): Point {
     return {
       x: this.x + this.width / 2,

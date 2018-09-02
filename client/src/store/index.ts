@@ -12,6 +12,7 @@ import panels from '@/store/panels';
 import router from '@/store/router';
 import systemOptions from '@/store/system-options';
 import user from '@/store/user';
+import flowsense from '@/store/flowsense';
 import { RootState } from './types';
 
 Vue.use(Vuex);
@@ -29,6 +30,7 @@ export const defaultStore = {
     router,
     systemOptions,
     user,
+    flowsense,
   },
 };
 

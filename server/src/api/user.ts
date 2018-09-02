@@ -1,5 +1,6 @@
 import { Express, Response, Request, NextFunction } from 'express';
 import { check  } from 'express-validator/check';
+import bcrypt from 'bcrypt-nodejs';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import User, { UserModel } from '../models/user';
@@ -41,7 +42,7 @@ const userApi = (app: Express) => {
       password: req.body.password,
       email: req.body.email,
     });
-
+    // Password is hashed with mongoose middleware in models/user.ts.
     user.save((err: mongoose.Error) => {
       if (err) {
         return next(err);
@@ -50,7 +51,10 @@ const userApi = (app: Express) => {
         if (loginErr) {
           return next(loginErr);
         }
-        return res.json({ username: user.username });
+        return res.json({
+          username: user.username,
+          email: user.email,
+        });
       });
     });
   });
@@ -67,7 +71,10 @@ const userApi = (app: Express) => {
         if (loginErr) {
           return next(loginErr);
         }
-        return res.json({ username: user.username });
+        return res.json({
+          username: user.username,
+          email: user.email,
+        });
       });
     })(req, res, next);
   });
@@ -78,7 +85,36 @@ const userApi = (app: Express) => {
   });
 
   app.post('/api/user/whoami', (req: Request, res: Response) => {
-    return res.json({ username: (req.user && req.user.username) || '' });
+    if (!req.user) {
+      return res.json({ username: '', email: '' });
+    }
+    return res.json({
+      username: req.user.username,
+      email: req.user.email,
+    });
+  });
+
+  app.post('/api/user/changePassword', [
+    check('password').exists(),
+    check('newPassword')
+      .isLength({ min: 6 }).withMessage('new password must be at least 6 characters long'),
+    check('confirmNewPassword', 'new passwords do not match')
+      .custom((newPassword, { req }) => newPassword === req.body.newPassword),
+    checkValidationResults,
+  ], (req: Request, res: Response, next: NextFunction) => {
+    User.findOne({ username: req.user.username }).then(user => {
+      if (!bcrypt.compareSync(req.body.password, user.password)) {
+        return res.status(401).send('incorrect password');
+      }
+      user.password = req.body.newPassword;
+      // Resave the user object. Password is hashed with mongoose middleware in models/user.ts.
+      user.save((err: mongoose.Error) => {
+        if (err) {
+          return next(err);
+        }
+        res.status(200).send();
+      });
+    });
   });
 };
 

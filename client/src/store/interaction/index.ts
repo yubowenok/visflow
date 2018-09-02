@@ -182,6 +182,7 @@ const mutations = {
 
   clickBackground: (state: InteractionState) => {
     helper.deselectAllNodes();
+    helper.closeFlowsenseInput();
     window.getSelection().removeAllRanges(); // clear accidental browser range selection
   },
 

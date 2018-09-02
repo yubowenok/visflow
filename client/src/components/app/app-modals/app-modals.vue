@@ -6,6 +6,7 @@
   <login-modal></login-modal>
   <signup-modal></signup-modal>
   <profile-modal></profile-modal>
+  <password-modal></password-modal>
   <message-modal></message-modal>
   <progress-modal></progress-modal>
 </div>

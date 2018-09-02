@@ -4,13 +4,14 @@ import ns from '@/store/namespaces';
 import { Node, injectNodeTemplate } from '@/components/node';
 import template from './data-source.html';
 import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
-import { DatasetInfo } from '@/components/dataset-list/dataset-list';
+import { DatasetInfo } from '@/store/dataset/types';
 import { systemMessageErrorHandler } from '@/common/util';
 import { GetDatasetOptions } from '@/store/dataset';
 import { parseCsv } from '@/data/parser';
 import { SubsetPackage } from '@/data/package';
 import { SubsetOutputPort } from '@/components/port';
 import * as history from './history';
+import TabularDataset from '@/data/tabular-dataset';
 
 export interface DataSourceSave {
   datasetInfo: DatasetInfo | null;
@@ -30,9 +31,14 @@ export default class DataSource extends Node {
   protected DEFAULT_HEIGHT = 30;
 
   @ns.user.State('username') private username!: string;
-  @ns.dataset.Action('getDataset') private getDataset!: (options: GetDatasetOptions) => Promise<string>;
+  @ns.dataset.Action('getDataset') private dispatchGetDataset!: (options: GetDatasetOptions) => Promise<string>;
 
   private datasetInfo: DatasetInfo | null = null;
+  private dataset: TabularDataset | null = null;
+
+  public getDataset(): TabularDataset | null {
+    return this.dataset;
+  }
 
   public setDatasetInfo(datasetInfo: DatasetInfo) {
     this.datasetInfo = datasetInfo;
@@ -77,12 +83,17 @@ export default class DataSource extends Node {
       console.error('fetchDataset() called when data source has no dataset set');
       return;
     }
-    this.getDataset({
+    const datasetName = this.datasetInfo.originalname;
+    this.dispatchGetDataset({
       username: this.username,
       filename: this.datasetInfo.filename,
     }).then((csv: string) => {
       const outputPort = this.outputPortMap.out;
+
       const dataset = parseCsv(csv);
+      dataset.setName(datasetName);
+
+      this.dataset = dataset;
       outputPort.updatePackage(new SubsetPackage(dataset));
       this.portUpdated(outputPort);
     }).catch(systemMessageErrorHandler(this.$store));

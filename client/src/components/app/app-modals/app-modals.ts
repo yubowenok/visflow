@@ -9,6 +9,7 @@ import LoadDiagramModal from '@/components/modals/load-diagram-modal/load-diagra
 import LoginModal from '@/components/modals/login-modal/login-modal';
 import SignupModal from '@/components/modals/signup-modal/signup-modal';
 import ProfileModal from '@/components/modals/profile-modal/profile-modal';
+import PasswordModal from '@/components/modals/password-modal/password-modal';
 import MessageModal from '@/components/modals/message-modal/message-modal';
 import ProgressModal from '@/components/modals/progress-modal/progress-modal';
 
@@ -20,6 +21,7 @@ import ProgressModal from '@/components/modals/progress-modal/progress-modal';
     LoginModal,
     SignupModal,
     ProfileModal,
+    PasswordModal,
     MessageModal,
     ProgressModal,
   },

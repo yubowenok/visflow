@@ -12,4 +12,5 @@ export default {
   router: namespace('router'),
   systemOptions: namespace('systemOptions'),
   user: namespace('user'),
+  flowsense: namespace('flowsense'),
 };

@@ -110,7 +110,10 @@ export const actions = {
   listDiagram(context: ActionContext<DataflowState, RootState>): Promise<DiagramInfo[]> {
     return new Promise((resolve, reject) => {
       axiosPost<DiagramInfo[]>('/diagram/list')
-        .then(res => resolve(res.data))
+        .then(res => {
+          context.state.lastDiagramList = res.data;
+          resolve(res.data);
+        })
         .catch(err => reject(errorMessage(err)));
     });
   },

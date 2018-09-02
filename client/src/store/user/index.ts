@@ -1,43 +1,42 @@
-import { Module, ActionContext } from 'vuex';
+import { Module, ActionContext, Action } from 'vuex';
 import store, { RootState } from '@/store';
 
-import { UserState } from './types';
+import { UserState, UserInfo, LoginProfile, SignupProfile, ChangePasswordProfile } from './types';
 import { axiosPost, errorMessage } from '@/common/util';
-
-export interface SignupProfile {
-  username: string;
-  password: string;
-  confirmPassword: string;
-  email: string;
-}
-
-export interface LoginProfile {
-  username: string;
-  password: string;
-}
 
 const initialState: UserState = {
   username: '',
   errorMessage: '',
 
+  userInfo: {
+    username: '',
+    email: '',
+  },
   loginCallback: undefined,
 };
 
-const getters = {
-};
-
 const mutations = {
-  loginUser: (state: UserState, username: string) => {
-    state.username = username;
+  loginUser: (state: UserState, userInfo: UserInfo) => {
+    state.userInfo = userInfo;
+    state.username = userInfo.username;
   },
 
   logoutUser: (state: UserState) => {
+    state.userInfo = { username: '', email: '' };
     state.username = '';
   },
 
   resetMessage: (state: UserState) => {
     state.errorMessage = '';
   },
+};
+
+/**
+ * Dispatches user related actions upon login.
+ */
+const onLogin = (context: ActionContext<UserState, RootState>) => {
+  context.dispatch('dataflow/listDiagram', null, { root: true });
+  context.dispatch('dataset/listDataset', null, { root: true });
 };
 
 const actions = {
@@ -52,9 +51,10 @@ const actions = {
 
   login(context: ActionContext<UserState, RootState>, profile: LoginProfile): Promise<string> {
     return new Promise((resolve, reject) => {
-      axiosPost<{ username: string }>('/user/login', profile)
+      axiosPost<UserInfo>('/user/login', profile)
         .then(res => {
-          context.commit('loginUser', res.data.username);
+          context.commit('loginUser', res.data);
+          onLogin(context);
           resolve(res.data.username);
           if (context.state.loginCallback) {
             context.state.loginCallback();
@@ -77,9 +77,9 @@ const actions = {
 
   signup(context: ActionContext<UserState, RootState>, profile: SignupProfile): Promise<string> {
     return new Promise((resolve, reject) => {
-      axiosPost<{ username: string }>('/user/signup', profile)
+      axiosPost<UserInfo>('/user/signup', profile)
         .then(res => {
-          context.commit('loginUser', res.data.username);
+          context.commit('loginUser', res.data);
           resolve(res.data.username);
         })
         .catch(err => reject(errorMessage(err)));
@@ -92,12 +92,24 @@ const actions = {
    */
   whoami(context: ActionContext<UserState, RootState>): Promise<string> {
     return new Promise((resolve, reject) => {
-      axiosPost<{ username: string }>('/user/whoami', {})
+      axiosPost<UserInfo>('/user/whoami', {})
         .then(res => {
-          context.commit('loginUser', res.data.username);
+          context.commit('loginUser', res.data);
+          onLogin(context);
           resolve(res.data.username || '');
         })
         .catch(err => reject(errorMessage(err)));
+    });
+  },
+
+  /**
+   * Updates password.
+   */
+  changePassword(context: ActionContext<UserState, RootState>, profile: ChangePasswordProfile): Promise<void> {
+    return new Promise((resolve, reject) => {
+      axiosPost<void>('/user/changePassword', profile)
+      .then(() => resolve())
+      .catch(err => reject(errorMessage(err)));
     });
   },
 };
@@ -105,7 +117,6 @@ const actions = {
 const user: Module<UserState, RootState> = {
   namespaced: true,
   state: initialState,
-  getters,
   mutations,
   actions,
 };

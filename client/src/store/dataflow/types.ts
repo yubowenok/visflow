@@ -1,6 +1,6 @@
 import { Node, NodeSave } from '@/components/node';
 import { InputPort, OutputPort } from '@/components/port';
-import Edge, { EdgeSave } from '@/components/edge/edge';
+import { EdgeSave } from '@/components/edge/edge';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 
 export interface DataflowState {
@@ -13,6 +13,8 @@ export interface DataflowState {
   filename: string; // Filename stored on the server. This must be unique must is invisible to the user.
 
   isDeserializing: boolean;
+
+  lastDiagramList: DiagramInfo[] | null;
 }
 
 export interface NodeType {

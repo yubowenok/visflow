@@ -15,6 +15,7 @@ interface ModalsState {
   loginModalVisible: boolean;
   signupModalVisible: boolean;
   profileModalVisible: boolean;
+  passwordModalVisible: boolean;
 
   messageModalVisible: boolean;
   messageModalOptions: MessageModalOptions;
@@ -35,6 +36,7 @@ const initialState: ModalsState = {
   loginModalVisible: false,
   signupModalVisible: false,
   profileModalVisible: false,
+  passwordModalVisible: false,
 
   messageModalVisible: false,
   messageModalOptions: {
@@ -135,6 +137,14 @@ const mutations = {
 
   closeMessageModal(state: ModalsState) {
     state.messageModalVisible = false;
+  },
+
+  openPasswordModal(state: ModalsState) {
+    state.passwordModalVisible = true;
+  },
+
+  closePasswordModal(state: ModalsState) {
+    state.passwordModalVisible = false;
   },
 
   startProgress(state: ModalsState, message?: string) {

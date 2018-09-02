@@ -1,5 +1,5 @@
 import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
-import { DatasetInfo } from '@/components/dataset-list/dataset-list';
+import { DatasetInfo } from '@/store/dataset/types';
 import DataSource from '@/components/data-source/data-source';
 
 enum DataSourceEventType {

@@ -64,6 +64,9 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
       // TODO: debug use only
       debugger; // tslint:disable-line
       break;
+    case 'shift+s':
+      store.commit('flowsense/openInput');
+      break;
     default:
       // Pass the keyboard command to selected nodes.
       let handledByNode = false;
@@ -86,4 +89,11 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
   state.altPressed = false;
   state.shiftPressed = false;
   */
+};
+
+/**
+ * Closes Flowsense input.
+ */
+export const closeFlowsenseInput = () => {
+  store.commit('flowsense/closeInput');
 };

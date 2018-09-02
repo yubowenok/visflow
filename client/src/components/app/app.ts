@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import $ from 'jquery';
 import '@/common/jquery-ui';
 
+import ns from '@/store/namespaces';
 import AppHeader from '@/components/app-header/app-header';
 import AppModals from './app-modals/app-modals';
 import SystemMessage from '@/components/system-message/system-message';
@@ -11,7 +12,7 @@ import NodePanel from '@/components/node-panel/node-panel';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 import QuickNodePanel from '@/components/quick-node-panel/quick-node-panel';
 import HistoryPanel from '@/components/history-panel/history-panel';
-import ns from '@/store/namespaces';
+import FlowsenseInput from '@/components/flowsense-input/flowsense-input';
 import { systemMessageErrorHandler } from '@/common/util';
 
 @Component({
@@ -24,6 +25,7 @@ import { systemMessageErrorHandler } from '@/common/util';
     HistoryPanel,
     DataflowCanvas,
     AppModals,
+    FlowsenseInput,
   },
 })
 export default class App extends Vue {

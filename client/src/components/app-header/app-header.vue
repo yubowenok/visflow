@@ -26,6 +26,7 @@
         <vis-mode-bar></vis-mode-bar>
         <drag-bar></drag-bar>
         <dataset-bar></dataset-bar>
+        <flowsense-bar></flowsense-bar>
 
         <user-bar></user-bar>
       </b-navbar-nav>

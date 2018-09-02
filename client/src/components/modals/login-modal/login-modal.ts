@@ -1,7 +1,7 @@
 import { Vue, Component } from 'vue-property-decorator';
 
 import ns from '@/store/namespaces';
-import { LoginProfile } from '@/store/user';
+import { LoginProfile } from '@/store/user/types';
 import { showSystemMessage } from '@/common/util';
 import BaseModal from '../base-modal/base-modal';
 

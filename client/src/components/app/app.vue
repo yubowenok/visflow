@@ -6,6 +6,7 @@
   <node-panel></node-panel>
   <quick-node-panel></quick-node-panel>
   <history-panel></history-panel>
+  <flowsense-input></flowsense-input>
   <div id="canvas" @contextmenu.prevent.stop="$refs.contextMenu.open">
     <dataflow-canvas ref="dataflowCanvas"></dataflow-canvas>
   </div>

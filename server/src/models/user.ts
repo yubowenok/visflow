@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt-nodejs';
 import mongoose from 'mongoose';
 import { NextFunction } from 'express';
 
+const PASSWORD_SALT_ROUND = 10;
+
 export interface UserModel extends mongoose.Document {
   username: string;
   email: string;
@@ -17,24 +19,33 @@ const userSchema = new mongoose.Schema({
 
 userSchema.index({ username: 1 }, { unique: true });
 
-userSchema.pre('save', function(next: NextFunction) {
+const hashPassword = (password: string, callback: (err: Error, hash: string) => void) => {
+  bcrypt.genSalt(PASSWORD_SALT_ROUND, (err: Error, salt: string) => {
+    if (err) {
+      return callback(err, '');
+    }
+    bcrypt.hash(password, salt, undefined, (mongooseErr: mongoose.Error, hash) => {
+      if (mongooseErr) {
+        return callback(mongooseErr, '');
+      }
+      callback(null, hash);
+    });
+  });
+};
+
+userSchema.pre('save', function(next: NextFunction) { // Must user funciton to access "this".
   const user = this as UserModel;
   /*
   if (!user.isModified('password')) {
     return next();
   }
   */
-  bcrypt.genSalt(10, (err: Error, salt: string) => {
+  hashPassword(user.password, (err, hash) => {
     if (err) {
       return next(err);
     }
-    bcrypt.hash(user.password, salt, undefined, (mongooseErr: mongoose.Error, hash) => {
-      if (mongooseErr) {
-        return next(mongooseErr);
-      }
-      user.password = hash;
-      next();
-    });
+    user.password = hash;
+    next();
   });
 });
 

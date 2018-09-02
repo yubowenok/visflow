@@ -2,7 +2,7 @@ import { Module, ActionContext } from 'vuex';
 import { RootState } from '@/store';
 
 import { axiosPost, errorMessage } from '@/common/util';
-import { DatasetInfo } from '@/components/dataset-list/dataset-list';
+import { DatasetInfo } from './types';
 
 interface CachedDataset {
   username: string;
@@ -17,6 +17,7 @@ interface DatasetCache {
 
 interface DatasetState {
   cache: DatasetCache;
+  lastList: DatasetInfo[];
 }
 
 export interface GetDatasetOptions {
@@ -29,6 +30,7 @@ const getDatasetFromCache = (cache: DatasetCache, key: string): CachedDataset | 
 };
 
 const initialState: DatasetState = {
+  lastList: [],
   cache: {},
 };
 
@@ -81,10 +83,13 @@ const actions = {
     });
   },
 
-  listDataset(conntext: ActionContext<DatasetState, RootState>): Promise<DatasetInfo[]> {
+  listDataset(context: ActionContext<DatasetState, RootState>): Promise<DatasetInfo[]> {
     return new Promise((resolve, reject) => {
       axiosPost<DatasetInfo[]>('/dataset/list')
-        .then(res => resolve(res.data))
+        .then(res => {
+          context.state.lastList = res.data;
+          resolve(res.data);
+        })
         .catch(err => reject(errorMessage(err)));
     });
   },

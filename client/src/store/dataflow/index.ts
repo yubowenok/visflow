@@ -2,7 +2,7 @@ import { Module } from 'vuex';
 import store, { RootState } from '@/store';
 import _ from 'lodash';
 
-import { DataflowState, CreateNodeOptions, CreateEdgeOptions } from './types';
+import { DataflowState, CreateNodeOptions, CreateEdgeOptions, NodeType } from './types';
 import * as helper from './helper';
 import * as saveLoad from './save-load';
 import * as nodeTypes from './node-types';
@@ -15,6 +15,8 @@ import Edge from '@/components/edge/edge';
 import Port from '@/components/port/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 import { HistoryDiagramEvent } from '@/store/history/types';
+import TabularDataset from '@/data/tabular-dataset';
+import DataSource from '@/components/data-source/data-source';
 
 
 /** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
@@ -28,6 +30,7 @@ export const getInitialState = (): DataflowState => ({
   filename: '',
   diagramName: '',
   isDeserializing: false,
+  lastDiagramList: null,
 });
 
 export const initialState: DataflowState = getInitialState();
@@ -46,6 +49,28 @@ const getters = {
    */
   getImgSrc: (state: DataflowState): (type: string) => string => {
     return (type: string) => nodeTypes.getImgSrc(type);
+  },
+
+  /**
+   * Retrieves the supported node types.
+   */
+  nodeTypes: (state: DataflowState): NodeType[] => {
+    return nodeTypes.nodeTypes;
+  },
+
+  /**
+   * Retrieves the node labels used in the diagram.
+   */
+  nodeLabels: (state: DataflowState): string[] => {
+    return state.nodes.map(node => node.getLabel());
+  },
+
+  /**
+   * Retrieves the tabular datasets used in the diagram.
+   */
+  tabularDatasets: (state: DataflowState): TabularDataset[] => {
+    return state.nodes.filter(node => node.nodeType === 'data-source' && (node as DataSource).getDataset())
+      .map(node => (node as DataSource).getDataset() as TabularDataset);
   },
 };
 

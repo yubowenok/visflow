@@ -1,6 +1,6 @@
 import { Vue, Component } from 'vue-property-decorator';
 import ns from '@/store/namespaces';
-import { SignupProfile } from '@/store/user';
+import { SignupProfile } from '@/store/user/types';
 import { showSystemMessage } from '@/common/util';
 import BaseModal from '../base-modal/base-modal';
 
