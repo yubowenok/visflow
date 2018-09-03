@@ -1,8 +1,10 @@
 <template>
-<input v-model="text" @input="onInput" class="form-control"
+<input ref="input" v-model="text" @input="onInput" class="form-control"
   :disabled="disabled"
   :maxlength="maxlength"
   @blur="save"
+  @select="onSelect"
+  @keydown="onKeydown"
   @keyup.enter.esc="save"
 />
 </template>

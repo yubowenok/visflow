@@ -7,10 +7,11 @@ import FormInput from '@/components/form-input/form-input';
 import { DatasetInfo } from '@/store/dataset/types';
 import TabularDataset from '@/data/tabular-dataset';
 import { NodeType } from '@/store/dataflow/types';
-import { showSystemMessage } from '@/common/util';
+import { showSystemMessage, areRangesIntersected } from '@/common/util';
+
+const DROPDOWN_MARGIN_PX = 10;
 
 enum FlowsenseTokenCategory {
-  UNKNOWN = 'unknown', // token category not yet checked
   NONE = 'none', // no identifiable category
   DATASET = 'dataset',
   COLUMN = 'column',
@@ -18,12 +19,31 @@ enum FlowsenseTokenCategory {
   NODE_LABEL = 'node-label',
 }
 
-interface FlowsenseToken {
-  index: number;
+interface DropdownElement {
   text: string;
-  value: string[];
-  category: FlowsenseTokenCategory;
+  annotation: string; // additional description of the entry, such as the dataset name a column belongs to
+  class: string;
+  onClick: () => void;
+}
+
+interface ManualCategory {
+  startIndex: number;
+  endIndex: number; // exclusive on the last character
+  chosenCategory: number;
+}
+
+interface FlowsenseToken {
+  index: number; // The start index of the token as it appears in the whole input text
+  text: string;
+  chosenCategory: number; // -1 is category not yet checked
+  categories: Array<{
+    displayText?: string;
+    annotation?: string;
+    value: string[];
+    category: FlowsenseTokenCategory;
+  }>;
   manuallySet: boolean;
+  isPhrase: boolean; // Is a token in a multi-gram phrase (not at the first position)
 }
 
 /**
@@ -59,7 +79,9 @@ const matchToken = (target: string, pattern: string, threshold?: number): boolea
   }
   for (let i = 1; i <= n; i++) {
     for (let j = 1; j <= m; j++) {
-      dp[i][j] = Math.min(dp[i][j - 1], dp[i - 1][j]) + 1;
+      const costi = isSeparator(target[i - 1]) ? 0 : 1;
+      const costj = isSeparator(pattern[j - 1]) ? 0 : 1;
+      dp[i][j] = Math.min(dp[i][j - 1] + costj, dp[i - 1][j] + costi);
       if (target[i - 1] === pattern[j - 1]) {
         dp[i][j] = dp[i - 1][j - 1];
       } else {
@@ -90,15 +112,37 @@ export default class FlowsenseInput extends Vue {
   private prevText = '';
   private calibratedText = '';
   private voice: Annyang = annyang as Annyang;
+  private isVoiceInProgress = false;
+
+  private dropdownElements: DropdownElement[] = [];
+  private clickX = 0;
+  private clickY = 0;
+  private manualCategories: ManualCategory[] = [];
+
+  get microphoneClass() {
+    return this.isVoiceInProgress ? 'active' : '';
+  }
+
+  get dropdownStyle() {
+    return {
+      left: this.clickX + 'px',
+      top: this.clickY + 'px',
+    };
+  }
 
   private mounted() {
-    this.voice.addCallback('resultNoMatch', possiblePhrases => {
+    this.voice.addCallback('soundstart', () => {
+      this.isVoiceInProgress = true;
+    });
+    this.voice.addCallback('result', possiblePhrases => {
       const phrases: string[] = possiblePhrases as any; // tslint:disable-line no-any
       console.log(phrases);
       const cursorPosition = this.getCursorPosition();
       const newText = this.text.slice(0, cursorPosition) + phrases[0] + this.text.slice(cursorPosition);
-      console.log(newText);
       this.onTextInput(newText);
+      this.isVoiceInProgress = false;
+      this.voice.abort();
+      this.voice.start();
     });
   }
 
@@ -112,9 +156,13 @@ export default class FlowsenseInput extends Vue {
         this.tokens[numTokens++] = {
           index: i,
           text: text[i],
-          value: [text[i]],
-          category: FlowsenseTokenCategory.NONE,
+          chosenCategory: 0,
+          categories: [{
+            category: FlowsenseTokenCategory.NONE,
+            value: [],
+          }],
           manuallySet: false,
+          isPhrase: false,
         };
         continue;
       }
@@ -123,16 +171,19 @@ export default class FlowsenseInput extends Vue {
       while (j < text.length && !isSeparator(text[j])) {
         tokenText += text[j++];
       }
-      const token = this.tokens[numTokens];
-      if (token === undefined || token.index !== i || token.text !== tokenText) {
-        this.tokens[numTokens] = {
-          index: i,
-          text: tokenText,
-          value: [tokenText], // default value of a token is its text
-          category: FlowsenseTokenCategory.UNKNOWN,
-          manuallySet: false,
-        };
-      }
+      this.tokens[numTokens] = {
+        index: i,
+        text: tokenText,
+        chosenCategory: -1,
+        categories: [{
+          category: FlowsenseTokenCategory.NONE,
+          displayText: '',
+          annotation: '/(none)',
+          value: [],
+        }],
+        manuallySet: false,
+        isPhrase: false,
+      };
       numTokens++;
       i = j - 1;
     }
@@ -145,60 +196,94 @@ export default class FlowsenseInput extends Vue {
    * Performs exact match on tokens to avoid input text length changes while the user is typing.
    */
   private checkTokenCategories() {
-    this.tokens.forEach(token => {
-      if (token.category !== FlowsenseTokenCategory.UNKNOWN && token.manuallySet) {
+    this.tokens.forEach((token, index) => {
+      if (token.chosenCategory !== -1 && token.manuallySet) {
         // If the token's category is manually set, do not update.
         return;
       }
-
-      this.datasetList.forEach(dataset => {
-        const matchedRawName = dataset.originalname.match(/^(.*)\..*/);
-        const rawName = matchedRawName !== null ? matchedRawName[1] : null;
-        if (matchToken(token.text, dataset.originalname) || (rawName && matchToken(token.text, rawName))) {
-          token.category = FlowsenseTokenCategory.DATASET;
-          token.text = rawName || dataset.originalname;
-          token.value = [dataset.filename];
+      if (isSeparator(token.text)) { // skip separator
+        return;
+      }
+      if (token.isPhrase) { // Skip identified compound tokens in a phrase.
+        return;
+      }
+      let iteration = 2;
+      while (iteration--) {
+        if (iteration === 0 && index + 2 >= this.tokens.length) {
+          continue;
         }
-      });
-
-      this.nodeTypes.forEach(nodeType => {
-        if (matchToken(token.text, nodeType.id) || matchToken(token.text, nodeType.title)) {
-          token.category = FlowsenseTokenCategory.NODE_TYPE;
-          token.text = nodeType.title.toLowerCase();
-          token.value = [nodeType.id];
-        }
-      });
-
-      this.nodeLabels.forEach(label => {
-        if (matchToken(token.text, label)) {
-          token.category = FlowsenseTokenCategory.NODE_LABEL;
-          token.text = label;
-          token.value = [label];
-        }
-      });
-
-      this.tabularDatasets.forEach(tabularDataset => {
-        const columnNames = tabularDataset.getColumns().map(column => column.name);
-        for (const name of columnNames) {
-          if (matchToken(token.text, name)) {
-            token.category = FlowsenseTokenCategory.COLUMN;
-            token.text = name;
-            token.value = [name, tabularDataset.getName(), tabularDataset.getHash()];
+        const tokenText = iteration === 1 ? token.text :
+          token.text + this.tokens[index + 1].text + this.tokens[index + 2].text;
+        this.datasetList.forEach(dataset => {
+          const matchedRawName = dataset.originalname.match(/^(.*)\..*/);
+          const rawName = matchedRawName !== null ? matchedRawName[1] : null;
+          if (matchToken(tokenText, dataset.originalname) || (rawName && matchToken(tokenText, rawName))) {
+            token.categories.push({
+              category: FlowsenseTokenCategory.DATASET,
+              displayText: dataset.originalname,
+              annotation: '/dataset',
+              value: [dataset.originalname, dataset.filename],
+            });
           }
-        }
-      });
+        });
 
-      if (token.category === FlowsenseTokenCategory.UNKNOWN) {
-        token.category = FlowsenseTokenCategory.NONE;
+        this.nodeTypes.forEach(nodeType => {
+          if (matchToken(tokenText, nodeType.id) || matchToken(tokenText, nodeType.title)) {
+            token.categories.push({
+              category: FlowsenseTokenCategory.NODE_TYPE,
+              displayText: nodeType.title,
+              annotation: '/node type',
+              value: [nodeType.id],
+            });
+          }
+        });
+
+        this.nodeLabels.forEach(label => {
+          if (matchToken(tokenText, label)) {
+            token.categories.push({
+              category: FlowsenseTokenCategory.NODE_LABEL,
+              displayText: label,
+              annotation: '/node label',
+              value: [label],
+            });
+          }
+        });
+
+        this.tabularDatasets.forEach(tabularDataset => {
+          const columnNames = tabularDataset.getColumns().map(column => column.name);
+          for (const name of columnNames) {
+            if (matchToken(tokenText, name)) {
+              token.categories.push({
+                category: FlowsenseTokenCategory.COLUMN,
+                displayText: name,
+                annotation: '/column ' + tabularDataset.getName(),
+                value: [name, tabularDataset.getName(), tabularDataset.getHash()],
+              });
+            }
+          }
+        });
+
+        if (token.categories.length > 1) {
+          const manual = this.manualCategories.find(category => category.startIndex === token.index);
+          token.chosenCategory = manual !== undefined ? manual.chosenCategory : 1;
+          break;
+        }
+      }
+      if (token.chosenCategory === -1) {
+        token.chosenCategory = 0;
+      } else if (iteration === 0) { // bigram identified
+        token.text += this.tokens[index + 1].text + this.tokens[index + 2].text;
+        this.tokens[index + 1].isPhrase = this.tokens[index + 2].isPhrase = true;
       }
     });
+    this.tokens = this.tokens.filter(token => !token.isPhrase);
   }
 
   /**
    * Parses the text input.
-   * TODO: Currently we put a limit on the maximum input length, as the UI does not handle long query that exceeds the
-   * width of the input box. A long query will cause the input box to horizontally scroll. But the "tag-row" is so far
-   * designed to overlap the input text. When scroll happens, the overlap will mess up.
+   * TODO: Currently we put a limit on the maximum input length based on the input box width, as the UI does not handle
+   * long query that exceeds the width of the input box. A long query will cause the input box to horizontally scroll.
+   * But the "tag-row" is so far designed to overlap the input text. When scroll happens, the overlap will mess up.
    */
   private onTextInput(text: string | null) {
     const finalText = text || '';
@@ -207,17 +292,49 @@ export default class FlowsenseInput extends Vue {
       const width = $(this.$el).find('.width-calibration').width() as number;
       const maxWidth = ($(this.$el).find('#input').width() as number) -
         ($(this.$el).find('#mic').outerWidth() as number);
+      const cursorPosition = this.getCursorPosition();
       if (width > maxWidth) {
         showSystemMessage(this.$store, 'exceeded maximum query length', 'warn');
-        const cursorPosition = this.getCursorPosition();
         this.text = ''; // Clear the text so that form-input can upate <input>'s value properly
         this.$nextTick(() => { // Wait for next tick, otherwise <input> will not get value update.
           this.text = this.prevText;
           this.parseInput(this.text);
-          this.$nextTick(() => this.setCursorPosition(cursorPosition - 1));
+          this.$nextTick(() => this.setCursorPosition(cursorPosition === this.text.length ?
+            cursorPosition : cursorPosition - 1));
         });
         return;
       }
+
+      const edit = (this.$refs.input as FormInput).getLastEdit();
+      // deltaLength characters have been inserted/removed at index cursorPosition.
+      // All manually identified category ranges that are after the cursor position are shifted.
+      let deltaLength = 0;
+      if (edit.type === 'insert' || edit.type === 'delete') {
+        deltaLength = edit.value.length;
+      } else if (edit.type === 'replace') {
+        deltaLength = edit.value.length - (edit.endIndex - edit.startIndex);
+      }
+      // Note that when edit.type is 'undo', there is currently no way to determine the precise changes on the text.
+      // So we cannot preserve the manually set token categories correctly when the undo changes the index of a
+      // manually categorized token.
+
+      // When deltaLength is zero, it is a single-character replacement
+      this.manualCategories = this.manualCategories.map(range => {
+        // If an insertion, deletion, or replacement happens within a manual category range,
+        // the range is no longer valid and removed.
+        if (edit.type === 'insert' && range.startIndex < edit.startIndex && edit.startIndex < range.endIndex) {
+          // Insert strictly within the token.
+          return null;
+        } else if (areRangesIntersected([range.startIndex, range.endIndex - 1], [edit.startIndex, edit.endIndex - 1])) {
+          // Delete or replace touches the range if the two index ranges intersect.
+          return null;
+        }
+        if (range.startIndex >= edit.startIndex) {
+          range.startIndex += deltaLength;
+          range.endIndex += deltaLength;
+        }
+        return range;
+      }).filter(category => category !== null) as ManualCategory[];
       this.prevText = finalText;
       this.parseInput(finalText);
       this.text = this.tokens.map(token => token.text).join('');
@@ -242,17 +359,45 @@ export default class FlowsenseInput extends Vue {
     console.log(text);
   }
 
+  private clickToken(evt: MouseEvent, index: number) {
+    const $target = $(evt.target as Element);
+    this.clickX = ($target.offset() as JQuery.Coordinates).left;
+    this.clickY = ($target.offset() as JQuery.Coordinates).top + ($target.height() as number) + DROPDOWN_MARGIN_PX;
+    this.dropdownElements = this.tokens[index].categories.map((category, categoryIndex) => ({
+      text: category.displayText || '',
+      annotation: category.annotation || '',
+      class: category.category !== FlowsenseTokenCategory.NONE ? 'categorized ' + category.category : '',
+      onClick: () => {
+        this.tokens[index].chosenCategory = categoryIndex;
+        const existing = this.manualCategories.find(range => range.startIndex === this.tokens[index].index &&
+          range.endIndex === this.tokens[index].index + this.tokens[index].text.length);
+        if (existing) {
+          existing.chosenCategory = categoryIndex;
+        } else {
+          this.manualCategories.push({
+            startIndex: this.tokens[index].index,
+            endIndex: this.tokens[index].index + this.tokens[index].text.length,
+            chosenCategory: categoryIndex,
+          });
+        }
+        this.dropdownElements = []; // hide dropdown
+      },
+    }));
+  }
+
   @Watch('visible')
   private onVisibleChange() {
+    this.dropdownElements = []; // hide dropdown whenever visibility changes
     this.onVoiceEnabledChange();
   }
 
   @Watch('isVoiceEnabled')
   private onVoiceEnabledChange() {
     if (this.visible && this.isVoiceEnabled) {
-      this.voice.start({ autoRestart: true, continuous: true });
+      this.voice.start();
     } else {
       console.log('abort');
+      this.isVoiceInProgress = false;
       this.voice.abort();
     }
   }

@@ -447,7 +447,7 @@ export default class Node extends Vue {
   }
 
   protected created() {
-    this.label = this.id;
+    this.label = this.label || this.id;
 
     this.createPorts();
     this.createPortMap();
@@ -785,9 +785,16 @@ export default class Node extends Vue {
   private appear() {
     TweenLite.from(this.$refs.node, DEFAULT_ANIMATION_DURATION_S, {
       scale: 1.5,
-      // When the node is deserialized, without this the port coordinates are never computed after scaling.
       onComplete: () => {
+        // When the node is deserialized, without this the port coordinates are never computed after scaling.
         this.updatePortCoordinates();
+
+        // When the node is deserialized, its label does not animate to the correct position before the node appears.
+        if (this.isLabelVisible) {
+          this.isLabelVisible = false;
+          this.$nextTick(() => this.isLabelVisible = true);
+        }
+
         this.onMounted();
       },
     });
