@@ -116,3 +116,12 @@
     }
   }
 }
+
+.fa-spin {
+  float: right;
+  position: absolute;
+  top: .5rem;
+  left: -1.75rem;
+  font-size: 1.25rem;
+  color: $theme-green;
+}

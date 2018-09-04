@@ -68,7 +68,6 @@ export default class FormInput extends Vue {
         edit.value = l === r ? this.prevEditText[l - 1] : this.prevEditText.slice(l, r);
       }
     }
-    console.warn(edit, l, r);
     return edit;
   }
 
@@ -86,8 +85,6 @@ export default class FormInput extends Vue {
   }
 
   private onKeydown(evt: KeyboardEvent) {
-
-    console.log(evt);
     this.prevEditText = this.text;
     this.updateSelectionRange();
   }

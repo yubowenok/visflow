@@ -41,6 +41,8 @@ export default class App extends Vue {
   @ns.interaction.Mutation('keyup') private interactionKeyup!: (evt: JQuery.Event) => void;
   @ns.interaction.Mutation('mouseup') private interactionMouseup!: () => void;
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
+  @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: () => void;
+  @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
 
   get diagramShareLink(): string {
     return this.$route.params.shareLink;

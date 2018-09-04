@@ -1,4 +1,4 @@
-import { Module, ActionContext, Action } from 'vuex';
+import { Module, ActionContext  } from 'vuex';
 import store, { RootState } from '@/store';
 
 import { UserState, UserInfo, LoginProfile, SignupProfile, ChangePasswordProfile } from './types';

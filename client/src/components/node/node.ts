@@ -215,6 +215,8 @@ export default class Node extends Vue {
   @ns.interaction.Mutation('nodeDragEnded') private nodeDragEnded!: () => void;
   @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
+  @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
+  @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: () => void;
 
   public undo(evt: HistoryNodeEvent) {
     this.undoBase(evt);

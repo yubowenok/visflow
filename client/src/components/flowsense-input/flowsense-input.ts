@@ -7,17 +7,10 @@ import FormInput from '@/components/form-input/form-input';
 import { DatasetInfo } from '@/store/dataset/types';
 import TabularDataset from '@/data/tabular-dataset';
 import { NodeType } from '@/store/dataflow/types';
-import { showSystemMessage, areRangesIntersected } from '@/common/util';
+import { FlowsenseTokenCategory, FlowsenseToken, FlowsenseResult } from '@/store/flowsense/types';
+import { showSystemMessage, areRangesIntersected,  systemMessageErrorHandler } from '@/common/util';
 
 const DROPDOWN_MARGIN_PX = 10;
-
-enum FlowsenseTokenCategory {
-  NONE = 'none', // no identifiable category
-  DATASET = 'dataset',
-  COLUMN = 'column',
-  NODE_TYPE = 'node-type',
-  NODE_LABEL = 'node-label',
-}
 
 interface DropdownElement {
   text: string;
@@ -30,20 +23,6 @@ interface ManualCategory {
   startIndex: number;
   endIndex: number; // exclusive on the last character
   chosenCategory: number;
-}
-
-interface FlowsenseToken {
-  index: number; // The start index of the token as it appears in the whole input text
-  text: string;
-  chosenCategory: number; // -1 is category not yet checked
-  categories: Array<{
-    displayText?: string;
-    annotation?: string;
-    value: string[];
-    category: FlowsenseTokenCategory;
-  }>;
-  manuallySet: boolean;
-  isPhrase: boolean; // Is a token in a multi-gram phrase (not at the first position)
 }
 
 /**
@@ -106,6 +85,7 @@ export default class FlowsenseInput extends Vue {
   @ns.dataflow.Getter('nodeTypes') private nodeTypes!: NodeType[];
   @ns.dataflow.Getter('tabularDatasets') private tabularDatasets!: TabularDataset[];
   @ns.dataflow.Getter('nodeLabels') private nodeLabels!: string[];
+  @ns.flowsense.Action('query') private dispatchQuery!: (tokens: FlowsenseToken[]) => Promise<boolean>;
 
   private tokens: FlowsenseToken[] = [];
   private text = '';
@@ -113,6 +93,7 @@ export default class FlowsenseInput extends Vue {
   private calibratedText = '';
   private voice: Annyang = annyang as Annyang;
   private isVoiceInProgress = false;
+  private isWaiting = false; // waiting for query response
 
   private dropdownElements: DropdownElement[] = [];
   private clickX = 0;
@@ -214,16 +195,18 @@ export default class FlowsenseInput extends Vue {
         }
         const tokenText = iteration === 1 ? token.text :
           token.text + this.tokens[index + 1].text + this.tokens[index + 2].text;
-        this.datasetList.forEach(dataset => {
-          const matchedRawName = dataset.originalname.match(/^(.*)\..*/);
-          const rawName = matchedRawName !== null ? matchedRawName[1] : null;
-          if (matchToken(tokenText, dataset.originalname) || (rawName && matchToken(tokenText, rawName))) {
-            token.categories.push({
-              category: FlowsenseTokenCategory.DATASET,
-              displayText: dataset.originalname,
-              annotation: '/dataset',
-              value: [dataset.originalname, dataset.filename],
-            });
+
+        this.tabularDatasets.forEach(tabularDataset => {
+          const columnNames = tabularDataset.getColumns().map(column => column.name);
+          for (const name of columnNames) {
+            if (matchToken(tokenText, name)) {
+              token.categories.push({
+                category: FlowsenseTokenCategory.COLUMN,
+                displayText: name,
+                annotation: '/column ' + tabularDataset.getName(),
+                value: [name, tabularDataset.getName(), tabularDataset.getHash()],
+              });
+            }
           }
         });
 
@@ -249,17 +232,17 @@ export default class FlowsenseInput extends Vue {
           }
         });
 
-        this.tabularDatasets.forEach(tabularDataset => {
-          const columnNames = tabularDataset.getColumns().map(column => column.name);
-          for (const name of columnNames) {
-            if (matchToken(tokenText, name)) {
-              token.categories.push({
-                category: FlowsenseTokenCategory.COLUMN,
-                displayText: name,
-                annotation: '/column ' + tabularDataset.getName(),
-                value: [name, tabularDataset.getName(), tabularDataset.getHash()],
-              });
-            }
+
+        this.datasetList.forEach(dataset => {
+          const matchedRawName = dataset.originalname.match(/^(.*)\..*/);
+          const rawName = matchedRawName !== null ? matchedRawName[1] : null;
+          if (matchToken(tokenText, dataset.originalname) || (rawName && matchToken(tokenText, rawName))) {
+            token.categories.push({
+              category: FlowsenseTokenCategory.DATASET,
+              displayText: dataset.originalname,
+              annotation: '/dataset',
+              value: [dataset.originalname, dataset.filename],
+            });
           }
         });
 
@@ -355,10 +338,6 @@ export default class FlowsenseInput extends Vue {
     this.toggleFlowsenseVoice();
   }
 
-  private onTextSubmit(text: string) {
-    console.log(text);
-  }
-
   private clickToken(evt: MouseEvent, index: number) {
     const $target = $(evt.target as Element);
     this.clickX = ($target.offset() as JQuery.Coordinates).left;
@@ -385,6 +364,23 @@ export default class FlowsenseInput extends Vue {
     }));
   }
 
+  private onTextSubmit(text: string) {
+    this.isWaiting = true;
+    this.dispatchQuery(this.tokens)
+      .then(success => {
+        if (success) {
+          // If the query is successful, clear the text to get ready for the next input.
+          this.text = '';
+          this.tokens = [];
+        } else {
+          // If the query is rejected, the text is kept so that it can be edited.
+          showSystemMessage(this.$store, 'Sorry, FlowSense does not understand that query', 'warn');
+        }
+      })
+      .catch(err => systemMessageErrorHandler(this.$store)(err))
+      .finally(() => this.isWaiting = false);
+  }
+
   @Watch('visible')
   private onVisibleChange() {
     this.dropdownElements = []; // hide dropdown whenever visibility changes
@@ -396,7 +392,6 @@ export default class FlowsenseInput extends Vue {
     if (this.visible && this.isVoiceEnabled) {
       this.voice.start();
     } else {
-      console.log('abort');
       this.isVoiceInProgress = false;
       this.voice.abort();
     }

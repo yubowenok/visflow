@@ -2,8 +2,10 @@
 <transition name="fade">
   <div class="flowsense-input" v-if="visible">
     <div class="label">FlowSense</div>
+    <i v-if="isWaiting" class="fas fa-circle-notch fa-spin"></i>
     <div class="input-row">
-      <form-input id="input" ref="input" v-model="text" @change="onTextInput" @input="onTextSubmit" @click.native="dropdownElements = []"></form-input>
+      <form-input id="input" ref="input" v-model="text" @change="onTextInput" @input="onTextSubmit"
+        @click.native="dropdownElements = []" :disabled="isWaiting"></form-input>
       <div :class="microphoneClass">
         <b-button id="mic" variant="outline-secondary" :pressed="isVoiceEnabled"
           @click="toggleVoice"><i class="fa fa-microphone"></i></b-button>
@@ -14,7 +16,6 @@
         :class="[ { categorized: token.categories.length > 1 },
           token.chosenCategory !== 0 ? token.categories[token.chosenCategory].category  : '']"
         @click="clickToken($event, index)">{{token.text}}</span>
-      <span> </span>
     </div>
     <transition name="fade">
       <div class="dropdown" v-if="dropdownElements.length" :style="dropdownStyle">
