@@ -81,11 +81,12 @@ export default class FlowsenseInput extends Vue {
   @ns.flowsense.State('inputVisible') private visible!: boolean;
   @ns.flowsense.State('voiceEnabled') private isVoiceEnabled!: boolean;
   @ns.flowsense.Mutation('toggleVoice') private toggleFlowsenseVoice!: () => void;
+  @ns.flowsense.Mutation('closeInput') private closeFlowsenseInput!: () => void;
+  @ns.flowsense.Action('query') private dispatchQuery!: (tokens: FlowsenseToken[]) => Promise<boolean>;
   @ns.dataset.State('lastList') private datasetList!: DatasetInfo[];
   @ns.dataflow.Getter('nodeTypes') private nodeTypes!: NodeType[];
   @ns.dataflow.Getter('tabularDatasets') private tabularDatasets!: TabularDataset[];
   @ns.dataflow.Getter('nodeLabels') private nodeLabels!: string[];
-  @ns.flowsense.Action('query') private dispatchQuery!: (tokens: FlowsenseToken[]) => Promise<boolean>;
 
   private tokens: FlowsenseToken[] = [];
   private text = '';
@@ -94,6 +95,7 @@ export default class FlowsenseInput extends Vue {
   private voice: Annyang = annyang as Annyang;
   private isVoiceInProgress = false;
   private isWaiting = false; // waiting for query response
+  private isInputHidden = false;
 
   private dropdownElements: DropdownElement[] = [];
   private clickX = 0;
@@ -269,6 +271,7 @@ export default class FlowsenseInput extends Vue {
    * But the "tag-row" is so far designed to overlap the input text. When scroll happens, the overlap will mess up.
    */
   private onTextInput(text: string | null) {
+    this.isInputHidden = false;
     const finalText = text || '';
     this.calibratedText = finalText;
     this.$nextTick(() => {
@@ -364,7 +367,15 @@ export default class FlowsenseInput extends Vue {
     }));
   }
 
-  private onTextSubmit(text: string) {
+  private onHideInput() {
+    this.isInputHidden = true;
+  }
+
+  private onTextSubmit() {
+    if (this.isInputHidden) {
+      // Do nothing when the input is hidden by clicking on the background.
+      return;
+    }
     this.isWaiting = true;
     this.dispatchQuery(this.tokens)
       .then(success => {
@@ -372,6 +383,7 @@ export default class FlowsenseInput extends Vue {
           // If the query is successful, clear the text to get ready for the next input.
           this.text = '';
           this.tokens = [];
+          this.closeFlowsenseInput();
         } else {
           // If the query is rejected, the text is kept so that it can be edited.
           showSystemMessage(this.$store, 'Sorry, FlowSense does not understand that query', 'warn');
@@ -385,6 +397,9 @@ export default class FlowsenseInput extends Vue {
   private onVisibleChange() {
     this.dropdownElements = []; // hide dropdown whenever visibility changes
     this.onVoiceEnabledChange();
+    if (this.visible) {
+      this.$nextTick(() => $(this.$el).find('#input').focus()); // wait for transition to complete before focus()
+    }
   }
 
   @Watch('isVoiceEnabled')

@@ -16,9 +16,26 @@ export const dragSelectedNodes = (dragged: Node | undefined, dx: number, dy: num
 /** Deselects all selected nodes. */
 export const deselectAllNodes = (options?: { exception?: Node }) => {
   const exception = options && options.exception;
-  _.each(dataflow().nodes.filter(node => node.isSelected && node !== exception), node => {
-    node.deselect();
-  });
+  _.each(dataflow().nodes.filter(node => node.isSelected && node !== exception), node => node.deselect());
+};
+
+/** Gets a list of nodes with decreasing focus score. */
+export const focusNodes = (): Node[] => {
+  const nodes = dataflow().nodes.concat();
+  nodes.sort((a: Node, b: Node) => b.focusScore() - a.focusScore());
+  return nodes;
+};
+
+/** Gets the node with a higest focus score. */
+export const focusNode = (): Node | null => {
+  const nodes = focusNodes();
+  return nodes.length && nodes[0].getActiveness() > 0 ? nodes[0] : null;
+};
+
+/** Reduces every node's activeness by half. */
+export const reduceAllNodeActiveness = (options?: { exception?: Node }) => {
+  const exception = options && options.exception;
+  _.each(dataflow().nodes.filter(node => node !== exception), node => node.reduceActiveness());
 };
 
 export const moveNode = (node: Node, dx: number, dy: number) => {
@@ -84,11 +101,9 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
 
   // Clear lagging states for safety. Sometimes key combinations fail to trigger key releases, resulting in the
   // page getting stuck on pressed keys.
-  /*
   state.ctrlPressed = false;
   state.altPressed = false;
   state.shiftPressed = false;
-  */
 };
 
 /**

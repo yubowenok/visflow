@@ -21,7 +21,7 @@
       <li @click="addNode" :class="{ disabled: isSystemInVisMode }">
         <i class="fas fa-sm fa-plus"></i>Add Node<span class="shortcut">A</span>
       </li>
-      <li v-if="isFlowsenseEnabled" @click="openFlowsenseInput">
+      <li v-if="isFlowsenseEnabled" @click="openFlowsenseInput()">
         <i class="fas fa-sm fa-keyboard"></i>FlowSense
       </li>
     </template>

@@ -4,8 +4,11 @@
     <div class="label">FlowSense</div>
     <i v-if="isWaiting" class="fas fa-circle-notch fa-spin"></i>
     <div class="input-row">
-      <form-input id="input" ref="input" v-model="text" @change="onTextInput" @input="onTextSubmit"
-        @click.native="dropdownElements = []" :disabled="isWaiting"></form-input>
+      <form-input id="input" ref="input" v-model="text" :disabled="isWaiting"
+        @change="onTextInput"
+        @keyup.enter.native="onTextSubmit"
+        @destroyed="onHideInput"
+        @click.native="dropdownElements = []"></form-input>
       <div :class="microphoneClass">
         <b-button id="mic" variant="outline-secondary" :pressed="isVoiceEnabled"
           @click="toggleVoice"><i class="fa fa-microphone"></i></b-button>

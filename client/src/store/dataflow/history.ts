@@ -228,13 +228,13 @@ const redoAutoLayout = (state: DataflowState, result: AutoLayoutResult) => {
   }
 };
 
-const undoEvents = (state: DataflowState, events: HistoryDiagramEvent[]) => {
+export const undoEvents = (state: DataflowState, events: HistoryDiagramEvent[]) => {
   for (const event of events.concat().reverse()) {
     undo(state, event);
   }
 };
 
-const redoEvents = (state: DataflowState, events: HistoryDiagramEvent[]) => {
+export const redoEvents = (state: DataflowState, events: HistoryDiagramEvent[]) => {
   for (const event of events) {
     redo(state, event);
   }

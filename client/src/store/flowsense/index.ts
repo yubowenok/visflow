@@ -1,33 +1,51 @@
 import { Module, ActionContext } from 'vuex';
-import { RootState } from '@/store';
-import { FlowsenseToken, FlowsenseResult } from './types';
+import store, { RootState } from '@/store';
+import { FlowsenseToken, FlowsenseResult, FlowsenseState } from './types';
 import { axiosPostFullUrl, errorMessage } from '@/common/util';
 import { FLOWSENSE_URL } from '@/common/env';
 import * as helper from './helper';
-
-interface FlowsenseState {
-  enabled: boolean;
-  inputVisible: boolean;
-  voiceEnabled: boolean;
-}
+import { focusNode } from '@/store/interaction/helper';
 
 const initialState: FlowsenseState = {
   enabled: FLOWSENSE_URL !== '',
   inputVisible: false,
   voiceEnabled: false,
+  activePosition: { x: 0, y: 0 },
 };
 
 const mutations = {
-  openInput(state: FlowsenseState) {
+  openInput(state: FlowsenseState, noActivePosition?: boolean) {
     state.inputVisible = true;
+    if (noActivePosition) {
+      const node = focusNode();
+      let p: Point;
+      if (node === null) {
+        p = {
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+        };
+      } else {
+        p = node.getCenter();
+      }
+      state.activePosition = p;
+    } else {
+      state.activePosition = {
+        x: store.state.interaction.lastMouseX,
+        y: store.state.interaction.lastMouseY,
+      };
+    }
   },
 
   closeInput(state: FlowsenseState) {
     state.inputVisible = false;
   },
 
-  toggleInput(state: FlowsenseState) {
-    state.inputVisible = !state.inputVisible;
+  toggleInput(state: FlowsenseState, noActivePosition?: boolean) {
+    if (!state.inputVisible) {
+      mutations.openInput(state, noActivePosition);
+    } else {
+      mutations.closeInput(state);
+    }
   },
 
   enableVoice(state: FlowsenseState) {

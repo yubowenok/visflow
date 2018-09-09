@@ -7,16 +7,20 @@ export enum HistoryEventLevel {
   DIAGRAM = 'diagram',
   NODE = 'node',
   INTERACTION = 'interaction',
+  COMPOSITE = 'compositie', // A comibnation of multiple events
 }
 
 export type HistoryEventIcon = { isNodeIcon: true, nodeType: string } | { isNodeIcon?: false, value: string };
 
-export interface HistoryEvent {
+export interface HistoryEventBase {
   level: HistoryEventLevel;
-  type: string;
   message: string;
-  data: any;
   icon?: HistoryEventIcon;
+}
+
+export interface HistoryEvent extends HistoryEventBase {
+  type: string;
+  data: any;
 }
 
 export interface HistoryNodeEvent extends HistoryEvent {
@@ -50,6 +54,10 @@ export interface HistoryDiagramEvent extends HistoryEvent {
 export interface HistoryDiagramBatchEvent extends HistoryEvent {
   level: HistoryEventLevel.DIAGRAM;
   events: HistoryDiagramEvent[];
+}
+
+export interface HistoryCompositeEvent extends HistoryEventBase {
+  events: HistoryEvent[];
 }
 
 export interface HistoryState {

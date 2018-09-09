@@ -82,4 +82,5 @@ export enum DiagramEventType {
   DISCONNECT_PORT = 'disconnect-port',
   PANNING = 'panning',
   AUTO_LAYOUT = 'auto-layout',
+  FLOWSENSE = 'flowsense',
 }

@@ -7,9 +7,9 @@ import ns from '@/store/namespaces';
   },
 })
 export default class FlowsenseBar extends Vue {
-  @ns.flowsense.Mutation('toggleInput') private toggleFlowsenseInput!: () => void;
+  @ns.flowsense.Mutation('toggleInput') private toggleFlowsenseInput!: (noActivePosition?: boolean) => void;
 
   private toggleInput() {
-    this.toggleFlowsenseInput();
+    this.toggleFlowsenseInput(true);
   }
 }

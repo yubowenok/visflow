@@ -4,7 +4,9 @@ import {
   FlowsenseTokenCategory,
   FlowsenseCategorizedToken,
   QueryValue,
-} from '@/store/flowsense/types';
+} from './types';
+
+import * as update from './update';
 
 interface InjectedToken {
   marker: string;
@@ -22,7 +24,7 @@ interface InjectionMapping {
   nodeType: { [token: string]: string; };
 }
 
-interface InjectedQuery {
+export interface InjectedQuery {
   query: string;
   tokens: FlowsenseToken[];
   mapping: InjectionMapping;
@@ -90,11 +92,11 @@ export const injectQuery = (tokens: FlowsenseToken[]): InjectedQuery => {
 
 /**
  * Ejects a marker and returns its original categorized token. If the marker is not an injection, such as "r_chart",
- * null is returned.
+ * the method panics.
  */
-const ejectMarker = (marker: string, markerMapping: MarkerMapping): FlowsenseCategorizedToken | null => {
+export const ejectMarker = (marker: string, markerMapping: MarkerMapping): FlowsenseCategorizedToken => {
   if (!(marker in markerMapping)) {
-    return null;
+    console.error(`${marker} is not in markerMapping`);
   }
   return markerMapping[marker];
 };
@@ -104,4 +106,12 @@ const ejectMarker = (marker: string, markerMapping: MarkerMapping): FlowsenseCat
  */
 export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   // TODO: complete query execution
+  console.log('execute', value);
+  if (value.setOperator) {
+    update.createSetOperator(value, query);
+  }
+
+  if (value.filters) {
+
+  }
 };

@@ -5,9 +5,9 @@ import {
   HistoryDiagramEvent,
   HistoryEventLevel,
   HistoryInteractionEvent,
+  HistoryCompositeEvent,
 } from '@/store/history/types';
 import store from '@/store';
-import { SubsetSelection } from '@/data/package';
 
 const executeDiagramRedo = (evt: HistoryDiagramEvent) => {
   store.commit('dataflow/redo', evt);
@@ -21,13 +21,19 @@ const executeInteractionRedo = (evt: HistoryInteractionEvent) => {
   store.commit('interaction/redo', evt);
 };
 
-const executeRedo = (evt: HistoryEvent) => {
+const executeCompositeRedo = (evt: HistoryCompositeEvent) => {
+  evt.events.forEach(event => executeRedo(event));
+};
+
+const executeRedo = (evt: HistoryEvent | HistoryCompositeEvent) => {
   if (evt.level === HistoryEventLevel.DIAGRAM) {
     executeDiagramRedo(evt as HistoryDiagramEvent);
   } else if (evt.level === HistoryEventLevel.NODE) {
     executeNodeRedo(evt as HistoryNodeEvent);
   } else if (evt.level === HistoryEventLevel.INTERACTION) {
     executeInteractionRedo(evt as HistoryInteractionEvent);
+  } else if (evt.level === HistoryEventLevel.COMPOSITE) {
+    executeCompositeRedo(evt as HistoryCompositeEvent);
   }
 };
 
@@ -51,13 +57,20 @@ const executeInteractionUndo = (evt: HistoryInteractionEvent) => {
   store.commit('interaction/undo', evt);
 };
 
-const executeUndo = (evt: HistoryEvent) => {
+const executeCompositeUndo = (evt: HistoryCompositeEvent) => {
+  const events = evt.events.concat().reverse();
+  events.forEach(event => executeUndo(event));
+};
+
+const executeUndo = (evt: HistoryEvent | HistoryCompositeEvent) => {
   if (evt.level === HistoryEventLevel.DIAGRAM) {
     executeDiagramUndo(evt as HistoryDiagramEvent);
   } else if (evt.level === HistoryEventLevel.NODE) {
     executeNodeUndo(evt as HistoryNodeEvent);
   } else if (evt.level === HistoryEventLevel.INTERACTION) {
     executeInteractionUndo(evt as HistoryInteractionEvent);
+  } else if (evt.level === HistoryEventLevel.COMPOSITE) {
+    executeCompositeUndo(evt as HistoryCompositeEvent);
   }
 };
 

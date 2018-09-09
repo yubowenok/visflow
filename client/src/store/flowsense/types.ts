@@ -1,3 +1,9 @@
+export interface FlowsenseState {
+  enabled: boolean;
+  inputVisible: boolean;
+  voiceEnabled: boolean;
+  activePosition: Point;
+}
 
 export enum FlowsenseTokenCategory {
   NONE = 'none', // no identifiable category
@@ -35,7 +41,7 @@ export interface FlowsenseResult {
   value: QueryValue;
 }
 
-interface VisualsSpecification {
+export interface VisualsSpecification {
   assignment?: { [prop: string]: string | number };
   encoding?: {
     column: string;
@@ -44,7 +50,7 @@ interface VisualsSpecification {
   };
 }
 
-interface FilterSpecification {
+export interface FilterSpecification {
   column: string;
   // Filter type is inferred by which of the following properties is present.
   pattern?: string;
@@ -58,16 +64,16 @@ interface FilterSpecification {
   amountType?: 'percentage' | 'count';
 }
 
-interface SetOperatorSpecification {
+export interface SetOperatorSpecification {
   type: string; // union, intersection, difference
   nodes: string[]; // node labels
 }
 
-interface ExtractSpecification {
+export interface ExtractSpecification {
   column: string;
 }
 
-interface LinkSpecification {
+export interface LinkSpecification {
   extractColumn: string;
   filterColumn: string;
 }
@@ -96,3 +102,13 @@ export interface QueryValue {
   highlight?: boolean;
   select?: boolean;
 }
+
+export enum FlowsenseEventType {
+  CREATE_NODES = 'create-nodes',
+  CHANGE_NODE_OPTIONS = 'change-node-options',
+}
+
+export const FlowsenseDef = {
+  DEFAULT_CHART_TYPE: '_default_chart_type',
+  SELECTION: '_selection',
+};

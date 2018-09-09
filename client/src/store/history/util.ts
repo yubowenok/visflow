@@ -6,8 +6,10 @@ import {
   HistoryDiagramEvent,
   HistoryDiagramBatchEvent,
   HistoryNodeOptionEvent,
+  HistoryEvent,
   HistoryEventIcon,
   HistoryInteractionEvent,
+  HistoryCompositeEvent,
  } from '@/store/history/types';
 import { DiagramEventType } from '@/store/dataflow/types';
 
@@ -79,6 +81,16 @@ export const interactionEvent = (type: string, message: string, data: any, icon?
     type,
     message,
     data,
+    icon,
+  };
+};
+
+export const compositeEvent = (message: string, events: HistoryEvent[], icon?: HistoryEventIcon):
+  HistoryCompositeEvent => {
+  return {
+    level: HistoryEventLevel.COMPOSITE,
+    message,
+    events,
     icon,
   };
 };

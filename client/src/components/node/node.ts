@@ -18,8 +18,15 @@ import OptionPanel from '@/components/option-panel/option-panel';
 import template from './node.html';
 import { HistoryNodeEvent } from '@/store/history/types';
 import * as history from './history';
+import { vectorDistance } from '@/common/vector';
 
 const GRID_SIZE = 10;
+
+// Parameters for computing the activeness of nodes.
+const FOCUS_ALPHA = 2;
+const FOCUS_BETA = 5;
+const FOCUS_GAMMA = 500;
+const MINIMUM_ACTIVENESS = .1;
 
 @Component({
   components: {
@@ -115,6 +122,9 @@ export default class Node extends Vue {
   @ns.interaction.Getter('isShiftPressed') protected isShiftPressed!: boolean;
   @ns.history.Mutation('commit') protected commitHistory!: (evt: HistoryNodeEvent) => void;
 
+  // Measures how actively this node is used by the user.
+  private activeness = 0;
+
   private isDragged = false;
   private isMousedowned = false;
 
@@ -206,8 +216,11 @@ export default class Node extends Vue {
   @ns.dataflow.Mutation('incrementNodeLayer') private incrementNodeLayer!: () => void;
   @ns.dataflow.Mutation('removeSelectedNodes') private removeSelectedNodes!: (node: Node) => void;
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
+  @ns.interaction.State('lastMouseX') private lastMouseX!: number;
+  @ns.interaction.State('lastMouseY') private lastMouseY!: number;
   @ns.interaction.Getter('numSelectedNodes') private numSelectedNodes!: number;
   @ns.interaction.Getter('selectedNodes') private selectedNodes!: Node[];
+  @ns.interaction.Mutation('reduceAllNodeActiveness') private reduceAllNodeActiveness!: (node: Node) => void;
   @ns.interaction.Mutation('dropPortOnNode') private dropPortOnNode!: (node: Node) => void;
   @ns.interaction.Mutation('dragNode') private dragNode!: (payload: { node: Node, dx: number, dy: number}) => void;
   @ns.interaction.Mutation('clickNode') private clickNode!: (node: Node) => void;
@@ -216,7 +229,7 @@ export default class Node extends Vue {
   @ns.systemOptions.State('nodeLabelsVisible') private nodeLabelsVisible!: boolean;
   @ns.panels.Mutation('mountOptionPanel') private mountOptionPanel!: (panel: Vue) => void;
   @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
-  @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: () => void;
+  @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: (noActivePosition?: boolean) => void;
 
   public undo(evt: HistoryNodeEvent) {
     this.undoBase(evt);
@@ -308,6 +321,8 @@ export default class Node extends Vue {
 
   public select() {
     this.isSelected = true;
+    this.incrementActiveness();
+    this.reduceAllNodeActiveness(this);
   }
 
   public deselect() {
@@ -433,6 +448,38 @@ export default class Node extends Vue {
    */
   public onKeys(keys: string): boolean {
     return this.onKeysNode(keys);
+  }
+
+  /**
+   * Increases the activeness of the node. This is triggered by mouse click.
+   */
+  public incrementActiveness() {
+    this.activeness++;
+  }
+
+  /**
+   * Decreases the activeness by half.
+   */
+  public reduceActiveness() {
+    this.activeness /= 2.0;
+    if (this.activeness <= MINIMUM_ACTIVENESS) {
+      this.activeness = 0;
+    }
+  }
+
+  public getActiveness() {
+    return this.activeness;
+  }
+
+  /**
+   * Computes the focus score for this node.
+   */
+  public focusScore(): number {
+    const d = this.distanceToMouse() / FOCUS_GAMMA;
+    // dFactor is the flipped & shifted sigmoid function
+    // 1 - 1 / (1 + e^-(d/gamma - beta))
+    const dFactor = 1.0 - 1.0 / (1 + Math.exp(-(d - FOCUS_BETA)));
+    return this.activeness + FOCUS_ALPHA * dFactor;
   }
 
   /**
@@ -1076,5 +1123,10 @@ export default class Node extends Vue {
 
   private openContextMenu(evt: MouseEvent) {
     (this.$refs.contextMenu as ContextMenu).open(evt);
+  }
+
+  private distanceToMouse(): number {
+    const center = this.getCenter();
+    return vectorDistance([center.x, center.y], [this.lastMouseX, this.lastMouseY]);
   }
 }

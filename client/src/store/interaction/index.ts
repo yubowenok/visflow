@@ -66,6 +66,13 @@ const getters = {
     return store.state.dataflow.nodes.filter(node => node.isSelected);
   },
 
+  /**
+   * Gets the focused node, the node with the highest focus score.
+   */
+  focusNode: (state: InteractionState): Node | null => {
+    return helper.focusNode();
+  },
+
   isDraggedNodeDroppable: (state: InteractionState): boolean => {
     if (!state.draggedNode) {
       return false;
@@ -182,8 +189,13 @@ const mutations = {
 
   clickBackground: (state: InteractionState) => {
     helper.deselectAllNodes();
+    helper.reduceAllNodeActiveness();
     helper.closeFlowsenseInput();
     window.getSelection().removeAllRanges(); // clear accidental browser range selection
+  },
+
+  reduceAllNodeActiveness: (state: InteractionState, clicked: Node) => {
+    helper.reduceAllNodeActiveness({ exception: clicked });
   },
 
   trackMouseMove: (state: InteractionState, point: Point) => {

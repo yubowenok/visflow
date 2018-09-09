@@ -13,3 +13,7 @@ export const mirrorPoint = (p: Victor, lp1: Victor, lp2: Victor): Victor => {
   const offset = m.clone().subtract(p);
   return m.add(offset);
 };
+
+export const vectorDistance = (p: [number, number], q: [number, number]): number => {
+  return new Victor(p[0], p[1]).subtract(new Victor(q[0], q[1])).length();
+};
