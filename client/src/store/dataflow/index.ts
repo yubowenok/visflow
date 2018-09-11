@@ -203,7 +203,11 @@ const mutations = {
   },
 
   autoLayout: (state: DataflowState, movableNodes?: Node[]) => {
-    layout.autoLayout(state, movableNodes, (result: layout.AutoLayoutResult) => {
+    let nodes = movableNodes || store.getters['interaction/selectedNodes'];
+    if (nodes.length === 0) {
+      nodes = undefined;
+    }
+    layout.autoLayout(state, nodes, (result: layout.AutoLayoutResult) => {
       store.commit('history/commit', history.autoLayoutEvent(result));
     });
   },

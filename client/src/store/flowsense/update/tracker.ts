@@ -9,17 +9,16 @@ import { moveNodeEvent } from '@/components/node/history';
 import Edge from '@/components/edge/edge';
 import * as dataflowHistory from '@/store/dataflow/history';
 import * as dataflowHelper from '@/store/dataflow/helper';
-import { DataflowState } from '@/store/dataflow/types';
+import { DataflowState, DiagramEventType } from '@/store/dataflow/types';
 import store from '@/store';
 import {
-  HistoryDiagramEvent,
-  diagramBatchEvent,
-  HistoryNodeEvent,
   compositeEvent,
   HistoryEvent,
+  HistoryEventLevel,
 } from '@/store/history/types';
 import { showSystemMessage } from '@/common/util';
 import { AutoLayoutResult } from '@/store/dataflow/layout';
+import { autoLayout as dataflowAutoLayout } from '@/store/dataflow/layout';
 
 const dataflow = (): DataflowState => store.state.dataflow;
 
@@ -27,6 +26,8 @@ export default class FlowsenseUpdateTracker {
   private createdNodes: Node[] = [];
   private createdEdges: Edge[] = [];
   private events: HistoryEvent[] = [];
+  private eventIndexToCreatedNode: { [index: number]: Node } = {};
+  private nodesToAutoLayout: Node[] = [];
 
   /**
    * Generates node movement event based on auto layout result.
@@ -41,11 +42,23 @@ export default class FlowsenseUpdateTracker {
   public createNode(node: Node) {
     this.createdNodes.push(node);
     this.events.push(dataflowHistory.createNodeEvent(node, dataflow().nodes));
+    this.eventIndexToCreatedNode[this.events.length - 1] = node;
   }
 
   public createEdge(edge: Edge) {
     this.createdEdges.push(edge);
     this.events.push(dataflowHistory.createEdgeEvent(edge));
+  }
+
+  public getCreatedNodes(): Node[] {
+    return this.createdNodes;
+  }
+
+  /**
+   * Adds nodes for which layout needs adjustment.
+   */
+  public toAutoLayout(nodes: Node[]) {
+    this.nodesToAutoLayout = _.uniq(this.nodesToAutoLayout.concat(nodes));
   }
 
   /**
@@ -67,10 +80,31 @@ export default class FlowsenseUpdateTracker {
    * Commits the diagram changes to system history.
    */
   public commit(message: string) {
-    const event = compositeEvent('FlowSense: ' + message, this.events, {
+    // The options of the created nodes may have been changed.
+    // Serialize the latest options into the node save.
+    this.events.forEach((evt, eventIndex) => {
+      if (evt.level === HistoryEventLevel.DIAGRAM && evt.type === DiagramEventType.CREATE_NODE) {
+        evt.data.nodeSave = this.eventIndexToCreatedNode[eventIndex].serialize();
+      }
+    });
+
+    const compositeEvt = compositeEvent('FlowSense: ' + message, this.events, {
       isNodeIcon: false,
       value: 'fas fa-keyboard',
     });
-    store.commit('history/commit', event);
+    store.commit('history/commit', compositeEvt);
+  }
+
+  /**
+   * Layouts the diagram and commits all the changes to history.
+   * This is done asynchronously because layouting is asynchronous.
+   */
+  public autoLayoutAndCommit(message: string) {
+    // Queues the auto layout. The newly created nodes will be in the appear() transition in the beginning.
+    // If auto layout is called too soon, two animations will collide and mess up the layout.
+    setTimeout(() => dataflowAutoLayout(dataflow(), this.nodesToAutoLayout, result => {
+      this.autoLayout(this.nodesToAutoLayout, result);
+      this.commit(message);
+    }), 0);
   }
 }

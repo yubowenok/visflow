@@ -51,6 +51,11 @@ export default class TabularDataset {
     return this.name;
   }
 
+  public getColumnIndex(columnName: string): number | null {
+    const column = this.columns.find(col => col.name === columnName);
+    return column ? column.index : null;
+  }
+
   public setName(name: string) {
     this.name = name;
   }

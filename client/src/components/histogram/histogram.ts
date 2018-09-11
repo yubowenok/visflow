@@ -123,6 +123,17 @@ export default class Histogram extends Visualization {
     this.draw();
   }
 
+  public applyColumns(columns: number[]) {
+    if (!columns.length) {
+      this.findDefaultColumn();
+    } else {
+      this.column = columns[0];
+    }
+    if (this.hasDataset()) {
+      this.draw();
+    }
+  }
+
   public setNumBins(value: number) {
     this.numBins = value;
     this.draw();
@@ -139,10 +150,9 @@ export default class Histogram extends Visualization {
       this.selectedBars = new Set(save.selectedBars);
     });
   }
+
   protected onDatasetChange() {
-    const dataset = this.getDataset();
-    const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type));
-    this.column = numericalColumns.length ? numericalColumns[0].index : null;
+    this.findDefaultColumn();
   }
 
   protected brushed(brushPoints: Point[], isBrushStop?: boolean) {
@@ -190,6 +200,15 @@ export default class Histogram extends Visualization {
     this.drawHistogram();
     this.drawXAxis();
     this.drawYAxis();
+  }
+
+  private findDefaultColumn() {
+    if (!this.hasDataset()) {
+      return;
+    }
+    const dataset = this.getDataset();
+    const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type));
+    this.column = numericalColumns.length ? numericalColumns[0].index : null;
   }
 
   private drawHistogram() {

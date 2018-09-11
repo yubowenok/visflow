@@ -28,6 +28,8 @@ interface VisualizationSave {
   },
 })
 export default class Visualization extends SubsetNode {
+  public isVisualization = true;
+
   protected NODE_TYPE = 'visualization';
   protected DEFAULT_WIDTH = 300;
   protected DEFAULT_HEIGHT = 300;
@@ -99,6 +101,20 @@ export default class Visualization extends SubsetNode {
   public setSelection(selectedItems: number[]) {
     this.selection.setItems(selectedItems);
     this.onSelectionUpdate();
+  }
+
+  public getSelectionPort(): SubsetOutputPort {
+    return this.outputPortMap.selection;
+  }
+
+  /**
+   * Sets the columns to be visualized. This is the default call when the column setting is attempted from a
+   * service like FlowSense that is outside the option panel.
+   * Each visualization class should implement this in order to support FlowSense column setting.
+   * @abstract
+   */
+  public applyColumns(columns: number[]) {
+    console.error(`applyColumns() is not implemented for node type ${this.NODE_TYPE}`);
   }
 
   protected update() {

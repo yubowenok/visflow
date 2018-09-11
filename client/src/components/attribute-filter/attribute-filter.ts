@@ -286,8 +286,12 @@ export default class AttributeFilter extends SubsetNodeBase {
   }
 
   protected onDatasetChange() {
-    // Reset filtering column to avoid unexpected filtering.
-    this.column = null;
+    if (this.column === null) {
+      return;
+    }
+    if (this.dataset === null || this.column >= this.dataset.numColumns()) {
+      this.column = null;
+    }
   }
 
   protected created() {

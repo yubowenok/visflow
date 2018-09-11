@@ -119,7 +119,6 @@ export default class FlowsenseInput extends Vue {
     });
     this.voice.addCallback('result', possiblePhrases => {
       const phrases: string[] = possiblePhrases as any; // tslint:disable-line no-any
-      console.log(phrases);
       const cursorPosition = this.getCursorPosition();
       const newText = this.text.slice(0, cursorPosition) + phrases[0] + this.text.slice(cursorPosition);
       this.onTextInput(newText);
@@ -233,7 +232,6 @@ export default class FlowsenseInput extends Vue {
             });
           }
         });
-
 
         this.datasetList.forEach(dataset => {
           const matchedRawName = dataset.originalname.match(/^(.*)\..*/);

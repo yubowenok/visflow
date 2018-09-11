@@ -11,7 +11,7 @@ import store from '@/store';
  */
 
 const ALPHA_DECAY = .1;
-const COLLIDE_ITERATIONS = 3;
+const COLLIDE_ITERATIONS = 100;
 
 /**
  * When the node size exceeds this number, pad the node with fake nodes for expulsion.
@@ -19,15 +19,15 @@ const COLLIDE_ITERATIONS = 3;
 const PADDING_THRESHOLD = 100;
 const PADDING_NODE_SIZE = 5;
 
-const FORCE_X_STRENGTH = .5;
-const FORCE_Y_STRENGTH = .25;
+const FORCE_X_STRENGTH = .01;
+const FORCE_Y_STRENGTH = .01;
 const DEFAULT_CHARGE = -50;
-const DEFAULT_MARGIN = 50;
+const DEFAULT_MARGIN = 100;
 
 /**
  * Number of padded coordinates on one dimension.
  */
-const PADDING_COUNT = 5;
+const PADDING_COUNT = 2;
 
 const AUTO_LAYOUT_TRANSITION_S = 1.;
 
@@ -79,7 +79,7 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[],
       oy: center.y,
       width: box.width,
       height: box.height,
-      size: Math.min(box.width, box.height) / 2,
+      size: Math.max(box.width, box.height) / 2,
     };
     if (!movableNodeIds.has(node.id)) {
       layoutNode.fx = center.x;
@@ -88,6 +88,7 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[],
     layoutNodes.push(layoutNode);
     nodeIndex[node.id] = indexCounter++;
 
+    /*
     if (Math.max(box.width, box.height) > PADDING_THRESHOLD) {
       const deltaX = box.width / PADDING_COUNT;
       const deltaY = box.height / PADDING_COUNT;
@@ -108,6 +109,7 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[],
         indexCounter++;
       }
     }
+    */
   });
   const links: LayoutLink[] = [];
   for (const node of state.nodes) {
@@ -118,8 +120,9 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[],
       const centerTarget = edge.target.node.getCenter();
       const distance = new Victor(centerSource.x, centerSource.y)
         .subtract(new Victor(centerTarget.x, centerTarget.y)).length();
-      const strength = Math.min(1, distance / 300);
-      const desiredDistance = (boxSource.width + boxTarget.width) / 2 + DEFAULT_MARGIN;
+      const strength = 2 * Math.min(1, distance / 300);
+      const desiredDistance = (Math.max(boxSource.width, boxSource.height) +
+        Math.max(boxTarget.width, boxTarget.height)) / 2 + DEFAULT_MARGIN;
       links.push({
         source: layoutNodes[nodeIndex[edge.source.node.id]],
         target: layoutNodes[nodeIndex[edge.target.node.id]],
@@ -140,7 +143,7 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[],
         // from the vertical center.
         Math.max(FORCE_Y_STRENGTH, Math.min(1, Math.abs(node.y - canvasHeight / 2) / canvasHeight)),
       ))
-    .force('link', forceLink(links).distance(link => link.distance).strength(link => link.strength))
+    .force('link', forceLink(links).distance(link => link.distance)) // .strength(link => link.strength)
     .force('charge', forceManyBody<LayoutNode>().strength(node => DEFAULT_CHARGE * (node.baseNode ? 3 : 1)))
     .force('collide', forceCollide<LayoutNode>().radius(node => node.size).iterations(COLLIDE_ITERATIONS));
 

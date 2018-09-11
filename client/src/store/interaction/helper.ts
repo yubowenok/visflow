@@ -104,6 +104,7 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
   state.ctrlPressed = false;
   state.altPressed = false;
   state.shiftPressed = false;
+  state.metaPressed = false;
 };
 
 /**

@@ -4,9 +4,15 @@ import {
   FlowsenseTokenCategory,
   FlowsenseCategorizedToken,
   QueryValue,
+  FlowsenseDef,
 } from './types';
-
+import * as util from './update/util';
 import * as update from './update';
+import { OutputPort, InputPort } from '@/components/port';
+import { SubsetNode } from '@/components/subset-node';
+import { Node } from '@/components/node';
+import { Visualization } from '@/components/visualization';
+import FlowsenseUpdateTracker from '@/store/flowsense/update/tracker';
 
 interface InjectedToken {
   marker: string;
@@ -29,6 +35,16 @@ export interface InjectedQuery {
   tokens: FlowsenseToken[];
   mapping: InjectionMapping;
   markerMapping: MarkerMapping;
+}
+
+export interface QuerySource {
+  node: Node;
+  port: OutputPort;
+}
+
+export interface QueryTarget {
+  node: Node;
+  port: InputPort;
 }
 
 /**
@@ -102,16 +118,110 @@ export const ejectMarker = (marker: string, markerMapping: MarkerMapping): Flows
 };
 
 /**
+ * Parses the query source field and returns the ejected query sources.
+ * The query sources are a list of nodes with specified ports.
+ */
+const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: FlowsenseUpdateTracker):
+  QuerySource[] | null => {
+  // If value does not have source, fill in the default source.
+  // Note that a query handler may choose not to use any source (e.g. load dataset).
+  if (!value.source) {
+    const node = util.getDefaultSources(1)[0] as SubsetNode;
+    return [ { node, port: node.getSubsetOutputPort() } ];
+  }
+  const sources = value.source.map(spec => {
+    const node: Node = spec.id === FlowsenseDef.DEFAULT_SOURCE ? util.getDefaultSources(1)[0] :
+      util.findNodeWithLabel(ejectMarker(spec.id, query.markerMapping).value[0]);
+    const isSelection = spec.isSelection || false;
+    let port: OutputPort;
+    if (isSelection) {
+      if (!(node as Visualization).getSelectionPort) {
+        tracker.cancel(`node ${node.getLabel()} does not have selection output`);
+        return null;
+      }
+      port = (node as Visualization).getSelectionPort();
+    } else {
+      if (!(node as SubsetNode).getSubsetOutputPort) {
+        tracker.cancel(`node ${node.getLabel()} does not have subset output port`);
+        return null;
+      }
+      port = (node as SubsetNode).getSubsetOutputPort();
+    }
+    return { node, port };
+  });
+  if (sources.findIndex(source => source === null) !== -1) {
+    return null; // errored
+  }
+  return sources as QuerySource[];
+};
+
+/**
+ * Parses the query target field and returns the ejected query targets.
+ * Creates the target nodes if the specification indicates new node creation.
+ */
+const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: FlowsenseUpdateTracker): QueryTarget[] => {
+  // A query may have no targets.
+  if (!value.target) {
+    return [];
+  }
+  return value.target.map(spec => {
+    let node: Node;
+    if (spec.isCreate) {
+      let nodeType = spec.id;
+      if (nodeType === FlowsenseDef.DEFAULT_CHART_TYPE) {
+        // Choose default chart type here
+        const numColumns = value.columns ? value.columns.length : 2;
+        nodeType = numColumns >= 3 ? 'parallel-coordinates' : (numColumns === 1 ? 'histogram' : 'scatterplot');
+      } else {
+        nodeType = ejectMarker(nodeType, query.markerMapping).value[0];
+      }
+      node = util.createNode(util.getCreateNodeOptions(nodeType));
+      tracker.createNode(node);
+    } else {
+      node = util.findNodeWithLabel(spec.id);
+    }
+    const port = (node as SubsetNode).getSubsetInputPort();
+    return { node, port };
+  });
+};
+
+/**
  * Executes the query. Ejects the markers on the fly.
  */
 export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   // TODO: complete query execution
   console.log('execute', value);
+
+  const tracker = new FlowsenseUpdateTracker();
+  const sources = getQuerySources(value, query, tracker);
+  const targets = getQueryTargets(value, query, tracker);
+  let message = 'create ';
+
+  // Whether the operation results in a single chart creation.
+  let onlyCreateChart = true;
+
+  if (!sources) {
+    return;
+  }
+
   if (value.setOperator) {
-    update.createSetOperator(value, query);
+    update.createSetOperator(tracker, value, query);
+    message = 'set operator';
+    onlyCreateChart = false;
   }
 
   if (value.filters) {
-
+    update.createFilter(tracker, value, query, sources);
+    message = 'filter';
+    onlyCreateChart = false;
   }
+
+  // Applies chart's column settings when the diagram completes.
+  const visualizationTarget = targets.find(target => (target.node as Visualization).isVisualization);
+  if (visualizationTarget) {
+    update.completeChart(tracker, value, query, sources, visualizationTarget, onlyCreateChart);
+    message += (message ? ', ' : '') + 'visualization';
+  }
+
+  tracker.autoLayoutAndCommit(message);
 };

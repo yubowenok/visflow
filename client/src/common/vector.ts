@@ -14,6 +14,16 @@ export const mirrorPoint = (p: Victor, lp1: Victor, lp2: Victor): Victor => {
   return m.add(offset);
 };
 
-export const vectorDistance = (p: [number, number], q: [number, number]): number => {
+/**
+ * Return the length of the difference between two 2D vectors. The vectors can be given either by an array or by a
+ * Point object.
+ */
+export const vectorDistance = (p: [number, number] | Point, q: [number, number] | Point): number => {
+  if (!(p instanceof Array)) {
+    p = [(p as Point).x, (p as Point).y];
+  }
+  if (!(q instanceof Array)) {
+    q = [(q as Point).x, (q as Point).y];
+  }
   return new Victor(p[0], p[1]).subtract(new Victor(q[0], q[1])).length();
 };

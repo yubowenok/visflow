@@ -80,6 +80,20 @@ export default class Scatterplot extends Visualization {
     this.draw();
   }
 
+  public applyColumns(columns: number[]) {
+    if (columns.length === 0) {
+      this.findDefaultColumns();
+    } else if (columns.length === 1) {
+      this.xColumn = this.yColumn = columns[0];
+    } else {
+      this.xColumn = columns[0];
+      this.yColumn = columns[1];
+    }
+    if (this.hasDataset()) {
+      this.draw();
+    }
+  }
+
   protected created() {
     this.serializationChain.push((): ScatterplotSave => ({
       xColumn: this.xColumn,
@@ -114,6 +128,13 @@ export default class Scatterplot extends Visualization {
   }
 
   protected onDatasetChange() {
+    this.findDefaultColumns();
+  }
+
+  private findDefaultColumns() {
+    if (!this.hasDataset()) {
+      return;
+    }
     const dataset = this.getDataset();
     const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type)).slice(0, 2);
     this.xColumn = numericalColumns.length >= 1 ? numericalColumns[0].index : 0;

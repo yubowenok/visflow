@@ -76,6 +76,7 @@ export const createNode = (state: DataflowState, options: CreateNodeOptions, nod
   state.nodes.push(node);
   if (options.activate) {
     node.activate();
+    node.select();
   }
   return node;
 };

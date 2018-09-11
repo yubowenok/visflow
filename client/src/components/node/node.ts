@@ -1126,7 +1126,6 @@ export default class Node extends Vue {
   }
 
   private distanceToMouse(): number {
-    const center = this.getCenter();
-    return vectorDistance([center.x, center.y], [this.lastMouseX, this.lastMouseY]);
+    return vectorDistance(this.getCenter(), [this.lastMouseX, this.lastMouseY]);
   }
 }

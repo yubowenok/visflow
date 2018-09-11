@@ -16,8 +16,15 @@ export enum FlowsenseTokenCategory {
 export interface FlowsenseCategorizedToken {
   displayText?: string;
   annotation?: string;
-  value: string[];
   category: FlowsenseTokenCategory;
+  /**
+   * Values for different categories:
+   *   COLUMN: [columnName, datasetName, datasetHash]
+   *   NODE_TYPE: [typeId]
+   *   NODE_LABEL: [label]
+   *   DATASET: [datasetOriginalname, datasetFilename]
+   */
+  value: string[];
 }
 
 export interface FlowsenseToken {
@@ -110,5 +117,7 @@ export enum FlowsenseEventType {
 
 export const FlowsenseDef = {
   DEFAULT_CHART_TYPE: '_default_chart_type',
+  DEFAULT_SOURCE: '_default_source',
   SELECTION: '_selection',
+  INDEX_COLUMN: '_index',
 };

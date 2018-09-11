@@ -9,7 +9,6 @@ import TabularDataset from '@/data/tabular-dataset';
 import { SubsetPackage } from '@/data/package';
 import { SubsetInputPort, SubsetOutputPort } from '@/components/port';
 import { getColumnSelectOptions, isNumericalType } from '@/data/util';
-import { ValueType } from '@/data/parser';
 
 interface SubsetNodeSave {
   lastDatasetHash: string;
@@ -20,6 +19,23 @@ export default class SubsetNodeBase extends Node {
   protected NODE_TYPE = 'subset-node';
   protected dataset: TabularDataset | null = null;
   protected lastDatasetHash: string = '';
+
+  public hasDataset(): boolean {
+    return this.dataset !== null;
+  }
+
+  // Typing helper method
+  public getDataset(): TabularDataset {
+    return this.dataset as TabularDataset;
+  }
+
+  public getSubsetInputPort(): SubsetInputPort {
+    return this.inputPortMap.in as SubsetInputPort;
+  }
+
+  public getSubsetOutputPort(): SubsetOutputPort {
+    return this.outputPortMap.out as SubsetOutputPort;
+  }
 
   protected created() {
     this.serializationChain.push((): SubsetNodeSave => {
@@ -90,11 +106,6 @@ export default class SubsetNodeBase extends Node {
    */
   protected onDatasetChange() {
     console.error(`onDatasetChange() is not implemented for ${this.NODE_TYPE}`);
-  }
-
-  // Typing helper method
-  protected getDataset(): TabularDataset {
-    return this.dataset as TabularDataset;
   }
 
   protected get columnSelectOptions() {
