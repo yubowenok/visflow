@@ -26,6 +26,9 @@ export const completeChart = (tracker: FlowsenseUpdateTracker, value: QueryValue
     tracker.createEdge(edge);
   }
 
+  // First propagate and then apply columns. Otherwise the columns may be overwritten.
+  util.propagateNodes(chartTarget.port.getConnectedNodes());
+
   if (chartSource && value.columns) {
     const chart = chartTarget.node as Visualization;
     const columnIndices = [];
@@ -41,6 +44,5 @@ export const completeChart = (tracker: FlowsenseUpdateTracker, value: QueryValue
     chart.applyColumns(columnIndices);
   }
 
-  util.propagateNodes(chartTarget.port.getConnectedNodes());
   tracker.toAutoLayout(util.getNearbyNodes(chartTarget.node));
 };

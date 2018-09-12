@@ -117,6 +117,17 @@ export default class Visualization extends SubsetNode {
     console.error(`applyColumns() is not implemented for node type ${this.NODE_TYPE}`);
   }
 
+  /**
+   * The default behavior of dataset change handler is to reset the columns to be visualized.
+   */
+  protected onDatasetChange() {
+    this.findDefaultColumns();
+  }
+
+  protected findDefaultColumns() {
+    console.error(`findDefaultColumns() is not implemented for node type ${this.NODE_TYPE}`);
+  }
+
   protected update() {
     if (!this.checkDataset()) {
       return;
@@ -229,12 +240,14 @@ export default class Visualization extends SubsetNode {
   protected onResizeStart() {
     this.isTransitionAllowed = false;
   }
+
   protected onResize() {
     if (!this.hasNoDataset() && !this.isAnimating && this.isExpanded) {
       console.log('render', this.NODE_TYPE);
       this.draw();
     }
   }
+
   protected onResizeStop() {
     this.isTransitionAllowed = true;
   }

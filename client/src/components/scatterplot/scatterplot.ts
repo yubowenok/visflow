@@ -127,11 +127,7 @@ export default class Scatterplot extends Visualization {
     drawBrushBox(this.$refs.brush as SVGElement, !isBrushStop ? brushPoints : []);
   }
 
-  protected onDatasetChange() {
-    this.findDefaultColumns();
-  }
-
-  private findDefaultColumns() {
+  protected findDefaultColumns() {
     if (!this.hasDataset()) {
       return;
     }

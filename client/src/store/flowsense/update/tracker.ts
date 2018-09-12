@@ -28,6 +28,7 @@ export default class FlowsenseUpdateTracker {
   private events: HistoryEvent[] = [];
   private eventIndexToCreatedNode: { [index: number]: Node } = {};
   private nodesToAutoLayout: Node[] = [];
+  private nodeToCenterAt: Node | null = null;
 
   /**
    * Generates node movement event based on auto layout result.
@@ -59,6 +60,13 @@ export default class FlowsenseUpdateTracker {
    */
   public toAutoLayout(nodes: Node[]) {
     this.nodesToAutoLayout = _.uniq(this.nodesToAutoLayout.concat(nodes));
+  }
+
+  /**
+   * Sets a node to center the canvas at. If the method is not called, the first node created is the one to center at.
+   */
+  public toCenterAt(node: Node) {
+    this.nodeToCenterAt = node;
   }
 
   /**
@@ -103,8 +111,46 @@ export default class FlowsenseUpdateTracker {
     // Queues the auto layout. The newly created nodes will be in the appear() transition in the beginning.
     // If auto layout is called too soon, two animations will collide and mess up the layout.
     setTimeout(() => dataflowAutoLayout(dataflow(), this.nodesToAutoLayout, result => {
-      this.autoLayout(this.nodesToAutoLayout, result);
-      this.commit(message);
+      this.centerCanvas(() => {
+        this.autoLayout(this.nodesToAutoLayout, result);
+        this.commit(message);
+      });
     }), 0);
+  }
+
+  /**
+   * Selects all newly created nodes.
+   */
+  public selectCreatedNodes() {
+    dataflow().nodes.forEach(node => {
+      if (this.createdNodes.indexOf(node) === -1) {
+        node.deactivate();
+        node.deselect();
+      } else {
+        node.select();
+      }
+    });
+  }
+
+  /**
+   * Centers the canvas at nodeToCenterAt.
+   */
+  private centerCanvas(onComplete: () => void) {
+    if (this.nodeToCenterAt === null && !this.createdNodes.length) {
+      onComplete();
+      return; // Nothing can be centered at.
+    }
+    const node = this.nodeToCenterAt || this.createdNodes[0];
+    // Position where the center node should be at.
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const center = node.getCenter();
+    const dx = centerX - center.x;
+    const dy = centerY - center.y;
+    dataflow().nodes.forEach(diagramNode => {
+      const box = diagramNode.getBoundingBox();
+      diagramNode.moveToWithTransition(box.x + dx, box.y + dy, .8);
+    });
+    setTimeout(onComplete, .8);
   }
 }

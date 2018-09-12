@@ -16,14 +16,14 @@ export enum HistoryNodeEventType {
   TOGGLE_LABEL_VISIBLE = 'toggle-label-visible',
 }
 
-export const moveNodeEvent = (node: Node, selectedNodes: Node[], to: Point, from: Point): HistoryNodeEvent => {
+export const moveNodeEvent = (node: Node, movedNodes: Node[], to: Point, from: Point): HistoryNodeEvent => {
   return {
     level: HistoryEventLevel.NODE,
     type: HistoryNodeEventType.MOVE,
-    message: 'move ' + (selectedNodes.length > 1 ? 'nodes' : 'node'),
+    message: 'move ' + (movedNodes.length > 1 ? 'nodes' : 'node'),
     node,
     data: {
-      selectedNodes,
+      movedNodeIds: movedNodes.map(movedNode => movedNode.id),
       from,
       to,
     },
@@ -77,8 +77,8 @@ export const toggleLabelVisibleEvent = (node: Node, value: boolean): HistoryNode
   );
 };
 
-export const moveNode = (store: RootStore, node: Node, selectedNodes: Node[], to: Point, from: Point) => {
-  store.commit('history/commit', moveNodeEvent(node, selectedNodes, to, from));
+export const moveNode = (store: RootStore, node: Node, movedNodes: Node[], to: Point, from: Point) => {
+  store.commit('history/commit', moveNodeEvent(node, movedNodes, to, from));
 };
 
 export const resizeNode =  (store: RootStore, node: Node, newView: Box, prevView: Box) => {
@@ -88,14 +88,14 @@ export const resizeNode =  (store: RootStore, node: Node, newView: Box, prevView
 const undoMoveNode = (store: RootStore, evt: HistoryNodeEvent) => {
   const from: Point = evt.data.from;
   const to: Point = evt.data.to;
-  const nodes = evt.data.selectedNodes as Node[];
+  const nodes = store.state.dataflow.nodes.filter(node => evt.data.movedNodeIds.indexOf(node.id) !== -1);
   nodes.forEach(node => node.moveBy(from.x - to.x, from.y - to.y));
 };
 
 const redoMoveNode = (store: RootStore, evt: HistoryNodeEvent) => {
   const from: Point = evt.data.from;
   const to: Point = evt.data.to;
-  const nodes = evt.data.selectedNodes as Node[];
+  const nodes = store.state.dataflow.nodes.filter(node => evt.data.movedNodeIds.indexOf(node.id) !== -1);
   nodes.forEach(node => node.moveBy(to.x - from.x, to.y - from.y));
 };
 

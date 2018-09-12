@@ -11,7 +11,9 @@
     </template>
     <template slot="option" slot-scope="option">
       <slot name="option" :option="option">
-        <li>{{ option[label] }}</li>
+        <div :class="{ disabled: option.disabled }">
+          <a class="label">{{ option[label] }}</a>
+        </div>
       </slot>
     </template>
     <template slot="selected-option" slot-scope="option">

@@ -23,7 +23,6 @@ import { SELECTED_COLOR } from '@/common/constants';
 import { VisualProperties } from '@/data/visuals';
 import { isContinuousDomain } from '@/data/util';
 import * as history from './history';
-import { HistoryNodeEvent } from '@/store/history/types';
 
 const DEFAULT_NUM_COLUMNS = 6;
 const ORDINAL_DOMAIN_LENGTH_THRESHOLD = 10;
@@ -77,6 +76,17 @@ export default class ParallelCoordinates extends Visualization {
     this.draw();
   }
 
+  public applyColumns(columns: number[]) {
+    if (!columns.length) {
+      this.findDefaultColumns();
+    } else {
+      this.columns = columns;
+    }
+    if (this.hasDataset()) {
+      this.draw();
+    }
+  }
+
   protected created() {
     this.serializationChain.push((): ParallelCoordinatesSave => ({
       columns: this.columns,
@@ -98,7 +108,10 @@ export default class ParallelCoordinates extends Visualization {
     this.drawAxes();
   }
 
-  protected onDatasetChange() {
+  protected findDefaultColumns() {
+    if (!this.hasDataset()) {
+      return;
+    }
     const dataset = this.getDataset();
     this.columns = dataset.getColumns()
       .filter(column => {

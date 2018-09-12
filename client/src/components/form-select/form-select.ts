@@ -78,10 +78,17 @@ export default class FormSelect extends Vue {
    * Handles item selection from the child <v-select>
    */
   private onListSelect(option: SelectOption | SelectOption[]) {
-    if (option === null && !this.clearable) {
+    if (option === null && !this.clearable || (option as SelectOptionObject).disabled) {
       // Set it back to the original value.
       // Must use next tick otherwise this happens before child clears the chosen UI option.
       this.$nextTick(() => this.childSelected = this.childSelectedOption());
+
+      // @ts-ignore
+      // This is a hack that reopens the dropdown of <v-select>
+      // this.$el.__vue__ points to the v-select Vue component object.
+      // toggleDropdown() is a method under <v-select>.
+      // See https://github.com/sagalbot/vue-select/blob/master/src/components/Select.vue
+      this.$el.__vue__.toggleDropdown({ target: this.$el.__vue__.$el });
       return;
     }
     let newSelected: string | number | Array<string | number> | null;

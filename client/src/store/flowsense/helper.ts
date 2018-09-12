@@ -204,6 +204,12 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
     return;
   }
 
+  if (value.loadDataset) {
+    update.loadDataset(tracker, value, query);
+    message = 'load dataset';
+    onlyCreateChart = false;
+  }
+
   if (value.setOperator) {
     update.createSetOperator(tracker, value, query);
     message = 'set operator';
@@ -223,5 +229,10 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
     message += (message ? ', ' : '') + 'visualization';
   }
 
+  if (value.autoLayout) {
+    update.autoLayout(tracker);
+  }
+
+  tracker.selectCreatedNodes();
   tracker.autoLayoutAndCommit(message);
 };

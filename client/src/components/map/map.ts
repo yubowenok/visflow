@@ -17,6 +17,8 @@ import { VisualProperties } from '@/data/visuals';
 import { SELECTED_COLOR } from '@/common/constants';
 import { isNumericalType } from '@/data/util';
 import * as history from './history';
+import { showSystemMessage } from '@/common/util';
+import { ValueType } from '@/data/parser';
 
 const MAP_ATTRIBUTION = `<a href="http://mapbox.com" target="_blank">© Mapbox</a> |
   <a href="http://openstreetmap.org" target="_blank">© OpenStreetMap</a> |
@@ -91,13 +93,30 @@ export default class Map extends Visualization {
   }
 
   public setLatitudeColumn(column: number) {
+    if (!this.isValidColumn(column)) {
+      return;
+    }
     this.latitudeColumn = column;
     this.draw();
   }
 
   public setLongitudeColumn(column: number) {
+    if (!this.isValidColumn(column)) {
+      return;
+    }
     this.longitudeColumn = column;
     this.draw();
+  }
+
+  public applyColumns(columns: number[]) {
+    if (columns.length !== 2) {
+      showSystemMessage(this.$store, 'a map visualization needs latitude and longitude columns', 'warn');
+      return;
+    }
+    [this.latitudeColumn, this.longitudeColumn] = columns;
+    if (this.hasDataset()) {
+      this.draw();
+    }
   }
 
   public setNavigating(value: boolean) {
@@ -107,7 +126,10 @@ export default class Map extends Visualization {
   /**
    * Finds two numerical columns, preferrably with "lat" and "lon" text in names as latitude and longitude columns.
    */
-  protected onDatasetChange() {
+  protected findDefaultColumns() {
+    if (!this.hasDataset()) {
+      return;
+    }
     const dataset = this.getDataset();
     dataset.getColumns().forEach(column => {
       if (isNumericalType(column.type)) {
@@ -320,5 +342,17 @@ export default class Map extends Visualization {
 
   private onToggleNavigating(value: boolean) {
     this.commitHistory(history.toggleNavigatingEvent(this, value));
+  }
+
+  private isValidColumn(column: number): boolean {
+    if (!this.dataset) {
+      return true;
+    }
+    const columnType = this.dataset.getColumnType(column);
+    if (!isNumericalType(columnType)) {
+      showSystemMessage(this.$store, `column ${this.dataset.getColumnName(column)} is not a numerical column`, 'warn');
+      return false;
+    }
+    return true;
   }
 }

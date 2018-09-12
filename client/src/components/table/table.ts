@@ -47,6 +47,17 @@ export default class Table extends Visualization {
     this.draw();
   }
 
+  public applyColumns(columns: number[]) {
+    if (!this.columns.length) {
+      this.findDefaultColumns();
+    } else {
+      this.columns = columns;
+    }
+    if (this.hasDataset()) {
+      this.draw();
+    }
+  }
+
   protected created() {
     this.serializationChain.push((): TableSave => ({
       columns: this.columns,
@@ -57,7 +68,10 @@ export default class Table extends Visualization {
     this.drawTable();
   }
 
-  protected onDatasetChange() {
+  protected findDefaultColumns() {
+    if (!this.hasDataset()) {
+      return;
+    }
     const dataset = this.dataset as TabularDataset;
     // Choose the first a few columns to show.
     this.columns = _.range(Math.min(dataset.numColumns(), DEFAULT_MAX_COLUMNS));

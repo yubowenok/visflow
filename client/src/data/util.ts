@@ -1,19 +1,23 @@
 import TabularDataset, { TabularColumn } from './tabular-dataset';
 import { ValueType } from '@/data/parser';
 
+/**
+ * Provides a list of column select options.
+ * If condition function is given, each column is passed through the condition. If the condition does not hold,
+ * the column option will have the "disabled" attribute set. Note that all columns are returned regardless of
+ * the condition.
+ */
 export const getColumnSelectOptions = (dataset: TabularDataset | undefined | null,
                                        condition?: (column: TabularColumn) => boolean): SelectOption[] => {
   if (!dataset) {
     return [];
   }
-  let columns = dataset.getColumns();
-  if (condition) {
-    columns = columns.filter(condition);
-  }
+  const columns = dataset.getColumns();
   return columns.map((column: TabularColumn, columnIndex: number) => {
     return {
       value: columnIndex,
       label: column.name,
+      disabled: condition && !condition(column),
     };
   });
 };

@@ -98,3 +98,7 @@ export const getNearbyNodes = (qNode: Node): Node[] => {
     return vectorDistance(qCenter, center) <= NEARBY_THRESHOLD_PX;
   });
 };
+
+export const getAllNodes = (): Node[] => {
+  return dataflow().nodes;
+};

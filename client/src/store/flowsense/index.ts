@@ -6,7 +6,7 @@ import { FLOWSENSE_URL } from '@/common/env';
 import * as helper from './helper';
 import { focusNode } from '@/store/interaction/helper';
 
-const ACTIVE_POSITION_X_OFFSET_PX = 100;
+const ACTIVE_POSITION_X_OFFSET_PX = 150;
 
 const initialState: FlowsenseState = {
   enabled: FLOWSENSE_URL !== '',
@@ -31,10 +31,15 @@ const mutations = {
       }
       state.activePosition = p;
     } else {
-      state.activePosition = {
-        x: store.state.interaction.lastMouseX + ACTIVE_POSITION_X_OFFSET_PX,
-        y: store.state.interaction.lastMouseY,
-      };
+      const focused = focusNode();
+      let x = store.state.interaction.lastMouseX + ACTIVE_POSITION_X_OFFSET_PX;
+      let y = store.state.interaction.lastMouseY;
+      if (focused !== null) {
+        const box = focused.getBoundingBox();
+        x = box.x + box.width + ACTIVE_POSITION_X_OFFSET_PX;
+        y = box.y + box.height / 2;
+      }
+      state.activePosition = { x, y };
     }
   },
 

@@ -153,7 +153,10 @@ export default class LineChart extends Visualization {
     }));
   }
 
-  protected onDatasetChange() {
+  protected findDefaultColumns() {
+    if (!this.hasDataset()) {
+      return;
+    }
     // Avoid unexpected series drawing
     this.seriesColumn = null;
     this.valueColumn = null;

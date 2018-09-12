@@ -76,16 +76,41 @@
     }
 
     .dropdown-menu {
-      // min-width: 100%;
-
       li {
-        &.highlight {
-          background-color: $theme-green;
+        pointer-events: none;
+      }
+      li > a {
+        // Disable pointer events for original <a> wrapper from v-select.
+        // Remove its visual effects.
+        pointer-events: none;
+        background: none;
+        padding: 0;
 
-          a {
-            background: none;
+        // Use a div wrapper to replace the original <a> wrapper.
+        > div {
+          width: 100%;
+          height: 100%;
+          padding: 3px 20px;
+          pointer-events: all;
+
+          &.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+            background: #eee;
+          }
+
+          > a.label {
+            pointer-events: none;
           }
         }
+      }
+
+      li.active > a > div {
+        background-color: $theme-green-light;
+      }
+
+      li.highlight > a > div:not(.disabled) {
+        background-color: $theme-green;
       }
     }
   }

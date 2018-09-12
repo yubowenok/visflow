@@ -1,17 +1,16 @@
 import { Component } from 'vue-property-decorator';
 
 import ns from '@/store/namespaces';
-import { Node, injectNodeTemplate } from '@/components/node';
-import template from './data-source.html';
-import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
-import { DatasetInfo } from '@/store/dataset/types';
-import { systemMessageErrorHandler } from '@/common/util';
-import { GetDatasetOptions } from '@/store/dataset';
-import { parseCsv } from '@/data/parser';
-import { SubsetPackage } from '@/data/package';
-import { SubsetOutputPort } from '@/components/port';
 import * as history from './history';
-import TabularDataset from '@/data/tabular-dataset';
+import DatasetModal from '@/components/modals/dataset-modal/dataset-modal';
+import template from './data-source.html';
+import { DatasetInfo } from '@/store/dataset/types';
+import { GetDatasetOptions } from '@/store/dataset';
+import { SubsetNode } from '@/components/subset-node';
+import { SubsetPackage } from '@/data/package';
+import { injectNodeTemplate } from '@/components/node';
+import { parseCsv } from '@/data/parser';
+import { systemMessageErrorHandler } from '@/common/util';
 
 export interface DataSourceSave {
   datasetInfo: DatasetInfo | null;
@@ -23,7 +22,7 @@ export interface DataSourceSave {
     DatasetModal,
   },
 })
-export default class DataSource extends Node {
+export default class DataSource extends SubsetNode {
   public isPropagationSource = true;
 
   protected NODE_TYPE = 'data-source';
@@ -34,11 +33,6 @@ export default class DataSource extends Node {
   @ns.dataset.Action('getDataset') private dispatchGetDataset!: (options: GetDatasetOptions) => Promise<string>;
 
   private datasetInfo: DatasetInfo | null = null;
-  private dataset: TabularDataset | null = null;
-
-  public getDataset(): TabularDataset | null {
-    return this.dataset;
-  }
 
   public setDatasetInfo(datasetInfo: DatasetInfo) {
     this.datasetInfo = datasetInfo;
@@ -66,16 +60,8 @@ export default class DataSource extends Node {
     });
   }
 
-  protected createOutputPorts() {
-    this.outputPorts = [
-      new SubsetOutputPort({
-        data: {
-          id: 'out',
-          node: this,
-        },
-        store: this.$store,
-      }),
-    ];
+  protected createInputPorts() {
+    // no input ports
   }
 
   private fetchDataset() {

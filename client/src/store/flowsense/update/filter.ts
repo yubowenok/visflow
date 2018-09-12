@@ -1,9 +1,8 @@
 import * as util from './util';
 import { InjectedQuery, QuerySource } from '../helper';
-import { QueryValue, FilterSpecification, FlowsenseDef } from '../types';
+import { QueryValue, FilterSpecification } from '../types';
 import FlowsenseUpdateTracker from './tracker';
 import Edge from '@/components/edge/edge';
-import { INDEX_COLUMN } from '@/common/constants';
 import { PatternMatchMode, FilterType } from '@/components/attribute-filter/attribute-filter';
 import { SubsetNode } from '@/components/subset-node';
 

@@ -125,7 +125,7 @@ export default class Histogram extends Visualization {
 
   public applyColumns(columns: number[]) {
     if (!columns.length) {
-      this.findDefaultColumn();
+      this.findDefaultColumns();
     } else {
       this.column = columns[0];
     }
@@ -149,10 +149,6 @@ export default class Histogram extends Visualization {
       const save = nodeSave as HistogramSave;
       this.selectedBars = new Set(save.selectedBars);
     });
-  }
-
-  protected onDatasetChange() {
-    this.findDefaultColumn();
   }
 
   protected brushed(brushPoints: Point[], isBrushStop?: boolean) {
@@ -202,7 +198,7 @@ export default class Histogram extends Visualization {
     this.drawYAxis();
   }
 
-  private findDefaultColumn() {
+  protected findDefaultColumns() {
     if (!this.hasDataset()) {
       return;
     }

@@ -98,6 +98,17 @@ export default class Heatmap extends Visualization {
     this.draw();
   }
 
+  public applyColumns(columns: number[]) {
+    if (!this.columns.length) {
+      this.findDefaultColumns();
+    } else {
+      this.columns = columns;
+    }
+    if (this.hasDataset()) {
+      this.draw();
+    }
+  }
+
   public setColorScale(colorScaleId: string) {
     this.colorScaleId = colorScaleId;
     this.draw();
@@ -128,14 +139,6 @@ export default class Heatmap extends Visualization {
     }));
   }
 
-  protected onDatasetChange() {
-    const dataset = this.getDataset();
-    this.columns = dataset.getColumns()
-      .filter(column => isContinuousDomain(column.type))
-      .slice(0, DEFAULT_NUM_COLUMNS)
-      .map(column => column.index);
-  }
-
   protected draw() {
     this.drawHeatmap();
     this.drawColumnLabels();
@@ -149,6 +152,17 @@ export default class Heatmap extends Visualization {
       this.propagateSelection();
     }
     drawBrushBox(this.$refs.brush as SVGElement, !isBrushStop ? brushPoints : []);
+  }
+
+  protected findDefaultColumns() {
+    if (!this.hasDataset()) {
+      return;
+    }
+    const dataset = this.getDataset();
+    this.columns = dataset.getColumns()
+      .filter(column => isContinuousDomain(column.type))
+      .slice(0, DEFAULT_NUM_COLUMNS)
+      .map(column => column.index);
   }
 
   private computeBrushedItems(brushPoints: Point[]) {
