@@ -28,7 +28,7 @@ interface CreateNodeAnchor {
  * However this may change the interaction implementation as well. Currently the code base always use screen offset to
  * compute positions.
  */
-const findCreateNodeAnchor = (node: Node, nodes: Node[]): CreateNodeAnchor => {
+export const findCreateNodeAnchor = (node: Node, nodes: Node[]): CreateNodeAnchor => {
   const anchorNode = nodes.find(otherNode => otherNode !== node);
   return anchorNode ? {
     id: anchorNode.id,

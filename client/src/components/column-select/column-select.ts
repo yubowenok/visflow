@@ -28,7 +28,7 @@ export default class ColumnSelect extends Vue {
 
   @Watch('value')
   private onValueChange() {
-    this.selected = this.value;
+    this.selected = this.prevSelected = this.value;
   }
 
   private created() {
@@ -36,6 +36,9 @@ export default class ColumnSelect extends Vue {
   }
 
   private onListSelect() {
+    if (this.selected === this.prevSelected) {
+      return;
+    }
     this.$emit('input', this.selected, this.prevSelected);
     this.prevSelected = this.selected;
   }

@@ -101,7 +101,7 @@
 }
 
 .dropdown {
-  position: fixed;
+  position: absolute;
   background-color: white;
   @extend %box;
 
@@ -113,6 +113,10 @@
     .annotation {
       font-size: .9em;
       margin-left: $margin-size;
+    }
+
+    &.highlight {
+      background-color: $theme-green-light;
     }
   }
 }

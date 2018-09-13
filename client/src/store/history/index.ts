@@ -56,6 +56,9 @@ const mutations = {
     }
   },
 
+  /**
+   * Pushes a history event to the event stack.
+   */
   commit(state: HistoryState, evt: HistoryEvent) {
     state.undoStack.push(evt);
     helper.cancelToggles(state);

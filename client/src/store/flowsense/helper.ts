@@ -107,14 +107,25 @@ export const injectQuery = (tokens: FlowsenseToken[]): InjectedQuery => {
 };
 
 /**
- * Ejects a marker and returns its original categorized token. If the marker is not an injection, such as "r_chart",
- * the method panics.
+ * Ejects a marker and returns its original categorized token.
  */
-export const ejectMarker = (marker: string, markerMapping: MarkerMapping): FlowsenseCategorizedToken => {
+export const ejectMarker = (marker: string, markerMapping: MarkerMapping): FlowsenseCategorizedToken | null => {
   if (!(marker in markerMapping)) {
-    console.error(`${marker} is not in markerMapping`);
+    return null;
   }
   return markerMapping[marker];
+};
+
+/**
+ * Wrapper for ejectMarker that ensures that the marker is mappable.
+ * If the marker is not an injection, such as "r_chart", "histogram" the method panics.
+ */
+export const ejectMappableMarker = (marker: string, markerMapping: MarkerMapping): FlowsenseCategorizedToken => {
+  const result = ejectMarker(marker, markerMapping);
+  if (result === null) {
+    console.error(`${marker} is not in markerMapping`);
+  }
+  return result as FlowsenseCategorizedToken;
 };
 
 /**
@@ -131,7 +142,7 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
   }
   const sources = value.source.map(spec => {
     const node: Node = spec.id === FlowsenseDef.DEFAULT_SOURCE ? util.getDefaultSources(1)[0] :
-      util.findNodeWithLabel(ejectMarker(spec.id, query.markerMapping).value[0]);
+      util.findNodeWithLabel(ejectMappableMarker(spec.id, query.markerMapping).value[0]);
     const isSelection = spec.isSelection || false;
     let port: OutputPort;
     if (isSelection) {
@@ -173,7 +184,9 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
         const numColumns = value.columns ? value.columns.length : 2;
         nodeType = numColumns >= 3 ? 'parallel-coordinates' : (numColumns === 1 ? 'histogram' : 'scatterplot');
       } else {
-        nodeType = ejectMarker(nodeType, query.markerMapping).value[0];
+        const ejected = ejectMarker(nodeType, query.markerMapping);
+        // If the token cannot be ejected, it is a nodeType string itself.
+        nodeType = ejected !== null ? ejected.value[0] : nodeType;
       }
       node = util.createNode(util.getCreateNodeOptions(nodeType));
       tracker.createNode(node);

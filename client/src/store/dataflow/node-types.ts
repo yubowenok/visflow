@@ -41,6 +41,7 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/scatterplot.svg'),
     constructor: Scatterplot,
     tags: VISUALIZATION_TAGS + ' 2d',
+    aliases: ['scp'],
   },
   {
     id: 'parallel-coordinates',
@@ -48,6 +49,7 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/parallel-coordinates.svg'),
     constructor: ParallelCoordinates,
     tags: VISUALIZATION_TAGS + MULTIDIMENSIONAL_TAGS,
+    aliases: ['pcp'],
   },
   {
     id: 'histogram',
@@ -69,6 +71,7 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/line-chart.svg'),
     constructor: LineChart,
     tags: VISUALIZATION_TAGS + ' series time trend',
+    aliases: ['series'],
   },
   {
     id: 'network',
@@ -97,6 +100,7 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/filter.svg'),
     constructor: AttributeFilter,
     tags: 'subset attribute remove find pattern range sample',
+    aliases: ['filter'],
   },
   {
     id: 'set-operator',

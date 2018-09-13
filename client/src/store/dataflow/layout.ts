@@ -29,10 +29,11 @@ const DEFAULT_MARGIN = 100;
  */
 const PADDING_COUNT = 2;
 
-const AUTO_LAYOUT_TRANSITION_S = 1.;
+const AUTO_LAYOUT_TRANSITION_S = .5;
 
 interface LayoutNode {
   id: string;
+  // (x, y) and (ox, oy) are node center positions.
   x: number; // x/y set by d3 force
   y: number;
   ox: number; // original x/y position, used as d3 force accessor
@@ -54,15 +55,24 @@ interface LayoutLink {
   strength: number;
 }
 
+// "from" and "to" are node top-left corner positions.
 export interface AutoLayoutResult {
   [id: string]: { from: Point, to: Point };
+}
+
+interface AutoLayoutOptions {
+  onComplete?: (result: AutoLayoutResult, transitionDone: boolean) => void;
+  // If noNodeMoving is set, the nodes will not be moved but result with new positions will be returned.
+  noNodeMoving?: boolean;
 }
 
 /**
  * Auto-adjusts flow diagram layout. Only the nodes in "movableNodes" will be adjusted.
  */
-export const autoLayout = (state: DataflowState, movableNodes?: Node[],
-                           onComplete?: (result: AutoLayoutResult) => void) => {
+export const autoLayout = (state: DataflowState, movableNodes?: Node[], options?: AutoLayoutOptions) => {
+  const onComplete = options && options.onComplete || undefined;
+  const noNodeMoving = options && options.noNodeMoving || false;
+
   const nodeIndex: { [id: string]: number } = {}; // mapping from node id to its force index
   let indexCounter = 0;
   movableNodes = movableNodes || state.nodes;
@@ -152,10 +162,20 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[],
     const curAlphaDiff = force.alpha() - force.alphaMin();
     if (curAlphaDiff <= 0) {
       store.commit('modals/endProgress');
-      updateLayout(state, layoutNodes);
+      const result = getAutoLayoutResult(layoutNodes);
+
+      if (!noNodeMoving) {
+        updateLayout(state, layoutNodes, () => {
+          if (onComplete) {
+            onComplete(result, true);
+          }
+        });
+      } else {
+        resetLayout(state, layoutNodes);
+      }
 
       if (onComplete) {
-        onComplete(getAutoLayoutResult(layoutNodes));
+        onComplete(result, noNodeMoving || false);
       }
     }
     updateFixedPoints(layoutNodes);
@@ -166,7 +186,8 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[],
 };
 
 /**
- * Collects the layout changes.
+ * Collects the layout changes. The result includes all nodes even if the nodes are not moved.
+ * "from" and "to" positions are given as the top-left corner of nodes.
  */
 const getAutoLayoutResult = (layoutNodes: LayoutNode[]): AutoLayoutResult => {
   const result: AutoLayoutResult = {};
@@ -174,9 +195,11 @@ const getAutoLayoutResult = (layoutNodes: LayoutNode[]): AutoLayoutResult => {
     if (layoutNode.baseNode) {
       continue;
     }
+    const width = layoutNode.width as number;
+    const height = layoutNode.height as number;
     result[layoutNode.id] = {
-      from: { x: layoutNode.ox, y: layoutNode.oy },
-      to: { x: layoutNode.x, y: layoutNode.y },
+      from: { x: layoutNode.ox - width / 2, y: layoutNode.oy - height / 2 },
+      to: { x: layoutNode.x - width / 2, y: layoutNode.y - height / 2 },
     };
   }
   return result;
@@ -195,16 +218,38 @@ const updateFixedPoints = (layoutNodes: LayoutNode[]) => {
 };
 
 /**
- * Updates the nodes' positions with the computed layout.
+ * Resets the layout as it was before the auto layout.
+ * This is called when options.noNodeMoving is set on autoLayout().
  */
-const updateLayout = (state: DataflowState, layoutNodes: LayoutNode[]) => {
+const resetLayout = (state: DataflowState, layoutNodes: LayoutNode[]) => {
   for (const layoutNode of layoutNodes) {
     if (layoutNode.baseNode) {
       continue; // skip fixed points padded
     }
     const node = state.nodes.find(dataflowNode => dataflowNode.id === layoutNode.id) as Node;
+    node.moveTo(layoutNode.ox - (layoutNode.width as number) / 2,
+      layoutNode.oy - (layoutNode.height as number) / 2);
+  }
+};
+
+/**
+ * Updates the nodes' positions with the computed layout.
+ */
+const updateLayout = (state: DataflowState, layoutNodes: LayoutNode[], onComplete: () => void) => {
+  let movedCount = 0;
+  const done = () => {
+    if (--movedCount === 0) {
+      onComplete();
+    }
+  };
+  for (const layoutNode of layoutNodes) {
+    if (layoutNode.baseNode) {
+      continue; // skip fixed points padded
+    }
+    movedCount++;
+    const node = state.nodes.find(dataflowNode => dataflowNode.id === layoutNode.id) as Node;
     node.moveToWithTransition(layoutNode.x - (layoutNode.width as number) / 2,
       layoutNode.y - (layoutNode.height as number) / 2,
-      AUTO_LAYOUT_TRANSITION_S);
+      AUTO_LAYOUT_TRANSITION_S, done);
   }
 };

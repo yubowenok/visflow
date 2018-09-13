@@ -23,6 +23,7 @@ export interface NodeType {
   imgSrc: string;
   constructor: Function; // tslint:disable-line ban-types
   tags: string; // text description used for searching
+  aliases?: string[];
 }
 
 export interface CreateNodeData {

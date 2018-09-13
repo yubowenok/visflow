@@ -9,7 +9,7 @@ import { SubsetNode } from '@/components/subset-node';
 import VisualEditor, { VisualEditorMode } from '@/components/visual-editor/visual-editor';
 import * as visualEditorHistory from '@/components/visual-editor/history';
 import { Visualization } from '@/components/visualization';
-import { VisualProperties } from '@/data/visuals';
+import { VisualProperties, VisualPropertyType } from '@/data/visuals';
 
 /**
  * Actually creates a visual editor when no existing editor is present.
@@ -155,10 +155,14 @@ export const updateVisualEditor = (tracker: FlowsenseUpdateTracker, value: Query
 
     const encoding: VisualEncodingSpecification = visuals.encoding;
     const current = visualEditor.getVisualsEncoding();
+
+    const encodingType = encoding.type as VisualPropertyType;
     const encodingColumn = util.getColumnMarkerIndex(query, visualEditor, encoding.column);
     tracker.changeNodeOption(visualEditorHistory.selectEncodingColumnEvent(visualEditor, encodingColumn,
       current.column));
     visualEditor.setEncodingColumn(encodingColumn);
+    tracker.changeNodeOption(visualEditorHistory.selectEncodingTypeEvent(visualEditor, encodingType, current.type));
+    visualEditor.setEncodingType(encodingType);
 
     if (typeof encoding.scale === 'string') { // color scale id
       tracker.changeNodeOption(visualEditorHistory.selectEncodingColorScaleEvent(visualEditor, encoding.scale,

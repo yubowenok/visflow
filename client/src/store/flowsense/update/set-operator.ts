@@ -13,7 +13,7 @@ export const createSetOperator = (tracker: FlowsenseUpdateTracker, value: QueryV
   let sources: Node[] = [];
   const setOperator = value.setOperator as SetOperatorSpecification;
   setOperator.nodes.forEach(marker => {
-    const label = util.ejectMarker(marker, query.markerMapping).value[0];
+    const label = util.ejectMappableMarker(marker, query.markerMapping).value[0];
     sources.push(util.findNodeWithLabel(label));
   });
   if (sources.length < 2) {

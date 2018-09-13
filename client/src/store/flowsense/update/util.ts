@@ -1,6 +1,6 @@
 import { CreateNodeOptions, DataflowState } from '@/store/dataflow/types';
 import store from '@/store';
-import { ejectMarker, InjectedQuery } from '../helper';
+import { ejectMarker, InjectedQuery, ejectMappableMarker } from '../helper';
 import { Node } from '@/components/node';
 import { OutputPort, InputPort } from '@/components/port';
 import Edge from '@/components/edge/edge';
@@ -13,6 +13,7 @@ import { vectorDistance } from '@/common/vector';
 
 export {
   ejectMarker,
+  ejectMappableMarker,
   focusNode,
   focusNodes,
 };
@@ -88,13 +89,13 @@ export const propagateNodes = (nodes: Node[]) => {
 export const getColumnMarkerIndex = (query: InjectedQuery, node: SubsetNode, injectedColumn: string): number | null => {
   let columnIndex = injectedColumn === FlowsenseDef.INDEX_COLUMN ? INDEX_COLUMN : null;
   if (injectedColumn !== FlowsenseDef.INDEX_COLUMN && node.hasDataset()) {
-    const columnName = ejectMarker(injectedColumn, query.markerMapping).value[0];
+    const columnName = ejectMappableMarker(injectedColumn, query.markerMapping).value[0];
     columnIndex = node.getDataset().getColumnIndex(columnName);
   }
   return columnIndex;
 };
 
-const NEARBY_THRESHOLD_PX = 300;
+const NEARBY_THRESHOLD_PX = window.innerHeight / 3;
 /**
  * Returns a list of nodes that are close to the given node.
  */

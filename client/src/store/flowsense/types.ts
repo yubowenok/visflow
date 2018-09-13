@@ -14,6 +14,7 @@ export enum FlowsenseTokenCategory {
 }
 
 export interface FlowsenseCategorizedToken {
+  matchText: string[];
   displayText?: string;
   annotation?: string;
   category: FlowsenseTokenCategory;

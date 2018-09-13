@@ -4,8 +4,10 @@
     <div class="bold title">
       History
       <span class="buttons">
-        <b-button size="sm" variant="outline-secondary" @click="undoEvents(1)"><i class="fas fa-undo-alt"></i></b-button>
-        <b-button size="sm" variant="outline-secondary" @click="redoEvents(1)"><i class="fas fa-redo-alt"></i></b-button>
+        <b-button size="sm" variant="outline-secondary" @click="undoEvents(1)"
+          :disabled="!undoMessage"><i class="fas fa-undo-alt"></i></b-button>
+        <b-button size="sm" variant="outline-secondary" @click="redoEvents(1)"
+          :disabled="!redoMessage"><i class="fas fa-redo-alt"></i></b-button>
       </span>
       <i id="more-redo" class="fas fa-angle-double-up" v-show="redoStack.length > 5"></i>
       <b-tooltip target="more-redo">more redo's above</b-tooltip>

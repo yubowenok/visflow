@@ -298,10 +298,9 @@ export default class Node extends Vue {
     const $node = $(this.$refs.node);
     const width = $node.width() as number;
     const height = $node.height() as number;
-    const offset = $node.offset() as JQueryCoordinates;
     return {
-      x: offset.left,
-      y: offset.top,
+      x: this.x,
+      y: this.y,
       width,
       height,
     };
@@ -364,7 +363,7 @@ export default class Node extends Vue {
   }
 
   /** Moves the node to a given position with transition */
-  public moveToWithTransition(x: number, y: number, duration: number) {
+  public moveToWithTransition(x: number, y: number, duration: number, onComplete?: () => void) {
     const $node = $(this.$refs.node);
     TweenLite.to(this.$refs.node, duration, {
       left: x,
@@ -378,6 +377,9 @@ export default class Node extends Vue {
       onComplete: () => {
         this.x = x;
         this.y = y;
+        if (onComplete) {
+          onComplete();
+        }
       },
     });
   }

@@ -33,7 +33,7 @@ export const completeChart = (tracker: FlowsenseUpdateTracker, value: QueryValue
     const chart = chartTarget.node as Visualization;
     const columnIndices = [];
     for (const injectedColumn of value.columns) {
-      const columnName = util.ejectMarker(injectedColumn, query.markerMapping).value[0];
+      const columnName = util.ejectMappableMarker(injectedColumn, query.markerMapping).value[0];
       const columnIndex = util.getColumnMarkerIndex(query, chartSource as SubsetNode, injectedColumn);
       if (columnIndex === null) {
         tracker.cancel(`column ${columnName} cannot be found`);
@@ -43,6 +43,5 @@ export const completeChart = (tracker: FlowsenseUpdateTracker, value: QueryValue
     }
     chart.applyColumns(columnIndices);
   }
-
   tracker.toAutoLayout(util.getNearbyNodes(chartTarget.node));
 };

@@ -211,8 +211,12 @@ const mutations = {
     if (nodes.length === 0) {
       nodes = undefined;
     }
-    layout.autoLayout(state, nodes, (result: layout.AutoLayoutResult) => {
-      store.commit('history/commit', history.autoLayoutEvent(result));
+    layout.autoLayout(state, nodes, {
+      onComplete: (result: layout.AutoLayoutResult, transitionDone) => {
+        if (transitionDone) {
+          store.commit('history/commit', history.autoLayoutEvent(result));
+        }
+      },
     });
   },
 

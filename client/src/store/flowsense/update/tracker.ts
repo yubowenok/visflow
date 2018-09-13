@@ -24,6 +24,8 @@ import { autoLayout as dataflowAutoLayout } from '@/store/dataflow/layout';
 
 const dataflow = (): DataflowState => store.state.dataflow;
 
+const CENTER_CANVAS_DURATION_S = .5;
+
 export default class FlowsenseUpdateTracker {
   private createdNodes: Node[] = [];
   private createdEdges: Edge[] = [];
@@ -33,16 +35,6 @@ export default class FlowsenseUpdateTracker {
   private eventIndexToCreatedNode: { [index: number]: Node } = {};
   private nodesToAutoLayout: Node[] = [];
   private nodeToCenterAt: Node | null = null;
-
-  /**
-   * Generates node movement event based on auto layout result.
-   */
-  public autoLayout(nodes: Node[], result: AutoLayoutResult) {
-    nodes.forEach(node => {
-      const { from, to } = result[node.id];
-      this.events.push(moveNodeEvent(node, [node], to, from));
-    });
-  }
 
   public createNode(node: Node) {
     this.createdNodes.push(node);
@@ -113,10 +105,20 @@ export default class FlowsenseUpdateTracker {
    */
   public commit(message: string) {
     // The options of the created nodes may have been changed.
+    // [NOTE] Do not re-serialize the node's position as it may have been tracked by auto layout!
     // Serialize the latest options into the node save.
+    // The anchor may also need to be updated because auto layout may change the relative position between the created
+    // node and the anchor node.
     this.events.forEach((evt, eventIndex) => {
       if (evt.level === HistoryEventLevel.DIAGRAM && evt.type === DiagramEventType.CREATE_NODE) {
-        evt.data.nodeSave = this.eventIndexToCreatedNode[eventIndex].serialize();
+        const createdNode = this.eventIndexToCreatedNode[eventIndex];
+        const keptSave = _.pick(evt.data.nodeSave, [
+          'dataflowX',
+          'dataflowY',
+          'visModeX',
+          'visModeY',
+        ]);
+        evt.data.nodeSave = _.extend(createdNode.serialize(), keptSave);
       }
     });
 
@@ -133,17 +135,23 @@ export default class FlowsenseUpdateTracker {
    */
   public autoLayoutAndCommit(message: string) {
     if (!this.nodesToAutoLayout.length) {
-      // Layout is not affected, just commit.
-      this.commit(message);
+      // Layout is not affected, just center and commit.
+      this.centerCanvas({}, () => {
+        this.commit(message);
+      });
       return;
     }
     // Queues the auto layout. The newly created nodes will be in the appear() transition in the beginning.
     // If auto layout is called too soon, two animations will collide and mess up the layout.
-    setTimeout(() => dataflowAutoLayout(dataflow(), this.nodesToAutoLayout, result => {
-      this.centerCanvas(() => {
-        this.autoLayout(this.nodesToAutoLayout, result);
-        this.commit(message);
-      });
+    setTimeout(() => dataflowAutoLayout(dataflow(), this.nodesToAutoLayout, {
+      onComplete: (result, transitionDone) => {
+        if (transitionDone) {
+          this.centerCanvas(result, () => {
+            this.commit(message);
+          });
+        }
+      },
+      noNodeMoving: true,
     }), 0);
   }
 
@@ -167,22 +175,34 @@ export default class FlowsenseUpdateTracker {
   /**
    * Centers the canvas at nodeToCenterAt.
    */
-  private centerCanvas(onComplete: () => void) {
+  private centerCanvas(result: AutoLayoutResult, onComplete: () => void) {
     if (this.nodeToCenterAt === null && !this.createdNodes.length) {
       onComplete();
       return; // Nothing can be centered at.
     }
     const node = this.nodeToCenterAt || this.createdNodes[0];
+    const nodeBox = node.getBoundingBox();
     // Position where the center node should be at.
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
-    const center = node.getCenter();
-    const dx = centerX - center.x;
-    const dy = centerY - center.y;
+    const newPosition = result[node.id] === undefined ?
+      { x: nodeBox.x, y: nodeBox.y } : result[node.id].to;
+    const dx = centerX - (newPosition.x + nodeBox.width / 2);
+    const dy = centerY - (newPosition.y + nodeBox.height / 2);
+    let movedCount = dataflow().nodes.length;
+    const done = () => {
+      if (--movedCount === 0) {
+        onComplete();
+      }
+    };
     dataflow().nodes.forEach(diagramNode => {
       const box = diagramNode.getBoundingBox();
-      diagramNode.moveToWithTransition(box.x + dx, box.y + dy, .8);
+      const position = result[diagramNode.id] === undefined ?
+        { x: box.x, y: box.y } : result[diagramNode.id].to;
+      position.x += dx;
+      position.y += dy;
+      this.events.push(moveNodeEvent(diagramNode, [diagramNode], position, { x: box.x, y: box.y }));
+      diagramNode.moveToWithTransition(position.x, position.y, CENTER_CANVAS_DURATION_S, done);
     });
-    setTimeout(onComplete, .8);
   }
 }

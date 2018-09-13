@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import { Annyang } from 'annyang';
 import annyang from 'annyang';
@@ -7,10 +8,12 @@ import FormInput from '@/components/form-input/form-input';
 import { DatasetInfo } from '@/store/dataset/types';
 import TabularDataset from '@/data/tabular-dataset';
 import { NodeType } from '@/store/dataflow/types';
-import { FlowsenseTokenCategory, FlowsenseToken, FlowsenseResult } from '@/store/flowsense/types';
-import { showSystemMessage, areRangesIntersected,  systemMessageErrorHandler } from '@/common/util';
+import { FlowsenseTokenCategory, FlowsenseToken, FlowsenseCategorizedToken } from '@/store/flowsense/types';
+import { showSystemMessage, areRangesIntersected,  systemMessageErrorHandler, elementOffset } from '@/common/util';
 
 const DROPDOWN_MARGIN_PX = 10;
+const TOKEN_COMPLETION_DROPDOWN_DELAY_MS = 250;
+const TOKEN_COMPLETION_DROPDOWN_Y_OFFSET_PX = 10;
 
 interface DropdownElement {
   text: string;
@@ -30,6 +33,15 @@ interface ManualCategory {
  */
 const isSeparator = (char: string): boolean => {
   return char.match(/^[\s,.;?!]$/) !== null;
+};
+
+/**
+ * Checks if pattern is a non trivial prefix of target.
+ */
+const matchNonTrivialPrefix = (target: string, pattern: string): boolean => {
+  target = target.toLowerCase();
+  pattern = pattern.toLowerCase();
+  return target.indexOf(pattern) === 0 && target !== pattern;
 };
 
 /**
@@ -96,8 +108,18 @@ export default class FlowsenseInput extends Vue {
   private isVoiceInProgress = false;
   private isWaiting = false; // waiting for query response
   private isInputHidden = false;
+  private lastEditPosition = 0;
 
-  private dropdownElements: DropdownElement[] = [];
+  private specialUtterances: FlowsenseCategorizedToken[] = [];
+
+  // Dropdown elements for selecting token categories
+  private tokenCategoryDropdown: DropdownElement[] = [];
+  // Dropdown elements for auto completing special utterances
+  private tokenCompletionDropdown: DropdownElement[] = [];
+  private tokenCompletionDropdownSelectedIndex: number = 0;
+  private tokenCompletionDropdownPositionX = 0;
+  private tokenCompletionDropdownTimeout: NodeJS.Timer | null = null;
+
   private clickX = 0;
   private clickY = 0;
   private manualCategories: ManualCategory[] = [];
@@ -106,7 +128,15 @@ export default class FlowsenseInput extends Vue {
     return this.isVoiceInProgress ? 'active' : '';
   }
 
-  get dropdownStyle() {
+  get tokenCompletionDropdownStyle() {
+    const inputHeight = $(this.$el).find('#input').height() as number;
+    return {
+      left: this.tokenCompletionDropdownPositionX + 'px',
+      top: (inputHeight + TOKEN_COMPLETION_DROPDOWN_Y_OFFSET_PX) + 'px',
+    };
+  }
+
+  get tokenCategoryDropdownStyle() {
     return {
       left: this.clickX + 'px',
       top: this.clickY + 'px',
@@ -129,9 +159,61 @@ export default class FlowsenseInput extends Vue {
   }
 
   /**
+   * Generates a list of matchable special utterances.
+   */
+  private generateSpecialUtterances() {
+    this.specialUtterances = [];
+    this.tabularDatasets.forEach(tabularDataset => {
+      const columnNames = tabularDataset.getColumns().map(column => column.name);
+      for (const name of columnNames) {
+        this.specialUtterances.push({
+          matchText: [name],
+          category: FlowsenseTokenCategory.COLUMN,
+          displayText: name,
+          annotation: '/column ' + tabularDataset.getName(),
+          value: [name, tabularDataset.getName(), tabularDataset.getHash()],
+        });
+      }
+    });
+
+    this.nodeTypes.forEach(nodeType => {
+      this.specialUtterances.push({
+        matchText: [nodeType.id, nodeType.title].concat(nodeType.aliases || []),
+        category: FlowsenseTokenCategory.NODE_TYPE,
+        displayText: nodeType.title,
+        annotation: '/node type',
+        value: [nodeType.id],
+      });
+    });
+
+    this.nodeLabels.forEach(label => {
+      this.specialUtterances.push({
+        matchText: [label],
+        category: FlowsenseTokenCategory.NODE_LABEL,
+        displayText: label,
+        annotation: '/node label',
+        value: [label],
+      });
+    });
+
+    this.datasetList.forEach(dataset => {
+      const matchedRawName = dataset.originalname.match(/^(.*)\..*/);
+      const rawName = matchedRawName !== null ? matchedRawName[1] : dataset.originalname;
+      this.specialUtterances.push({
+        matchText: [rawName, dataset.originalname],
+        category: FlowsenseTokenCategory.DATASET,
+        displayText: rawName,
+        annotation: '/dataset',
+        value: [dataset.originalname, dataset.filename],
+      });
+    });
+  }
+
+  /**
    * Parses the text into tokens, separated by spaces.
    */
   private parseInput(text: string) {
+    this.generateSpecialUtterances();
     let numTokens = 0;
     for (let i = 0; i < text.length; i++) {
       if (isSeparator(text[i])) {
@@ -140,6 +222,7 @@ export default class FlowsenseInput extends Vue {
           text: text[i],
           chosenCategory: 0,
           categories: [{
+            matchText: [],
             category: FlowsenseTokenCategory.NONE,
             value: [],
           }],
@@ -158,6 +241,7 @@ export default class FlowsenseInput extends Vue {
         text: tokenText,
         chosenCategory: -1,
         categories: [{
+          matchText: [],
           category: FlowsenseTokenCategory.NONE,
           displayText: '',
           annotation: '/(none)',
@@ -197,54 +281,14 @@ export default class FlowsenseInput extends Vue {
         const tokenText = iteration === 1 ? token.text :
           token.text + this.tokens[index + 1].text + this.tokens[index + 2].text;
 
-        this.tabularDatasets.forEach(tabularDataset => {
-          const columnNames = tabularDataset.getColumns().map(column => column.name);
-          for (const name of columnNames) {
-            if (matchToken(tokenText, name)) {
-              token.categories.push({
-                category: FlowsenseTokenCategory.COLUMN,
-                displayText: name,
-                annotation: '/column ' + tabularDataset.getName(),
-                value: [name, tabularDataset.getName(), tabularDataset.getHash()],
-              });
+
+        for (const utterance of this.specialUtterances) {
+          for (const text of utterance.matchText as string[]) {
+            if (matchToken(tokenText, text)) {
+              token.categories.push(utterance);
             }
           }
-        });
-
-        this.nodeTypes.forEach(nodeType => {
-          if (matchToken(tokenText, nodeType.id) || matchToken(tokenText, nodeType.title)) {
-            token.categories.push({
-              category: FlowsenseTokenCategory.NODE_TYPE,
-              displayText: nodeType.title,
-              annotation: '/node type',
-              value: [nodeType.id],
-            });
-          }
-        });
-
-        this.nodeLabels.forEach(label => {
-          if (matchToken(tokenText, label)) {
-            token.categories.push({
-              category: FlowsenseTokenCategory.NODE_LABEL,
-              displayText: label,
-              annotation: '/node label',
-              value: [label],
-            });
-          }
-        });
-
-        this.datasetList.forEach(dataset => {
-          const matchedRawName = dataset.originalname.match(/^(.*)\..*/);
-          const rawName = matchedRawName !== null ? matchedRawName[1] : null;
-          if (matchToken(tokenText, dataset.originalname) || (rawName && matchToken(tokenText, rawName))) {
-            token.categories.push({
-              category: FlowsenseTokenCategory.DATASET,
-              displayText: dataset.originalname,
-              annotation: '/dataset',
-              value: [dataset.originalname, dataset.filename],
-            });
-          }
-        });
+        }
 
         if (token.categories.length > 1) {
           const manual = this.manualCategories.find(category => category.startIndex === token.index);
@@ -290,11 +334,20 @@ export default class FlowsenseInput extends Vue {
       }
 
       const edit = (this.$refs.input as FormInput).getLastEdit();
+      this.lastEditPosition = edit.endIndex;
+
+      this.calibratedText = this.calibratedText.slice(0, edit.endIndex);
+      this.$nextTick(() => {
+        this.tokenCompletionDropdownPositionX = $(this.$el).find('.width-calibration').width() as number;
+      });
+
       // deltaLength characters have been inserted/removed at index cursorPosition.
       // All manually identified category ranges that are after the cursor position are shifted.
       let deltaLength = 0;
-      if (edit.type === 'insert' || edit.type === 'delete') {
+      if (edit.type === 'insert') {
         deltaLength = edit.value.length;
+      } else if (edit.type === 'delete') {
+        deltaLength = -edit.value.length;
       } else if (edit.type === 'replace') {
         deltaLength = edit.value.length - (edit.endIndex - edit.startIndex);
       }
@@ -321,8 +374,111 @@ export default class FlowsenseInput extends Vue {
       }).filter(category => category !== null) as ManualCategory[];
       this.prevText = finalText;
       this.parseInput(finalText);
-      this.text = this.tokens.map(token => token.text).join('');
+      this.text = this.textFromTokens();
+      this.generatetokenCompletionDropdown();
     });
+  }
+
+  /**
+   * Generates text from the parsed tokens.
+   */
+  private textFromTokens(): string {
+    return this.tokens.map(token => token.text).join('');
+  }
+
+  /**
+   * Handles tab key that can completes a token.
+   */
+  private onTab() {
+    this.tokenCompletionDropdown[this.tokenCompletionDropdownSelectedIndex].onClick();
+    this.tokenCompletionDropdown = []; // close dropdown
+  }
+
+  /**
+   * Moves down to choose the next auto completable token.
+   */
+  private onArrowDown() {
+    this.tokenCompletionDropdownSelectedIndex++;
+    if (this.tokenCompletionDropdownSelectedIndex >= this.tokenCompletionDropdown.length) {
+      this.tokenCompletionDropdownSelectedIndex = 0;
+    }
+  }
+
+  /**
+   * Moves up to choose the previous auto completable token.
+   */
+  private onArrowUp() {
+    this.tokenCompletionDropdownSelectedIndex--;
+    if (this.tokenCompletionDropdownSelectedIndex < 0) {
+      this.tokenCompletionDropdownSelectedIndex = this.tokenCompletionDropdown.length - 1;
+    }
+  }
+
+  /**
+   * Handles enter key.
+   */
+  private onEnter() {
+    if (this.tokenCompletionDropdown.length) {
+      // If the token completion dropdown is visible, choose the option in the dropdown.
+      this.onTab();
+      return;
+    }
+    // Otherwise, submit the query.
+    this.submitQuery();
+  }
+
+  /**
+   * Checks the last token in the list and produces an auto completion list for this token.
+   */
+  private generatetokenCompletionDropdown() {
+    let startIndex = 0;
+    let editedToken: FlowsenseToken | null = null;
+    for (const token of this.tokens) {
+      startIndex += token.text.length;
+      if (startIndex > this.lastEditPosition) {
+        editedToken = token;
+        break;
+      }
+    }
+    this.tokenCompletionDropdownSelectedIndex = 0;
+    this.tokenCompletionDropdown = [];
+    if (this.tokenCompletionDropdownTimeout !== null) {
+      clearTimeout(this.tokenCompletionDropdownTimeout);
+    }
+    if (editedToken === null) {
+      return;
+    }
+    const timeout = TOKEN_COMPLETION_DROPDOWN_DELAY_MS;
+    const utterances = this.specialUtterances.filter(utterance => {
+      for (const text of utterance.matchText) {
+        if (matchNonTrivialPrefix(text, (editedToken as FlowsenseToken).text)) {
+          return true;
+        }
+      }
+      return false;
+    });
+    const dropdown = utterances.map(category => ({
+      text: category.displayText || '',
+      annotation: category.annotation || '',
+      class: category.category !== FlowsenseTokenCategory.NONE ? 'categorized ' + category.category : '',
+      onClick: () => {
+        const deltaLength = (category.displayText as string).length - (editedToken as FlowsenseToken).text.length;
+        const editPosition = this.lastEditPosition + 1;
+        (editedToken as FlowsenseToken).text = category.displayText as string;
+        this.text = this.textFromTokens();
+        this.parseInput(this.text);
+        this.$nextTick(() => {
+          const inputElement = $(this.$el).find('#input')[0] as HTMLInputElement;
+          inputElement.setSelectionRange(editPosition + deltaLength, editPosition + deltaLength);
+        });
+      },
+    }));
+    if (dropdown.length) {
+      this.tokenCompletionDropdownTimeout =
+      setTimeout(() => {
+        this.tokenCompletionDropdown = dropdown;
+      }, timeout);
+    }
   }
 
   private getCursorPosition(): number {
@@ -340,10 +496,13 @@ export default class FlowsenseInput extends Vue {
   }
 
   private clickToken(evt: MouseEvent, index: number) {
-    const $target = $(evt.target as Element);
-    this.clickX = ($target.offset() as JQuery.Coordinates).left;
-    this.clickY = ($target.offset() as JQuery.Coordinates).top + ($target.height() as number) + DROPDOWN_MARGIN_PX;
-    this.dropdownElements = this.tokens[index].categories.map((category, categoryIndex) => ({
+    this.tokenCompletionDropdown = []; // avoid two dropdowns appearing together
+
+    const $target = $(evt.target as HTMLElement);
+    const offset = elementOffset($target, $(this.$el));
+    this.clickX = offset.left;
+    this.clickY = offset.top + ($target.height() as number) + DROPDOWN_MARGIN_PX;
+    this.tokenCategoryDropdown = this.tokens[index].categories.map((category, categoryIndex) => ({
       text: category.displayText || '',
       annotation: category.annotation || '',
       class: category.category !== FlowsenseTokenCategory.NONE ? 'categorized ' + category.category : '',
@@ -360,7 +519,7 @@ export default class FlowsenseInput extends Vue {
             chosenCategory: categoryIndex,
           });
         }
-        this.dropdownElements = []; // hide dropdown
+        this.tokenCategoryDropdown = []; // hide dropdown
       },
     }));
   }
@@ -369,7 +528,7 @@ export default class FlowsenseInput extends Vue {
     this.isInputHidden = true;
   }
 
-  private onTextSubmit() {
+  private submitQuery() {
     if (this.isInputHidden) {
       // Do nothing when the input is hidden by clicking on the background.
       return;
@@ -393,7 +552,8 @@ export default class FlowsenseInput extends Vue {
 
   @Watch('visible')
   private onVisibleChange() {
-    this.dropdownElements = []; // hide dropdown whenever visibility changes
+    this.tokenCategoryDropdown = []; // hide dropdown whenever visibility changes
+    this.tokenCompletionDropdown = [];
     this.onVoiceEnabledChange();
     if (this.visible) {
       this.$nextTick(() => $(this.$el).find('#input').focus()); // wait for transition to complete before focus()

@@ -12,6 +12,8 @@ export default class HistoryPanel extends Vue {
   @ns.history.State('redoStack') private redoStack!: HistoryEvent[];
   @ns.history.Mutation('undoEvents') private undoEvents!: (k: number) => void;
   @ns.history.Mutation('redoEvents') private redoEvents!: (k: number) => void;
+  @ns.history.Getter('undoMessage') private undoMessage!: string;
+  @ns.history.Getter('redoMessage') private redoMessage!: string;
   @ns.dataflow.Getter('getImgSrc') private getImgSrc!: (type: NodeType) => string;
 
   private mounted() {
