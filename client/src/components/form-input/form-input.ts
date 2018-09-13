@@ -68,6 +68,10 @@ export default class FormInput extends Vue {
         edit.value = l === r ? this.prevEditText[l - 1] : this.prevEditText.slice(l, r);
       }
     }
+    if (!edit.value) {
+      // Sometimes the input is a unicode character that cannot be parsed. This is to avoid errors in the console.
+      edit.value = '';
+    }
     return edit;
   }
 

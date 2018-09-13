@@ -48,13 +48,15 @@ export interface FlowsenseResult {
   value: QueryValue;
 }
 
+export interface VisualEncodingSpecification {
+  column: string;
+  type: string; // which visual property
+  scale: string | number[]; // color scale id or numerical scale range
+}
+
 export interface VisualsSpecification {
   assignment?: { [prop: string]: string | number };
-  encoding?: {
-    column: string;
-    type: string; // which visual property
-    scale: string | number[]; // color scale id or numerical scale range
-  };
+  encoding?: VisualEncodingSpecification;
 }
 
 export interface FilterSpecification {

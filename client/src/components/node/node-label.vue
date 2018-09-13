@@ -18,8 +18,8 @@
   border-top-left-radius: $border-radius;
   border-top-right-radius: $border-radius;
 
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: .5rem;
+  padding-right: .5rem;
 }
 </style>
 

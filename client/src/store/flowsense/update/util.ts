@@ -68,6 +68,13 @@ export const createEdge = (sourcePort: OutputPort, targetPort: InputPort, propag
 };
 
 /**
+ * Provides removeEdge wrapper.
+ */
+export const removeEdge = (edge: Edge, propagate: boolean) => {
+  return dataflowHelper.removeEdge(dataflow(), edge, propagate);
+};
+
+/**
  * Propagates the nodes in the list.
  */
 export const propagateNodes = (nodes: Node[]) => {

@@ -76,7 +76,9 @@ const actions = {
       return axiosPostFullUrl<FlowsenseResult>(FLOWSENSE_URL, { query: query.query })
         .then(res => {
           const result: FlowsenseResult = res.data;
-          helper.executeQuery(result.value, query);
+          if (result.success) {
+            helper.executeQuery(result.value, query);
+          }
           resolve(result.success);
         }, err => reject(errorMessage(err)));
     });

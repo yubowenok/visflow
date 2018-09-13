@@ -12,4 +12,5 @@ export default class OptionsMenu extends Vue {
   @ns.systemOptions.Mutation('toggleNodeLabels') private toggleNodeLabels!: () => void;
 
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
+  @ns.dataflow.Mutation('labelAllNodes') private labelAllNodes!: () => void;
 }

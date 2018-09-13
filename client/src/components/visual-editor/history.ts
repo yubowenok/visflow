@@ -100,7 +100,7 @@ export const selectEncodingColumnEvent = (node: VisualEditor, column: number | n
   );
 };
 
-export const selectEncodingType = (node: VisualEditor, type: VisualPropertyType, prevType: VisualPropertyType):
+export const selectEncodingTypeEvent = (node: VisualEditor, type: VisualPropertyType, prevType: VisualPropertyType):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     VisualEditorEventType.SELECT_ENCODING_TYPE,
@@ -112,7 +112,7 @@ export const selectEncodingType = (node: VisualEditor, type: VisualPropertyType,
   );
 };
 
-export const selectEncodingColorScale = (node: VisualEditor, colorScaleId: string, prevColorScaleId: string):
+export const selectEncodingColorScaleEvent = (node: VisualEditor, colorScaleId: string, prevColorScaleId: string):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     VisualEditorEventType.SELECT_ENCODING_COLOR_SCALE,
@@ -124,7 +124,7 @@ export const selectEncodingColorScale = (node: VisualEditor, colorScaleId: strin
   );
 };
 
-export const inputEncodingScaleMin = (node: VisualEditor, value: number | null, prevValue: number | null):
+export const inputEncodingScaleMinEvent = (node: VisualEditor, value: number | null, prevValue: number | null):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     VisualEditorEventType.INPUT_ENCODING_SCALE_MIN,
@@ -136,7 +136,7 @@ export const inputEncodingScaleMin = (node: VisualEditor, value: number | null, 
   );
 };
 
-export const inputEncodingScaleMax = (node: VisualEditor, value: number | null, prevValue: number | null):
+export const inputEncodingScaleMaxEvent = (node: VisualEditor, value: number | null, prevValue: number | null):
   HistoryNodeOptionEvent => {
   return nodeOptionEvent(
     VisualEditorEventType.INPUT_ENCODING_SCALE_MAX,

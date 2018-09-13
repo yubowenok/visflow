@@ -270,7 +270,19 @@ export default class Node extends Vue {
     return null;
   }
 
-  /** Retrieves the ids of the nodes that this node connects to via output ports. */
+  /** Retrives the list of nodes that output to this node. */
+  public getInputNodes(): Node[] {
+    const nodes: Set<Node> = new Set();
+    for (const port of this.inputPorts) {
+      const inputs = port.getConnectedNodes();
+      for (const node of inputs) {
+        nodes.add(node);
+      }
+    }
+    return Array.from(nodes);
+  }
+
+  /** Retrieves the list of nodes that this node connects to via output ports. */
   public getOutputNodes(): Node[] {
     const nodes: Set<Node> = new Set();
     for (const port of this.outputPorts) {
@@ -894,6 +906,8 @@ export default class Node extends Vue {
       $(element).parents('.modal-dialog').length ||
       // If the click is on modal backdrop, do nothing.
       $(element).hasClass('modal-backdrop') ||
+      // If the click is in the history panel to undo/redo events, do nothing.
+      $('.history-panel')[0].contains(element) ||
       // If the click is on the node's own option panel, do nothing.
       this.$refs.optionPanel && (this.$refs.optionPanel as Vue).$el.contains(evt.target as Element)) {
       return;

@@ -3,12 +3,17 @@
   <div class="history-panel" v-if="isVisible">
     <div class="bold title">
       History
-      <i class="fas fa-angle-double-up" v-if="redoStack.length > 5"></i>
+      <span class="buttons">
+        <b-button size="sm" variant="outline-secondary" @click="undoEvents(1)"><i class="fas fa-undo-alt"></i></b-button>
+        <b-button size="sm" variant="outline-secondary" @click="redoEvents(1)"><i class="fas fa-redo-alt"></i></b-button>
+      </span>
+      <i id="more-redo" class="fas fa-angle-double-up" v-show="redoStack.length > 5"></i>
+      <b-tooltip target="more-redo">more redo's above</b-tooltip>
     </div>
     <hr class="divider">
-    <div class="events" ref="events">
+    <div class="history-events" ref="events">
       <div class="redo-group">
-        <div v-for="(evt, index) in redoStack.slice(-5)" :key="index" class="event redo"
+        <div v-for="(evt, index) in redoStack.slice(-5)" :key="index" class="history-event redo"
           @click="redoEvents(Math.min(5, redoStack.length) - index)">
           <span class="icon" v-if="evt.icon">
             <img class="node-icon" :src="getIconPath(evt.icon.nodeType)" v-if="evt.icon.isNodeIcon">
@@ -19,7 +24,7 @@
         </div>
       </div>
       <div class="undo-group">
-        <div v-for="(evt, index) in undoStack.concat().reverse()" :key="index" class="event undo"
+        <div v-for="(evt, index) in undoStack.concat().reverse()" :key="index" class="history-event undo"
           @click="undoEvents(Math.max(index, 1))">
           <span class="icon" v-if="evt.icon">
             <img class="node-icon" :src="getIconPath(evt.icon.nodeType)" v-if="evt.icon.isNodeIcon">

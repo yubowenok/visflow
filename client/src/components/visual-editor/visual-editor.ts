@@ -181,7 +181,20 @@ export default class VisualEditor extends SubsetNode {
     this.updateAndPropagate();
   }
 
+  public getMode(): VisualEditorMode {
+    return this.mode;
+  }
+
+  public getVisualsAssignment(): NullableVisualProperties {
+    return _.clone(this.visuals);
+  }
+
+  public getVisualsEncoding(): EncodingParams {
+    return _.clone(this.encoding);
+  }
+
   protected onDatasetChange() {
+    console.log('on dataset change');
     this.encoding.column = null; // Avoid unexpected encoding on new dataset column.
   }
 
@@ -311,22 +324,22 @@ export default class VisualEditor extends SubsetNode {
   }
 
   private onSelectEncodingType(type: VisualPropertyType, prevType: VisualPropertyType) {
-    this.commitHistory(history.selectEncodingType(this, type, prevType));
+    this.commitHistory(history.selectEncodingTypeEvent(this, type, prevType));
     this.setEncodingType(type);
   }
 
   private onSelectEncodingColorScale(colorScaleId: string, prevColorScaleId: string) {
-    this.commitHistory(history.selectEncodingColorScale(this, colorScaleId, prevColorScaleId));
+    this.commitHistory(history.selectEncodingColorScaleEvent(this, colorScaleId, prevColorScaleId));
     this.setEncodingColorScale(colorScaleId);
   }
 
   private onInputEncodingScaleMin(value: number | null, prevValue: number | null) {
-    this.commitHistory(history.inputEncodingScaleMin(this, value, prevValue));
+    this.commitHistory(history.inputEncodingScaleMinEvent(this, value, prevValue));
     this.setEncodingScaleMin(value);
   }
 
   private onInputEncodingScaleMax(value: number | null, prevValue: number | null) {
-    this.commitHistory(history.inputEncodingScaleMax(this, value, prevValue));
+    this.commitHistory(history.inputEncodingScaleMaxEvent(this, value, prevValue));
     this.setEncodingScaleMax(value);
   }
 }

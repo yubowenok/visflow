@@ -6,10 +6,10 @@
   :clearable="clearable"
 >
   <template slot="option" slot-scope="{ option }">
-    <li>
+    <div>
       <div>{{ option.label }}</div>
       <color-scale-display :id="option.id" class="color-scale-display"></color-scale-display>
-    </li>
+    </div>
   </template>
   <template slot="selected-option" slot-scope="{ option }">
     <div>

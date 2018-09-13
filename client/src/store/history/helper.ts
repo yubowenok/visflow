@@ -25,7 +25,7 @@ const executeCompositeRedo = (evt: HistoryCompositeEvent) => {
   evt.events.forEach(event => executeRedo(event));
 };
 
-const executeRedo = (evt: HistoryEvent | HistoryCompositeEvent) => {
+export const executeRedo = (evt: HistoryEvent | HistoryCompositeEvent) => {
   if (evt.level === HistoryEventLevel.DIAGRAM) {
     executeDiagramRedo(evt as HistoryDiagramEvent);
   } else if (evt.level === HistoryEventLevel.NODE) {
@@ -62,7 +62,7 @@ const executeCompositeUndo = (evt: HistoryCompositeEvent) => {
   events.forEach(event => executeUndo(event));
 };
 
-const executeUndo = (evt: HistoryEvent | HistoryCompositeEvent) => {
+export const executeUndo = (evt: HistoryEvent | HistoryCompositeEvent) => {
   if (evt.level === HistoryEventLevel.DIAGRAM) {
     executeDiagramUndo(evt as HistoryDiagramEvent);
   } else if (evt.level === HistoryEventLevel.NODE) {

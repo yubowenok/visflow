@@ -102,6 +102,10 @@ const mutations = {
    */
   createNode: (state: DataflowState, options: CreateNodeOptions) => {
     const node = helper.createNode(state, options);
+
+    // Clears all selected and activated nodes.
+    store.commit('interaction/clickBackground');
+
     if (store.state.interaction.mouseupEdge) {
       // If the node button is dropped on an edge, attempt to insert the new node onto this edge.
       const result = helper.insertNodeOnEdge(state, node, store.state.interaction.mouseupEdge);
@@ -210,6 +214,11 @@ const mutations = {
     layout.autoLayout(state, nodes, (result: layout.AutoLayoutResult) => {
       store.commit('history/commit', history.autoLayoutEvent(result));
     });
+  },
+
+  /** Turns on the node labels for all nodes. */
+  labelAllNodes: (state: DataflowState) => {
+    state.nodes.forEach(node => node.setLabelVisible(true));
   },
 
   ...saveLoad.mutations,

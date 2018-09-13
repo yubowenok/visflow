@@ -11,7 +11,7 @@
   @extend %box, %box-shadow;
   overflow: hidden;
 
-  .events {
+  .history-events {
     direction: rtl;
     height: 100%;
   }
@@ -47,7 +47,7 @@
     }
   }
 
-  .event {
+  .history-event {
     direction: ltr;
     border: 1px solid #eee;
     padding: $padding-size;
@@ -77,4 +77,13 @@
       }
     }
   }
+}
+
+.buttons > button {
+  margin: $margin-size-sm;
+}
+
+#more-redo {
+  float: right;
+  color: #777;
 }

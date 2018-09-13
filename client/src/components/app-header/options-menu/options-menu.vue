@@ -9,8 +9,12 @@
     History Panel
   </b-dropdown-item>
   <b-dropdown-item @click="toggleNodeLabels">
-    <i :class="['far fa-sm', nodeLabelsVisible ? 'fa-check-square' :  'fa-square']"></i>
-    Node Labels
+    <i :class="['far fa-sm', !nodeLabelsVisible ? 'fa-check-square' :  'fa-square']"></i>
+    Hide Node Labels
+  </b-dropdown-item>
+  <b-dropdown-item @click="labelAllNodes">
+    <i class="fas placeholder"></i>
+    Label all nodes
   </b-dropdown-item>
 </b-nav-item-dropdown>
 </template>

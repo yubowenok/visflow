@@ -222,6 +222,12 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
     onlyCreateChart = false;
   }
 
+  if (value.visuals) {
+    update.createOrUpdateVisualEditor(tracker, value, query, sources, targets);
+    message = 'visual editor';
+    onlyCreateChart = false;
+  }
+
   // Applies chart's column settings when the diagram completes.
   const visualizationTarget = targets.find(target => (target.node as Visualization).isVisualization);
   if (visualizationTarget) {
