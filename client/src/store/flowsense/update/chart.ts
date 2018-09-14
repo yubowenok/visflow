@@ -13,11 +13,11 @@ import { SubsetNode } from '@/components/subset-node';
 export const completeChart = (tracker: FlowsenseUpdateTracker, value: QueryValue, query: InjectedQuery,
                               sources: QuerySource[], chartTarget: QueryTarget,
                               onlyCreateChart: boolean) => {
-  const chartSource = onlyCreateChart ? sources[0].node : tracker.getCreatedNodes()[0];
+  const chartSource = onlyCreateChart ? sources[0].node : tracker.getNodeToConnectToTarget();
   if (chartSource) {
     // Create an edge from chartSource to the new chart target.
     const targetPort = chartTarget.port;
-    const sourcePort = sources[0].port;
+    const sourcePort = (chartSource as SubsetNode).getSubsetOutputPort();
     const edge = createEdge(sourcePort, targetPort, false);
     if (edge === null) {
       tracker.cancel(`error in connecting the visualization node`);

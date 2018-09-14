@@ -139,6 +139,24 @@ export const createEdge = (state: DataflowState, sourcePort: OutputPort, targetP
   return edge;
 };
 
+/**
+ * Creates an edge from the sourceNode to the targetPort. A connectable port is automatically found on the sourceNode.
+ */
+export const createEdgeFromNode = (state: DataflowState, sourceNode: Node, targetPort: InputPort,
+                                   propagate: boolean, options?: { disableMessage: boolean }): Edge | null => {
+  const sourcePort = sourceNode.findConnectablePort(targetPort) as OutputPort;
+  if (!sourcePort) {
+    if (!(options && options.disableMessage)) {
+      showSystemMessage(store, 'cannot find available port to connect', 'warn');
+    }
+    return null;
+  }
+  return createEdge(state, sourcePort, targetPort, propagate);
+};
+
+/**
+ * Creates an edge from the sourcePort to the targetNode. A connectable port is automatically found on the targetNode.
+ */
 export const createEdgeToNode = (state: DataflowState, sourcePort: OutputPort, targetNode: Node,
                                  propagate: boolean, options?: { disableMessage: boolean }): Edge | null => {
   const targetPort = targetNode.findConnectablePort(sourcePort) as InputPort;

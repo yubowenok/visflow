@@ -137,6 +137,10 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
   // If value does not have source, fill in the default source.
   // Note that a query handler may choose not to use any source (e.g. load dataset).
   if (!value.source) {
+    const defaultSources = util.getDefaultSources(1);
+    if (!defaultSources.length) {
+      return []; // No nodes yet
+    }
     const node = util.getDefaultSources(1)[0] as SubsetNode;
     return [ { node, port: node.getSubsetOutputPort() } ];
   }
@@ -241,11 +245,17 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
     onlyCreateChart = false;
   }
 
+  if (value.highlight) {
+    update.createHighlightSubdiagram(tracker, value, query, sources, targets);
+    message = 'highlight';
+    onlyCreateChart = false;
+  }
+
   // Applies chart's column settings when the diagram completes.
   const visualizationTarget = targets.find(target => (target.node as Visualization).isVisualization);
   if (visualizationTarget) {
     update.completeChart(tracker, value, query, sources, visualizationTarget, onlyCreateChart);
-    message += (message ? ', ' : '') + 'visualization';
+    message += (message ? ' ' : '') + 'visualization';
   }
 
   if (value.autoLayout) {

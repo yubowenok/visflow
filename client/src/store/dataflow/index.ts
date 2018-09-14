@@ -2,7 +2,14 @@ import { Module } from 'vuex';
 import store, { RootState } from '@/store';
 import _ from 'lodash';
 
-import { DataflowState, CreateNodeOptions, CreateEdgeOptions, NodeType } from './types';
+import {
+  DataflowState,
+  CreateNodeOptions,
+  CreateEdgeOptions,
+  CreateEdgeBetweenPortAndNodeOptions,
+  CreateEdgeFromPortToPortOptions,
+  NodeType,
+} from './types';
 import * as helper from './helper';
 import * as saveLoad from './save-load';
 import * as nodeTypes from './node-types';
@@ -12,7 +19,7 @@ export * from './util';
 
 import Node from '@/components/node/node';
 import Edge from '@/components/edge/edge';
-import Port from '@/components/port/port';
+import { Port, OutputPort, InputPort } from '@/components/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 import { HistoryDiagramEvent } from '@/store/history/types';
 import TabularDataset from '@/data/tabular-dataset';
@@ -140,10 +147,16 @@ const mutations = {
   /** Creates an edge and propagates. */
   createEdge: (state: DataflowState, options: CreateEdgeOptions) => {
     let edge: Edge | null = null;
-    if (options.targetNode) {
-      edge = helper.createEdgeToNode(state, options.sourcePort, options.targetNode, true);
-    } else if (options.targetPort) {
-      edge = helper.createEdge(state, options.sourcePort, options.targetPort, true);
+    if ((options as CreateEdgeFromPortToPortOptions).sourcePort) {
+      const portPortOptions = options as CreateEdgeFromPortToPortOptions;
+      edge = helper.createEdge(state, portPortOptions.sourcePort, portPortOptions.targetPort, true);
+    } else {
+      const portNodeOptions = options as CreateEdgeBetweenPortAndNodeOptions;
+      if (portNodeOptions.port.isInput) {
+        edge = helper.createEdgeFromNode(state, portNodeOptions.node, portNodeOptions.port as InputPort, true);
+      } else {
+        edge = helper.createEdgeToNode(state, portNodeOptions.port as OutputPort, portNodeOptions.node, true);
+      }
     }
     if (edge !== null) {
       store.commit('history/commit', history.createEdgeEvent(edge));

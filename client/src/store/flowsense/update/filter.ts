@@ -57,10 +57,12 @@ export const createFilter = (tracker: FlowsenseUpdateTracker, value: QueryValue,
 
   const createdNode = util.createNode(util.getCreateNodeOptions('attribute-filter'), nodeSave);
 
+  tracker.setNodeToConnectToTarget(createdNode);
   tracker.createNode(createdNode);
   const sourcePort = sources[0].port;
   if (!sourcePort) {
     tracker.cancel(`node ${source.getLabel()} does not have connectable output port for a filter`);
+    return;
   }
   const targetPort = createdNode.getInputPort('in');
   const createdEdge = util.createEdge(sourcePort, targetPort, false);

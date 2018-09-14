@@ -132,16 +132,18 @@ const mutations = {
 
   dropPortOnNode: (state: InteractionState, node: Node) => {
     store.commit('dataflow/createEdge', {
-      sourcePort: state.draggedPort,
-      targetNode: node,
+      port: state.draggedPort,
+      node,
     });
   },
 
   dropPortOnPort: (state: InteractionState, port: Port) => {
-    store.commit('dataflow/createEdge', {
-      sourcePort: state.draggedPort,
-      targetPort: port,
-    });
+    let sourcePort = state.draggedPort as Port;
+    let targetPort = port;
+    if (sourcePort.isInput) {
+      [sourcePort, targetPort] = [targetPort, sourcePort];
+    }
+    store.commit('dataflow/createEdge', { sourcePort, targetPort });
   },
 
   mouseupOnEdge: (state: InteractionState, edge: Edge) => {

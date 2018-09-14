@@ -48,11 +48,17 @@ export interface CreateNodeData {
   dataflowCenterY?: number;
 }
 
-export interface CreateEdgeOptions {
+export interface CreateEdgeFromPortToPortOptions {
   sourcePort: OutputPort;
-  targetPort?: InputPort;
-  targetNode?: Node;
+  targetPort: InputPort;
 }
+
+export interface CreateEdgeBetweenPortAndNodeOptions {
+  port: InputPort | OutputPort;
+  node: Node;
+}
+
+export type CreateEdgeOptions = CreateEdgeBetweenPortAndNodeOptions | CreateEdgeFromPortToPortOptions;
 
 export interface ConnectionInfo {
   nodeId: string;

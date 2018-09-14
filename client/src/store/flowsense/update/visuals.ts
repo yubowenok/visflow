@@ -11,6 +11,8 @@ import * as visualEditorHistory from '@/components/visual-editor/history';
 import { Visualization } from '@/components/visualization';
 import { VisualProperties, VisualPropertyType } from '@/data/visuals';
 
+const VISUAL_EDITOR_X_OFFSET_PX = 50;
+
 /**
  * Actually creates a visual editor when no existing editor is present.
  */
@@ -63,6 +65,11 @@ const createVisualEditor = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
         tracker.cancel(`FlowSense does not support visualization with multiple inputs`);
         return;
       }
+
+      // Move the visuals node to the input side of the visualization.
+      visualEditor.moveBy(source.getBoundingBox().x - visualEditor.getBoundingBox().x - VISUAL_EDITOR_X_OFFSET_PX,
+        source.getBoundingBox().height / 2);
+
       const inputEdge = inputEdges[0];
       const upflowPort = inputEdge.source;
       const downflowPort = inputEdge.target;

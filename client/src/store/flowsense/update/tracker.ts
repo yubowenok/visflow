@@ -35,6 +35,7 @@ export default class FlowsenseUpdateTracker {
   private eventIndexToCreatedNode: { [index: number]: Node } = {};
   private nodesToAutoLayout: Node[] = [];
   private nodeToCenterAt: Node | null = null;
+  private nodeToConnectToTarget: Node | null = null;
 
   public createNode(node: Node) {
     this.createdNodes.push(node);
@@ -59,6 +60,17 @@ export default class FlowsenseUpdateTracker {
   public changeNodeOption(event: HistoryNodeOptionEvent) {
     this.events.push(event);
     this.nodeOptionEvents.push(event);
+  }
+
+  /**
+   * Sets the node that should connect to target.
+   */
+  public setNodeToConnectToTarget(node: Node) {
+    this.nodeToConnectToTarget = node;
+  }
+
+  public getNodeToConnectToTarget(): Node | null {
+    return this.nodeToConnectToTarget;
   }
 
   public getCreatedNodes(): Node[] {

@@ -41,16 +41,25 @@ const getActivePosition = (): Point => {
   };
 };
 
+interface FlowsenseCreateNodeOptions {
+  createIndex?: number; // Set this to apply x offset on node by index.
+  offsetX?: number; // Set offsetX and offsetY to apply precise offset.
+  offsetY?: number;
+}
+
+const CREATE_INDEX_X_OFFSET_PX = 100;
 /**
  * Returns a create node options object that includes the position where Flowsense should create new node at.
  */
-export const getCreateNodeOptions = (type: string): CreateNodeOptions => {
+export const getCreateNodeOptions = (type: string, options?: FlowsenseCreateNodeOptions): CreateNodeOptions => {
+  options = options || {};
   const position = getActivePosition();
+  const createIndex = options.offsetX ? 0 : (options.createIndex || 0);
   return {
     type,
     activate: true,
-    dataflowCenterX: position.x,
-    dataflowCenterY: position.y,
+    dataflowCenterX: position.x + createIndex * CREATE_INDEX_X_OFFSET_PX + (options.offsetX || 0),
+    dataflowCenterY: position.y + (options.offsetY || 0),
   };
 };
 
@@ -95,7 +104,7 @@ export const getColumnMarkerIndex = (query: InjectedQuery, node: SubsetNode, inj
   return columnIndex;
 };
 
-const NEARBY_THRESHOLD_PX = window.innerHeight / 3;
+const NEARBY_THRESHOLD_PX = window.innerHeight / 4;
 /**
  * Returns a list of nodes that are close to the given node.
  */

@@ -6,7 +6,7 @@ import { FLOWSENSE_URL } from '@/common/env';
 import * as helper from './helper';
 import { focusNode } from '@/store/interaction/helper';
 
-const ACTIVE_POSITION_X_OFFSET_PX = 150;
+const ACTIVE_POSITION_X_OFFSET_PX = 100;
 
 const initialState: FlowsenseState = {
   enabled: FLOWSENSE_URL !== '',
@@ -77,7 +77,11 @@ const actions = {
         .then(res => {
           const result: FlowsenseResult = res.data;
           if (result.success) {
-            helper.executeQuery(result.value, query);
+            try {
+              helper.executeQuery(result.value, query);
+            } catch (err) {
+              reject(err);
+            }
           }
           resolve(result.success);
         }, err => reject(errorMessage(err)));
