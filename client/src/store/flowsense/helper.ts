@@ -13,6 +13,7 @@ import { SubsetNode } from '@/components/subset-node';
 import { Node } from '@/components/node';
 import { Visualization } from '@/components/visualization';
 import FlowsenseUpdateTracker from '@/store/flowsense/update/tracker';
+import { ValueType } from '@/data/parser';
 
 interface InjectedToken {
   marker: string;
@@ -141,8 +142,11 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
     if (!defaultSources.length) {
       return []; // No nodes yet
     }
-    const node = util.getDefaultSources(1)[0] as SubsetNode;
-    return [ { node, port: node.getSubsetOutputPort() } ];
+    const node = util.getDefaultSources(1)[0];
+    if (!(node as SubsetNode).getSubsetOutputPort) {
+      return [];
+    }
+    return [ { node, port: (node as SubsetNode).getSubsetOutputPort() } ];
   }
   const sources = value.source.map(spec => {
     const node: Node = spec.id === FlowsenseDef.DEFAULT_SOURCE ? util.getDefaultSources(1)[0] :
@@ -197,7 +201,12 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
     } else {
       node = util.findNodeWithLabel(spec.id);
     }
-    const port = (node as SubsetNode).getSubsetInputPort();
+    let port: InputPort;
+    if ((node as SubsetNode).getSubsetInputPort) {
+      port = (node as SubsetNode).getSubsetInputPort();
+    } else {
+      port = node.getInputPort('in');
+    }
     return { node, port };
   });
 };
@@ -248,6 +257,18 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   if (value.highlight) {
     update.createHighlightSubdiagram(tracker, value, query, sources, targets);
     message = 'highlight';
+    onlyCreateChart = false;
+  }
+
+  if (value.extract) {
+    update.createConstantsGenerator(tracker, value, query, sources, targets);
+    message = 'extract constants';
+    onlyCreateChart = false;
+  }
+
+  if (value.link) {
+    update.linkNodes(tracker, value, query, sources, targets);
+    message = 'link';
     onlyCreateChart = false;
   }
 

@@ -17,7 +17,7 @@ export const completeChart = (tracker: FlowsenseUpdateTracker, value: QueryValue
   if (chartSource) {
     // Create an edge from chartSource to the new chart target.
     const targetPort = chartTarget.port;
-    const sourcePort = (chartSource as SubsetNode).getSubsetOutputPort();
+    const sourcePort = onlyCreateChart ? sources[0].port : (chartSource as SubsetNode).getSubsetOutputPort();
     const edge = createEdge(sourcePort, targetPort, false);
     if (edge === null) {
       tracker.cancel(`error in connecting the visualization node`);

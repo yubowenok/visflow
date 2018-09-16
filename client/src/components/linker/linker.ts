@@ -33,6 +33,7 @@ interface LinkerSave {
 export default class Linker extends SubsetNode {
   protected NODE_TYPE = 'linker';
   protected RESIZABLE = true;
+  protected DEFAULT_WIDTH = 120;
 
   // Id column of the first table.
   protected extractColumn: number | null = null;
@@ -161,6 +162,10 @@ export default class Linker extends SubsetNode {
     const pkg = new ConstantsPackage();
     if (this.extractColumn === null) {
       return pkg;
+    }
+    if (!this.inputPortMap.in.hasPackage()) {
+      this.constants = [];
+      return;
     }
     const subsetPkg = this.inputPortMap.in.getSubsetPackage();
     const dataset = subsetPkg.getDataset() as TabularDataset;

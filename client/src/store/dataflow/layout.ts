@@ -76,6 +76,7 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[], options?
   const nodeIndex: { [id: string]: number } = {}; // mapping from node id to its force index
   let indexCounter = 0;
   movableNodes = movableNodes || state.nodes;
+
   const movableNodeIds: Set<string> = new Set(movableNodes.map(node => node.id));
   const layoutNodes: LayoutNode[] = [];
   state.nodes.forEach(node => {
@@ -99,6 +100,8 @@ export const autoLayout = (state: DataflowState, movableNodes?: Node[], options?
     nodeIndex[node.id] = indexCounter++;
 
     /*
+    // Pad repulsive nodes inside a large node area.
+    // This is temporarily disabled as forceCollide works equally well.
     if (Math.max(box.width, box.height) > PADDING_THRESHOLD) {
       const deltaX = box.width / PADDING_COUNT;
       const deltaY = box.height / PADDING_COUNT;

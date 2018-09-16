@@ -105,12 +105,14 @@ export default class FormInput extends Vue {
   }
 
   private onInput() {
-    this.$emit('change', this.typed(this.text), this.typed(this.prevText));
-    this.updateSelectionRange();
+    if (this.typed(this.text) !== this.typed(this.prevEditText)) {
+      this.$emit('change', this.typed(this.text), this.typed(this.prevText));
+      this.updateSelectionRange();
+    }
   }
 
   private save() {
-    if (this.text !== this.prevText) {
+    if (this.typed(this.text) !== this.typed(this.prevText)) {
       this.$emit('input', this.typed(this.text), this.typed(this.prevText));
       this.prevText = this.text;
     }

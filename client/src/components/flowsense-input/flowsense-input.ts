@@ -180,7 +180,7 @@ export default class FlowsenseInput extends Vue {
       this.specialUtterances.push({
         matchText: [nodeType.id, nodeType.title].concat(nodeType.aliases || []),
         category: FlowsenseTokenCategory.NODE_TYPE,
-        displayText: nodeType.title,
+        displayText: nodeType.title.toLowerCase(),
         annotation: '/node type',
         value: [nodeType.id],
       });
@@ -334,6 +334,7 @@ export default class FlowsenseInput extends Vue {
       }
 
       const edit = (this.$refs.input as FormInput).getLastEdit();
+
       this.lastEditPosition = edit.endIndex;
 
       this.calibratedText = this.calibratedText.slice(0, edit.endIndex);
@@ -390,6 +391,9 @@ export default class FlowsenseInput extends Vue {
    * Handles tab key that can completes a token.
    */
   private onTab() {
+    if (!this.tokenCompletionDropdown.length) {
+      return;
+    }
     this.tokenCompletionDropdown[this.tokenCompletionDropdownSelectedIndex].onClick();
     this.tokenCompletionDropdown = []; // close dropdown
   }

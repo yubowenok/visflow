@@ -11,7 +11,7 @@
         @keydown.native.tab.prevent.stop="onTab"
         @keydown.native.down.prevent.stop="onArrowDown"
         @keydown.native.up.prevent.stop="onArrowUp"
-        @click.native="tokenCategoryDropdown = []">
+        @click.native="tokenCategoryDropdown = []; tokenCompletionDropdown = [];">
       </form-input>
       <div :class="microphoneClass">
         <b-button id="mic" variant="outline-secondary" :pressed="isVoiceEnabled"

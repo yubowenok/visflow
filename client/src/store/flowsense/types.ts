@@ -84,8 +84,8 @@ export interface ExtractSpecification {
 }
 
 export interface LinkSpecification {
-  extractColumn: string;
-  filterColumn: string;
+  extractColumn?: string;
+  filterColumn?: string;
 }
 
 export interface QueryValue {
