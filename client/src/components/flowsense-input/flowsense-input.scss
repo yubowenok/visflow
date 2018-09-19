@@ -78,25 +78,35 @@
   caret-color: black;
 }
 
-#mic {
+#buttons {
   position: absolute;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-color: #ced4da;
-
   right: 0;
-  height: 2.35rem;
   top: 0;
 
-  &.active {
+  > div {
+    display: inline-block;
+  }
+
+  button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-color: #ced4da;
+    height: 2.35rem;
+  }
+
+  #mic.active {
     background-color: $theme-green;
     border-color: #999;
   }
-}
 
-.active {
-  #mic {
-    box-shadow: $theme-green 0 0 5px 5px;
+  .active {
+    #mic {
+      box-shadow: $theme-green 0 0 5px 5px;
+    }
+  }
+
+  #auto-complete {
+    margin-right: -1px;
   }
 }
 

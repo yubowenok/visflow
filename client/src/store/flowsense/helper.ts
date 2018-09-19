@@ -8,12 +8,13 @@ import {
 } from './types';
 import * as util from './update/util';
 import * as update from './update';
+import * as utterance from './utterance';
 import { OutputPort, InputPort } from '@/components/port';
 import { SubsetNode } from '@/components/subset-node';
 import { Node } from '@/components/node';
 import { Visualization } from '@/components/visualization';
 import FlowsenseUpdateTracker from '@/store/flowsense/update/tracker';
-import { ValueType } from '@/data/parser';
+
 
 interface InjectedToken {
   marker: string;
@@ -47,6 +48,54 @@ export interface QueryTarget {
   node: Node;
   port: InputPort;
 }
+
+/**
+ * Generates special utterances based on the current diagram.
+ */
+export const getSpecialUtterances = (): FlowsenseCategorizedToken[] => {
+  return utterance.getColumnNameUtterances()
+    .concat(utterance.getNodeTypeUtterances())
+    .concat(utterance.getNodeLabelUtterances())
+    .concat(utterance.getDatasetNameUtterances());
+};
+
+/**
+ * Replaces special utterance markers in the auto completed query by real values.
+ * The real values are found from the datasets, or just placeholders.
+ */
+export const ejectSuggestionToken = (token: FlowsenseToken) => {
+  token.chosenCategory = 0;
+
+  const matchedColumnMarker = token.text.match(/^r_column_(.*)$/);
+  if (matchedColumnMarker !== null) {
+    const markerIndex = +matchedColumnMarker[1] - 1;
+    const columns = utterance.getColumnNameUtterances();
+    if (columns.length) {
+      const category = columns[markerIndex % columns.length];
+      token.categories.push(category);
+      token.chosenCategory = token.categories.length - 1;
+      token.text = category.value[0];
+    }
+  }
+
+  const matchedNodeTypeMarker = token.text.match(/^r_node_type_(.*)$/);
+  if (matchedNodeTypeMarker !== null) {
+    const markerIndex = +matchedNodeTypeMarker[1] - 1;
+    const nodeTypes = utterance.getNodeTypeUtterances();
+    const category = nodeTypes[markerIndex % nodeTypes.length];
+    token.categories.push(category);
+    token.chosenCategory = token.categories.length - 1;
+    token.text = category.displayText as string;
+  }
+
+  if (token.text === FlowsenseDef.NUMBER_VALUE) {
+    token.text = '[number]';
+  }
+
+  if (token.text === FlowsenseDef.STRING_VALUE) {
+    token.text = '[string]';
+  }
+};
 
 /**
  * Assigns a special marker for the categorized token, which will be treated as special utterance by Flowsense parser.
@@ -231,7 +280,7 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   }
 
   if (value.loadDataset) {
-    update.loadDataset(tracker, value, query);
+    update.loadDataset(tracker, value, query, targets);
     message = 'load dataset';
     onlyCreateChart = false;
   }
@@ -243,7 +292,7 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   }
 
   if (value.filters) {
-    update.createFilter(tracker, value, query, sources);
+    update.createFilter(tracker, value, query, sources, targets);
     message = 'filter';
     onlyCreateChart = false;
   }

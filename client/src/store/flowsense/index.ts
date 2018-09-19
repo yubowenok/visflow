@@ -1,10 +1,17 @@
 import { Module, ActionContext } from 'vuex';
 import store, { RootState } from '@/store';
-import { FlowsenseToken, FlowsenseResult, FlowsenseState } from './types';
-import { axiosPostFullUrl, errorMessage } from '@/common/util';
+import {
+  FlowsenseToken,
+  FlowsenseResult,
+  FlowsenseState,
+  FlowsenseCategorizedToken,
+  FlowsenseTokenCategory,
+} from './types';
+import { axiosPostFullUrl, errorMessage, urlJoin } from '@/common/util';
 import { FLOWSENSE_URL } from '@/common/env';
 import * as helper from './helper';
 import { focusNode } from '@/store/interaction/helper';
+import { parseTokens } from '@/store/flowsense/util';
 
 const ACTIVE_POSITION_X_OFFSET_PX = 100;
 
@@ -13,6 +20,12 @@ const initialState: FlowsenseState = {
   inputVisible: false,
   voiceEnabled: false,
   activePosition: { x: 0, y: 0 },
+};
+
+const getters = {
+  specialUtterances(): FlowsenseCategorizedToken[] {
+    return helper.getSpecialUtterances();
+  },
 };
 
 const mutations = {
@@ -73,7 +86,7 @@ const actions = {
     const query = helper.injectQuery(tokens);
     return new Promise((resolve, reject) => {
       console.log('injected:', query);
-      return axiosPostFullUrl<FlowsenseResult>(FLOWSENSE_URL, { query: query.query })
+      return axiosPostFullUrl<FlowsenseResult>(urlJoin(FLOWSENSE_URL, 'query'), { query: query.query })
         .then(res => {
           const result: FlowsenseResult = res.data;
           if (result.success) {
@@ -87,11 +100,32 @@ const actions = {
         }, err => reject(errorMessage(err)));
     });
   },
+
+  autoComplete(context: ActionContext<FlowsenseState, RootState>, tokens: FlowsenseToken[]):
+    Promise<FlowsenseToken[][]> {
+    const query = helper.injectQuery(tokens);
+    let baseIndex = 0;
+    tokens.forEach(token => baseIndex += token.text.length);
+    return new Promise((resolve, reject) => {
+      return axiosPostFullUrl<string[]>(urlJoin(FLOWSENSE_URL, 'auto-complete'), { query: query.query })
+        .then(res => {
+          const result: string[] = res.data;
+          console.warn(result);
+          const suggestions = result.map(suggestion => {
+            const suggestionTokens = parseTokens((tokens[tokens.length - 1].text === ' ' ? '' : ' ') + suggestion);
+            suggestionTokens.forEach(token => helper.ejectSuggestionToken(token));
+            return tokens.concat(suggestionTokens);
+          });
+          resolve(suggestions);
+        }, err => reject(errorMessage(err)));
+    });
+  },
 };
 
 const flowsense: Module<FlowsenseState, RootState> = {
   namespaced: true,
   state: initialState,
+  getters,
   mutations,
   actions,
 };

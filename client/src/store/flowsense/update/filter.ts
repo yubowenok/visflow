@@ -1,72 +1,87 @@
 import * as util from './util';
-import { InjectedQuery, QuerySource } from '../helper';
+import { InjectedQuery, QuerySource, QueryTarget } from '../helper';
 import { QueryValue, FilterSpecification } from '../types';
 import FlowsenseUpdateTracker from './tracker';
 import Edge from '@/components/edge/edge';
-import { PatternMatchMode, FilterType } from '@/components/attribute-filter/attribute-filter';
+import AttributeFilter, { PatternMatchMode, FilterType } from '@/components/attribute-filter/attribute-filter';
 import { SubsetNode } from '@/components/subset-node';
+
+const FILTER_OFFSET_PX = 300;
 
 /**
  * Creates a filter.
  */
 export const createFilter = (tracker: FlowsenseUpdateTracker, value: QueryValue, query: InjectedQuery,
-                             sources: QuerySource[]) => {
+                             sources: QuerySource[], targets: QueryTarget[]) => {
   const filters = value.filters as FilterSpecification[];
 
   // TODO: Currently handles one filter, but this is left extensible.
-  const filter = filters[0];
+  const filterSpec = filters[0];
 
   const nodeSave: any = {}; // tslint:disable-line no-any
   switch (true) {
-    case filter.pattern !== undefined:
+    case filterSpec.pattern !== undefined:
       nodeSave.filterType = FilterType.PATTERN;
       nodeSave.patternParams = {
-        patterns: [filter.pattern as string],
+        patterns: [filterSpec.pattern as string],
         mode: PatternMatchMode.SUBSTRING,
         isCaseSensitive: false,
       };
       break;
-    case filter.range !== undefined:
+    case filterSpec.range !== undefined:
       nodeSave.filterType = FilterType.RANGE;
-      const range = filter.range as { min?: number | string, max?: number | string };
+      const range = filterSpec.range as { min?: number | string, max?: number | string };
       nodeSave.rangeParams = {
         min: range.min || null,
         max: range.max || null,
       };
       break;
-    case filter.sampling !== undefined:
-    case filter.extremum !== undefined:
-      nodeSave.amount = filter.amount || 0;
-      nodeSave.amountType = filter.amountType || 'percentage';
+    case filterSpec.sampling !== undefined:
+    case filterSpec.extremum !== undefined:
+      nodeSave.amount = filterSpec.amount || 0;
+      nodeSave.amountType = filterSpec.amountType || 'percentage';
       nodeSave.groupByColumn = value.groupByColumn || null;
-      if (filter.sampling) {
+      if (filterSpec.sampling) {
         nodeSave.filterType = FilterType.SAMPLING;
       } else {
         nodeSave.filterType = FilterType.EXTREMUM;
-        nodeSave.extremumCriterion = filter.extremum;
+        nodeSave.extremumCriterion = filterSpec.extremum;
       }
       break;
   }
   const source = sources[0].node as SubsetNode;
-  const columnIndex = util.getColumnMarkerIndex(query, source, filter.column);
+  const columnIndex = util.getColumnMarkerIndex(query, source, filterSpec.column);
   if (columnIndex === null) {
-    tracker.cancel(`column ${filter.column} cannot be found`);
+    tracker.cancel(`column ${filterSpec.column} cannot be found`);
     return;
   }
   nodeSave.column = columnIndex;
 
-  const createdNode = util.createNode(util.getCreateNodeOptions('attribute-filter'), nodeSave);
+  const createdFilter = util.createNode(util.getCreateNodeOptions('attribute-filter'), nodeSave) as AttributeFilter;
 
-  tracker.setNodeToConnectToTarget(createdNode);
-  tracker.createNode(createdNode);
+  tracker.setNodeToConnectToTarget(createdFilter);
+  tracker.createNode(createdFilter);
   const sourcePort = sources[0].port;
   if (!sourcePort) {
     tracker.cancel(`node ${source.getLabel()} does not have connectable output port for a filter`);
     return;
   }
-  const targetPort = createdNode.getInputPort('in');
+  const targetPort = createdFilter.getInputPort('in');
   const createdEdge = util.createEdge(sourcePort, targetPort, false);
   tracker.createEdge(createdEdge as Edge);
+
+  if (targets.length) {
+    const targetNode = targets[0].node as SubsetNode;
+    // Shift the visualization to the right to allow space for the union and visual editor.
+    targetNode.moveBy(FILTER_OFFSET_PX, 0);
+    if (!util.isVisualization(targetNode)) {
+      // If the target is a visualization, the edge is created by completeChart.
+      // If it is not, we need to connect to it.
+      const edge = util.createEdge(createdFilter.getSubsetOutputPort(), targetNode.getSubsetInputPort(), false) as Edge;
+      tracker.createEdge(edge);
+    }
+  }
+
   util.propagateNodes([source]);
-  tracker.toAutoLayout(util.getNearbyNodes(createdNode));
+  tracker.toAutoLayout(util.getNearbyNodes(createdFilter));
 };

@@ -10,6 +10,7 @@ import { SubsetNode } from '@/components/subset-node';
 import { FlowsenseDef } from '@/store/flowsense/types';
 import { INDEX_COLUMN } from '@/common/constants';
 import { vectorDistance } from '@/common/vector';
+import { Visualization } from '@/components/visualization';
 
 export {
   ejectMarker,
@@ -118,4 +119,8 @@ export const getNearbyNodes = (qNode: Node): Node[] => {
 
 export const getAllNodes = (): Node[] => {
   return dataflow().nodes;
+};
+
+export const isVisualization = (node: Node): boolean => {
+  return (node as Visualization).isVisualization;
 };

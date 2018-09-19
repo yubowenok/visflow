@@ -69,7 +69,7 @@
   }
 
   .undo-group {
-    .event:first-child {
+    .history-event:first-child {
       background-color: $theme-green-light;
 
       &:hover {

@@ -2,28 +2,8 @@ import { Module, ActionContext } from 'vuex';
 import { RootState } from '@/store';
 
 import { axiosPost, errorMessage } from '@/common/util';
-import { DatasetInfo } from './types';
+import { DatasetInfo, DatasetState, DatasetCache, CachedDataset, GetDatasetOptions } from './types';
 
-interface CachedDataset {
-  username: string;
-  filename: string;
-  data: string;
-  fetchedAt: Date;
-}
-
-interface DatasetCache {
-  [key: string]: CachedDataset;
-}
-
-interface DatasetState {
-  cache: DatasetCache;
-  lastList: DatasetInfo[];
-}
-
-export interface GetDatasetOptions {
-  username: string;
-  filename: string;
-}
 
 const getDatasetFromCache = (cache: DatasetCache, key: string): CachedDataset | undefined => {
   return key in cache ? cache[key] : undefined;

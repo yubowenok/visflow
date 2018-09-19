@@ -123,4 +123,6 @@ export const FlowsenseDef = {
   DEFAULT_SOURCE: '_default_source',
   SELECTION: '_selection',
   INDEX_COLUMN: '_index',
+  NUMBER_VALUE: 'r_number',
+  STRING_VALUE: 'r_string',
 };

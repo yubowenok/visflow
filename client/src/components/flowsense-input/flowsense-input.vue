@@ -11,12 +11,21 @@
         @keydown.native.tab.prevent.stop="onTab"
         @keydown.native.down.prevent.stop="onArrowDown"
         @keydown.native.up.prevent.stop="onArrowUp"
-        @click.native="tokenCategoryDropdown = []; tokenCompletionDropdown = [];">
+        @click.native="closeAllDropdowns">
       </form-input>
-      <div :class="microphoneClass">
-        <b-button id="mic" variant="outline-secondary" :pressed="isVoiceEnabled"
-          @click="toggleVoice"><i class="fa fa-microphone"></i></b-button>
+      <div id="buttons">
+        <div v-if="this.tokens.length">
+          <b-button id="auto-complete" variant="outline-secondary"
+            @click="submitQueryCompletion">
+            <i class="fas fa-question"></i>
+          </b-button>
+        </div>
+        <div :class="microphoneClass">
+          <b-button id="mic" variant="outline-secondary" :pressed="isVoiceEnabled" @click="toggleVoice">
+            <i class="fas fa-microphone"></i></b-button>
+        </div>
       </div>
+
     </div>
     <div class="tag-row">
       <span v-for="(token, index) in tokens" :key="index"
@@ -43,6 +52,18 @@
           <span class="annotation">{{ element.annotation }}</span>
         </a>
       </div>
+    </div>
+    <div class="dropdown" v-if="queryCompletionDropdown.length">
+      <div v-for="(element, index) in queryCompletionDropdown" :key="index" @click="element.onClick()"
+        :class="['dropdown-item', { highlight: index === queryCompletionDropdownSelectedIndex }]">
+        <span v-for="(token, index) in element.tokens" :key="index"
+          :class="[ { categorized: token.categories.length > 1 },
+            token.chosenCategory !== 0 ? token.categories[token.chosenCategory].category  : '']"
+        >{{token.text}}</span>
+      </div>
+    </div>
+    <div class="dropdown" v-if="queryCompletionMessage">
+      <span class="dropdown-item">{{ queryCompletionMessage }}</span>
     </div>
     <div class="width-calibration">{{ calibratedText }}</div>
   </div>
