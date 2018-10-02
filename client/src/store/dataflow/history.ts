@@ -141,14 +141,20 @@ export const autoLayoutEvent = (result: AutoLayoutResult): HistoryDiagramEvent =
 };
 
 const createNodeFromSave = (state: DataflowState, nodeSave: NodeSave, anchor: CreateNodeAnchor) => {
-  const anchorNode = state.nodes.find(otherNode => otherNode.id === anchor.id) as Node;
-  if (!anchor || !anchorNode) {
-    console.error('cannot find anchor node');
+  let anchorX = 0;
+  let anchorY = 0;
+  if (anchor.id !== '') {
+    const anchorNode = state.nodes.find(otherNode => otherNode.id === anchor.id) as Node;
+    if (!anchor || !anchorNode) {
+      console.error('cannot find anchor node');
+    }
+    anchorX = anchorNode.getBoundingBox().x;
+    anchorY = anchorNode.getBoundingBox().y;
   }
   // Make a copy of nodeSave to avoid changing the history storage.
   nodeSave = _.extend({}, nodeSave, {
-    dataflowX: nodeSave.dataflowX + anchorNode.getBoundingBox().x - anchor.x,
-    dataflowY: nodeSave.dataflowY + anchorNode.getBoundingBox().y - anchor.y,
+    dataflowX: nodeSave.dataflowX + anchorX - anchor.x,
+    dataflowY: nodeSave.dataflowY + anchorY - anchor.y,
   });
   const node = helper.createNode(
     state,

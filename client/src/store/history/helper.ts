@@ -6,15 +6,20 @@ import {
   HistoryEventLevel,
   HistoryInteractionEvent,
   HistoryCompositeEvent,
+  HistoryLog,
+  HistoryLogType,
 } from '@/store/history/types';
+import { getNode, resetDataflow } from '@/store/dataflow/helper';
 import store from '@/store';
+const UNDO_STACK_SIZE = 100;
+
 
 const executeDiagramRedo = (evt: HistoryDiagramEvent) => {
   store.commit('dataflow/redo', evt);
 };
 
 const executeNodeRedo = (evt: HistoryNodeEvent) => {
-  evt.node.redo(evt);
+  getNode(evt.nodeId).redo(evt);
 };
 
 const executeInteractionRedo = (evt: HistoryInteractionEvent) => {
@@ -45,12 +50,18 @@ export const redo = (state: HistoryState) => {
   }
 };
 
+export const batchRedo = (state: HistoryState, k: number) => {
+  while (k--) {
+    redo(state);
+  }
+};
+
 const executeDiagramUndo = (evt: HistoryDiagramEvent) => {
   store.commit('dataflow/undo', evt);
 };
 
 const executeNodeUndo = (evt: HistoryNodeEvent) => {
-  evt.node.undo(evt);
+  getNode(evt.nodeId).undo(evt);
 };
 
 const executeInteractionUndo = (evt: HistoryInteractionEvent) => {
@@ -79,6 +90,12 @@ export const undo = (state: HistoryState) => {
   if (evt) {
     executeUndo(evt);
     state.redoStack.push(evt);
+  }
+};
+
+export const batchUndo = (state: HistoryState, k: number) => {
+  while (k--) {
+    undo(state);
   }
 };
 
@@ -116,5 +133,54 @@ export const cancelToggles = (state: HistoryState) => {
     evt2 as HistoryInteractionEvent);
   if (nodeOptionTogglesCancellable || interactionTogglesCancellable) {
     undoStack.splice(-2);
+  }
+};
+
+/**
+ * Reproduces all logged events for a diagram.
+ * The diagram is reset to empty before this reproduction.
+ */
+export const reproduceLogs = (state: HistoryState, logs: HistoryLog[]) => {
+  resetDataflow(false);
+  state.logs = logs;
+  state.currentLogIndex = -1; // no logs have been reproduced
+};
+
+/**
+ * Reproduces the log pointed by currentLogIndex.
+ */
+export const redoLog = (state: HistoryState) => {
+  if (state.currentLogIndex >= state.logs.length - 1) {
+    console.warn('no more logs to redo');
+    return;
+  }
+  const log = state.logs[++state.currentLogIndex];
+  switch (log.type) {
+    case HistoryLogType.UNDO:
+      batchUndo(state, log.data as number);
+      break;
+    case HistoryLogType.REDO:
+      batchRedo(state, log.data as number);
+      break;
+    case HistoryLogType.COMMIT:
+      console.log(log);
+      executeRedo(log.data as HistoryEvent);
+      commitEvent(state, log.data as HistoryEvent);
+      break;
+    case HistoryLogType.CLEAR_DIAGRAM:
+      // TODO
+      break;
+    case HistoryLogType.SAVE_DIAGRAM:
+      // nothing to do
+      break;
+  }
+};
+
+export const commitEvent = (state: HistoryState, evt: HistoryEvent) => {
+  state.undoStack.push(evt);
+  cancelToggles(state);
+  state.redoStack = [];
+  if (state.undoStack.length > UNDO_STACK_SIZE) {
+    state.undoStack.shift();
   }
 };

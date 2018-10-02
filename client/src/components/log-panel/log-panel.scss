@@ -1,0 +1,26 @@
+@import '../../common/style/index';
+
+.log-panel {
+  position: absolute;
+  background-color: white;
+  overflow: hidden;
+  z-index: $zIndexHistoryPanel;
+  @extend %box, %box-shadow;
+
+  .title {
+    padding: $padding-size;
+  }
+
+  .divider {
+    margin: 0;
+  }
+
+  .logs {
+    height: calc(100% - 50px);
+    padding: $padding-size-lg $padding-size-sm;
+
+    > .current {
+      background-color: $theme-green;
+    }
+  }
+}

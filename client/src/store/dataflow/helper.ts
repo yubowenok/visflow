@@ -7,7 +7,7 @@ import _ from 'lodash';
 
 import { checkEdgeConnectivity } from '@/store/dataflow/util';
 import { showSystemMessage } from '@/common/util';
-import { Node, NodeSave } from '@/components/node';
+import { Node } from '@/components/node';
 import Edge, { EdgeSave } from '@/components/edge/edge';
 import Port from '@/components/port/port';
 import store from '@/store';
@@ -25,6 +25,14 @@ import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 export * from '@/store/dataflow/propagate';
 
 const dataflow = (): DataflowState => store.state.dataflow;
+
+export const getNode = (id: string): Node => {
+  const node = dataflow().nodes.find(diagramNode => diagramNode.id === id);
+  if (!node) {
+    console.error(`node ${id} not found`);
+  }
+  return node as Node;
+};
 
 const getCanvas = (): DataflowCanvas => {
   if (!dataflow().canvas) {
@@ -230,12 +238,16 @@ export const disconnectPort = (state: DataflowState, port: Port, propagate: bool
   return removedEdges;
 };
 
-export const resetDataflow = (state: DataflowState) => {
+/**
+ * Resets the dataflow diagram by clearing the nodes and edges.
+ * If resetDiagramInfo is true, the diagram name and file name (saved diagram info) will also be cleared.
+ */
+export const resetDataflow = (resetDiagramInfo: boolean) => {
+  const state = store.state.dataflow;
   for (const node of _.clone(state.nodes)) { // Make a clone to avoid mutating a list currently being traversed.
     removeNode(state, node, false);
   }
-  _.extend(state, _.omit(getInitialState(), 'canvas'));
-  store.commit('history/clear');
+  _.extend(state, _.omit(getInitialState(), 'canvas', !resetDiagramInfo ? [ 'diagramName', 'filename' ] : []));
 };
 
 export const serializeDiagram = (state: DataflowState): DiagramSave => {
@@ -255,7 +267,7 @@ export const serializeDiagram = (state: DataflowState): DiagramSave => {
 
 export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) => {
   // First clear the diagram.
-  resetDataflow(state);
+  resetDataflow(true);
 
   // Turn on deserializing flag to avoid nodes trigger propagation.
   state.isDeserializing = true;

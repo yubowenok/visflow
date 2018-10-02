@@ -16,7 +16,7 @@
       <div id="buttons">
         <div v-if="this.tokens.length">
           <b-button id="auto-complete" variant="outline-secondary"
-            @click="submitQueryCompletion">
+            @click="onClickQueryCompletion">
             <i class="fas fa-question"></i>
           </b-button>
         </div>

@@ -7,6 +7,7 @@ import {
 } from '@/store/history/types';
 import { Node } from '@/components/node';
 import { RootStore } from '@/store/types';
+import { getNode } from '@/store/dataflow/helper';
 
 export enum HistoryNodeEventType {
   MOVE = 'move',
@@ -21,7 +22,7 @@ export const moveNodeEvent = (node: Node, movedNodes: Node[], to: Point, from: P
     level: HistoryEventLevel.NODE,
     type: HistoryNodeEventType.MOVE,
     message: 'move ' + (movedNodes.length > 1 ? 'nodes' : 'node'),
-    node,
+    nodeId: node.id,
     data: {
       movedNodeIds: movedNodes.map(movedNode => movedNode.id),
       from,
@@ -102,15 +103,17 @@ const redoMoveNode = (store: RootStore, evt: HistoryNodeEvent) => {
 const undoResizeNode = (store: RootStore, evt: HistoryNodeEvent) => {
   const from: Box = evt.data.prevView;
   const to: Box = evt.data.newView;
-  evt.node.moveBy(from.x - to.x, from.y - to.y);
-  evt.node.setSize(from.width, from.height);
+  const node = getNode(evt.nodeId);
+  node.moveBy(from.x - to.x, from.y - to.y);
+  node.setSize(from.width, from.height);
 };
 
 const redoResizeNode = (store: RootStore, evt: HistoryNodeEvent) => {
   const from: Box = evt.data.prevView;
   const to: Box = evt.data.newView;
-  evt.node.moveBy(to.x - from.x, to.y - from.y);
-  evt.node.setSize(to.width, to.height);
+  const node = getNode(evt.nodeId);
+  node.moveBy(to.x - from.x, to.y - from.y);
+  node.setSize(to.width, to.height);
 };
 
 export const undo = (store: RootStore, evt: HistoryNodeEvent) => {
@@ -123,8 +126,13 @@ export const undo = (store: RootStore, evt: HistoryNodeEvent) => {
       break;
   }
   const optionEvt = evt as HistoryNodeOptionEvent;
-  if (optionEvt.setter) {
-    optionEvt.setter(optionEvt.data.prevValue);
+  if (optionEvt.setter || optionEvt.setterName) {
+    if (optionEvt.setter) {
+      optionEvt.setter(optionEvt.data.prevValue);
+    } else { // setter is deserialized from setterName
+      const setter = (getNode(evt.nodeId) as any)[optionEvt.setterName]; // tslint:disable-line no-any
+      setter(optionEvt.data.prevValue);
+    }
   }
 };
 
@@ -138,7 +146,12 @@ export const redo = (store: RootStore, evt: HistoryNodeEvent) => {
       break;
   }
   const optionEvt = evt as HistoryNodeOptionEvent;
-  if (optionEvt.setter) {
-    optionEvt.setter(optionEvt.data.value);
+  if (optionEvt.setter || optionEvt.setterName) {
+    if (optionEvt.setter) {
+      optionEvt.setter(optionEvt.data.value);
+    } else { // setter is deserialized from setterName
+      const setter = (getNode(evt.nodeId) as any)[optionEvt.setterName]; // tslint:disable-line no-any
+      setter(optionEvt.data.value);
+    }
   }
 };

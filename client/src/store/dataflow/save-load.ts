@@ -25,8 +25,12 @@ export const mutations = {
 };
 
 export const actions = {
+  /**
+   * Creates a new diagram from the menu. This resets the diagram and its filename url.
+   */
   newDiagram(context: ActionContext<DataflowState, RootState>) {
-    resetDataflow(context.state);
+    resetDataflow(true);
+    store.commit('history/clear');
     store.commit('router/replace', '/');
   },
 

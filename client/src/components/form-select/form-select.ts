@@ -44,6 +44,7 @@ export default class FormSelect extends Vue {
   @Watch('value')
   private onValueChange() {
     this.selected = this.prevSelected = this.value;
+    this.childSelected = this.childSelectedOption();
     this.save(this.value);
   }
 

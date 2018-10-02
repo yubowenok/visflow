@@ -16,7 +16,7 @@ module.exports = {
       new webpack.DefinePlugin({
         'process.env.TIME_ZONE': JSON.stringify(env.TIME_ZONE),
         'process.env.VERSION': JSON.stringify(env.VERSION),
-        'process.env.FLOWSENSE_URL': JSON.stringify(env.FLOWSENSE_URL),
+        'process.env.FLOWSENSE_ENABLED': JSON.stringify(env.FLOWSENSE_ENABLED),
       }),
     ];
     if (env.ENVIRONMENT === 'production') {

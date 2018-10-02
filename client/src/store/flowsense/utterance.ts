@@ -22,7 +22,7 @@ export const getColumnNameUtterances = (): FlowsenseCategorizedToken[] => {
 };
 
 export const getNodeTypeUtterances = (): FlowsenseCategorizedToken[] => {
-  const utterances: FlowsenseCategorizedToken[] = [];
+  let utterances: FlowsenseCategorizedToken[] = [];
   store.getters['dataflow/nodeTypes'].forEach((nodeType: NodeType) => {
     utterances.push({
       matchText: [nodeType.id, nodeType.title].concat(nodeType.aliases || []),
@@ -32,6 +32,8 @@ export const getNodeTypeUtterances = (): FlowsenseCategorizedToken[] => {
       value: [nodeType.id],
     });
   });
+  // Move no-input data source to the back to avoid suggestion with no-input node types.
+  utterances = utterances.slice(1).concat([utterances[0]]);
   return utterances;
 };
 

@@ -10,7 +10,7 @@ import passport from 'passport';
 import expressValidator from 'express-validator';
 import { PORT, ALLOW_ORIGIN, SESSION_SECRET, ENVIRONMENT } from './config/env';
 import { connectMongo, disconnectMongo, sessionStore } from './mongo';
-import { Response, Request, NextFunction } from 'express';
+import { Response, Request } from 'express';
 
 // must import passport config for passport to take effect
 import './config/passport';
@@ -18,6 +18,8 @@ import './config/passport';
 import diagramApi from './api/diagram';
 import userApi from './api/user';
 import datasetApi from './api/dataset';
+import flowsenseApi from './api/flowsense';
+import logApi from './api/log';
 
 const app = express();
 connectMongo();
@@ -60,6 +62,8 @@ app.use(lusca.xssProtection(true));
 userApi(app);
 diagramApi(app);
 datasetApi(app);
+flowsenseApi(app);
+logApi(app);
 
 app.use('/', express.static(path.join(__dirname, '../../client/dist')));
 

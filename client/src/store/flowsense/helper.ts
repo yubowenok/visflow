@@ -34,6 +34,7 @@ interface InjectionMapping {
 
 export interface InjectedQuery {
   query: string;
+  rawQuery: string;
   tokens: FlowsenseToken[];
   mapping: InjectionMapping;
   markerMapping: MarkerMapping;
@@ -120,7 +121,7 @@ const assignMarker = (value: string, prefix: string, categorized: FlowsenseCateg
  * Injects the query by replacing special utterances with markers that start with "r_".
  * The markers can be used to assist FlowSense parser.
  */
-export const injectQuery = (tokens: FlowsenseToken[]): InjectedQuery => {
+export const injectQuery = (tokens: FlowsenseToken[], rawQuery: string): InjectedQuery => {
   let query = '';
   const mapping = {
     dataset: {},
@@ -150,6 +151,7 @@ export const injectQuery = (tokens: FlowsenseToken[]): InjectedQuery => {
   }
   return {
     query,
+    rawQuery,
     tokens,
     mapping,
     markerMapping,
@@ -267,7 +269,7 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   // TODO: complete query execution
   console.log('execute', value);
 
-  const tracker = new FlowsenseUpdateTracker();
+  const tracker = new FlowsenseUpdateTracker(query);
   const sources = getQuerySources(value, query, tracker);
   const targets = getQueryTargets(value, query, tracker);
   let message = 'create ';

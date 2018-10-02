@@ -8,6 +8,7 @@ export interface UserModel extends mongoose.Document {
   username: string;
   email: string;
   password: string;
+  isAdmin: boolean;
   updatedAt: Date;
 }
 
@@ -15,6 +16,7 @@ const userSchema = new mongoose.Schema({
   username: { type: String, unique: true },
   email: { type: String, unique: true },
   password: String,
+  isAdmin: Boolean,
 }, { timestamps: true });
 
 userSchema.index({ username: 1 }, { unique: true });
@@ -35,11 +37,6 @@ const hashPassword = (password: string, callback: (err: Error, hash: string) => 
 
 userSchema.pre('save', function(next: NextFunction) { // Must user funciton to access "this".
   const user = this as UserModel;
-  /*
-  if (!user.isModified('password')) {
-    return next();
-  }
-  */
   hashPassword(user.password, (err, hash) => {
     if (err) {
       return next(err);

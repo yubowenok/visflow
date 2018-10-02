@@ -5,18 +5,18 @@ import {
   FlowsenseResult,
   FlowsenseState,
   FlowsenseCategorizedToken,
-  FlowsenseTokenCategory,
 } from './types';
-import { axiosPostFullUrl, errorMessage, urlJoin } from '@/common/util';
-import { FLOWSENSE_URL } from '@/common/env';
+import { axiosPost, errorMessage, urlJoin } from '@/common/util';
 import * as helper from './helper';
 import { focusNode } from '@/store/interaction/helper';
 import { parseTokens } from '@/store/flowsense/util';
+import { FLOWSENSE_ENABLED } from '@/common/env';
+import { API_URL } from '@/common/url';
 
 const ACTIVE_POSITION_X_OFFSET_PX = 100;
 
 const initialState: FlowsenseState = {
-  enabled: FLOWSENSE_URL !== '',
+  enabled: FLOWSENSE_ENABLED !== '',
   inputVisible: false,
   voiceEnabled: false,
   activePosition: { x: 0, y: 0 },
@@ -83,11 +83,14 @@ const mutations = {
 
 const actions = {
   query(context: ActionContext<FlowsenseState, RootState>, tokens: FlowsenseToken[]): Promise<boolean> {
-    const query = helper.injectQuery(tokens);
+    const rawQuery = tokens.map(token => token.text).join('');
+    const query = helper.injectQuery(tokens, rawQuery);
     return new Promise((resolve, reject) => {
       console.log('injected:', query);
-      return axiosPostFullUrl<FlowsenseResult>(urlJoin(FLOWSENSE_URL, 'query'), { query: query.query })
-        .then(res => {
+      return axiosPost<FlowsenseResult>('flowsense/query', {
+        query: query.query ,
+        rawQuery,
+      }).then(res => {
           const result: FlowsenseResult = res.data;
           if (result.success) {
             try {
@@ -103,12 +106,15 @@ const actions = {
 
   autoComplete(context: ActionContext<FlowsenseState, RootState>, tokens: FlowsenseToken[]):
     Promise<FlowsenseToken[][]> {
-    const query = helper.injectQuery(tokens);
+    const rawQuery = tokens.map(token => token.text).join('');
+    const query = helper.injectQuery(tokens, rawQuery);
     let baseIndex = 0;
     tokens.forEach(token => baseIndex += token.text.length);
     return new Promise((resolve, reject) => {
-      return axiosPostFullUrl<string[]>(urlJoin(FLOWSENSE_URL, 'auto-complete'), { query: query.query })
-        .then(res => {
+      return axiosPost<string[]>('flowsense/auto-complete', {
+        query: query.query,
+        rawQuery,
+      }).then(res => {
           const result: string[] = res.data;
           console.warn(result);
           const suggestions = result.map(suggestion => {

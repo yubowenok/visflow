@@ -7,23 +7,9 @@ import _ from 'lodash';
 
 import { DATA_PATH, DEMO_USERNAME } from '../config/env';
 import { isAuthenticated } from '../config/passport';
-import { checkValidationResults, randomHash, DEFAULT_HASH_LENGTH } from '../common/util';
+import { checkValidationResults, randomHash, checkDiagramExists } from '../common/util';
 import Diagram, { DiagramModel } from '../models/diagram';
 
-const checkDiagramExists = check('filename', 'no such diagram')
-  .exists().isLength({ min: DEFAULT_HASH_LENGTH, max: DEFAULT_HASH_LENGTH }).withMessage('invalid filename')
-  .custom((filename, { req }) => {
-    // Assumes isAuthenticated() has been checked already and req.user is set.
-    const file = path.join(DATA_PATH, 'diagram/', req.user.username, filename);
-    if (!fs.existsSync(file)) {
-      return false;
-    }
-    return Diagram.findOne({ filename, username: req.user.username }).then(diagram => {
-      if (!diagram) {
-        return Promise.reject();
-      }
-    });
-  });
 
 const diagramApi = (app: Express) => {
   app.post('/api/diagram/list/', (req: Request, res: Response, next: NextFunction) => {

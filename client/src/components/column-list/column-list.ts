@@ -97,6 +97,7 @@ export default class ColumnList extends Vue {
         this.isSorting = false;
         // Finalize the selected values with child component.
         this.selected = getNewOrder(evt, ui);
+        this.onSelect();
 
         // Return false to cancel JQuery sortable to avoid changing the DOM at the same time with vue-select!
         return false;
@@ -106,11 +107,13 @@ export default class ColumnList extends Vue {
 
   private clear() {
     this.selected = [];
+    this.onSelect();
   }
 
   private all() {
     const select = () => {
       this.selected = this.columns.map(column => column.value);
+      this.onSelect();
     };
     if (this.columns.length > NUM_CLUTTER_COLUMNS) {
       this.openMessageModal({
@@ -127,9 +130,14 @@ export default class ColumnList extends Vue {
     // First concat then sort, otherwise the child's value will be sorted as well, and no input event will be fired
     // from child if its old value equals its new value.
     this.selected = this.selected.concat().sort((a, b) => a - b);
+    this.onSelect();
   }
 
   private onChildSelect() {
+    this.onSelect();
+  }
+
+  private onSelect() {
     if (!_.isEqual(this.selected, this.prevSelected)) {
       // TODO: See if it is possible to differentiate different inputs for better history, i.e.
       // add/remove/order/clear/sort columns.

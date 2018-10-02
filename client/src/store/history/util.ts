@@ -10,6 +10,7 @@ import {
   HistoryEventIcon,
   HistoryInteractionEvent,
   HistoryCompositeEvent,
+  HistoryLogType,
  } from '@/store/history/types';
 import { DiagramEventType } from '@/store/dataflow/types';
 
@@ -43,7 +44,7 @@ export const nodeEvent = (type: string, message: string, node: Node, data: any,
     level: HistoryEventLevel.NODE,
     type,
     message,
-    node,
+    nodeId: node.id,
     data,
     icon,
   };
@@ -63,12 +64,21 @@ export const nodeOptionEvent = (type: string, message: string, node: Node,
       defaultIconValue = 'fas fa-toggle-on';
     }
   }
+  // setterName is retrieved from setter.name (a method with a name in the format "bound {name}")
+  const matchedSetterName = setter.name.match(/^bound (.*)$/);
+  let setterName = '';
+  if (matchedSetterName === null) {
+    console.error(`cannot parse setter name from ${setter.name}`);
+  } else {
+    setterName = matchedSetterName[1];
+  }
   return {
     level: HistoryEventLevel.NODE,
     type,
     message,
-    node,
+    nodeId: node.id,
     setter,
+    setterName,
     data: { value, prevValue },
     icon: icon || { value: defaultIconValue },
   };
@@ -85,12 +95,13 @@ export const interactionEvent = (type: string, message: string, data: any, icon?
   };
 };
 
-export const compositeEvent = (message: string, events: HistoryEvent[], icon?: HistoryEventIcon):
+export const compositeEvent = (message: string, events: HistoryEvent[], icon?: HistoryEventIcon, data?: any):
   HistoryCompositeEvent => {
   return {
     level: HistoryEventLevel.COMPOSITE,
     message,
     events,
     icon,
+    data,
   };
 };

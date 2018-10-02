@@ -6,7 +6,8 @@ Vue.use(Router);
 
 const routes = [
   { path: '/share/:link', component: App },
-  { path: '/diagram/:filename', component: App },
+  { path: '/diagram/:filename/log', name: 'log', component: App },
+  { path: '/diagram/:filename', name: 'diagram', component: App },
   { path: '*', component: App },
 ];
 

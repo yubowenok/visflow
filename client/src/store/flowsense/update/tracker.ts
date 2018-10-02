@@ -21,12 +21,16 @@ import {
 import { showSystemMessage } from '@/common/util';
 import { AutoLayoutResult } from '@/store/dataflow/layout';
 import { autoLayout as dataflowAutoLayout } from '@/store/dataflow/layout';
+import { QueryValue } from '@/store/flowsense/types';
+import { InjectedQuery } from '@/store/flowsense/helper';
 
 const dataflow = (): DataflowState => store.state.dataflow;
 
 const CENTER_CANVAS_DURATION_S = .5;
 
 export default class FlowsenseUpdateTracker {
+  private injectedQuery: string = '';
+  private rawQuery: string = '';
   private createdNodes: Node[] = [];
   private createdEdges: Edge[] = [];
   private removedEdges: Edge[] = [];
@@ -36,6 +40,11 @@ export default class FlowsenseUpdateTracker {
   private nodesToAutoLayout: Node[] = [];
   private nodeToCenterAt: Node | null = null;
   private nodeToConnectToTarget: Node | null = null;
+
+  constructor(query: InjectedQuery) {
+    this.injectedQuery = query.query;
+    this.rawQuery = query.rawQuery;
+  }
 
   public createNode(node: Node) {
     this.createdNodes.push(node);
@@ -137,6 +146,9 @@ export default class FlowsenseUpdateTracker {
     const compositeEvt = compositeEvent('FlowSense: ' + message, this.events, {
       isNodeIcon: false,
       value: 'fas fa-keyboard',
+    }, {
+      injectedQuery: this.injectedQuery,
+      rawQuery: this.rawQuery,
     });
     store.commit('history/commit', compositeEvt);
   }

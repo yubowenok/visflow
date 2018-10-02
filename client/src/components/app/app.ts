@@ -12,6 +12,7 @@ import NodePanel from '@/components/node-panel/node-panel';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
 import QuickNodePanel from '@/components/quick-node-panel/quick-node-panel';
 import HistoryPanel from '@/components/history-panel/history-panel';
+import LogPanel from '@/components/log-panel/log-panel';
 import FlowsenseInput from '@/components/flowsense-input/flowsense-input';
 import { systemMessageErrorHandler } from '@/common/util';
 
@@ -23,6 +24,7 @@ import { systemMessageErrorHandler } from '@/common/util';
     NodePanel,
     QuickNodePanel,
     HistoryPanel,
+    LogPanel,
     DataflowCanvas,
     AppModals,
     FlowsenseInput,
@@ -31,9 +33,11 @@ import { systemMessageErrorHandler } from '@/common/util';
 export default class App extends Vue {
   @ns.dataflow.Mutation('setCanvas') private setCanvas!: (canvas: Vue) => void;
   @ns.dataflow.Action('loadDiagram') private dispatchLoadDiagram!: (filename: string) => Promise<string>;
+  @ns.history.Action('loadLog') private dispatchLoadLog!: (filename: string) => Promise<object[]>;
   @ns.panels.Mutation('setOptionPanelMount') private setOptionPanelMount!: (mount: Vue) => void;
   @ns.panels.Mutation('setPortPanelMount') private setPortPanelMount!: (mount: Vue) => void;
   @ns.panels.Mutation('openQuickNodePanel') private openQuickNodePanel!: () => void;
+  @ns.panels.Mutation('openLogPanel') private openLogPanel!: () => void;
   @ns.modals.Mutation('setNodeModalMount') private setNodeModalMount!: (mount: Vue) => void;
   @ns.contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
@@ -43,14 +47,6 @@ export default class App extends Vue {
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
   @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: (noActivePosition?: boolean) => void;
   @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
-
-  get diagramShareLink(): string {
-    return this.$route.params.shareLink;
-  }
-
-  get diagramFilename(): string {
-    return this.$route.params.filename;
-  }
 
   private created() {
     this.setRouter(this.$router);
@@ -65,9 +61,20 @@ export default class App extends Vue {
 
     this.initKeyHandlers();
 
+    // On page load check if we need to load diagram history logs.
+    if (this.$route.name === 'log') {
+      this.dispatchLoadDiagram(this.$route.params.filename)
+        .then(() => {
+          this.dispatchLoadLog(this.$route.params.filename)
+            .then(() => this.openLogPanel())
+            .catch(systemMessageErrorHandler(this.$store));
+        })
+        .catch(systemMessageErrorHandler(this.$store));
+    }
+
     // On page load check if we need to load diagram.
-    if (this.diagramFilename) {
-      this.dispatchLoadDiagram(this.diagramFilename)
+    if (this.$route.name === 'diagram') {
+      this.dispatchLoadDiagram(this.$route.params.filename)
         .catch(systemMessageErrorHandler(this.$store));
     }
   }

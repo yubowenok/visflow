@@ -10,6 +10,7 @@ interface PanelsState {
   nodePanelVisible: boolean;
   quickNodePanelVisible: boolean;
   historyPanelVisible: boolean;
+  logPanelVisible: boolean;
 }
 
 const initialState: PanelsState = {
@@ -18,6 +19,7 @@ const initialState: PanelsState = {
   nodePanelVisible: true,
   quickNodePanelVisible: false,
   historyPanelVisible: true,
+  logPanelVisible: false,
 };
 
 const mutations = {
@@ -75,6 +77,14 @@ const mutations = {
 
   closeHistoryPanel(state: PanelsState) {
     state.historyPanelVisible = false;
+  },
+
+  openLogPanel(state: PanelsState) {
+    state.logPanelVisible = true;
+  },
+
+  closeLogPanel(state: PanelsState) {
+    state.logPanelVisible = false;
   },
 };
 

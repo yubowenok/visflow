@@ -184,6 +184,8 @@ export default class FlowsenseInput extends Vue {
    * But the "tag-row" is so far designed to overlap the input text. When scroll happens, the overlap will mess up.
    */
   private onTextInput(text: string | null) {
+    this.resetQueryCompletionTimeout();
+
     this.isInputHidden = false;
     const finalText = text || '';
     this.calibratedText = finalText;
@@ -319,6 +321,13 @@ export default class FlowsenseInput extends Vue {
     this.submitQuery();
   }
 
+  private resetQueryCompletionTimeout() {
+    if (this.queryCompletionDropdownTimeout !== null) {
+      clearTimeout(this.queryCompletionDropdownTimeout);
+    }
+    this.queryCompletionDropdownTimeout = setTimeout(() => this.submitQueryCompletion(), QUERY_COMPLETION_DELAY_MS);
+  }
+
   /**
    * Checks the last token in the list and produces an auto completion list for this token.
    */
@@ -363,6 +372,7 @@ export default class FlowsenseInput extends Vue {
           const inputElement = $(this.$el).find('#input')[0] as HTMLInputElement;
           inputElement.setSelectionRange(editPosition + deltaLength, editPosition + deltaLength);
         });
+        this.tokenCompletionDropdown = []; // close the token completion dropdown
       },
     }));
     if (dropdown.length) {
@@ -374,17 +384,45 @@ export default class FlowsenseInput extends Vue {
   }
 
   /**
+   * Generates a token category dropdown for the "index"-th categorizable token.
+   */
+  private generateTokenCategoryDropdown(index: number) {
+    this.tokenCategoryDropdown = this.tokens[index].categories.map((category, categoryIndex) => ({
+      text: category.displayText || '',
+      annotation: category.annotation || '',
+      class: category.category !== FlowsenseTokenCategory.NONE ? 'categorized ' + category.category : '',
+      onClick: () => {
+        this.tokens[index].chosenCategory = categoryIndex;
+        const existing = this.manualCategories.find(range => range.startIndex === this.tokens[index].index &&
+          range.endIndex === this.tokens[index].index + this.tokens[index].text.length);
+        if (existing) {
+          existing.chosenCategory = categoryIndex;
+        } else {
+          this.manualCategories.push({
+            startIndex: this.tokens[index].index,
+            endIndex: this.tokens[index].index + this.tokens[index].text.length,
+            chosenCategory: categoryIndex,
+          });
+        }
+        this.tokenCategoryDropdown = []; // hide dropdown
+      },
+    }));
+  }
+
+  /**
    * Generates auto completion queries in a dropdown.
    */
   private generateQueryCompletionDropdown() {
     this.clearQueryCompletion();
-    if (this.queryCompletionDropdownTimeout !== null) {
-      clearTimeout(this.queryCompletionDropdownTimeout);
-    }
-    this.queryCompletionDropdownTimeout = setTimeout(() => this.submitQueryCompletion(), QUERY_COMPLETION_DELAY_MS);
+    this.resetQueryCompletionTimeout();
   }
 
   private submitQueryCompletion() {
+    if (this.queryCompletionDropdownTimeout !== null) {
+      // submitQueryCompletion may be called from UI button click. Avoid sending the request twice when the user is
+      // viewing the suggested queries.
+      clearTimeout(this.queryCompletionDropdownTimeout);
+    }
     if (!this.visible || !this.tokens.length) {
       return;
     }
@@ -410,6 +448,7 @@ export default class FlowsenseInput extends Vue {
         if (!this.queryCompletionDropdown.length) {
           this.queryCompletionMessage = 'no suggestions available';
         }
+        $(this.$el).find('#input').focus();
       })
       .finally(() => this.isWaiting = false);
   }
@@ -429,33 +468,13 @@ export default class FlowsenseInput extends Vue {
   }
 
   private clickToken(evt: MouseEvent, index: number) {
-    this.tokenCompletionDropdown = []; // avoid two dropdowns appearing together
-    this.queryCompletionDropdown = [];
+    this.closeAllDropdowns();
 
     const $target = $(evt.target as HTMLElement);
     const offset = elementOffset($target, $(this.$el));
     this.clickX = offset.left;
     this.clickY = offset.top + ($target.height() as number) + DROPDOWN_MARGIN_PX;
-    this.tokenCategoryDropdown = this.tokens[index].categories.map((category, categoryIndex) => ({
-      text: category.displayText || '',
-      annotation: category.annotation || '',
-      class: category.category !== FlowsenseTokenCategory.NONE ? 'categorized ' + category.category : '',
-      onClick: () => {
-        this.tokens[index].chosenCategory = categoryIndex;
-        const existing = this.manualCategories.find(range => range.startIndex === this.tokens[index].index &&
-          range.endIndex === this.tokens[index].index + this.tokens[index].text.length);
-        if (existing) {
-          existing.chosenCategory = categoryIndex;
-        } else {
-          this.manualCategories.push({
-            startIndex: this.tokens[index].index,
-            endIndex: this.tokens[index].index + this.tokens[index].text.length,
-            chosenCategory: categoryIndex,
-          });
-        }
-        this.tokenCategoryDropdown = []; // hide dropdown
-      },
-    }));
+    this.generateTokenCategoryDropdown(index);
   }
 
   private onHideInput() {
@@ -482,6 +501,11 @@ export default class FlowsenseInput extends Vue {
       })
       .catch(err => systemMessageErrorHandler(this.$store)(err))
       .finally(() => this.isWaiting = false);
+  }
+
+  private onClickQueryCompletion() {
+    this.closeAllDropdowns();
+    this.submitQueryCompletion();
   }
 
   private clearQueryCompletion() {

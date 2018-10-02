@@ -25,7 +25,7 @@ export interface HistoryEvent extends HistoryEventBase {
 
 export interface HistoryNodeEvent extends HistoryEvent {
   level: HistoryEventLevel.NODE;
-  node: Node;
+  nodeId: string;
 }
 
 export interface HistoryInteractionEvent extends HistoryEvent {
@@ -39,6 +39,7 @@ export interface HistoryInteractionEvent extends HistoryEvent {
  */
 export interface HistoryNodeOptionEvent extends HistoryNodeEvent {
   setter: (value: any) => void;
+  setterName: string;
   data: {
     value: any;
     prevValue: any;
@@ -58,11 +59,26 @@ export interface HistoryDiagramBatchEvent extends HistoryEvent {
 
 export interface HistoryCompositeEvent extends HistoryEventBase {
   events: HistoryEvent[];
+  data: any;
+}
+
+export enum HistoryLogType {
+  UNDO = 'undo',
+  REDO = 'redo',
+  COMMIT = 'commit',
+  SAVE_DIAGRAM = 'save-diagram',
+  CLEAR_DIAGRAM = 'clear-diagram',
+}
+export interface HistoryLog {
+  type: HistoryLogType;
+  data: any;
 }
 
 export interface HistoryState {
   undoStack: HistoryEvent[];
   redoStack: HistoryEvent[];
+  logs: HistoryLog[];
+  currentLogIndex: number;
 }
 
 export * from './util';

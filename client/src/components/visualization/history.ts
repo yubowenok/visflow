@@ -1,6 +1,7 @@
 import { HistoryNodeEvent, nodeEvent } from '@/store/history/types';
 import Visualization from './visualization';
 import { SubsetSelection } from '@/data/package';
+import { getNode } from '@/store/dataflow/helper';
 
 enum VisualizationEventType {
   INTERACTIVE_SELECTION = 'interactive-selection',
@@ -23,11 +24,11 @@ export const interactiveSelectionEvent = (node: Visualization, selection: Subset
 };
 
 const undoInteractiveSelection = (evt: HistoryNodeEvent) => {
-  (evt.node as Visualization).setSelection(evt.data.prevSelection);
+  (getNode(evt.nodeId) as Visualization).setSelection(evt.data.prevSelection);
 };
 
 const redoInteractiveSelection = (evt: HistoryNodeEvent) => {
-  (evt.node as Visualization).setSelection(evt.data.selection);
+  (getNode(evt.nodeId) as Visualization).setSelection(evt.data.selection);
 };
 
 export const undo = (evt: HistoryNodeEvent) => {
