@@ -16,8 +16,9 @@
   }
 
   .logs {
-    height: calc(100% - 50px);
+    height: calc(100% - 20px);
     padding: $padding-size-lg $padding-size-sm;
+    overflow-y: scroll;
 
     > .current {
       background-color: $theme-green;

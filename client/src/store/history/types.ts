@@ -67,6 +67,7 @@ export enum HistoryLogType {
   REDO = 'redo',
   COMMIT = 'commit',
   SAVE_DIAGRAM = 'save-diagram',
+  LOAD_DIAGRAM = 'load-diagram',
   CLEAR_DIAGRAM = 'clear-diagram',
 }
 export interface HistoryLog {

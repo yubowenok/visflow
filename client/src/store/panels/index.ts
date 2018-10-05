@@ -19,7 +19,7 @@ const initialState: PanelsState = {
   nodePanelVisible: true,
   quickNodePanelVisible: false,
   historyPanelVisible: true,
-  logPanelVisible: false,
+  logPanelVisible: true,
 };
 
 const mutations = {

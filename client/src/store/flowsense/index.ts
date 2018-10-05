@@ -11,7 +11,6 @@ import * as helper from './helper';
 import { focusNode } from '@/store/interaction/helper';
 import { parseTokens } from '@/store/flowsense/util';
 import { FLOWSENSE_ENABLED } from '@/common/env';
-import { API_URL } from '@/common/url';
 
 const ACTIVE_POSITION_X_OFFSET_PX = 100;
 
@@ -116,11 +115,10 @@ const actions = {
         rawQuery,
       }).then(res => {
           const result: string[] = res.data;
-          console.warn(result);
           const suggestions = result.map(suggestion => {
-            const suggestionTokens = parseTokens((tokens[tokens.length - 1].text === ' ' ? '' : ' ') + suggestion);
+            const suggestionTokens = parseTokens(suggestion, tokens);
             suggestionTokens.forEach(token => helper.ejectSuggestionToken(token));
-            return tokens.concat(suggestionTokens);
+            return suggestionTokens;
           });
           resolve(suggestions);
         }, err => reject(errorMessage(err)));

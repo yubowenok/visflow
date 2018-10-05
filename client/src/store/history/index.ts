@@ -103,6 +103,14 @@ const mutations = {
   redoLog(state: HistoryState) {
     helper.redoLog(state);
   },
+
+  /**
+   * Adds a log entry without going through history event commit.
+   * This is used to track diagram save/load operations.
+   */
+  addLog(state: HistoryState, log: HistoryLog) {
+    state.logs.push(log);
+  },
 };
 
 const actions = {

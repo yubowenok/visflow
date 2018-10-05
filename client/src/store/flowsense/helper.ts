@@ -14,6 +14,7 @@ import { SubsetNode } from '@/components/subset-node';
 import { Node } from '@/components/node';
 import { Visualization } from '@/components/visualization';
 import FlowsenseUpdateTracker from '@/store/flowsense/update/tracker';
+import { randomInt } from '@/common/util';
 
 
 interface InjectedToken {
@@ -65,14 +66,14 @@ export const getSpecialUtterances = (): FlowsenseCategorizedToken[] => {
  * The real values are found from the datasets, or just placeholders.
  */
 export const ejectSuggestionToken = (token: FlowsenseToken) => {
-  token.chosenCategory = 0;
-
+  if (token.chosenCategory === -1) {
+    token.chosenCategory = 0;
+  }
   const matchedColumnMarker = token.text.match(/^r_column_(.*)$/);
   if (matchedColumnMarker !== null) {
-    const markerIndex = +matchedColumnMarker[1] - 1;
     const columns = utterance.getColumnNameUtterances();
     if (columns.length) {
-      const category = columns[markerIndex % columns.length];
+      const category = columns[randomInt(columns.length) % columns.length];
       token.categories.push(category);
       token.chosenCategory = token.categories.length - 1;
       token.text = category.value[0];
@@ -81,12 +82,20 @@ export const ejectSuggestionToken = (token: FlowsenseToken) => {
 
   const matchedNodeTypeMarker = token.text.match(/^r_node_type_(.*)$/);
   if (matchedNodeTypeMarker !== null) {
-    const markerIndex = +matchedNodeTypeMarker[1] - 1;
     const nodeTypes = utterance.getNodeTypeUtterances();
-    const category = nodeTypes[markerIndex % nodeTypes.length];
+    const category = nodeTypes[randomInt(nodeTypes.length) % nodeTypes.length];
     token.categories.push(category);
     token.chosenCategory = token.categories.length - 1;
     token.text = category.displayText as string;
+  }
+
+  const matchedNodeLabelMarker = token.text.match(/^r_node_label_(.*)$/);
+  if (matchedNodeLabelMarker !== null) {
+    const nodeLabels = utterance.getNodeLabelUtterances();
+    const category = nodeLabels[randomInt(nodeLabels.length) % nodeLabels.length];
+    token.categories.push(category);
+    token.chosenCategory = token.categories.length - 1;
+    token.text = category.value[0];
   }
 
   if (token.text === FlowsenseDef.NUMBER_VALUE) {

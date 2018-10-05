@@ -12,6 +12,7 @@ import {
 } from '@/common/util';
 
 import { DiagramSave, DiagramInfo } from '@/store/dataflow/types';
+import { HistoryLogType } from '@/store/history/types';
 
 
 export const mutations = {
@@ -21,6 +22,15 @@ export const mutations = {
 
   setFilename(state: DataflowState, filename: string) {
     state.filename = filename;
+  },
+
+  /**
+   * Resets diagram name and filename. The diagram goes to "unsaved" state.
+   * This happens when the user deletes the current saved diagram.
+   */
+  resetDiagramInfo(state: DataflowState) {
+    state.filename = '';
+    state.diagramName = '';
   },
 };
 
@@ -54,7 +64,11 @@ export const actions = {
       diagram: JSON.stringify(serializeDiagram(context.state)),
       filename: context.state.filename,
     }).then(() => {
-        showSystemMessage(store, `Diagram saved: ${context.state.diagramName}`, 'success');
+        store.commit('history/addLog', { type: HistoryLogType.SAVE_DIAGRAM });
+        store.dispatch('history/sendLog')
+          .then(() => {
+            showSystemMessage(store, `Diagram saved: ${context.state.diagramName}`, 'success');
+          });
       })
       .catch(systemMessageErrorHandler(store));
   },
@@ -73,11 +87,14 @@ export const actions = {
       }).then(res => {
           const filename = res.data;
           context.commit('setFilename', filename);
-          showSystemMessage(store, `Diagram saved: ${context.state.diagramName}`, 'success');
-
           store.commit('router/replace', `/diagram/${filename}`);
-
           resolve(filename);
+
+          store.commit('history/addLog', { type: HistoryLogType.SAVE_DIAGRAM });
+          store.dispatch('history/sendLog')
+            .then(() => {
+              showSystemMessage(store, `Diagram saved: ${context.state.diagramName}`, 'success');
+            });
         })
         .catch(err => reject(err));
     });
@@ -94,6 +111,7 @@ export const actions = {
           showSystemMessage(store, `Diagram loaded: ${res.data.diagramName}`, 'success');
 
           store.commit('router/replace', `/diagram/${filename}`);
+          store.commit('history/addLog', { type: HistoryLogType.LOAD_DIAGRAM });
 
           resolve(res.data.diagramName);
         })
@@ -125,7 +143,13 @@ export const actions = {
   deleteDiagram(context: ActionContext<DataflowState, RootState>, filename: string): Promise<void> {
     return new Promise((resolve, reject) => {
       axiosPost<void>('/diagram/delete', { filename })
-        .then(() => resolve())
+        .then(() => {
+          if (filename === context.state.filename) {
+            context.commit('resetDiagramInfo');
+            store.commit('router/replace', `/diagram/`);
+          }
+          resolve();
+        })
         .catch(err => reject(errorMessage(err)));
     });
   },

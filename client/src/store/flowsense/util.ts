@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { FlowsenseToken, FlowsenseTokenCategory } from '@/store/flowsense/types';
 
 /**
@@ -10,8 +11,9 @@ export const isSeparator = (char: string): boolean => {
 /**
  * Parses a text string into recognizable tokens.
  */
-export const parseTokens = (text: string): FlowsenseToken[] => {
+export const parseTokens = (text: string, originalTokens?: FlowsenseToken[]): FlowsenseToken[] => {
   const tokens: FlowsenseToken[] = [];
+  originalTokens = originalTokens || [];
   let numTokens = 0;
   for (let i = 0; i < text.length; i++) {
     if (isSeparator(text[i])) {
@@ -34,20 +36,26 @@ export const parseTokens = (text: string): FlowsenseToken[] => {
     while (j < text.length && !isSeparator(text[j])) {
       tokenText += text[j++];
     }
-    tokens[numTokens] = {
-      index: i,
-      text: tokenText,
-      chosenCategory: -1, // -1 means the category is to be decided
-      categories: [{
-        matchText: [],
-        category: FlowsenseTokenCategory.NONE,
-        displayText: '',
-        annotation: '/(none)',
-        value: [],
-      }],
-      manuallySet: false,
-      isPhrase: false,
-    };
+    if (numTokens < originalTokens.length &&
+      (originalTokens[numTokens].text === tokenText || tokenText.match(/^r_/) !== null)) {
+      tokens[numTokens] = originalTokens[numTokens];
+    } else {
+      tokens[numTokens] = {
+        index: i,
+        text: tokenText,
+        chosenCategory: -1, // -1 means the category is to be decided
+        categories: [{
+          matchText: [],
+          category: FlowsenseTokenCategory.NONE,
+          displayText: '',
+          annotation: '/(none)',
+          value: [],
+        }],
+        manuallySet: false,
+        isPhrase: false,
+      };
+    }
+
     numTokens++;
     i = j - 1;
   }

@@ -163,7 +163,6 @@ export const redoLog = (state: HistoryState) => {
       batchRedo(state, log.data as number);
       break;
     case HistoryLogType.COMMIT:
-      console.log(log);
       executeRedo(log.data as HistoryEvent);
       commitEvent(state, log.data as HistoryEvent);
       break;
@@ -171,6 +170,7 @@ export const redoLog = (state: HistoryState) => {
       // TODO
       break;
     case HistoryLogType.SAVE_DIAGRAM:
+    case HistoryLogType.LOAD_DIAGRAM:
       // nothing to do
       break;
   }
