@@ -11,6 +11,7 @@ import {
   HistoryInteractionEvent,
   HistoryCompositeEvent,
   HistoryLogType,
+  HistoryLog,
  } from '@/store/history/types';
 import { DiagramEventType } from '@/store/dataflow/types';
 
@@ -103,5 +104,13 @@ export const compositeEvent = (message: string, events: HistoryEvent[], icon?: H
     events,
     icon,
     data,
+  };
+};
+
+export const historyLog = (type: HistoryLogType, data: any): HistoryLog => {
+  return {
+    type,
+    data,
+    timestamp: new Date().getTime(),
   };
 };
