@@ -1,10 +1,12 @@
 import { Module, ActionContext } from 'vuex';
-import store, { RootState } from '@/store';
+import { RootState } from '@/store';
 import _ from 'lodash';
 
 import { HistoryEvent, HistoryState, HistoryLogType, HistoryLog } from './types';
 import * as helper from './helper';
 import { axiosPost, errorMessage } from '@/common/util';
+
+import { historyLog } from './util';
 
 const initialState: HistoryState = {
   undoStack: [],
@@ -27,18 +29,12 @@ const getters = {
 
 const mutations = {
   redo(state: HistoryState) {
-    state.logs.push({
-      type: HistoryLogType.REDO,
-      data: 1,
-    });
+    state.logs.push(historyLog(HistoryLogType.REDO, 1));
     helper.redo(state);
   },
 
   undo(state: HistoryState) {
-    state.logs.push({
-      type: HistoryLogType.UNDO,
-      data: 1,
-    });
+    state.logs.push(historyLog(HistoryLogType.UNDO, 1));
     helper.undo(state);
   },
 
@@ -52,10 +48,7 @@ const mutations = {
    * Undoes the latest k events.
    */
   undoEvents(state: HistoryState, k: number) {
-    state.logs.push({
-      type: HistoryLogType.UNDO,
-      data: k,
-    });
+    state.logs.push(historyLog(HistoryLogType.UNDO, k));
     helper.batchUndo(state, k);
   },
 
@@ -63,10 +56,7 @@ const mutations = {
    * Redoes the last k events.
    */
   redoEvents(state: HistoryState, k: number) {
-    state.logs.push({
-      type: HistoryLogType.REDO,
-      data: k,
-    });
+    state.logs.push(historyLog(HistoryLogType.REDO, k));
     helper.batchRedo(state, k);
   },
 
@@ -81,10 +71,7 @@ const mutations = {
       console.error(err);
     }
 
-    state.logs.push({
-      type: HistoryLogType.COMMIT,
-      data: evt,
-    });
+    state.logs.push(historyLog(HistoryLogType.COMMIT, evt));
     state.currentLogIndex = state.logs.length - 1;
 
     helper.commitEvent(state, evt);

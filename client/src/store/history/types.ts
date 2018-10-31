@@ -73,6 +73,7 @@ export enum HistoryLogType {
 export interface HistoryLog {
   type: HistoryLogType;
   data: any;
+  timestamp: number; // POSIX
 }
 
 export interface HistoryState {
