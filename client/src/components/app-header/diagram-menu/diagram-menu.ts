@@ -9,4 +9,5 @@ export default class DiagramMenu extends Vue {
   @ns.dataflow.Action('saveDiagram') private saveDiagram!: () => void;
   @ns.user.State('username') private username!: string;
   @ns.interaction.State('osCtrlKeyChar') private osCtrlKeyChar!: string;
+  @ns.experiment.Getter('isInExperiment') private isInExperiment!: boolean;
 }

@@ -8,6 +8,8 @@ export default class BaseModal extends Vue {
   private onClose!: () => {};
   @Prop({ default: () => {} })
   private onEnter!: () => {};
+  @Prop({ default: '' })
+  private size !: string;
 
   @Prop()
   private visibleState!: boolean;

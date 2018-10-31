@@ -12,6 +12,7 @@ import ProfileModal from '@/components/modals/profile-modal/profile-modal';
 import PasswordModal from '@/components/modals/password-modal/password-modal';
 import MessageModal from '@/components/modals/message-modal/message-modal';
 import ProgressModal from '@/components/modals/progress-modal/progress-modal';
+import ExperimentModal from '@/components/modals/experiment-modal/experiment-modal';
 
 @Component({
   components: {
@@ -24,6 +25,7 @@ import ProgressModal from '@/components/modals/progress-modal/progress-modal';
     PasswordModal,
     MessageModal,
     ProgressModal,
+    ExperimentModal,
   },
 })
 export default class AppModals extends Vue {

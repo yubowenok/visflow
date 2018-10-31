@@ -1,5 +1,5 @@
 import { Module, ActionContext } from 'vuex';
-import { RootState } from '@/store';
+import store, { RootState } from '@/store';
 
 import { axiosPost, errorMessage } from '@/common/util';
 import { DatasetInfo, DatasetState, DatasetCache, CachedDataset, GetDatasetOptions } from './types';
@@ -64,6 +64,9 @@ const actions = {
   },
 
   listDataset(context: ActionContext<DatasetState, RootState>): Promise<DatasetInfo[]> {
+    if (!context.rootState.user.username) {
+      return Promise.resolve([]);
+    }
     return new Promise((resolve, reject) => {
       axiosPost<DatasetInfo[]>('/dataset/list')
         .then(res => {

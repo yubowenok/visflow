@@ -39,6 +39,7 @@ export default class App extends Vue {
   @ns.panels.Mutation('openQuickNodePanel') private openQuickNodePanel!: () => void;
   @ns.panels.Mutation('openLogPanel') private openLogPanel!: () => void;
   @ns.modals.Mutation('setNodeModalMount') private setNodeModalMount!: (mount: Vue) => void;
+  @ns.modals.Mutation('openExperimentModal') private openExperimentModal!: () => void;
   @ns.contextMenu.Mutation('setMount') private setContextMenuMount!: (mount: Vue) => void;
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
   @ns.interaction.Mutation('keydown') private interactionKeydown!: (evt: JQuery.Event) => void;
@@ -47,6 +48,8 @@ export default class App extends Vue {
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
   @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: (noActivePosition?: boolean) => void;
   @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
+  @ns.experiment.Action('login') private loginExperimentUser!: () => void;
+  @ns.experiment.Action('load') private dispatchLoadExperiment!: (filename: string) => Promise<void>;
 
   private created() {
     this.setRouter(this.$router);
@@ -60,6 +63,17 @@ export default class App extends Vue {
     this.setNodeModalMount(this.$refs.nodeModalMount as Vue);
 
     this.initKeyHandlers();
+
+    // This is an experiment.
+    // Display the consent form modal and prepare to launch a new experiment.
+    if (this.$route.name === 'experiment' || this.$route.name === 'load-experiment') {
+      this.loginExperimentUser();
+      this.openExperimentModal();
+      if (this.$route.name === 'load-experiment') {
+        this.dispatchLoadExperiment(this.$route.params.filename)
+          .catch(systemMessageErrorHandler(this.$store));
+      }
+    }
 
     // On page load check if we need to load diagram history logs.
     if (this.$route.name === 'log') {

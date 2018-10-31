@@ -10,6 +10,9 @@ passport.serializeUser<UserModel, string>((user, done) => {
 });
 
 passport.deserializeUser((id: string, done) => {
+  if (id === '_experiment') {
+    return done(undefined, { username: '_experiment', email: '' });
+  }
   User.findById(id, (err, user) => {
     done(err, user);
   });

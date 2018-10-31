@@ -12,7 +12,7 @@ import { showSystemMessage, areRangesIntersected,  systemMessageErrorHandler, el
 const DROPDOWN_MARGIN_PX = 10;
 const TOKEN_COMPLETION_DROPDOWN_DELAY_MS = 250;
 const TOKEN_COMPLETION_DROPDOWN_Y_OFFSET_PX = 10;
-const QUERY_COMPLETION_DELAY_MS = 5000;
+const QUERY_COMPLETION_DELAY_MS = 15000;
 
 interface DropdownElement {
   text: string;

@@ -9,6 +9,7 @@
   <password-modal></password-modal>
   <message-modal></message-modal>
   <progress-modal></progress-modal>
+  <experiment-modal></experiment-modal>
 </div>
 </template>
 

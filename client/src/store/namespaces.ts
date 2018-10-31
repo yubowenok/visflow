@@ -13,4 +13,5 @@ export default {
   systemOptions: namespace('systemOptions'),
   user: namespace('user'),
   flowsense: namespace('flowsense'),
+  experiment: namespace('experiment'),
 };

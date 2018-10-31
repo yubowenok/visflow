@@ -23,6 +23,8 @@ interface ModalsState {
   inProgress: boolean;
   progressMessage: string;
   progressPercentage: number;
+
+  experimentModalVisible: boolean;
 }
 
 const initialState: ModalsState = {
@@ -43,6 +45,8 @@ const initialState: ModalsState = {
     title: '',
     message: '',
   },
+
+  experimentModalVisible: false,
 
   inProgress: false,
   progressMessage: '',
@@ -158,6 +162,14 @@ const mutations = {
 
   setProgressPercentage(state: ModalsState, percentage: number) {
     state.progressPercentage = percentage;
+  },
+
+  openExperimentModal(state: ModalsState) {
+    state.experimentModalVisible = true;
+  },
+
+  closeExperimentModal(state: ModalsState) {
+    state.experimentModalVisible = false;
   },
 };
 

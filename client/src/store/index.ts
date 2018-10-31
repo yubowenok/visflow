@@ -13,6 +13,7 @@ import router from '@/store/router';
 import systemOptions from '@/store/system-options';
 import user from '@/store/user';
 import flowsense from '@/store/flowsense';
+import experiment from '@/store/experiment';
 import { RootState } from './types';
 
 Vue.use(Vuex);
@@ -31,6 +32,7 @@ export const defaultStore = {
     systemOptions,
     user,
     flowsense,
+    experiment,
   },
 };
 

@@ -20,6 +20,7 @@ import userApi from './api/user';
 import datasetApi from './api/dataset';
 import flowsenseApi from './api/flowsense';
 import logApi from './api/log';
+import experimentApi from './api/experiment';
 
 const app = express();
 connectMongo();
@@ -64,6 +65,7 @@ diagramApi(app);
 datasetApi(app);
 flowsenseApi(app);
 logApi(app);
+experimentApi(app);
 
 app.use('/', express.static(path.join(__dirname, '../../client/dist')));
 

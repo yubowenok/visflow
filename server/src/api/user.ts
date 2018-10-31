@@ -8,6 +8,8 @@ import { IVerifyOptions } from 'passport-local';
 import { isMongooseConnected } from '../mongo';
 import { checkValidationResults } from '../common/util';
 
+const EXPERIMENT_USERNAME = '_experiment';
+
 const userApi = (app: Express) => {
   app.post('/api/user/*', isMongooseConnected);
   app.post('/api/user/signup', [
@@ -60,6 +62,22 @@ const userApi = (app: Express) => {
   });
 
   app.post('/api/user/login', (req: Request, res: Response, next: NextFunction) => {
+    // Allow experiment user.
+    if (req.body.username === EXPERIMENT_USERNAME) {
+      req.login({
+        _id: EXPERIMENT_USERNAME, // virtual mongo id needed for session serialization
+        username: EXPERIMENT_USERNAME,
+      }, loginErr => {
+        if (loginErr) {
+          return next(loginErr);
+        }
+        return res.json({
+          username: EXPERIMENT_USERNAME,
+          email: '',
+        });
+      });
+      return;
+    }
     passport.authenticate('local', (err: Error, user: UserModel | undefined, info: IVerifyOptions) => {
       if (err) {
         return next(err);
@@ -86,6 +104,10 @@ const userApi = (app: Express) => {
 
   app.post('/api/user/whoami', (req: Request, res: Response) => {
     if (!req.user) {
+      return res.json({ username: '', email: '' });
+    }
+    if (req.user.username === '_experiment') {
+      req.logout();
       return res.json({ username: '', email: '' });
     }
     return res.json({

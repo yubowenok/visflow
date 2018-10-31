@@ -28,7 +28,7 @@
         <dataset-bar></dataset-bar>
         <flowsense-bar></flowsense-bar>
 
-        <user-bar></user-bar>
+        <user-bar v-if="!isInExperiment"></user-bar>
       </b-navbar-nav>
     </b-collapse>
   </nav>
