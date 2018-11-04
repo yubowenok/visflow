@@ -8,7 +8,7 @@ import { IVerifyOptions } from 'passport-local';
 import { isMongooseConnected } from '../mongo';
 import { checkValidationResults } from '../common/util';
 
-const EXPERIMENT_USERNAME = '_experiment';
+export const EXPERIMENT_USERNAME = '_experiment';
 
 const userApi = (app: Express) => {
   app.post('/api/user/*', isMongooseConnected);

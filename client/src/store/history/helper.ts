@@ -173,6 +173,9 @@ export const redoLog = (state: HistoryState) => {
     case HistoryLogType.LOAD_DIAGRAM:
       // nothing to do
       break;
+    case HistoryLogType.EXPERIMENT_STEP:
+      // nothing to do, experiment step logs are only for post study analysis
+      break;
   }
 };
 

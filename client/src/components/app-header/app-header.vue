@@ -21,8 +21,9 @@
         <help-menu></help-menu>
       </b-navbar-nav>
       <b-navbar-nav class="ml-auto">
+        <experiment-bar v-if="isInExperiment"></experiment-bar>
         <!-- tool bars -->
-        <diagram-bar></diagram-bar>
+        <diagram-bar v-if="!isInExperiment"></diagram-bar>
         <vis-mode-bar></vis-mode-bar>
         <drag-bar></drag-bar>
         <dataset-bar></dataset-bar>

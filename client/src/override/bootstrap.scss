@@ -49,4 +49,8 @@ button.btn {
   .btn {
     @extend %margin-lr-sm;
   }
+
+  .close {
+    font-size: 1.25rem;
+  }
 }

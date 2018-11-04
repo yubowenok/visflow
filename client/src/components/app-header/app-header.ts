@@ -10,6 +10,7 @@ import DatasetBar from '@/components/dataset-bar/dataset-bar';
 import DragBar from '@/components/drag-bar/drag-bar';
 import VisModeBar from '@/components/vis-mode-bar/vis-mode-bar';
 import FlowsenseBar from '@/components/flowsense-bar/flowsense-bar';
+import ExperimentBar from '@/components/experiment-bar/experiment-bar';
 import ns from '@/store/namespaces';
 
 @Component({
@@ -24,6 +25,7 @@ import ns from '@/store/namespaces';
     DragBar,
     VisModeBar,
     FlowsenseBar,
+    ExperimentBar,
   },
 })
 export default class AppHeader extends Vue {

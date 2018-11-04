@@ -23,6 +23,13 @@ const mutations = {
       state.router.replace(url);
     }
   },
+
+  /**
+   * Completely reloads and refreshes the page. This will lose all the states.
+   */
+  reload(state: RouterState, url: string) {
+    window.location.href = url;
+  },
 };
 
 const router: Module<RouterState, RootState> = {

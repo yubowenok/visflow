@@ -56,9 +56,8 @@ const logApi = (app: Express) => {
     if (!req.user.isAdmin) {
       return res.status(401).send('not authorized to view log');
     }
-    const username = req.user.username;
     const filename = req.body.filename;
-    Log.findOne({ username, filename }, (err, log) => {
+    Log.findOne({ filename }, (err, log) => {
       if (err) {
         return next(err);
       }

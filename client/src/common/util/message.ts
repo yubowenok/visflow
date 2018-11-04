@@ -35,10 +35,9 @@ export const clearSystemMessage = (store: RootStore) => {
 
 /** Displays an error message using the system message popup. */
 export const systemMessageErrorHandler = (store: RootStore) => {
-  return (err: Error) => {
-    if (err.stack) { // Local execution error, just throw. do not display in system message.
+  return (err: any) => { // tslint:disable-line no-any
+    if (!err.request) { // Local execution error, just throw. do not display in system message.
       throw err;
-      return;
     }
     showSystemMessage(store, errorMessage(err), 'error');
   };

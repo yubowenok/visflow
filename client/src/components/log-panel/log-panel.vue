@@ -14,7 +14,7 @@
       :class="{ current: index === currentLogIndex }"
       @click="printLog(log)">
       <span>{{ log.type }}</span>:
-      <span v-if="log.type === 'commit'">{{ log.data.message }}</span>
+      <span v-if="log.data && log.data.message">{{ log.data.message }}</span>
     </div>
   </div>
 </div>

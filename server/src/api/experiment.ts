@@ -9,11 +9,19 @@ import mongoose from 'mongoose';
 import { checkValidationResults, urlJoin, randomHash } from '../common/util';
 import Diagram from '../models/diagram';
 import { DATA_PATH } from '../config/env';
+import Log, { LogModel } from '../models/log';
+
+/**
+ * Gets the experiment diagram name based on its filename.
+ */
+const getDiagramName = (filename: string): string => {
+  return 'experiment_' + filename.slice(0, 16);
+};
 
 const experimentApi = (app: Express) => {
   app.post('/api/experiment/start', (req: Request, res: Response, next: NextFunction) => {
     const filename = randomHash();
-    const diagramName = 'experiment_' + filename.slice(0, 8);
+    const diagramName = getDiagramName(filename);
     const dir = path.join(DATA_PATH, 'diagram/', req.user.username);
     if (!fs.existsSync(dir)) {
       fs.mkdirpSync(dir);
@@ -39,6 +47,31 @@ const experimentApi = (app: Express) => {
       res.json({
         diagramName,
         filename,
+        step: 'consentForm',
+      });
+    });
+  });
+
+  // Loads an experiment's progress. The progress is retrieved from parsing the logs.
+  app.post('/api/experiment/progress/', (req: Request, res: Response, next: NextFunction) => {
+    const username = req.user.username;
+    const filename = req.body.filename;
+    Log.findOne({ username, filename }, (err, log) => {
+      if (err) {
+        return next(err);
+      }
+      let step = 'consentForm';
+      if (log) {
+        for (const logEntry of log.logs) {
+          if (logEntry.type === 'experiment-step') {
+            step = logEntry.data.step;
+          }
+        }
+      }
+      res.json({
+        diagramName: getDiagramName(filename),
+        filename,
+        step,
       });
     });
   });

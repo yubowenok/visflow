@@ -3,7 +3,7 @@
   :visible-state="experimentModalVisible"
   :on-open="openExperimentModal"
   :on-close="closeExperimentModal"
-  :on-enter="agreeAndStart"
+  :on-enter="next"
   size="lg"
   >
 <template slot="content">
@@ -83,12 +83,16 @@ If you have questions at any time of the user study, please reach out to our use
 </b-container>
 </template>
 <template slot="footer">
-  <b-btn class="float-right" variant="primary" @click="agreeAndStart">
+  <b-btn class="float-right" variant="primary" @click="next">
     <span v-if="currentStep === 'consentForm'">Agree and Start</span>
+    <span v-if="currentStep === 'end'">Finish</span>
     <span v-else>Continue</span>
   </b-btn>
-  <b-btn class="float-right" variant="outline-secondary" @click="cancel">Cancel</b-btn>
-</template>
+  <template v-if="currentStep !== 'end'">
+    <b-btn class="float-right" variant="outline-secondary" @click="close">Close</b-btn>
+    <b-btn v-if="currentStep !== 'consentForm'" class="float-right" variant="outline-secondary" @click="previous">Previous</b-btn>
+  </template>
+  </template>
 </base-modal>
 </template>
 

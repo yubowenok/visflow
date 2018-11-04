@@ -69,6 +69,7 @@ export enum HistoryLogType {
   SAVE_DIAGRAM = 'save-diagram',
   LOAD_DIAGRAM = 'load-diagram',
   CLEAR_DIAGRAM = 'clear-diagram',
+  EXPERIMENT_STEP = 'experiment-step',
 }
 export interface HistoryLog {
   type: HistoryLogType;

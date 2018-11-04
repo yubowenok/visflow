@@ -266,9 +266,6 @@ export const serializeDiagram = (state: DataflowState): DiagramSave => {
 };
 
 export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) => {
-  // First clear the diagram.
-  resetDataflow(true);
-
   // Turn on deserializing flag to avoid nodes trigger propagation.
   state.isDeserializing = true;
 

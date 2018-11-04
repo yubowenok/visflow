@@ -48,7 +48,7 @@ export default class App extends Vue {
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
   @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: (noActivePosition?: boolean) => void;
   @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
-  @ns.experiment.Action('login') private loginExperimentUser!: () => void;
+  @ns.experiment.Action('login') private loginExperimentUser!: () => Promise<void>;
   @ns.experiment.Action('load') private dispatchLoadExperiment!: (filename: string) => Promise<void>;
 
   private created() {
@@ -67,12 +67,13 @@ export default class App extends Vue {
     // This is an experiment.
     // Display the consent form modal and prepare to launch a new experiment.
     if (this.$route.name === 'experiment' || this.$route.name === 'load-experiment') {
-      this.loginExperimentUser();
       this.openExperimentModal();
-      if (this.$route.name === 'load-experiment') {
-        this.dispatchLoadExperiment(this.$route.params.filename)
-          .catch(systemMessageErrorHandler(this.$store));
-      }
+      this.loginExperimentUser().then(() => {
+        if (this.$route.name === 'load-experiment') {
+          this.dispatchLoadExperiment(this.$route.params.filename)
+            .catch(systemMessageErrorHandler(this.$store));
+        }
+      });
     }
 
     // On page load check if we need to load diagram history logs.
