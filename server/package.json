@@ -14,7 +14,8 @@
     "watch-node": "nodemon --inspect dist/server.js",
     "watch-lint": "nodemon -x npm run lint",
     "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-lint\" \"npm run watch-build\" \"npm run watch-node\"",
-    "test": "jest --detectOpenHandles --coverage",
+    "test": "jest --forceExit --coverage",
+    "test-openhandles": "jest --detectOpenHandles --coverage",
     "watch-test": "jest --watch"
   },
   "dependencies": {

@@ -6,7 +6,7 @@ import {
   FlowsenseState,
   FlowsenseCategorizedToken,
 } from './types';
-import { axiosPost, errorMessage, urlJoin } from '@/common/util';
+import { axiosPost, errorMessage } from '@/common/util';
 import * as helper from './helper';
 import { focusNode } from '@/store/interaction/helper';
 import { parseTokens } from '@/store/flowsense/util';
