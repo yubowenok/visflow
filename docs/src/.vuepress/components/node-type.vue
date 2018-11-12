@@ -6,42 +6,7 @@
 </template>
 
 <script>
-
-const NAME = {
-  'unknown': '(unknown)',
-  'data-source': 'Data Source',
-  'table': 'Table',
-  'scatterplot': 'Scatterplot',
-  'parallel-coordinates': 'Parallel Coordinates',
-  'histogram': 'Histogram',
-  'heatmap': 'Heatmap',
-  'line-chart': 'Line Chart',
-  'network': 'Network',
-  'map': 'Map',
-  'visual-editor': 'Visual Editor',
-  'attribute-filter': 'Attribute Filter',
-  'set-operator': 'Set Operator',
-  'constant-generator': 'Constant Generator',
-  'linker': 'Linker',
-};
-
-const IMG = {
-  'unknown': '',
-  'data-source': '/data-source.svg',
-  'table': '/table.svg',
-  'scatterplot': '/scatterplot.svg',
-  'parallel-coordinates': '/parallel-coordinates.svg',
-  'histogram': '/histogram.svg',
-  'heatmap': '/heatmap.svg',
-  'line-chart': '/line-chart.svg',
-  'network': '/network.svg',
-  'map': '/map.svg',
-  'visual-editor': '/visual-editor.svg',
-  'attribute-filter': '/attribute-filter.svg',
-  'set-operator': '/set-operator.svg',
-  'constant-generator': '/constant-generator.svg',
-  'linker': '/linker.svg',
-};
+import { NODE_ICON, NODE_NAME, VISUALIZATION_TYPES } from './def.ts';
 
 export default {
   props: {
@@ -53,15 +18,17 @@ export default {
   },
   computed: {
     name: function() {
-      return NAME[this.type];
+      return NODE_NAME[this.type];
     },
     styles: function() {
       return {
-        'background-image': `url(/icon/${IMG[this.type]})`,
+        'background-image': `url(/icon/${NODE_ICON[this.type]})`,
       };
     },
     linkTo: function() {
-      return `/node-type/${this.type}/`;
+      return VISUALIZATION_TYPES.indexOf(this.type) !== -1 ?
+        `/node/visualization/${this.type}.html` :
+        `/node/${this.type}.html`;
     },
   },
 }

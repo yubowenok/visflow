@@ -8,7 +8,6 @@
 </template>
 
 <script>
-
 const NAME = {
   'input': 'Input Port',
   'multi-input': 'Multiple Input Port',

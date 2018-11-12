@@ -1,23 +1,21 @@
-.text-box {
-  border-radius: 10px;
-  background-color: $theme-gray;
-}
+.text-box
+  border-radius: 10px
+  background-color: $theme-gray
 
-.sidebar {
-  width: 15rem !important;
-}
+.ui
+  font-size: .9rem
+  padding: .1rem .25rem
+  border-radius: 2px
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, .05)
 
-.page {
-  padding-left: 15rem !important;
-}
+  &.ui-button,
+  &.ui-value
+    border: 1px solid rgba(0, 0, 0, .2)
 
-p.action > a {
-  background-color: $theme-purple-light !important;
-}
+  &.ui-value
+    border-radius: 10px
 
-.ui {
-  padding: .1rem .25rem;
-  border-radius: 2px;
-  border: 1px solid rgba(0, 0, 0, .2);
-  box-shadow: 1px 2px 4px rgba(0, 0, 0, .05);
-}
+.table-spacer
+  min-width: 300px
+  &.sm
+    min-width: 150px

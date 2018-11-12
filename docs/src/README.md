@@ -10,7 +10,7 @@ footer: BSD-3 Licensed | © 2016-present Bowen Yu
 VisFlow is a dataflow framework for visual data exploration.
 It is light-weight and simple to use, and allows you to fast launch data analyses in a web browser.
 Check out the video below to see it in action.
-Follow the <a href="/get-started/">tutorial</a> to start your visualization and analysis.
+Follow the <router-link to="/get-started/">tutorial</router-link> to start your visualization and analysis.
 </p>
 <div style="width: 80%; margin: 20px auto;">
 <video width="100%" controls="">

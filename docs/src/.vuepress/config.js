@@ -13,19 +13,51 @@ module.exports = {
       {
         text: 'Dataflow',
         items: [
-          { text: 'Dataflow Model', link: '/dataflow/' },
-          { text: 'Node Types', link: '/node/' },
+          { text: 'Dataflow Model', link: '/dataflow/subsetflow' },
+          { text: 'Interaction', link: '/dataflow/interaction' },
         ],
       },
+      { text: 'Node Types', link: '/node/' },
       { text: 'FlowSense', link: '/flowsense/' }
     ],
-    sidebar: [
-      '/',
-      '/get-started/',
-      '/dataflow/',
-      '/flowsense/',
-      '/node/',
-      '/shortcut/',
-    ]
+    sidebar: {
+      '/node/': [
+        '/node/data-source',
+        {
+          title: 'Visualization',
+          collapsable: false,
+          children: [
+            '/node/visualization/table',
+            '/node/visualization/scatterplot',
+            '/node/visualization/parallel-coordinates',
+            '/node/visualization/histogram',
+            '/node/visualization/heatmap',
+            '/node/visualization/line-chart',
+            '/node/visualization/network',
+            '/node/visualization/map',
+          ],
+        },
+        '/node/attribute-filter',
+        '/node/visual-editor',
+        '/node/set-operator',
+        '/node/constants-generator',
+        '/node/linker',
+      ],
+      '/': [
+        '/',
+        '/get-started/',
+        {
+          title: 'Dataflow',
+          children: [
+            '/dataflow/port',
+            '/dataflow/subsetflow',
+            '/dataflow/interaction',
+          ],
+        },
+        '/node/',
+        '/flowsense/',
+        '/shortcut/',
+      ],
+    }
   }
 }
