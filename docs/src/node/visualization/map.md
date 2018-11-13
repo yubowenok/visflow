@@ -13,7 +13,7 @@ Red color indicates lower speed limit, while green color indicates faster speed 
 The circles are drawn with `0.5` opacity to reflect speed sign density.
 
 ## Selection
-Drag and draw a rectangular box on the map to select the data items inside the box when the map is not in the <ui-prop prop="navigation">Navigation</ui-prop> mode.
+Drag and draw a rectangular box on the map to select the data items inside the box when the map is not in the <ui-prop prop="navigation"/> mode.
 
 
 ## Visual Properties

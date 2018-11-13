@@ -47,14 +47,14 @@ A pattern filter always converts values to strings and uses string comparators.
 ## Options
 
 ### Filter Type
-The filter type used.
+Configures the filter type used.
 See [filter types](#filter-types).
 
 ### Column
-The column on which filtering is applied.
+Configures the column on which filtering is applied.
 
 ### Mode (Pattern Filter)
-Mode defines how attribute values are matched against patterns.
+Configures the filter mode that defines how attribute values are matched against patterns.
 
 | Mode | Filtering Condition |
 |:---:| --- |

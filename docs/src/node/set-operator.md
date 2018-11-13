@@ -1,20 +1,25 @@
 # Set Operator
 
+A <node-type type="set-operator"/> supports set operation between two subsets from a same input table.
+There are three modes for a set operator: <ui-value text="Union"/>, <ui-value text="Intersection"/>, and <ui-value text="Difference"/>.
+
+The <port-type type="multi-input"/> of the set operator accepts multiple connections.
+The first connected edge provides subset `S1`, the second connected edge provides the subset `S2`, and so on.
+
 ## Union
-Unifies the input subsets.
-
-The Union node accepts multiple inputs. The rendering properties of the inputs will be combined. The latter connected input will override the previously connected inputs' rendering properties upon a conflict.
-
+In <ui-value text="Union"/> mode, the set operator outputs the union of all input subsets.
+The visual properties of the data items are merged, when a same data item carries different visual properties from two subsets.
+In case of a conflict, the latter connected subsets have higher priority.
 
 ## Intersection
-Outputs the intersection of the input subsets.
-
-The Intersect node accepts multiple inputs. The rendering properties of the inputs will be combined for the items in the intersection. The latter connected input will override the previously connected inputs' rendering properties upon a conflict.
-
+In <ui-value text="Intersection"/> mode, the set operator outputs the intersection of all input subsets.
+The visual properites of the data items in the intersection are merged when they carry different visual properties from multiple subsets.
+In case of a conflict, the latter connected subsets have higher priority.
 
 ## Difference
-Subtracts the input subset(s) Y from the input subset X.
+In <ui-value text="Intersection"/> mode, the set operator subtracts `S2`, `S3`, ... from `S1` and outputs the resulting subset.
+The visual properties associated with `S1` are kept as the visual properties for the output subset.
 
-The subset to be subtracted from, i.e. X, may only be one subset, while the other subsets Y's can be multiple subsets Y1, Y2, ..., Yn, in which case the output subset is X - Y1 - Y2 - ... - Yn.
-
-The rendering properties associated with X will be used for the output rendering properties.
+## Options
+### Mode
+Configures the mode of the set operator, from <ui-value text="Union"/>, <ui-value text="Intersection"/>, and <ui-value text="Difference"/>.

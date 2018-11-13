@@ -6,7 +6,7 @@ The input data must have a column that contains no duplicates as the series colu
 The line chart sorts the data items by their attribute values in the series column, and treats the data items as data points in the series.
 The values of the data points in the series are defined by the selected <ui-prop prop="value-column"/>.
 
-If the input data contain multiple series, use the <ui-prop prop="group-by-column"/> to group the data items and generate multiple lines.
+If the input data contain multiple series, use the <ui-prop prop="group-by-column"/>> to group the data items and generate multiple lines.
 
 ## Example
 ![line chart](./line-chart.png)
