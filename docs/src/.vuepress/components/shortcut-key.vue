@@ -10,6 +10,13 @@
 </template>
 
 <script>
+const isMac = function() {
+  if (typeof global !== 'undefined') { // get around js compiler error of "window is not defined"
+    return '';
+  }
+  return window.navigator.appVersion.match(/Mac/) !== null;
+};
+
 const KEY_TEXT = {
   alt: '⌥',
   ctrlMac: '⌘',
@@ -19,18 +26,10 @@ const KEY_TEXT = {
 
 export default {
   props: ['keys', 'hold'],
-  computed: {
-    isMac: function() {
-      return window.navigator.appVersion.match(/Mac/);
-    },
-    ctrl: function() {
-      return this.isMac ? '⌘' : '⌃';
-    },
-  },
   methods: {
     getKeyText: function(key) {
       if (key === 'ctrl') {
-        return this.isMac ? KEY_TEXT['ctrlMac'] : KEY_TEXT['ctrl'];
+        return isMac() ? KEY_TEXT['ctrlMac'] : KEY_TEXT['ctrl'];
       }
       if (!(key in KEY_TEXT)) {
         return key;

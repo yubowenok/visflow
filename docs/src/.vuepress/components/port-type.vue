@@ -13,6 +13,7 @@ const NAME = {
   'multi-input': 'Multiple Input Port',
   'output': 'Output Port',
   'selection': 'Selection Port',
+  'constants': 'Constants Port',
 };
 
 const CLASSES = {
@@ -20,6 +21,7 @@ const CLASSES = {
   'multi-input': 'fas fa-caret-right',
   'output': 'fas fa-caret-right',
   'selection': 'far fa-square',
+  'constants': 'fas fa-caret-right gray',
 };
 
 const ICON_STYLE = {
@@ -27,6 +29,7 @@ const ICON_STYLE = {
   'multi-input': 'font-size: 1rem; top: -.3rem;',
   'output': 'font-size: 1rem; top: -.3rem;',
   'selection': 'font-size: .55rem; top: -.5rem;',
+  'constants': '',
 }
 
 export default {
@@ -53,22 +56,22 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.port-type {
-  .icon-wrapper {
-    width: 1rem;
-    height: 1rem;
-    display: inline-block;
-    position: relative;
-    border: 1px solid #ccc;
-    border-radius: 2px;
-    text-align: center;
-    top: .25rem;
+<style lang="stylus">
+.port-type
+  .icon-wrapper
+    width: 1rem
+    height: 1rem
+    display: inline-block
+    position: relative
+    border: 1px solid #ccc
+    border-radius: 2px
+    text-align: center
+    top: .25rem
 
-    .icon {
-      color: #2c3e50;
-      position: relative;
-    }
-  }
-}
+    &.gray
+      background-color: #ddd
+
+    .icon
+      color: #2c3e50
+      position: relative
 </style>

@@ -1,20 +1,25 @@
 # Network
 
-TODO
+A <node-type type="network"/> renders a network visualization based on graph input.
+A network accepts two input tables: one for the nodes, and the other for the edges.
+The two tables must share columns with node identifiers.
+The network uses <ui-prop prop="edge-source-column"/> and <ui-prop prop="edge-target-column"/>.
 
-A <node-type type="scatterplot"></node-type> renders a scatterplot chart with two axes,
-presenting a visualization for two columns of the data.
-Each data point is represented by a circle.
+Correspondingly, there are four output ports, for the selection and forwarding of nodes and edges respectively. One dimension can be used for labeling the network nodes.
+
+The Network node has navigation interaction mode. When navigation is on, you may pan and zoom (by mousewheel) the network. When navigation is off, you may interactively select nodes and edges in the network.
 
 ## Example
-![scatterplot](./scatterplot.png)
+![network](./network.png)
 
-A scatterplot showing mpg and displacement of cars:
-The sizes of the circles represent the horsepower of the cars.
-The colors of the circles represent the origin countries of the cars.
+A network showing color encode nodes.
 
+## Selection
+Drags and draws a rectangular box to select the nodes and edges inside or partially inside the box.
 
 ## Visual Properties
+
+### Nodes
 | Type | Effect |
 |:----:| ------ |
 | color | Fill color of the circle |
@@ -23,9 +28,22 @@ The colors of the circles represent the origin countries of the cars.
 | width | Width of the circle border |
 | opacity | Opacity of the circle |
 
+### Edges
+| Type | Effect |
+|:----:| ------ |
+| color | Color of the edge curve and arrow |
+| border | Not supported |
+| size | Not supported |
+| width | Stroke width of the edge curve and arrow |
+| opacity | Opacity of the edge curve and arrow |
+
 ## Options
 ### X Column
 Configures the column visualized on the X-axis.
 
 ### Y Column
 COnfigures the column visualized on the Y-axis.
+
+### Navigation
+When navigation is on, dragging in the network area performs zooming and panning.
+When navigation is off, dragging in the network area makes a rectangular selection.

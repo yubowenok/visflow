@@ -1,6 +1,6 @@
 # Table
 
-A <node-type type="table"></node-type> lists the attribute values of the data items in a table display.
+A <node-type type="table"/> lists the attribute values of the data items in a table display.
 The <ui-prop prop="columns">Columns</ui-prop> to be shown in the table can be adjusted using the option panel.
 The first column of the table shows the visual properties of the data.
 

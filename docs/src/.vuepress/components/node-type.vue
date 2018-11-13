@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import { NODE_ICON, NODE_NAME, VISUALIZATION_TYPES } from './def.ts';
+import { NODE_ICON, NODE_NAME, VISUALIZATION_TYPES } from './def';
 
 export default {
   props: {
@@ -34,29 +34,24 @@ export default {
 }
 </script>
 
-<style lang="scss">
-.node-type {
-  .icon {
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 2rem 2rem;
-    background-color: white;
-    display: inline-block;
-    position: relative;
-    top: .5rem;
-    padding: .25rem;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 1px solid #ccc;
-  }
-
+<style lang="stylus">
+.node-type
+  .icon
+    background-position: center
+    background-repeat: no-repeat
+    background-size: 2rem 2rem
+    background-color: white
+    display: inline-block
+    position: relative
+    top: .5rem
+    padding: .25rem
+    width: 1.5rem
+    height: 1.5rem
+    border: 1px solid #ccc
   /*
-  &:hover {
-    .icon {
-      transform: scale(1.25);
-      transition: .2s;
-    }
-  }
+  &:hover
+    .icon
+      transform: scale(1.25)
+      transition: .2s
   */
-}
 </style>

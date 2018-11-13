@@ -1,14 +1,25 @@
 <template>
-<router-link id="ui-prop" :to="linkTo">
-  <span class="ui" :style="styles"><slot></slot></span>
+<router-link :to="linkTo">
+  <span class="ui ui-prop" :style="styles">{{ displayText }}</span>
 </router-link>
 </template>
 
 <script>
-import { VISUALIZATION_TYPES } from './def.ts';
+import { VISUALIZATION_TYPES } from './def';
 
 export default {
-  props: ['nodeType', 'prop'],
+  props: {
+    nodeType: {
+      type: String,
+    },
+    text: {
+      type: String,
+    },
+    prop: {
+      type: String,
+      required: true,
+    },
+  },
   computed: {
     linkTo: function() {
       if (!this.nodeType) {
@@ -25,20 +36,27 @@ export default {
         return 'cursor: default';
       }
       return '';
+    },
+    displayText: function() {
+      if (this.text) {
+        return this.text;
+      }
+      return this.prop.split('-').map(token => {
+        return token[0].toUpperCase() + token.substr(1);
+      }).join(' ');
     }
   }
 }
 </script>
 
 <style scoped lang="stylus">
-#ui-prop
-  .ui
-    background-color: #eee
-    box-shadow: 1px 1px 2px rgba(0, 0, 0, .25)
+.ui.ui-prop
+  display: inline-block
+  line-height: 1rem
+  background-color: #eee
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, .25)
 
   &:hover
     text-decoration: none
-
-    .ui
-      background-color: #ddd
+    background-color: #ddd
 </style>

@@ -1,6 +1,6 @@
 # Scatterplot
 
-A <node-type type="scatterplot"></node-type> renders a scatterplot chart with two axes,
+A <node-type type="scatterplot"/> renders a scatterplot chart with two axes,
 presenting a visualization for two columns of the data.
 Each data point is represented by a circle.
 
@@ -12,7 +12,7 @@ The sizes of the circles represent the horsepower of the cars.
 The colors of the circles represent the origin countries of the cars.
 
 ## Selection
-Draw a rectangular selection box to select data items inside the box.
+Drag and draw a rectangular selection box to select data items inside the box.
 
 ## Visual Properties
 | Type | Effect |
@@ -28,4 +28,4 @@ Draw a rectangular selection box to select data items inside the box.
 Configures the column visualized on the X-axis.
 
 ### Y Column
-COnfigures the column visualized on the Y-axis.
+Configures the column visualized on the Y-axis.

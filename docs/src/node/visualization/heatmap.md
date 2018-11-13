@@ -1,31 +1,46 @@
 # Heatmap
 
-TODO
+A <node-type type="heatmap"/> renders a set of chosen columns of the data items using color encoded cells.
+Each row represents one data item.
+The heatmap cells are colored based on attribute values in each column and the chosen color scale.
+The values in each column are normalized to the minimum and maximum values in that column.
 
-A <node-type type="scatterplot"></node-type> renders a scatterplot chart with two axes,
-presenting a visualization for two columns of the data.
-Each data point is represented by a circle.
+One column from the data can be used to show data item labels, configured by <ui-prop prop="row-label-column"/>.
 
 ## Example
-![scatterplot](./scatterplot.png)
+![heatmap](./heatmap.png)
 
-A scatterplot showing mpg and displacement of cars:
-The sizes of the circles represent the horsepower of the cars.
-The colors of the circles represent the origin countries of the cars.
+A heatmap showing six columns of 30 cars from the cars dataset.
+The colors of the cars are encoded by their origin countries and reflected by the row labels.
 
+## Selection
+Seletion in the heatmap is over the heatmap rows.
+Drag and draw a rectangular box to select the rows within the box.
 
 ## Visual Properties
+
+Since a heatmap has its own color encoding for attribute values, visual properties of data items are reflected by the rendering styles of row labels.
+
 | Type | Effect |
 |:----:| ------ |
-| color | Fill color of the circle |
-| border | Border color of the circle |
-| size | Diameter of the circle |
-| width | Width of the circle border |
-| opacity | Opacity of the circle |
+| color | Color of the row label |
+| border | Border color of the heatmap cell, border color of the row label |
+| size | Not suppoted |
+| width | Width of the heatmap cell border |
+| opacity | Not supported |
 
 ## Options
-### X Column
-Configures the column visualized on the X-axis.
+### Columns
+Configures which columns to show in the heatmap.
 
-### Y Column
-COnfigures the column visualized on the Y-axis.
+### Color Scale
+Configures the color scale applied for the heatmap cells.
+
+### Sort By
+Orders the heatmap rows by increasing values in this column.
+
+### Row Label Column
+Displays row labels with the values in this column.
+
+### Column Labels
+Shows/hides column names on top of the heatmap.

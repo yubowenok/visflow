@@ -13,6 +13,6 @@
   },
   "devDependencies": {
     "vue-server-renderer": "2.5.16",
-    "vuepress": "^1.0.0-alpha.19"
+    "vuepress": "^1.0.0-alpha.20"
   }
 }

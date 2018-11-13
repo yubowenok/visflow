@@ -1,10 +1,16 @@
 <template>
-<span class="ui ui-value">{{ text }}</span>
+<router-link :to="link">
+  <span class="page-link">{{ text }}</span>
+</router-link>
 </template>
 
 <script>
 export default {
   props: {
+    link: {
+      type: String,
+      required: true,
+    },
     text: {
       type: String,
       required: true,
@@ -14,9 +20,4 @@ export default {
 </script>
 
 <style scoped lang="stylus">
-.ui-value
-  line-height: 1rem
-  display: inline-block
-  border: 1px solid rgba(0, 0, 0, .2)
-  border-radius: 12px
 </style>

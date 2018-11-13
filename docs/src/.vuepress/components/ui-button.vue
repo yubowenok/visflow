@@ -1,5 +1,5 @@
 <template>
-<span class="ui ui-value">{{ text }}</span>
+<span class="ui ui-button">{{ text }}</span>
 </template>
 
 <script>
@@ -14,9 +14,6 @@ export default {
 </script>
 
 <style scoped lang="stylus">
-.ui-value
-  line-height: 1rem
-  display: inline-block
+.ui-button
   border: 1px solid rgba(0, 0, 0, .2)
-  border-radius: 12px
 </style>

@@ -22,7 +22,7 @@ export const NODE_NAME = {
   'visual-editor': 'Visual Editor',
   'attribute-filter': 'Attribute Filter',
   'set-operator': 'Set Operator',
-  'constant-generator': 'Constant Generator',
+  'constants-generator': 'Constants Generator',
   'linker': 'Linker',
 };
 
@@ -40,6 +40,6 @@ export const NODE_ICON = {
   'visual-editor': '/visual-editor.svg',
   'attribute-filter': '/attribute-filter.svg',
   'set-operator': '/set-operator.svg',
-  'constant-generator': '/constant-generator.svg',
+  'constants-generator': '/constants-generator.svg',
   'linker': '/linker.svg',
 };

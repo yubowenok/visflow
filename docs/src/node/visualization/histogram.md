@@ -1,31 +1,36 @@
 # Histogram
 
-TODO
-
-A <node-type type="scatterplot"></node-type> renders a scatterplot chart with two axes,
-presenting a visualization for two columns of the data.
-Each data point is represented by a circle.
+A <node-type type="histogram"/> renders the distribution of data items on one selected column.
+dlfkjsdlf
+dlfkjsdlf
+dlfkjsdlf
+dlfkjsdlf
+dlfkjsdlf
+dlfkjsdlf
 
 ## Example
-![scatterplot](./scatterplot.png)
+![histogram](./histogram.png)
 
-A scatterplot showing mpg and displacement of cars:
-The sizes of the circles represent the horsepower of the cars.
-The colors of the circles represent the origin countries of the cars.
+A histogram showing the mpg distribution of the cars:
+The bars in the histogram are color encoded by the origin countries of the cars and shown as stacked bars.
 
+## Selection
+Selection in the histogram is performed on the stacked bars.
+Groups of data items with exactly the same visual properties are selected together.
 
 ## Visual Properties
 | Type | Effect |
 |:----:| ------ |
-| color | Fill color of the circle |
-| border | Border color of the circle |
-| size | Diameter of the circle |
-| width | Width of the circle border |
-| opacity | Opacity of the circle |
+| color | Fill color of the bar |
+| border | Border color of the bar |
+| size | Not supported |
+| width | Width of the bar border |
+| opacity | Opacity of the bar |
 
 ## Options
-### X Column
-Configures the column visualized on the X-axis.
+### Column
+Configures the column for which the distribution is shown for.
 
-### Y Column
-COnfigures the column visualized on the Y-axis.
+### Number of Bins
+Configures the approximate number of bins to create.
+The chart may choose a number close to the given value that has the best readability.

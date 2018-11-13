@@ -7,18 +7,21 @@ module.exports = {
     ['link', { rel: 'stylesheet', href: 'https://use.fontawesome.com/releases/v5.2.0/css/all.css' }]
   ],
   themeConfig: {
+    logo: '/logo.png',
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'Get Started', link: '/get-started/' },
       {
         text: 'Dataflow',
         items: [
-          { text: 'Dataflow Model', link: '/dataflow/subsetflow' },
+          { text: 'Flow Diagram', link: '/dataflow/diagram' },
+          { text: 'Subset Flow', link: '/dataflow/subsetflow' },
           { text: 'Interaction', link: '/dataflow/interaction' },
+          { text: 'Visualization Mode', link: '/dataflow/vismode' },
         ],
       },
       { text: 'Node Types', link: '/node/' },
-      { text: 'FlowSense', link: '/flowsense/' }
+      { text: 'FlowSense', link: '/flowsense/' },
+      { text: 'Demo', link: 'https://visflow.org/' },
     ],
     sidebar: {
       '/node/': [
@@ -49,9 +52,10 @@ module.exports = {
         {
           title: 'Dataflow',
           children: [
-            '/dataflow/port',
+            '/dataflow/diagram',
             '/dataflow/subsetflow',
             '/dataflow/interaction',
+            '/dataflow/vismode',
           ],
         },
         '/node/',
