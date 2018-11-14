@@ -2,7 +2,10 @@
 <span>
   <template v-if="keys">
     <span v-for="(key, index) in keys" :key="index">
-      <span :class="['shortcut', { hold: hold && hold.indexOf(key) !== -1 }]">{{ getKeyText(key) }}</span>
+      <span :class="['shortcut', {
+        hold: hold && hold.indexOf(key) !== -1,
+        action: key.match(/click|drag/) !== null,
+      }]">{{ getKeyText(key) }}</span>
       <span v-if="index !== keys.length - 1">+</span>
     </span>
   </template>
@@ -47,7 +50,7 @@ export default {
   height: 1.1rem
   line-height: 1.1rem
   font-size: .9rem
-  width: 2rem
+  min-width: 2rem
   background-color: white
   border: 1px solid #ccc
   border-radius: 4px
@@ -57,4 +60,8 @@ export default {
   &.hold
     background-color: #eee
     box-shadow: 0 -2px 0 #ccc
+
+  &.action
+    padding-left: .25rem
+    padding-right: .25rem
 </style>

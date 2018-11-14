@@ -13,10 +13,10 @@ module.exports = {
       {
         text: 'Dataflow',
         items: [
-          { text: 'Flow Diagram', link: '/dataflow/diagram' },
+          { text: 'Dataflow Diagram', link: '/dataflow/diagram' },
           { text: 'Subset Flow', link: '/dataflow/subsetflow' },
-          { text: 'Interaction', link: '/dataflow/interaction' },
-          { text: 'Visualization Mode', link: '/dataflow/vismode' },
+          { text: 'Edit and Interaction', link: '/dataflow/interaction' },
+          { text: 'VisMode Dashboard', link: '/dataflow/vismode' },
         ],
       },
       { text: 'Node Types', link: '/node/' },

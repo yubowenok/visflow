@@ -1,7 +1,7 @@
 <template>
 <router-link :to="linkTo" class="port-type">
   <a>{{ name }}</a>
-  <span class="icon-wrapper">
+  <span :class="['icon-wrapper', wrapperClasses]">
     <i :class="['icon', classes]" :style="iconStyles"></i>
   </span>
 </router-link>
@@ -21,7 +21,11 @@ const CLASSES = {
   'multi-input': 'fas fa-caret-right',
   'output': 'fas fa-caret-right',
   'selection': 'far fa-square',
-  'constants': 'fas fa-caret-right gray',
+  'constants': 'fas fa-caret-right',
+};
+
+const WRAPPER_CLASSES = {
+  'constants': 'gray',
 };
 
 const ICON_STYLE = {
@@ -29,7 +33,7 @@ const ICON_STYLE = {
   'multi-input': 'font-size: 1rem; top: -.3rem;',
   'output': 'font-size: 1rem; top: -.3rem;',
   'selection': 'font-size: .55rem; top: -.5rem;',
-  'constants': '',
+  'constants': 'font-size: 1rem; top: -.3rem;',
 }
 
 export default {
@@ -38,13 +42,22 @@ export default {
       type: String,
       required: true,
     },
+    text: {
+      type: String,
+    },
   },
   computed: {
     name: function() {
+      if (this.text !== undefined) {
+        return this.text;
+      }
       return NAME[this.type];
     },
     classes: function() {
       return CLASSES[this.type];
+    },
+    wrapperClasses: function() {
+      return WRAPPER_CLASSES[this.type] || '';
     },
     linkTo: function() {
       return `/port/`;
