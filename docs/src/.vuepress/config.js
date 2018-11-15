@@ -15,8 +15,10 @@ module.exports = {
         items: [
           { text: 'Dataflow Diagram', link: '/dataflow/diagram' },
           { text: 'Subset Flow', link: '/dataflow/subsetflow' },
+          { text: 'Visualization', link: '/dataflow/visualization' },
           { text: 'Edit and Interaction', link: '/dataflow/interaction' },
           { text: 'VisMode Dashboard', link: '/dataflow/vismode' },
+          { text: 'Linking', link: '/dataflow/linking' },
         ],
       },
       { text: 'Node Types', link: '/node/' },
@@ -54,8 +56,10 @@ module.exports = {
           children: [
             '/dataflow/diagram',
             '/dataflow/subsetflow',
+            '/dataflow/visualization',
             '/dataflow/interaction',
             '/dataflow/vismode',
+            '/dataflow/linking',
           ],
         },
         '/node/',

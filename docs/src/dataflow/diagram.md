@@ -24,7 +24,7 @@ A `single` port may be connected with at most one edge.
 A `multiple` port may have unlimited number of connections.
 All output ports are `multiple` ports.
 
-If an output port produces interactive selection from a <page-link link="/node/visualization/" text="visualization"/>,
+If an output port produces interactive selection from a <page-link link="/dataflow/visualization" text="visualization"/>,
 it is a <port-type type="selection"/>.
 
 ## Edge
@@ -55,7 +55,7 @@ See <page-link link="/dataflow/linking.html" text="linking"/> for more details.
 Visual properties may be assigned to data items in the dataflow using a <node-type type="visual-editor"/> so as to identify and trace data subsets.
 Visualizations in VisFlow respect the visual properties of data items and renders the data according to their visual properties.
 Each visualization may have its own way of showing the visual properties.
-See <page-link link="/node/visualization/" text="node types documentation"/> for how each type of visualization renders the visual properties.
+See <page-link link="/dataflow/visualization" text="node types documentation"/> for how each type of visualization renders the visual properties.
 
 Each data item carries its own visual properties.
 These properties can be updated and modified by nodes in the dataflow.

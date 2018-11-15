@@ -29,8 +29,11 @@ Hold <shortcut-key :keys="['shift']" :hold="['shift']"/> and drag on the canvas 
 Drag a node to move it.
 When multiple nodes are selected, dragging moves them altogether.
 
-Note that in <page-link link="/node/visualization/" text="visualization"/> nodes, dragging by default performs interactive data selection.
+Note that in <page-link link="/dataflow/visualization" text="visualization"/> nodes, dragging by default performs interactive data selection.
 To drag and position a visualization node, hold the <shortcut-key :keys="['alt']" :hold="['alt']"/> key when dragging.
+
+To perform a large number of visualization repositioning, use the drag mode button <ui-button icon-classes="fas fa-arrows-alt" text=""/> at the top right of the navbar.
+When drag mode is activated, data selection is disabled in visualizations and dragging always moves the nodes.
 
 ## Canvas Navigation
 Click on the canvas and drag to pan and navigate the dataflow diagram.

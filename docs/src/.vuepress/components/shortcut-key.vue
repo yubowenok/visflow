@@ -4,7 +4,7 @@
     <span v-for="(key, index) in keys" :key="index">
       <span :class="['shortcut', {
         hold: hold && hold.indexOf(key) !== -1,
-        action: key.match(/click|drag/) !== null,
+        action: key.match(/click|drag|tab|enter/) !== null,
       }]">{{ getKeyText(key) }}</span>
       <span v-if="index !== keys.length - 1">+</span>
     </span>
@@ -25,6 +25,10 @@ const KEY_TEXT = {
   ctrlMac: '⌘',
   ctrl: '⌃',
   shift: '⇧',
+  left: '←',
+  right: '→',
+  up: '↑',
+  down: '↓',
 };
 
 export default {
