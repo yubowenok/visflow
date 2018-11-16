@@ -14,14 +14,14 @@
     "test": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.5.0",
-    "vue": "^2.5.16",
+    "vue": "2.5.16",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^6.0.0",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.5.0",
     "@types/annyang": "^2.6.1",
     "@types/crypto-js": "^3.1.41",
     "@types/d3": "^5.0.0",
