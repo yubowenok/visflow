@@ -19,6 +19,7 @@ export default class QuickNodePanel extends Vue {
   @ns.interaction.State('lastMouseX') private lastMouseX!: number;
   @ns.interaction.State('lastMouseY') private lastMouseY!: number;
   @ns.dataflow.State('nodeTypes') private nodeTypes!: NodeType[];
+  @ns.systemOptions.State('useBetaFeatures') private useBetaFeatures!: boolean;
 
   private x = 0;
   private y = 0;
@@ -37,11 +38,12 @@ export default class QuickNodePanel extends Vue {
 
   @Watch('searchText')
   private onSearchTextChange(text: string) {
+    const nodeTypes = this.useBetaFeatures ? this.nodeTypes : this.nodeTypes.filter(type => !type.isBeta);
     if (text === '') {
-      this.filteredNodeTypes = this.nodeTypes;
+      this.filteredNodeTypes = nodeTypes;
       return;
     }
-    this.filteredNodeTypes = this.nodeTypes.filter(type =>
+    this.filteredNodeTypes = nodeTypes.filter(type =>
       type.id.match(text.toLowerCase()) || type.tags.match(text.toLowerCase()));
   }
 

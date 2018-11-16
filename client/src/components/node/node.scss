@@ -48,10 +48,10 @@
   }
 
   // port class assigned by Port component
-  .input .port {
+  .port-group.left .port {
     @extend %border-touch-right;
   }
-  .output .port {
+  .port-group.right .port {
     @extend %border-touch-left;
   }
 

@@ -12,6 +12,10 @@
     <i :class="['far fa-sm', !nodeLabelsVisible ? 'fa-check-square' :  'fa-square']"></i>
     Hide Node Labels
   </b-dropdown-item>
+    <b-dropdown-item @click="toggleBetaFeatures">
+    <i :class="['far fa-sm', useBetaFeatures ? 'fa-check-square' :  'fa-square']"></i>
+    Beta Features
+  </b-dropdown-item>
   <b-dropdown-item @click="labelAllNodes">
     <i class="fas placeholder"></i>
     Label all nodes

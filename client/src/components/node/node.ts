@@ -50,6 +50,10 @@ export default class Node extends Vue {
   public isSelected = false;
   // whether the propagation should start from this node
   public isPropagationSource = false;
+  // For most nodes, the output is connected with its input.
+  // The only exception is a loopback control, of which the output only flashes connecting its input on user release.
+  // A loopback control does not introduce backward cycle.
+  public isInputOutputDisconnected = false;
 
   public get isVisible(): boolean {
     return !this.isSystemInVisMode || this.isInVisMode;
@@ -68,6 +72,8 @@ export default class Node extends Vue {
   protected MIN_HEIGHT = 30;
   protected RESIZABLE = false;
   protected ENLARGEABLE = false; // if the node can be enlarged to fullscreen modal
+  protected REVERSE_INPUT_OUTPUT_PORTS = false; // if the input is on the right and the output is on the left
+
 
   protected label = '';
 
@@ -1125,9 +1131,16 @@ export default class Node extends Vue {
     const length = isInputPort ? this.inputPorts.length : this.outputPorts.length;
     const totalHeight = length * PORT_SIZE_PX + (length - 1) * PORT_MARGIN_PX;
     return {
-      left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
+      left: (isInputPort !== this.REVERSE_INPUT_OUTPUT_PORTS ? -PORT_SIZE_PX : this.width) + 'px',
       top: (this.height / 2 - totalHeight / 2 + index * (PORT_SIZE_PX + PORT_MARGIN_PX)) + 'px',
     };
+  }
+
+  private inputPortGroupClass(): string {
+    return !this.REVERSE_INPUT_OUTPUT_PORTS ? 'left' : 'right';
+  }
+  private outputPortGroupClass(): string {
+    return this.REVERSE_INPUT_OUTPUT_PORTS ? 'left' : 'right';
   }
 
   private updateDisplay() {

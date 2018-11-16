@@ -36,9 +36,16 @@
       font-size: 9px;
     }
 
+    .fa-caret-left,
     .fa-caret-right {
       font-size: 15px;
+    }
+
+    .fa-caret-right {
       margin-left: 1px; // slight offset from left to center the caret
+    }
+    .fa-caret-left {
+      margin-right: 1px; // slight offset from right to center the caret
     }
   }
 }

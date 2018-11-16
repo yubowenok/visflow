@@ -16,6 +16,7 @@ import LineChart from '@/components/line-chart/line-chart';
 import Network from '@/components/network/network';
 import Map from '@/components/map/map';
 import Linker from '@/components/linker/linker';
+import LoopbackControl from '@/components/loopback-control/loopback-control';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -122,6 +123,14 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/linker.svg'),
     constructor: Linker,
     tags: 'link filter extract join',
+  },
+  {
+    id: 'loopback-control',
+    title: 'Loopback Control',
+    imgSrc: require('@/imgs/loopback-control.svg'),
+    constructor: LoopbackControl,
+    tags: 'loopback control',
+    isBeta: true,
   },
 ];
 

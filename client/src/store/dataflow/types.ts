@@ -24,6 +24,7 @@ export interface NodeType {
   constructor: Function; // tslint:disable-line ban-types
   tags: string; // text description used for searching
   aliases?: string[];
+  isBeta?: boolean;
 }
 
 export interface CreateNodeData {

@@ -3,10 +3,12 @@ import { RootState } from '@/store';
 
 interface SystemOptionsState {
   nodeLabelsVisible: boolean;
+  useBetaFeatures: boolean;
 }
 
 const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
+  useBetaFeatures: true,
 };
 
 const getters = {
@@ -24,6 +26,15 @@ const mutations = {
    */
   setState(state: SystemOptionsState, newState: SystemOptionsState) {
     Object.assign(state, newState);
+  },
+
+  /**
+   * Uses new types of nodes in beta from VisFlow extensions.
+   * This only affects options available in the UI.
+   * Created beta nodes will not be affected.
+   */
+  toggleBetaFeatures(state: SystemOptionsState) {
+    state.useBetaFeatures = !state.useBetaFeatures;
   },
 };
 
