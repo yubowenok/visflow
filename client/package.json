@@ -14,7 +14,7 @@
     "test": "vue-cli-service test:unit"
   },
   "dependencies": {
-    "vue": "^2.5.16",
+    "vue": "2.5.16",
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^6.0.0",
     "vue-router": "^3.0.1",
