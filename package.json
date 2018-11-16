@@ -8,11 +8,14 @@
   },
   "private": true,
   "scripts": {
+    "docs:build": "vuepress build docs",
+    "docs:dev": "vuepress dev docs",
     "coverage": "bash coverage.sh"
   },
   "workspaces": [
     "client",
-    "server"
+    "server",
+    "docs"
   ],
   "devDependencies": {
     "nyc": "^12.0.2"
