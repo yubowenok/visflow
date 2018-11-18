@@ -4,11 +4,13 @@ import { RootState } from '@/store';
 interface SystemOptionsState {
   nodeLabelsVisible: boolean;
   useBetaFeatures: boolean;
+  dataMutationBoundaryVisible: boolean;
 }
 
 const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
   useBetaFeatures: true,
+  dataMutationBoundaryVisible: true,
 };
 
 const getters = {
@@ -35,6 +37,14 @@ const mutations = {
    */
   toggleBetaFeatures(state: SystemOptionsState) {
     state.useBetaFeatures = !state.useBetaFeatures;
+  },
+
+  /**
+   * Displays the boundary at which data is mutated.
+   * This helps understand the separation between different subset flows.
+   */
+  toggleDataMutationBoundary(state: SystemOptionsState) {
+    state.dataMutationBoundaryVisible = !state.dataMutationBoundaryVisible;
   },
 };
 

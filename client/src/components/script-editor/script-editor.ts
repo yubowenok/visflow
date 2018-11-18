@@ -15,8 +15,8 @@ interface ScriptEditorSave {
 
 const SUCCESS_MESSAGE_DURATION_MS = 3000;
 
-const METHOD_ANNOTATION = `@param {string[]} columns
-@param {Array<Array<number | string>>} rows
+const METHOD_ANNOTATION = `@param {string[] | undefined} columns
+@param {Array<Array<number | string>> | undefined} rows
 @returns {{
   columns: string[],
   rows: Array<Array<number | string>>
@@ -24,7 +24,7 @@ const METHOD_ANNOTATION = `@param {string[]} columns
 
 const DEFAULT_CODE = `(columns, rows) => {
   return {
-    columns: [],
+    columns: columns || [],
     rows: [],
   };
 }
@@ -37,6 +37,7 @@ const DEFAULT_CODE = `(columns, rows) => {
   },
 })
 export default class ScriptEditor extends SubsetNode {
+  public isPropagationSource = true;
   protected NODE_TYPE = 'script-editor';
 
   private METHOD_ANNOTATION = METHOD_ANNOTATION;
@@ -49,6 +50,7 @@ export default class ScriptEditor extends SubsetNode {
   private messageTimeout: NodeJS.Timer | null = null;
 
   private isInstructionVisible = true;
+  private toPropagate = false;
 
   get imgSrc() {
     return require('@/imgs/script-editor.svg');
@@ -59,6 +61,11 @@ export default class ScriptEditor extends SubsetNode {
       code: this.code,
       isInstructionVisible: this.isInstructionVisible,
     }));
+    this.deserializationChain.push(nodeSave => {
+      if (this.lastDatasetHash !== '') {
+        this.toPropagate = true;
+      }
+    });
   }
 
   protected update() {
@@ -68,8 +75,8 @@ export default class ScriptEditor extends SubsetNode {
   protected runScript() {
     const inputPort = this.inputPortMap.in;
     const pkg = inputPort.hasPackage() ? inputPort.getSubsetPackage() : null;
-    let inputColumns: string[] = [];
-    let inputRows: TabularRows = [];
+    let inputColumns: string[] | undefined;
+    let inputRows: TabularRows | undefined;
     if (pkg && pkg.hasDataset()) {
       const dataset = pkg.getDataset() as TabularDataset;
       inputColumns = dataset.getColumns().map(col => col.name);
@@ -101,9 +108,15 @@ export default class ScriptEditor extends SubsetNode {
     this.successMessage = this.executionError = '';
 
     try {
-      this.dataset = parseCsv(generateCsv(outputTable.columns, outputTable.rows));
-      this.outputPortMap.out.updatePackage(new SubsetPackage(this.dataset));
-      this.displaySuccessMessage();
+      this.dataset = outputTable.columns.length ? parseCsv(generateCsv(outputTable.columns, outputTable.rows)) : null;
+      if (!this.dataset) {
+        this.updateNoDatasetOutput();
+        this.executionError = 'output table has no columns';
+      } else {
+        console.log(this.dataset);
+        this.outputPortMap.out.updatePackage(new SubsetPackage(this.dataset));
+        this.displaySuccessMessage();
+      }
     } catch (parseErr) {
       this.executionError = parseErr.toString();
     }

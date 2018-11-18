@@ -13,6 +13,9 @@ export default class OptionsMenu extends Vue {
   @ns.systemOptions.State('useBetaFeatures') private useBetaFeatures!: boolean;
   @ns.systemOptions.Mutation('toggleBetaFeatures') private toggleBetaFeatures!: () => void;
 
+  @ns.systemOptions.State('dataMutationBoundaryVisible') private dataMutationBoundaryVisible!: boolean;
+  @ns.systemOptions.Mutation('toggleDataMutationBoundary') private toggleDataMutationBoundary!: () => void;
+
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
   @ns.dataflow.Mutation('labelAllNodes') private labelAllNodes!: () => void;
 }

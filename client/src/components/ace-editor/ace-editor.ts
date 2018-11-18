@@ -4,7 +4,6 @@
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 
 import ace from 'ace-builds';
-import 'ace-builds/webpack-resolver';
 
 @Component
 export default class AceEditor extends Vue {

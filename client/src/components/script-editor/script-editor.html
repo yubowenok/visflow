@@ -17,7 +17,7 @@
   <transition-group tag="div" name="fade">
     <div key="success" class="success message" v-if="successMessage">{{ successMessage }}</div>
     <div key="error" class="error message" v-if="executionError">{{ executionError }}</div>
-    <div key="warn" class="warn message" v-if="!inputPortMap.in.isConnected()">No input connected: input columns and rows will be empty arrays</div>
+    <div key="warn" class="warn message" v-if="!inputPortMap.in.isConnected()">No input connected: input columns and rows will be undefined</div>
   </transition-group>
   <div class="instruction" v-if="isInstructionVisible">
     <div>
