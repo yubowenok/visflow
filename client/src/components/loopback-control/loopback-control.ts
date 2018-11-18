@@ -32,6 +32,9 @@ export default class LoopbackControl extends SubsetNode {
 
   private items: number[] = [];
 
+  // Whether the output is different from what was last released
+  private isOutputChanged = false;
+
   // Marks whether we should propagate at least once from this loopback control.
   // This is necessary during deserialization when the loopback control carries a subset of items but does not have
   // their input tabular dataset yet to propagate.
@@ -51,8 +54,9 @@ export default class LoopbackControl extends SubsetNode {
   }
 
   protected update() {
-    // Nothing to do during diagram edit, as a loopback control only propagates the output when the user presses
-    // the release button.
+    // A loopback control only propagates the output when the user presses the release button.
+    // Yet we also compute output to visually indicate changes on the output.
+    this.checkOutputChange();
 
     // However during deserialization, the loopback control must propagate at least once after it receives the
     // tabular dataset.
@@ -83,28 +87,52 @@ export default class LoopbackControl extends SubsetNode {
   }
 
   /**
+   * Computes and returns the output subset.
+   */
+  private computeOutput(): number[] {
+    const inputPort = this.inputPortMap.in;
+    if (!inputPort.hasPackage()) {
+      return [];
+    }
+    const pkg = inputPort.getSubsetPackage();
+    const dataset = pkg.getDataset();
+    if (!dataset) {
+      return [];
+    }
+    return pkg.getItemIndices();
+  }
+
+  /**
    * Computes the output subset and saves it on the output port.
    * However, it does not release the subset.
    */
-  private computeOutput() {
+  private updateOutput() {
     const inputPort = this.inputPortMap.in;
-    const outputPort = this.outputPortMap.out;
-    if (!inputPort.hasPackage()) {
-      this.updateNoDatasetOutput();
+    const items = this.computeOutput();
+    if (!items.length) {
+      if (!inputPort.hasPackage() || !inputPort.getSubsetPackage().getDataset()) {
+        this.updateNoDatasetOutput();
+      }
       return;
     }
     const pkg = inputPort.getSubsetPackage();
     this.items = pkg.getItemIndices();
-    const dataset = pkg.getDataset();
-    if (!dataset) {
-      this.updateNoDatasetOutput();
-      return;
-    }
-    outputPort.updatePackage(pkg.clone());
+    this.outputPortMap.out.updatePackage(pkg.clone());
   }
 
   private releaseOutput() {
-    this.computeOutput();
+    this.updateOutput();
+    this.propagate();
+    this.isOutputChanged = false;
+  }
+
+  private checkOutputChange() {
+    const items = this.computeOutput();
+    this.isOutputChanged = !_.isEqual(items, this.items);
+  }
+
+  private clearOutput() {
+    this.updateNoDatasetOutput();
     this.propagate();
   }
 }

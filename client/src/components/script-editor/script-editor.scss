@@ -1,0 +1,31 @@
+@import '../../common/style/index';
+
+.header {
+  margin-bottom: $margin-size;
+}
+
+.instruction {
+  padding: $padding-size;
+
+  pre {
+    margin-left: 2rem;
+    color: #555;
+  }
+}
+
+.success {
+  @extend %success-message;
+}
+
+.warn {
+  @extend %warn-message;
+}
+
+.error {
+  @extend %error-message;
+}
+
+.message {
+  margin-top: $margin-size;
+  padding: $padding-size-sm;
+}

@@ -32,6 +32,7 @@ export default class Port extends Vue {
   protected isConnectionChanged = false;
   protected edges: Edge[] = [];
   protected package: Package = new Package();
+  protected hasInvalidConnection = false;
 
   @ns.interaction.Mutation('portDragStarted') private portDragStarted!: (port: Port) => void;
   @ns.interaction.Mutation('portDragged') private portDragged!: (coordinates: Point) => void;
@@ -67,8 +68,11 @@ export default class Port extends Vue {
     return this.edges.length > 0;
   }
 
-  public isTypeMatched(port: Port): boolean {
-    return this.DATA_TYPE === port.DATA_TYPE;
+  public isTypeMatched(port: Port): { matched: boolean, reason: string } {
+    return {
+      matched: this.DATA_TYPE === port.DATA_TYPE,
+      reason: 'port types do not match',
+    };
   }
 
   public hasCapacity(): boolean {
@@ -137,6 +141,16 @@ export default class Port extends Vue {
   /** Checks if edges have been changed. */
   public isConnectionUpdated(): boolean {
     return this.isConnectionChanged;
+  }
+
+  /**
+   * Checks if the connected edges still satisfy the type matching.
+   * Though edges are type matched when created, it is possible that upflow changes data type due to data mutation
+   * extensions.
+   */
+  public checkValidConnections(): boolean {
+    console.error('using checkValidConnections() of base class Port');
+    return true;
   }
 
   /** Clears the connection changed flag. */

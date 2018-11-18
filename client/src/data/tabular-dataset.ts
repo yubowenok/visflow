@@ -33,6 +33,16 @@ const hash = (columns: TabularColumn[], rows: TabularRows): string => {
 };
 
 export default class TabularDataset {
+  public static deserialize(jsonStr: string): TabularDataset {
+    const obj = JSON.parse(jsonStr);
+    const dataset = new TabularDataset({
+      columns: obj.columns,
+      rows: obj.rows,
+    });
+    dataset.setName(obj.name);
+    return dataset;
+  }
+
   private name: string = ''; // dataset name (originalname)
   private columns: TabularColumn[] = [];
   private rows: TabularRows = [];
@@ -115,6 +125,10 @@ export default class TabularDataset {
 
   public isDateColumn(index: number): boolean {
     return this.columns[index].type === ValueType.DATE;
+  }
+
+  public getRows(): TabularRows {
+    return this.rows;
   }
 
   /**
@@ -203,5 +217,9 @@ export default class TabularDataset {
 
   public getHash(): string {
     return this.hash;
+  }
+
+  public serialize(): string {
+    return JSON.stringify(this);
   }
 }

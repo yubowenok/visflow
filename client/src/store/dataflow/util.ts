@@ -15,10 +15,11 @@ export const checkEdgeConnectivity = (source: Port, target: Port): { connectable
       reason: 'port already has maximum number of connections',
     };
   }
-  if (!source.isTypeMatched(target)) {
+  const typeMatched = source.isTypeMatched(target);
+  if (!typeMatched.matched) {
     return {
       connectable: false,
-      reason: 'port types do not match',
+      reason: typeMatched.reason,
     };
   }
 

@@ -3,8 +3,8 @@
 .drop-area {
   border: 1px dashed grey;
   background: lighten($theme-green, 40%);
-  height: 10rem;
-  line-height: 10rem;
+  height: 5rem;
+  line-height: 5rem;
   text-align: center;
   cursor: pointer;
   @extend %transition;

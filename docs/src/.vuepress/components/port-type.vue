@@ -60,7 +60,7 @@ export default {
       return WRAPPER_CLASSES[this.type] || '';
     },
     linkTo: function() {
-      return `/port/`;
+      return `/dataflow/diagram.html#port`;
     },
     iconStyles: function() {
       return ICON_STYLE[this.type];

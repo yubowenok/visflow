@@ -1,0 +1,10 @@
+<!-- node-content -->
+<b-button variant="outline-secondary" @click="play" v-if="!isPlaying"><i class="fas fa-play"></i></b-button>
+<b-button variant="outline-secondary" @click="pause" v-if="isPlaying"><i class="fas fa-pause"></i></b-button>
+
+<!-- option-panel -->
+<div class="panel-buttons">
+  <b-button variant="outline-secondary" @click="play" v-if="!isPlaying">Play <i class="fas fa-play"></i></b-button>
+  <b-button variant="outline-secondary" @click="pause" v-if="isPlaying">Pause <i class="fas fa-pause"></i></b-button>
+  <b-button variant="outline-secondary" @click="stop">Stop <i class="fas fa-stop"></i></b-button>
+</div>

@@ -17,6 +17,9 @@ import Network from '@/components/network/network';
 import Map from '@/components/map/map';
 import Linker from '@/components/linker/linker';
 import LoopbackControl from '@/components/loopback-control/loopback-control';
+import ScriptEditor from '@/components/script-editor/script-editor';
+import Aggregation from '@/components/aggregation/aggregation';
+import Player from '@/components/player/player';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -130,6 +133,31 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/loopback-control.svg'),
     constructor: LoopbackControl,
     tags: 'loopback control',
+    isBeta: true,
+  },
+  {
+    id: 'script-editor',
+    title: 'Script Editor',
+    imgSrc: require('@/imgs/script-editor.svg'),
+    constructor: ScriptEditor,
+    tags: 'script code editor',
+    isBeta: true,
+  },
+  {
+    id: 'aggregation',
+    title: 'Aggregation',
+    imgSrc: require('@/imgs/aggregation.svg'),
+    constructor: Aggregation,
+    tags: 'aggregation sum average',
+    isBeta: true,
+  },
+  {
+
+    id: 'player',
+    title: 'Player',
+    imgSrc: require('@/imgs/player.svg'),
+    constructor: Player,
+    tags: 'player sequence series',
     isBeta: true,
   },
 ];

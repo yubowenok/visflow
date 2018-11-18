@@ -17,6 +17,10 @@
   &.active {
     @extend %extra-bold-border;
   }
+
+  &.invalid {
+    background-color: #ff7575;
+  }
 }
 
 .icon {

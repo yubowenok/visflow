@@ -408,10 +408,10 @@ export default class Node extends Vue {
 
   /**
    * Starts a node update by first checking if the update is necessary.
-   * An update is necessary when some input port has changed package.
+   * An update is necessary when some input port has changed package and all connections are valid.
    */
   public startUpdate() {
-    if (this.isUpdateNecessary()) {
+    if (this.isUpdateNecessary() && this.areConnectionsValid()) {
       this.update();
     }
   }
@@ -608,6 +608,15 @@ export default class Node extends Vue {
       }
     }
     return false;
+  }
+
+  protected areConnectionsValid(): boolean {
+    for (const port of this.inputPorts) {
+      if (!port.checkValidConnections()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

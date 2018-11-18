@@ -1,0 +1,30 @@
+<!-- node-content -->
+<img :src="imgSrc"/>
+
+<!-- option-panel -->
+<b-button variant="outline-secondary" id="btn-load-dataset" @click="openAceModal">Edit Script</b-button>
+
+<ace-modal ref="aceModal" v-model="code"
+  @change="onCodeChange"
+  @run="runScript"
+>
+<div class="header">
+  <b-button id="instruction-toggle" variant="outline-secondary" @click="toggleInstruction" size="sm">
+    <i v-if="isInstructionVisible" class="fas fa-minus"></i>
+    <i v-if="!isInstructionVisible" class="fas fa-plus"></i>
+    Instruction
+  </b-button>
+  <transition-group tag="div" name="fade">
+    <div key="success" class="success message" v-if="successMessage">{{ successMessage }}</div>
+    <div key="error" class="error message" v-if="executionError">{{ executionError }}</div>
+    <div key="warn" class="warn message" v-if="!inputPortMap.in.isConnected()">No input connected: input columns and rows will be empty arrays</div>
+  </transition-group>
+  <div class="instruction" v-if="isInstructionVisible">
+    <div>
+      Write a method that reads an input table and outputs a new table.
+      A table is given by a list of column names, and a 2D array specifying the values per row.
+    </div>
+    <pre>{{ METHOD_ANNOTATION }}</pre>
+  </div>
+</div>
+</ace-modal>
