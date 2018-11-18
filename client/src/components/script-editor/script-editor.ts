@@ -1,4 +1,5 @@
 import { Component } from 'vue-property-decorator';
+import * as d3lib from 'd3';
 
 import template from './script-editor.html';
 import { injectNodeTemplate } from '../node';
@@ -10,6 +11,7 @@ import { SubsetPackage } from '@/data/package';
 
 interface ScriptEditorSave {
   code: string;
+  isRenderingEnabled: boolean;
   isInstructionVisible: boolean;
 }
 
@@ -24,10 +26,10 @@ const METHOD_ANNOTATION = `@param {string[] | undefined} columns
 
 const DEFAULT_CODE = `(columns, rows) => {
   return {
-    columns: columns || [],
+    columns: [],
     rows: [],
   };
-}
+};
 `;
 
 @Component({
@@ -38,7 +40,9 @@ const DEFAULT_CODE = `(columns, rows) => {
 })
 export default class ScriptEditor extends SubsetNode {
   public isPropagationSource = true;
+
   protected NODE_TYPE = 'script-editor';
+  protected RESIZABLE = true;
 
   private METHOD_ANNOTATION = METHOD_ANNOTATION;
 
@@ -47,10 +51,12 @@ export default class ScriptEditor extends SubsetNode {
 
   private successMessage = '';
   private executionError = '';
+  private warningMessage = '';
   private messageTimeout: NodeJS.Timer | null = null;
 
   private isInstructionVisible = true;
-  private toPropagate = false;
+
+  private isRenderingEnabled = false;
 
   get imgSrc() {
     return require('@/imgs/script-editor.svg');
@@ -59,13 +65,9 @@ export default class ScriptEditor extends SubsetNode {
   protected created() {
     this.serializationChain.push((): ScriptEditorSave => ({
       code: this.code,
+      isRenderingEnabled: this.isRenderingEnabled,
       isInstructionVisible: this.isInstructionVisible,
     }));
-    this.deserializationChain.push(nodeSave => {
-      if (this.lastDatasetHash !== '') {
-        this.toPropagate = true;
-      }
-    });
   }
 
   protected update() {
@@ -86,6 +88,7 @@ export default class ScriptEditor extends SubsetNode {
     const execute = (
       // tslint:disable-next-line only-arrow-functions
       function() {
+        const d3 = d3lib;
         try {
           const method = eval(code); // tslint:disable-line no-eval
           let executeResult: { columns: string[], rows: TabularRows, err?: Error } = {
@@ -105,15 +108,14 @@ export default class ScriptEditor extends SubsetNode {
       return;
     }
     const outputTable = result as { columns: string[], rows: TabularRows };
-    this.successMessage = this.executionError = '';
+    this.successMessage = this.warningMessage = this.executionError = '';
 
     try {
       this.dataset = outputTable.columns.length ? parseCsv(generateCsv(outputTable.columns, outputTable.rows)) : null;
       if (!this.dataset) {
         this.updateNoDatasetOutput();
-        this.executionError = 'output table has no columns';
+        this.warningMessage = 'output table is empty';
       } else {
-        console.log(this.dataset);
         this.outputPortMap.out.updatePackage(new SubsetPackage(this.dataset));
         this.displaySuccessMessage();
       }
@@ -146,5 +148,9 @@ export default class ScriptEditor extends SubsetNode {
 
   private toggleInstruction() {
     this.isInstructionVisible = !this.isInstructionVisible;
+  }
+
+  private onToggleRenderingEnabled(value: boolean) {
+
   }
 }

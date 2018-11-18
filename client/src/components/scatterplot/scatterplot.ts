@@ -80,6 +80,10 @@ export default class Scatterplot extends Visualization {
     this.draw();
   }
 
+  public setTransitionDisabled(value: boolean) {
+    this.isTransitionDisabled = value;
+  }
+
   public applyColumns(columns: number[]) {
     if (columns.length === 0) {
       this.findDefaultColumns();
@@ -275,5 +279,9 @@ export default class Scatterplot extends Visualization {
   private onSelectYColumn(column: number, prevColumn: number | null) {
     this.commitHistory(history.selectYColumnEvent(this, column, prevColumn));
     this.setYColumn(column);
+  }
+
+  private onToggleTransitionDisabled(value: boolean) {
+    this.commitHistory(history.toggleTransitionDisabledEvent(this, value));
   }
 }

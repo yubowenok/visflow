@@ -1,10 +1,25 @@
 <!-- node-content -->
-<b-button variant="outline-secondary" @click="play" v-if="!isPlaying"><i class="fas fa-play"></i></b-button>
-<b-button variant="outline-secondary" @click="pause" v-if="isPlaying"><i class="fas fa-pause"></i></b-button>
+<div class="display">
+  <div id="current-time">{{ currentTime }}</div>
+  <b-button variant="outline-secondary" @click="play" v-if="!isPlaying"><i class="fas fa-play"></i></b-button>
+  <b-button variant="outline-secondary" @click="pause" v-if="isPlaying"><i class="fas fa-pause"></i></b-button>
+</div>
 
 <!-- option-panel -->
+<div>
+  <div>Time Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="column"
+    @input="onSelectColumn"
+  ></column-select>
+</div>
 <div class="panel-buttons">
   <b-button variant="outline-secondary" @click="play" v-if="!isPlaying">Play <i class="fas fa-play"></i></b-button>
   <b-button variant="outline-secondary" @click="pause" v-if="isPlaying">Pause <i class="fas fa-pause"></i></b-button>
   <b-button variant="outline-secondary" @click="stop">Stop <i class="fas fa-stop"></i></b-button>
+
+  <hr class="divider">
+  <b-button variant="outline-secondary" @click="next" :disabled="isPlaying">Next <i class="fas fa-arrow-right"></i></b-button>
+  <b-button variant="outline-secondary" @click="previous" :disabled="isPlaying">Previous <i class="fas fa-arrow-left"></i></b-button>
 </div>

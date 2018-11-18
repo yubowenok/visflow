@@ -20,7 +20,7 @@
       }]"
     >
       <template v-if="isLoggedIn">
-        <div v-if="uploadState === 'waiting'" class="text">Drag a CSV file here or click to browse</div>
+        <div v-if="uploadState === 'waiting'" class="text">Drag a file here or click to browse</div>
         <div v-if="uploadState === 'dragging'" class="text">Drop file here to upload</div>
       </template>
       <template v-else>

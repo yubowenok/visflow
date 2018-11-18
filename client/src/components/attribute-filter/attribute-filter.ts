@@ -580,7 +580,6 @@ export default class AttributeFilter extends SubsetNodeBase {
   }
 
   private onInputRangeMin(value: number | null, prevValue: number | null) {
-    console.log(value, prevValue);
     this.commitHistory(history.inputRangeMin(this, value, prevValue));
     this.setRangeMin(value);
   }

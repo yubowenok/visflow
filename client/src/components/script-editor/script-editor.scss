@@ -4,6 +4,15 @@
   margin-bottom: $margin-size;
 }
 
+.display {
+  @extend %vertical-center;
+
+  #icon {
+    width: 40px;
+    height: 40px;
+  }
+}
+
 .instruction {
   padding: $padding-size;
 
@@ -28,4 +37,8 @@
 .message {
   margin-top: $margin-size;
   padding: $padding-size-sm;
+}
+
+#btn-edit-script {
+  width: 100%;
 }

@@ -1,12 +1,23 @@
 @import '../../common/style/index';
 
-button {
-  width: 100%;
-  height: 100%;
+
+
+.display {
+  @extend %vertical-center;
+
+  > button {
+    width: 80%;
+  }
+
+  > #current-time {
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .panel-buttons button {
   display: block;
   margin-bottom: $margin-size;
+  width: 100%;
   height: auto;
 }

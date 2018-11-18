@@ -24,7 +24,7 @@ export default class LoopbackControl extends SubsetNode {
   public isInputOutputDisconnected = true;
 
   protected NODE_TYPE = 'loopback-control';
-  protected DEFAULT_HEIGHT = 35;
+  protected DEFAULT_HEIGHT = 40;
   protected REVERSE_INPUT_OUTPUT_PORTS = true;
 
   @ns.user.State('username') private username!: string;

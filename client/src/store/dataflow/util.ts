@@ -33,6 +33,10 @@ export const checkEdgeConnectivity = (source: Port, target: Port): { connectable
 
   const visited: Set<Node> = new Set();
   visited.add(source.node);
+  if (source.node.isInputOutputDisconnected) {
+    // Special case: the source node has input and output disconnected.
+    return { connectable: true, reason: '' };
+  }
   // Use array as queue here. The flow graph is small so the efficiency should be ok.
   const queue: Node[] = [target.node];
   while (queue.length) {

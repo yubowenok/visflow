@@ -74,8 +74,10 @@ export default class Node extends Vue {
   protected ENLARGEABLE = false; // if the node can be enlarged to fullscreen modal
   protected REVERSE_INPUT_OUTPUT_PORTS = false; // if the input is on the right and the output is on the left
 
-
   protected label = '';
+
+  // background color of the content div
+  protected backgroundColor = 'white';
 
   // ports: input/output port id's must be unique
   protected inputPorts: InputPort[] = [];
@@ -1165,5 +1167,11 @@ export default class Node extends Vue {
 
   private distanceToMouse(): number {
     return vectorDistance(this.getCenter(), [this.lastMouseX, this.lastMouseY]);
+  }
+
+  private getContentStyles() {
+    return {
+      background: this.backgroundColor,
+    };
   }
 }

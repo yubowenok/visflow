@@ -11,7 +11,8 @@
     </transition>
     <node-label ref="nodeLabel" v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
     <transition name="fade">
-      <div ref="content" v-show="isContentVisible" :class="['content', { disabled: !isContentVisible }]">
+      <div ref="content" v-show="isContentVisible" :class="['content', { disabled: !isContentVisible }]"
+        :style="getContentStyles()">
         <!-- node-content -->
       </div>
     </transition>

@@ -1,5 +1,7 @@
 <!-- node-content -->
-<b-button variant="outline-secondary" @click="releaseOutput" :disabled="!isOutputChanged"><i class="fas fa-backward"></i></b-button>
+<div class="display">
+  <b-button variant="outline-secondary" @click="releaseOutput" :disabled="!isOutputChanged"><i class="fas fa-backward"></i></b-button>
+</div>
 
 <!-- option-panel -->
 <div>Looping back {{ this.items.length }} data items</div>
