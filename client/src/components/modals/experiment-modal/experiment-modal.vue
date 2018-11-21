@@ -80,12 +80,69 @@ The structure of this study will be as follows:
 If you have questions at any time of the user study, please reach out to our user study assistant.
 </p>
 </div>
+
+<div v-if="currentStep === 'visflowTutorial'">
+  We will now introduce the basic usage of the VisFlow dataflow framework.
+  <div>
+    Please go through the steps in the <a href="#">Getting Started</a> page.
+  </div>
+</div>
+
+<div v-if="currentStep === 'flowsenseTutorial'">
+  Now you will learn how to use FlowSense, the natural langugage interface of VisFlow.
+  <div>
+    Please read the <a href="#">FlowSense instructions</a>.
+  </div>
+</div>
+
+<div v-if="currentStep === 'practice'">
+  Please take a few minutes to practice VisFlow and FlowSense.
+  You may use the demo datasets we have prepared for the practice.
+  Once you are comfortable with all the introduced operations,
+  come back here and click "Continue".
+</div>
+
+<div v-if="currentStep === 'task'">
+  <div>
+  You are now familiar with VisFlow and FlowSense.
+  Let's apply what we have learned to solve some data analysis problem.
+  In this experiment, you will analyze a <a href="#">Test Result Dataset</a> that includes the coding test results of software engineer candidates
+  along with the background information about the candidates.
+  You will use VisFlow and FlowSense to explore the dataset, and answer a few questions.
+  Edit the diagram to answer each question.
+  After you are done, come back here and click "Continue" to move on to the next question.
+  You will use a same diagram throughout all questions.
+  </div>
+  <div>
+    Please note that the time you take to complete the tasks will be recorded and used to analyze the effectiveness of the system.
+    Please complete the tasks in one sitting to avoid imprecise measurement of task completion time.
+  </div>
+</div>
+
+<div v-if="currentStep === 'task1'">
+  First, create a visualization that shows the distribution of programming languages used by the candidates.
+</div>
+
+<div v-if="currentStep === 'task2'">
+  Present the data to show which test question (in question ID) was the hardest among C++ candidates.
+</div>
+
+<div v-if="currentStep === 'task3'">
+  Identify which set of the questions are most effective to separate the most experienced candidates from the less experienced candidates.
+</div>
+
+<div v-if="currentStep === 'end'">
+  Thank you for participating in the VisFlow / FlowSense user study.
+  You have successfully completed the study.
+  You may now close the browser window.
+</div>
+
 </b-container>
 </template>
 <template slot="footer">
   <b-btn class="float-right" variant="primary" @click="next">
     <span v-if="currentStep === 'consentForm'">Agree and Start</span>
-    <span v-if="currentStep === 'end'">Finish</span>
+    <span v-else-if="currentStep === 'end'">Finish</span>
     <span v-else>Continue</span>
   </b-btn>
   <template v-if="currentStep !== 'end'">

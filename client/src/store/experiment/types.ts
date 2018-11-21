@@ -13,8 +13,12 @@ export type ExperimentInfo = ExperimentState;
 export const EXPERIMENT_STEPS = [
   'consentForm',
   'overview',
-  'tutorial',
+  'visflowTutorial',
+  'flowsenseTutorial',
   'practice',
   'task',
+  'task1',
+  'task2',
+  'task3',
   'end',
 ];

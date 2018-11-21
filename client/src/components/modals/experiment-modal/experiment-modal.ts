@@ -23,9 +23,13 @@ export default class ExperimentModal extends Vue {
   private titles = {
     consentForm: 'VisFlow User Study: Consent Form for IRB-FY2018-2102',
     overview: 'User Study Overview',
-    tutorial: 'VisFlow Tutorial',
+    visflowTutorial: 'VisFlow Tutorial',
+    flowsenseTutorial: 'FlowSense Tutorial',
     practice: 'System Practice',
-    task: 'Experiment Task',
+    task: 'Experiment Tasks',
+    task1: 'Task 1',
+    task2: 'Task 2',
+    task3: 'Task 3',
     end: 'End of Study',
   };
 
