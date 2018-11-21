@@ -45,7 +45,7 @@ app.use(cors({
 
 app.use(morgan(ENVIRONMENT === 'production' ? 'combined' : 'dev'));
 app.use(compression());
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressValidator());
 app.use(session({

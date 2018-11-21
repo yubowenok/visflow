@@ -7,6 +7,8 @@ import 'datatables.net-bs4';
 import 'datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 import 'datatables.net-select';
 
+import '@fortawesome/fontawesome-free/css/all.min.css';
+
 import 'leaflet/dist/leaflet.css';
 
 // Global stylesheets

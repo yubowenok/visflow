@@ -16,6 +16,7 @@ script:
   - yarn --cwd server build
   - yarn --cwd server lint
   - yarn --cwd server test
+  - yarn --cwd docs build
 
 after_script:
   - yarn coverage
