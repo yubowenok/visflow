@@ -54,6 +54,8 @@ export default class Node extends Vue {
   // The only exception is a loopback control, of which the output only flashes connecting its input on user release.
   // A loopback control does not introduce backward cycle.
   public isInputOutputDisconnected = false;
+  // Beta feature allows data mutation.
+  public isDataMutated = false;
 
   public get isVisible(): boolean {
     return !this.isSystemInVisMode || this.isInVisMode;
@@ -78,6 +80,8 @@ export default class Node extends Vue {
 
   // background color of the content div
   protected backgroundColor = 'white';
+  // boundary color of the node, used to show data mutation boundaries
+  protected boundaryColor = 'none';
 
   // ports: input/output port id's must be unique
   protected inputPorts: InputPort[] = [];
@@ -502,6 +506,14 @@ export default class Node extends Vue {
     // 1 - 1 / (1 + e^-(d/gamma - beta))
     const dFactor = 1.0 - 1.0 / (1 + Math.exp(-(d - FOCUS_BETA)));
     return this.activeness + FOCUS_ALPHA * dFactor;
+  }
+
+  /**
+   * Sets the boundary color of this node.
+   * This is used to highlight data mutation boundaries.
+   */
+  public setBoundaryColor(color: string) {
+    this.boundaryColor = color;
   }
 
   /**
@@ -1172,6 +1184,7 @@ export default class Node extends Vue {
   private getContentStyles() {
     return {
       background: this.backgroundColor,
+      outline: this.boundaryColor ? `2px solid ${this.boundaryColor}` : '',
     };
   }
 }

@@ -42,6 +42,7 @@ const DEFAULT_CODE = `(columns, rows, content) => {
 })
 export default class ScriptEditor extends SubsetNode {
   public isPropagationSource = true;
+  public isDataMutated = true;
 
   protected NODE_TYPE = 'script-editor';
   protected RESIZABLE = true;

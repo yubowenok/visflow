@@ -104,7 +104,7 @@ export const actions = {
     return new Promise((resolve, reject) => {
       axiosPost<DiagramSave>('/diagram/load', { filename })
         .then(res => {
-          deserializeDiagram(context.state, res.data);
+          deserializeDiagram(res.data);
           context.commit('setDiagramName', res.data.diagramName);
           context.commit('setFilename', filename);
 

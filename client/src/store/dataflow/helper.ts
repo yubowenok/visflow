@@ -4,6 +4,8 @@
  */
 import { VueConstructor } from 'vue';
 import _ from 'lodash';
+import { schemeCategory10 } from 'd3-scale-chromatic';
+
 
 import { checkEdgeConnectivity } from '@/store/dataflow/util';
 import { showSystemMessage } from '@/common/util';
@@ -18,7 +20,7 @@ import {
   CreateNodeData,
 } from '@/store/dataflow/types';
 import { getConstructor } from '@/store/dataflow/node-types';
-import { propagateNode, propagateNodes, propagatePort } from '@/store/dataflow/propagate';
+import { propagateNode, propagateNodes, propagatePort, topologicalOrder } from '@/store/dataflow/propagate';
 import { getInitialState } from '@/store/dataflow';
 import { InputPort, OutputPort } from '@/components/port';
 import DataflowCanvas from '@/components/dataflow-canvas/dataflow-canvas';
@@ -265,7 +267,8 @@ export const serializeDiagram = (state: DataflowState): DiagramSave => {
   };
 };
 
-export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) => {
+export const deserializeDiagram = (diagram: DiagramSave) => {
+  const state = store.state.dataflow;
   // First clear the diagram.
   resetDataflow(true);
 
@@ -295,4 +298,34 @@ export const deserializeDiagram = (state: DataflowState, diagram: DiagramSave) =
 
   state.isDeserializing = false;
   propagateNodes(sources);
+};
+
+export const dataMutationBoundary = (visible: boolean) => {
+  const state = store.state.dataflow;
+  const visited = new Set<Node>();
+
+  const traverse = (node: Node, color: string) => {
+    if (visited.has(node)) {
+      return;
+    }
+    visited.add(node);
+    node.setBoundaryColor(color);
+    if (node.isDataMutated) {
+      return;
+    }
+    for (const to of node.getOutputNodes()) {
+      traverse(to, color);
+    }
+  };
+
+  const order = topologicalOrder(state.nodes);
+  let colors: string[] = [];
+  order.forEach(node => {
+    if (!colors.length) {
+      colors = schemeCategory10.concat();
+    }
+    if (!visited.has(node)) {
+      traverse(node, visible ? colors.shift() as string : '');
+    }
+  });
 };

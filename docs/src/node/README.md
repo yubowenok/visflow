@@ -2,7 +2,7 @@
 
 VisFlow nodes are categorized into the following:
 - [Data Source](data-source.md)
-- [Visualization](./dataflow/visualization)
+- [Visualization](/dataflow/visualization.md)
 - [Attribute Filter](attribute-filter.md)
 - [Visual Editor](visual-editor.md)
 - [Set Operator](set-operator.md)

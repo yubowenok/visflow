@@ -238,6 +238,11 @@ const mutations = {
     state.nodes.forEach(node => node.setLabelVisible(true));
   },
 
+  /** Toggles the data mutation boundary. */
+  toggleDataMutationBoundary: (state: DataflowState, visible: boolean) => {
+    helper.dataMutationBoundary(visible);
+  },
+
   ...saveLoad.mutations,
 };
 

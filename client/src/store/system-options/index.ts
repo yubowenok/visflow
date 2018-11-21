@@ -1,16 +1,11 @@
 import { Module } from 'vuex';
-import { RootState } from '@/store';
-
-interface SystemOptionsState {
-  nodeLabelsVisible: boolean;
-  useBetaFeatures: boolean;
-  dataMutationBoundaryVisible: boolean;
-}
+import store, { RootState } from '@/store';
+import { SystemOptionsState } from './types';
 
 const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
   useBetaFeatures: true,
-  dataMutationBoundaryVisible: true,
+  dataMutationBoundaryVisible: false,
 };
 
 const getters = {
@@ -45,6 +40,8 @@ const mutations = {
    */
   toggleDataMutationBoundary(state: SystemOptionsState) {
     state.dataMutationBoundaryVisible = !state.dataMutationBoundaryVisible;
+
+    store.commit('dataflow/toggleDataMutationBoundary', state.dataMutationBoundaryVisible);
   },
 };
 
