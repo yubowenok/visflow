@@ -6,34 +6,88 @@ import ns from '@/store/namespaces';
 import template from './aggregation.html';
 import { injectNodeTemplate } from '../node';
 import { SubsetNode } from '../subset-node';
-import TabularDataset from '@/data/tabular-dataset';
+import FormSelect from '@/components/form-select/form-select';
+import ColumnSelect from '@/components/column-select/column-select';
+import { SubsetInputPort } from '../port';
 
-interface AggregationSave {
-  serializedDataset: string;
+enum AggregationMode {
+  SUM = 'sum',
+  AVERAGE = 'average',
 }
+interface AggregationSave {
+  column: number | null;
+  groupByColumn: number | null;
+  mode: AggregationMode;
+}
+
 
 @Component({
   template: injectNodeTemplate(template),
   components: {
-
+    FormSelect,
+    ColumnSelect,
   },
 })
 export default class Aggregation extends SubsetNode {
-  protected NODE_TYPE = 'aggregation';
+  public isDataMutated = true;
 
-  private outputDataset: TabularDataset | null = null;
+  protected NODE_TYPE = 'aggregation';
+  protected DEFAULT_WIDTH = 120;
+  protected RESIZABLE = true;
+
+  private mode: AggregationMode = AggregationMode.SUM;
+  private column: number | null = null;
+  private groupByColumn: number | null = null;
+
+  get aggregationModeOptions(): SelectOption[] {
+    return [
+      { label: 'Sum', value: AggregationMode.SUM },
+      { label: 'Average', value: AggregationMode.AVERAGE },
+    ];
+  }
+
+  get columnName(): string {
+    return this.dataset && this.column !== null ? this.getDataset().getColumnName(this.column) : '';
+  }
+
+  get groupByColumnName(): string {
+    return this.dataset && this.groupByColumn !== null ?
+      this.getDataset().getColumnName(this.groupByColumn) : '';
+  }
 
   protected update() {
+    if (!this.checkDataset()) {
+      return;
+    }
+    if (this.column === null) {
+      this.coverText = 'No column';
+      this.forwardSubset(this.inputPortMap.in as SubsetInputPort, this.outputPortMap.out);
+      return;
+    }
+    this.aggregate();
   }
 
   protected created() {
     this.serializationChain.push((): AggregationSave => ({
-      serializedDataset: this.outputDataset === null ? 'null' : this.outputDataset.serialize(),
+      mode: this.mode,
+      column: this.column,
+      groupByColumn: this.groupByColumn,
     }));
-    this.deserializationChain.push(nodeSave => {
-      const save = nodeSave as AggregationSave;
-      this.outputDataset = TabularDataset.deserialize(save.serializedDataset);
-    });
   }
 
+  private aggregate() {
+
+  }
+
+  private onSelectAggregationMode(mode: AggregationMode, prevMode: AggregationMode) {
+
+  }
+
+  private onSelectColumn(column: number, prevColumn: number) {
+
+  }
+
+  private onSelectGroupByColumn(column: number | null, prevColumn: number | null) {
+
+  }
 }

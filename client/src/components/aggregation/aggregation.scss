@@ -1,0 +1,13 @@
+@import '../../common/style/index';
+
+.display {
+  @extend %ellipsis-text;
+  @extend %vertical-center;
+  padding: $padding-size;
+  white-space: normal;
+  overflow: auto;
+
+  > * {
+    margin: $margin-size-sm;
+  }
+}

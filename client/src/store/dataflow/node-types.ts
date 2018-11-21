@@ -144,20 +144,20 @@ export const nodeTypes: NodeType[] = [
     isBeta: true,
   },
   {
-    id: 'aggregation',
-    title: 'Aggregation',
-    imgSrc: require('@/imgs/aggregation.svg'),
-    constructor: Aggregation,
-    tags: 'aggregation sum average',
-    isBeta: true,
-  },
-  {
 
     id: 'player',
     title: 'Player',
     imgSrc: require('@/imgs/player.svg'),
     constructor: Player,
     tags: 'player sequence series',
+    isBeta: true,
+  },
+  {
+    id: 'aggregation',
+    title: 'Aggregation',
+    imgSrc: require('@/imgs/aggregation.svg'),
+    constructor: Aggregation,
+    tags: 'aggregation sum average',
     isBeta: true,
   },
 ];
