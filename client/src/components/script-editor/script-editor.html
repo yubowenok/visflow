@@ -1,7 +1,7 @@
 <!-- node-content -->
 <div class="display">
   <img id="icon" :src="imgSrc" v-if="!isRenderingEnabled"/>
-  <div ref="rendering-content" v-if="isRenderingEnabled"></div>
+  <div id="rendering-content" ref="renderingContent" v-if="isRenderingEnabled"></div>
 </div>
 
 <!-- option-panel -->
@@ -10,6 +10,9 @@
 </div>
 <div class="section">
   <b-form-checkbox v-model="isRenderingEnabled" @input="onToggleRenderingEnabled">Rendering</b-form-checkbox>
+</div>
+<div class="section">
+  <b-form-checkbox v-model="transparentBackground" @input="onToggleTransparentBackground">Transparent Content</b-form-checkbox>
 </div>
 
 <ace-modal ref="aceModal" v-model="code"
@@ -32,6 +35,7 @@
     <div>
       Write a method that reads an input table and outputs a new table.
       A table is given by a list of column names, and a 2D array specifying the values per row.
+      If rendering is enabled, the third argument will be an HTML element.
     </div>
     <pre>{{ METHOD_ANNOTATION }}</pre>
   </div>

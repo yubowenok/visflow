@@ -1,22 +1,30 @@
-import { Component } from 'vue-property-decorator';
+import { Component, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 
 import template from './player.html';
+import ColumnSelect from '@/components/column-select/column-select';
+import FormInput from '@/components/form-input/form-input';
+import FormSlider from '@/components/form-slider/form-slider';
 import { injectNodeTemplate } from '../node';
 import { SubsetNode } from '../subset-node';
-import ColumnSelect from '@/components/column-select/column-select';
 import { isNumericalType, valueComparator } from '@/data/util';
 import TabularDataset from '@/data/tabular-dataset';
+
+const SECOND_MS = 1000;
+const FRAME_INTERVAL_MS = 100; // 10 frames per second
 
 interface PlayerSave {
   column: number | null;
   currentTimeIndex: number;
+  framesPerSecond: number;
 }
 
 @Component({
   template: injectNodeTemplate(template),
   components: {
     ColumnSelect,
+    FormInput,
+    FormSlider,
   },
 })
 export default class Player extends SubsetNode {
@@ -29,15 +37,28 @@ export default class Player extends SubsetNode {
   private isPlaying = false;
   private currentTimeIndex = 0;
   private timeValues: Array<string | number> = [];
+  private playTimer: NodeJS.Timer | null = null;
+
+  // how many time values are played per second
+  private framesPerSecond = 1;
 
   get currentTime(): number | string | undefined {
     return this.timeValues[this.currentTimeIndex];
+  }
+
+  public setFramesPerSecond(value: number) {
+    this.framesPerSecond = value;
+  }
+
+  public setCurrentTimeIndex(value: number) {
+    this.currentTimeIndex = value;
   }
 
   protected created() {
     this.serializationChain.push((): PlayerSave => ({
       column: this.column,
       currentTimeIndex: this.currentTimeIndex,
+      framesPerSecond: this.framesPerSecond,
     }));
   }
 
@@ -84,26 +105,45 @@ export default class Player extends SubsetNode {
     this.column = numericalColumns[0].index;
   }
 
-  private onSelectColumn(column: number, prevColumn: number) {
-
-  }
-
   private play() {
+    this.clearTimer();
     this.isPlaying = true;
+    const tickPerSecond = SECOND_MS / FRAME_INTERVAL_MS;
+    let stepSize = Math.floor(this.framesPerSecond / tickPerSecond);
+    let interval = FRAME_INTERVAL_MS;
+    if (stepSize === 0) { // play speed is very slow, fewer than 10 frames per second
+      stepSize = 1;
+      interval = SECOND_MS / this.framesPerSecond;
+    }
+    this.playTimer = setInterval(() => {
+      this.next(stepSize);
+    }, interval);
   }
 
   private pause() {
     this.isPlaying = false;
+    this.clearTimer();
   }
 
   private stop() {
     this.isPlaying = false;
+    this.clearTimer();
+    this.currentTimeIndex = 0;
   }
 
-  private next() {
-    this.currentTimeIndex++;
-    if (this.currentTimeIndex === this.timeValues.length) {
-      this.currentTimeIndex--;
+  private clearTimer() {
+    if (this.playTimer !== null) {
+      clearInterval(this.playTimer);
+    }
+  }
+
+  private next(step?: number) {
+    step = step || 1;
+    this.currentTimeIndex += step;
+    if (this.currentTimeIndex >= this.timeValues.length) {
+      this.currentTimeIndex = this.timeValues.length - 1;
+      this.clearTimer();
+      this.isPlaying = false;
     }
     this.output();
     this.propagate();
@@ -116,5 +156,19 @@ export default class Player extends SubsetNode {
     }
     this.output();
     this.propagate();
+  }
+
+  private onFramesPerSecondChange() {
+
+  }
+
+  private onCurrentTimeIndexChange(value: number) {
+    this.currentTimeIndex = value;
+    this.output();
+    this.propagate();
+  }
+
+  private onSelectTimeColumn(column: number, prevColumn: number) {
+
   }
 }

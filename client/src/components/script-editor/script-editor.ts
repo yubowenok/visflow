@@ -13,18 +13,20 @@ interface ScriptEditorSave {
   code: string;
   isRenderingEnabled: boolean;
   isInstructionVisible: boolean;
+  transparentBackground: boolean;
 }
 
 const SUCCESS_MESSAGE_DURATION_MS = 3000;
 
 const METHOD_ANNOTATION = `@param {string[] | undefined} columns
 @param {Array<Array<number | string>> | undefined} rows
+@param {HTMLElement | undefined} content
 @returns {{
   columns: string[],
   rows: Array<Array<number | string>>
 }}`;
 
-const DEFAULT_CODE = `(columns, rows) => {
+const DEFAULT_CODE = `(columns, rows, content) => {
   return {
     columns: [],
     rows: [],
@@ -57,9 +59,19 @@ export default class ScriptEditor extends SubsetNode {
   private isInstructionVisible = true;
 
   private isRenderingEnabled = false;
+  private transparentBackground = false;
 
   get imgSrc() {
     return require('@/imgs/script-editor.svg');
+  }
+
+  public setRenderingEnabled(value: boolean) {
+    this.isRenderingEnabled = value;
+  }
+
+  public setTransparentBackground(value: boolean) {
+    this.transparentBackground = value;
+    this.backgroundColor = value ? 'none' : 'white';
   }
 
   protected created() {
@@ -67,7 +79,14 @@ export default class ScriptEditor extends SubsetNode {
       code: this.code,
       isRenderingEnabled: this.isRenderingEnabled,
       isInstructionVisible: this.isInstructionVisible,
+      transparentBackground: this.transparentBackground,
     }));
+    this.deserializationChain.push(nodeSave => {
+      const save = nodeSave as ScriptEditorSave;
+      if (save.transparentBackground) {
+        this.setTransparentBackground(true);
+      }
+    });
   }
 
   protected update() {
@@ -85,6 +104,7 @@ export default class ScriptEditor extends SubsetNode {
       inputRows = dataset.getRows().map(row => row.concat()); // make a copy to avoid changing the original
     }
     const code = this.code;
+    const renderingContent = this.isRenderingEnabled ? this.$refs.renderingContent : undefined;
     const execute = (
       // tslint:disable-next-line only-arrow-functions
       function() {
@@ -95,7 +115,7 @@ export default class ScriptEditor extends SubsetNode {
             columns: [],
             rows: [],
           };
-          executeResult = method(inputColumns, inputRows);
+          executeResult = method(inputColumns, inputRows, renderingContent);
           return () => executeResult;
         } catch (err) {
           return () => ({ err });
@@ -121,6 +141,12 @@ export default class ScriptEditor extends SubsetNode {
       }
     } catch (parseErr) {
       this.executionError = parseErr.toString();
+    }
+  }
+
+  protected onResize() {
+    if (this.isRenderingEnabled) {
+      this.runScript();
     }
   }
 
@@ -151,6 +177,11 @@ export default class ScriptEditor extends SubsetNode {
   }
 
   private onToggleRenderingEnabled(value: boolean) {
+    this.setRenderingEnabled(value);
 
+  }
+
+  private onToggleTransparentBackground(value: boolean) {
+    this.setTransparentBackground(value);
   }
 }

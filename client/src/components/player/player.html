@@ -1,8 +1,9 @@
 <!-- node-content -->
 <div class="display">
   <div id="current-time">{{ currentTime }}</div>
-  <b-button variant="outline-secondary" @click="play" v-if="!isPlaying"><i class="fas fa-play"></i></b-button>
+  <b-button variant="outline-secondary" @click="play" v-if="!isPlaying && currentTimeIndex < timeValues.length - 1"><i class="fas fa-play"></i></b-button>
   <b-button variant="outline-secondary" @click="pause" v-if="isPlaying"><i class="fas fa-pause"></i></b-button>
+  <b-button variant="outline-secondary" @click="stop" v-if="!isPlaying && currentTimeIndex === timeValues.length - 1"><i class="fas fa-stop"></i></b-button>
 </div>
 
 <!-- option-panel -->
@@ -11,15 +12,30 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="column"
-    @input="onSelectColumn"
+    @input="onSelectTimeColumn"
   ></column-select>
 </div>
 <div class="panel-buttons">
   <b-button variant="outline-secondary" @click="play" v-if="!isPlaying">Play <i class="fas fa-play"></i></b-button>
   <b-button variant="outline-secondary" @click="pause" v-if="isPlaying">Pause <i class="fas fa-pause"></i></b-button>
   <b-button variant="outline-secondary" @click="stop">Stop <i class="fas fa-stop"></i></b-button>
+  <div class="section">
+    Frames Per Second
+    <form-input v-model.number="framesPerSecond"
+      @input="setFramesPerSecond"
+      @change="onFramesPerSecondChange"
+    ></form-input>
+  </div>
+  <div class="section">
+    Progress {{ currentTimeIndex + 1 }} / {{ timeValues.length }}
+    <form-slider v-model.number="currentTimeIndex" :min="0" :max="this.timeValues.length - 1"
+      @input="setCurrentTimeIndex"
+      @change="onCurrentTimeIndexChange"
+      :disabled="isPlaying">
+    </form-slider>
+  </div>
 
   <hr class="divider">
-  <b-button variant="outline-secondary" @click="next" :disabled="isPlaying">Next <i class="fas fa-arrow-right"></i></b-button>
+  <b-button variant="outline-secondary" @click="next(1)" :disabled="isPlaying">Next <i class="fas fa-arrow-right"></i></b-button>
   <b-button variant="outline-secondary" @click="previous" :disabled="isPlaying">Previous <i class="fas fa-arrow-left"></i></b-button>
 </div>
