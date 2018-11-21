@@ -2,12 +2,14 @@ import { Vue, Component, Watch } from 'vue-property-decorator';
 
 import GlobalClick from '@/directives/global-click';
 import NodeList from '@/components/node-list/node-list';
+import FormInput from '@/components/form-input/form-input';
 import ns from '@/store/namespaces';
 import { NodeType } from '@/store/dataflow/types';
 
 @Component({
   components: {
     NodeList,
+    FormInput,
   },
   directives: {
     GlobalClick,
@@ -36,10 +38,9 @@ export default class QuickNodePanel extends Vue {
     }
   }
 
-  @Watch('searchText')
-  private onSearchTextChange(text: string) {
+  private onSearchTextChange(text: string | null) {
     const nodeTypes = this.useBetaFeatures ? this.nodeTypes : this.nodeTypes.filter(type => !type.isBeta);
-    if (text === '') {
+    if (!text) {
       this.filteredNodeTypes = nodeTypes;
       return;
     }

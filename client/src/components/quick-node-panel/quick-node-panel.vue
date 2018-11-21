@@ -3,7 +3,8 @@
   <div class="quick-node-panel" v-if="quickNodePanelVisible"
     v-global-click="globalClick"
     :style="style">
-    <b-form-input v-model="searchText" placeholder="Search for nodes"></b-form-input>
+    <form-input v-model="searchText" placeholder="Search for nodes"
+      @change="onSearchTextChange"></form-input>
     <node-list class="node-list"
       :nodeTypes="filteredNodeTypes"
       :nodeTypesPerRow="4"

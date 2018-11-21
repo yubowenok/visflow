@@ -3,7 +3,7 @@ import sha256 from 'crypto-js/sha256';
 
 import { INDEX_COLUMN } from '@/common/constants';
 import { SubsetItem } from '@/data/package/subset-package';
-import { ValueType } from '@/data/parser';
+import { ValueType, generateCsv, parseCsv } from '@/data/parser';
 import { isContinuousDomain, valueComparator } from '@/data/util';
 
 export type TabularRow = Array<number | string>;
@@ -41,6 +41,12 @@ export default class TabularDataset {
     });
     dataset.setName(obj.name);
     return dataset;
+  }
+
+  public static fromColumnsAndRows(columns: string[], rows: TabularRows): TabularDataset {
+    // TODO: This awkwardly converts columns and rows to CSV and then parses the raw CSV.
+    // Move the parser to the tabular dataset constructor instead.
+    return parseCsv(generateCsv(columns, rows));
   }
 
   private name: string = ''; // dataset name (originalname)

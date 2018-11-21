@@ -1184,7 +1184,8 @@ export default class Node extends Vue {
   private getContentStyles() {
     return {
       background: this.backgroundColor,
-      outline: this.boundaryColor ? `2px solid ${this.boundaryColor}` : '',
+      outline: this.boundaryColor ? `1.25px solid ${this.boundaryColor}` : '',
+      boxShadow: this.boundaryColor ? `1.25px 1.25px 2.5px ${this.boundaryColor}` : '',
     };
   }
 }

@@ -103,7 +103,7 @@ export const nodeTypes: NodeType[] = [
     title: 'Attribute Filter',
     imgSrc: require('@/imgs/filter.svg'),
     constructor: AttributeFilter,
-    tags: 'subset attribute remove find pattern range sample',
+    tags: 'subset attribute remove find pattern range sample minimum maximum extremum',
     aliases: ['filter'],
   },
   {
@@ -157,7 +157,7 @@ export const nodeTypes: NodeType[] = [
     title: 'Aggregation',
     imgSrc: require('@/imgs/aggregation.svg'),
     constructor: Aggregation,
-    tags: 'aggregation sum average',
+    tags: 'aggregation sum average count minimum maximum',
     isBeta: true,
   },
 ];

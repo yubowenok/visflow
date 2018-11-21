@@ -1,12 +1,6 @@
 <!-- node-content -->
 <div class="display" v-if="dataset">
-  <div v-if="mode === 'sum'">
-    <span class="bold">Sum</span>
-  </div>
-  <div v-if="mode === 'average'">
-    <span class="bold">Average</span>
-  </div>
-  <div>of</div>
+  <div>{{ mode[0].toUpperCase() + mode.substr(1) }}</div>
   <div class="bold">{{ columnName }}</div>
   <div v-if="groupByColumn !== null">
     <span>per</span>
@@ -15,6 +9,7 @@
 </div>
 
 <!-- option-panel -->
+<div class="warn" v-if="warningMessage">{{ warningMessage }}</div>
 <div>
   <div>Mode</div>
   <form-select

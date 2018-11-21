@@ -6,7 +6,6 @@ import { injectNodeTemplate } from '../node';
 import AceModal from '../modals/ace-modal/ace-modal';
 import { SubsetNode } from '../subset-node';
 import TabularDataset, { TabularRows } from '@/data/tabular-dataset';
-import { generateCsv, parseCsv } from '@/data/parser';
 import { SubsetPackage } from '@/data/package';
 
 interface ScriptEditorSave {
@@ -132,7 +131,8 @@ export default class ScriptEditor extends SubsetNode {
     this.successMessage = this.warningMessage = this.executionError = '';
 
     try {
-      this.dataset = outputTable.columns.length ? parseCsv(generateCsv(outputTable.columns, outputTable.rows)) : null;
+      this.dataset = outputTable.columns.length ?
+        TabularDataset.fromColumnsAndRows(outputTable.columns, outputTable.rows) : null;
       if (!this.dataset) {
         this.updateNoDatasetOutput();
         this.warningMessage = 'output table is empty';
