@@ -15,7 +15,7 @@
   <form-select
     :options="aggregationModeOptions"
     v-model="mode"
-    @input="onSelectAggregationMode"
+    @change="onSelectAggregationMode"
     :clearable="false"
   ></form-select>
 </div>
@@ -25,7 +25,7 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="column"
-    @input="onSelectColumn"
+    @change="onSelectColumn"
   ></column-select>
 </div>
 <div>
@@ -33,7 +33,7 @@
   <column-select
     :columns="columnSelectOptions"
     v-model="groupByColumn"
-    @input="onSelectGroupByColumn"
+    @change="onSelectGroupByColumn"
     :clearable="true"
   ></column-select>
 </div>

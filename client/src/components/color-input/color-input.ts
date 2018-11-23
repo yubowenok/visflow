@@ -52,18 +52,18 @@ export default class ColorInput extends Vue {
   }
 
   private onTextInput() {
-    this.color = this.text;
-    this.save();
+    this.$emit('input', this.text, this.prevColor);
   }
 
   private onTextChange() {
-    this.$emit('change', this.text, this.prevColor);
+    this.color = this.text;
+    this.save();
   }
 
   private onPaletteInput(newColor: SelectedColor) {
     const hex = newColor.hex.toLowerCase();
     this.text = this.color = hex; // change event will be fired through onTextChange()
-    this.$emit('change', hex, this.prevColor);
+    this.$emit('input', hex, this.prevColor);
   }
 
   private globalClick(evt: MouseEvent) {
@@ -79,6 +79,7 @@ export default class ColorInput extends Vue {
   private save() {
     if (this.color !== this.prevColor) {
       this.$emit('input', this.color === '' ? null : this.color, this.prevColor);
+      this.$emit('change', this.color === '' ? null : this.color, this.prevColor);
       this.prevColor = this.color;
     }
   }

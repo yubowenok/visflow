@@ -7,6 +7,7 @@ import AceModal from '../modals/ace-modal/ace-modal';
 import { SubsetNode } from '../subset-node';
 import TabularDataset, { TabularRows } from '@/data/tabular-dataset';
 import { SubsetPackage } from '@/data/package';
+import * as history from './history';
 
 interface ScriptEditorSave {
   code: string;
@@ -63,6 +64,10 @@ export default class ScriptEditor extends SubsetNode {
 
   get imgSrc() {
     return require('@/imgs/script-editor.svg');
+  }
+
+  public setCode(code: string) {
+    this.code = code;
   }
 
   public setRenderingEnabled(value: boolean) {
@@ -164,7 +169,8 @@ export default class ScriptEditor extends SubsetNode {
   }
 
   private onCodeChange(code: string, prevCode: string) {
-    // TODO: prepare undo redo
+    this.commitHistory(history.editScriptEvent(this, code, prevCode));
+    this.setCode(code);
     this.runScript();
     this.propagate();
   }
@@ -178,11 +184,12 @@ export default class ScriptEditor extends SubsetNode {
   }
 
   private onToggleRenderingEnabled(value: boolean) {
+    this.commitHistory(history.toggleRenderingEnabledEvent(this, value));
     this.setRenderingEnabled(value);
-
   }
 
   private onToggleTransparentBackground(value: boolean) {
+    // TODO: move this to node setting?
     this.setTransparentBackground(value);
   }
 }

@@ -6,7 +6,9 @@
   >
   <template slot="content">
     <slot></slot>
-    <ace-editor v-model="code" @input="onCodeChange"></ace-editor>
+    <ace-editor v-model="code"
+      @input="onCodeInput"
+    ></ace-editor>
   </template>
   <template slot="footer">
     <div>

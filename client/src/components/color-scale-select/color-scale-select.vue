@@ -2,8 +2,8 @@
 <form-select
   v-model="scaleId"
   :options="colorScaleOptions"
-  @input="onScaleSelect"
   :clearable="clearable"
+  @change="onScaleSelect"
 >
   <template slot="option" slot-scope="{ option }">
     <div>

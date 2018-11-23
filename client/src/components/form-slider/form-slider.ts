@@ -19,35 +19,41 @@ export default class FormSlider extends Vue {
 
   private slideValue = 0;
   private prevSlideValue = 0;
-  private prevSaveSlideValue = 0;
+  private startSlideValue = 0;
 
   @Watch('value')
   private onValueChange(value: number) {
-    this.prevSaveSlideValue = this.prevSlideValue = this.slideValue = value;
+    this.startSlideValue = this.prevSlideValue = this.slideValue = value;
   }
 
   private created() {
-    this.prevSaveSlideValue = this.prevSlideValue = this.slideValue = this.value;
+    this.startSlideValue = this.prevSlideValue = this.slideValue = this.value;
   }
 
   private mounted() {
     // Use jquery to listen for slider "let-go" event.
-    $(this.$refs.range).on('change', this.save);
+    $(this.$refs.range)
+      .on('change', () => {
+        this.save();
+      })
+      .on('mousedown', () => {
+        this.startSlideValue = this.slideValue;
+      });
   }
 
   private onInput() {
     this.slideValue = +this.slideValue; // convert html input value (string) to number
     if (this.slideValue !== this.prevSlideValue) {
-      this.$emit('change', this.slideValue, this.prevSlideValue);
+      this.$emit('input', this.slideValue, this.prevSlideValue);
       this.prevSlideValue = this.slideValue;
     }
   }
 
   private save() {
     this.slideValue = +this.slideValue; // convert html input value (string) to number
-    if (this.slideValue !== this.prevSaveSlideValue) {
-      this.$emit('input', this.slideValue, this.prevSaveSlideValue);
-      this.prevSaveSlideValue = this.slideValue;
+    if (this.slideValue !== this.startSlideValue) {
+      this.$emit('change', this.slideValue, this.startSlideValue);
+      this.prevSlideValue = this.slideValue;
     }
   }
 

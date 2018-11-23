@@ -10,9 +10,6 @@ import BaseModal from '@/components/modals/base-modal/base-modal';
   },
 })
 export default class AceModal extends Vue {
-  @Prop()
-  private selectable!: boolean;
-
   // Ace editor modal manages the visible state in itself instead of the global store.
   private visible = false;
 
@@ -37,17 +34,20 @@ export default class AceModal extends Vue {
   }
 
   private save() {
-    this.$emit('change', this.code, this.codeBeforeSave);
-    this.codeBeforeSave = this.code;
+    if (this.code !== this.codeBeforeSave) {
+      this.$emit('change', this.code, this.codeBeforeSave);
+      this.codeBeforeSave = this.code;
+    }
     this.close();
   }
 
-  private onCodeChange(code: string, prevCode: string) {
-    this.code = code;
-    if (this.code !== this.prevCode) {
-      this.$emit('input', this.code, this.prevCode);
-      this.prevCode = this.code;
+  private onCodeInput(code: string, prevCode: string) {
+    if (code === this.prevCode) {
+      return;
     }
+    this.code = code;
+    this.$emit('input', this.code, this.prevCode);
+    this.prevCode = this.code;
   }
 
   private run() {
@@ -56,7 +56,7 @@ export default class AceModal extends Vue {
 
   @Watch('value')
   private onValueChange() {
-    this.code = this.value;
+    this.code = this.prevCode = this.value;
   }
 
   @Watch('visible')

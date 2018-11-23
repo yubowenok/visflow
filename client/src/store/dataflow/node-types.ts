@@ -16,7 +16,7 @@ import LineChart from '@/components/line-chart/line-chart';
 import Network from '@/components/network/network';
 import Map from '@/components/map/map';
 import Linker from '@/components/linker/linker';
-import LoopbackControl from '@/components/loopback-control/loopback-control';
+import DataReservoir from '@/components/data-reservoir/data-reservoir';
 import ScriptEditor from '@/components/script-editor/script-editor';
 import Aggregation from '@/components/aggregation/aggregation';
 import Player from '@/components/player/player';
@@ -128,11 +128,11 @@ export const nodeTypes: NodeType[] = [
     tags: 'link filter extract join',
   },
   {
-    id: 'loopback-control',
-    title: 'Loopback Control',
-    imgSrc: require('@/imgs/loopback-control.svg'),
-    constructor: LoopbackControl,
-    tags: 'loopback control',
+    id: 'data-reservoir',
+    title: 'Data Reservoir',
+    imgSrc: require('@/imgs/data-reservoir.svg'),
+    constructor: DataReservoir,
+    tags: 'data reservoir save loopback',
     isBeta: true,
   },
   {

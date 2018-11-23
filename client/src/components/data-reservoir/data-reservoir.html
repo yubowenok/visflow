@@ -1,0 +1,15 @@
+<!-- node-content -->
+<div class="display">
+  <b-button variant="outline-secondary" @click="releaseOutput" :disabled="!isOutputChanged"><i class="fas fa-forward"></i></b-button>
+</div>
+
+<!-- option-panel -->
+<div>
+  <div>Holding: {{ this.heldItems.length }}</div>
+  <div>Released: {{ this.items.length }}</div>
+</div>
+<hr class="divider">
+<div class="section">
+  <b-button variant="outline-secondary" @click="releaseOutput">Release</b-button>
+  <b-button variant="outline-secondary" @click="clearOutput">Clear</b-button>
+</div>

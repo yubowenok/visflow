@@ -13,17 +13,17 @@
 <div>
   <div>Latitude Column</div>
   <column-select
-    :columns="numericalColumnSelectOptions"
     v-model="latitudeColumn"
-    @input="onSelectLatitudeColumn"
+    :columns="numericalColumnSelectOptions"
+    @change="onSelectLatitudeColumn"
   ></column-select>
 </div>
 <div>
   <div>Longitude Column</div>
   <column-select
-    :columns="numericalColumnSelectOptions"
     v-model="longitudeColumn"
-    @input="onSelectLongitudeColumn"
+    :columns="numericalColumnSelectOptions"
+    @change="onSelectLongitudeColumn"
   ></column-select>
 </div>
 <div>

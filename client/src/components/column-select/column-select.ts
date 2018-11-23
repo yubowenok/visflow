@@ -39,6 +39,7 @@ export default class ColumnSelect extends Vue {
     if (this.selected === this.prevSelected) {
       return;
     }
+    this.$emit('change', this.selected, this.prevSelected);
     this.$emit('input', this.selected, this.prevSelected);
     this.prevSelected = this.selected;
   }

@@ -9,10 +9,9 @@
 <!-- option-panel -->
 <div>
   <div>Time Column</div>
-  <column-select
+  <column-select v-model="column"
     :columns="columnSelectOptions"
-    v-model="column"
-    @input="onSelectTimeColumn"
+    @change="onSelectTimeColumn"
   ></column-select>
 </div>
 <div class="panel-buttons">
@@ -21,18 +20,19 @@
   <b-button variant="outline-secondary" @click="stop">Stop <i class="fas fa-stop"></i></b-button>
   <div class="section">
     Frames Per Second
-    <form-input v-model.number="framesPerSecond"
+    <form-input v-model="framesPerSecond"
       @input="setFramesPerSecond"
       @change="onFramesPerSecondChange"
     ></form-input>
   </div>
   <div class="section">
     Progress {{ currentTimeIndex + 1 }} / {{ timeValues.length }}
-    <form-slider v-model.number="currentTimeIndex" :min="0" :max="this.timeValues.length - 1"
+    <form-slider v-model="currentTimeIndex"
+      :min="0" :max="this.timeValues.length - 1"
+      :disabled="isPlaying"
       @input="setCurrentTimeIndex"
-      @change="onCurrentTimeIndexChange"
-      :disabled="isPlaying">
-    </form-slider>
+      @change="onSliderCurrentTimeIndexChange"
+    ></form-slider>
   </div>
 
   <hr class="divider">

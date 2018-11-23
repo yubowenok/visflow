@@ -51,8 +51,8 @@ export default class Node extends Vue {
   // whether the propagation should start from this node
   public isPropagationSource = false;
   // For most nodes, the output is connected with its input.
-  // The only exception is a loopback control, of which the output only flashes connecting its input on user release.
-  // A loopback control does not introduce backward cycle.
+  // The only exception is a data reservoir, of which the output only flashes connecting its input on user release.
+  // A data reservoir does not introduce backward cycle.
   public isInputOutputDisconnected = false;
   // Beta feature allows data mutation.
   public isDataMutated = false;

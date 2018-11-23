@@ -13,18 +13,16 @@
 <!-- option-panel -->
 <div>
   <div>X Column</div>
-  <column-select
+  <column-select v-model="xColumn"
     :columns="columnSelectOptions"
-    v-model="xColumn"
-    @input="onSelectXColumn"
+    @change="onSelectXColumn"
   ></column-select>
 </div>
 <div>
   <div>Y Column</div>
-  <column-select
+  <column-select v-model="yColumn"
     :columns="columnSelectOptions"
-    v-model="yColumn"
-    @input="onSelectYColumn"
+    @change="onSelectYColumn"
   ></column-select>
 </div>
 <div>

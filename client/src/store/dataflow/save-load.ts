@@ -83,6 +83,7 @@ export const actions = {
     return new Promise((resolve, reject) => {
       axiosPost<string>('/diagram/save-as', {
         diagram: JSON.stringify(serializeDiagram(context.state)),
+        prevFilename: context.state.filename,
         diagramName,
       }).then(res => {
           const filename = res.data;

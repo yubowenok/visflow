@@ -3,7 +3,7 @@
  */
 import { Vue, Component, Prop, Watch } from 'vue-property-decorator';
 
-import ace from 'ace-builds';
+import ace, { Ace } from 'ace-builds';
 
 @Component
 export default class AceEditor extends Vue {
@@ -12,14 +12,26 @@ export default class AceEditor extends Vue {
 
   private text = '';
   private prevText = '';
+  private editor: Ace.Editor | null = null;
+
+  /**
+   * When editor.setValue is called, the editor would fire a change event with empty text first.
+   * We shall skip that change event.
+   */
+  private isSettingText = false;
 
   private created() {
     this.text = this.prevText = this.value;
   }
 
   @Watch('value')
-  private onValueChange(value: string) {
-    this.text = value;
+  private onValueChange() {
+    if (this.editor && this.editor.getValue() !== this.value) {
+      this.text = this.prevText = this.value;
+      this.isSettingText = true;
+      this.editor.setValue(this.text);
+      this.editor.clearSelection();
+    }
   }
 
   private mounted() {
@@ -32,9 +44,17 @@ export default class AceEditor extends Vue {
     editor.session.setValue(this.text);
 
     editor.on('change', () => {
+      if (this.isSettingText) {
+        this.isSettingText = false;
+        return;
+      }
       this.text = editor.getValue();
-      this.$emit('input', this.text, this.prevText);
-      this.prevText = this.text;
+      if (this.text !== this.prevText) {
+        this.$emit('input', this.text, this.prevText);
+        this.prevText = this.text;
+      }
     });
+
+    this.editor = editor;
   }
 }

@@ -65,7 +65,16 @@ const assignNodeId = (state: DataflowState): string => {
   }
 };
 
+const NODE_TYPE_COMPATIBILITY_MAP: { [type: string]: string } = {
+  'loopback-control': 'data-reservoir',
+};
+
 export const createNode = (state: DataflowState, options: CreateNodeOptions, nodeSave?: object): Node => {
+  // backward compatibility
+  if (options.type in NODE_TYPE_COMPATIBILITY_MAP) {
+    options.type = NODE_TYPE_COMPATIBILITY_MAP[options.type];
+  }
+
   const constructor = getConstructor(options.type) as VueConstructor;
   const id = assignNodeId(state);
   const dataOnCreate = getNodeDataOnCreate(options);

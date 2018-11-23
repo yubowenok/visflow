@@ -13,9 +13,9 @@
 <div>
   <div class="bold">Columns</div>
   <column-list
-    v-model="columns"
-    @input="onSelectColumns"
-    @change="setColumns"
+    :value="columns"
+    @input="setColumns"
+    @change="onSelectColumns"
     :columns="columnSelectOptions"
   ></column-list>
 </div>

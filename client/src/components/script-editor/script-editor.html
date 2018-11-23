@@ -15,7 +15,8 @@
   <b-form-checkbox v-model="transparentBackground" @input="onToggleTransparentBackground">Transparent Content</b-form-checkbox>
 </div>
 
-<ace-modal ref="aceModal" v-model="code"
+<ace-modal ref="aceModal"
+  v-model="code"
   @change="onCodeChange"
   @run="runScript"
 >

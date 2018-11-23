@@ -2,7 +2,6 @@
 import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
 
-import ns from '@/store/namespaces';
 import template from './aggregation.html';
 import { injectNodeTemplate } from '../node';
 import { SubsetNode } from '../subset-node';
@@ -11,12 +10,11 @@ import ColumnSelect from '@/components/column-select/column-select';
 import { SubsetInputPort } from '../port';
 import TabularDataset from '@/data/tabular-dataset';
 import { ValueType } from '@/data/parser';
-import { thresholdFreedmanDiaconis } from 'd3';
 import { valueComparator } from '@/data/util';
-import { INDEX_COLUMN } from '@/common/constants';
 import { SubsetPackage } from '@/data/package';
+import * as history from './history';
 
-enum AggregationMode {
+export enum AggregationMode {
   SUM = 'sum',
   AVERAGE = 'average',
   COUNT = 'count',
@@ -95,6 +93,11 @@ export default class Aggregation extends SubsetNode {
     this.aggregate();
   }
 
+  protected onDatasetChange() {
+    this.column = null;
+    this.groupByColumn = null;
+  }
+
   protected created() {
     this.serializationChain.push((): AggregationSave => ({
       mode: this.mode,
@@ -162,14 +165,17 @@ export default class Aggregation extends SubsetNode {
   }
 
   private onSelectAggregationMode(mode: AggregationMode, prevMode: AggregationMode) {
+    this.commitHistory(history.selectModeEvent(this, mode, prevMode));
     this.setMode(mode);
   }
 
   private onSelectColumn(column: number, prevColumn: number) {
+    this.commitHistory(history.selectColumnEvent(this, column, prevColumn));
     this.setColumn(column);
   }
 
   private onSelectGroupByColumn(column: number | null, prevColumn: number | null) {
+    this.commitHistory(history.selectGroupByColumnEvent(this, column, prevColumn));
     this.setGroupByColumn(column);
   }
 }
