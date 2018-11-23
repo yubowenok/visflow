@@ -20,6 +20,7 @@ const FAILED_DRAGS_BEFORE_HINT_INCREMENT = 2;
 
 interface VisualizationSave {
   selection: number[];
+  isTransitionDisabled: boolean;
 }
 
 @Component({
@@ -41,6 +42,11 @@ export default class Visualization extends SubsetNode {
 
   // Tracks the selected items before a selection.
   protected prevSelection: SubsetSelection = new SubsetSelection();
+
+  // Allows the user to disable transition.
+  // This is useful to display advancing time series where the primary key is not the table row index,
+  // and using row index as rendering elements' keys may result in incorrect transitions.
+  protected isTransitionDisabled = false;
 
   // Specifies an element that responds to dragging when alt-ed.
   protected ALT_DRAG_ELEMENT = '.content';
@@ -73,6 +79,9 @@ export default class Visualization extends SubsetNode {
   private isBrushing = false;
   private brushPoints: Point[] = [];
 
+  /**
+   * Allows the system to temporarily disable transition to correctly calculate sizes of screen elements.
+   */
   private isTransitionAllowed = true;
 
   @ns.modals.State('nodeModalVisible') private nodeModalVisible!: boolean;
@@ -225,6 +234,7 @@ export default class Visualization extends SubsetNode {
     this.serializationChain.push((): VisualizationSave => {
       return {
         selection: this.selection.serialize(),
+        isTransitionDisabled: this.isTransitionDisabled,
       };
     });
     this.deserializationChain.push(nodeSave => {
@@ -234,7 +244,11 @@ export default class Visualization extends SubsetNode {
   }
 
   protected isTransitionFeasible(numItems: number) {
-    return this.isTransitionAllowed && numItems < TRANSITION_ELEMENT_LIMIT;
+    if (numItems >= TRANSITION_ELEMENT_LIMIT) {
+      // Disable transition automatically when the number of elements is too large.
+      this.isTransitionDisabled = true;
+    }
+    return this.isTransitionAllowed && !this.isTransitionDisabled;
   }
 
   protected onResizeStart() {

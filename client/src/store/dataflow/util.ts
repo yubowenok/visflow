@@ -15,10 +15,11 @@ export const checkEdgeConnectivity = (source: Port, target: Port): { connectable
       reason: 'port already has maximum number of connections',
     };
   }
-  if (!source.isTypeMatched(target)) {
+  const typeMatched = source.isTypeMatched(target);
+  if (!typeMatched.matched) {
     return {
       connectable: false,
-      reason: 'port types do not match',
+      reason: typeMatched.reason,
     };
   }
 
@@ -32,10 +33,17 @@ export const checkEdgeConnectivity = (source: Port, target: Port): { connectable
 
   const visited: Set<Node> = new Set();
   visited.add(source.node);
+  if (source.node.isInputOutputDisconnected) {
+    // Special case: the source node has input and output disconnected.
+    return { connectable: true, reason: '' };
+  }
   // Use array as queue here. The flow graph is small so the efficiency should be ok.
   const queue: Node[] = [target.node];
   while (queue.length) {
     const from = queue.shift() as Node;
+    if (from.isInputOutputDisconnected) {
+      continue;
+    }
     const outputs = from.getOutputNodes();
     for (const to of outputs) {
       if (visited.has(to)) {

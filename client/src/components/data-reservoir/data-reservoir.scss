@@ -1,0 +1,26 @@
+@import '../../common/style/index';
+
+button {
+  width: 100%;
+}
+
+.display {
+  @extend %vertical-center;
+
+  button {
+    width: 80%;
+    height: 80%;
+
+    > i { // adjust position of "fas fa-backward"
+      position: relative;
+      left: -2px;
+      top: -1px;
+    }
+  }
+}
+
+.section {
+  button {
+    margin-top: $margin-size;
+  }
+}

@@ -31,6 +31,11 @@ export default class OutputPort extends Port {
     this.isUpdated = false;
   }
 
+  /** Consider output ports to trivially always have (at least empty) package. */
+  public hasPackage(): boolean {
+    return true;
+  }
+
   public getPackage(): Package {
     return this.package;
   }

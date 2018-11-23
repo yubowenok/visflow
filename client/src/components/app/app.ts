@@ -111,14 +111,14 @@ export default class App extends Vue {
   private onKeydown(evt: JQuery.Event) {
     // On initial mouse click, form-control keydown event (from modal) may be bubbled up without key value set.
     // The reason for !evt.key is unknown. We ignore event with falsy evt.key.
-    if (!evt.key || $(evt.target).is('input, *[contenteditable=true]')) {
+    if (!evt.key || $(evt.target).is('input, textarea, *[contenteditable=true]')) {
       return;
     }
     this.interactionKeydown(evt);
   }
 
   private onKeyup(evt: JQuery.Event) {
-    if (!evt.key || $(evt.target).is('input, *[contenteditable=true]')) {
+    if (!evt.key || $(evt.target).is('input, textarea, *[contenteditable=true]')) {
       return;
     }
     this.interactionKeyup(evt);

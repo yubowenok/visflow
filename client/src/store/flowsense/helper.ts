@@ -83,7 +83,9 @@ export const ejectSuggestionToken = (token: FlowsenseToken) => {
   const matchedNodeTypeMarker = token.text.match(/^r_node_type_(.*)$/);
   if (matchedNodeTypeMarker !== null) {
     const nodeTypes = utterance.getNodeTypeUtterances();
-    const category = nodeTypes[randomInt(nodeTypes.length) % nodeTypes.length];
+    // Always use scatterplot
+    // TODO: choose type based on action
+    const category = nodeTypes[1];
     token.categories.push(category);
     token.chosenCategory = token.categories.length - 1;
     token.text = category.displayText as string;

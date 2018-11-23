@@ -10,7 +10,7 @@ import { isAuthenticated } from '../config/passport';
 import { checkValidationResults, randomHash, checkDiagramExists } from '../common/util';
 import Diagram, { DiagramModel } from '../models/diagram';
 import { EXPERIMENT_USERNAME } from './user';
-
+import Log from '../models/log';
 
 const diagramApi = (app: Express) => {
   app.post('/api/diagram/list/', (req: Request, res: Response, next: NextFunction) => {
@@ -66,7 +66,9 @@ const diagramApi = (app: Express) => {
     check('diagramName', 'missing diagram name').exists().isLength({ min: 1 }),
     checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
+    const username = req.user.username;
     const filename = randomHash();
+    const prevFilename = req.body.prevFilename;
     const json = req.body.diagram;
     const dir = path.join(DATA_PATH, 'diagram/', req.user.username);
     if (!fs.existsSync(dir)) {
@@ -74,15 +76,34 @@ const diagramApi = (app: Express) => {
     }
     fs.writeFileSync(path.join(dir, filename), json);
     const diagram = new Diagram({
-      username: req.user.username,
+      username,
       filename,
       diagramName: req.body.diagramName,
     });
-    diagram.save((err: mongoose.Error) => {
-      if (err) {
-        return next(err);
+    diagram.save((diagramErr: mongoose.Error) => {
+      if (diagramErr) {
+        return next(diagramErr);
       }
-      res.json(filename);
+
+      // Search for the logs of the old file.
+      Log.findOne({ username, prevFilename }, (logErr, log) => {
+        if (logErr) {
+          return next(logErr);
+        }
+        const logs = !log ? [] : log.logs;
+        const logEntry = new Log({
+          username,
+          filename,
+          logs,
+        });
+        // Copy over the logs to the new file.
+        logEntry.save(logSaveErr => {
+          if (logSaveErr) {
+            return next(logSaveErr);
+          }
+          res.json(filename);
+        });
+      });
     });
   });
 

@@ -270,7 +270,7 @@ export default class ParallelCoordinates extends Visualization {
       .attr('transform', gTransform);
 
     if (this.areAxesLabelsVisible) {
-      let label = g.select('.label');
+      let label = g.select<SVGTextElement>('.label');
       const labelTransform = getTransform([0, this.svgHeight - LABEL_OFFSET_PX]);
       if (label.empty()) {
         label = g.append('text')

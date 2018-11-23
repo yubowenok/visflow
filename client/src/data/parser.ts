@@ -202,11 +202,7 @@ export const parseCsv = (csv: string): TabularDataset => {
   }
   for (const row of rows) {
     if (!(row instanceof Array) || row.length < columnNames.length) {
-      console.error('data is not valid CSV');
-      return new TabularDataset({
-        columns: [],
-        rows: [],
-      });
+      throw new Error('data is not valid CSV');
     }
   }
 
@@ -222,4 +218,15 @@ export const parseCsv = (csv: string): TabularDataset => {
     columns,
     rows,
   });
+};
+
+/**
+ * Produces a text CSV from a list of columns and rows.
+ */
+export const generateCsv = (columns: string[], rows: TabularRows): string => {
+  let result = columns.join(',') + '\n';
+  for (const row of rows) {
+    result += row.join(',') + '\n';
+  }
+  return result;
 };

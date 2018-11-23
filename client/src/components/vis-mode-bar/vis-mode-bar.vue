@@ -7,7 +7,7 @@
 </div>
 </template>
 
-<style scoped src="./vis-mode-bar.scss"></style>
+<style scoped lang="scss" src="./vis-mode-bar.scss"></style>
 
 <script lang="ts" src="./vis-mode-bar.ts">
 </script>

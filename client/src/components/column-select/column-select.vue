@@ -4,7 +4,7 @@
     v-model="selected"
     :clearable="clearable"
     :options="columns"
-    @input="onListSelect">
+    @change="onListSelect">
     <span slot="no-options">No Matching Columns</span>
   </form-select>
 </div>

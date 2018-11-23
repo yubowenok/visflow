@@ -1,12 +1,11 @@
 import { Module } from 'vuex';
-import { RootState } from '@/store';
-
-interface SystemOptionsState {
-  nodeLabelsVisible: boolean;
-}
+import store, { RootState } from '@/store';
+import { SystemOptionsState } from './types';
 
 const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
+  useBetaFeatures: true,
+  dataMutationBoundaryVisible: false,
 };
 
 const getters = {
@@ -24,6 +23,25 @@ const mutations = {
    */
   setState(state: SystemOptionsState, newState: SystemOptionsState) {
     Object.assign(state, newState);
+  },
+
+  /**
+   * Uses new types of nodes in beta from VisFlow extensions.
+   * This only affects options available in the UI.
+   * Created beta nodes will not be affected.
+   */
+  toggleBetaFeatures(state: SystemOptionsState) {
+    state.useBetaFeatures = !state.useBetaFeatures;
+  },
+
+  /**
+   * Displays the boundary at which data is mutated.
+   * This helps understand the separation between different subset flows.
+   */
+  toggleDataMutationBoundary(state: SystemOptionsState) {
+    state.dataMutationBoundaryVisible = !state.dataMutationBoundaryVisible;
+
+    store.commit('dataflow/toggleDataMutationBoundary', state.dataMutationBoundaryVisible);
   },
 };
 

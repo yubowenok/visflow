@@ -10,6 +10,7 @@ if (env.ENVIRONMENT === 'production') {
 }
 
 module.exports = {
+  baseUrl,
   configureWebpack: config => {
     const plugins = [
       new StyleLintPlugin(),
@@ -20,7 +21,7 @@ module.exports = {
       }),
     ];
     if (env.ENVIRONMENT === 'production') {
-      config.output.publicPath = baseUrl;
+      // config.output.publicPath = baseUrl;
     } else if (env.ENVIRONMENT === 'test') {
       // Test config writes here.
     }

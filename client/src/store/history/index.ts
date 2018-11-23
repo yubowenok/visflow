@@ -105,7 +105,6 @@ const actions = {
     if (!context.rootState.user.username || !context.rootState.dataflow.filename) {
       return Promise.reject('invalid username/filename');
     }
-    console.log(context.state.logs);
     axiosPost<void>('log/save', {
       username: context.rootState.user.username,
       filename: context.rootState.dataflow.filename,

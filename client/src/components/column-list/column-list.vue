@@ -2,9 +2,9 @@
 <div>
   <form-select id="select"
     multiple
-    v-model="selected"
+    :value="selected"
     :options="columns"
-    @input="onChildSelect">
+    @change="onChildSelect">
     <span slot="no-options">No Matching Columns</span>
   </form-select>
   <div class="controls">

@@ -1,5 +1,5 @@
 import { select, Selection } from 'd3-selection';
-import { axisTop, axisBottom, axisLeft, axisRight, Axis, AxisScale, AxisDomain } from 'd3-axis';
+import { axisTop, axisBottom, axisLeft, axisRight, Axis, AxisDomain } from 'd3-axis';
 import { Scale } from './scale';
 
 export interface DrawAxisOptions {
@@ -54,7 +54,7 @@ export const drawAxis = (svg: SVGElement, scale: Scale, options: DrawAxisOptions
     .call(axis);
 
   if (options.label) {
-    let svgLabel = svgAxes.select('.label');
+    let svgLabel = svgAxes.select<SVGTextElement>('.label');
     if (svgLabel.empty()) {
       svgLabel = svgAxes.append('text')
         .classed('label', true);

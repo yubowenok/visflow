@@ -13,6 +13,19 @@ export default class ConstantsInputPort extends InputPort {
     return this.getPackage() as ConstantsPackage;
   }
 
+  /**
+   * Constants port connections are only invalid when the port types mismatch.
+   */
+  public checkValidConnections(): boolean {
+    for (const port of this.getConnectedPorts()) {
+      if (!this.isTypeMatched(port)) {
+        this.hasInvalidConnection = true;
+        return false;
+      }
+    }
+    return true;
+  }
+
   protected tooltip(): string {
     if (!this.hasPackage()) {
       return 'no input';

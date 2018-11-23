@@ -1,15 +1,10 @@
 import { Express, Response, Request, NextFunction } from 'express';
 import { check  } from 'express-validator/check';
-import fs from 'fs-extra';
-import mongoose from 'mongoose';
-import path from 'path';
 import _ from 'lodash';
 
-import { DATA_PATH, DEMO_USERNAME } from '../config/env';
-import { isAuthenticated } from '../config/passport';
-import { checkValidationResults, randomHash, checkDiagramExists } from '../common/util';
-import Diagram, { DiagramModel } from '../models/diagram';
-import Log, { LogModel } from '../models/log';
+import { DEMO_USERNAME } from '../config/env';
+import { checkValidationResults, checkDiagramExists } from '../common/util';
+import Log from '../models/log';
 
 const logApi = (app: Express) => {
   app.post('/api/log/*', checkDiagramExists);

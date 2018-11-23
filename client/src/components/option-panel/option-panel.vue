@@ -27,7 +27,7 @@
 </div>
 </template>
 
-<style scoped src="./option-panel.scss"></style>
+<style scoped lang="scss" src="./option-panel.scss"></style>
 
 <script lang="ts" src="./option-panel.ts">
 </script>

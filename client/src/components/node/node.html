@@ -11,7 +11,8 @@
     </transition>
     <node-label ref="nodeLabel" v-if="isLabelVisible && nodeLabelsVisible" :text="label" :maxWidth="width"></node-label>
     <transition name="fade">
-      <div ref="content" v-show="isContentVisible" :class="['content', { disabled: !isContentVisible }]">
+      <div ref="content" v-show="isContentVisible" :class="['content', { disabled: !isContentVisible }]"
+        :style="getContentStyles()">
         <!-- node-content -->
       </div>
     </transition>
@@ -21,15 +22,15 @@
       </div>
     </transition>
     <div ref="background" class="background" :class="{ active: isActive, selected: isSelected }"></div>
-    <div class="input port-group" v-show="arePortsVisible">
+    <div :class="['port-group', 'input', inputPortGroupClass()]" v-show="arePortsVisible">
       <div v-for="(port, index) in inputPorts" :key="port.id" :id="'port-container-' + port.id"
-        class="input port-container"
+        class="port-container"
         :style="portStyles(port, index, true)"
       ></div>
     </div>
-    <div class="output port-group" v-show="arePortsVisible">
+    <div :class="['port-group', 'output', outputPortGroupClass()]" v-show="arePortsVisible">
       <div v-for="(port, index) in outputPorts" :key="port.id" :id="'port-container-' + port.id"
-        class="output port-container"
+        class="port-container"
         :style="portStyles(port, index, false)"
       ></div>
     </div>
