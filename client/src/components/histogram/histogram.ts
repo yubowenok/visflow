@@ -320,8 +320,8 @@ export default class Histogram extends Visualization {
     const pkg = this.inputPortMap.in.getSubsetPackage();
     this.bins = this.valueBins.map((valueBin, binIndex) => {
       // Get d3 histogram coordinates.
-      const x0 = valueBin.x0;
-      const x1 = valueBin.x1;
+      const x0 = valueBin.x0 as number;
+      const x1 = valueBin.x1 as number;
       const binLength = valueBin.length;
 
       const sorted = valueBin.map(item => ({

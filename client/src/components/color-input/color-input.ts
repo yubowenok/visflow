@@ -12,7 +12,6 @@ interface SelectedColor {
 @Component({
   components: {
     FormInput,
-    VueColor,
   },
   directives: {
     GlobalClick,

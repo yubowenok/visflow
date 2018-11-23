@@ -23,7 +23,7 @@
 </div>
 </template>
 
-<style src="./port.scss"></style>
+<style lang="scss" src="./port.scss"></style>
 
 <script lang="ts" src="./port.ts">
 </script>

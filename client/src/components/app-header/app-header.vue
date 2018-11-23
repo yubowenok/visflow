@@ -36,7 +36,7 @@
 
 </template>
 
-<style scoped src="./app-header.scss"></style>
+<style scoped lang="scss" src="./app-header.scss"></style>
 
 <script lang="ts" src="./app-header.ts">
 </script>

@@ -40,7 +40,7 @@
 </div>
 </template>
 
-<style scoped src="./file-upload.scss"></style>
+<style scoped lang="scss" src="./file-upload.scss"></style>
 
 <script lang="ts" src="./file-upload.ts">
 </script>

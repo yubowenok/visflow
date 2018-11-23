@@ -20,7 +20,7 @@
 </base-modal>
 </template>
 
-<style scoped src="./ace-modal.scss"></style>
+<style scoped lang="scss" src="./ace-modal.scss"></style>
 
 <script lang="ts" src="./ace-modal.ts">
 </script>

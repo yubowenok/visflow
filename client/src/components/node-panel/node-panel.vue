@@ -10,7 +10,7 @@
 </transition>
 </template>
 
-<style scoped src="./node-panel.scss"></style>
+<style scoped lang="scss" src="./node-panel.scss"></style>
 
 <script lang="ts" src="./node-panel.ts">
 </script>
