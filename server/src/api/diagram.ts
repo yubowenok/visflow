@@ -34,7 +34,11 @@ const diagramApi = (app: Express) => {
           if (!diagram) {
             return Diagram.findOne({ filename }).then(otherDiagram => {
               if (otherDiagram) {
-                return Promise.reject('no access');
+                if (req.user.isAdmin) {
+                  req.body.username = otherDiagram.username;
+                } else {
+                  return Promise.reject('no access');
+                }
               } else {
                 return Promise.reject('no such diagram');
               }
@@ -45,7 +49,7 @@ const diagramApi = (app: Express) => {
     checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
     const filename = req.body.filename;
-    const username = !req.user ? DEMO_USERNAME : req.user.username;
+    const username = req.body.username ? req.body.username : (!req.user ? DEMO_USERNAME : req.user.username);
     const dir = path.join(DATA_PATH, 'diagram/', username);
     if (!fs.existsSync(path.join(dir, filename))) {
       return res.status(500).send('[fatal] diagram fs inconsistency found; please contact admin');

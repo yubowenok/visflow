@@ -7,12 +7,14 @@ import * as helper from './helper';
 import { axiosPost, errorMessage } from '@/common/util';
 
 import { historyLog } from './util';
+import { State } from 'vuex-class';
 
 const initialState: HistoryState = {
   undoStack: [],
   redoStack: [],
   logs: [],
   currentLogIndex: -1,
+  isViewingLogs: false,
 };
 
 const getters = {
@@ -115,8 +117,11 @@ const actions = {
   },
 
   loadLog(context: ActionContext<HistoryState, RootState>): Promise<HistoryLog[]> {
-    if (!context.rootState.user.username || !context.rootState.dataflow.filename) {
-      return Promise.reject('invalid username/filename');
+    if (!context.rootState.user.username) {
+      return Promise.reject('must login to view logs');
+    }
+    if (!context.rootState.dataflow.filename) {
+      return Promise.reject('must have specified a diagram to view logs');
     }
     return new Promise<HistoryLog[]>((resolve, reject) => {
       axiosPost<HistoryLog[]>('log/load', {
@@ -125,6 +130,10 @@ const actions = {
       }).then(res => {
           resolve(res.data);
           context.commit('setLogs', res.data);
+          // When diagram is loaded the path is set to 'diagram/{filename}'.
+          // Here we reset it to 'diagram/{filename}/log'.
+          context.commit('router/replace', context.rootGetters['router/currentPath'] + '/log', { root: true });
+          context.state.isViewingLogs = true;
         })
         .catch(err => reject(errorMessage(err)));
     });

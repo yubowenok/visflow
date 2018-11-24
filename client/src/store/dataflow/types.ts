@@ -15,6 +15,8 @@ export interface DataflowState {
   isDeserializing: boolean;
 
   lastDiagramList: DiagramInfo[] | null;
+
+  autoSaveTimer: NodeJS.Timer | null;
 }
 
 export interface NodeType {

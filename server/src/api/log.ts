@@ -48,12 +48,12 @@ const logApi = (app: Express) => {
   app.post('/api/log/load', [
     checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user.isAdmin) {
+    if (!req.user || !req.user.isAdmin) {
       return res.status(401).send('not authorized to view log');
     }
     const username = req.user.username;
     const filename = req.body.filename;
-    Log.findOne({ username, filename }, (err, log) => {
+    Log.findOne({ filename }, (err, log) => {
       if (err) {
         return next(err);
       }

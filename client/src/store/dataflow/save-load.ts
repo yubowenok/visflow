@@ -14,6 +14,7 @@ import {
 import { DiagramSave, DiagramInfo } from '@/store/dataflow/types';
 import { HistoryLogType } from '@/store/history/types';
 
+const AUTO_SAVE_INTERVAL_MS = 30000;
 
 export const mutations = {
   setDiagramName(state: DataflowState, diagramName: string) {
@@ -32,6 +33,26 @@ export const mutations = {
     state.filename = '';
     state.diagramName = '';
   },
+
+  /**
+   * Enables auto save from the time this is called.
+   */
+  startAutoSave(state: DataflowState) {
+    mutations.stopAutoSave(state);
+
+    state.autoSaveTimer = setInterval(() => {
+      store.dispatch('dataflow/autoSave');
+    }, AUTO_SAVE_INTERVAL_MS);
+  },
+
+  /**
+   * Clears the auto save interval.
+   */
+  stopAutoSave(state: DataflowState) {
+    if (state.autoSaveTimer !== null) {
+      clearInterval(state.autoSaveTimer);
+    }
+  },
 };
 
 export const actions = {
@@ -45,6 +66,10 @@ export const actions = {
   },
 
   saveDiagram(context: ActionContext<DataflowState, RootState>) {
+    if (store.state.history.isViewingLogs) {
+      console.error('no diagram changes allowed when viewing logs');
+      return;
+    }
     if (context.state.filename === '') {
       // The diagram not yet has a filename assigned.
       // This is the first time to save the diagram and it should use "saveAs" instead.
@@ -105,6 +130,7 @@ export const actions = {
     return new Promise((resolve, reject) => {
       axiosPost<DiagramSave>('/diagram/load', { filename })
         .then(res => {
+          resetDataflow(true);
           deserializeDiagram(res.data);
           context.commit('setDiagramName', res.data.diagramName);
           context.commit('setFilename', filename);
@@ -152,6 +178,32 @@ export const actions = {
           resolve();
         })
         .catch(err => reject(errorMessage(err)));
+    });
+  },
+
+  /**
+   * Auto saves the diagram without a log entry.
+   */
+  autoSave(context: ActionContext<DataflowState, RootState>): Promise<void> {
+    if (store.state.history.isViewingLogs) {
+      return Promise.reject('no diagram changes allowed when viewing logs');
+    }
+    if (context.state.filename === '') {
+      return Promise.reject('attempted to auto save when there is no saved diagram');
+    }
+    return new Promise((resolve, reject) => {
+      axiosPost<string>('/diagram/save', {
+        diagram: JSON.stringify(serializeDiagram(context.state)),
+        filename: context.state.filename,
+      }).then(() => {
+          store.dispatch('history/sendLog')
+            .then(() => {
+              store.commit('history/clearLogs');
+              console.log('diagram auto saved');
+              resolve();
+            });
+        })
+        .catch(err => reject(err));
     });
   },
 };

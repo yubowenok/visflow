@@ -12,6 +12,15 @@ const initialState: RouterState = {
   lastUrl: '/',
 };
 
+const getters = {
+  currentPath(state: RouterState): string {
+    if (!state.router) {
+      return '';
+    }
+    return state.router.currentRoute.path;
+  },
+};
+
 const mutations = {
   setRouter(state: RouterState, router_: VueRouter) {
     state.router = router_;
@@ -28,6 +37,7 @@ const mutations = {
 const router: Module<RouterState, RootState> = {
   namespaced: true,
   state: initialState,
+  getters,
   mutations,
 };
 

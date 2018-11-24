@@ -27,19 +27,17 @@ export const DEFAULT_HASH_LENGTH = 40;
 
 export const checkDiagramExists = check('filename', 'no such diagram')
   .exists().isLength({ min: DEFAULT_HASH_LENGTH, max: DEFAULT_HASH_LENGTH }).withMessage('invalid filename')
-  .custom((filename, { req }) => {
-    // Assumes isAuthenticated() has been checked already and req.user is set.
-    const file = path.join(DATA_PATH, 'diagram/', req.user.username, filename);
-    if (!fs.existsSync(file)) {
-      return false;
-    }
-    return Diagram.findOne({ filename, username: req.user.username }).then(diagram => {
+  .custom(filename => {
+    return Diagram.findOne({ filename }).then(diagram => {
       if (!diagram) {
+        return Promise.reject();
+      }
+      const file = path.join(DATA_PATH, 'diagram/', diagram.username, filename);
+      if (!fs.existsSync(file)) {
         return Promise.reject();
       }
     });
   });
-
 
 export const randomHash = (length: number = DEFAULT_HASH_LENGTH): string => {
   return sha1('' + Math.random()).toString().substr(0, length);
