@@ -7,6 +7,8 @@ let baseUrl = env.BASE_URL;
 if (env.ENVIRONMENT === 'production') {
   baseUrl = baseUrl || '/';
   console.log(`BASE_URL = "${baseUrl}"`);
+} else {
+  baseUrl = '/';
 }
 
 module.exports = {

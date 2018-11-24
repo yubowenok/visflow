@@ -16,6 +16,7 @@
     <i class="fas placeholder"></i>
     Label all nodes
   </b-dropdown-item>
+  <template v-if="!isInExperiment">
   <b-dropdown-divider></b-dropdown-divider>
   <b-dropdown-header>Beta Features</b-dropdown-header>
   <b-dropdown-item @click="toggleBetaFeatures">
@@ -26,6 +27,7 @@
     <i :class="['far fa-sm', dataMutationBoundaryVisible ? 'fa-check-square' :  'fa-square']"></i>
     Data Mutation Boundary
   </b-dropdown-item>
+  </template>
 </b-nav-item-dropdown>
 </template>
 

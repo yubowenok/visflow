@@ -4,7 +4,7 @@ import { SystemOptionsState } from './types';
 
 const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
-  useBetaFeatures: true,
+  useBetaFeatures: false,
   dataMutationBoundaryVisible: false,
 };
 

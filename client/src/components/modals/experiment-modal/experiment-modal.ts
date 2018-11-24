@@ -30,11 +30,18 @@ export default class ExperimentModal extends Vue {
     task1: 'Task 1',
     task2: 'Task 2',
     task3: 'Task 3',
+    survey: 'Feedback Survey',
     end: 'End of Study',
+    finish: 'Study Completed',
   };
 
   get sessionLink(): string {
     return window.location.protocol + '//' + window.location.host + '/experiment/' + this.experimentFilename;
+  }
+
+  get surveyLink(): string {
+    return 'https://docs.google.com/forms/d/e/1FAIpQLSd7axi-vj-7bt_SUwpZObU5G3sI0HQUOARd4LFZc6DxWeDqzg/' +
+      `viewform?usp=pp_url&entry.1022855007=${this.experimentFilename}`;
   }
 
   get stepIndex(): number {
@@ -42,7 +49,7 @@ export default class ExperimentModal extends Vue {
   }
 
   get currentStep(): string {
-    return EXPERIMENT_STEPS[this.stepIndex];
+    return this.stepIndex === -1 ? 'finish' : EXPERIMENT_STEPS[this.stepIndex];
   }
 
   private next() {

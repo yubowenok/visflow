@@ -44,6 +44,11 @@ const mutations = {
     state.logs = [];
   },
 
+  // Clears all the logs. Called after saving the diagram to avoid double-appending logs.
+  clearLogs(state: HistoryState) {
+    state.logs = [];
+  },
+
   /**
    * Undoes the latest k events.
    */
@@ -94,8 +99,10 @@ const mutations = {
   /**
    * Adds a log entry without going through history event commit.
    * This is used to track diagram save/load operations.
+   * This also tracks the experiment steps.
    */
   addLog(state: HistoryState, log: HistoryLog) {
+    log.timestamp = new Date().getTime();
     state.logs.push(log);
   },
 };

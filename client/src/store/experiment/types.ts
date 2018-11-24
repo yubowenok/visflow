@@ -20,5 +20,6 @@ export const EXPERIMENT_STEPS = [
   'task1',
   'task2',
   'task3',
+  'survey',
   'end',
 ];

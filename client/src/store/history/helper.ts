@@ -167,7 +167,7 @@ export const redoLog = (state: HistoryState) => {
       commitEvent(state, log.data as HistoryEvent);
       break;
     case HistoryLogType.CLEAR_DIAGRAM:
-      // TODO
+      resetDataflow(false);
       break;
     case HistoryLogType.SAVE_DIAGRAM:
     case HistoryLogType.LOAD_DIAGRAM:

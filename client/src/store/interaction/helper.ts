@@ -63,7 +63,9 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
       store.commit('modals/openLoadDiagramModal');
       break;
     case state.osCtrlKey + '+n':
-      store.commit('modals/openNewDiagramModal');
+      if (!store.getters['experiment/isInExperiment']) { // disable new diagram when in experiment
+        store.commit('modals/openNewDiagramModal');
+      }
       break;
     case state.osCtrlKey + '+z':
       store.commit('history/undo');

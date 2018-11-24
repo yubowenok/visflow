@@ -18,4 +18,6 @@ export default class OptionsMenu extends Vue {
 
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
   @ns.dataflow.Mutation('labelAllNodes') private labelAllNodes!: () => void;
+
+  @ns.experiment.State('isInExperiment') private isInExperiment!: boolean;
 }

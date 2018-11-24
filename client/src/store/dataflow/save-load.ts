@@ -14,6 +14,7 @@ import {
 import { DiagramSave, DiagramInfo } from '@/store/dataflow/types';
 import { HistoryLogType } from '@/store/history/types';
 
+const AUTO_SAVE_INTERVAL_MS = 30000;
 
 export const mutations = {
   setDiagramName(state: DataflowState, diagramName: string) {
@@ -32,6 +33,26 @@ export const mutations = {
     state.filename = '';
     state.diagramName = '';
   },
+
+  /**
+   * Enables auto save from the time this is called.
+   */
+  startAutoSave(state: DataflowState) {
+    mutations.stopAutoSave(state);
+
+    state.autoSaveTimer = setInterval(() => {
+      store.dispatch('dataflow/autoSave');
+    }, AUTO_SAVE_INTERVAL_MS);
+  },
+
+  /**
+   * Clears the auto save interval.
+   */
+  stopAutoSave(state: DataflowState) {
+    if (state.autoSaveTimer !== null) {
+      clearInterval(state.autoSaveTimer);
+    }
+  },
 };
 
 export const actions = {
@@ -39,9 +60,15 @@ export const actions = {
    * Creates a new diagram from the menu. This resets the diagram and its filename url.
    */
   newDiagram(context: ActionContext<DataflowState, RootState>) {
-    resetDataflow(true);
-    store.commit('history/clear');
-    store.commit('router/replace', '/');
+    if (context.rootGetters['experiment/isInExperiment']) {
+      // Clears the current diagram. Experiment only.
+      resetDataflow(false);
+      store.commit('history/addLog', { type: HistoryLogType.CLEAR_DIAGRAM });
+    } else {
+      resetDataflow(true);
+      store.commit('history/clear');
+      store.commit('router/replace', '/');
+    }
   },
 
   saveDiagram(context: ActionContext<DataflowState, RootState>) {
@@ -67,6 +94,7 @@ export const actions = {
         store.commit('history/addLog', { type: HistoryLogType.SAVE_DIAGRAM });
         store.dispatch('history/sendLog')
           .then(() => {
+            store.commit('history/clearLogs');
             showSystemMessage(store, `Diagram saved: ${context.state.diagramName}`, 'success');
           });
       })
@@ -94,6 +122,7 @@ export const actions = {
           store.commit('history/addLog', { type: HistoryLogType.SAVE_DIAGRAM });
           store.dispatch('history/sendLog')
             .then(() => {
+              store.commit('history/clearLogs');
               showSystemMessage(store, `Diagram saved: ${context.state.diagramName}`, 'success');
             });
         })
@@ -153,6 +182,29 @@ export const actions = {
           resolve();
         })
         .catch(err => reject(errorMessage(err)));
+    });
+  },
+
+  /**
+   * Auto saves the diagram without a log entry.
+   */
+  autoSave(context: ActionContext<DataflowState, RootState>): Promise<void> {
+    if (context.state.filename === '') {
+      return Promise.reject('attempted to auto save when there is no saved diagram');
+    }
+    return new Promise((resolve, reject) => {
+      axiosPost<string>('/diagram/save', {
+        diagram: JSON.stringify(serializeDiagram(context.state)),
+        filename: context.state.filename,
+      }).then(() => {
+          store.dispatch('history/sendLog')
+            .then(() => {
+              store.commit('history/clearLogs');
+              console.log('diagram auto saved');
+              resolve();
+            });
+        })
+        .catch(err => reject(err));
     });
   },
 };

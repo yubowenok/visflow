@@ -27,6 +27,9 @@ const mutations = {
   setInfo(state: ExperimentState, info: ExperimentInfo) {
     state.diagramName = info.diagramName;
     state.filename = info.filename;
+
+    store.commit('dataflow/setDiagramName', info.diagramName);
+    store.commit('dataflow/setFilename', info.filename);
   },
 
   setStep(state: ExperimentState, step: string) {
@@ -37,9 +40,25 @@ const mutations = {
    * Proceeds to the next step of the experiment.
    */
   next(state: ExperimentState) {
+    if (state.step === 'finish') {
+      // This study has already been completed. Redirect to an empty page.
+      store.commit('router/reload', '/');
+      return;
+    }
     const stepIndex = getters.stepIndex(state);
     if (stepIndex === EXPERIMENT_STEPS.length - 1) {
-      store.commit('router/reload', '/');
+      // The experiment has finished.
+      store.commit('history/addLog', {
+        type: HistoryLogType.EXPERIMENT_STEP,
+        data: {
+          step: 'finish',
+          message: 'finish',
+        },
+      });
+      store.dispatch('dataflow/autoSave')
+        .then(() => {
+          store.commit('router/reload', '/');
+        });
       return;
     }
     const oldStep = state.step;
@@ -54,6 +73,7 @@ const mutations = {
     if (oldStep === 'consentForm' && !state.filename) {
       store.dispatch('experiment/start');
     }
+    store.dispatch('dataflow/autoSave');
     mutations.setStep(state, newStep);
   },
 
@@ -88,6 +108,9 @@ const actions = {
         .then(res => {
           context.commit('setInfo', res.data);
           context.commit('router/replace', `/experiment/${res.data.filename}`, { root: true });
+
+          context.commit('dataflow/startAutoSave', undefined, { root: true });
+
           resolve(res.data);
         })
         .catch(err => reject(errorMessage(err)));
@@ -114,11 +137,14 @@ const actions = {
               context.commit('dataflow/setDiagramName', info.diagramName, { root: true });
               context.commit('dataflow/setFilename', info.filename, { root: true });
 
-              console.log(store.state.dataflow);
-
               resetDataflow(false);
-              deserializeDiagram(context.rootState.dataflow, diagramData);
+              deserializeDiagram(diagramData);
               showSystemMessage(store, `Diagram loaded: ${diagramData.diagramName}`, 'success');
+
+              if (info.step !== 'finish') {
+                context.commit('dataflow/startAutoSave', undefined, { root: true });
+              }
+
               resolve(diagramData.diagramName);
             });
         });

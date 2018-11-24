@@ -62,6 +62,8 @@ const experimentApi = (app: Express) => {
       }
       let step = 'consentForm';
       if (log) {
+        // If there are logs for this experiment, find the latest 'experiment-step' event to identify the last step
+        // where the user was on.
         for (const logEntry of log.logs) {
           if (logEntry.type === 'experiment-step') {
             step = logEntry.data.step;

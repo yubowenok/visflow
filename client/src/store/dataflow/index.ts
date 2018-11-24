@@ -38,6 +38,7 @@ export const getInitialState = (): DataflowState => ({
   diagramName: '',
   isDeserializing: false,
   lastDiagramList: null,
+  autoSaveTimer: null,
 });
 
 export const initialState: DataflowState = getInitialState();

@@ -1,7 +1,8 @@
 <template>
 <b-nav-item-dropdown text="Diagram">
   <b-dropdown-item @click="openNewDiagramModal">
-    <i class="fas fa-sm fa-file"></i>New
+    <i class="fas fa-sm fa-file"></i>
+    {{ isInExperiment ? 'Clear' : 'New' }}
     <span class="shortcut">{{osCtrlKeyChar}}N</span>
   </b-dropdown-item>
   <b-dropdown-item @click="saveDiagram" :disabled="!username">
