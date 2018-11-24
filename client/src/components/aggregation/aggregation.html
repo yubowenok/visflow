@@ -1,0 +1,39 @@
+<!-- node-content -->
+<div class="display" v-if="dataset">
+  <div>{{ mode[0].toUpperCase() + mode.substr(1) }}</div>
+  <div class="bold">{{ columnName }}</div>
+  <div v-if="groupByColumn !== null">
+    <span>per</span>
+    <span class="bold">{{ groupByColumnName }}</span>
+  </div>
+</div>
+
+<!-- option-panel -->
+<div class="warn" v-if="warningMessage">{{ warningMessage }}</div>
+<div>
+  <div>Mode</div>
+  <form-select
+    :options="aggregationModeOptions"
+    v-model="mode"
+    @change="onSelectAggregationMode"
+    :clearable="false"
+  ></form-select>
+</div>
+
+<div>
+  <div>Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="column"
+    @change="onSelectColumn"
+  ></column-select>
+</div>
+<div>
+  <div>Group By Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="groupByColumn"
+    @change="onSelectGroupByColumn"
+    :clearable="true"
+  ></column-select>
+</div>

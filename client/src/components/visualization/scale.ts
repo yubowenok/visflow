@@ -40,7 +40,7 @@ export type AnyScale = ScaleContinuousNumeric<number, number>;
 export const getScale = (type: ValueType, domain: Array<number | string>, range: number[],
                          options?: GetScaleOptions): Scale => {
   options = options || {};
-  const domainMargin = options.domainMargin || .1;
+  const domainMargin = options.domainMargin !== undefined ? options.domainMargin : .1;
   if (options.rangeMargin) {
     const span = range[1] - range[0];
     range[0] -= span * options.rangeMargin;

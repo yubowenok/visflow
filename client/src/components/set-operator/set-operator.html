@@ -14,10 +14,9 @@
 <!-- option-panel -->
 <div>
   Mode
-  <form-select
-    v-model="mode"
+  <form-select v-model="mode"
     :options="modeOptions"
-    @input="onSelectMode"
     :clearable="false"
+    @change="onSelectMode"
   ></form-select>
 </div>

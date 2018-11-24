@@ -10,7 +10,7 @@
 </div>
 </template>
 
-<style scoped src="./dataflow-canvas.scss"></style>
+<style scoped lang="scss" src="./dataflow-canvas.scss"></style>
 
 <script lang="ts" src="./dataflow-canvas.ts">
 </script>

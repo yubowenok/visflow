@@ -4,3 +4,9 @@
   margin-top: $margin-size-sm;
   width: 90%; // accomodate space for the clear button
 }
+
+.dropdown-menu {
+  .color-scale-display {
+    width: 100%;
+  }
+}

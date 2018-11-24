@@ -6,6 +6,7 @@ import { InteractionState } from '@/store/interaction/types';
 import { UserState } from '@/store/user/types';
 import { HistoryState } from '@/store/history/types';
 import { FlowsenseState } from '@/store/flowsense/types';
+import { SystemOptionsState } from '@/store/system-options/types';
 
 export interface RootState {
   dataflow: DataflowState;
@@ -14,6 +15,7 @@ export interface RootState {
   history: HistoryState;
   flowsense: FlowsenseState;
   dataset: DatasetState;
+  systemOptions: SystemOptionsState;
 }
 
 export type RootStore = Store<RootState>;

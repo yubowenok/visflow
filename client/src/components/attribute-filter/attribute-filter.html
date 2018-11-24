@@ -27,8 +27,8 @@
   <form-select
     :options="filterTypeOptions"
     v-model="filterType"
-    @input="onSelectFilterType"
     :clearable="false"
+    @change="onSelectFilterType"
   ></form-select>
 </div>
 <div>
@@ -36,8 +36,8 @@
   <column-select
     :columns="columnSelectOptionsWithIndex"
     v-model="column"
-    @input="onSelectColumn"
     :clearable="true"
+    @change="onSelectColumn"
   ></column-select>
 </div>
 <hr class="divider"/>
@@ -55,10 +55,10 @@
   <div class="subsection">
     Mode
     <form-select id="pattern-match-mode"
-      :options="patternMatchModeOptions"
       v-model="patternParams.mode"
+      :options="patternMatchModeOptions"
       :clearable="false"
-      @input="onSelectPatternMatchMode"
+      @change="onSelectPatternMatchMode"
     ></form-select>
   </div>
   <div class="subsection" v-if="patternParams.mode !== 'regex'">
@@ -90,7 +90,7 @@
       v-model="extremumCriterion"
       :clearable="false"
       :options="extremumCriterionOptions"
-      @input="onSelectExtremumCriterion"
+      @change="onSelectExtremumCriterion"
     ></form-select>
   </div>
   <div class="subsection">
@@ -99,7 +99,7 @@
       v-model="amountType"
       :clearable="false"
       :options="amountTypeOptions"
-      @input="onSelectAmountType"
+      @change="onSelectAmountType"
     >
     </form-select>
   </div>
@@ -115,7 +115,7 @@
       v-model="groupByColumn"
       :clearable="true"
       :columns="columnSelectOptions"
-      @input="onSelectGroupByColumn"
+      @change="onSelectGroupByColumn"
     ></column-select>
   </div>
   <div id="on-distinct-values" class="subsection">

@@ -54,6 +54,7 @@ export default class FormSelect extends Vue {
       this.childSelected = this.childSelectedOption();
       if (noEvent !== true && !_.isEqual(this.selected, this.prevSelected)) {
         this.$emit('input', this.selected, this.prevSelected);
+        this.$emit('change', this.selected, this.prevSelected);
       }
       this.prevSelected = this.selected;
     }
@@ -80,7 +81,7 @@ export default class FormSelect extends Vue {
    * Handles item selection from the child <v-select>
    */
   private onListSelect(option: SelectOption | SelectOption[]) {
-    if (option === null && !this.clearable || (option as SelectOptionObject).disabled) {
+    if ((option === null && !this.clearable) || (option !== null && (option as SelectOptionObject).disabled)) {
       // Set it back to the original value.
       // Must use next tick otherwise this happens before child clears the chosen UI option.
       this.$nextTick(() => this.childSelected = this.childSelectedOption());

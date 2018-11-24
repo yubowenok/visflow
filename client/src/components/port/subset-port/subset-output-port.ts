@@ -7,6 +7,7 @@ import { SubsetPackage } from '@/data/package';
 @Component
 export default class SubsetOutputPort extends mixins(OutputPort, SubsetPort) {
   protected isSelection = false;
+  protected reverseOutputDirection = false;
 
   /** Clears package items but retains the dataset. */
   public clearPackageItems() {
@@ -28,6 +29,7 @@ export default class SubsetOutputPort extends mixins(OutputPort, SubsetPort) {
     if (this.isSelection) {
       return 'far fa-square';
     }
-    return this.maxConnections === 1 ? 'fas fa-circle' : 'fas fa-caret-right';
+    return this.maxConnections === 1 ? 'fas fa-circle' :
+      (!this.reverseOutputDirection ? 'fas fa-caret-right' : 'fas fa-caret-left');
   }
 }

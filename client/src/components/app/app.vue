@@ -31,7 +31,7 @@
 </template>
 
 <!-- App styles are not scoped because they may affect body and html -->
-<style src="./app.scss"></style>
+<style lang="scss" src="./app.scss"></style>
 
 <!-- [Note!] 'lang="ts"' is required for jest test to properly transform vue component with vue-property-decorator. -->
 <script lang="ts" src="./app.ts">

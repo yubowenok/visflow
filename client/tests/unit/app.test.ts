@@ -7,7 +7,9 @@
  * We will wait for a support of separation of concerns:
  *     https://github.com/vuejs/vue-cli/issues/1576
  */
-import { shallowMount } from '@vue/test-utils';
+import VueTestUtils, { shallowMount } from '@vue/test-utils';
+
+VueTestUtils.config.logModifiedComponents = false;
 
 /**
  * [Note!] Must use *.vue instead of *.ts.

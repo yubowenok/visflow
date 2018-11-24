@@ -16,7 +16,7 @@
 </div>
 </template>
 
-<style scoped src="./user-bar.scss"></style>
+<style scoped lang="scss" src="./user-bar.scss"></style>
 
 <script lang="ts" src="./user-bar.ts">
 </script>

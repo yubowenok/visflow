@@ -50,6 +50,12 @@ export default class Node extends Vue {
   public isSelected = false;
   // whether the propagation should start from this node
   public isPropagationSource = false;
+  // For most nodes, the output is connected with its input.
+  // The only exception is a data reservoir, of which the output only flashes connecting its input on user release.
+  // A data reservoir does not introduce backward cycle.
+  public isInputOutputDisconnected = false;
+  // Beta feature allows data mutation.
+  public isDataMutated = false;
 
   public get isVisible(): boolean {
     return !this.isSystemInVisMode || this.isInVisMode;
@@ -68,8 +74,14 @@ export default class Node extends Vue {
   protected MIN_HEIGHT = 30;
   protected RESIZABLE = false;
   protected ENLARGEABLE = false; // if the node can be enlarged to fullscreen modal
+  protected REVERSE_INPUT_OUTPUT_PORTS = false; // if the input is on the right and the output is on the left
 
   protected label = '';
+
+  // background color of the content div
+  protected backgroundColor = 'white';
+  // boundary color of the node, used to show data mutation boundaries
+  protected boundaryColor = 'none';
 
   // ports: input/output port id's must be unique
   protected inputPorts: InputPort[] = [];
@@ -402,10 +414,10 @@ export default class Node extends Vue {
 
   /**
    * Starts a node update by first checking if the update is necessary.
-   * An update is necessary when some input port has changed package.
+   * An update is necessary when some input port has changed package and all connections are valid.
    */
   public startUpdate() {
-    if (this.isUpdateNecessary()) {
+    if (this.isUpdateNecessary() && this.areConnectionsValid()) {
       this.update();
     }
   }
@@ -494,6 +506,14 @@ export default class Node extends Vue {
     // 1 - 1 / (1 + e^-(d/gamma - beta))
     const dFactor = 1.0 - 1.0 / (1 + Math.exp(-(d - FOCUS_BETA)));
     return this.activeness + FOCUS_ALPHA * dFactor;
+  }
+
+  /**
+   * Sets the boundary color of this node.
+   * This is used to highlight data mutation boundaries.
+   */
+  public setBoundaryColor(color: string) {
+    this.boundaryColor = color;
   }
 
   /**
@@ -602,6 +622,15 @@ export default class Node extends Vue {
       }
     }
     return false;
+  }
+
+  protected areConnectionsValid(): boolean {
+    for (const port of this.inputPorts) {
+      if (!port.checkValidConnections()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -1125,9 +1154,16 @@ export default class Node extends Vue {
     const length = isInputPort ? this.inputPorts.length : this.outputPorts.length;
     const totalHeight = length * PORT_SIZE_PX + (length - 1) * PORT_MARGIN_PX;
     return {
-      left: (isInputPort ? -PORT_SIZE_PX : this.width) + 'px',
+      left: (isInputPort !== this.REVERSE_INPUT_OUTPUT_PORTS ? -PORT_SIZE_PX : this.width) + 'px',
       top: (this.height / 2 - totalHeight / 2 + index * (PORT_SIZE_PX + PORT_MARGIN_PX)) + 'px',
     };
+  }
+
+  private inputPortGroupClass(): string {
+    return !this.REVERSE_INPUT_OUTPUT_PORTS ? 'left' : 'right';
+  }
+  private outputPortGroupClass(): string {
+    return this.REVERSE_INPUT_OUTPUT_PORTS ? 'left' : 'right';
   }
 
   private updateDisplay() {
@@ -1143,5 +1179,13 @@ export default class Node extends Vue {
 
   private distanceToMouse(): number {
     return vectorDistance(this.getCenter(), [this.lastMouseX, this.lastMouseY]);
+  }
+
+  private getContentStyles() {
+    return {
+      background: this.backgroundColor,
+      outline: this.boundaryColor ? `1.25px solid ${this.boundaryColor}` : '',
+      boxShadow: this.boundaryColor ? `1.25px 1.25px 2.5px ${this.boundaryColor}` : '',
+    };
   }
 }

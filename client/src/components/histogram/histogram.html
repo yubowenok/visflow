@@ -14,17 +14,17 @@
 <div>
   <div>Column</div>
   <column-select
-    :columns="columnSelectOptions"
     v-model="column"
-    @input="onSelectColumn"
+    :columns="columnSelectOptions"
+    @change="onSelectColumn"
   >
   </column-select>
 </div>
 <div>
   Number of Bins
   <form-input v-model.number="numBins"
-    @input="onInputNumBins"
-    @change="setNumBins"
     :disabled="isNumBinsDisabled"
+    @input="setNumBins"
+    @change="onInputNumBins"
   ></form-input>
 </div>

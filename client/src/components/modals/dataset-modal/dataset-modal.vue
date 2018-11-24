@@ -25,7 +25,7 @@
 </base-modal>
 </template>
 
-<style scoped src="./dataset-modal.scss"></style>
+<style scoped lang="scss" src="./dataset-modal.scss"></style>
 
 <script lang="ts" src="./dataset-modal.ts">
 </script>

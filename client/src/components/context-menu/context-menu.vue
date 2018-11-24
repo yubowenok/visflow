@@ -12,7 +12,7 @@
 </transition>
 </template>
 
-<style scoped src="./context-menu.scss"></style>
+<style scoped lang="scss" src="./context-menu.scss"></style>
 
 <script lang="ts" src="./context-menu.ts">
 </script>

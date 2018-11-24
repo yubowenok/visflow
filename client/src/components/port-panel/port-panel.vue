@@ -11,7 +11,7 @@
 </div>
 </template>
 
-<style scoped src="./port-panel.scss"></style>
+<style scoped lang="scss" src="./port-panel.scss"></style>
 
 <script lang="ts" src="./port-panel.ts">
 </script>

@@ -16,6 +16,10 @@ import LineChart from '@/components/line-chart/line-chart';
 import Network from '@/components/network/network';
 import Map from '@/components/map/map';
 import Linker from '@/components/linker/linker';
+import DataReservoir from '@/components/data-reservoir/data-reservoir';
+import ScriptEditor from '@/components/script-editor/script-editor';
+import Aggregation from '@/components/aggregation/aggregation';
+import Player from '@/components/player/player';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -99,7 +103,7 @@ export const nodeTypes: NodeType[] = [
     title: 'Attribute Filter',
     imgSrc: require('@/imgs/filter.svg'),
     constructor: AttributeFilter,
-    tags: 'subset attribute remove find pattern range sample',
+    tags: 'subset attribute remove find pattern range sample minimum maximum extremum',
     aliases: ['filter'],
   },
   {
@@ -122,6 +126,39 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/linker.svg'),
     constructor: Linker,
     tags: 'link filter extract join',
+  },
+  {
+    id: 'data-reservoir',
+    title: 'Data Reservoir',
+    imgSrc: require('@/imgs/data-reservoir.svg'),
+    constructor: DataReservoir,
+    tags: 'data reservoir save loopback',
+    isBeta: true,
+  },
+  {
+    id: 'script-editor',
+    title: 'Script Editor',
+    imgSrc: require('@/imgs/script-editor.svg'),
+    constructor: ScriptEditor,
+    tags: 'script code editor',
+    isBeta: true,
+  },
+  {
+
+    id: 'player',
+    title: 'Player',
+    imgSrc: require('@/imgs/player.svg'),
+    constructor: Player,
+    tags: 'player sequence series',
+    isBeta: true,
+  },
+  {
+    id: 'aggregation',
+    title: 'Aggregation',
+    imgSrc: require('@/imgs/aggregation.svg'),
+    constructor: Aggregation,
+    tags: 'aggregation sum average count minimum maximum',
+    isBeta: true,
   },
 ];
 

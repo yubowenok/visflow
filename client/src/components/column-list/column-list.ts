@@ -43,6 +43,8 @@ export default class ColumnList extends Vue {
   private selected: number[] = [];
   // Used for tracing history.
   private prevSelected: number[] = [];
+  // The selected items before the ordering
+  private beforeOrderSelected: number[] = [];
 
   // Tracks the status of list being dragged and sorted.
   private isSorting = false;
@@ -54,11 +56,11 @@ export default class ColumnList extends Vue {
 
   @Watch('value')
   private onValueChange() {
-    if (!this.isSorting) {
-      // We ignore changes to selected from the parent component to avoid binded selected affecting
-      // the selected list while it is being sorted.
-      this.selected = this.value;
-    }
+    // if (!this.isSorting) {
+    // We ignore changes to selected from the parent component to avoid binded selected affecting
+    // the selected list while it is being sorted.
+    // }
+    this.prevSelected = this.selected = this.value;
   }
 
   // Handles dragging re-order.
@@ -83,6 +85,7 @@ export default class ColumnList extends Vue {
     $el.find('.dropdown-toggle').sortable({
       items: '> .selected-tag',
       start: () => {
+        this.beforeOrderSelected = this.selected.concat();
         const tags = $el.find('.selected-tag').not('.ui-sortable-placeholder');
         _.each(tags, (tag, index) => {
           $(tag).attr('id', this.selected[index].toString());
@@ -91,12 +94,13 @@ export default class ColumnList extends Vue {
       },
       change: (evt, ui) => {
         // Emits the change but does not touch this.selected, which will be updated on sortable stop().
-        this.$emit('change', getNewOrder(evt, ui), this.prevSelected);
+        this.$emit('input', getNewOrder(evt, ui), this.prevSelected);
       },
       stop: (evt, ui) => {
         this.isSorting = false;
         // Finalize the selected values with child component.
         this.selected = getNewOrder(evt, ui);
+        this.prevSelected = this.beforeOrderSelected;
         this.onSelect();
 
         // Return false to cancel JQuery sortable to avoid changing the DOM at the same time with vue-select!
@@ -133,7 +137,8 @@ export default class ColumnList extends Vue {
     this.onSelect();
   }
 
-  private onChildSelect() {
+  private onChildSelect(selected: number[]) {
+    this.selected = selected;
     this.onSelect();
   }
 
@@ -142,6 +147,7 @@ export default class ColumnList extends Vue {
       // TODO: See if it is possible to differentiate different inputs for better history, i.e.
       // add/remove/order/clear/sort columns.
       this.$emit('input', this.selected, this.prevSelected);
+      this.$emit('change', this.selected, this.prevSelected);
       this.prevSelected = this.selected.concat();
     }
   }

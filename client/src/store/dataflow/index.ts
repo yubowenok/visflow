@@ -26,8 +26,8 @@ import TabularDataset from '@/data/tabular-dataset';
 import DataSource from '@/components/data-source/data-source';
 
 
-/** It is expected that the number of nodes do not exceed this limit, and we can rotate 300 layers. */
-const MAX_NODE_LAYERS = 300;
+/** It is expected that the number of nodes do not exceed this limit, and we can rotate 500 layers. */
+const MAX_NODE_LAYERS = 500;
 
 export const getInitialState = (): DataflowState => ({
   canvas: undefined,
@@ -95,11 +95,13 @@ const mutations = {
    * This typically happens when a node is clicked so that it appears on top of the other nodes.
    */
   incrementNodeLayer: (state: DataflowState) => {
+    // When the max node layers is reached, all nodes have their layers decreased by half of the max value.
+    // This ensures that all z-indices are still non-negative.
     if (state.numNodeLayers === MAX_NODE_LAYERS) {
       state.nodes.forEach(node => {
-        node.layer = node.layer - MAX_NODE_LAYERS;
+        node.layer = node.layer - MAX_NODE_LAYERS / 2;
       });
-      state.numNodeLayers -= MAX_NODE_LAYERS;
+      state.numNodeLayers -= MAX_NODE_LAYERS / 2;
     }
     state.numNodeLayers++;
   },
@@ -236,6 +238,11 @@ const mutations = {
   /** Turns on the node labels for all nodes. */
   labelAllNodes: (state: DataflowState) => {
     state.nodes.forEach(node => node.setLabelVisible(true));
+  },
+
+  /** Toggles the data mutation boundary. */
+  toggleDataMutationBoundary: (state: DataflowState, visible: boolean) => {
+    helper.dataMutationBoundary(visible);
   },
 
   ...saveLoad.mutations,

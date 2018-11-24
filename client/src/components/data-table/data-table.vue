@@ -13,7 +13,7 @@
 </div>
 </template>
 
-<style scoped src="./data-table.scss"></style>
+<style scoped lang="scss" src="./data-table.scss"></style>
 
 <script lang="ts" src="./data-table.ts">
 </script>

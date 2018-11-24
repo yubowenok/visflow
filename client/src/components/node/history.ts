@@ -8,6 +8,7 @@ import {
 import { Node } from '@/components/node';
 import { RootStore } from '@/store/types';
 import { getNode } from '@/store/dataflow/helper';
+import { areBoxesEqual } from '@/common/util';
 
 export enum HistoryNodeEventType {
   MOVE = 'move',
@@ -79,11 +80,17 @@ export const toggleLabelVisibleEvent = (node: Node, value: boolean): HistoryNode
 };
 
 export const moveNode = (store: RootStore, node: Node, movedNodes: Node[], to: Point, from: Point) => {
+  if (to.x === from.x && to.y === from.y) {
+    return;
+  }
   store.commit('history/commit', moveNodeEvent(node, movedNodes, to, from));
 };
 
-export const resizeNode =  (store: RootStore, node: Node, newView: Box, prevView: Box) => {
-  store.commit('history/commit', resizeNodeEvent(node, newView, prevView));
+export const resizeNode =  (store: RootStore, node: Node, view: Box, prevView: Box) => {
+  if (areBoxesEqual(view, prevView)) {
+    return;
+  }
+  store.commit('history/commit', resizeNodeEvent(node, view, prevView));
 };
 
 const undoMoveNode = (store: RootStore, evt: HistoryNodeEvent) => {

@@ -11,7 +11,7 @@
 </div>
 </template>
 
-<style scoped src="./drag-bar.scss"></style>
+<style scoped lang="scss" src="./drag-bar.scss"></style>
 
 <script lang="ts" src="./drag-bar.ts">
 </script>

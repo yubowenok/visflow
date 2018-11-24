@@ -1,7 +1,7 @@
 <template>
 <div>
   <div ref="port"
-    :class="['port', { active: isActive }, DATA_TYPE]"
+    :class="['port', { active: isActive }, DATA_TYPE, { invalid: hasInvalidConnection }]"
     @mousedown="mousedown"
     @dblclick.prevent.stop="activate"
     @contextmenu.prevent.stop="openContextMenu"
@@ -23,7 +23,7 @@
 </div>
 </template>
 
-<style src="./port.scss"></style>
+<style lang="scss" src="./port.scss"></style>
 
 <script lang="ts" src="./port.ts">
 </script>

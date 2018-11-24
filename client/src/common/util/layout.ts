@@ -41,3 +41,10 @@ export const mouseOffset = (evt: MouseEvent, e: JQuery): JQuery.Coordinates => {
     top: evt.pageY - offset.top - paddingTop,
   };
 };
+
+/**
+ * Checks if two boxes (rectangles) are equal.
+ */
+export const areBoxesEqual = (a: Box, b: Box): boolean => {
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+};

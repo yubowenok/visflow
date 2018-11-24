@@ -7,7 +7,7 @@
 </transition>
 </template>
 
-<style scoped src="./system-message.scss"></style>
+<style scoped lang="scss" src="./system-message.scss"></style>
 
 <script lang="ts" src="./system-message.ts">
 </script>

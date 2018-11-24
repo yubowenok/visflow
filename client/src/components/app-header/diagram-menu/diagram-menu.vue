@@ -8,7 +8,7 @@
     <i class="fas fa-sm fa-upload"></i>Save
     <span class="shortcut">{{osCtrlKeyChar}}S</span>
   </b-dropdown-item>
-  <b-dropdown-item @click="openSaveAsDiagramModal" :disabled="!username">
+  <b-dropdown-item @click="openSaveAsDiagramModal" :disabled="!username || !filename">
     <i class="fas fa-sm fa-save"></i>Save As
     <span class="shortcut">{{osCtrlKeyChar}}⇧S</span>
   </b-dropdown-item>

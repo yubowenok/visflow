@@ -10,10 +10,10 @@
   ></form-input>
   <transition name="fade">
     <vue-color ref="vueColor" v-if="isFocused"
-      @input="onPaletteInput"
-      :value="color"
       v-global-click="globalClick"
       disableAlpha
+      :value="color"
+      @input="onPaletteInput"
     ></vue-color>
   </transition>
 </div>

@@ -35,6 +35,7 @@ export default class ColorScaleSelect extends Vue {
 
   private onScaleSelect() {
     this.$emit('input', this.scaleId, this.prevScaleId);
+    this.$emit('change', this.scaleId, this.prevScaleId);
     this.prevScaleId = this.scaleId;
   }
 }

@@ -30,6 +30,8 @@ const DOMAIN_MARGIN = .1;
 interface ScatterplotSave {
   xColumn: number;
   yColumn: number;
+  useDatasetRange: boolean;
+  axisMargin: boolean;
 }
 
 interface ScatterplotItemProps {
@@ -70,6 +72,11 @@ export default class Scatterplot extends Visualization {
   private yScale!: Scale;
   private itemProps: ScatterplotItemProps[] = [];
 
+  // When set, xScale ane yScale will be set to the dataset's domains
+  private useDatasetRange = false;
+  // Whether to have margin at the two sides of the axes.
+  private axisMargin = true;
+
   public setXColumn(column: number) {
     this.xColumn = column;
     this.draw();
@@ -78,6 +85,10 @@ export default class Scatterplot extends Visualization {
   public setYColumn(column: number) {
     this.yColumn = column;
     this.draw();
+  }
+
+  public setTransitionDisabled(value: boolean) {
+    this.isTransitionDisabled = value;
   }
 
   public applyColumns(columns: number[]) {
@@ -89,19 +100,32 @@ export default class Scatterplot extends Visualization {
       this.xColumn = columns[0];
       this.yColumn = columns[1];
     }
-    if (this.hasDataset()) {
-      this.draw();
-    }
+    this.draw();
+  }
+
+  public setUseDatasetRange(value: boolean) {
+    this.useDatasetRange = value;
+    this.draw();
+  }
+
+  public setAxisMargin(value: boolean) {
+    this.axisMargin = value;
+    this.draw();
   }
 
   protected created() {
     this.serializationChain.push((): ScatterplotSave => ({
       xColumn: this.xColumn,
       yColumn: this.yColumn,
+      useDatasetRange: this.useDatasetRange,
+      axisMargin: this.axisMargin,
     }));
   }
 
   protected draw() {
+    if (!this.hasDataset()) {
+      return;
+    }
     if (this.xColumn === null || this.yColumn === null) {
       this.coverText = 'Please choose columns';
       return;
@@ -176,11 +200,16 @@ export default class Scatterplot extends Visualization {
   }
 
   private drawPoints() {
+    const useTransition = this.isTransitionFeasible(this.itemProps.length);
     const svgPoints = select(this.$refs.points as SVGGElement);
     let points = svgPoints.selectAll<SVGGraphicsElement, ScatterplotItemProps>('circle')
       .data(this.itemProps, d => d.index.toString());
 
-    fadeOut(points.exit());
+    if (useTransition) {
+      fadeOut(points.exit());
+    } else {
+      points.exit().remove();
+    }
 
     points = points.enter().append<SVGGraphicsElement>('circle')
       .attr('id', d => d.index.toString())
@@ -188,7 +217,7 @@ export default class Scatterplot extends Visualization {
       .attr('has-visuals', d => d.hasVisuals)
       .attr('is-selected', d => d.selected);
 
-    const updatedPoints = this.isTransitionFeasible(this.itemProps.length) ? points.transition() : points;
+    const updatedPoints = useTransition ? points.transition() : points;
     updatedPoints
       .attr('cx', d => this.xScale(d.x))
       .attr('cy', d => this.yScale(d.y))
@@ -215,16 +244,16 @@ export default class Scatterplot extends Visualization {
   private computeScales() {
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     const dataset = this.getDataset();
-    const xDomain = dataset.getDomain(this.xColumn, items);
-    const yDomain = dataset.getDomain(this.yColumn, items);
+    const xDomain = dataset.getDomain(this.xColumn, this.useDatasetRange ? undefined : items);
+    const yDomain = dataset.getDomain(this.yColumn, this.useDatasetRange ? undefined : items);
     [this.xScale, this.yScale] = [
       getScale(dataset.getColumnType(this.xColumn), xDomain,
         [this.margins.left, this.svgWidth - this.margins.right], {
-          domainMargin: DOMAIN_MARGIN,
+          domainMargin: this.axisMargin ? DOMAIN_MARGIN : 0,
         }),
       getScale(dataset.getColumnType(this.yColumn), yDomain,
         [this.svgHeight - this.margins.bottom, this.margins.top], {
-          domainMargin: DOMAIN_MARGIN,
+          domainMargin: this.axisMargin ? DOMAIN_MARGIN : 0,
         }),
     ];
   }
@@ -275,5 +304,20 @@ export default class Scatterplot extends Visualization {
   private onSelectYColumn(column: number, prevColumn: number | null) {
     this.commitHistory(history.selectYColumnEvent(this, column, prevColumn));
     this.setYColumn(column);
+  }
+
+  private onToggleTransitionDisabled(value: boolean) {
+    this.commitHistory(history.toggleTransitionDisabledEvent(this, value));
+    this.setTransitionDisabled(value);
+  }
+
+  private onToggleUseDatasetRange(value: boolean) {
+    this.commitHistory(history.toggleUseDatasetRangeEvent(this, value));
+    this.setUseDatasetRange(value);
+  }
+
+  private onToggleAxisMargin(value: boolean) {
+    this.commitHistory(history.toggleAxisMarginEvent(this, value));
+    this.setAxisMargin(value);
   }
 }

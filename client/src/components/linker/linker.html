@@ -11,8 +11,7 @@
   <column-select
     v-model="extractColumn"
     :columns="columnSelectOptions"
-    @input="onSelectExtractColumn"
-    :clearable="false"
+    @change="onSelectExtractColumn"
   ></column-select>
 </div>
 <div>
@@ -20,8 +19,7 @@
   <column-select
     v-model="filterColumn"
     :columns="filterColumnSelectOptions"
-    @input="onSelectFilterColumn"
-    :clearable="false"
+    @change="onSelectFilterColumn"
   ></column-select>
 </div>
 <hr class="divider">

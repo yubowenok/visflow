@@ -15,6 +15,10 @@ import 'leaflet/dist/leaflet.css';
 import 'jqueryui/jquery-ui.min.css';
 import './override/index.scss';
 
+// Synchronously require webpack loader for Ace editor
+require('ace-builds/src-noconflict/ext-beautify'); // tslint:disable-line no-var-requires
+require('ace-builds/webpack-resolver'); // tslint:disable-line no-var-requires
+
 import store from '@/store'; // store must be imported before App
 import { ENVIRONMENT } from '@/common/env';
 import router from '@/router';

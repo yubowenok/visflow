@@ -77,6 +77,43 @@ export default class SetOperator extends SubsetNode {
   }
 
   /**
+   * The dataset of a set operator is set to the first input connection that provides a dataset.
+   */
+  protected checkDataset(): boolean {
+    if (this.hasNoDataset()) {
+      this.dataset = null;
+      this.coverText = 'No Dataset';
+      this.updateNoDatasetOutput();
+      return false;
+    }
+    const pkgs = this.inputPortMap.in.getSubsetPackageList() as SubsetPackage[];
+    for (const pkg of pkgs) {
+      if (pkg.hasDataset()) {
+        this.dataset = pkg.getDataset() as TabularDataset;
+        break;
+      }
+    }
+    this.coverText = '';
+    return true;
+  }
+
+  /**
+   * Since a set operator may have multiple input, dataset existence check is special.
+   */
+  protected hasNoDataset(): boolean {
+    if (!this.inputPortMap.in.isConnected()) {
+      return true;
+    }
+    const pkgs = this.inputPortMap.in.getSubsetPackageList() as SubsetPackage[];
+    for (const pkg of pkgs) {
+      if (pkg.hasDataset()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Only allows subsets from the same tabular dataset to be processed.
    */
   private checkDatasetCompatibility() {
@@ -117,7 +154,7 @@ export default class SetOperator extends SubsetNode {
    */
   private union(): SubsetPackage {
     const pkgs = this.inputPortMap.in.getSubsetPackageList();
-    const unionPkg = new SubsetPackage(pkgs[0].getDataset(), false);
+    const unionPkg = new SubsetPackage(this.dataset as TabularDataset, false);
     for (const pkg of pkgs) {
       pkg.getItems().forEach(item => {
         unionPkg.addItem(item);
@@ -137,7 +174,7 @@ export default class SetOperator extends SubsetNode {
     for (const pkg of pkgs) {
       pkg.getItemIndices().forEach(index => count[index] = index in count ? count[index] + 1 : 1);
     }
-    const intersectionPkg = new SubsetPackage(pkgs[0].getDataset(), false);
+    const intersectionPkg = new SubsetPackage(this.dataset as TabularDataset, false);
     for (const pkg of pkgs) {
       pkg.getItems().forEach(item => {
         if (count[item.index] === pkgs.length) {

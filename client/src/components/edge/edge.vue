@@ -20,7 +20,7 @@
 </template>
 
 <!-- Edge styles are not scoped because they may affect child components -->
-<style src="./edge.scss"></style>
+<style lang="scss" src="./edge.scss"></style>
 
 <script lang="ts" src="./edge.ts">
 </script>
