@@ -48,7 +48,7 @@ const logApi = (app: Express) => {
   app.post('/api/log/load', [
     checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user.isAdmin) {
+    if (!req.user || !req.user.isAdmin) {
       return res.status(401).send('not authorized to view log');
     }
     const filename = req.body.filename;

@@ -278,6 +278,7 @@ export const serializeDiagram = (state: DataflowState): DiagramSave => {
 
 export const deserializeDiagram = (diagram: DiagramSave) => {
   const state = store.state.dataflow;
+
   // Turn on deserializing flag to avoid nodes trigger propagation.
   state.isDeserializing = true;
 

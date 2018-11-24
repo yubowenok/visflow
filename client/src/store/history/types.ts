@@ -82,6 +82,7 @@ export interface HistoryState {
   redoStack: HistoryEvent[];
   logs: HistoryLog[];
   currentLogIndex: number;
+  isViewingLogs: boolean;
 }
 
 export * from './util';

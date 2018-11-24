@@ -6,15 +6,17 @@
       <b-button size="sm" variant="outline-secondary" @click="redoLog"
         :disabled="currentLogIndex >= logs.length - 1">
         <i class="fas fa-play"></i></b-button>
+      <b-button size="sm" variant="outline-secondary" @click="loadDiagram">Diagram</b-button>
     </span>
   </div>
   <hr class="divider">
   <div class="logs">
     <div v-for="(log, index) in logs" :key="index"
-      :class="{ current: index === currentLogIndex }"
+      :class="['log', { current: index === currentLogIndex }]"
       @click="printLog(log)">
-      <span>{{ log.type }}</span>:
-      <span v-if="log.data && log.data.message">{{ log.data.message }}</span>
+      <span>{{ `[${formatLogTime(log.timestamp)}]` }} </span>
+      <span class="bold">{{ log.type }}</span>
+      <span v-if="log.data && log.data.message" class="message">{{ log.data.message }}</span>
     </div>
   </div>
 </div>

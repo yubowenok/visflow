@@ -27,7 +27,7 @@ export const DEFAULT_HASH_LENGTH = 40;
 
 export const checkDiagramExists = check('filename', 'no such diagram')
   .exists().isLength({ min: DEFAULT_HASH_LENGTH, max: DEFAULT_HASH_LENGTH }).withMessage('invalid filename')
-  .custom((filename, { req }) => {
+  .custom(filename => {
     return Diagram.findOne({ filename }).then(diagram => {
       if (!diagram) {
         return Promise.reject();

@@ -72,6 +72,10 @@ export const actions = {
   },
 
   saveDiagram(context: ActionContext<DataflowState, RootState>) {
+    if (store.state.history.isViewingLogs) {
+      console.error('no diagram changes allowed when viewing logs');
+      return;
+    }
     if (context.state.filename === '') {
       // The diagram not yet has a filename assigned.
       // This is the first time to save the diagram and it should use "saveAs" instead.
@@ -189,6 +193,9 @@ export const actions = {
    * Auto saves the diagram without a log entry.
    */
   autoSave(context: ActionContext<DataflowState, RootState>): Promise<void> {
+    if (store.state.history.isViewingLogs) {
+      return Promise.reject('no diagram changes allowed when viewing logs');
+    }
     if (context.state.filename === '') {
       return Promise.reject('attempted to auto save when there is no saved diagram');
     }
