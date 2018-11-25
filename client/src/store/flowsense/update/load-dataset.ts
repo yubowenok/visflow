@@ -3,6 +3,7 @@ import { InjectedQuery, ejectMappableMarker, QueryTarget } from '../helper';
 import { QueryValue } from '../types';
 import FlowsenseUpdateTracker from './tracker';
 import DataSource from '@/components/data-source/data-source';
+import store from '@/store';
 
 /**
  * Creates a data source and loads the given dataset.
@@ -21,6 +22,7 @@ export const loadDataset = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
     tracker.createNode(dataSource);
   }
   (dataSource as DataSource).setDatasetInfo({
+    username: store.state.user.username,
     originalname,
     filename,
     size: -1,
