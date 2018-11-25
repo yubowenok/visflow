@@ -28,9 +28,7 @@ const mutations = {
 
 const actions = {
   getDataset(context: ActionContext<DatasetState, RootState>, options: GetDatasetOptions): Promise<string> {
-    if (!options.username) {
-      return Promise.reject('cannot fetch dataset without username');
-    }
+    const username = options.username || '';
     const key = options.username + ',' + options.filename;
     const cached = getDatasetFromCache(context.state.cache, key);
     if (cached) {

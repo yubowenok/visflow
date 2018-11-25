@@ -50,7 +50,7 @@ export default class DatasetLit extends Vue {
           targets: 4,
           render: (filename: string) => {
             return '<button class="btn btn-outline-secondary trash"' +
-              `data-filename="${filename}">` +
+              `data-filename="${filename}" disabled="${!this.username}">` +
               '<i class="fas fa-trash"></i></button>';
           },
           width: '10px',
@@ -86,10 +86,6 @@ export default class DatasetLit extends Vue {
   }
 
   public getList() {
-    if (this.username === '') {
-      this.list = [];
-      return;
-    }
     this.dispatchListDataset()
       .then(res => this.list = res)
       .catch((err: string) => this.errorMessage = err);
