@@ -152,7 +152,8 @@ export const actions = {
         })
         .catch(err => {
           if (err.response && err.response.data === 'no access') {
-            showSystemMessage(store, 'login to view this diagram', 'error');
+            showSystemMessage(store, !store.state.user.username ?
+              'login to view this diagram' : 'no access to this diagram', 'error');
             store.dispatch('user/requestLogin', {
               loginCallback: () => context.dispatch('loadDiagram', filename),
             });

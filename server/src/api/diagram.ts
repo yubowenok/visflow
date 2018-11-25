@@ -39,7 +39,7 @@ const diagramApi = (app: Express) => {
           if (!diagram) {
             return Diagram.findOne({ filename }).then(otherDiagram => {
               if (otherDiagram) {
-                if (req.user.isAdmin) {
+                if (req.user && req.user.isAdmin) {
                   req.body.username = otherDiagram.username;
                 } else {
                   return Promise.reject('no access');
