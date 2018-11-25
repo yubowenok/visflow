@@ -8,6 +8,7 @@ import { IVerifyOptions } from 'passport-local';
 import { isMongooseConnected } from '../mongo';
 import { checkValidationResults } from '../common/util';
 
+// A special username for experiment user. Normal usernames cannot start with an underscore.
 export const EXPERIMENT_USERNAME = '_experiment';
 
 const userApi = (app: Express) => {

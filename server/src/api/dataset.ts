@@ -11,6 +11,8 @@ import { isAuthenticated } from '../config/passport';
 import { checkValidationResults } from '../common/util';
 import Dataset from '../models/dataset';
 import { NextFunction } from 'express-serve-static-core';
+import { DEMO_USERNAME } from '../config/env';
+import { EXPERIMENT_USERNAME } from './user';
 
 const datasetExists = check('filename').custom((filename, { req }) => {
   return Dataset.findOne({
@@ -24,6 +26,17 @@ const datasetExists = check('filename').custom((filename, { req }) => {
 });
 
 const datasetApi = (app: Express) => {
+  /**
+   * List handler for demo and experiment user.
+   */
+  app.post('/api/dataset/list', (req: Request, res: Response, next: NextFunction) => {
+    if (req.user && req.user !== EXPERIMENT_USERNAME) {
+      // User has logged-in with a regular/experiment username. Pass and use regular handler.
+      return next();
+    }
+    req.body.username = DEMO_USERNAME; // Allow list diagram handler to list demo datasets.
+  });
+
   app.post('/api/dataset/*', isAuthenticated);
 
   app.post('/api/dataset/upload/', multer({
@@ -69,7 +82,7 @@ const datasetApi = (app: Express) => {
   });
 
   app.post('/api/dataset/list', (req: Request, res: Response, next: NextFunction) => {
-    const username = req.user.username;
+    const username = req.body.username || req.user.username;
     Dataset.find({ username }, (err, datasets) => {
       if (err) {
         return next(err);

@@ -15,6 +15,10 @@ import Log from '../models/log';
 const diagramApi = (app: Express) => {
   app.post('/api/diagram/list/', (req: Request, res: Response, next: NextFunction) => {
     const username = !req.user ? DEMO_USERNAME : req.user.username;
+    if (username === EXPERIMENT_USERNAME) {
+      // Avoid one experiment user to see the diagrams of the others.
+      return res.json([]);
+    }
     Diagram.find({ username }, (err, diagrams) => {
       if (err) {
         return next(err);

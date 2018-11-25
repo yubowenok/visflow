@@ -73,7 +73,10 @@ const mutations = {
     if (oldStep === 'consentForm' && !state.filename) {
       store.dispatch('experiment/start');
     }
-    store.dispatch('dataflow/autoSave');
+    if (state.filename) {
+      // This could be the start step, when the filename has not been set.
+      store.dispatch('dataflow/autoSave');
+    }
     mutations.setStep(state, newStep);
   },
 
@@ -131,8 +134,6 @@ const actions = {
               const info = progressRes.data;
               context.commit('setInfo', info);
               context.commit('setStep', info.step);
-
-              console.warn('step is', info);
 
               context.commit('dataflow/setDiagramName', info.diagramName, { root: true });
               context.commit('dataflow/setFilename', info.filename, { root: true });
