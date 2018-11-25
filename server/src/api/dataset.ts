@@ -42,6 +42,7 @@ const listDataset = (username: string | undefined, res: Response, next: NextFunc
       return next(err);
     }
     res.json(datasets.map(datasetInfo => _.pick(datasetInfo, [
+      'username',
       'filename',
       'originalname',
       'size',
@@ -64,6 +65,7 @@ const datasetApi = (app: Express) => {
 
   /**
    * Get dataset handler for demo user, or logged-in user loading demo datasets.
+   * If a demo dataset is loaded by a logged-in user, we do not update its "lastUsedAt" field.
    */
   app.post('/api/dataset/get',
     datasetExists,
@@ -135,9 +137,12 @@ const datasetApi = (app: Express) => {
     (req: Request, res: Response, next: NextFunction) => {
       const username = req.user.username;
       const filename = req.body.filename;
-      Dataset.findOneAndRemove({ username, filename }, (err: mongoose.Error) => {
+      Dataset.findOneAndRemove({ username, filename }, (err: mongoose.Error, dataset) => {
         if (err) {
           return next(err);
+        }
+        if (!dataset) {
+          return res.status(401).send('cannot delete this dataset');
         }
         const file = path.join(DATA_PATH, 'dataset/', req.user.username, filename);
         fs.unlink(file, fsErr => {

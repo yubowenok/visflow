@@ -48,9 +48,10 @@ export default class DatasetLit extends Vue {
         },
         {
           targets: 4,
-          render: (filename: string) => {
+          render: (filename: string, type: string, row: string[]) => {
+            const username = row[5];
             return '<button class="btn btn-outline-secondary trash"' +
-              `data-filename="${filename}" disabled="${!this.username}">` +
+              `data-filename="${filename}" ${this.username !== username ? 'disabled' : ''}>` +
               '<i class="fas fa-trash"></i></button>';
           },
           width: '10px',
@@ -72,6 +73,7 @@ export default class DatasetLit extends Vue {
         new Date(info.lastUsedAt),
         new Date(info.createdAt),
         info.filename,
+        info.username,
       ]),
       lengthChange: false,
       pageLength: 5,
