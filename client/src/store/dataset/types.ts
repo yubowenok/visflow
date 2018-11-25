@@ -4,6 +4,7 @@ export interface DatasetState {
 }
 
 export interface DatasetInfo {
+  username: string;
   originalname: string;
   filename: string;
   size: number;
