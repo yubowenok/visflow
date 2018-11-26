@@ -23,7 +23,7 @@ module.exports = {
       },
       { text: 'Node Types', link: '/node/' },
       { text: 'FlowSense', link: '/flowsense/' },
-      { text: 'Demo', link: 'https://visflow.org/' },
+      { text: 'Demo', link: 'https://visflow.org/demo/' },
     ],
     sidebar: {
       '/node/': [
