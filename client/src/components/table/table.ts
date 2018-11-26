@@ -1,5 +1,6 @@
 import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
+import $ from 'jquery';
 
 import { dateDisplay } from '@/common/util';
 import { SubsetPackage } from '@/data/package';

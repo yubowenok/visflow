@@ -2,6 +2,7 @@ import { Component } from 'vue-property-decorator';
 import { scaleLinear } from 'd3-scale';
 import { select } from 'd3-selection';
 import _ from 'lodash';
+import $ from 'jquery';
 
 import template from './heatmap.html';
 import {

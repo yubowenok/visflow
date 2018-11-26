@@ -2,6 +2,8 @@
  * @fileOverview Provides a wrapper on input for typing normalization.
  */
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
+import $ from 'jquery';
+
 import { ValueType, parseToken } from '@/data/parser';
 import { isNumericalType } from '@/data/util';
 

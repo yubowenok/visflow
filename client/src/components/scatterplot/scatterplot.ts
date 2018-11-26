@@ -1,7 +1,8 @@
 import { Component } from 'vue-property-decorator';
-import _ from 'lodash';
-import Victor from 'victor';
 import { select } from 'd3-selection';
+import Victor from 'victor';
+import _ from 'lodash';
+import $ from 'jquery';
 
 import {
   Visualization,

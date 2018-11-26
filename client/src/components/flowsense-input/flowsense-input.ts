@@ -1,7 +1,8 @@
-import _ from 'lodash';
 import { Vue, Component, Watch } from 'vue-property-decorator';
 import { Annyang } from 'annyang';
 import annyang from 'annyang';
+import _ from 'lodash';
+import $ from 'jquery';
 
 import ns from '@/store/namespaces';
 import FormInput from '@/components/form-input/form-input';
@@ -12,7 +13,7 @@ import { showSystemMessage, areRangesIntersected,  systemMessageErrorHandler, el
 const DROPDOWN_MARGIN_PX = 10;
 const TOKEN_COMPLETION_DROPDOWN_DELAY_MS = 250;
 const TOKEN_COMPLETION_DROPDOWN_Y_OFFSET_PX = 10;
-const QUERY_COMPLETION_DELAY_MS = 5000;
+const QUERY_COMPLETION_DELAY_MS = 30000;
 
 interface DropdownElement {
   text: string;
@@ -430,7 +431,8 @@ export default class FlowsenseInput extends Vue {
     this.dispatchAutoComplete(this.tokens)
       .then(suggestions => {
         if (this.isTokenCategoryDropdownVisible ||
-          this.isTokenCompletionDropdownVisible) {
+          this.isTokenCompletionDropdownVisible ||
+          !this.visible) {
           // A dropdown is already in place. Avoid surprising change of dropdown.
           return;
         }

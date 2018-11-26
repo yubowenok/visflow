@@ -5,7 +5,7 @@
     <i v-if="isWaiting" class="fas fa-circle-notch fa-spin"></i>
     <div class="input-row">
       <form-input id="input" ref="input" v-model="text" :disabled="isWaiting"
-        @change="onTextInput"
+        @input="onTextInput"
         @keyup.enter.native="onEnter"
         @destroyed="onHideInput"
         @keydown.native.tab.prevent.stop="onTab"

@@ -3,6 +3,7 @@ import { histogram, Bin } from 'd3-array';
 import { scaleLinear, ScaleBand } from 'd3-scale';
 import { select } from 'd3-selection';
 import _ from 'lodash';
+import $ from 'jquery';
 
 import {
   injectVisualizationTemplate,

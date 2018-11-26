@@ -1,7 +1,8 @@
 import { Component } from 'vue-property-decorator';
-import _ from 'lodash';
 import { select } from 'd3-selection';
 import { line, curveBasis } from 'd3-shape';
+import _ from 'lodash';
+import $ from 'jquery';
 
 import template from './line-chart.html';
 import {

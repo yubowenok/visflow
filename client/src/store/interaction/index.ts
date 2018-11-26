@@ -2,6 +2,7 @@
  * @fileoverview This is the state handler for system-wise interaction.
  */
 import { Module } from 'vuex';
+import $ from 'jquery';
 
 import Node from '@/components/node/node';
 import Port from '@/components/port/port';
