@@ -8,10 +8,14 @@
       border-radius: $border-radius;
       padding: $padding-size;
 
+      &::after {
+        content: none;
+      }
+
       .selected-tag {
         width: 100%;
         border-radius: 0;
-        margin: $margin-size-sm 0;
+        margin: 0;
         background: white;
 
         @extend %ellipsis-text;
@@ -45,13 +49,16 @@
 
         .selected-tag {
           width: calc(100% - 2rem); // use 2rem to aviod overlapping with the close and dropdown toggle
+          height: 100%;
           pointer-events: none; // avoid interference with search input
         }
       }
 
       input.form-control {
-        // position: absolute;
-        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
       }
 
       button.clear {

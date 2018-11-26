@@ -8,6 +8,8 @@
       .selected-tag {
         @extend %border;
 
+        margin: $margin-size-sm 0;
+
         .close {
           top: 0;
         }
