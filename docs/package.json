@@ -12,6 +12,7 @@
     "dev": "vuepress dev src"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.5.0",
     "vue-server-renderer": "2.5.16",
     "vuepress": "^1.0.0-alpha.20"
   }
