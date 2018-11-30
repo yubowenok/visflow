@@ -43,7 +43,9 @@ export default class App extends Vue {
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
   @ns.interaction.Mutation('keydown') private interactionKeydown!: (evt: JQuery.Event) => void;
   @ns.interaction.Mutation('keyup') private interactionKeyup!: (evt: JQuery.Event) => void;
+  @ns.interaction.Mutation('mousedown') private interactionMousedown!: () => void;
   @ns.interaction.Mutation('mouseup') private interactionMouseup!: () => void;
+  @ns.interaction.Mutation('mousemove') private interactionMousemove!: () => void;
   @ns.router.Mutation('setRouter') private setRouter!: (router: VueRouter) => void;
   @ns.flowsense.Mutation('openInput') private openFlowsenseInput!: (noActivePosition?: boolean) => void;
   @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
@@ -84,7 +86,9 @@ export default class App extends Vue {
     $(document)
       .keydown(this.onKeydown)
       .keyup(this.onKeyup)
-      .mouseup(this.onMouseup);
+      .mousedown(this.onMousedown)
+      .mouseup(this.onMouseup)
+      .mousemove(this.onMousemove);
   }
 
   private removeKeyHandlers() {
@@ -109,8 +113,16 @@ export default class App extends Vue {
     this.interactionKeyup(evt);
   }
 
+  private onMousedown(evt: JQuery.Event) {
+    this.interactionMousedown();
+  }
+
   private onMouseup(evt: JQuery.Event) {
     this.interactionMouseup();
+  }
+
+  private onMousemove(evt: JQuery.Event) {
+    // this.interactionMousemove();
   }
 
   private addNode() {

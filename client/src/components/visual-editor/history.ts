@@ -3,17 +3,17 @@ import VisualEditor, { VisualEditorMode } from './visual-editor';
 import { VisualPropertyType } from '@/data/visuals';
 
 enum VisualEditorEventType {
-  SELECT_MODE = 'select-mode',
-  INPUT_VISUALS_COLOR = 'input-visuals-color',
-  INPUT_VISUALS_BORDER = 'input-visuals-border',
-  INPUT_VISUALS_SIZE = 'input-visuals-size',
-  INPUT_VISUALS_WIDTH = 'input-visuals-width',
-  INPUT_VISUALS_OPACITY = 'input-visuals-opacity',
-  SELECT_ENCODING_COLUMN = 'select-encoding-column',
-  SELECT_ENCODING_TYPE = 'select-encoding-type',
-  SELECT_ENCODING_COLOR_SCALE = 'input-encoding-color-scale',
-  INPUT_ENCODING_SCALE_MIN = 'input-encoding-scale-min',
-  INPUT_ENCODING_SCALE_MAX = 'input-encoding-scale-max',
+  SELECT_MODE = 'setMode',
+  INPUT_VISUALS_COLOR = 'setVisuals-color',
+  INPUT_VISUALS_BORDER = 'setVisualsBorder',
+  INPUT_VISUALS_SIZE = 'setVisualsSize',
+  INPUT_VISUALS_WIDTH = 'setVisualsWidth',
+  INPUT_VISUALS_OPACITY = 'setVisualsOpacity',
+  SELECT_ENCODING_COLUMN = 'setEncodingColumn',
+  SELECT_ENCODING_TYPE = 'setEncodingType',
+  SELECT_ENCODING_COLOR_SCALE = 'setEncodingColorScale',
+  INPUT_ENCODING_SCALE_MIN = 'setEncodingScaleMin',
+  INPUT_ENCODING_SCALE_MAX = 'setEncodingScaleMax',
 }
 
 export const selectModeEvent = (node: VisualEditor, mode: VisualEditorMode, prevMode: VisualEditorMode):

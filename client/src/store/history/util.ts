@@ -14,6 +14,7 @@ import {
   HistoryLog,
  } from '@/store/history/types';
 import { DiagramEventType } from '@/store/dataflow/types';
+import { ENVIRONMENT } from '@/common/env';
 
 
 export const diagramEvent = (type: DiagramEventType, message: string, data: any, icon?: HistoryEventIcon):
@@ -52,7 +53,8 @@ export const nodeEvent = (type: string, message: string, node: Node, data: any,
 };
 
 export const nodeOptionEvent = (type: string, message: string, node: Node,
-                                setter: (value: any) => void, value: any, prevValue: any,
+                                setter: (value: any) => void,
+                                value: any, prevValue: any,
                                 icon?: HistoryEventIcon):
   HistoryNodeOptionEvent => {
   let defaultIconValue = 'fas fa-sliders-h';
@@ -65,14 +67,18 @@ export const nodeOptionEvent = (type: string, message: string, node: Node,
       defaultIconValue = 'fas fa-toggle-on';
     }
   }
-  // setterName is retrieved from setter.name (a method with a name in the format "bound {name}")
-  const matchedSetterName = setter.name.match(/^bound (.*)$/);
-  let setterName = '';
-  if (matchedSetterName === null) {
-    console.error(`cannot parse setter name from ${setter.name}`);
-  } else {
-    setterName = matchedSetterName[1];
+  // setterName is equal to event type
+  const setterName = type;
+  if (ENVIRONMENT === 'development') {
+    // Retrieve setter name from the actual function (a method with a name in the format "bound {name}")
+    const matchedSetterName = setter.name.match(/^bound (.*)$/);
+    if (matchedSetterName === null) {
+      console.error(`cannot parse setter name from ${setter.name}`);
+    } else if (matchedSetterName[1] !== setterName) {
+      console.error(`matched setter name ${matchedSetterName[1]} does not equal given setter name "${setterName}"`);
+    }
   }
+
   return {
     level: HistoryEventLevel.NODE,
     type,

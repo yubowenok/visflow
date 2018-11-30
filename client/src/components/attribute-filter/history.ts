@@ -8,19 +8,19 @@ import AttributeFilter, {
 import { getConstantsListInputType } from '@/components/constants-list/constants-list';
 
 enum AttributeFilterEventType {
-  INPUT_AMOUNT = 'input-amount',
-  INPUT_PATTERNS = 'input-patterns',
-  INPUT_RANGE_MAX = 'input-range-max',
-  INPUT_RANGE_MIN = 'input-range-min',
-  SELECT_AMOUNT_TYPE = 'select-amount-type',
-  SELECT_COLUMN = 'select-column',
-  SELECT_EXTREMUM_CRITERION = 'select-extremum-criterion',
-  SELECT_FILTER_TYPE = 'select-filter-type',
-  SELECT_GROUP_BY_COLUMN = 'select-group-by-column',
-  SELECT_PATTERN_MATCH_MODE = 'pattern-match-mode',
-  SELECT_SAMPLING_CRITERION = 'select-sampling-criterion',
-  TOGGLE_ON_DISTINCT_VALUES = 'toggle-on-distinct-values',
-  TOGGLE_PATTERN_CASE_SENSITIVE = 'toggle-pattern-case-sensitive',
+  INPUT_AMOUNT = 'setAmount',
+  INPUT_PATTERNS = 'setPatterns',
+  INPUT_RANGE_MAX = 'setRangeMax',
+  INPUT_RANGE_MIN = 'setRangeMin',
+  SELECT_AMOUNT_TYPE = 'setAmountType',
+  SELECT_COLUMN = 'setColumn',
+  SELECT_EXTREMUM_CRITERION = 'setExtremumCriterion',
+  SELECT_FILTER_TYPE = 'setFilterType',
+  SELECT_GROUP_BY_COLUMN = 'setGroupByColumn',
+  SELECT_PATTERN_MATCH_MODE = 'setPatternMatchMode',
+  SELECT_SAMPLING_CRITERION = 'setSamplingCriterion',
+  TOGGLE_ON_DISTINCT_VALUES = 'setOnDistinctValues',
+  TOGGLE_PATTERN_CASE_SENSITIVE = 'setPatternCaseSensitive',
 }
 
 export const selectFilterTypeEvent = (node: AttributeFilter, type: FilterType, prevType: FilterType):

@@ -2,11 +2,11 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import Scatterplot from './scatterplot';
 
 enum ScatterplotEventType {
-  SELECT_X_COLUMN = 'select-x-column',
-  SELECT_Y_COLUMN = 'select-y-column',
-  TOGGLE_TRANSITION_DISABLED = 'toggle-transition-disabled',
-  TOGGLE_USE_DATASET_RANGE = 'toggle-use-dataset-range',
-  TOGGLE_AXIS_MARGIN = 'toggle-axis-margin',
+  SELECT_X_COLUMN = 'setXColumn',
+  SELECT_Y_COLUMN = 'setYColumn',
+  TOGGLE_TRANSITION_DISABLED = 'setTransitionDisabled',
+  TOGGLE_USE_DATASET_RANGE = 'setUseDatasetRange',
+  TOGGLE_AXIS_MARGIN = 'setAxisMargin',
 }
 
 export const selectXColumnEvent = (node: Scatterplot, column: number | null, prevColumn: number | null):

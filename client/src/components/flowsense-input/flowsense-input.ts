@@ -54,6 +54,7 @@ export default class FlowsenseInput extends Vue {
   private calibratedText = '';
   private voice: Annyang = annyang as Annyang;
   private isVoiceInProgress = false;
+  private isVoiceSupported = true;
   private isWaiting = false; // waiting for query response
   private isInputHidden = false;
   private lastEditPosition = 0;
@@ -107,6 +108,11 @@ export default class FlowsenseInput extends Vue {
   }
 
   private mounted() {
+    this.voice = annyang as Annyang;
+    if (!this.voice) {
+      this.isVoiceSupported = false;
+      return;
+    }
     this.voice.addCallback('soundstart', () => {
       this.isVoiceInProgress = true;
     });
@@ -534,6 +540,9 @@ export default class FlowsenseInput extends Vue {
 
   @Watch('isVoiceEnabled')
   private onVoiceEnabledChange() {
+    if (!this.voice) {
+      return;
+    }
     if (this.visible && this.isVoiceEnabled) {
       this.voice.start();
     } else {

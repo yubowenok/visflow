@@ -2,9 +2,9 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import Aggregation, { AggregationMode } from './aggregation';
 
 enum AggregationEventType {
-  SELECT_MODE = 'select-mode',
-  SELECT_COLUMN = 'select-column',
-  SELECT_GROUP_BY_COLUMN = 'select-group-by-column',
+  SELECT_MODE = 'setMode',
+  SELECT_COLUMN = 'setColumn',
+  SELECT_GROUP_BY_COLUMN = 'setGroupByColumn',
 }
 
 export const selectModeEvent = (node: Aggregation, mode: AggregationMode, prevMode: AggregationMode):

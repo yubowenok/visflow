@@ -206,7 +206,17 @@ const mutations = {
     state.lastMouseY = point.y;
   },
 
+  mousedown: (state: InteractionState) => {
+  },
+
   mouseup: (state: InteractionState) => {
+    state.altPressed = false;
+    state.ctrlPressed = false;
+    state.metaPressed = false;
+    state.shiftPressed = false;
+  },
+
+  mousemove: (state: InteractionState) => {
   },
 
   keydown: (state: InteractionState, evt: JQuery.Event) => {

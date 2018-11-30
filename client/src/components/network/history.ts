@@ -2,13 +2,13 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import Network, { NetworkSelection } from './network';
 
 enum NetworkEventType {
-  NETWORK_INTERACTIVE_SELECTION = 'network-interactive-selection',
-  SELECT_NODE_ID_COLUMN = 'select-node-id-column',
-  SELECT_EDGE_SOURCE_COLUMN = 'select-edge-source-column',
-  SELECT_EDGE_TARGET_COLUMN = 'select-edge-target-column',
-  SELECT_NODE_LABEL_COLUMN = 'select-node-label-column',
-  INPUT_LINK_DISTANCE = 'input-link-distance',
-  TOGGLE_NAVIGATING = 'toggle-navigating',
+  NETWORK_INTERACTIVE_SELECTION = 'setNetworkSelection',
+  SELECT_NODE_ID_COLUMN = 'setNodeIdColumn',
+  SELECT_EDGE_SOURCE_COLUMN = 'setEdgeSourceColumn',
+  SELECT_EDGE_TARGET_COLUMN = 'setEdgeTargetColumn',
+  SELECT_NODE_LABEL_COLUMN = 'setNodeLabelColumn',
+  INPUT_LINK_DISTANCE = 'setLinkDistance',
+  TOGGLE_NAVIGATING = 'setNavigating',
 }
 
 export const selectNodeIdColumnEvent = (node: Network, column: number | null, prevColumn: number | null):

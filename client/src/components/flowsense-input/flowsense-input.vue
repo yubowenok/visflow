@@ -20,7 +20,7 @@
             <i class="fas fa-question"></i>
           </b-button>
         </div>
-        <div :class="microphoneClass">
+        <div :class="microphoneClass" v-if="isVoiceSupported">
           <b-button id="mic" variant="outline-secondary" :pressed="isVoiceEnabled" @click="toggleVoice">
             <i class="fas fa-microphone"></i></b-button>
         </div>

@@ -50,7 +50,7 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
   switch (keys) {
     case 'delete':
     case state.osCtrlKey + '+d':
-    case 'ctrl+x': // TODO: change to cut nodes
+    case state.osCtrlKey + '+x': // TODO: change to cut nodes
       store.commit('dataflow/removeSelectedNodes');
       break;
     case state.osCtrlKey + '+s':

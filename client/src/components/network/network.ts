@@ -748,7 +748,7 @@ export default class Network extends Visualization {
     if (distance < ZOOM_DISTANCE_THRESHOLD) {
       // If the user clicks the node, it is not a valid zoom and we call the click handler to respond to
       // node selection correctly.
-      this.onClick();
+      this.onClick(d3Event.sourceEvent);
     } else {
       this.select(); // Regardless, zooming always selects the node.
     }

@@ -3,7 +3,7 @@ import { DatasetInfo } from '@/store/dataset/types';
 import DataSource from '@/components/data-source/data-source';
 
 enum DataSourceEventType {
-  SET_DATASET_INFO = 'set-dataset-info',
+  SET_DATASET_INFO = 'setDatasetInfo',
 }
 
 // TODO: This event potentially triggers onDatasetChange handler on downflow nodes and may result in

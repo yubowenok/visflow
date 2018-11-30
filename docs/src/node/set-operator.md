@@ -3,6 +3,8 @@
 A <node-type type="set-operator"/> supports set operation between two subsets from a same input table.
 There are three modes for a set operator: <ui-value text="Union"/>, <ui-value text="Intersection"/>, and <ui-value text="Difference"/>.
 
+
+## Connection Order
 The <port-type type="multi-input"/> of the set operator accepts multiple connections.
 The first connected edge provides subset `S1`, the second connected edge provides the subset `S2`, and so on.
 

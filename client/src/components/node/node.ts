@@ -122,6 +122,12 @@ export default class Node extends Vue {
   protected serializationChain: Array<() => {}> = [];
   protected deserializationChain: Array<(save: {}) => void> = [];
 
+  /**
+   * Stores named setters.
+   * In deserialized undo/redo, a setter is retrieved by finding the function in this object.
+   */
+  protected setters: { [name: string]: (value: any) => void } = {}; // tslint:disable-line no-any
+
   protected coverText: string = '';
 
   // A list of classes to be added to the node container. Push to this list on inheritting node's created() call.
@@ -639,7 +645,7 @@ export default class Node extends Vue {
    * Otherwise the click selects the node excusively (deselecting all other nodes) and shows its option panel by
    * activating it.
    */
-  protected onClick() {
+  protected onClick(evt: MouseEvent) {
     if (!this.isDragged) {
       if (this.isShiftPressed) {
         // When shift is pressed, clicking a node toggles its selection.
@@ -650,6 +656,8 @@ export default class Node extends Vue {
         this.activate();
       }
     }
+    // prevent the click to be released globally, which would cancel key presses
+    evt.stopPropagation();
   }
 
   /**
@@ -911,7 +919,7 @@ export default class Node extends Vue {
     }
     this.isMousedowned = false;
     if (evt.which === 1) { // Only click with left mouse button
-      this.onClick();
+      this.onClick(evt);
     }
   }
 
