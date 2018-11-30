@@ -1,10 +1,12 @@
 import { Module } from 'vuex';
+import Cookies from 'cookies-js';
+
 import store, { RootState } from '@/store';
 import { SystemOptionsState } from './types';
 
 const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
-  useBetaFeatures: false,
+  useBetaFeatures: Cookies.get('useBetaFeatures') === 'true',
   dataMutationBoundaryVisible: false,
 };
 
@@ -32,6 +34,7 @@ const mutations = {
    */
   toggleBetaFeatures(state: SystemOptionsState) {
     state.useBetaFeatures = !state.useBetaFeatures;
+    Cookies.set('useBetaFeatures', state.useBetaFeatures);
   },
 
   /**
@@ -42,6 +45,7 @@ const mutations = {
     state.dataMutationBoundaryVisible = !state.dataMutationBoundaryVisible;
 
     store.commit('dataflow/toggleDataMutationBoundary', state.dataMutationBoundaryVisible);
+    Cookies.set('dataMutationBoundary', state.dataMutationBoundaryVisible);
   },
 };
 

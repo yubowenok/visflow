@@ -49,6 +49,7 @@
     "axios": "^0.18.0",
     "babel-core": "7.0.0-bridge.0",
     "bootstrap-vue": "^2.0.0-rc.11",
+    "cookies-js": "^1.2.3",
     "crypto-js": "^3.1.9-1",
     "d3": "^5.4.0",
     "datatables.net": "^1.10.19",

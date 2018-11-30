@@ -1,4 +1,4 @@
-# Data Tranpose
+# Data Transpose
 
 TODO: This is supposed to be mutation node.
 

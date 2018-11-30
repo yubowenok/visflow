@@ -1,0 +1,38 @@
+<!-- node-content -->
+<div class="display">
+  <div class="bold">{{ valueColumnName }}</div>
+  <span>series</span>
+  <span>per</span>
+  <div class="bold">{{ keyColumnName }}</div>
+</div>
+
+<!-- option-panel -->
+<div class="warn" v-if="warningMessage">{{ warningMessage }}</div>
+<div>
+  <div>Key Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="keyColumn"
+    @change="onSelectKeyColumn"
+  ></column-select>
+</div>
+<div>
+  <div>Series Columns</div>
+  <column-list
+    :columns="columnSelectOptions"
+    v-model="seriesColumns"
+    @change="onSelectSeriesColumns"
+  ></column-list>
+</div>
+<div>
+  <div>Series Column Name</div>
+  <form-input v-model="seriesColumnName"
+    @change="onInputSeriesColumnName"
+  ></form-input>
+</div>
+<div>
+  <div>Value Column Name</div>
+  <form-input v-model="valueColumnName"
+    @change="onInputValueColumnName"
+  ></form-input>
+</div>
