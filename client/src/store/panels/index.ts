@@ -18,7 +18,7 @@ const initialState: PanelsState = {
   portPanelMount: document.createElement('div'),
   nodePanelVisible: true,
   quickNodePanelVisible: false,
-  historyPanelVisible: true,
+  historyPanelVisible: false,
   logPanelVisible: false,
 };
 

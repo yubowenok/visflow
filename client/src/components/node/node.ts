@@ -938,7 +938,7 @@ export default class Node extends Vue {
       // If the click is on modal backdrop, do nothing.
       $(element).hasClass('modal-backdrop') ||
       // If the click is in the history panel to undo/redo events, do nothing.
-      $('.history-panel')[0].contains(element) ||
+      // $('.history-panel')[0].contains(element) ||
       // If the click is on the node's own option panel, do nothing.
       this.$refs.optionPanel && (this.$refs.optionPanel as Vue).$el.contains(evt.target as Element)) {
       return;

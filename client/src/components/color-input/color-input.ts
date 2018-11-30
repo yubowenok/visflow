@@ -3,6 +3,7 @@ import { Chrome as VueColor } from 'vue-color';
 
 import GlobalClick from '@/directives/global-click';
 import FormInput from '@/components/form-input/form-input';
+import { VueClass } from 'vue-class-component/lib/declarations';
 
 interface SelectedColor {
   hex: string;
@@ -12,6 +13,7 @@ interface SelectedColor {
 @Component({
   components: {
     FormInput,
+    VueColor: VueColor as VueClass<Vue>,
   },
   directives: {
     GlobalClick,

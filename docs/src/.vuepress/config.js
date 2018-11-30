@@ -18,6 +18,7 @@ module.exports = {
           { text: 'Edit and Interaction', link: '/dataflow/interaction' },
           { text: 'VisMode Dashboard', link: '/dataflow/vismode' },
           { text: 'Linking', link: '/dataflow/linking' },
+          { text: 'Shortcut', link: '/shortcut/' },
         ],
       },
       { text: 'Node Types', link: '/node/' },

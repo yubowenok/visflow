@@ -6,8 +6,12 @@ footer: BSD-3 Licensed | © 2016-present Bowen Yu
 
 <div class="hero">
   <p class="action">
-    <router-link class="nav-link action-button" to="/get-started/">Get Started</router-link>
-    <a href="https://github.com/yubowenok/visflow" target="_blank" class="nav-link action-button">GitHub <i class="fab fa-github"></i></a>
+    <router-link class="nav-link action-button" to="/get-started/">
+      Get Started <i class="fas fa-book-open"></i></router-link>
+    <a href="https://github.com/yubowenok/visflow" target="_blank" class="nav-link action-button">
+      GitHub <i class="fab fa-github"></i></a>
+    <a href="https://visflow.org/demo" target="_blank" class="nav-link action-button">
+      Demo <i class="fas fa-external-link-alt"></i></a>
   </p>
 </div>
 

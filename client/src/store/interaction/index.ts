@@ -40,7 +40,7 @@ const initialState: InteractionState = {
   mouseupEdge: undefined,
 
   osCtrlKey: IS_MAC ? 'meta' : 'ctrl',
-  osCtrlKeyChar: IS_MAC ? '⌘' : '⇧',
+  osCtrlKeyChar: IS_MAC ? '⌘' : '⌃',
 };
 
 const getters = {

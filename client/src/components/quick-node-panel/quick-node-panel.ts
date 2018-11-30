@@ -20,13 +20,17 @@ export default class QuickNodePanel extends Vue {
   @ns.panels.Mutation('closeQuickNodePanel') private closeQuickNodePanel!: () => void;
   @ns.interaction.State('lastMouseX') private lastMouseX!: number;
   @ns.interaction.State('lastMouseY') private lastMouseY!: number;
-  @ns.dataflow.State('nodeTypes') private nodeTypes!: NodeType[];
+  @ns.dataflow.State('nodeTypes') private dataflowNodeTypes!: NodeType[];
   @ns.systemOptions.State('useBetaFeatures') private useBetaFeatures!: boolean;
 
   private x = 0;
   private y = 0;
   private searchText = '';
   private filteredNodeTypes: NodeType[] = [];
+
+  get nodeTypes(): NodeType[] {
+    return this.useBetaFeatures ? this.dataflowNodeTypes : this.dataflowNodeTypes.filter(type => !type.isBeta);
+  }
 
   @Watch('quickNodePanelVisible')
   private onVisibleChange(value: boolean) {
@@ -38,13 +42,12 @@ export default class QuickNodePanel extends Vue {
     }
   }
 
-  private onSearchTextChange(text: string | null) {
-    const nodeTypes = this.useBetaFeatures ? this.nodeTypes : this.nodeTypes.filter(type => !type.isBeta);
+  private onSearchTextInput(text: string | null) {
     if (!text) {
-      this.filteredNodeTypes = nodeTypes;
+      this.filteredNodeTypes = this.nodeTypes;
       return;
     }
-    this.filteredNodeTypes = nodeTypes.filter(type =>
+    this.filteredNodeTypes = this.nodeTypes.filter(type =>
       type.id.match(text.toLowerCase()) || type.tags.match(text.toLowerCase()));
   }
 

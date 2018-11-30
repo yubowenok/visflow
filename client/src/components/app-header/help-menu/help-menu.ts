@@ -17,7 +17,7 @@ export default class DiagramMenu extends Vue {
 
   // Opens a new browser tab for system documentation.
   private documentation() {
-    window.open('https://visflow.org/doc.html', '_blank');
+    window.open('https://visflow.org/', '_blank');
   }
 
   // Opens a new browser tab for github repository.

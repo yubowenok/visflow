@@ -22,6 +22,12 @@ export default class HistoryPanel extends Vue {
     });
   }
 
+  private updated() {
+    $(this.$el).resizable({
+      handles: 'e',
+    });
+  }
+
   private getIconPath(type: NodeType): string {
     return this.getImgSrc(type);
   }
