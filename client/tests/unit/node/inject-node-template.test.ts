@@ -5,6 +5,7 @@ describe('inject node template', () => {
     expect(injected.match(/<div ref="node"[\s\S]*test-nc[\s\S]*<\/div><\!--node-->/)).not.toBe(null);
     expect(injected.match(/<context-menu[\s\S]*test-cm[\s\S]*<\/context-menu>/)).not.toBe(null);
     expect(injected.match(/<option-panel[\s\S]*test-op[\s\S]*<\/option-panel>/)).not.toBe(null);
+    expect(injected.match(/<base-modal[\s\S]*test-sm[\s\S]*<\/base-modal>/)).not.toBe(null);
   };
 
   it('standard order', () => {
@@ -15,6 +16,8 @@ test-nc
 test-cm
 <!-- option-panel -->
 test-op
+<!-- settings-modal -->
+test-sm
 `;
     const injected = injectNodeTemplate(testHtml);
     check(injected);
@@ -26,6 +29,8 @@ test-op
 test-cm
 <!-- option-panel -->
 test-op
+<!-- settings-modal -->
+test-sm
 <!-- node-content -->
 test-nc
 `;
@@ -41,6 +46,8 @@ test-nc
 test-op
    <!--context-menu-->` + '   ' + `
 test-cm
+<!-- settings-modal  -->
+  test-sm
 `;
     const injected = injectNodeTemplate(testHtml);
     check(injected);

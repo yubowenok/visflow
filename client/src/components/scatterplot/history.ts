@@ -7,6 +7,7 @@ enum ScatterplotEventType {
   TOGGLE_TRANSITION_DISABLED = 'setTransitionDisabled',
   TOGGLE_USE_DATASET_RANGE = 'setUseDatasetRange',
   TOGGLE_AXIS_MARGIN = 'setAxisMargin',
+  TOGGLE_TRANSPARENT_BACKGROUND = 'setTransparentBackground',
 }
 
 export const selectXColumnEvent = (node: Scatterplot, column: number | null, prevColumn: number | null):
@@ -61,6 +62,17 @@ export const toggleAxisMarginEvent = (node: Scatterplot, value: boolean): Histor
     'toggle axis margin',
     node,
     node.setAxisMargin,
+    value,
+    !value,
+  );
+};
+
+export const toggleTransparentBackgroundEvent = (node: Scatterplot, value: boolean): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    ScatterplotEventType.TOGGLE_TRANSPARENT_BACKGROUND,
+    'toggle transparent background',
+    node,
+    node.setTransparentBackground,
     value,
     !value,
   );

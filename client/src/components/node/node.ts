@@ -19,6 +19,7 @@ import template from './node.html';
 import { HistoryNodeEvent } from '@/store/history/types';
 import * as history from './history';
 import { vectorDistance } from '@/common/vector';
+import BaseModal from '@/components/modals/base-modal/base-modal';
 
 const GRID_SIZE = 10;
 
@@ -35,6 +36,7 @@ const MINIMUM_ACTIVENESS = .1;
     ContextMenu,
     OptionPanel,
     Port,
+    BaseModal,
   },
   directives: {
     GlobalClick,
@@ -75,6 +77,7 @@ export default class Node extends Vue {
   protected RESIZABLE = false;
   protected ENLARGEABLE = false; // if the node can be enlarged to fullscreen modal
   protected REVERSE_INPUT_OUTPUT_PORTS = false; // if the input is on the right and the output is on the left
+  protected HAS_SETTINGS = false; // has advanced settings configured by a modal
 
   protected label = '';
 
@@ -153,6 +156,9 @@ export default class Node extends Vue {
 
   // Used to hide ports when visMode is exiting.
   private isExitingVisMode = false;
+
+  // Whether the settings modal is visible.
+  private isSettingsVisible = false;
 
   get numInputPorts(): number {
     return this.inputPorts.length;
@@ -1195,5 +1201,13 @@ export default class Node extends Vue {
       outline: this.boundaryColor ? `1.25px solid ${this.boundaryColor}` : '',
       boxShadow: this.boundaryColor ? `1.25px 1.25px 2.5px ${this.boundaryColor}` : '',
     };
+  }
+
+  private openSettingsModal() {
+    this.isSettingsVisible = true;
+  }
+
+  private closeSettingsModal() {
+    this.isSettingsVisible = false;
   }
 }

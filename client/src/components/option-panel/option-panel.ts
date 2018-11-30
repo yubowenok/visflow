@@ -21,6 +21,8 @@ export default class OptionPanel extends Vue {
   private nodeLabel!: string;
   @Prop({ default: false })
   private enlargeable!: boolean;
+  @Prop({ default: false })
+  private hasSettings!: boolean;
 
   private iconized = false;
   private inVisMode = false;
@@ -75,5 +77,9 @@ export default class OptionPanel extends Vue {
 
   private enlarge() {
     this.$emit('enlarge');
+  }
+
+  private settings() {
+    this.$emit('settings');
   }
 }

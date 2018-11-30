@@ -46,6 +46,7 @@ export default class ScriptEditor extends SubsetNode {
 
   protected NODE_TYPE = 'script-editor';
   protected RESIZABLE = true;
+  protected HAS_SETTINGS = true;
 
   private METHOD_ANNOTATION = METHOD_ANNOTATION;
 
