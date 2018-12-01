@@ -251,8 +251,23 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
       let nodeType = spec.id;
       if (nodeType === FlowsenseDef.DEFAULT_CHART_TYPE) {
         // Choose default chart type here
-        const numColumns = value.columns ? value.columns.length : 2;
-        nodeType = numColumns >= 3 ? 'parallel-coordinates' : (numColumns === 1 ? 'histogram' : 'scatterplot');
+        if (value.seriesColumn !== undefined || value.groupByColumn !== undefined) {
+          // series column is present, use a line chart
+          nodeType = 'line-chart';
+        } else if ((value.columns || []).indexOf(FlowsenseDef.ALL_COLUMNS) !== -1) {
+          // If all columns are to be shown, use parallel coordinates.
+          nodeType = 'parallel-coordinates';
+        } else {
+          // There are no specified chart type.
+          // Simply choose a chart based on the number of columns to show.
+          // 1: histogram
+          // 2: scatterplot
+          // 3 or more: parallel coordinates
+          const numColumns = value.columns ? value.columns.length : 2;
+          nodeType = numColumns >= 3 ? 'parallel-coordinates' : (numColumns === 1 ? 'histogram' : 'scatterplot');
+        }
+      } else if (nodeType === FlowsenseDef.SERIES_CHART_TYPE) {
+        nodeType = 'line-chart';
       } else {
         const ejected = ejectMarker(nodeType, query.markerMapping);
         // If the token cannot be ejected, it is a nodeType string itself.
@@ -284,6 +299,19 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   const sources = getQuerySources(value, query, tracker);
   const targets = getQueryTargets(value, query, tracker);
   let message = 'create ';
+
+  // undo and redo do not affect diagram layout
+  // They do not commit an action to the history stack.
+  if (value.undo || value.redo) {
+    if (value.undo) {
+      update.undo(tracker);
+      message = 'undo';
+    } else if (value.redo) {
+      update.redo(tracker);
+      message = 'redo';
+    }
+    return;
+  }
 
   // Whether the operation results in a single chart creation.
   let onlyCreateChart = true;

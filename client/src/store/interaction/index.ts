@@ -2,6 +2,7 @@
  * @fileoverview This is the state handler for system-wise interaction.
  */
 import { Module } from 'vuex';
+import $ from 'jquery';
 
 import Node from '@/components/node/node';
 import Port from '@/components/port/port';
@@ -39,7 +40,7 @@ const initialState: InteractionState = {
   mouseupEdge: undefined,
 
   osCtrlKey: IS_MAC ? 'meta' : 'ctrl',
-  osCtrlKeyChar: IS_MAC ? '⌘' : '⇧',
+  osCtrlKeyChar: IS_MAC ? '⌘' : '⌃',
 };
 
 const getters = {
@@ -205,7 +206,17 @@ const mutations = {
     state.lastMouseY = point.y;
   },
 
+  mousedown: (state: InteractionState) => {
+  },
+
   mouseup: (state: InteractionState) => {
+    state.altPressed = false;
+    state.ctrlPressed = false;
+    state.metaPressed = false;
+    state.shiftPressed = false;
+  },
+
+  mousemove: (state: InteractionState) => {
   },
 
   keydown: (state: InteractionState, evt: JQuery.Event) => {

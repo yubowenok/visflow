@@ -50,7 +50,7 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
   switch (keys) {
     case 'delete':
     case state.osCtrlKey + '+d':
-    case 'ctrl+x': // TODO: change to cut nodes
+    case state.osCtrlKey + '+x': // TODO: change to cut nodes
       store.commit('dataflow/removeSelectedNodes');
       break;
     case state.osCtrlKey + '+s':
@@ -84,7 +84,9 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
       debugger; // tslint:disable-line
       break;
     case 'shift+s':
-      store.commit('flowsense/openInput');
+      if (store.state.flowsense.enabled) {
+        store.commit('flowsense/openInput');
+      }
       break;
     default:
       // Pass the keyboard command to selected nodes.

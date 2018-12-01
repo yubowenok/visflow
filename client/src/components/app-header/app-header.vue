@@ -27,7 +27,7 @@
         <vis-mode-bar></vis-mode-bar>
         <drag-bar></drag-bar>
         <dataset-bar></dataset-bar>
-        <flowsense-bar></flowsense-bar>
+        <flowsense-bar v-if="flowsenseEnabled"></flowsense-bar>
 
         <user-bar v-if="!isInExperiment"></user-bar>
       </b-navbar-nav>

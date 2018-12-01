@@ -20,6 +20,7 @@ module.exports = {
         'process.env.TIME_ZONE': JSON.stringify(env.TIME_ZONE),
         'process.env.VERSION': JSON.stringify(env.VERSION),
         'process.env.FLOWSENSE_ENABLED': JSON.stringify(env.FLOWSENSE_ENABLED),
+        'process.env.BASE_URL': JSON.stringify(baseUrl),
       }),
     ];
     if (env.ENVIRONMENT === 'production') {

@@ -2,8 +2,8 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import Linker from './linker';
 
 enum ConstantsGeneratorEventType {
-  SELECT_EXTRACT_COLUMN = 'select-extract-column',
-  SELECT_FILTER_COLUMN = 'select-filter-column',
+  SELECT_EXTRACT_COLUMN = 'setExtractColumn',
+  SELECT_FILTER_COLUMN = 'setFilterColumn',
 }
 
 export const selectExtractColumnEvent = (node: Linker, column: number | null, prevColumn: number | null):

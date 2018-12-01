@@ -3,10 +3,10 @@ import ConstantsGenerator from './constants-generator';
 import { getConstantsListInputType } from '@/components/constants-list/constants-list';
 
 enum ConstantsGeneratorEventType {
-  INPUT_CONSTANTS = 'input-constants',
-  SELECT_COLUMN = 'select-column',
-  TOGGLE_DISTINCT = 'toggle-distinct',
-  TOGGLE_SORT = 'toggle-sort',
+  INPUT_CONSTANTS = 'setConstants',
+  SELECT_COLUMN = 'setColumn',
+  TOGGLE_DISTINCT = 'setDistinct',
+  TOGGLE_SORT = 'setSort',
 }
 
 export const inputConstantsEvent = (node: ConstantsGenerator, constants: string[], prevConstants: string[]):

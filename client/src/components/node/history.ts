@@ -13,9 +13,9 @@ import { areBoxesEqual } from '@/common/util';
 export enum HistoryNodeEventType {
   MOVE = 'move',
   RESIZE = 'resize',
-  TOGGLE_ICONIZED = 'toggle-iconized',
-  TOGGLE_IN_VIS_MODE = 'toggle-in-vis-mode',
-  TOGGLE_LABEL_VISIBLE = 'toggle-label-visible',
+  TOGGLE_ICONIZED = 'setIconized',
+  TOGGLE_IN_VIS_MODE = 'setInVisMode',
+  TOGGLE_LABEL_VISIBLE = 'setLabelVisible',
 }
 
 export const moveNodeEvent = (node: Node, movedNodes: Node[], to: Point, from: Point): HistoryNodeEvent => {

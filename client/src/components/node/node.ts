@@ -19,6 +19,7 @@ import template from './node.html';
 import { HistoryNodeEvent } from '@/store/history/types';
 import * as history from './history';
 import { vectorDistance } from '@/common/vector';
+import BaseModal from '@/components/modals/base-modal/base-modal';
 
 const GRID_SIZE = 10;
 
@@ -35,6 +36,7 @@ const MINIMUM_ACTIVENESS = .1;
     ContextMenu,
     OptionPanel,
     Port,
+    BaseModal,
   },
   directives: {
     GlobalClick,
@@ -75,6 +77,7 @@ export default class Node extends Vue {
   protected RESIZABLE = false;
   protected ENLARGEABLE = false; // if the node can be enlarged to fullscreen modal
   protected REVERSE_INPUT_OUTPUT_PORTS = false; // if the input is on the right and the output is on the left
+  protected HAS_SETTINGS = false; // has advanced settings configured by a modal
 
   protected label = '';
 
@@ -122,6 +125,12 @@ export default class Node extends Vue {
   protected serializationChain: Array<() => {}> = [];
   protected deserializationChain: Array<(save: {}) => void> = [];
 
+  /**
+   * Stores named setters.
+   * In deserialized undo/redo, a setter is retrieved by finding the function in this object.
+   */
+  protected setters: { [name: string]: (value: any) => void } = {}; // tslint:disable-line no-any
+
   protected coverText: string = '';
 
   // A list of classes to be added to the node container. Push to this list on inheritting node's created() call.
@@ -147,6 +156,9 @@ export default class Node extends Vue {
 
   // Used to hide ports when visMode is exiting.
   private isExitingVisMode = false;
+
+  // Whether the settings modal is visible.
+  private isSettingsVisible = false;
 
   get numInputPorts(): number {
     return this.inputPorts.length;
@@ -639,7 +651,7 @@ export default class Node extends Vue {
    * Otherwise the click selects the node excusively (deselecting all other nodes) and shows its option panel by
    * activating it.
    */
-  protected onClick() {
+  protected onClick(evt: MouseEvent) {
     if (!this.isDragged) {
       if (this.isShiftPressed) {
         // When shift is pressed, clicking a node toggles its selection.
@@ -650,6 +662,8 @@ export default class Node extends Vue {
         this.activate();
       }
     }
+    // prevent the click to be released globally, which would cancel key presses
+    evt.stopPropagation();
   }
 
   /**
@@ -911,7 +925,7 @@ export default class Node extends Vue {
     }
     this.isMousedowned = false;
     if (evt.which === 1) { // Only click with left mouse button
-      this.onClick();
+      this.onClick(evt);
     }
   }
 
@@ -938,7 +952,7 @@ export default class Node extends Vue {
       // If the click is on modal backdrop, do nothing.
       $(element).hasClass('modal-backdrop') ||
       // If the click is in the history panel to undo/redo events, do nothing.
-      $('.history-panel')[0].contains(element) ||
+      // $('.history-panel')[0].contains(element) ||
       // If the click is on the node's own option panel, do nothing.
       this.$refs.optionPanel && (this.$refs.optionPanel as Vue).$el.contains(evt.target as Element)) {
       return;
@@ -1187,5 +1201,13 @@ export default class Node extends Vue {
       outline: this.boundaryColor ? `1.25px solid ${this.boundaryColor}` : '',
       boxShadow: this.boundaryColor ? `1.25px 1.25px 2.5px ${this.boundaryColor}` : '',
     };
+  }
+
+  private openSettingsModal() {
+    this.isSettingsVisible = true;
+  }
+
+  private closeSettingsModal() {
+    this.isSettingsVisible = false;
   }
 }

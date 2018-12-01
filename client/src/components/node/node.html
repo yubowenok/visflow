@@ -54,13 +54,29 @@
         :isInVisMode="isInVisMode"
         :isLabelVisible="isLabelVisible"
         :enlargeable="ENLARGEABLE"
+        :hasSettings="HAS_SETTINGS"
         @input:iconized="onToggleIconized"
         @input:inVisMode="onToggleInVisMode"
         @input:labelVisible="onToggleLabelVisible"
         @input:nodeLabel="onInputLabel"
+        @settings="openSettingsModal"
         @enlarge="enlarge"
     >
       <!-- option-panel -->
     </option-panel>
   </transition>
+
+  <base-modal ref="settingsModal" title="Settings"
+    :visible-state="isSettingsVisible"
+    :on-open="openSettingsModal"
+    :on-close="closeSettingsModal"
+    >
+    <template slot="content">
+      <!-- settings-modal -->
+    </template>
+    <template slot="footer">
+      <b-btn variant="outline-secondary" @click="closeSettingsModal">Cancel</b-btn>
+      <b-btn variant="outline-success" @click="closeSettingsModal">OK</b-btn>
+    </template>
+  </base-modal>
 </div>

@@ -1,7 +1,7 @@
 <template>
 <span>
   <template v-if="keys">
-    <span v-for="(key, index) in keys" :key="index">
+    <span v-for="(key, index) in keys" :key="index" :title="key">
       <span :class="['shortcut', {
         hold: hold && hold.indexOf(key) !== -1,
         action: key.match(/click|drag|tab|enter/) !== null,

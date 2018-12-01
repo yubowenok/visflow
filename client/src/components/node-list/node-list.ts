@@ -30,6 +30,10 @@ export default class NodeList extends Vue {
     this.initDrag();
   }
 
+  private updated() {
+    this.initDrag();
+  }
+
   /** Initializes the drag-and-drop behavior on the node buttons. */
   private initDrag() {
     const clickHandler = (nodeType: NodeType, x?: number, y?: number) => {

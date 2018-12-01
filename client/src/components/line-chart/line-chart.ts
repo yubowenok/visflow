@@ -1,7 +1,8 @@
 import { Component } from 'vue-property-decorator';
-import _ from 'lodash';
 import { select } from 'd3-selection';
 import { line, curveBasis } from 'd3-shape';
+import _ from 'lodash';
+import $ from 'jquery';
 
 import template from './line-chart.html';
 import {
@@ -139,6 +140,23 @@ export default class LineChart extends Visualization {
 
   public setLegendsVisible(value: boolean) {
     this.areLegendsVisible = value;
+    this.draw();
+  }
+
+  public applyColumns(columns: number[]) {
+    if (columns.length === 0) {
+      this.findDefaultColumns();
+      return;
+    }
+    if (columns.length >= 1) {
+      this.valueColumn = columns[0];
+    }
+    if (columns.length >= 2) {
+      this.seriesColumn = columns[1];
+    }
+    if (columns.length >= 3) {
+      this.groupByColumn = columns[2];
+    }
     this.draw();
   }
 

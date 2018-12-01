@@ -11,10 +11,6 @@
 <div class="section">
   <b-form-checkbox v-model="isRenderingEnabled" @input="onToggleRenderingEnabled">Rendering</b-form-checkbox>
 </div>
-<div class="section">
-  <b-form-checkbox v-model="transparentBackground" @input="onToggleTransparentBackground">Transparent Content</b-form-checkbox>
-</div>
-
 <ace-modal ref="aceModal"
   v-model="code"
   @change="onCodeChange"
@@ -42,3 +38,8 @@
   </div>
 </div>
 </ace-modal>
+
+<!-- settings-modal -->
+<div class="section">
+  <b-form-checkbox v-model="transparentBackground" @input="onToggleTransparentBackground">Transparent Content</b-form-checkbox>
+</div>

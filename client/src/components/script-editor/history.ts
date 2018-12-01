@@ -2,8 +2,8 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import ScriptEditor from './script-editor';
 
 enum ScriptEditorEventType {
-  EDIT_SCRIPT = 'edit-script',
-  TOGGLE_RENDERING_ENABLED = 'toggle-rendering-enabled',
+  EDIT_SCRIPT = 'setCode',
+  TOGGLE_RENDERING_ENABLED = 'setRenderingEnabled',
 }
 
 export const editScriptEvent = (node: ScriptEditor, code: string, prevCode: string): HistoryNodeOptionEvent => {

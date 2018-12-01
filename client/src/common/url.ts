@@ -10,7 +10,7 @@ import { ENVIRONMENT } from '@/common/env';
 const isProd = ENVIRONMENT === 'production';
 const isTest = ENVIRONMENT === 'test';
 
-const protocol = isProd ? 'https://' : 'http://';
+const protocol = window.location.protocol + '//';
 const hostname = isProd ? window.location.hostname : 'localhost';
 
 const prodPort = window.location.port ? '' + window.location.port : '';

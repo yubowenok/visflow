@@ -5,7 +5,7 @@
     <i v-if="isWaiting" class="fas fa-circle-notch fa-spin"></i>
     <div class="input-row">
       <form-input id="input" ref="input" v-model="text" :disabled="isWaiting"
-        @change="onTextInput"
+        @input="onTextInput"
         @keyup.enter.native="onEnter"
         @destroyed="onHideInput"
         @keydown.native.tab.prevent.stop="onTab"
@@ -20,7 +20,7 @@
             <i class="fas fa-question"></i>
           </b-button>
         </div>
-        <div :class="microphoneClass">
+        <div :class="microphoneClass" v-if="isVoiceSupported">
           <b-button id="mic" variant="outline-secondary" :pressed="isVoiceEnabled" @click="toggleVoice">
             <i class="fas fa-microphone"></i></b-button>
         </div>

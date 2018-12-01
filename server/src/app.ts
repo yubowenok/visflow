@@ -28,13 +28,13 @@ connectMongo();
 // Server config
 app.set('port', PORT || 3000);
 app.use(cors({
-  origin: (origin: string, callback: (err: Error, allow?: boolean) => void) => {
+  origin: (origin: string | undefined, callback: (err: Error, allow?: boolean) => void) => {
     if (ENVIRONMENT === 'test') {
       // accept any origin in tests
       callback(null, true);
       return;
     }
-    if (ALLOW_ORIGIN.indexOf(origin) !== -1) {
+    if (ALLOW_ORIGIN.indexOf(origin) !== -1 || origin === undefined) {
       callback(null, true);
     } else {
       callback(new Error('not allowed by CORS'));

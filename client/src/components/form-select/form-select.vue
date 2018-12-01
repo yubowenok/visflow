@@ -1,5 +1,5 @@
 <template>
-  <v-select id="select" :class="['vf-select', { clearable: !clearable }]"
+  <v-select id="select" :class="['vf-select', { clearable }]"
     :options="options"
     :multiple="multiple"
     :label="label"

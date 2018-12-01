@@ -2,12 +2,12 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import LineChart from './line-chart';
 
 enum LineChartEventType {
-  SELECT_SERIES_COLUMN = 'select-series-column',
-  SELECT_VALUE_COLUMN = 'select-value-column',
-  SELECT_GROUP_BY_COLUMN = 'select-group-by-column',
-  TOGGLE_POINTS_VISIBLE = 'toggle-points-visible',
-  TOGGLE_CURVE_DRAWING = 'toggle-curve-drawing',
-  TOGGLE_LEGENDS_VISIBLE = 'toggle-legends-visible',
+  SELECT_SERIES_COLUMN = 'setSeriesColumn',
+  SELECT_VALUE_COLUMN = 'setValueColumn',
+  SELECT_GROUP_BY_COLUMN = 'setGroupByColumn',
+  TOGGLE_POINTS_VISIBLE = 'setPointsVisible',
+  TOGGLE_CURVE_DRAWING = 'setCurveDrawing',
+  TOGGLE_LEGENDS_VISIBLE = 'setLegendsVisible',
 }
 
 export const selectSeriesColumnEvent = (node: LineChart, column: number | null, prevColumn: number | null):

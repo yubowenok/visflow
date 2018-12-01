@@ -221,6 +221,26 @@ export default class TabularDataset {
     return distinct ? _.uniq(values) : values;
   }
 
+  /**
+   * Checks if a given column has duplicate values on the given items. If no items are given, return if a given column
+   * has duplicates from the original dataset.
+   * Values are compared by their string values.
+   */
+  public hasDuplicates(columnIndex: number, items?: number[]): boolean {
+    if (columnIndex === INDEX_COLUMN) {
+      return false;
+    }
+    items = items || _.range(this.numRows());
+    const valueSet = new Set<string>();
+    for (const itemIndex of items) {
+      const value = this.rows[itemIndex][columnIndex].toString();
+      if (valueSet.has(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public getHash(): string {
     return this.hash;
   }

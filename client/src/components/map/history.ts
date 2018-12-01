@@ -2,9 +2,9 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import Map from './map';
 
 enum MapEventType {
-  SELECT_LATITUDE_COLUMN = 'select-latitude-column',
-  SELECT_LONGITUDE_COLUMN = 'select-longitude-column',
-  TOGGLE_NAVIGATING = 'toggle-navigating',
+  SELECT_LATITUDE_COLUMN = 'setLatitudeColumn',
+  SELECT_LONGITUDE_COLUMN = 'setLongitudeColumn',
+  TOGGLE_NAVIGATING = 'setNavigating',
 }
 
 export const selectLatitudeColumnEvent = (node: Map, column: number | null, prevColumn: number | null):

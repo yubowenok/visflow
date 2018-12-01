@@ -1,7 +1,8 @@
 import { Component } from 'vue-property-decorator';
-import _ from 'lodash';
-import Victor from 'victor';
 import { select } from 'd3-selection';
+import Victor from 'victor';
+import _ from 'lodash';
+import $ from 'jquery';
 
 import {
   Visualization,
@@ -64,6 +65,7 @@ const SELECTED_ITEM_VISUALS: VisualProperties = {
 })
 export default class Scatterplot extends Visualization {
   protected NODE_TYPE = 'scatterplot';
+  protected HAS_SETTINGS = true; // allow transparent background
 
   private xColumn: number = 0;
   private yColumn: number = 0;
@@ -76,6 +78,9 @@ export default class Scatterplot extends Visualization {
   private useDatasetRange = false;
   // Whether to have margin at the two sides of the axes.
   private axisMargin = true;
+
+  // advanced settings
+  private transparentBackground = false;
 
   public setXColumn(column: number) {
     this.xColumn = column;
@@ -111,6 +116,10 @@ export default class Scatterplot extends Visualization {
   public setAxisMargin(value: boolean) {
     this.axisMargin = value;
     this.draw();
+  }
+
+  public setTransparentBackground(value: boolean) {
+    this.backgroundColor = value ? 'none' : 'white';
   }
 
   protected created() {
@@ -319,5 +328,10 @@ export default class Scatterplot extends Visualization {
   private onToggleAxisMargin(value: boolean) {
     this.commitHistory(history.toggleAxisMarginEvent(this, value));
     this.setAxisMargin(value);
+  }
+
+  private onToggleTransparentBackground(value: boolean) {
+    this.commitHistory(history.toggleTransparentBackgroundEvent(this, value));
+    this.setTransparentBackground(value);
   }
 }

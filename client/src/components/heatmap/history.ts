@@ -3,11 +3,11 @@ import Heatmap from './heatmap';
 import { getColumnListInputType } from '@/components/column-list/column-list';
 
 enum HeatmapEventType {
-  SELECT_COLUMNS = 'select-columns',
-  SELECT_COLOR_SCALE = 'select-color-scale',
-  SELECT_SORT_BY_COLUMN = 'select-sort-by-column',
-  SELECT_ROW_LABEL_COLUMN = 'select-row-label-column',
-  TOGGLE_COLUMN_LABELS_VISIBLE = 'toggle-column-labels-visible',
+  SELECT_COLUMNS = 'setColumns',
+  SELECT_COLOR_SCALE = 'setColorScale',
+  SELECT_SORT_BY_COLUMN = 'setSortByColumn',
+  SELECT_ROW_LABEL_COLUMN = 'setRowLabelColumn',
+  TOGGLE_COLUMN_LABELS_VISIBLE = 'setColumnLabelsVisible',
 }
 
 export const selectColumnsEvent = (node: Heatmap, columns: number[], prevColumns: number[]):

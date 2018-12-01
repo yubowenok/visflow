@@ -111,6 +111,10 @@ export interface QueryValue {
   // special operation flags
   highlight?: boolean;
   select?: boolean;
+
+  // diagram edit
+  undo?: boolean;
+  redo?: boolean;
 }
 
 export enum FlowsenseEventType {
@@ -120,7 +124,9 @@ export enum FlowsenseEventType {
 
 export const FlowsenseDef = {
   DEFAULT_CHART_TYPE: '_default_chart_type',
+  SERIES_CHART_TYPE: '_series_chart_type',
   DEFAULT_SOURCE: '_default_source',
+  ALL_COLUMNS: '_all_columns',
   SELECTION: '_selection',
   INDEX_COLUMN: '_index',
   NUMBER_VALUE: 'r_number',

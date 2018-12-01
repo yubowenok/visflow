@@ -20,6 +20,7 @@ import DataReservoir from '@/components/data-reservoir/data-reservoir';
 import ScriptEditor from '@/components/script-editor/script-editor';
 import Aggregation from '@/components/aggregation/aggregation';
 import Player from '@/components/player/player';
+import SeriesTranspose from '@/components/series-transpose/series-transpose';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -75,7 +76,7 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/line-chart.svg'),
     constructor: LineChart,
     tags: VISUALIZATION_TAGS + ' series time trend',
-    aliases: ['series'],
+    aliases: ['timeseries'],
   },
   {
     id: 'network',
@@ -158,6 +159,14 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/aggregation.svg'),
     constructor: Aggregation,
     tags: 'aggregation sum average count minimum maximum',
+    isBeta: true,
+  },
+  {
+    id: 'series-transpose',
+    title: 'Series Transpose',
+    imgSrc: require('@/imgs/series-transpose.svg'),
+    constructor: SeriesTranspose,
+    tags: 'series transpose data',
     isBeta: true,
   },
 ];

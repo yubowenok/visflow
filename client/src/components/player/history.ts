@@ -2,9 +2,9 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import Player from './player';
 
 enum PlayerEventType {
-  SELECT_TIME_COLUMN = 'select-time-column',
-  INPUT_FRAMES_PER_SECOND = 'input-frames-per-second',
-  SET_CURRENT_TIME_INDEX = 'set-current-time-index',
+  SELECT_TIME_COLUMN = 'setTimeColumn',
+  INPUT_FRAMES_PER_SECOND = 'setFramesPerSecond',
+  SET_CURRENT_TIME_INDEX = 'setCurrentTimeIndex',
 }
 
 export const selectTimeColumnEvent = (node: Player, column: number, prevColumn: number):

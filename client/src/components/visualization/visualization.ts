@@ -1,5 +1,7 @@
 import { Component, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
+import $ from 'jquery';
+
 
 import { DEFAULT_ANIMATION_DURATION_S, ENLARGE_ZINDEX, NODE_CONTENT_PADDING_PX } from '@/common/constants';
 import { showSystemMessage, elementContains, mouseOffset } from '@/common/util';

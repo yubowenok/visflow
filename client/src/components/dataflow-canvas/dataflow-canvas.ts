@@ -8,7 +8,6 @@ import Port from '@/components/port/port';
 import Edge from '@/components/edge/edge';
 import DrawingEdge from '@/components/drawing-edge/drawing-edge';
 import { DEFAULT_ANIMATION_DURATION_S } from '@/common/constants';
-import * as history from './history';
 import { HistoryDiagramEvent } from '@/store/history/types';
 
 enum DragMode {

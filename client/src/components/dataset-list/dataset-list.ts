@@ -1,4 +1,5 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator';
+import $ from 'jquery';
 
 import ns from '@/store/namespaces';
 import DataTable from '@/components/data-table/data-table';

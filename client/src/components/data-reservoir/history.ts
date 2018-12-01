@@ -2,8 +2,8 @@ import { HistoryNodeOptionEvent, nodeOptionEvent } from '@/store/history/types';
 import DataReservoir from './data-reservoir';
 
 enum DataReservoirEventType {
-  RELEASE_OUTPUT = 'release-output',
-  CLEAR_OUTPUT = 'clear-output',
+  RELEASE_OUTPUT = 'setItems',
+  CLEAR_OUTPUT = 'setItems',
 }
 
 export const releaseOutputEvent = (node: DataReservoir, items: number[], prevItems: number[]):

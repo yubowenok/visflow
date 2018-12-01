@@ -4,7 +4,7 @@
     v-global-click="globalClick"
     :style="style">
     <form-input v-model="searchText" placeholder="Search for nodes"
-      @change="onSearchTextChange"></form-input>
+      @input="onSearchTextInput"></form-input>
     <node-list class="node-list"
       :nodeTypes="filteredNodeTypes"
       :nodeTypesPerRow="4"

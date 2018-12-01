@@ -1,10 +1,11 @@
 import { Component, Watch } from 'vue-property-decorator';
-import _ from 'lodash';
 import { forceSimulation, Simulation, forceLink, forceManyBody, forceCenter } from 'd3-force';
 import { event as d3Event, select } from 'd3-selection';
 import { line, curveBasis, curveLinearClosed } from 'd3-shape';
-import { zoom, ZoomBehavior, zoomIdentity, zoomTransform } from 'd3-zoom';
+import { zoom, ZoomBehavior, zoomIdentity } from 'd3-zoom';
 import Victor from 'victor';
+import _ from 'lodash';
+import $ from 'jquery';
 
 import template from './network.html';
 import {
@@ -747,7 +748,7 @@ export default class Network extends Visualization {
     if (distance < ZOOM_DISTANCE_THRESHOLD) {
       // If the user clicks the node, it is not a valid zoom and we call the click handler to respond to
       // node selection correctly.
-      this.onClick();
+      this.onClick(d3Event.sourceEvent);
     } else {
       this.select(); // Regardless, zooming always selects the node.
     }

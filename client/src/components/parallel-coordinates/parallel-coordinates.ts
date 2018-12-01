@@ -4,6 +4,7 @@ import { axisLeft } from 'd3-axis';
 import { scaleLinear } from 'd3-scale';
 import { line } from 'd3-shape';
 import _ from 'lodash';
+import $ from 'jquery';
 
 import ColumnList from '@/components/column-list/column-list';
 import template from './parallel-coordinates.html';

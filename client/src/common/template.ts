@@ -11,6 +11,10 @@ export const TEMPLATE_COMPONENTS = [
     id: 'option-panel',
     regex: /\s*<\!--\s*option-panel\s*-->\s*[\r\n]+/,
   },
+  {
+    id: 'settings',
+    regex: /\s*<\!--\s*settings-modal\s*-->\s*[\r\n]+/,
+  },
 ];
 
 interface TemplateSection {

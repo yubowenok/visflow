@@ -7,6 +7,7 @@ import { completeChart } from './chart';
 import { linkNodes } from './link';
 import { loadDataset } from './load-dataset';
 import { autoLayout } from './layout';
+import { undo, redo } from './edit';
 
 export {
   createSetOperator,
@@ -18,4 +19,6 @@ export {
   linkNodes,
   autoLayout,
   loadDataset,
+  undo,
+  redo,
 };

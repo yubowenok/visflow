@@ -1,0 +1,9 @@
+@import '../../common/style/index';
+
+.display {
+  @extend %vertical-center;
+
+  > * {
+    margin: $margin-size-sm;
+  }
+}

@@ -19,6 +19,9 @@
     <b-button v-if="enlargeable" @click="enlarge" size="sm" variant="outline-secondary" class="mini">
       <i class="fas fa-search-plus"></i>
     </b-button>
+    <b-button v-if="hasSettings" @click="settings" size="sm" variant="outline-secondary" class="mini">
+      <i class="fas fa-cog"></i>
+    </b-button>
   </div>
   <hr class="divider">
   <div class="content">

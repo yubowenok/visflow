@@ -3,10 +3,10 @@ import { HistoryNodeOptionEvent, nodeOptionEvent, nodeEvent } from '@/store/hist
 import Histogram, { HistogramSelection } from './histogram';
 
 enum HistogramEventType {
-  SELECT_COLUMN = 'select-column',
-  INPUT_NUM_BINS = 'input-num-bins',
+  SELECT_COLUMN = 'setColumn',
+  INPUT_NUM_BINS = 'setNumBins',
   // Prefix to avoid conflict with visualization base class
-  HISTOGRAM_INTERACTIVE_SELECTION = 'histogram-interactive-selection',
+  HISTOGRAM_INTERACTIVE_SELECTION = 'setHistogramSelection',
 }
 
 export const selectColumnEvent = (node: Histogram, column: number | null, prevColumn: number | null):
