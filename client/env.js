@@ -27,7 +27,7 @@ const VERSION = JSON.parse(fs.readFileSync('package.json').toString()).version;
 const ENVIRONMENT = environment;
 const BASE_URL = process.env.BASE_URL || '';
 const TIME_ZONE = process.env.TIME_ZONE || '';
-const FLOWSENSE_ENABLED = process.env.FLOWSENSE_ENABLED || '';
+const FLOWSENSE_ENABLED = process.env.FLOWSENSE_ENABLED || false;
 
 module.exports = {
   ENVIRONMENT,

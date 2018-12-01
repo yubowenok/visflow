@@ -15,7 +15,7 @@ import { FLOWSENSE_ENABLED } from '@/common/env';
 const ACTIVE_POSITION_X_OFFSET_PX = 100;
 
 const initialState: FlowsenseState = {
-  enabled: FLOWSENSE_ENABLED !== '',
+  enabled: !!FLOWSENSE_ENABLED,
   inputVisible: false,
   voiceEnabled: false,
   activePosition: { x: 0, y: 0 },
@@ -29,6 +29,10 @@ const getters = {
 
 const mutations = {
   openInput(state: FlowsenseState, noActivePosition?: boolean) {
+    if (!state.enabled) {
+      console.error('FlowSense not enabled');
+      return;
+    }
     state.inputVisible = true;
     if (noActivePosition) {
       const node = focusNode();

@@ -1,5 +1,6 @@
 import { Component, Vue } from 'vue-property-decorator';
 
+import ns from '@/store/namespaces';
 import DiagramMenu from '@/components/app-header/diagram-menu/diagram-menu';
 import EditMenu from '@/components/app-header/edit-menu/edit-menu';
 import OptionsMenu from '@/components/app-header/options-menu/options-menu';
@@ -26,4 +27,5 @@ import FlowsenseBar from '@/components/flowsense-bar/flowsense-bar';
   },
 })
 export default class AppHeader extends Vue {
+  @ns.flowsense.State('enabled') private flowsenseEnabled!: boolean;
 }

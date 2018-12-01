@@ -14,7 +14,7 @@ switch (process.env.NODE_ENV) {
     envFile = '.env.test';
     break;
   default:
-    envFile = '.env.local';
+    envFile = '.env';
 }
 
 if (!fs.existsSync(envFile)) {
