@@ -159,7 +159,6 @@ export default class FlowsenseInput extends Vue {
         const tokenText = iteration === 1 ? token.text :
           token.text + this.tokens[index + 1].text + this.tokens[index + 2].text;
 
-
         for (const utterance of this.flowsenseSpecialUtterances) {
           for (const text of utterance.matchText as string[]) {
             if (flowsenseUtil.matchToken(tokenText, text)) {
@@ -340,11 +339,11 @@ export default class FlowsenseInput extends Vue {
    */
   private generateTokenCompletionDropdown() {
     let startIndex = 0;
-    let editedToken: FlowsenseToken | null = null;
+    let possiblyEditedToken: FlowsenseToken | null = null;
     for (const token of this.tokens) {
       startIndex += token.text.length;
       if (startIndex > this.lastEditPosition) {
-        editedToken = token;
+        possiblyEditedToken = token;
         break;
       }
     }
@@ -353,26 +352,28 @@ export default class FlowsenseInput extends Vue {
     if (this.tokenCompletionDropdownTimeout !== null) {
       clearTimeout(this.tokenCompletionDropdownTimeout);
     }
-    if (editedToken === null) {
+    if (possiblyEditedToken === null) {
       return;
     }
+    const editedToken = possiblyEditedToken;
     const timeout = TOKEN_COMPLETION_DROPDOWN_DELAY_MS;
     const utterances = this.flowsenseSpecialUtterances.filter(utterance => {
       for (const text of utterance.matchText) {
-        if (flowsenseUtil.matchNonTrivialPrefix(text, (editedToken as FlowsenseToken).text)) {
+        if (flowsenseUtil.matchNonTrivialPrefix(text, editedToken.text)) {
           return true;
         }
       }
       return false;
     });
-    const dropdown = utterances.map(category => ({
+    const dropdown = utterances.map((category, categoryIndex) => ({
       text: category.displayText || '',
       annotation: category.annotation || '',
       class: category.category !== FlowsenseTokenCategory.NONE ? 'categorized ' + category.category : '',
       onClick: () => {
-        const deltaLength = (category.displayText as string).length - (editedToken as FlowsenseToken).text.length;
+        const deltaLength = (category.displayText as string).length - editedToken.text.length;
         const editPosition = this.lastEditPosition + 1;
-        (editedToken as FlowsenseToken).text = category.displayText as string;
+        editedToken.text = category.displayText as string;
+
         this.text = this.textFromTokens();
         this.parseInput(this.text);
         this.$nextTick(() => {

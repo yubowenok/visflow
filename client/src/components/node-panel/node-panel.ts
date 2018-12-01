@@ -12,7 +12,7 @@ import NodeList from '@/components/node-list/node-list';
 export default class NodePanel extends Vue {
   @ns.panels.State('nodePanelVisible') private nodePanelVisible!: boolean;
   @ns.interaction.State('isSystemInVisMode') private isSystemInVisMode!: boolean;
-  @ns.dataflow.State('nodeTypes') private nodeTypes!: NodeType[];
+  @ns.dataflow.Getter('nodeTypes') private nodeTypes!: NodeType[];
   @ns.systemOptions.State('useBetaFeatures') private useBetaFeatures!: boolean;
 
   get isVisible(): boolean {

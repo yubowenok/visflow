@@ -143,6 +143,23 @@ export default class LineChart extends Visualization {
     this.draw();
   }
 
+  public applyColumns(columns: number[]) {
+    if (columns.length === 0) {
+      this.findDefaultColumns();
+      return;
+    }
+    if (columns.length >= 1) {
+      this.valueColumn = columns[0];
+    }
+    if (columns.length >= 2) {
+      this.seriesColumn = columns[1];
+    }
+    if (columns.length >= 3) {
+      this.groupByColumn = columns[2];
+    }
+    this.draw();
+  }
+
   protected created() {
     this.serializationChain.push((): LineChartSave => ({
       seriesColumn: this.seriesColumn,

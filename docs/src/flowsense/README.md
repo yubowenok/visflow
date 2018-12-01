@@ -11,6 +11,8 @@ Some example inputs include (in the context of the cars dataset):
 - draw a plot
 - show the cars
 - create a <fs-tag type="node-type" text="scatterplot"/> of <fs-tag type="column" text="mpg"/> and <fs-tag type="column" text="cylinders"/>
+- show a <fs-tag type="node-type" text="parallel coordinates"/> for all the columns
+- show <fs-tag type="column" text="GDP(Billion US$)"/> series over <fs-tag type="column" text="year"/> grouped by <fs-tag type="column" text="Country Code"/>
 - visualize the distribution of <fs-tag type="column" text="mpg"/>
 - find the cars with maximum <fs-tag type="column" text="mpg"/>
 - sample 5 percent of the cars

@@ -30,13 +30,17 @@ const getters = {
 };
 
 const mutations = {
-  redo(state: HistoryState) {
-    state.logs.push(historyLog(HistoryLogType.REDO, 1));
+  redo(state: HistoryState, noLog?: boolean) {
+    if (noLog !== true) {
+      state.logs.push(historyLog(HistoryLogType.REDO, 1));
+    }
     helper.redo(state);
   },
 
-  undo(state: HistoryState) {
-    state.logs.push(historyLog(HistoryLogType.UNDO, 1));
+  undo(state: HistoryState, noLog?: boolean) {
+    if (noLog !== true) {
+      state.logs.push(historyLog(HistoryLogType.UNDO, 1));
+    }
     helper.undo(state);
   },
 

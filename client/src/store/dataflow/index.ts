@@ -63,7 +63,10 @@ const getters = {
    * Retrieves the supported node types.
    */
   nodeTypes: (state: DataflowState): NodeType[] => {
-    return nodeTypes.nodeTypes;
+    if (store.state.systemOptions.useBetaFeatures) {
+      return nodeTypes.nodeTypes;
+    }
+    return nodeTypes.nodeTypes.filter(nodeType => !nodeType.isBeta);
   },
 
   /**

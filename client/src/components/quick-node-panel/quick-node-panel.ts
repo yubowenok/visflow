@@ -20,17 +20,13 @@ export default class QuickNodePanel extends Vue {
   @ns.panels.Mutation('closeQuickNodePanel') private closeQuickNodePanel!: () => void;
   @ns.interaction.State('lastMouseX') private lastMouseX!: number;
   @ns.interaction.State('lastMouseY') private lastMouseY!: number;
-  @ns.dataflow.State('nodeTypes') private dataflowNodeTypes!: NodeType[];
+  @ns.dataflow.Getter('nodeTypes') private nodeTypes!: NodeType[];
   @ns.systemOptions.State('useBetaFeatures') private useBetaFeatures!: boolean;
 
   private x = 0;
   private y = 0;
   private searchText = '';
   private filteredNodeTypes: NodeType[] = [];
-
-  get nodeTypes(): NodeType[] {
-    return this.useBetaFeatures ? this.dataflowNodeTypes : this.dataflowNodeTypes.filter(type => !type.isBeta);
-  }
 
   @Watch('quickNodePanelVisible')
   private onVisibleChange(value: boolean) {

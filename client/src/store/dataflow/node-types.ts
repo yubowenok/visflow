@@ -76,7 +76,7 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/line-chart.svg'),
     constructor: LineChart,
     tags: VISUALIZATION_TAGS + ' series time trend',
-    aliases: ['series'],
+    aliases: ['timeseries'],
   },
   {
     id: 'network',

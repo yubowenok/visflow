@@ -1,16 +1,18 @@
-import { CreateNodeOptions, DataflowState } from '@/store/dataflow/types';
-import store from '@/store';
-import { ejectMarker, InjectedQuery, ejectMappableMarker } from '../helper';
-import { Node } from '@/components/node';
-import { OutputPort, InputPort } from '@/components/port';
-import Edge from '@/components/edge/edge';
-import { focusNode, focusNodes } from '@/store/interaction/helper';
+import _ from 'lodash';
+
 import * as dataflowHelper from '@/store/dataflow/helper';
-import { SubsetNode } from '@/components/subset-node';
+import Edge from '@/components/edge/edge';
+import store from '@/store';
+import { CreateNodeOptions, DataflowState } from '@/store/dataflow/types';
 import { FlowsenseDef } from '@/store/flowsense/types';
 import { INDEX_COLUMN } from '@/common/constants';
-import { vectorDistance } from '@/common/vector';
+import { Node } from '@/components/node';
+import { OutputPort, InputPort } from '@/components/port';
+import { SubsetNode } from '@/components/subset-node';
 import { Visualization } from '@/components/visualization';
+import { ejectMarker, InjectedQuery, ejectMappableMarker } from '../helper';
+import { focusNode, focusNodes } from '@/store/interaction/helper';
+import { vectorDistance } from '@/common/vector';
 
 export {
   ejectMarker,
@@ -103,6 +105,16 @@ export const getColumnMarkerIndex = (query: InjectedQuery, node: SubsetNode, inj
     columnIndex = node.getDataset().getColumnIndex(columnName);
   }
   return columnIndex;
+};
+
+/**
+ * Returns indices of all the columns in a source node.
+ */
+export const getAllColumns = (node: SubsetNode): number[] => {
+  if (node.hasDataset()) {
+    return _.range(node.getDataset().numColumns());
+  }
+  return [];
 };
 
 const NEARBY_THRESHOLD_PX = window.innerHeight / 4;
