@@ -70,10 +70,10 @@ You may go to the link below to resume your user study session.
 The structure of this study will be as follows:
 </p>
 <ul>
-  <li>VisFlow Tutorial (5-10 minutes)</li>
-  <li>FlowSense Tutorial (5-10 minutes)</li>
+  <li>VisFlow Tutorial (10-15 minutes)</li>
+  <li>FlowSense Tutorial (10-15 minutes)</li>
   <li>Practice with the system (10-15 minutes)</li>
-  <li>Experiment Task (30-60 minutes)</li>
+  <li>Experiment Task (30 minutes)</li>
 </ul>
 <p>
 If you have questions at any time of the user study, please reach out to our user study assistant.
@@ -81,43 +81,88 @@ If you have questions at any time of the user study, please reach out to our use
 </div>
 
 <div v-if="currentStep === 'visflowTutorial'">
-We will now introduce the basic usage of the VisFlow dataflow framework.
-<div>
-  Please go through the steps in the <a href="#">Getting Started</a> page.
-</div>
+<p>Let's first take a look at the basic usage of the VisFlow dataflow framework.</p>
+Please follow the steps in the <a href="https://visflow.org/get-started/" target="_blank">Getting Started</a> page
+to create a simple diagram that:
+<ul>
+  <li>Visualizes <i>car.csv</i> in a scatterplot.</li>
+  <li>Shows the selected cars from the scatterplot in a table.</li>
+  <li>Shows a distribution histogram of the mpg values of the cars.</li>
+  <li>Highlights the selected cars from the scatterplot in the distribution histogram.</li>
+  <li>Uses an attribute filter to show only cars with an mpg between 10 and 15 in the histogram.</li>
+</ul>
+You may close this user study dialog to return to diagram editing.
+To come back to this dialog, click the <i>User Study</i> button at the top-right of this page.
+After your are done, proceed to the next step by clicking <i>Continue</i>.
 </div>
 
 <div v-if="currentStep === 'flowsenseTutorial'">
-Now you will learn how to use FlowSense, the natural langugage interface of VisFlow.
+Next, let's learn how to use FlowSense, the natural langugage interface of VisFlow.
 <div>
-  Please read the <a href="#">FlowSense instructions</a>.
+  Please read the <a href="https://visflow.org/flowsense" target="_blank">FlowSense instructions</a>.
+  In particular, checkout the <a href="https://visflow.org/flowsense/#examples" target="_blank">example queries</a> to see what FlowSense is capable of.
+  After walking through the instructions, try to reproduce the <a href="https://visflow.org/get-started/" target="_blank">Getting Started</a> steps you did earlier using FlowSense.
+  For example, you may use FlowSense to:
 </div>
+<ul>
+  <li>Load <i>car.csv</i>.</li>
+  <li>Draw a scatterplot of mpg and displacement.</li>
+  <li>Highlight the selected cars from the scatterplot in a histogram.</li>
+  <li>Filter the cars by mpg values.</li>
+</ul>
+You may want to clear the previous diagram before trying out FlowSense.
+After completing the same practice diagram using FlowSense, proceed to the next step.
+You may also revisit previous steps by clicking <i>Previous</i>.
 </div>
 
 <div v-if="currentStep === 'practice'">
-<p>
-Please take a few minutes to practice VisFlow and FlowSense.
-You may use the demo datasets we have prepared for the practice.
-</p>
-<p>
-Once you are comfortable with all the introduced operations, come back here and click "Continue".
-</p>
+Now please take a few minutes to practice VisFlow and FlowSense and explore their features.
+You may freely explore the three demo datasets we have prepared:
+<ul>
+  <li>car.csv</li>
+  <li>iris.csv</li>
+  <li>gdp.csv (time series)</li>
+</ul>
+<p>Please do NOT use the other two datasets sde_test_results.csv and sde_test_users.csv, which we will save for the next step.</p>
+
+Once you feel comfortable with the usage of VisFlow and FlowSense, proceed to the next step.
 </div>
 
 <div v-if="currentStep === 'task'">
 <p>
 You are now familiar with VisFlow and FlowSense.
-Let's apply what we have learned to solve some data analysis problem.
+Let's apply what we have learned to solve some data analysis problems.
 </p>
 <p>
-In this experiment, you will analyze a <a href="#">SDE Test Dataset</a>.
-The dataset includes the computer science knowledge test results of software engineer candidates,
-along with the background information about the candidates.
-You will use VisFlow and FlowSense to explore the dataset, and answer a few questions.
-Create and edit a dataflow diagram to answer each question.
-After you are done, come back here and click "Continue" to move on to the next question.
+In this experiment, you will analyze the <b>SDE Test Dataset</b>.
+The dataset includes the test results of software engineer candidates, which reflect how strong the computer science background of each candidate is.
+There are two tables:
+</p>
+
+<p>
+  <div><b>sde_test_results.csv</b></div>
+  This table includes the test results for each candidate.
+  A test consists of answering several questions chosen by the system from a large question pool.
+  Each question has a unique ID, a preset difficulty, a related programming language, and possibly a time limit.
+  If the candidate answers a question, a result ("correct" or "wrong") is given.
+  Getting a question wrong may penalize the candidate, so sometimes the candidate may choose to pass a question, resulting in a question is "unanswered".
+  The "time taken" column stores how much time in seconds a candidate took to answer a question.
+</p>
+
+<p>
+  <div><b>sde_test_users.csv</b></div>
+  This table includes background information about each candidate, such as the candidate's age, field of study, and graduation date.
+</p>
+
+<p>
+You will use VisFlow and FlowSense to explore the SDE test dataset, and answer a few questions.
+<b>You are encouraged to use FlowSense as much as possible</b>.
+Questions will be shown sequentially.
+For each question, create and edit a dataflow diagram to show a visualization that can answer the question.
+After answering each question, come back to this dialog to move on to the next question.
 You may use a same diagram throughout all questions.
 </p>
+
 <p>
 Please note that the time you take to complete the tasks will be recorded and used to analyze the effectiveness of the system.
 Please complete the tasks in one sitting to avoid imprecise measurement of task completion time.
@@ -137,14 +182,9 @@ Identify which set of the questions are most effective to separate the most expe
 </div>
 
 <div v-if="currentStep === 'survey'">
-<p>
 Thank you for completing all the user study tasks.
 Please take a few minutes to complete this survey to provide feedback on the system:
-</p>
-<p>
-Survey link:
- <a :href="surveyLink" target="_blank">{{ surveyLink }}</a>
-</p>
+<a :href="surveyLink" target="_blank" class="bold">Survey Link</a>
 </div>
 
 <div v-if="currentStep === 'end'">
@@ -154,7 +194,7 @@ Survey link:
 </div>
 
 <div v-if="currentStep === 'finish'">
-  The user study has been completed.
+  This user study has been completed.
 </div>
 
 </b-container>

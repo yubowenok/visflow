@@ -120,7 +120,11 @@ const datasetApi = (app: Express) => {
     checkValidationResults,
     (req: Request, res: Response, next: NextFunction) => {
     const filename = req.body.filename;
-    Dataset.findOneAndUpdate({ username: req.user.username, filename }, { lastUsedAt: new Date() }, (err) => {
+    let update: object = { lastUsedAt: new Date() };
+    if (req.user.username === EXPERIMENT_USERNAME) { // do not update usd dataset for the experiment user
+      update = {};
+    }
+    Dataset.findOneAndUpdate({ username: req.user.username, filename }, update, (err) => {
       if (err) {
         return next(err);
       }

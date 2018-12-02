@@ -1,14 +1,17 @@
 <template>
-<base-modal ref="modal" title="New Diagram"
+<base-modal ref="modal" :title="isInExperiment ? 'Clear Diagram' : 'New Diagram'"
   :visible-state="newDiagramModalVisible"
   :on-open="openNewDiagramModal"
   :on-close="closeNewDiagramModal"
   :on-enter="newDiagram"
 >
   <template slot="content">
-    <div>
+    <div v-if="!isInExperiment">
       Are you sure you want to create a new diagram?
       Unsaved work will be lost.
+    </div>
+    <div v-else>
+      Are you sure you want to clear the diagram?
     </div>
   </template>
   <template slot="footer">

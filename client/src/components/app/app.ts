@@ -52,6 +52,7 @@ export default class App extends Vue {
   @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
   @ns.experiment.Action('login') private loginExperimentUser!: () => Promise<void>;
   @ns.experiment.Action('load') private dispatchLoadExperiment!: (filename: string) => Promise<void>;
+  @ns.systemOptions.Mutation('toggleBetaFeatures') private toggleBetaFeatures!: (value?: boolean) => void;
 
   private created() {
     this.setRouter(this.$router);
@@ -69,6 +70,7 @@ export default class App extends Vue {
     // This is an experiment.
     // Display the consent form modal and prepare to launch a new experiment.
     if (this.$route.name === 'experiment' || this.$route.name === 'load-experiment') {
+      this.toggleBetaFeatures(false);
       this.openExperimentModal();
       this.loginExperimentUser().then(() => {
         if (this.$route.name === 'load-experiment') {

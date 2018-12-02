@@ -15,6 +15,7 @@
 <style scoped lang="scss">
 /deep/ .modal-body {
   max-height: 500px;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 </style>

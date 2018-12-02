@@ -12,6 +12,7 @@ export default class NewDiagramModal extends Vue {
   @ns.modals.Mutation('openNewDiagramModal') private openNewDiagramModal!: () => void;
   @ns.modals.Mutation('closeNewDiagramModal') private closeNewDiagramModal!: () => void;
   @ns.dataflow.Action('newDiagram') private dispatchNewDiagram!: () => void;
+  @ns.experiment.Getter('isInExperiment') private isInExperiment!: boolean;
 
   private newDiagram() {
     this.dispatchNewDiagram();

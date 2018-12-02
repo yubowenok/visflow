@@ -6,6 +6,7 @@ import DataTable from '@/components/data-table/data-table';
 import { fileSizeDisplay, dateDisplay } from '@/common/util';
 import { DatasetInfo } from '@/store/dataset/types';
 
+const EXPERIMENT_USERNAME = '_experiment';
 @Component({
   components: {
     DataTable,
@@ -52,7 +53,8 @@ export default class DatasetLit extends Vue {
           render: (filename: string, type: string, row: string[]) => {
             const username = row[5];
             return '<button class="btn btn-outline-secondary trash"' +
-              `data-filename="${filename}" ${this.username !== username ? 'disabled' : ''}>` +
+              `data-filename="${filename}" ${this.username !== username ||
+                this.username === EXPERIMENT_USERNAME ? 'disabled' : ''}>` +
               '<i class="fas fa-trash"></i></button>';
           },
           width: '10px',
