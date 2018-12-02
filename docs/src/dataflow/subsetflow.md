@@ -31,14 +31,14 @@ Therefore the VisFlow beta features now support [extended subset flow](#extended
 The extended subset flow model allows certain nodes in the dataflow to mutate data.
 For example, an aggregation node can thus be used to compute the average values.
 These data mutating node types are supported in the VisFlow beta features.
-To enable the beta features, in the <ui-button text="Options"/> dropdown of the navbar, select <ui-button text="Enable Beta Features"/>.
+To enable the beta features, in the <ui-button text="Options" dropdown/> dropdown of the navbar, select <ui-button text="Enable Beta Features"/>.
 You may see the node list on the left displays more node types.
 
 Once the data mutated, visual properties can no longer be inheritted.
 Thus the subset flow must stop at the data mutating nodes to avoid ambiguity in visual property rendering, which would create data mutation boundaries.
 The subset flow applies to the data that do not go though a data mutation boundary.
 You may use all the original VisFlow features within a group of nodes within a same data mutation boundary.
-To see a clear indication of where the data get mutated, enable <ui-button text="Data Mutation Boundary"/> in the <ui-button text="Options"/> dropdown.
+To see a clear indication of where the data get mutated, enable <ui-button text="Data Mutation Boundary"/> in the <ui-button text="Options" dropdown/> dropdown.
 The nodes that keep data immutability will be shown with borders of a same color.
 
 ![Data Mutation Boundary](./data-mutation-boundary.png)

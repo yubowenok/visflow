@@ -22,14 +22,18 @@ To create an account, click <ui-button text="Login"/> at the top-right corner an
 
 ## Create a Visualization
 Let's create a <node-type type="scatterplot"/> to visualize the dataset we just loaded.
-After dragging a scatterplot to the canvas, connect the <port-type type="output"/> of the data source to the <port-type type="input"/> of the scatterplot.
+After dragging a scatterplot to the canvas, build an <page-link link="/dataflow/diagram.html#edge" text="Edge"/> that connects the <port-type type="output"/> of the data source to the <port-type type="input"/> of the scatterplot.
+To create an edge, you may drag from the output port and drop it either at the scatterplot node or its input port.
+
 You may change the <ui-prop node-type="scatterplot" prop="x-column"/> and <ui-prop node-type="scatterplot" prop="y-column"/> and other settings of the scatterplot in its option panel.
 
 ![Create a Visualization](./create-a-visualization.png)
 
 ::: tip Keyboard Shortcut
-You may press the <span class="shortcut">A</span> key to use the Quick Node Panel.
-Drag a node from the Quick Node Panel to create it.
+You may press the <shortcut-key :keys="['A']"/> key to use the <i>quick node panel</i>.
+The quick node panel can be used in a same way as the node panel.
+You may drag a node from the quick node panel to create it, or even search for node types.
+Refer to the <page-link link="/shortcut/" text="Shortcut"/> page for more shortcuts.
 :::
 
 ## Forward Interactive Selection
