@@ -24,18 +24,28 @@ Drag and draw a rectangular selection box to select data items inside the box.
 | opacity | Opacity of the circle |
 
 ## Options
+
 ### X Column
 Configures the column visualized on the X-axis.
 
 ### Y Column
 Configures the column visualized on the Y-axis.
 
-### Disable Transition
-Disables the animation between data updates.
+### Axis Margin
+Uses 10% of margin on both sides of the axes.
+
+
+## More Settings
 
 ### Use Dataset Range
 Sets the axes domain to always equal to the value ranges of the entire dataset,
 rather than the value ranges of the subset received by the scatterplot.
 
-### Axis Margin
-Uses 10% of margin on both sides of the axes.
+### Disable Transition
+Disables the animation between data updates.
+This is useful for showing movement data combined with an attribute filter that filters by timestamps.
+For movement data the data entities are not identified by row indices, and animation cannot be correctly performed.
+
+### Transparent Content
+Sets the background of the scatterplot to be transparent.
+This allows the scatterplot to be overlaid on an image, and is useful for showing movement data.

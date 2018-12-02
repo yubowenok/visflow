@@ -7,12 +7,9 @@ import $ from 'jquery';
  * y-axis goes from top to bottom.
  * @param margin specifies the number of extra pixels allowed around the bounding box of el.
  */
-export const elementContains = (el: Element | JQuery, x: number, y: number, margin?: number): boolean => {
+export const elementContains = (el: HTMLElement, x: number, y: number, margin?: number): boolean => {
   margin = margin || 0;
-  const $el = $(el);
-  const { top, left } = $el.offset() as JQuery.Coordinates;
-  const width = $el.width() as number;
-  const height = $el.height() as number;
+  const { top, left, width, height } = el.getBoundingClientRect();
   return x >= left - margin && x <= left + width + margin &&
     y >= top - margin && y <= top + height + margin;
 };

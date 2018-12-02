@@ -289,9 +289,7 @@ export default class AttributeFilter extends SubsetNodeBase {
     if (this.column === null) {
       return;
     }
-    if (this.dataset === null || this.column >= this.dataset.numColumns()) {
-      this.column = null;
-    }
+    this.column = this.updateColumnOnDatasetChange(this.column);
   }
 
   protected created() {

@@ -132,6 +132,19 @@ export default class SubsetPackage extends Package {
     return pkg;
   }
 
+  /**
+   * Checks if the given package is the same as the previous one.
+   * A package is different if:
+   * - the dataset changes
+   * - the subset changes
+   * - any visual properties of the subset change
+   */
+  public isSamePackage(pkg: SubsetPackage): boolean {
+    if (this.dataset !== pkg.dataset || !this.dataset) {
+      return false;
+    }
+    return _.isEqual(this.items, pkg.items);
+  }
 
   /**
    * Produces a 2D array in which each subarray is a group of items.

@@ -8,6 +8,8 @@ enum LineChartEventType {
   TOGGLE_POINTS_VISIBLE = 'setPointsVisible',
   TOGGLE_CURVE_DRAWING = 'setCurveDrawing',
   TOGGLE_LEGENDS_VISIBLE = 'setLegendsVisible',
+  TOGGLE_X_AXIS_TICKS_VISIBLE = 'setXAxisTicksVisible',
+  TOGGLE_Y_AXIS_TICKS_VISIBLE = 'setYAxisTicksVisible',
 }
 
 export const selectSeriesColumnEvent = (node: LineChart, column: number | null, prevColumn: number | null):
@@ -77,6 +79,30 @@ export const toggleLegendsVisibleEvent = (node: LineChart, value: boolean):
     'toggle legends',
     node,
     node.setLegendsVisible,
+    value,
+    !value,
+  );
+};
+
+export const toggleXAxisTicksVisibleEvent = (node: LineChart, value: boolean):
+  HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    LineChartEventType.TOGGLE_X_AXIS_TICKS_VISIBLE,
+    'toggle X axis ticks',
+    node,
+    node.setXAxisTicksVisible,
+    value,
+    !value,
+  );
+};
+
+export const toggleYAxisTicksVisibleEvent = (node: LineChart, value: boolean):
+  HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    LineChartEventType.TOGGLE_Y_AXIS_TICKS_VISIBLE,
+    'toggle Y axis ticks',
+    node,
+    node.setYAxisTicksVisible,
     value,
     !value,
   );

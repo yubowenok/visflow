@@ -21,6 +21,17 @@ export default class SubsetOutputPort extends mixins(OutputPort, SubsetPort) {
     this.clearPackageItems();
   }
 
+  /**
+   * Updates the subset package. Avoid setting isUpdated to true when neither the dataset nor the subset changes.
+   */
+  public updatePackage(pkg: SubsetPackage) {
+    const prevPkg = this.package;
+    this.package = pkg;
+    if (!prevPkg.isSamePackage(pkg)) {
+      this.isUpdated = true;
+    }
+  }
+
   protected tooltip(): string {
     return `${this.package.numItems()} items`;
   }

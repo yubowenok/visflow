@@ -1,5 +1,5 @@
 <template>
-<div>
+<div id="constants-list">
   <div ref="constants" :class="['constant-list', { disabled }]">
     <div class="constant" v-for="(val, index) in value" :key="index" :id="index">
       {{ display(val) }}

@@ -83,9 +83,12 @@
     }
 
     .dropdown-menu {
+      overflow-y: auto;
+
       li {
         pointer-events: none;
       }
+
       li > a {
         // Disable pointer events for original <a> wrapper from v-select.
         // Remove its visual effects.
@@ -122,12 +125,9 @@
     }
   }
 
-  &.clearable /deep/ {
+  &.not-clearable /deep/ {
     .dropdown-toggle .clear {
       display: none;
-    }
-    .dropdown-menu {
-      overflow-y: hidden;
     }
   }
 }

@@ -58,6 +58,8 @@ interface LineChartSave {
   arePointsVisible: boolean;
   isCurveDrawing: boolean;
   areLegendsVisible: boolean;
+  areXAxisTicksVisible: boolean;
+  areYAxisTicksVisible: boolean;
 }
 
 interface LineChartLineProps {
@@ -97,6 +99,8 @@ export default class LineChart extends Visualization {
   private arePointsVisible = false;
   private isCurveDrawing = false;
   private areLegendsVisible = true;
+  private areXAxisTicksVisible = true;
+  private areYAxisTicksVisible = true;
 
   private areSeriesValuesDuplicated = false;
 
@@ -143,6 +147,16 @@ export default class LineChart extends Visualization {
     this.draw();
   }
 
+  public setXAxisTicksVisible(value: boolean) {
+    this.areXAxisTicksVisible = value;
+    this.draw();
+  }
+
+  public setYAxisTicksVisible(value: boolean) {
+    this.areYAxisTicksVisible = value;
+    this.draw();
+  }
+
   public applyColumns(columns: number[]) {
     if (columns.length === 0) {
       this.findDefaultColumns();
@@ -168,17 +182,18 @@ export default class LineChart extends Visualization {
       arePointsVisible: this.arePointsVisible,
       isCurveDrawing: this.isCurveDrawing,
       areLegendsVisible: this.areLegendsVisible,
+      areXAxisTicksVisible: this.areXAxisTicksVisible,
+      areYAxisTicksVisible: this.areYAxisTicksVisible,
     }));
   }
 
   protected findDefaultColumns() {
-    if (!this.hasDataset()) {
+    if (!this.dataset) {
       return;
     }
-    // Avoid unexpected series drawing
-    this.seriesColumn = null;
-    this.valueColumn = null;
-    this.groupByColumn = null;
+    this.seriesColumn = this.updateColumnOnDatasetChange(this.seriesColumn);
+    this.valueColumn = this.updateColumnOnDatasetChange(this.valueColumn);
+    this.groupByColumn = this.updateColumnOnDatasetChange(this.groupByColumn);
   }
 
   protected draw() {
@@ -196,6 +211,7 @@ export default class LineChart extends Visualization {
     this.computeItemProps();
     this.computeLineProps();
     this.updateLeftMargin();
+    this.updateBottomMargin();
     this.drawXAxis();
     this.drawYAxis();
     this.drawLegends();
@@ -385,20 +401,30 @@ export default class LineChart extends Visualization {
           .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
         this.margins.left += maxLegendWidth + LEGEND_LABEL_X_OFFSET_PX + LEGEND_X_OFFSET_PX;
       }
-
       (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
     });
   }
 
+  private updateBottomMargin() {
+    this.drawXAxis();
+    this.updateMargins(() => {
+      const maxTickHeight = _.max($(this.$refs.xAxis as SVGGElement)
+        .find('.x > .tick > text')
+        .map((index: number, element: SVGGraphicsElement) => element.getBBox().height)) || 0;
+      this.margins.bottom = DEFAULT_PLOT_MARGINS.bottom + maxTickHeight;
+      (this.yScale as AnyScale).range([this.svgHeight - this.margins.bottom, this.margins.top]);
+    });
+  }
+
   private drawLines() {
-    const points: { [index: number]: { x: string | number, y: string | number } } = {};
-    const l = line<number>()
-      .x(index => this.xScale(points[index].x))
-      .y(index => this.yScale(points[index].y));
+    // const points: { [index: number]: { x: string | number, y: string | number } } = {};
+    const l = line<[number | string, number | string]>()
+      .x(point => this.xScale(point[0]))
+      .y(point => this.yScale(point[1]));
     if (this.isCurveDrawing) {
       l.curve(curveBasis);
     }
-    this.itemProps.forEach(props => points[props.index] = { x: props.x, y: props.y });
+    // this.itemProps.forEach(props => points[props.index] = { x: props.x, y: props.y });
     let lines = select(this.$refs.lines as SVGGElement).selectAll<SVGPathElement, LineChartLineProps>('path')
       .data(this.lineProps, d => d.lineIndex.toString());
     fadeOut(lines.exit());
@@ -413,7 +439,7 @@ export default class LineChart extends Visualization {
       .style('stroke', d => d.visuals.color as string)
       .style('stroke-width', d => d.visuals.width + 'px')
       .style('opacity', d => d.visuals.opacity as number)
-      .attr('d', d => l(d.itemIndices));
+      .attr('d', d => l(d.points));
   }
 
   private drawPoints() {
@@ -444,6 +470,7 @@ export default class LineChart extends Visualization {
     drawAxis(this.$refs.xAxis as SVGElement, this.xScale, {
       classes: 'x',
       orient: 'bottom',
+      ticks: !this.areXAxisTicksVisible ? 0 : undefined,
       transform: getTransform([0, this.svgHeight - this.margins.bottom]),
       label: {
         text: this.getDataset().getColumnName(this.seriesColumn as number),
@@ -456,6 +483,7 @@ export default class LineChart extends Visualization {
     drawAxis(this.$refs.yAxis as SVGElement, this.yScale, {
       classes: 'y',
       orient: 'left',
+      ticks: !this.areYAxisTicksVisible ? 0 : undefined,
       transform: getTransform([this.margins.left, 0]),
       label: {
         text: this.getDataset().getColumnName(this.valueColumn as number),
@@ -516,5 +544,15 @@ export default class LineChart extends Visualization {
   private onToggleLegendsVisible(value: boolean) {
     this.commitHistory(history.toggleLegendsVisibleEvent(this, value));
     this.setLegendsVisible(value);
+  }
+
+  private onToggleXAxisTicksVisible(value: boolean) {
+    this.commitHistory(history.toggleXAxisTicksVisibleEvent(this, value));
+    this.setXAxisTicksVisible(value);
+  }
+
+  private onToggleYAxisTicksVisible(value: boolean) {
+    this.commitHistory(history.toggleYAxisTicksVisibleEvent(this, value));
+    this.setYAxisTicksVisible(value);
   }
 }

@@ -135,6 +135,9 @@ export default class Visualization extends SubsetNode {
     this.findDefaultColumns();
   }
 
+  /**
+   * Searches for default columns to use.
+   */
   protected findDefaultColumns() {
     console.error(`findDefaultColumns() is not implemented for node type ${this.NODE_TYPE}`);
   }
@@ -289,7 +292,7 @@ export default class Visualization extends SubsetNode {
       // Element is draggable when the drag element is not visible. It may be when the node has no data.
       return true;
     }
-    if (!elementContains($element, evt.pageX, evt.pageY)) {
+    if (!elementContains($element[0], evt.pageX, evt.pageY)) {
       // The click falls out of the alt drag element. Perform normal drag.
       // This allows dragging outside the plot area.
       return true;

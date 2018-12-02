@@ -203,7 +203,7 @@ export default class TabularDataset {
       return [min, max];
     } else { // discrete domain
       // Find unique values in a discrete domain.
-      return _.uniq(items.map(index => this.rows[index][columnIndex]));
+      return _.uniq(items.map(index => this.rows[index][columnIndex])).sort(comparator);
     }
   }
 

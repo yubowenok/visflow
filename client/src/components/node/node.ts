@@ -430,6 +430,7 @@ export default class Node extends Vue {
    */
   public startUpdate() {
     if (this.isUpdateNecessary() && this.areConnectionsValid()) {
+      console.log('startUpdate', this.label);
       this.update();
     }
   }
@@ -437,7 +438,7 @@ export default class Node extends Vue {
   /** Clears the updated flags of all ports. */
   public clearUpdatedPorts() {
     for (const port of this.inputPorts) {
-      // Packages of input ports solely depend on its connected output ports. So there are no packge update
+      // Packages of input ports solely depend on its connected output ports. So there are no package update
       // flags to clear.
       port.clearConnectionUpdate();
     }

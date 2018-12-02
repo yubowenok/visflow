@@ -159,7 +159,6 @@ export default class Network extends Visualization {
   private zoomStartPosition: Point = { x: 0, y: 0};
 
   private force: Simulation<NetworkNode, undefined> | null = null;
-  private isFirstForce = true; // Used to avoid resetting transform on deserialization.
 
   get nodeColumnSelectOptions(): SelectOption[] {
     return getColumnSelectOptions(this.nodeDataset);
@@ -240,8 +239,8 @@ export default class Network extends Visualization {
       !this.inputPortMap.edge.isConnected() || !this.inputPortMap.edge.getSubsetPackage().hasDataset();
   }
 
-  protected onDatasetChange() {
-    // nothing
+  protected findDefaultColumns() {
+    // TODO: auto fill?
   }
 
   protected created() {
@@ -693,10 +692,6 @@ export default class Network extends Visualization {
     if (this.force) {
       this.force.stop();
     }
-    if (!this.isFirstForce) {
-      this.resetTransform();
-    }
-    this.isFirstForce = false;
 
     this.force = forceSimulation(_.toArray(this.nodes))
       .force('link', forceLink(_.toArray(this.edges)).distance(this.linkDistance))

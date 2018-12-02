@@ -32,6 +32,8 @@ interface ScatterplotSave {
   xColumn: number;
   yColumn: number;
   useDatasetRange: boolean;
+  areXAxisTicksVisible: boolean;
+  areYAxisTicksVisible: boolean;
   axisMargin: boolean;
 }
 
@@ -78,6 +80,9 @@ export default class Scatterplot extends Visualization {
   private useDatasetRange = false;
   // Whether to have margin at the two sides of the axes.
   private axisMargin = true;
+  private areXAxisTicksVisible = true;
+  private areYAxisTicksVisible = true;
+
 
   // advanced settings
   private transparentBackground = false;
@@ -113,6 +118,16 @@ export default class Scatterplot extends Visualization {
     this.draw();
   }
 
+  public setXAxisTicksVisible(value: boolean) {
+    this.areXAxisTicksVisible = value;
+    this.draw();
+  }
+
+  public setYAxisTicksVisible(value: boolean) {
+    this.areYAxisTicksVisible = value;
+    this.draw();
+  }
+
   public setAxisMargin(value: boolean) {
     this.axisMargin = value;
     this.draw();
@@ -128,6 +143,8 @@ export default class Scatterplot extends Visualization {
       yColumn: this.yColumn,
       useDatasetRange: this.useDatasetRange,
       axisMargin: this.axisMargin,
+      areXAxisTicksVisible: this.areXAxisTicksVisible,
+      areYAxisTicksVisible: this.areYAxisTicksVisible,
     }));
   }
 
@@ -143,6 +160,7 @@ export default class Scatterplot extends Visualization {
     this.computeItemProps();
     this.computeScales();
     this.updateLeftMargin();
+    this.updateBottomMargin();
     // Drawing must occur after scale computations.
     this.drawXAxis();
     this.drawYAxis();
@@ -171,6 +189,9 @@ export default class Scatterplot extends Visualization {
   }
 
   private computeBrushedItems(brushPoints: Point[]) {
+    if (brushPoints.length <= 1) {
+      return; // ignore clicks
+    }
     if (!this.isShiftPressed || !brushPoints.length) {
       this.selection.clear(); // reset selection if shift key is not down
       if (!brushPoints.length) {
@@ -271,6 +292,7 @@ export default class Scatterplot extends Visualization {
     drawAxis(this.$refs.xAxis as SVGElement, this.xScale, {
       classes: 'x',
       orient: 'bottom',
+      ticks: !this.areXAxisTicksVisible ? 0 : undefined,
       transform: getTransform([0, this.svgHeight - this.margins.bottom]),
       label: {
         text: this.getDataset().getColumnName(this.xColumn),
@@ -283,6 +305,7 @@ export default class Scatterplot extends Visualization {
     drawAxis(this.$refs.yAxis as SVGElement, this.yScale, {
       classes: 'y',
       orient: 'left',
+      ticks: !this.areYAxisTicksVisible ? 0 : undefined,
       transform: getTransform([this.margins.left, 0]),
       label: {
         text: this.getDataset().getColumnName(this.yColumn),
@@ -305,6 +328,20 @@ export default class Scatterplot extends Visualization {
     });
   }
 
+  /**
+   * Determines the bottom margin depending on whether X axis ticks are shown.
+   */
+  private updateBottomMargin() {
+    this.drawXAxis();
+    this.updateMargins(() => {
+      const maxTickHeight = _.max($(this.$refs.xAxis as SVGGElement)
+        .find('.x > .tick > text')
+        .map((index: number, element: SVGGraphicsElement) => element.getBBox().height)) || 0;
+      this.margins.bottom = DEFAULT_PLOT_MARGINS.bottom + maxTickHeight;
+      (this.yScale as AnyScale).range([this.svgHeight - this.margins.bottom, this.margins.top]);
+    });
+  }
+
   private onSelectXColumn(column: number, prevColumn: number | null) {
     this.commitHistory(history.selectXColumnEvent(this, column, prevColumn));
     this.setXColumn(column);
@@ -323,6 +360,16 @@ export default class Scatterplot extends Visualization {
   private onToggleUseDatasetRange(value: boolean) {
     this.commitHistory(history.toggleUseDatasetRangeEvent(this, value));
     this.setUseDatasetRange(value);
+  }
+
+  private onToggleXAxisTicksVisible(value: boolean) {
+    this.commitHistory(history.toggleXAxisTicksVisibleEvent(this, value));
+    this.setXAxisTicksVisible(value);
+  }
+
+  private onToggleYAxisTicksVisible(value: boolean) {
+    this.commitHistory(history.toggleYAxisTicksVisibleEvent(this, value));
+    this.setYAxisTicksVisible(value);
   }
 
   private onToggleAxisMargin(value: boolean) {
