@@ -19,7 +19,6 @@ const datasetSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 datasetSchema.index({
-  username: 1,
   filename: 1,
 }, { unique: true });
 

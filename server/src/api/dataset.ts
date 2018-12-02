@@ -16,12 +16,21 @@ import { DEMO_USERNAME } from '../config/env';
 /**
  * Checks if a filename is an existing dataset.
  * The dataset exists if it belongs to the logged-in user or the demo user.
+ * If the user is admin, there is no username requirement.
  */
 const datasetExists = check('filename').custom((filename, { req }) => {
-  const query = req.user ? {
-    $or: [ { username: req.user.username }, { username: DEMO_USERNAME } ],
-    filename,
-  } : { username: DEMO_USERNAME, filename };
+  const query: {
+    username?: string;
+    filename: string;
+    $or?: object[];
+  } = { filename };
+  if (req.user) {
+    if (!req.user.isAdmin) {
+      query.username = req.user.username;
+    }
+  } else {
+    query.username = DEMO_USERNAME;
+  }
   return Dataset.findOne(query).then(file => {
     if (!file) {
       return Promise.reject('no such dataset');
@@ -119,11 +128,23 @@ const datasetApi = (app: Express) => {
     checkValidationResults,
     (req: Request, res: Response, next: NextFunction) => {
     const filename = req.body.filename;
-    Dataset.findOneAndUpdate({ username: req.user.username, filename }, { lastUsedAt: new Date() }, (err) => {
+    Dataset.findOne({ filename }, (err, dataset) => {
       if (err) {
         return next(err);
       }
-      res.sendFile(filename, { root: path.join(DATA_PATH, 'dataset/', req.user.username)});
+      if (!dataset) {
+        return res.status(404).send('dataset not found');
+      }
+      res.sendFile(filename, { root: path.join(DATA_PATH, 'dataset/', dataset.username)});
+
+      if (req.user && req.user.username === dataset.username) {
+        // update last usage when the user owns the dataset (not an admin viewing log)
+        Dataset.findOneAndUpdate({ filename }, { lastUsedAt: new Date() }, updateErr => {
+          if (updateErr) {
+            next(updateErr);
+          }
+        });
+      }
     });
   });
 

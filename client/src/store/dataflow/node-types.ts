@@ -105,7 +105,6 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/filter.svg'),
     constructor: AttributeFilter,
     tags: 'subset attribute remove find pattern range sample minimum maximum extremum',
-    aliases: ['filter'],
   },
   {
     id: 'set-operator',

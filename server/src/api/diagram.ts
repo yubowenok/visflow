@@ -111,13 +111,17 @@ const diagramApi = (app: Express) => {
     checkDiagramExists,
     checkValidationResults,
   ], (req: Request, res: Response, next: NextFunction) => {
-    Diagram.findOneAndUpdate({ username: req.user.username, filename: req.body.filename }, { updatedAt: new Date() },
-      err => {
+    Diagram.findOneAndUpdate({ filename: req.body.filename }, { updatedAt: new Date() },
+      (err, diagram) => {
         if (err) {
           return next(err);
         }
+        if (diagram.username !== req.user.username) {
+          res.status(401).send('not authorized to save diagram');
+          return;
+        }
         const json = req.body.diagram;
-        const file = path.join(DATA_PATH, 'diagram/', req.user.username, req.body.filename);
+        const file = path.join(DATA_PATH, 'diagram/', diagram.username, diagram.filename);
         fs.writeFileSync(file, json);
         res.status(200).end();
       },

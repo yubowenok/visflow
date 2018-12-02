@@ -60,6 +60,8 @@ yarn --cwd server build
 
 The distribution files for the client are located at ``client/dist``.
 The distribution files for the server are located at ``server/dist``.
+You may also use ``yarn serve`` to run the server.
+The server must be run with ``NODE_ENV=production``.
 
 ### Documentation
 
