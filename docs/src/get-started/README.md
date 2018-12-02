@@ -17,6 +17,7 @@ Click <ui-button text="Load Dataset"/> in the option panel to select a dataset t
 ::: tip Demo Datasets
 A few sample datasets are available under the demo mode.
 If you would like to use a custom dataset, you need to create an account and upload it.
+To create an account, click <ui-button text="Login"/> at the top-right corner and then click <ui-button text="Signup"/>.
 :::
 
 ## Create a Visualization
@@ -49,17 +50,36 @@ Set the <ui-prop node-type="visual-editor" prop="assignment-mode-options" text="
 
 ![Highlight Selection](./highlight-selection.png)
 
-Then create a <node-type type="set-operator"/> and set its <span class="ui">Mode</span> to "Union".
-Merge the highlighted selection into the full dataset by connecting both the <port-type type="output"></port-type> of the visual editor and the <port-type type="output"></port-type> of the scatterplot to the <port-type type="multi-input"></port-type> of the union node.
+Then create a <node-type type="set-operator"/> and set its <ui-prop node-type="set-operator" prop="mode" text="Mode"/> to <ui-value text="Union"/>.
+Merge the highlighted selection into the full dataset by connecting both the <port-type type="selection"/> of the visual editor and the <port-type type="output"/> of the scatterplot to the <port-type type="multi-input"></port-type> of the union node.
 Finally create a <node-type type="histogram"/> and connect it to the <port-type type="output"></port-type> of the union node.
 
 This flow diagram shows the distribution of the selected points from the scatterplot in the histogram.
 
+## Filter the Data
+You may add an <node-type type="attribute-filter"/> to find data items based on their attribute values.
+In this case let's find the cars that have an <ui-value text="American"/> origin.
+
+Create an attribute filter and connect it to the <port-type type="selection"/> of the histogram.
+Keep the <ui-prop node-type="attribute-filter" prop="filter-types" text="filter type"/> as <ui-value text="Pattern"/> filter,
+and set the <ui-prop node-type="attribute-filter" prop="column" text="column"/> to be <ui-value text="origin"/> in the option panel.
+Add a pattern <ui-value text="American"/> in the patterns list below.
+
+![Filter the Data](./filter-data.png)
+
+Now draw a rectangular box to select a few stacked bars in the histogram.
+The attribute filter will find among the selected cars in the histogram those that have an American origin.
+To show the details of those cars, we may further add a <node-type type="table"/>.
+Feel free to explore other filter types as you like.
+For more details on how to use an attribute filter, see the <page-link link="/node/attribute-filter.html" text="attribute filter documentation"/>.
+
 ## Subset Flow
-VisFlow uses a subset flow model in which all data transmitted in the dataflow are subsets of table rows from an input table.
+You may have noticed that the red color assigned earlier by the visual editor keeps in effect in the histogram and the table.
+This is because VisFlow uses a [subset flow model](/dataflow/subsetflow.md) that renders everything with respect to their [visual properties](/dataflow/diagram.html#visual-property).
+
+In the subset flow, all data transmitted in the dataflow are subsets of table rows from an input table.
 The input table rows are never mutated, except that visual properties can be assigned and modified down the dataflow.
 Such a design ensures that visual properties can be used to keep track of subsets unambiguously, so that brushing and linking can be well supported for visual data exploration.
-Read more about subset flow [here](/dataflow/subsetflow.md).
 
 
 ## Next Steps

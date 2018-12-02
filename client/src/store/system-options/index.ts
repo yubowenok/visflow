@@ -7,7 +7,7 @@ import { SystemOptionsState } from './types';
 const initialState: SystemOptionsState = {
   nodeLabelsVisible: true,
   useBetaFeatures: Cookies.get('useBetaFeatures') === 'true',
-  dataMutationBoundaryVisible: false,
+  dataMutationBoundaryVisible: Cookies.get('dataMutationBoundaryVisible') === 'true',
 };
 
 const getters = {

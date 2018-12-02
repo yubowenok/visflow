@@ -29,6 +29,7 @@ export default {
   padding: 0 .25rem
   border: 1px solid rgba(0, 0, 0, .2)
   margin-right: .1rem
+  background-color: white
 
 i
   font-size: .9em
