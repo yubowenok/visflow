@@ -54,7 +54,7 @@ and <fs-tag type="dataset" text="dataset"/>.
 When a query is being typed, auto completion helps find those special utterances that are commonly used in natural language queries, as show in the following figure:
 ![flowsense input](./flowsense-input.png)
 
-Pressing the <shortcut-key :keys="['left']"/><shortcut-key :keys="['right']"/><shortcut-key :keys="['up']"/><shortcut-key :keys="['down']"/> and <shortcut-key :keys="['tab']"/> keys to select between the suggested words.
+Pressing the <shortcut-key :keys="['up']"/><shortcut-key :keys="['down']"/> and <shortcut-key :keys="['tab']"/> keys to select between the suggested words.
 
 Under very rare circumstances, if a word has ambiguous meaning and can be tagged as different types of special utterances, click on the tagged word to manually select an intended tag:
 ![flowsense input](./flowsense-disambiguation.png)
