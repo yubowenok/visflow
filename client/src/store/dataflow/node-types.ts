@@ -19,7 +19,7 @@ import Linker from '@/components/linker/linker';
 import DataReservoir from '@/components/data-reservoir/data-reservoir';
 import ScriptEditor from '@/components/script-editor/script-editor';
 import Aggregation from '@/components/aggregation/aggregation';
-import Player from '@/components/player/player';
+import SeriesPlayer from '@/components/series-player/series-player';
 import SeriesTranspose from '@/components/series-transpose/series-transpose';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
@@ -105,7 +105,6 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/filter.svg'),
     constructor: AttributeFilter,
     tags: 'subset attribute remove find pattern range sample minimum maximum extremum',
-    aliases: ['filter'],
   },
   {
     id: 'set-operator',
@@ -146,11 +145,11 @@ export const nodeTypes: NodeType[] = [
   },
   {
 
-    id: 'player',
-    title: 'Player',
-    imgSrc: require('@/imgs/player.svg'),
-    constructor: Player,
-    tags: 'player sequence series',
+    id: 'series-player',
+    title: 'Series Player',
+    imgSrc: require('@/imgs/series-player.svg'),
+    constructor: SeriesPlayer,
+    tags: 'series player sequence',
     isBeta: true,
   },
   {

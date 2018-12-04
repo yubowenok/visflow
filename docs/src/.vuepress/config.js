@@ -1,7 +1,7 @@
 module.exports = {
   dest: './dist',
   title: 'VisFlow',
-  description: 'Dataflow Framework for Visual Data Exploration',
+  description: 'Web-Based Dataflow Framework for Visual Data Exploration',
   head: [
     ['link', { rel: 'icon', href: '/favicon.ico' }],
   ],

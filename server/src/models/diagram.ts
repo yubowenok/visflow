@@ -14,7 +14,6 @@ const diagramSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 diagramSchema.index({
-  username: 1,
   filename: 1,
 }, { unique: true });
 

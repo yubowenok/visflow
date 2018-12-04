@@ -87,11 +87,10 @@ export default class Port extends Vue {
   }
 
   public getCenterCoordinates(): Point {
-    const $port = $(this.$refs.port);
-    const offset = $port.offset() as JQuery.Coordinates;
+    const rect = (this.$refs.port as HTMLElement).getBoundingClientRect();
     return {
-      x: offset.left + ($port.width() as number) / 2,
-      y: offset.top + ($port.height() as number) / 2,
+      x: rect.left + rect.width / 2,
+      y: rect.top + rect.height / 2,
     };
   }
 

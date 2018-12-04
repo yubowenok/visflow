@@ -138,4 +138,17 @@ export default class SubsetNodeBase extends Node {
   protected updateNoDatasetOutput() {
     this.outputPortMap.out.clear();
   }
+
+  /**
+   * Returns null if a column index is out of the new dataset's columns range.
+   */
+  protected updateColumnOnDatasetChange(column: number | null): number | null {
+    if (column === null) {
+      return null;
+    }
+    if (!this.dataset) {
+      return column; // if there is no dataset, keep the original column
+    }
+    return column < this.dataset.numColumns() ? column : null;
+  }
 }

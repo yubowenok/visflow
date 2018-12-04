@@ -106,10 +106,13 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
 
   // Clear lagging states for safety. Sometimes key combinations fail to trigger key releases, resulting in the
   // page getting stuck on pressed keys.
+  // UPDATE: Clearing may make shortcut like undo clumsy. One would have to press ctrl/meta again to undo.
+  /*
   state.ctrlPressed = false;
   state.altPressed = false;
   state.shiftPressed = false;
   state.metaPressed = false;
+  */
 };
 
 /**

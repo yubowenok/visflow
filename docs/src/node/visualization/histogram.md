@@ -1,12 +1,9 @@
 # Histogram
 
 A <node-type type="histogram"/> renders the distribution of data items on one selected column.
-dlfkjsdlf
-dlfkjsdlf
-dlfkjsdlf
-dlfkjsdlf
-dlfkjsdlf
-dlfkjsdlf
+The histogram counts each distinct value in the selected column.
+It displays one bar for each distinct categorical value,
+or one bar for a range of continuous values.
 
 ## Example
 ![histogram](./histogram.png)

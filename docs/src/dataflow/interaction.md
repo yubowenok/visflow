@@ -48,7 +48,7 @@ Use the <ui-button icon-classes="fas fa-undo-alt" text="Undo"/> and <ui-button i
 The history panel also shows all actions that are undoable and redoable.
 Click on an action in the history panel to roll back or forward to that action in the history.
 
-## Upload & Manage Custom Datasets
+## Upload & Manage Datasets
 After login, use the _dataset list_ to upload and manage your custom datasets.
 To open the dataset list, click the <ui-button icon-classes="fas fa-database" text=""/> button at the top-right of the navbar.
 You may delete an uploaded dataset by the <ui-button icon-classes="fas fa-trash" text=""/> delete button in the dataset list.

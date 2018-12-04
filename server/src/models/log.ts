@@ -20,7 +20,6 @@ const logSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 logSchema.index({
-  username: 1,
   filename: 1,
 }, { unique: true });
 

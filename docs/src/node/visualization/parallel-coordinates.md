@@ -1,6 +1,6 @@
 # Parallel Coordinates
 
-A parallel coordinates plot renders several columns together.
+A <node-type type="parallel-coordinates"/> plot renders several columns together.
 Each column is represented using a vertical axis.
 Each data point is a polyline connecting to the axes.
 The location where a polyline intersects an axis correspond to the attribute value of the data item on that column.

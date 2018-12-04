@@ -24,6 +24,10 @@ import { ENVIRONMENT } from '@/common/env';
 import router from '@/router';
 import App from '@/components/app/app';
 
+// Make drag-and-drop work on a mobile device
+// This must come after app is imported because this depends on jQuery.
+import 'jquery-ui-touch-punch/jquery.ui.touch-punch.min.js';
+
 Vue.use(BootstrapVue);
 
 // Hide the message "You are running Vue in development mode. Make sure to ...".

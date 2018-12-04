@@ -7,6 +7,8 @@ enum ScatterplotEventType {
   TOGGLE_TRANSITION_DISABLED = 'setTransitionDisabled',
   TOGGLE_USE_DATASET_RANGE = 'setUseDatasetRange',
   TOGGLE_AXIS_MARGIN = 'setAxisMargin',
+  TOGGLE_X_AXIS_TICKS_VISIBLE = 'setXAxisTicksVisible',
+  TOGGLE_Y_AXIS_TICKS_VISIBLE = 'setYAxisTicksVisible',
   TOGGLE_TRANSPARENT_BACKGROUND = 'setTransparentBackground',
 }
 
@@ -62,6 +64,30 @@ export const toggleAxisMarginEvent = (node: Scatterplot, value: boolean): Histor
     'toggle axis margin',
     node,
     node.setAxisMargin,
+    value,
+    !value,
+  );
+};
+
+export const toggleXAxisTicksVisibleEvent = (node: Scatterplot, value: boolean):
+  HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    ScatterplotEventType.TOGGLE_X_AXIS_TICKS_VISIBLE,
+    'toggle X axis ticks',
+    node,
+    node.setXAxisTicksVisible,
+    value,
+    !value,
+  );
+};
+
+export const toggleYAxisTicksVisibleEvent = (node: Scatterplot, value: boolean):
+  HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    ScatterplotEventType.TOGGLE_Y_AXIS_TICKS_VISIBLE,
+    'toggle Y axis ticks',
+    node,
+    node.setYAxisTicksVisible,
     value,
     !value,
   );

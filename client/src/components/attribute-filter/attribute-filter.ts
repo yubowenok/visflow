@@ -289,9 +289,7 @@ export default class AttributeFilter extends SubsetNodeBase {
     if (this.column === null) {
       return;
     }
-    if (this.dataset === null || this.column >= this.dataset.numColumns()) {
-      this.column = null;
-    }
+    this.column = this.updateColumnOnDatasetChange(this.column);
   }
 
   protected created() {
@@ -361,12 +359,12 @@ export default class AttributeFilter extends SubsetNodeBase {
     const mode = this.patternParams.mode;
 
     let patterns = this.inputDisabled ? this.constants.map(value => value.toString()) : this.patternParams.patterns;
-    if (this.patternParams.isCaseSensitive && mode !== PatternMatchMode.REGEX) {
+    if (!this.patternParams.isCaseSensitive && mode !== PatternMatchMode.REGEX) {
       patterns = patterns.map(pattern => pattern.toLowerCase());
     }
     pkg.filterItems(item => {
       let value = dataset.getCell(item, this.column as number).toString();
-      if (this.patternParams.isCaseSensitive && mode !== PatternMatchMode.REGEX) {
+      if (!this.patternParams.isCaseSensitive && mode !== PatternMatchMode.REGEX) {
         value = value.toLowerCase();
       }
       if (mode === PatternMatchMode.FULL_STRING) {

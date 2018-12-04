@@ -1,7 +1,8 @@
 <template>
-  <v-select id="select" :class="['vf-select', { clearable }]"
+  <v-select id="select" :class="['vf-select', { 'not-clearable': !clearable }]"
     :options="options"
     :multiple="multiple"
+    :clearable="clearable"
     :label="label"
     v-model="childSelected"
     @input="onListSelect"

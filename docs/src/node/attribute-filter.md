@@ -62,6 +62,9 @@ Configures the filter mode that defines how attribute values are matched against
 | <ui-value text="Full String"/> | The attribute value equals the pattern |
 | <ui-value text="Regular Expression"/> | The pattern as a regular expression matches the attribute value |
 
+### Case Sensitive
+Configures the pattern filter to use case-sensitive substring or full string matching.
+
 
 ### Amount Type
 If <ui-prop prop="amount-type"/> is <ui-value text="Count"/>, a <ui-value text="Count"/> number of data items with extremum values are kept.

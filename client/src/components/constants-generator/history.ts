@@ -3,7 +3,7 @@ import ConstantsGenerator from './constants-generator';
 import { getConstantsListInputType } from '@/components/constants-list/constants-list';
 
 enum ConstantsGeneratorEventType {
-  INPUT_CONSTANTS = 'setConstants',
+  INPUT_CONSTANTS = 'setInputConstants',
   SELECT_COLUMN = 'setColumn',
   TOGGLE_DISTINCT = 'setDistinct',
   TOGGLE_SORT = 'setSort',

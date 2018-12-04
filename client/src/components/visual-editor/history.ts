@@ -4,7 +4,7 @@ import { VisualPropertyType } from '@/data/visuals';
 
 enum VisualEditorEventType {
   SELECT_MODE = 'setMode',
-  INPUT_VISUALS_COLOR = 'setVisuals-color',
+  INPUT_VISUALS_COLOR = 'setVisualsColor',
   INPUT_VISUALS_BORDER = 'setVisualsBorder',
   INPUT_VISUALS_SIZE = 'setVisualsSize',
   INPUT_VISUALS_WIDTH = 'setVisualsWidth',

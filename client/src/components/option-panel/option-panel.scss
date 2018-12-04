@@ -4,6 +4,7 @@
   @extend %right-panel;
   bottom: $panel-bottom;
   z-index: $zIndexOptionPanel;
+  min-width: $min-option-panel-width;
 
   * {
     max-width: $max-option-panel-width;

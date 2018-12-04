@@ -14,7 +14,7 @@ export default class FormSelect extends Vue {
   @Prop()
   private options!: SelectOption[];
 
-  @Prop({ default: true })
+  @Prop({ type: Boolean, default: false })
   private clearable!: boolean;
 
   @Prop({ default: true })

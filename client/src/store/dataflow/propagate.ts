@@ -2,6 +2,7 @@ import Node from '@/components/node/node';
 import Port from '@/components/port/port';
 import { dataMutationBoundary } from './helper';
 import store from '@/store';
+import { OutputPort } from '@/components/port';
 
 /**
  * Traverses the downflow of the starting node.
@@ -36,7 +37,6 @@ const propagate = (nodes: Node[]) => {
 
   // Update each node in the topological order.
   for (const node of order) {
-    console.log('startUpdate', node.id);
     node.startUpdate();
   }
   // Clear the isUpdated flags of all the nodes.
@@ -52,6 +52,11 @@ const propagate = (nodes: Node[]) => {
 
 export const propagatePort = (port: Port) => {
   propagate(port.getConnectedNodes());
+  if (!port.isInput) {
+    // The node of this port won't get a chance to be in the topological order.
+    // So we additionally clear the isUpdated flag it here.
+    (port as OutputPort).clearPackageUpdate();
+  }
 };
 
 export const propagateNode = (node: Node) => {

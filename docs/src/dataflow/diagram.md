@@ -48,7 +48,7 @@ Constants can either by manually specified by a user, or extracted from input ta
 Constants can be used to perform attribute filtering.
 For example, a <node-type type="attribute-filter"/> may perform range filtering by accepting two constants that define the filtering range.
 
-Constants may also be used as primary keys to relate heterogeneous tables.
+Constants may also be used as keys to relate heterogeneous tables.
 See <page-link link="/dataflow/linking.html" text="linking"/> for more details.
 
 ## Visual Property
