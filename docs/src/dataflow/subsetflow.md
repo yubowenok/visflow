@@ -8,7 +8,7 @@ Consequently, relying on the visual properties the visualizations in VisFlow may
 
 The <page-link link="/dataflow/diagram.html#constants" text="constants"/> produced by a <node-type type="constants-generator"/> or <node-type type="linker"/> are the only type of data that are not subsets in VisFlow.
 Constants allow VisFlow to use the attribute values of the data items for filtering, so as to perform more in-depth data analysis.
-Using constants, VisFlow may <page-link link="/dataflow/linking.html" text="link"/> heterogeneous tables by a primary key column.
+Using constants, VisFlow may <page-link link="/dataflow/linking.html" text="link"/> heterogeneous tables by a shared key column.
 
 ## Data Immutability
 

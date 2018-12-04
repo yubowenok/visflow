@@ -15,8 +15,9 @@ Some example inputs include (in the context of the cars dataset):
 - show <fs-tag type="column" text="GDP(Billion US$)"/> series over <fs-tag type="column" text="year"/> grouped by <fs-tag type="column" text="Country Code"/>
 - visualize the distribution of <fs-tag type="column" text="mpg"/>
 - find the cars with maximum <fs-tag type="column" text="mpg"/>
-- sample 5 percent of the cars
+- filter cars by <fs-tag type="column" text="mpg"/>
 - find cars with <fs-tag type="column" text="mpg"/> between 15 and 20
+- sample 5 percent of the cars
 - highlight the selected data in a <fs-tag type="node-type" text="histogram"/>
 - set opacity to 0.5
 - encode <fs-tag type="column" text="mpg"/> by red green color scale

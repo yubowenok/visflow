@@ -1,20 +1,20 @@
 import { Component, Watch } from 'vue-property-decorator';
 import _ from 'lodash';
 
-import template from './player.html';
+import template from './series-player.html';
 import ColumnSelect from '@/components/column-select/column-select';
 import FormInput from '@/components/form-input/form-input';
 import FormSlider from '@/components/form-slider/form-slider';
 import { injectNodeTemplate } from '../node';
 import { SubsetNode } from '../subset-node';
-import { isNumericalType, valueComparator } from '@/data/util';
+import { isNumericalType } from '@/data/util';
 import TabularDataset from '@/data/tabular-dataset';
 import * as history from './history';
 
 const SECOND_MS = 1000;
 const FRAME_INTERVAL_MS = 40; // 25 frames per second
 
-interface PlayerSave {
+interface SeriesPlayerSave {
   column: number | null;
   currentTimeIndex: number;
   framesPerSecond: number;
@@ -28,7 +28,7 @@ interface PlayerSave {
     FormSlider,
   },
 })
-export default class Player extends SubsetNode {
+export default class SeriesPlayer extends SubsetNode {
   protected NODE_TYPE = 'player';
   protected DEFAULT_WIDTH = 80;
   protected DEFAULT_HEIGHT = 60;
@@ -75,7 +75,7 @@ export default class Player extends SubsetNode {
   }
 
   protected created() {
-    this.serializationChain.push((): PlayerSave => ({
+    this.serializationChain.push((): SeriesPlayerSave => ({
       column: this.column,
       currentTimeIndex: this.currentTimeIndex,
       framesPerSecond: this.framesPerSecond,

@@ -67,6 +67,7 @@ const assignNodeId = (state: DataflowState): string => {
 
 const NODE_TYPE_COMPATIBILITY_MAP: { [type: string]: string } = {
   'loopback-control': 'data-reservoir',
+  'player': 'series-player',
 };
 
 export const createNode = (state: DataflowState, options: CreateNodeOptions, nodeSave?: object): Node => {

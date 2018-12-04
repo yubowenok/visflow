@@ -10,7 +10,7 @@ If there is no input, a list of constants can be specified manually in the optio
 Extracted constants can be used to filter data items.
 For example, if we extract the <ui-value text="model.year"/> values for a subset of cars, we can use those year constants to find the cars that were built in the same year(s).
 
-Extracted constants can also be used to link two heterogeneous tables that share a primary-key column.
+Extracted constants can also be used to link two heterogeneous tables that share a key column.
 Please see <page-link link="/dataflow/linking" text="Linking Heterogeneous Tables"/> and <node-type type="linker"/> for more details.
 
 ## Options

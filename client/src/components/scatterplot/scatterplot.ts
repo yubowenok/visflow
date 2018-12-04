@@ -35,6 +35,7 @@ interface ScatterplotSave {
   areXAxisTicksVisible: boolean;
   areYAxisTicksVisible: boolean;
   axisMargin: boolean;
+  transparentBackground: boolean;
 }
 
 interface ScatterplotItemProps {
@@ -82,7 +83,6 @@ export default class Scatterplot extends Visualization {
   private axisMargin = true;
   private areXAxisTicksVisible = true;
   private areYAxisTicksVisible = true;
-
 
   // advanced settings
   private transparentBackground = false;
@@ -145,7 +145,14 @@ export default class Scatterplot extends Visualization {
       axisMargin: this.axisMargin,
       areXAxisTicksVisible: this.areXAxisTicksVisible,
       areYAxisTicksVisible: this.areYAxisTicksVisible,
+      transparentBackground: this.transparentBackground,
     }));
+    this.deserializationChain.push(nodeSave => {
+      const save = nodeSave as ScatterplotSave;
+      if (save.transparentBackground) {
+        this.setTransparentBackground(true);
+      }
+    });
   }
 
   protected draw() {
