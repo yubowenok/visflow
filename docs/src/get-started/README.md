@@ -85,6 +85,13 @@ In the subset flow, all data transmitted in the dataflow are subsets of table ro
 The input table rows are never mutated, except that visual properties can be assigned and modified down the dataflow.
 Such a design ensures that visual properties can be used to keep track of subsets unambiguously, so that brushing and linking can be well supported for visual data exploration.
 
+## Working with Multiple Tables
+If you have more than one input table, you may relate them using [table linking](/dataflow/linking.md).
+A <node-type type="linker"/> may be used to find table rows from one table using the attribute values extracted from the other table.
+Technically, a linker extracts the attribute values from one table as <page-link link="/dataflow/diagram.html#constant" text="constants"/>,
+and use those constants to filter the other table.
+Read more about the <page-link link="/dataflow/diagram.html" text="diagram elements"/> here.
+
 
 ## Next Steps
 
