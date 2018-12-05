@@ -31,3 +31,10 @@ Configures the column for which the distribution is shown for.
 ### Number of Bins
 Configures the approximate number of bins to create.
 The chart may choose a number close to the given value that has the best readability.
+
+### Maximum Count
+Sets the maximum count value on the Y-axis.
+
+### Use Dataset Range
+Sets the X-axis domain to always equal to the value ranges of the entire dataset,
+rather than the value ranges of the subset received by the histogram.

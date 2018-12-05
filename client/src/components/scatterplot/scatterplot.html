@@ -29,9 +29,9 @@
   <b-form-checkbox v-model="axisMargin" @input="onToggleAxisMargin">Axis Margin</b-form-checkbox>
   <b-form-checkbox v-model="areXAxisTicksVisible" @input="onToggleXAxisTicksVisible">X Axis Ticks</b-form-checkbox>
   <b-form-checkbox v-model="areYAxisTicksVisible" @input="onToggleYAxisTicksVisible">Y Axis Ticks</b-form-checkbox>
+  <b-form-checkbox v-model="useDatasetRange" @input="onToggleUseDatasetRange">Use Dataset Range</b-form-checkbox>
 </div>
 
 <!-- settings-modal -->
-<div><b-form-checkbox v-model="useDatasetRange" @input="onToggleUseDatasetRange">Use Dataset Range</b-form-checkbox></div>
 <div><b-form-checkbox v-model="isTransitionDisabled" @input="onToggleTransitionDisabled">Disable Transition</b-form-checkbox></div>
 <div><b-form-checkbox v-model="transparentBackground" @input="onToggleTransparentBackground">Transparent Content</b-form-checkbox></div>

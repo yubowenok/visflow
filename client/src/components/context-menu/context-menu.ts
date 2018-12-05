@@ -10,9 +10,9 @@ export default class ContextMenu extends Vue {
   @Prop()
   private menuProps!: object;
 
-  private topOffset: number = 0;
-  private leftOffset: number = 0;
-  private visible: boolean = false;
+  private topOffset = 0;
+  private leftOffset = 0;
+  private visible = false;
 
   /**
    * Opens the context menu at the current mouse event position.

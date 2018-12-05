@@ -19,3 +19,7 @@
     @change="onSelectColumns"
   ></column-list>
 </div>
+<div>
+  <b-form-checkbox v-model="axisMargin" @input="onToggleAxisMargin">Axis Margin</b-form-checkbox>
+  <b-form-checkbox v-model="useDatasetRange" @input="onToggleUseDatasetRange">Use Dataset Range</b-form-checkbox>
+</div>

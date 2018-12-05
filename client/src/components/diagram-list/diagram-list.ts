@@ -15,7 +15,7 @@ export default class DiagramList extends Vue {
   @ns.dataflow.Action('listDiagram') private dispatchListDiagram!: () => Promise<DiagramInfo[]>;
   @ns.dataflow.Action('deleteDiagram') private dispatchDeleteDiagram!: (filename: string) => Promise<void>;
 
-  private selectable: boolean = true;
+  private selectable = true;
   private list: DiagramInfo[] = [];
   private errorMessage = '';
 

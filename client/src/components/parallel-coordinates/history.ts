@@ -4,6 +4,8 @@ import { getColumnListInputType } from '@/components/column-list/column-list';
 
 enum ParallelCoordinatesEventType {
   SELECT_COLUMNS = 'setColumns',
+  TOGGLE_AXIS_MARGIN = 'setAxisMargin',
+  TOGGLE_USE_DATASET_RANGE = 'setUseDatasetRange',
 }
 
 export const selectColumnsEvent = (node: ParallelCoordinates, columns: number[], prevColumns: number[]):
@@ -15,5 +17,27 @@ export const selectColumnsEvent = (node: ParallelCoordinates, columns: number[],
     node.setColumns,
     columns,
     prevColumns,
+  );
+};
+
+export const toggleAxisMarginEvent = (node: ParallelCoordinates, value: boolean): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    ParallelCoordinatesEventType.TOGGLE_AXIS_MARGIN,
+    'toggle axis margin',
+    node,
+    node.setAxisMargin,
+    value,
+    !value,
+  );
+};
+
+export const toggleUseDatasetRangeEvent = (node: ParallelCoordinates, value: boolean): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    ParallelCoordinatesEventType.TOGGLE_USE_DATASET_RANGE,
+    'toggle use dataset range',
+    node,
+    node.setUseDatasetRange,
+    value,
+    !value,
   );
 };

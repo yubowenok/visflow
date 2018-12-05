@@ -62,7 +62,7 @@ export default class Edge extends Vue {
   private y2: number = 0;
   private edgePathStr: string = '';
 
-  private isHovered: boolean = false;
+  private isHovered = false;
 
   get getCurvePath(): string {
     const sx = this.x1;

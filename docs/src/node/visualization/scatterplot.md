@@ -34,12 +34,11 @@ Configures the column visualized on the Y-axis.
 ### Axis Margin
 Uses 10% of margin on both sides of the axes.
 
-
-## More Settings
-
 ### Use Dataset Range
 Sets the axes domain to always equal to the value ranges of the entire dataset,
 rather than the value ranges of the subset received by the scatterplot.
+
+## More Settings
 
 ### Disable Transition
 Disables the animation between data updates.

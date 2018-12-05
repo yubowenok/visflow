@@ -18,6 +18,7 @@ import {
   PlotMargins,
   Scale,
   Visualization,
+  AnyScale,
 } from '@/components/visualization';
 import { fadeOut, getTransform, areSegmentsIntersected } from '@/common/util';
 import { SELECTED_COLOR } from '@/common/constants';
@@ -32,6 +33,8 @@ interface ParallelCoordinatesSave {
   columns: number[];
   areTicksVisible: boolean;
   areAxesLabelsVisible: boolean;
+  axisMargin: boolean;
+  useDatasetRange: boolean;
 }
 
 interface ParallelCoordinatesItemProps {
@@ -69,11 +72,23 @@ export default class ParallelCoordinates extends Visualization {
   private xScale!: Scale;
   private yScales!: Scale[];
   private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, left: 30, bottom: 20 };
-  private areTicksVisible: boolean = true;
-  private areAxesLabelsVisible: boolean = true;
+  private areTicksVisible = true;
+  private areAxesLabelsVisible = true;
+  private axisMargin = true;
+  private useDatasetRange = false;
 
   public setColumns(columns: number[]) {
     this.columns = columns;
+    this.draw();
+  }
+
+  public setUseDatasetRange(value: boolean) {
+    this.useDatasetRange = value;
+    this.draw();
+  }
+
+  public setAxisMargin(value: boolean) {
+    this.axisMargin = value;
     this.draw();
   }
 
@@ -93,6 +108,8 @@ export default class ParallelCoordinates extends Visualization {
       columns: this.columns,
       areTicksVisible: this.areTicksVisible,
       areAxesLabelsVisible: this.areAxesLabelsVisible,
+      axisMargin: this.axisMargin,
+      useDatasetRange: this.useDatasetRange,
     }));
   }
 
@@ -171,19 +188,32 @@ export default class ParallelCoordinates extends Visualization {
     this.yScales = this.columns.map(columnIndex => {
       return getScale(
         dataset.getColumnType(columnIndex),
-        dataset.getDomain(columnIndex, pkg.getItemIndices()),
+        dataset.getDomain(columnIndex, this.useDatasetRange ? undefined : pkg.getItemIndices()),
         yRange,
+        { domainMargin: this.axisMargin ? undefined : 0 },
       );
     });
 
-    this.updateLeftMargin();
     this.xScale = scaleLinear()
       .domain([0, this.columns.length - 1])
       .range([this.margins.left, this.svgWidth - this.margins.right]) as Scale;
+    this.updateLeftMargin();
   }
 
   private updateLeftMargin() {
-    // TODO: update the left margin based on how wide the first axis label is.
+    if (!this.columns.length) {
+      this.margins.left = DEFAULT_PLOT_MARGINS.left;
+      (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+      return;
+    }
+    this.drawAxis(0, this.columns[0]);
+    this.updateMargins(() => {
+      const maxTickWidth = _.max($(this.$refs.axes as SVGGElement)
+        .find('.axis > .tick > text')
+        .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
+      this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
+      (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+    });
   }
 
   private getItemProps(): ParallelCoordinatesItemProps[] {
@@ -291,5 +321,15 @@ export default class ParallelCoordinates extends Visualization {
   private onSelectColumns(columns: number[], prevColumns: number[]) {
     this.commitHistory(history.selectColumnsEvent(this, columns, prevColumns));
     this.setColumns(columns);
+  }
+
+  private onToggleAxisMargin(value: boolean) {
+    this.commitHistory(history.toggleAxisMarginEvent(this, value));
+    this.setAxisMargin(value);
+  }
+
+  private onToggleUseDatasetRange(value: boolean) {
+    this.commitHistory(history.toggleUseDatasetRangeEvent(this, value));
+    this.setUseDatasetRange(value);
   }
 }
