@@ -210,45 +210,38 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
     }
     return [ { node, port: (node as SubsetNode).getSubsetOutputPort() } ];
   }
+  let errored = false;
   const sources = value.source.map(spec => {
-    let node: Node;
+    let node: Node | undefined;
     if (spec.id === FlowsenseDef.DEFAULT_SOURCE) {
       node = util.getDefaultSources(1)[0];
-    } else if (spec.id.match(/node_type/)) {
-      const nodeType = ejectMappableMarker(spec.id, query.markerMapping).value[0];
-      const foundNode = util.findNodeWithType(nodeType);
-      if (!foundNode) {
-        tracker.cancel(`cannot find a ${nodeType} node`);
-        return null;
-      }
-      node = foundNode;
-    } else { // node label
-      const nodeLabel = ejectMappableMarker(spec.id, query.markerMapping).value[0];
-      const foundNode = util.findNodeWithLabel(nodeLabel);
-      if (!foundNode) {
-        tracker.cancel(`cannot find node with label ${nodeLabel}`);
-        return null;
-      }
-      node = foundNode;
+    } else {
+      node = util.getNodeByLabelOrType(spec.id, query, tracker);
+    }
+    if (!node) {
+      errored = true;
+      return;
     }
     const isSelection = spec.isSelection || false;
     let port: OutputPort;
     if (isSelection) {
       if (!(node as Visualization).getSelectionPort) {
         tracker.cancel(`node ${node.getLabel()} does not have selection output`);
-        return null;
+        errored = true;
+        return;
       }
       port = (node as Visualization).getSelectionPort();
     } else {
       if (!(node as SubsetNode).getSubsetOutputPort) {
         tracker.cancel(`node ${node.getLabel()} does not have subset output port`);
-        return null;
+        errored = true;
+        return;
       }
       port = (node as SubsetNode).getSubsetOutputPort();
     }
     return { node, port };
   });
-  if (sources.findIndex(source => source === null) !== -1) {
+  if (errored) {
     return null; // errored
   }
   return sources as QuerySource[];
@@ -265,7 +258,7 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
   }
   let errored = false;
   const results = value.target.map(spec => {
-    let node: Node;
+    let node: Node | undefined;
     if (spec.isCreate) {
       let nodeType = spec.id;
       if (nodeType === FlowsenseDef.DEFAULT_CHART_TYPE) {
@@ -294,15 +287,12 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
       }
       node = util.createNode(util.getCreateNodeOptions(nodeType));
       tracker.createNode(node);
-    } else { // TODO: use label?
-      const nodeLabel = ejectMappableMarker(spec.id, query.markerMapping).value[0];
-      const foundNode = util.findNodeWithLabel(nodeLabel);
-      if (!foundNode) {
-        tracker.cancel(`cannot find node with label ${nodeLabel}`);
+    } else {
+      node = util.getNodeByLabelOrType(spec.id, query, tracker);
+      if (!node) {
         errored = true;
-        return null;
+        return;
       }
-      node = foundNode;
     }
     let port: InputPort;
     if ((node as SubsetNode).getSubsetInputPort) {
@@ -389,6 +379,12 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   if (value.link) {
     update.linkNodes(tracker, value, query, sources, targets);
     message = 'link';
+    onlyCreateChart = false;
+  }
+
+  if (value.edge) {
+    update.editEdge(tracker, value.edge, query);
+    message = 'edit edge';
     onlyCreateChart = false;
   }
 

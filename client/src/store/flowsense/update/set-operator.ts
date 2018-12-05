@@ -13,15 +13,18 @@ import SetOperator from '@/components/set-operator/set-operator';
 export const createSetOperator = (tracker: FlowsenseUpdateTracker, value: QueryValue, query: InjectedQuery) => {
   let sources: Node[] = [];
   const setOperator = value.setOperator as SetOperatorSpecification;
-  setOperator.nodes.forEach(marker => {
-    const label = util.ejectMappableMarker(marker, query.markerMapping).value[0];
-    const foundNode = util.findNodeWithLabel(label);
+  let errored = false;
+  setOperator.nodes.forEach(spec => {
+    const foundNode = util.getNodeByLabelOrType(spec.id, query, tracker);
     if (!foundNode) {
-      tracker.cancel(`cannot find node with label ${label}`);
+      errored = true;
       return;
     }
     sources.push(foundNode);
   });
+  if (errored) {
+    return;
+  }
   if (sources.length < 2) {
     sources = sources.concat(util.getDefaultSources(2 - sources.length, sources));
   }

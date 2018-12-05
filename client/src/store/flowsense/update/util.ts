@@ -13,6 +13,7 @@ import { Visualization } from '@/components/visualization';
 import { ejectMarker, InjectedQuery, ejectMappableMarker } from '../helper';
 import { focusNode, focusNodes } from '@/store/interaction/helper';
 import { vectorDistance } from '@/common/vector';
+import FlowsenseUpdateTracker from './tracker';
 
 export {
   ejectMarker,
@@ -23,11 +24,11 @@ export {
 
 const dataflow = (): DataflowState => store.state.dataflow;
 
-export const findNodeWithLabel = (label: string): Node | undefined => {
+const findNodeWithLabel = (label: string): Node | undefined => {
   return dataflow().nodes.filter(node => node.getLabel() === label)[0];
 };
 
-export const findNodeWithType = (type: string): Node | undefined => {
+const findNodeWithType = (type: string): Node | undefined => {
   const nodes = dataflow().nodes.filter(dataflowNode => dataflowNode.nodeType === type);
   if (!nodes.length) {
     return undefined;
@@ -39,6 +40,46 @@ export const findNodeWithType = (type: string): Node | undefined => {
     }
   }
   return node;
+};
+
+/**
+ * Retrieves a node with the injected label.
+ * Panic if the node label cannot be found.
+ */
+export const getNodeByLabel = (injectedLabel: string, query: InjectedQuery, tracker: FlowsenseUpdateTracker):
+  Node | undefined => {
+  const nodeLabel = ejectMappableMarker(injectedLabel, query.markerMapping).value[0];
+  const foundNode = findNodeWithLabel(nodeLabel);
+  if (!foundNode) {
+    tracker.cancel(`cannot find node with label ${nodeLabel}`);
+  }
+  return foundNode;
+};
+
+/**
+ * Retrieves a node with a given type.
+ * Panic if such a node cannot be found.
+ */
+export const getNodeByType = (injectedType: string, query: InjectedQuery, tracker: FlowsenseUpdateTracker):
+  Node | undefined => {
+  const nodeType = ejectMappableMarker(injectedType, query.markerMapping).value[0];
+  const foundNode = findNodeWithType(nodeType);
+  if (!foundNode) {
+    tracker.cancel(`cannot find node of type ${nodeType}`);
+  }
+  return foundNode;
+};
+
+export const getNodeByLabelOrType = (injected: string, query: InjectedQuery, tracker: FlowsenseUpdateTracker):
+  Node | undefined => {
+  console.log(injected, query.markerMapping);
+  if (injected.match(/node_type/)) {
+    return getNodeByType(injected, query, tracker);
+  } else if (injected.match(/node_label/)) {
+    return getNodeByLabel(injected, query, tracker);
+  } else {
+    console.error(`cannot eject value ${injected}`);
+  }
 };
 
 /**
@@ -98,7 +139,7 @@ export const createEdge = (sourcePort: OutputPort, targetPort: InputPort, propag
  * Provides removeEdge wrapper.
  */
 export const removeEdge = (edge: Edge, propagate: boolean) => {
-  return dataflowHelper.removeEdge(dataflow(), edge, propagate);
+  dataflowHelper.removeEdge(dataflow(), edge, propagate);
 };
 
 /**
