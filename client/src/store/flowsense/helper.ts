@@ -211,8 +211,26 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
     return [ { node, port: (node as SubsetNode).getSubsetOutputPort() } ];
   }
   const sources = value.source.map(spec => {
-    const node: Node = spec.id === FlowsenseDef.DEFAULT_SOURCE ? util.getDefaultSources(1)[0] :
-      util.findNodeWithLabel(ejectMappableMarker(spec.id, query.markerMapping).value[0]);
+    let node: Node;
+    if (spec.id === FlowsenseDef.DEFAULT_SOURCE) {
+      node = util.getDefaultSources(1)[0];
+    } else if (spec.id.match(/node_type/)) {
+      const nodeType = ejectMappableMarker(spec.id, query.markerMapping).value[0];
+      const foundNode = util.findNodeWithType(nodeType);
+      if (!foundNode) {
+        tracker.cancel(`cannot find a ${nodeType} node`);
+        return null;
+      }
+      node = foundNode;
+    } else { // node label
+      const nodeLabel = ejectMappableMarker(spec.id, query.markerMapping).value[0];
+      const foundNode = util.findNodeWithLabel(nodeLabel);
+      if (!foundNode) {
+        tracker.cancel(`cannot find node with label ${nodeLabel}`);
+        return null;
+      }
+      node = foundNode;
+    }
     const isSelection = spec.isSelection || false;
     let port: OutputPort;
     if (isSelection) {
@@ -245,7 +263,8 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
   if (!value.target) {
     return [];
   }
-  return value.target.map(spec => {
+  let errored = false;
+  const results = value.target.map(spec => {
     let node: Node;
     if (spec.isCreate) {
       let nodeType = spec.id;
@@ -275,8 +294,15 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
       }
       node = util.createNode(util.getCreateNodeOptions(nodeType));
       tracker.createNode(node);
-    } else {
-      node = util.findNodeWithLabel(spec.id);
+    } else { // TODO: use label?
+      const nodeLabel = ejectMappableMarker(spec.id, query.markerMapping).value[0];
+      const foundNode = util.findNodeWithLabel(nodeLabel);
+      if (!foundNode) {
+        tracker.cancel(`cannot find node with label ${nodeLabel}`);
+        errored = true;
+        return null;
+      }
+      node = foundNode;
     }
     let port: InputPort;
     if ((node as SubsetNode).getSubsetInputPort) {
@@ -286,6 +312,10 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
     }
     return { node, port };
   });
+  if (errored) {
+    return [];
+  }
+  return results as QueryTarget[];
 };
 
 /**

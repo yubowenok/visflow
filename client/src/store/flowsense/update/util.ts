@@ -23,8 +23,22 @@ export {
 
 const dataflow = (): DataflowState => store.state.dataflow;
 
-export const findNodeWithLabel = (label: string): Node => {
+export const findNodeWithLabel = (label: string): Node | undefined => {
   return dataflow().nodes.filter(node => node.getLabel() === label)[0];
+};
+
+export const findNodeWithType = (type: string): Node | undefined => {
+  const nodes = dataflow().nodes.filter(dataflowNode => dataflowNode.nodeType === type);
+  if (!nodes.length) {
+    return undefined;
+  }
+  let node = nodes[0];
+  for (const candidateNode of nodes) {
+    if (candidateNode.getActiveness() > node.getActiveness()) {
+      node = candidateNode;
+    }
+  }
+  return node;
 };
 
 /**
