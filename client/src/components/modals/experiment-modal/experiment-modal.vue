@@ -27,8 +27,8 @@ The following actions you perform on the systems will be recorded for analysis:
   <li>Text produced from voice input (no audio data will be collected).</li>
 </ul>
 <p>
-Participation in this study will involve 15 minutes of tutorial,
-15 minutes of practice, and 30-60 minutes of data analysis tasks.
+Participation in this study will involve 20 minutes of tutorial,
+10 minutes of practice, and 30-45 minutes of data analysis tasks.
 There are no known risks associated with your participation in this research beyond those of everyday life.
 </p>
 <p>
@@ -86,8 +86,8 @@ Reproduce the tutorial diagram that:
 <ul>
   <li>Visualizes <i>car.csv</i> in a scatterplot.</li>
   <li>Shows the selected cars from the scatterplot in a table.</li>
-  <li>Shows a distribution histogram of the mpg values of the cars.</li>
-  <li>Highlights the selected cars from the scatterplot in the distribution histogram.</li>
+  <li>Shows a histogram of the mpg value distribution.</li>
+  <li>Highlights the selected cars from the scatterplot in the histogram.</li>
   <li>Uses an attribute filter to show only cars with an mpg between 10 and 15 in the histogram.</li>
 </ul>
 You may close this user study dialog to return to diagram editing.
@@ -118,12 +118,12 @@ If you want to revisit the usage of VisFlow, you may go to the previous steps by
 Please take a few minutes to practice VisFlow and FlowSense and explore their features.
 You may freely explore the three demo datasets we have prepared:
 <ul>
-  <li>car.csv</li>
-  <li>iris.csv</li>
-  <li>gdp.csv (time series)</li>
+  <li><i>car.csv</i></li>
+  <li><i>iris.csv</i></li>
+  <li><i>gdp.csv (time series)</i></li>
 </ul>
 <p>
-  Please do <i>NOT</i> use the other two datasets sde_test_results.csv and sde_test_users.csv, which will be saved for the tasks that follow.
+  Please do <i>NOT</i> use the other two datasets <i>sde_test_results.csv</i> and <i>sde_test_users.csv</i>, which will be saved for the tasks that follow.
   Once you feel comfortable with the usage of VisFlow and FlowSense, proceed to the next step.
 </p>
 </div>
@@ -139,8 +139,8 @@ The dataset includes the test results of software engineer candidates, which ref
 There are two tables:
 </p>
 
-<div>
-  <div><b>sde_test_results.csv</b></div>
+<ul>
+  <li><b>sde_test_results.csv</b>
   This table includes the test results for each candidate.
   A test consists of answering several multi-choice questions selected by the system from a large question pool.
   Each question has a unique ID, a preset difficulty, its supported programming language(s), and possibly a time limit.
@@ -149,18 +149,22 @@ There are two tables:
   So a candidate may choose to "skip" a question and get zero score.
   If a candidate has no action during the time limit of a question, the result is "unanswered".
   The "time taken" column stores how much time in seconds a candidate took to answer a question.
-</div>
-
-<div>
-  <div><b>sde_test_users.csv</b></div>
+  </li>
+  <li><b>sde_test_users.csv</b>
   This table includes background information about each candidate, such as the candidate's age, field of study, and graduation date.
-</div>
+  </li>
+</ul>
 
+<p></p>
 <p>
-You will use VisFlow and FlowSense to explore the SDE test dataset, and answer a few questions.
+You will use VisFlow and FlowSense to explore the SDE Test dataset, and answer a few questions.
 <b>You are encouraged to use FlowSense as much as possible</b>.
 Questions will be shown sequentially.
-For each question, create and edit a dataflow diagram to show a visualization that can answer the question.
+For each question, create and edit a dataflow diagram to show a visualization that may answer the question.
+Also enter the answer in the text box below the question, and provide a brief explanation of your findings.
+</p>
+
+<p>
 After answering each question, come back to this dialog to move on to the next question.
 You may use a same diagram throughout all questions.
 </p>
@@ -178,9 +182,9 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
   </p>
   <p>
     How many questions were skipped in total?
-    What is the percentage that a question is answered correctly?
+    What is the percentage of a question being answered correctly?
   </p>
-<div class="section">Write your answer here:</div>
+<div class="section">Enter your answer here:</div>
 <div class="section">
   <b-form-textarea v-model="task1Answer" placeholder="Your answer here"></b-form-textarea>
 </div>
@@ -188,16 +192,15 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
 
 <div v-if="currentStep === 'task2'">
   <p>
-    There is an outlier with the user information table regarding the user's age.
+    There is an outlier within the user information table regarding the user's age.
     What is the user ID of that outlier?
   </p>
   <p>
     The "Time Taken" column of the results table is supposed to record how many seconds a candidate took to answer a question.
     However, there was some data recording discrepancy.
-    Could you visualize the discrepancy?
-    Explain what do you suspect to have happened that resulted in this discrepancy.
+    Could you visualize the discrepancy, and explain what do you suspect to have happened that resulted in this discrepancy?
   </p>
-<div class="section">Write down the answers, and provide a brief explanation of your findings:</div>
+<div class="section">Write down the outlier user ID, and explain your findings about the "Time Taken" discrepancy:</div>
 <div class="section">
   <b-form-textarea v-model="task2Answer" placeholder="Your answer here"></b-form-textarea>
 </div>
@@ -205,24 +208,26 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
 
 <div v-if="currentStep === 'task3'">
   <p>
-    Find one question with a question ID greater than 400 for which candidates with a Masters degree can answer
-    significantly better than the candidates with a Bachelors degree.
+    Find one question with a question ID greater than 400 which candidates with a Masters degree can answer
+    significantly better than candidates with a Bachelors degree.
   </p>
   <p>
-    The question should be asked enough times to both Masters and Bachelors candidates.
-    Masters who answered the question should achieve a much higher correct rate than Bachelors who answered this question.
+    The question should have enough occurrences given to both Masters and Bachelors candidates.
+    Masters that answered this question should achieve a much higher correct rate than Bachelors who answered this question.
   </p>
 
-<div class="section">Write down the question ID, with a brief explanation of your dataflow diagram:</div>
+<div class="section">Write down the question ID, and briefly explain how you draw the conclusion from the dataflow diagram:</div>
 <div class="section">
   <b-form-textarea v-model="task3Answer" placeholder="Your answer here"></b-form-textarea>
 </div>
 </div>
 
 <div v-if="currentStep === 'survey'">
-Thank you for completing all the user study tasks.
-Please take a few minutes to complete this survey to provide feedback on the system:
-<a :href="surveyLink" target="_blank" class="bold">Survey Link</a>
+<p>Thank you for completing all the tasks.</p>
+<p>
+  Please take this survey to give us your feedback about the system:
+  <a :href="surveyLink" target="_blank" class="bold">Survey Link</a>
+</p>
 </div>
 
 <div v-if="currentStep === 'end'">
