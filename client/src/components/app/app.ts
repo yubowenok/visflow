@@ -52,6 +52,8 @@ export default class App extends Vue {
   @ns.flowsense.State('enabled') private isFlowsenseEnabled!: boolean;
   @ns.experiment.Action('login') private loginExperimentUser!: () => Promise<void>;
   @ns.experiment.Action('load') private dispatchLoadExperiment!: (filename: string) => Promise<void>;
+  @ns.experiment.Getter('isInExperiment') private isInExperiment!: boolean;
+  @ns.user.Action('logout') private dispatchLogout!: () => void;
   @ns.systemOptions.Mutation('toggleBetaFeatures') private toggleBetaFeatures!: (value?: boolean) => void;
 
   private created() {
@@ -78,6 +80,8 @@ export default class App extends Vue {
             .catch(systemMessageErrorHandler(this.$store));
         }
       });
+    } else if (this.isInExperiment) {
+      this.dispatchLogout();
     }
 
     // On page load check if we need to load diagram history logs.

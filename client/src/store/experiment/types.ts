@@ -11,6 +11,8 @@ export interface ExperimentProgress {
 
 export type ExperimentInfo = ExperimentState;
 
+export const EXPERIMENT_USERNAME = '_experiment';
+
 export const EXPERIMENT_STEPS = [
   'consentForm',
   'overview',
