@@ -1,21 +1,16 @@
-/*
 import mongoose from 'mongoose';
 
 export interface ExperimentModel extends mongoose.Document {
   filename: string;
-  startTime: Date;
-  endTime?: Date;
-  step: string;
+  answers: { [question: string]: string[] };
 }
 
 // Query and auto completion share a same model.
 
 const experimentSchema = new mongoose.Schema({
   filename: String,
-  startTime: Date,
-  endTime: Date,
-  step: String,
+  answers: Object,
 }, { timestamps: true });
 
-export const Experiment = mongoose.model<ExperimentModel>('Experiment', experimentSchema);
-*/
+const Experiment = mongoose.model<ExperimentModel>('Experiment', experimentSchema);
+export default Experiment;

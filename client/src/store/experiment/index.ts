@@ -11,6 +11,7 @@ const initialState: ExperimentState = {
   filename: '',
   diagramName: '',
   step: 'consentForm',
+  maxStep: 'consentForm',
 };
 
 const getters = {
@@ -34,6 +35,10 @@ const mutations = {
 
   setStep(state: ExperimentState, step: string) {
     state.step = step;
+  },
+
+  setMaxStep(state: ExperimentState, step: string) {
+    state.maxStep = step;
   },
 
   /**
@@ -62,7 +67,16 @@ const mutations = {
       return;
     }
     const oldStep = state.step;
-    const newStep = EXPERIMENT_STEPS[stepIndex + 1];
+    let newStep = EXPERIMENT_STEPS[stepIndex + 1];
+
+    if (newStep.match(/^clear/) && EXPERIMENT_STEPS.indexOf(state.maxStep) >= stepIndex + 2) {
+      // already went through this clear step, skip
+      newStep = EXPERIMENT_STEPS[stepIndex + 2];
+    } else if (oldStep.match(/^clear/)) {
+      // If the max step is a tutorial or the beginning of tasks, clear the diagram.
+      store.dispatch('dataflow/newDiagram');
+    }
+
     store.commit('history/addLog', {
       type: HistoryLogType.EXPERIMENT_STEP,
       data: {
@@ -78,6 +92,7 @@ const mutations = {
       store.dispatch('dataflow/autoSave');
     }
     mutations.setStep(state, newStep);
+    mutations.setMaxStep(state, newStep);
   },
 
   /**
@@ -89,7 +104,11 @@ const mutations = {
       console.warn('no previous experiment step');
       return;
     }
-    const newStep = EXPERIMENT_STEPS[stepIndex - 1];
+    let newStep = EXPERIMENT_STEPS[stepIndex - 1];
+    if (newStep.match(/^clear/)) {
+      // a clear step must have been used, skip
+      newStep = EXPERIMENT_STEPS[stepIndex - 2];
+    }
     mutations.setStep(state, newStep);
   },
 };
@@ -133,6 +152,7 @@ const actions = {
             .then(progressRes => {
               const info = progressRes.data;
               context.commit('setInfo', info);
+              context.commit('setMaxStep', info.step);
               context.commit('setStep', info.step);
 
               context.commit('dataflow/setDiagramName', info.diagramName, { root: true });
@@ -161,6 +181,22 @@ const actions = {
       return;
     }
     context.commit('router/replace', '/', { root: true });
+  },
+
+  /**
+   * Answers an experiment question.
+   */
+  answer(context: ActionContext<ExperimentState, RootState>, payload: { question: string, answer: string }) {
+    const filename = context.state.filename;
+    if (!filename) {
+      console.error('cannot answer question without filename');
+      return;
+    }
+    axiosPost<void>('/experiment/answer', {
+        filename,
+        question: payload.question,
+        answer: payload.answer,
+      });
   },
 };
 

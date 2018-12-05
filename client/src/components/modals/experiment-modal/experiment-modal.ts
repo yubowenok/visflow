@@ -13,6 +13,7 @@ export default class ExperimentModal extends Vue {
   @ns.modals.State('experimentModalVisible') private experimentModalVisible!: boolean;
   @ns.modals.Mutation('openExperimentModal') private openExperimentModal!: () => void;
   @ns.modals.Mutation('closeExperimentModal') private closeExperimentModal!: () => void;
+  @ns.experiment.Action('answer') private experimentAnswer!: (payload: { question: string, answer: string }) => void;
   @ns.experiment.Mutation('next') private experimentNextStep!: () => void;
   @ns.experiment.Mutation('previous') private experimentPreviousStep!: () => void;
   @ns.experiment.State('filename') private experimentFilename!: string;
@@ -24,8 +25,10 @@ export default class ExperimentModal extends Vue {
     consentForm: 'VisFlow User Study: Consent Form for IRB-FY2018-2102',
     overview: 'User Study Overview',
     visflowTutorial: 'VisFlow Tutorial',
+    clear1: 'Clear Diagram',
     flowsenseTutorial: 'FlowSense Tutorial',
     practice: 'System Practice',
+    clear2: 'Clear Diagram',
     task: 'Experiment Tasks',
     task1: 'Task 1',
     task2: 'Task 2',
@@ -34,6 +37,10 @@ export default class ExperimentModal extends Vue {
     end: 'End of Study',
     finish: 'Study Completed',
   };
+
+  private task1Answer = '';
+  private task2Answer = '';
+  private task3Answer = '';
 
   get sessionLink(): string {
     return window.location.protocol + '//' + window.location.host + '/experiment/' + this.experimentFilename;
@@ -53,6 +60,20 @@ export default class ExperimentModal extends Vue {
   }
 
   private next() {
+    if (this.currentStep.match(/^task\d/)) {
+      let answer = '';
+      if (this.currentStep === 'task1') {
+        answer = this.task1Answer;
+      } else if (this.currentStep === 'task2') {
+        answer = this.task2Answer;
+      } else if (this.currentStep === 'task3') {
+        answer = this.task3Answer;
+      }
+      this.experimentAnswer({
+        question: this.currentStep,
+        answer,
+      });
+    }
     this.experimentNextStep();
   }
 

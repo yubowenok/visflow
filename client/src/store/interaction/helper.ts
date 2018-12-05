@@ -47,7 +47,6 @@ export const moveNodes = (nodes: Node[], dx: number, dy: number) => {
 };
 
 export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Event) => {
-  console.log(keys);
   switch (keys) {
     case 'delete':
     case state.osCtrlKey + '+d':

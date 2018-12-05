@@ -3,7 +3,6 @@
   :visible-state="experimentModalVisible"
   :on-open="openExperimentModal"
   :on-close="closeExperimentModal"
-  :on-enter="next"
   size="lg"
   >
 <template slot="content">
@@ -72,8 +71,8 @@ The structure of this study will be as follows:
 <ul>
   <li>VisFlow Tutorial (10-15 minutes)</li>
   <li>FlowSense Tutorial (10-15 minutes)</li>
-  <li>Practice with the system (10-15 minutes)</li>
-  <li>Experiment Task (30 minutes)</li>
+  <li>Practice with the system (10 minutes)</li>
+  <li>Experiment Task (30-45 minutes)</li>
 </ul>
 <p>
 If you have questions at any time of the user study, please reach out to our user study assistant.
@@ -82,8 +81,8 @@ If you have questions at any time of the user study, please reach out to our use
 
 <div v-if="currentStep === 'visflowTutorial'">
 <p>Let's first take a look at the basic usage of the VisFlow dataflow framework.</p>
-Please follow the steps in the <a href="https://visflow.org/get-started/" target="_blank">Getting Started</a> page
-to create a simple diagram that:
+Please follow the steps in the <a href="https://visflow.org/get-started/" target="_blank">Getting Started</a> page.
+Reproduce the tutorial diagram that:
 <ul>
   <li>Visualizes <i>car.csv</i> in a scatterplot.</li>
   <li>Shows the selected cars from the scatterplot in a table.</li>
@@ -92,7 +91,7 @@ to create a simple diagram that:
   <li>Uses an attribute filter to show only cars with an mpg between 10 and 15 in the histogram.</li>
 </ul>
 You may close this user study dialog to return to diagram editing.
-To come back to this dialog, click the <i>User Study</i> button at the top-right of this page.
+To come back to this dialog, click the <i>User Study</i> button at the top-right corner of the system.
 After your are done, proceed to the next step by clicking <i>Continue</i>.
 </div>
 
@@ -101,31 +100,32 @@ Next, let's learn how to use FlowSense, the natural langugage interface of VisFl
 <div>
   Please read the <a href="https://visflow.org/flowsense" target="_blank">FlowSense instructions</a>.
   In particular, checkout the <a href="https://visflow.org/flowsense/#examples" target="_blank">example queries</a> to see what FlowSense is capable of.
-  After walking through the instructions, try to reproduce the <a href="https://visflow.org/get-started/" target="_blank">Getting Started</a> steps you did earlier using FlowSense.
-  For example, you may use FlowSense to:
+  After walking through the instructions, see if you can do everything described in <a href="https://visflow.org/get-started/" target="_blank">Getting Started</a> using FlowSense.
+  To confirm your understanding of FlowSense, please use the natural language interface to:
 </div>
 <ul>
   <li>Load <i>car.csv</i>.</li>
   <li>Draw a scatterplot of mpg and displacement.</li>
+  <li>Show the selected cars from the scatterplot in a table.</li>
   <li>Highlight the selected cars from the scatterplot in a histogram.</li>
-  <li>Filter the cars by mpg values.</li>
+  <li>Find which cars have an mpg between 10 and 15 from the selected bars of the histogram.</li>
 </ul>
-You may want to clear the previous diagram before trying out FlowSense.
-After completing the same practice diagram using FlowSense, proceed to the next step.
-You may also revisit previous steps by clicking <i>Previous</i>.
+After completing the above, proceed to the next step.
+If you want to revisit the usage of VisFlow, you may go to the previous steps by clicking <i>Previous</i>.
 </div>
 
 <div v-if="currentStep === 'practice'">
-Now please take a few minutes to practice VisFlow and FlowSense and explore their features.
+Please take a few minutes to practice VisFlow and FlowSense and explore their features.
 You may freely explore the three demo datasets we have prepared:
 <ul>
   <li>car.csv</li>
   <li>iris.csv</li>
   <li>gdp.csv (time series)</li>
 </ul>
-<p>Please do NOT use the other two datasets sde_test_results.csv and sde_test_users.csv, which we will save for the next step.</p>
-
-Once you feel comfortable with the usage of VisFlow and FlowSense, proceed to the next step.
+<p>
+  Please do <i>NOT</i> use the other two datasets sde_test_results.csv and sde_test_users.csv, which will be saved for the tasks that follow.
+  Once you feel comfortable with the usage of VisFlow and FlowSense, proceed to the next step.
+</p>
 </div>
 
 <div v-if="currentStep === 'task'">
@@ -139,20 +139,22 @@ The dataset includes the test results of software engineer candidates, which ref
 There are two tables:
 </p>
 
-<p>
+<div>
   <div><b>sde_test_results.csv</b></div>
   This table includes the test results for each candidate.
-  A test consists of answering several questions chosen by the system from a large question pool.
-  Each question has a unique ID, a preset difficulty, a related programming language, and possibly a time limit.
+  A test consists of answering several multi-choice questions selected by the system from a large question pool.
+  Each question has a unique ID, a preset difficulty, its supported programming language(s), and possibly a time limit.
   If the candidate answers a question, a result ("correct" or "wrong") is given.
-  Getting a question wrong may penalize the candidate, so sometimes the candidate may choose to pass a question, resulting in a question is "unanswered".
+  Getting a question wrong results in a negative score penalty.
+  So a candidate may choose to "skip" a question and get zero score.
+  If a candidate has no action during the time limit of a question, the result is "unanswered".
   The "time taken" column stores how much time in seconds a candidate took to answer a question.
-</p>
+</div>
 
-<p>
+<div>
   <div><b>sde_test_users.csv</b></div>
   This table includes background information about each candidate, such as the candidate's age, field of study, and graduation date.
-</p>
+</div>
 
 <p>
 You will use VisFlow and FlowSense to explore the SDE test dataset, and answer a few questions.
@@ -170,15 +172,51 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
 </div>
 
 <div v-if="currentStep === 'task1'">
-First, create a visualization that shows the distribution of programming languages used by the candidates.
+  <p>
+    Create a visualization that shows the distribution of the results for all the questions asked.
+    A same question may be asked multiple times, in which case each occurrence of that question is counted separately.
+  </p>
+  <p>
+    How many questions were skipped in total?
+    What is the percentage that a question is answered correctly?
+  </p>
+<div class="section">Write your answer here:</div>
+<div class="section">
+  <b-form-textarea v-model="task1Answer" placeholder="Your answer here"></b-form-textarea>
+</div>
 </div>
 
 <div v-if="currentStep === 'task2'">
-Present the data to show which test question (in question ID) was the hardest among C++ candidates.
+  <p>
+    There is an outlier with the user information table regarding the user's age.
+    What is the user ID of that outlier?
+  </p>
+  <p>
+    The "Time Taken" column of the results table is supposed to record how many seconds a candidate took to answer a question.
+    However, there was some data recording discrepancy.
+    Could you visualize the discrepancy?
+    Explain what do you suspect to have happened that resulted in this discrepancy.
+  </p>
+<div class="section">Write down the answers, and provide a brief explanation of your findings:</div>
+<div class="section">
+  <b-form-textarea v-model="task2Answer" placeholder="Your answer here"></b-form-textarea>
+</div>
 </div>
 
 <div v-if="currentStep === 'task3'">
-Identify which set of the questions are most effective to separate the most experienced candidates from the less experienced candidates.
+  <p>
+    Find one question with a question ID greater than 400 for which candidates with a Masters degree can answer
+    significantly better than the candidates with a Bachelors degree.
+  </p>
+  <p>
+    The question should be asked enough times to both Masters and Bachelors candidates.
+    Masters who answered the question should achieve a much higher correct rate than Bachelors who answered this question.
+  </p>
+
+<div class="section">Write down the question ID, with a brief explanation of your dataflow diagram:</div>
+<div class="section">
+  <b-form-textarea v-model="task3Answer" placeholder="Your answer here"></b-form-textarea>
+</div>
 </div>
 
 <div v-if="currentStep === 'survey'">
@@ -195,6 +233,10 @@ Please take a few minutes to complete this survey to provide feedback on the sys
 
 <div v-if="currentStep === 'finish'">
   This user study has been completed.
+</div>
+
+<div v-if="currentStep.match(/^clear/)">
+To proceed to the next step, the diagram will be cleared. Would you like to proceed?
 </div>
 
 </b-container>

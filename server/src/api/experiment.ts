@@ -10,6 +10,7 @@ import { checkValidationResults, urlJoin, randomHash } from '../common/util';
 import Diagram from '../models/diagram';
 import { DATA_PATH } from '../config/env';
 import Log, { LogModel } from '../models/log';
+import Experiment, { ExperimentModel } from '../models/experiment';
 
 /**
  * Gets the experiment diagram name based on its filename.
@@ -44,10 +45,24 @@ const experimentApi = (app: Express) => {
       if (err) {
         return next(err);
       }
-      res.json({
-        diagramName,
+
+      const experiment = new Experiment({
         filename,
-        step: 'consentForm',
+        answers: {
+          task1: [],
+          task2: [],
+          task3: [],
+        },
+      });
+      experiment.save((experimentErr: mongoose.Error) => {
+        if (experimentErr) {
+          return next(experimentErr);
+        }
+        res.json({
+          diagramName,
+          filename,
+          step: 'consentForm',
+        });
       });
     });
   });
@@ -78,8 +93,26 @@ const experimentApi = (app: Express) => {
     });
   });
 
-  // Ends the experiment
-  app.post('/api/experiment/end', (req: Request, res: Response, next: NextFunction) => {
+  app.post('/api/experiment/answer/', (req: Request, res: Response, next: NextFunction) => {
+    const { question, answer, filename } = req.body;
+    if (!answer) {
+      return res.status(400).send('empty answer');
+    }
+    Experiment.findOne({ filename }, (err, experiment) => {
+      if (err) {
+        return next(err);
+      }
+      const answers = experiment.answers;
+      if (answers[question].indexOf(answer) === -1) {
+        answers[question].push(answer); // append each unique answer
+      }
+      Experiment.findOneAndUpdate({ filename }, { answers }, updateErr => {
+        if (updateErr) {
+          return next(updateErr);
+        }
+        res.status(200).send();
+      });
+    });
   });
 };
 

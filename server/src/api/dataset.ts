@@ -26,7 +26,7 @@ const datasetExists = check('filename').custom((filename, { req }) => {
     $or?: object[];
   } = { filename };
   if (req.user) {
-    if (!req.user.isAdmin) {
+    if (!req.user.isAdmin && req.user.username !== EXPERIMENT_USERNAME) {
       query.username = req.user.username;
     }
   } else {
