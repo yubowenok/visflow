@@ -90,9 +90,17 @@ Reproduce the tutorial diagram that:
   <li>Highlights the selected cars from the scatterplot in the histogram.</li>
   <li>Uses an attribute filter to show only cars with an mpg between 10 and 15 in the histogram.</li>
 </ul>
+
+<p>
+  Later you may need to work with two tables of different formats.
+  Please take a look at <a href="https://visflow.org/dataflow/linking.html" target="_blank">table linking</a> if you haven't.
+</p>
+
+<p>
 You may close this user study dialog to return to diagram editing.
 To come back to this dialog, click the <i>User Study</i> button at the top-right corner of the system.
 After your are done, proceed to the next step by clicking <i>Continue</i>.
+</p>
 </div>
 
 <div v-if="currentStep === 'flowsenseTutorial'">
