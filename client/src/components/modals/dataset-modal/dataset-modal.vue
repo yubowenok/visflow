@@ -5,7 +5,7 @@
   :on-close="close"
   >
   <template slot="content">
-    <file-upload ref="fileUpload" url="/dataset/upload" field="dataset"
+    <file-upload v-if="!isInExperiment" ref="fileUpload" url="/dataset/upload" field="dataset"
       @uploaded="onFileUpload">
     </file-upload>
     <div class="list">

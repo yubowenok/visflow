@@ -1,5 +1,6 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator';
 
+import ns from '@/store/namespaces';
 import FileUpload from '@/components/file-upload/file-upload';
 import DatasetList from '@/components/dataset-list/dataset-list';
 import { DatasetInfo } from '@/store/dataset/types';
@@ -13,6 +14,8 @@ import BaseModal from '@/components/modals/base-modal/base-modal';
   },
 })
 export default class DatasetModal extends Vue {
+  @ns.experiment.Getter('isInExperiment') private isInExperiment!: boolean;
+
   @Prop()
   private selectable!: boolean;
 
@@ -23,7 +26,9 @@ export default class DatasetModal extends Vue {
 
   public open() {
     this.visible = true;
-    (this.$refs.fileUpload as FileUpload).reset();
+    if (!this.isInExperiment) {
+      (this.$refs.fileUpload as FileUpload).reset();
+    }
 
     // Refresh the list on each open call.
     (this.$refs.datasetList as DatasetList).getList();

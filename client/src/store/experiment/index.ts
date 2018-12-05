@@ -2,7 +2,7 @@ import { Module, ActionContext } from 'vuex';
 import store, { RootState } from '@/store';
 
 import { axiosPost, errorMessage, showSystemMessage } from '@/common/util';
-import { ExperimentState, ExperimentInfo, ExperimentProgress, EXPERIMENT_USERNAME, EXPERIMENT_STEPS } from './types';
+import { ExperimentState, ExperimentInfo, EXPERIMENT_USERNAME, EXPERIMENT_STEPS } from './types';
 import { DiagramSave } from '../dataflow/types';
 import { deserializeDiagram, resetDataflow } from '../dataflow/helper';
 import { HistoryLogType } from '../history/types';

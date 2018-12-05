@@ -62,9 +62,6 @@ const actions = {
   },
 
   listDataset(context: ActionContext<DatasetState, RootState>): Promise<DatasetInfo[]> {
-    if (!context.rootState.user.username) {
-      return Promise.resolve([]);
-    }
     return new Promise((resolve, reject) => {
       axiosPost<DatasetInfo[]>('/dataset/list')
         .then(res => {
