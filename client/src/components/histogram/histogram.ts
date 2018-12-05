@@ -42,7 +42,9 @@ export interface HistogramSelection {
 interface HistogramSave {
   column: number | null;
   numBins: number;
+  maxCount: number | null;
   selectedBars: string[];
+  useDatasetRange: boolean;
 }
 
 interface HistogramBinProps {
@@ -96,13 +98,14 @@ export default class Histogram extends Visualization {
 
   private column: number | null = null;
   private numBins = 10;
+  private maxCount: number | null = null;
   private xScale!: Scale;
   private yScale!: Scale;
   private valueBins: Array<Bin<HistogramValueBinProps, number>> = [];
   private bins: HistogramBinProps[] = [];
   private selectedBars: Set<string> = new Set();
   private prevSelectedBars: Set<string> = new Set();
-
+  private useDatasetRange = false;
   private margins: PlotMargins = _.extend({}, DEFAULT_PLOT_MARGINS, { bottom: 20 });
 
   /**
@@ -124,6 +127,11 @@ export default class Histogram extends Visualization {
     this.draw();
   }
 
+  public setUseDatasetRange(value: boolean) {
+    this.useDatasetRange = value;
+    this.draw();
+  }
+
   public applyColumns(columns: number[]) {
     if (!columns.length) {
       this.findDefaultColumns();
@@ -140,11 +148,18 @@ export default class Histogram extends Visualization {
     this.draw();
   }
 
+  public setMaxCount(count: number | null) {
+    this.maxCount = count;
+    this.draw();
+  }
+
   protected created() {
     this.serializationChain.push((): HistogramSave => ({
       column: this.column,
       numBins: this.numBins,
+      maxCount: this.maxCount,
       selectedBars: Array.from(this.selectedBars),
+      useDatasetRange: this.useDatasetRange,
     }));
     this.deserializationChain.push(nodeSave => {
       const save = nodeSave as HistogramSave;
@@ -264,7 +279,7 @@ export default class Histogram extends Visualization {
   private computeXScale() {
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     const dataset = this.getDataset();
-    const xDomain = dataset.getDomain(this.column as number, items);
+    const xDomain = dataset.getDomain(this.column as number, this.useDatasetRange ? undefined : items);
     this.xScale = getScale(dataset.getColumnType(this.column as number), xDomain,
       [this.margins.left, this.svgWidth - this.margins.right],
       { domainMargin: DOMAIN_MARGIN, ordinal: { type: OrdinalScaleType.BAND, paddingInner: 0, paddingOuter: .5 } },
@@ -311,8 +326,9 @@ export default class Histogram extends Visualization {
   }
 
   private computeYScale() {
+    const maxY = this.maxCount === null ? _.max(this.valueBins.map(d => d.length)) as number : this.maxCount;
     this.yScale = scaleLinear()
-      .domain([0, _.max(this.valueBins.map(d => d.length)) as number])
+      .domain([0, maxY])
       .nice()
       .range([this.svgHeight - this.margins.bottom, this.margins.top]) as Scale;
   }
@@ -484,5 +500,15 @@ export default class Histogram extends Visualization {
   private onInputNumBins(value: number, prevValue: number) {
     this.commitHistory(history.inputNumBinsEvent(this, value, prevValue));
     this.setNumBins(value);
+  }
+
+  private onInputMaxCount(count: number | null, prevCount: number | null) {
+    this.commitHistory(history.inputMaxCountEvent(this, count, prevCount));
+    this.setMaxCount(count);
+  }
+
+  private onToggleUseDatasetRange(value: boolean) {
+    this.commitHistory(history.toggleUseDatasetRangeEvent(this, value));
+    this.setUseDatasetRange(value);
   }
 }

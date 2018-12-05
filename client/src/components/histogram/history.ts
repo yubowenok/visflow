@@ -5,8 +5,10 @@ import Histogram, { HistogramSelection } from './histogram';
 enum HistogramEventType {
   SELECT_COLUMN = 'setColumn',
   INPUT_NUM_BINS = 'setNumBins',
+  INPUT_MAX_COUNT = 'setMaxCount',
   // Prefix to avoid conflict with visualization base class
   HISTOGRAM_INTERACTIVE_SELECTION = 'setHistogramSelection',
+  TOGGLE_USE_DATASET_RANGE = 'setUseDatasetRange',
 }
 
 export const selectColumnEvent = (node: Histogram, column: number | null, prevColumn: number | null):
@@ -33,6 +35,19 @@ export const inputNumBinsEvent = (node: Histogram, value: number, prevValue: num
   );
 };
 
+export const inputMaxCountEvent = (node: Histogram, count: number | null, prevCount: number | null):
+  HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    HistogramEventType.INPUT_MAX_COUNT,
+    'input max count',
+    node,
+    node.setMaxCount,
+    count,
+    prevCount,
+  );
+};
+
+
 export const interactiveSelectionEvent = (node: Histogram, selection: HistogramSelection,
                                           prevSelection: HistogramSelection, message?: string):
                                           HistoryNodeOptionEvent => {
@@ -55,5 +70,16 @@ export const interactiveSelectionEvent = (node: Histogram, selection: HistogramS
       selection: prevSelection.selection.serialize(),
       selectedBars: Array.from(prevSelection.selectedBars),
     },
+  );
+};
+
+export const toggleUseDatasetRangeEvent = (node: Histogram, value: boolean): HistoryNodeOptionEvent => {
+  return nodeOptionEvent(
+    HistogramEventType.TOGGLE_USE_DATASET_RANGE,
+    'toggle use dataset range',
+    node,
+    node.setUseDatasetRange,
+    value,
+    !value,
   );
 };

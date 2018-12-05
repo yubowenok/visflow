@@ -162,7 +162,12 @@ export default class FlowsenseInput extends Vue {
         for (const utterance of this.flowsenseSpecialUtterances) {
           let matched = false;
           for (const text of utterance.matchText as string[]) {
-            if (flowsenseUtil.matchToken(tokenText, text, .2)) {
+            let tolerance = .2;
+            if (utterance.category === FlowsenseTokenCategory.NODE_LABEL ||
+              utterance.category === FlowsenseTokenCategory.DATASET) {
+              tolerance = 0;
+            }
+            if (flowsenseUtil.matchToken(tokenText, text, tolerance)) {
               matched = true;
               break;
             }

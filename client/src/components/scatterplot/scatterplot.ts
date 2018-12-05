@@ -31,10 +31,10 @@ const DOMAIN_MARGIN = .1;
 interface ScatterplotSave {
   xColumn: number;
   yColumn: number;
-  useDatasetRange: boolean;
   areXAxisTicksVisible: boolean;
   areYAxisTicksVisible: boolean;
   axisMargin: boolean;
+  useDatasetRange: boolean;
   transparentBackground: boolean;
 }
 

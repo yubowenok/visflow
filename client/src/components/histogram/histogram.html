@@ -28,3 +28,13 @@
     @change="onInputNumBins"
   ></form-input>
 </div>
+<div>
+  Maximum Count
+  <form-input v-model.number="maxCount"
+    @input="setMaxCount"
+    @change="onInputMaxCount"
+  /></form-input>
+</div>
+<div>
+  <b-form-checkbox v-model="useDatasetRange" @input="onToggleUseDatasetRange">Use Dataset Range</b-form-checkbox>
+</div>
