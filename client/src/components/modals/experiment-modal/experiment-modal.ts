@@ -43,7 +43,7 @@ export default class ExperimentModal extends Vue {
   private task3Answer = '';
 
   get sessionLink(): string {
-    return window.location.protocol + '//' + window.location.host + '/experiment/' + this.experimentFilename;
+    return window.location.protocol + '//' + window.location.host + window.location.pathname;
   }
 
   get surveyLink(): string {

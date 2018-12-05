@@ -5,6 +5,7 @@
   background-color: white;
   overflow: hidden;
   width: 360px;
+  max-height: 600px;
   z-index: $zIndexHistoryPanel;
   @extend %box, %box-shadow;
 
