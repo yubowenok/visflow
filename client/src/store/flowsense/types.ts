@@ -49,6 +49,16 @@ export interface FlowsenseResult {
   value: QueryValue;
 }
 
+export interface SourceNodeDescriptor {
+  id: string; // node label, node type
+  isSelection?: boolean;
+}
+
+export interface TargetNodeDescriptor {
+  id: string; // node label, node type
+  isCreate?: boolean;
+}
+
 export interface VisualEncodingSpecification {
   column: string;
   type: string; // which visual property
@@ -76,7 +86,7 @@ export interface FilterSpecification {
 
 export interface SetOperatorSpecification {
   type: string; // union, intersection, difference
-  nodes: string[]; // node labels
+  nodes: SourceNodeDescriptor[];
 }
 
 export interface ExtractSpecification {
@@ -86,6 +96,11 @@ export interface ExtractSpecification {
 export interface LinkSpecification {
   extractColumn?: string;
   filterColumn?: string;
+}
+
+export interface EdgeSpecification {
+  type: 'connect' | 'disconnect';
+  nodes: Array<SourceNodeDescriptor | TargetNodeDescriptor>;
 }
 
 export interface QueryValue {
@@ -99,20 +114,12 @@ export interface QueryValue {
   extract?: ExtractSpecification;
   link?: LinkSpecification;
   setOperator?: SetOperatorSpecification;
-  source?: Array<{
-    id: string; // node label or node type
-    isSelection?: boolean;
-  }>;
-  target?: Array<{
-    id: string; // node label or node type
-    isCreate: boolean;
-  }>;
-
+  edge?: EdgeSpecification;
+  source?: SourceNodeDescriptor[];
+  target?: TargetNodeDescriptor[];
   // special operation flags
   highlight?: boolean;
   select?: boolean;
-
-  // diagram edit
   undo?: boolean;
   redo?: boolean;
 }

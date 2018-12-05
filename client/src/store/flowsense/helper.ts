@@ -210,27 +210,38 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
     }
     return [ { node, port: (node as SubsetNode).getSubsetOutputPort() } ];
   }
+  let errored = false;
   const sources = value.source.map(spec => {
-    const node: Node = spec.id === FlowsenseDef.DEFAULT_SOURCE ? util.getDefaultSources(1)[0] :
-      util.findNodeWithLabel(ejectMappableMarker(spec.id, query.markerMapping).value[0]);
+    let node: Node | undefined;
+    if (spec.id === FlowsenseDef.DEFAULT_SOURCE) {
+      node = util.getDefaultSources(1)[0];
+    } else {
+      node = util.getNodeByLabelOrType(spec.id, query, tracker);
+    }
+    if (!node) {
+      errored = true;
+      return;
+    }
     const isSelection = spec.isSelection || false;
     let port: OutputPort;
     if (isSelection) {
       if (!(node as Visualization).getSelectionPort) {
         tracker.cancel(`node ${node.getLabel()} does not have selection output`);
-        return null;
+        errored = true;
+        return;
       }
       port = (node as Visualization).getSelectionPort();
     } else {
       if (!(node as SubsetNode).getSubsetOutputPort) {
         tracker.cancel(`node ${node.getLabel()} does not have subset output port`);
-        return null;
+        errored = true;
+        return;
       }
       port = (node as SubsetNode).getSubsetOutputPort();
     }
     return { node, port };
   });
-  if (sources.findIndex(source => source === null) !== -1) {
+  if (errored) {
     return null; // errored
   }
   return sources as QuerySource[];
@@ -245,8 +256,9 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
   if (!value.target) {
     return [];
   }
-  return value.target.map(spec => {
-    let node: Node;
+  let errored = false;
+  const results = value.target.map(spec => {
+    let node: Node | undefined;
     if (spec.isCreate) {
       let nodeType = spec.id;
       if (nodeType === FlowsenseDef.DEFAULT_CHART_TYPE) {
@@ -276,7 +288,11 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
       node = util.createNode(util.getCreateNodeOptions(nodeType));
       tracker.createNode(node);
     } else {
-      node = util.findNodeWithLabel(spec.id);
+      node = util.getNodeByLabelOrType(spec.id, query, tracker);
+      if (!node) {
+        errored = true;
+        return;
+      }
     }
     let port: InputPort;
     if ((node as SubsetNode).getSubsetInputPort) {
@@ -286,6 +302,10 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
     }
     return { node, port };
   });
+  if (errored) {
+    return [];
+  }
+  return results as QueryTarget[];
 };
 
 /**
@@ -359,6 +379,12 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
   if (value.link) {
     update.linkNodes(tracker, value, query, sources, targets);
     message = 'link';
+    onlyCreateChart = false;
+  }
+
+  if (value.edge) {
+    update.editEdge(tracker, value.edge, query);
+    message = 'edit edge';
     onlyCreateChart = false;
   }
 

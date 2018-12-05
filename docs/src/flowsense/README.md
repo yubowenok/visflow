@@ -14,6 +14,7 @@ Some example inputs include (in the context of the cars dataset):
 - show a <fs-tag type="node-type" text="parallel coordinates"/> for all the columns
 - show <fs-tag type="column" text="GDP(Billion US$)"/> series over <fs-tag type="column" text="year"/> grouped by <fs-tag type="column" text="Country Code"/>
 - visualize the distribution of <fs-tag type="column" text="mpg"/>
+- show the selection in a <fs-tag type="node-type" text="scatterplot"/>
 - find the cars with maximum <fs-tag type="column" text="mpg"/>
 - filter cars by <fs-tag type="column" text="mpg"/>
 - find cars with <fs-tag type="column" text="mpg"/> between 15 and 20
@@ -25,6 +26,8 @@ Some example inputs include (in the context of the cars dataset):
 - merge the data from <fs-tag type="node-label" text="node-1"/> with <fs-tag type="node-label" text="node-2"/>
 - find the cars with a same <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/>
 - link the cars by <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/>
+- connect the <fs-tag type="node-type" text="scatterplot"/> with the <fs-tag type="node-type" text="table"/>
+- disconnect <fs-tag type="node-label" text="node-1"/> from <fs-tag type="node-label" text="node-2"/>
 - load <fs-tag type="dataset" text="car.csv"/>
 
 ## Functionality
