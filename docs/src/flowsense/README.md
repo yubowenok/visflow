@@ -28,7 +28,7 @@ Some example inputs include (in the context of the cars dataset):
 - link the cars by <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/>
 - connect the <fs-tag type="node-type" text="scatterplot"/> with the <fs-tag type="node-type" text="table"/>
 - disconnect <fs-tag type="node-label" text="node-1"/> from <fs-tag type="node-label" text="node-2"/>
-- load <fs-tag type="dataset" text="car.csv"/>
+- load <fs-tag type="dataset" text="car"/> dataset
 
 ## Functionality
 FlowSense facilitates diagram editing and its main goal is to facilitate node and edge creation along with visual property editing.
@@ -42,8 +42,8 @@ The functionality FlowSense performs can be categorized into the following FlowS
 | Attribute Filtering | find the cars with <fs-tag type="column" text="mpg"/> between 15 and 20 | Filter data items by attribute values |
 | Subset Manipulation | merge the data from <fs-tag type="node-label" text="node-1"/> with <fs-tag type="node-label" text="node-2"/> | Refine and identify subsets of interest |
 | Highlighting | highlight the selected cars in a <fs-tag type="node-type" text="histogram"/> | View the characteristics of one subset among its superset or another subset |
-| Linking | find the cars with a same <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/> | Perform <page-link link="/dataflow/linking" text="linking"/> between two tables |
-| Data Loading | load <fs-tag type="dataset" text="car.csv"/> | Create a data source to load a given dataset |
+| Linking | find the cars with a same <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/> | Perform [linking](/dataflow/linking.md) between two tables |
+| Data Loading | load <fs-tag type="dataset" text="car"/> dataset | Create a data source to load a given dataset |
 | Layout Adjustment | adjust the diagram layout | Automatcially adjust dataflow diagram layout |
 
 ## Special Utterances
@@ -79,7 +79,7 @@ and `set` assigns visual properties.
 The query may include additional descriptors to describe how a FlowSense function should be performed.
 For example, "show <fs-tag type="column" text="mpg"/> and <fs-tag type="column" text="cylinders"/>" decribes two columns to visualize, which are parsed as options to be configured on the created visualization node.
 "encode <fs-tag type="column" text="mpg"/> by red green color scale" describes the creation of a <node-type type="visual-editor"/>.
-Additionally, it indicates that the visual editor should be in <page-link link="/node/visual-editor.html#encoding" text="Encoding"/> <ui-prop node-type="visual-editor" prop="mode"/>, and map the <fs-tag type="column" text="mpg"/> <ui-prop node-type="visual-editor" prop="column"/> to a red green color scale.
+Additionally, it indicates that the visual editor should be in [Encoding](/node/visual-editor.html#encoding) <ui-prop node-type="visual-editor" prop="mode"/>, and map the <fs-tag type="column" text="mpg"/> <ui-prop node-type="visual-editor" prop="column"/> to a red green color scale.
 
 ### Subset Condition
 The query may includes a _condition_ to operate on a subset of the data.

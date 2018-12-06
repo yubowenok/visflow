@@ -3,7 +3,7 @@
 The dataflow diagram defines VisFlow works to transmit, process, and visualize the data.
 A dataflow diagram consists of nodes and directed edges.
 It is topologically a directed acyclic graph (DAG).
-The dataflow diagram in VisFlow follows the <page-link link="/dataflow/subsetflow.html" text="subset flow"/> model.
+The dataflow diagram in VisFlow follows the [subset flow](/dataflow/subsetflow.md) model.
 
 Below shows a sample diagram that presents a set of visualizations of the car dataset.
 ![diagram](./diagram.png)
@@ -11,20 +11,20 @@ Below shows a sample diagram that presents a set of visualizations of the car da
 ## Node
 A node is a primitive component in VisFlow that performs one type of tasks.
 For example, a <node-type type="data-source"/> loads a tabular dataset and a <node-type type="scatterplot"/> charts the data using 2D scatterplot.
-A node has input and output data that are transmitted via <page-link link="#port" text="ports"/>.
+A node has input and output data that are transmitted via [ports](#port).
 
 ## Port
 A node has ports located on its two sides.
 The <port-type type="input" text="Input Ports"/> of a node are located on the left.
 The <port-type type="output" text="Output Ports"/> of a node are located on the right.
-Ports are connected by <page-link link="#edge" text="edges"/>.
+Ports are connected by [edges](#edge).
 
 The connectivity of a port is either `single` <port-type type="input" text=""/> or `multile` <port-type type="multi-input" text=""/>.
 A `single` port may be connected with at most one edge.
 A `multiple` port may have unlimited number of connections.
 All output ports are `multiple` ports.
 
-If an output port produces interactive selection from a <page-link link="/dataflow/visualization" text="visualization"/>,
+If an output port produces interactive selection from a [visualization](/dataflow/visualization.md),
 it is a <port-type type="selection"/>.
 
 ## Edge
@@ -36,8 +36,8 @@ The majority of data transmitted between VisFlow nodes are _subsets_ of the inpu
 Each row of the input table is considered to be a _data item_.
 The group of data items that is transmitted is therefore a _subset_ of the input table.
 
-VisFlow employs a <page-link link="/dataflow/subsetflow.html" text="subset flow"/> model for its dataflow diagrams.
-The attribute values and table columns of a data item cannot be changed within the flow, except that <page-link link="#visual-property" text="visual properties"/> can be associated with a data item.
+VisFlow employs a [subset flow](/dataflow/subsetflow.md) model for its dataflow diagrams.
+The attribute values and table columns of a data item cannot be changed within the flow, except that [visual properties](#visual-property) can be associated with a data item.
 For any data item from a subset, it always corresponds to one row from an input table.
 
 ## Constant
@@ -46,16 +46,16 @@ A list of constants can be transmitted between VisFlow nodes via edges connectin
 Constants can either by manually specified by a user, or extracted from input tables.
 
 Constants can be used to perform attribute filtering.
-For example, a <node-type type="attribute-filter"/> may perform range filtering by accepting two constants that define the filtering range.
+For example, an <node-type type="attribute-filter"/> may perform range filtering by accepting two constants that define the filtering range.
 
 Constants may also be used as keys to relate heterogeneous tables.
-See <page-link link="/dataflow/linking.html" text="linking"/> for more details.
+See [linking](/dataflow/linking.md) for more details.
 
 ## Visual Property
 Visual properties may be assigned to data items in the dataflow using a <node-type type="visual-editor"/> so as to identify and trace data subsets.
 Visualizations in VisFlow respect the visual properties of data items and renders the data according to their visual properties.
 Each visualization may have its own way of showing the visual properties.
-See <page-link link="/dataflow/visualization" text="node types documentation"/> for how each type of visualization renders the visual properties.
+See [node types documentation](/dataflow/visualization.html#visualization-types) for how each type of visualization renders the visual properties.
 
 Each data item carries its own visual properties.
 These properties can be updated and modified by nodes in the dataflow.
