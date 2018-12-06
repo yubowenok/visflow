@@ -156,7 +156,7 @@ There are two tables:
   Getting a question wrong results in a negative score penalty.
   So a candidate may choose to "skip" a question and get zero score.
   If a candidate has no action during the time limit of a question, the result is "unanswered".
-  The "time taken" column stores how much time in seconds a candidate took to answer a question.
+  The "TimeTaken" column stores how much time in seconds a candidate took to answer a question.
   </li>
   <li><b>sde_test_users.csv</b>
   This table includes background information about each candidate, such as the candidate's age, field of study, and graduation date.
@@ -204,11 +204,11 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
     What is the user ID of that outlier?
   </p>
   <p>
-    The "Time Taken" column of the results table is supposed to record how many seconds a candidate took to answer a question.
+    The "TimeTaken" column of the results table is supposed to record how many seconds a candidate took to answer a question.
     However, there was some data recording discrepancy.
     Could you visualize the discrepancy, and explain what do you suspect to have happened that resulted in this discrepancy?
   </p>
-<div class="section">Write down the outlier user ID, and explain your findings about the "Time Taken" discrepancy:</div>
+<div class="section">Write down the outlier user ID, and explain your findings about the "TimeTaken" discrepancy:</div>
 <div class="section">
   <b-form-textarea v-model="task2Answer" placeholder="Your answer here"></b-form-textarea>
 </div>
@@ -220,7 +220,7 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
     significantly better than candidates with a Bachelors degree.
   </p>
   <p>
-    The question should have enough occurrences given to both Masters and Bachelors candidates.
+    The question should have enough occurrences (at least 10) given to both Masters and Bachelors candidates.
     Masters that answered this question should achieve a much higher correct rate than Bachelors who answered this question.
   </p>
 
@@ -233,7 +233,7 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
 <div v-if="currentStep === 'survey'">
 <p>Thank you for completing all the tasks.</p>
 <p>
-  Please take this survey to give us your feedback about the system:
+  As a last step, please take this survey to give us your feedback about the system:
   <a :href="surveyLink" target="_blank" class="bold">Survey Link</a>
 </p>
 </div>
