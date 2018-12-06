@@ -1,8 +1,8 @@
 # Get Started
 
 ::: tip VisFlow Demo
-You may try out VisFlow by without creating an account.
-VisFlow works under the demo mode without login.
+You may try out VisFlow using the online demo.
+No login is required to use the demo.
 You may complete all the steps below under the demo mode.
 :::
 
@@ -43,6 +43,12 @@ Connect the <port-type type="selection"></port-type> of the scatterplot to the <
 When the selection in the scatterplot changes, the newly selected rows are reactively shown in the table.
 
 ![Forward Selection](./forward-selection.png)
+
+::: tip Moving Visualization Nodes
+The default mouse action on a visualization node is interactive selection.
+Dragging a visualization may select the data items in the visualization, rather than moving the visualization node.
+To reposition the visualization node, hold <shortcut-key :keys="['alt']"/> and drag.
+:::
 
 ::: tip Port Hovering
 You may hover over every port to see how many data items pass through that port.

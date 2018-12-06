@@ -1,6 +1,5 @@
 import { Component } from 'vue-property-decorator';
 import _ from 'lodash';
-import { scaleLinear } from 'd3-scale';
 
 import template from './visual-editor.html';
 import { injectNodeTemplate } from '@/components/node';
@@ -194,7 +193,6 @@ export default class VisualEditor extends SubsetNode {
   }
 
   protected onDatasetChange() {
-    console.log('on dataset change');
     this.encoding.column = null; // Avoid unexpected encoding on new dataset column.
   }
 

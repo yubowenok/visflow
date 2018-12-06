@@ -46,9 +46,10 @@ export const checkEdgeConnectivity = (source: Port, target: Port): { connectable
     }
     const outputs = from.getOutputNodes();
     for (const to of outputs) {
-      if (visited.has(to)) {
+      if (to === source.node) {
         return errNoCycle;
-      } else {
+      }
+      if (!visited.has(to)) {
         visited.add(to);
         queue.push(to);
       }
