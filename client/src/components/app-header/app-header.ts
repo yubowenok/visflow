@@ -5,6 +5,7 @@ import DiagramMenu from '@/components/app-header/diagram-menu/diagram-menu';
 import EditMenu from '@/components/app-header/edit-menu/edit-menu';
 import OptionsMenu from '@/components/app-header/options-menu/options-menu';
 import HelpMenu from '@/components/app-header/help-menu/help-menu';
+import HistoryBar from '@/components/history-bar/history-bar';
 import UserBar from '@/components/user-bar/user-bar';
 import DiagramBar from '@/components/diagram-bar/diagram-bar';
 import DatasetBar from '@/components/dataset-bar/dataset-bar';
@@ -19,6 +20,7 @@ import ExperimentBar from '@/components/experiment-bar/experiment-bar';
     EditMenu,
     OptionsMenu,
     HelpMenu,
+    HistoryBar,
     UserBar,
     DiagramBar,
     DatasetBar,

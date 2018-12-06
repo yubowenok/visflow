@@ -20,6 +20,7 @@
       <b-navbar-nav>
         <help-menu></help-menu>
       </b-navbar-nav>
+      <history-bar></history-bar>
       <b-navbar-nav class="ml-auto">
         <experiment-bar v-if="isInExperiment"></experiment-bar>
         <!-- tool bars -->

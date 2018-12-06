@@ -20,14 +20,6 @@ const mutations = {
   },
 
   /**
-   * Completely overrides the system state using an object.
-   * This should be called when the system is loaded from a previous session.
-   */
-  setState(state: SystemOptionsState, newState: SystemOptionsState) {
-    Object.assign(state, newState);
-  },
-
-  /**
    * Uses new types of nodes in beta from VisFlow extensions.
    * This only affects options available in the UI.
    * Created beta nodes will not be affected.
@@ -45,7 +37,7 @@ const mutations = {
     state.dataMutationBoundaryVisible = !state.dataMutationBoundaryVisible;
 
     store.commit('dataflow/toggleDataMutationBoundary', state.dataMutationBoundaryVisible);
-    Cookies.set('dataMutationBoundary', state.dataMutationBoundaryVisible);
+    Cookies.set('dataMutationBoundary', state.dataMutationBoundaryVisible ? 'true' : 'false');
   },
 };
 

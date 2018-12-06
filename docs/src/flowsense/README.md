@@ -43,6 +43,7 @@ The functionality FlowSense performs can be categorized into the following FlowS
 | Subset Manipulation | merge the data from <fs-tag type="node-label" text="node-1"/> with <fs-tag type="node-label" text="node-2"/> | Refine and identify subsets of interest |
 | Highlighting | highlight the selected cars in a <fs-tag type="node-type" text="histogram"/> | View the characteristics of one subset among its superset or another subset |
 | Linking | find the cars with a same <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/> | Perform [linking](/dataflow/linking.md) between two tables |
+| Edge Editing | connect/disconnect the <fs-tag type="node-type" text="scatterplot"/> and <fs-tag type="node-label" text="node-2"/> | Add/remove diagram edges |
 | Data Loading | load <fs-tag type="dataset" text="car"/> dataset | Create a data source to load a given dataset |
 | Layout Adjustment | adjust the diagram layout | Automatcially adjust dataflow diagram layout |
 
