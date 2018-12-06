@@ -119,7 +119,10 @@ const actions = {
       store.dispatch('user/login', {
         username: '_experiment',
         password: '_experiment',
-      }).then(res => resolve())
+      }).then(res => {
+          resolve();
+          store.dispatch('dataset/list'); // retrieve the task datasets
+        })
         .catch(err => reject(errorMessage(err)));
     });
   },
