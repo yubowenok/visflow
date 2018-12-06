@@ -69,8 +69,8 @@ You may go to the link below to resume your user study session.
 The structure of this study will be as follows:
 </p>
 <ul>
-  <li>VisFlow Tutorial (10-15 minutes)</li>
-  <li>FlowSense Tutorial (10-15 minutes)</li>
+  <li>VisFlow Tutorial (15-20 minutes)</li>
+  <li>FlowSense Tutorial (15-20 minutes)</li>
   <li>Practice with the system (10 minutes)</li>
   <li>Experiment Task (30-45 minutes)</li>
 </ul>
@@ -234,7 +234,7 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
 <p>Thank you for completing all the tasks.</p>
 <p>
   As a last step, please take this survey to give us your feedback about the system:
-  <a :href="surveyLink" target="_blank" class="bold">Survey Link</a>
+  <a :href="surveyLink" target="_blank" class="bold">SURVEY LINK</a>
 </p>
 </div>
 

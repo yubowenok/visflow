@@ -54,7 +54,8 @@ export default class App extends Vue {
   @ns.experiment.Action('load') private dispatchLoadExperiment!: (filename: string) => Promise<void>;
   @ns.experiment.Getter('isInExperiment') private isInExperiment!: boolean;
   @ns.user.Action('logout') private dispatchLogout!: () => void;
-  @ns.systemOptions.Mutation('toggleBetaFeatures') private toggleBetaFeatures!: (value?: boolean) => void;
+  @ns.systemOptions.State('useBetaFeatures') private useBetaFeatures!: boolean;
+  @ns.systemOptions.Mutation('toggleBetaFeatures') private toggleBetaFeatures!: () => void;
 
   private created() {
     this.setRouter(this.$router);
@@ -72,7 +73,9 @@ export default class App extends Vue {
     // This is an experiment.
     // Display the consent form modal and prepare to launch a new experiment.
     if (this.$route.name === 'experiment' || this.$route.name === 'load-experiment') {
-      this.toggleBetaFeatures(false);
+      if (this.useBetaFeatures) {
+        this.toggleBetaFeatures();
+      }
       this.openExperimentModal();
       this.loginExperimentUser().then(() => {
         if (this.$route.name === 'load-experiment') {

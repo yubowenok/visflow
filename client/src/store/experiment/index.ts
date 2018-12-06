@@ -121,7 +121,7 @@ const actions = {
         password: '_experiment',
       }).then(res => {
           resolve();
-          store.dispatch('dataset/list'); // retrieve the task datasets
+          store.dispatch('dataset/listDataset'); // retrieve the task datasets
         })
         .catch(err => reject(errorMessage(err)));
     });

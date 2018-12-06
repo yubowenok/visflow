@@ -24,8 +24,8 @@ const mutations = {
    * This only affects options available in the UI.
    * Created beta nodes will not be affected.
    */
-  toggleBetaFeatures(state: SystemOptionsState, value?: boolean) {
-    state.useBetaFeatures = value !== undefined ? value : !state.useBetaFeatures;
+  toggleBetaFeatures(state: SystemOptionsState) {
+    state.useBetaFeatures = !state.useBetaFeatures;
     Cookies.set('useBetaFeatures', state.useBetaFeatures);
   },
 
