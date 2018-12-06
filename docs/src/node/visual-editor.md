@@ -1,6 +1,6 @@
 # Visual Editor
 
-A <node-type type="visual-editor"/> associates <page-link link="/dataflow/visual-properties" text="visual properties"/> to the data items.
+A <node-type type="visual-editor"/> associates [visual properties](/dataflow/diagram.html#visual-property) to the data items.
 It works in one of the two ways: <ui-value text="Assignment"/> and <ui-value text="Encoding"/>.
 
 ## Assignment

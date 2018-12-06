@@ -14,7 +14,7 @@
       <div class="bold">Publication:</div>
       <div>
         Bowen Yu, and Claudio T. Silva.
-        <i>VisFlow - Web-based Visualization Framework for Tabular Data with a Subset Flow Model.</i>
+        <i>VisFlow – Web-based Visualization Framework for Tabular Data with a Subset Flow Model.</i>
         In IEEE Transactions on Visualization and Computer Graphics (Proc. VAST), 2017.
         <a href="https://ieeexplore.ieee.org/document/7536189/" target="_blank" class="bold">IEEEXplore</a>
       </div>

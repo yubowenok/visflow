@@ -1,6 +1,6 @@
 # Linker
 
-A <node-type type="linker"/> provides <page-link link="/dataflow/linking" text="linking"/> between two input tables.
+A <node-type type="linker"/> provides [linking](/dataflow/linking.md) between two input tables.
 Typically, the two input tables are heterogenous and share a key column.
 Most of the time the keys are primary, and each of the two tables has exactly one data item with a unique key.
 But it is also possible to use keys that do not have one-to-one mapping.

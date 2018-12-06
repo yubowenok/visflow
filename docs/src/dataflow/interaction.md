@@ -29,7 +29,7 @@ Hold <shortcut-key :keys="['shift']" :hold="['shift']"/> and drag on the canvas 
 Drag a node to move it.
 When multiple nodes are selected, dragging moves them altogether.
 
-Note that in <page-link link="/dataflow/visualization" text="visualization"/> nodes, dragging by default performs interactive data selection.
+Note that in [visualization](/dataflow/visualization.md) nodes, dragging by default performs interactive data selection.
 To drag and position a visualization node, hold the <shortcut-key :keys="['alt']" :hold="['alt']"/> key when dragging.
 
 To perform a large number of visualization repositioning, use the drag mode button <ui-button icon-classes="fas fa-arrows-alt" text=""/> at the top right of the navbar.
@@ -42,6 +42,9 @@ A navigation icon <ui-button icon-classes="fas fa-arrows-alt" text=""/> appears 
 ## Context Menu
 Right click on the canvas or dataflow diagram elements (nodes, ports, edges) to open the context menu.
 The context menu provides shortcuts to some common actions.
+
+## Port Information
+Hover over a port to view how many data items pass through that port.
 
 ## Undo & Redo
 Use the <ui-button icon-classes="fas fa-undo-alt" text="Undo"/> and <ui-button icon-classes="fas fa-redo-alt" text="Redo"/> buttons in the <ui-button text="Edit" dropdown/> dropdown menu in the navbar or the history panel to undo and redo actions.

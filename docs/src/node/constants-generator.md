@@ -1,6 +1,6 @@
 # Constants Generator
 
-A <node-type type="constants-generator"/> produces a list of <page-link link="/dataflow/constants" text="Constants"/> at its output <port-type type="constants"/>.
+A <node-type type="constants-generator"/> produces a list of [Constants](/dataflow/diagram.html#constant) at its output <port-type type="constants"/>.
 
 Constants can be entered either manually, or extracted from the input table.
 If the <port-type type="input"/> is connected,
@@ -11,7 +11,7 @@ Extracted constants can be used to filter data items.
 For example, if we extract the <ui-value text="model.year"/> values for a subset of cars, we can use those year constants to find the cars that were built in the same year(s).
 
 Extracted constants can also be used to link two heterogeneous tables that share a key column.
-Please see <page-link link="/dataflow/linking" text="Linking Heterogeneous Tables"/> and <node-type type="linker"/> for more details.
+Please see [Linking Heterogeneous Tables](/dataflow/linking.md) and <node-type type="linker"/> for more details.
 
 ## Options
 ### Column
