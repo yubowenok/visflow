@@ -9,12 +9,12 @@ import FormSelect from '@/components/form-select/form-select';
 import template from './attribute-filter.html';
 import { INDEX_COLUMN } from '@/common/constants';
 import { SubsetInputPort, SubsetOutputPort, ConstantsInputPort } from '@/components/port';
-import { SubsetNodeBase } from '@/components/subset-node';
 import { SubsetPackage } from '@/data/package';
 import { ValueType } from '@/data/parser';
 import { getColumnSelectOptions } from '@/data/util';
 import { injectNodeTemplate } from '@/components/node';
 import { valueDisplay } from '@/common/util';
+import SubsetNodeCommon from '../subset-node/subset-node-common';
 
 export enum FilterType {
   PATTERN = 'pattern',
@@ -98,7 +98,7 @@ const DEFAULT_RANGE_PARAMS: RangeParams = {
     FormInput,
   },
 })
-export default class AttributeFilter extends SubsetNodeBase {
+export default class AttributeFilter extends SubsetNodeCommon {
   protected NODE_TYPE = 'attribute-filter';
   protected DEFAULT_WIDTH = 120;
   protected RESIZABLE = true;
@@ -350,7 +350,7 @@ export default class AttributeFilter extends SubsetNodeBase {
     } else { // FilterType.SAMPLING
       pkg = this.filterBySampling();
     }
-    this.outputPortMap.out.updatePackage(pkg);
+    this.updateOutput(pkg);
   }
 
   private filterByPattern(): SubsetPackage {

@@ -145,7 +145,7 @@ export default class SetOperator extends SubsetNode {
         pkg = this.difference();
         break;
     }
-    this.outputPortMap.out.updatePackage(pkg);
+    this.updateOutput(pkg);
   }
 
   /**

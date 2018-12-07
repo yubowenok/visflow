@@ -202,8 +202,12 @@ export default class ScriptEditor extends SubsetNode {
         this.updateNoDatasetOutput();
         this.warningMessage = 'output table is empty';
       } else {
-        this.outputPortMap.out.updatePackage(new SubsetPackage(this.dataset));
-        this.propagate();
+        this.updateOutput(new SubsetPackage(this.dataset));
+        if (this.isStateEnabled) {
+          // When state is enabled, even if the input does not change the script editor would have to propagate.
+          // The output may be updated due to state dependency.
+          this.propagate();
+        }
         this.displaySuccessMessage();
       }
     } catch (parseErr) {

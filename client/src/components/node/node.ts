@@ -544,6 +544,23 @@ export default class Node extends Vue {
     console.error(`update() is not implemented for node type "${this.NODE_TYPE}"`);
   }
 
+  /**
+   * Propagates the output.
+   *
+   * @abstract
+   */
+  protected propagate() {
+    console.error(`propagate() is not implemented for node type "${this.NODE_TYPE}"`);
+  }
+
+  /**
+   * First updates and then propagates.
+   */
+  protected updateAndPropagate() {
+    this.update();
+    this.propagate();
+  }
+
   protected created() {
     this.label = this.label || this.id;
 

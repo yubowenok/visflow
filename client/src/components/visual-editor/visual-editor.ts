@@ -223,7 +223,7 @@ export default class VisualEditor extends SubsetNode {
     } else { // VisualEditorMode.ENCODING
       pkg = this.dyeEncoding();
     }
-    this.outputPortMap.out.updatePackage(pkg);
+    this.updateOutput(pkg);
   }
 
   private dyeAssignment(): SubsetPackage {

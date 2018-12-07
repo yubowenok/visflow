@@ -1,0 +1,33 @@
+<!-- node-content -->
+<div class="display" v-if="leftDataset && rightDataset">
+  <div class="bold">{{ leftColumnName }}</div>
+  <div>{{mode}} join</div>
+  <div class="bold">{{ rightColumnName }}</div>
+</div>
+
+<!-- option-panel -->
+<div>
+  <div>Mode</div>
+  <form-select
+    :options="joinModeOptions"
+    v-model="mode"
+    @change="onSelectMode"
+  ></form-select>
+</div>
+
+<div>
+  <div>Left Column</div>
+  <column-select
+    :columns="leftColumnSelectOptions"
+    v-model="leftColumn"
+    @change="onSelectLeftColumn"
+  ></column-select>
+</div>
+<div>
+  <div>Right Column</div>
+  <column-select
+    :columns="rightColumnSelectOptions"
+    v-model="rightColumn"
+    @change="onSelectRightColumn"
+  ></column-select>
+</div>

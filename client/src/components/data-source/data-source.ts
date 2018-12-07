@@ -38,7 +38,7 @@ export default class DataSource extends SubsetNode {
     if (this.datasetInfo) {
       this.fetchDataset();
     } else {
-      this.outputPortMap.out.updatePackage(new SubsetPackage());
+      this.updateOutput(new SubsetPackage());
       this.propagate();
     }
   }

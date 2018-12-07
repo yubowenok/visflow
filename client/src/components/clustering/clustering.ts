@@ -145,7 +145,7 @@ export default class Clustering extends SubsetNode {
         dataset.getColumns().map(column => column.name).concat('ClusterLabel'),
         itemIndices.map((itemIndex, rowIndex) => dataset.getRow(itemIndex).concat(rows[rowIndex][d])),
       );
-      this.outputPortMap.out.updatePackage(new SubsetPackage(newDataset));
+      this.updateOutput(new SubsetPackage(newDataset));
       this.propagate();
     };
 
