@@ -21,6 +21,9 @@ import ScriptEditor from '@/components/script-editor/script-editor';
 import Aggregation from '@/components/aggregation/aggregation';
 import SeriesPlayer from '@/components/series-player/series-player';
 import SeriesTranspose from '@/components/series-transpose/series-transpose';
+import Clustering from '@/components/clustering/clustering';
+import TableJoin from '@/components/table-join/table-join';
+import NeuralNetwork from '@/components/neural-network/neural-network';
 
 const VISUALIZATION_TAGS = 'vis plot chart draw render';
 const MULTIDIMENSIONAL_TAGS = ' multi md';
@@ -136,20 +139,11 @@ export const nodeTypes: NodeType[] = [
     isBeta: true,
   },
   {
-    id: 'script-editor',
-    title: 'Script Editor',
-    imgSrc: require('@/imgs/script-editor.svg'),
-    constructor: ScriptEditor,
-    tags: 'script code editor',
-    isBeta: true,
-  },
-  {
-
-    id: 'series-player',
-    title: 'Series Player',
-    imgSrc: require('@/imgs/series-player.svg'),
-    constructor: SeriesPlayer,
-    tags: 'series player sequence',
+    id: 'table-join',
+    title: 'Table Join',
+    imgSrc: require('@/imgs/table-join.svg'),
+    constructor: TableJoin,
+    tags: 'table join',
     isBeta: true,
   },
   {
@@ -166,6 +160,38 @@ export const nodeTypes: NodeType[] = [
     imgSrc: require('@/imgs/series-transpose.svg'),
     constructor: SeriesTranspose,
     tags: 'series transpose data',
+    isBeta: true,
+  },
+  {
+    id: 'clustering',
+    title: 'Clustering',
+    imgSrc: require('@/imgs/clustering.svg'),
+    constructor: Clustering,
+    tags: 'clustering',
+    isBeta: true,
+  },
+  {
+    id: 'series-player',
+    title: 'Series Player',
+    imgSrc: require('@/imgs/series-player.svg'),
+    constructor: SeriesPlayer,
+    tags: 'series player sequence',
+    isBeta: true,
+  },
+  {
+    id: 'neural-network',
+    title: 'Neural Network',
+    imgSrc: require('@/imgs/neural-network.svg'),
+    constructor: NeuralNetwork,
+    tags: 'neural network machine learning training classifier',
+    isBeta: true,
+  },
+  {
+    id: 'script-editor',
+    title: 'Script Editor',
+    imgSrc: require('@/imgs/script-editor.svg'),
+    constructor: ScriptEditor,
+    tags: 'script code editor',
     isBeta: true,
   },
 ];

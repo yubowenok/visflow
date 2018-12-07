@@ -155,7 +155,7 @@ export default class Linker extends SubsetNode {
     }
     this.extract();
     const subsetPkg = this.filter();
-    this.outputPortMap.out.updatePackage(subsetPkg);
+    this.updateOutput(subsetPkg);
   }
 
   private extract() {

@@ -1,6 +1,7 @@
 <!-- node-content -->
 <div class="display">
   <img id="icon" :src="imgSrc" v-if="!isRenderingEnabled"/>
+  <div v-if="displayTitle" class="title">{{ displayTitle }}</div>
   <div id="rendering-content" ref="renderingContent" v-if="isRenderingEnabled"></div>
 </div>
 
@@ -8,9 +9,23 @@
 <div class="section">
   <b-button variant="outline-secondary" id="btn-edit-script" @click="openAceModal">Edit Script</b-button>
 </div>
-<div class="section">
+<hr class="divider">
+<div v-if="!isRenderingEnabled">
+  Display Title
+  <form-input v-model="displayTitle"
+    @change="onInputDisplayTitle"
+  ></form-input>
+</div>
+<div>
   <b-form-checkbox v-model="isRenderingEnabled" @input="onToggleRenderingEnabled">Rendering</b-form-checkbox>
 </div>
+<div>
+  <b-form-checkbox v-model="isStateEnabled" @input="onToggleStateEnabled">Stateful</b-form-checkbox>
+</div>
+<div>
+  <b-button id="btn-clear-state" v-if="isStateEnabled" variant="outline-secondary" @click="clearState">Clear State</b-button>
+</div>
+
 <ace-modal ref="aceModal"
   v-model="code"
   @change="onCodeChange"
@@ -26,20 +41,26 @@
     <div key="success" class="success message" v-if="successMessage">{{ successMessage }}</div>
     <div key="error" class="error message" v-if="executionError">{{ executionError }}</div>
     <div key="warn-output" class="warn message" v-if="warningMessage">{{ warningMessage }}</div>
-    <div key="warn" class="warn message" v-if="!inputPortMap.in.isConnected()">no input connected: input columns and rows will be undefined</div>
+    <div key="warn" class="warn message" v-if="!inputPortMap.in.isConnected()">no input connected: input will undefined</div>
   </transition-group>
   <div class="instruction" v-if="isInstructionVisible">
     <div>
       Write a method that reads an input table and outputs a new table.
       A table is given by a list of column names, and a 2D array specifying the values per row.
-      If rendering is enabled, the third argument will be an HTML element.
+      If rendering is enabled, an argument will give the HTML element of the node.
+      If state is enabled, an argument will give the state of the node.
     </div>
-    <pre>{{ METHOD_ANNOTATION }}</pre>
+    <pre>{{ methodAnnotation }}</pre>
   </div>
 </div>
 </ace-modal>
 
 <!-- settings-modal -->
+<div id="settings-warn" class="warn message" v-if="settingsWarningMessage">{{ settingsWarningMessage }}</div>
+<div class="section">
+  <b-button variant="outline-secondary" @click="addInputPort">Add Input Port</b-button>
+  <b-button variant="outline-secondary" @click="removeInputPort" :disabled="inputPorts.length === 1">Remove Input Port</b-button>
+</div>
 <div class="section">
   <b-form-checkbox v-model="transparentBackground" @input="onToggleTransparentBackground">Transparent Content</b-form-checkbox>
 </div>

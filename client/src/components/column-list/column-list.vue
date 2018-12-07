@@ -5,7 +5,7 @@
     :value="selected"
     :options="columns"
     @change="onChildSelect">
-    <span slot="no-options">No Matching Columns</span>
+    <span slot="no-options">No Columns</span>
   </form-select>
   <div class="controls">
     <b-button id="clear" class="mini" variant="outline-secondary" @click="clear">clear</b-button>

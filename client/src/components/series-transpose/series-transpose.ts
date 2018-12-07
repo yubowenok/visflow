@@ -97,7 +97,7 @@ export default class SeriesTranspose extends SubsetNode {
   }
 
   private transpose() {
-    const dataset = this.dataset as TabularDataset;
+    const dataset = this.getDataset();
     const keyColumn = this.keyColumn as number;
 
     this.warningMessage = '';
@@ -118,7 +118,7 @@ export default class SeriesTranspose extends SubsetNode {
       });
     });
     const outputDataset = TabularDataset.fromColumnsAndRows(columns, rows);
-    this.outputPortMap.out.updatePackage(new SubsetPackage(outputDataset));
+    this.updateOutput(new SubsetPackage(outputDataset));
   }
 
   private onSelectKeyColumn(column: number | null, prevColumn: number | null) {

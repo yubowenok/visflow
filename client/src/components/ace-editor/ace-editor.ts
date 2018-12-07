@@ -40,6 +40,7 @@ export default class AceEditor extends Vue {
       selectionStyle: 'text',
     });
     editor.setTheme('ace/theme/chrome');
+    editor.setPrintMarginColumn(120);
     editor.session.setOption('tabSize', 2);
     editor.session.setValue(this.text);
 

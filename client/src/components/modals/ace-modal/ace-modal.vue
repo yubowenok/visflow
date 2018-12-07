@@ -3,6 +3,7 @@
   :visible-state="visible"
   :on-open="open"
   :on-close="close"
+  size="lg"
   >
   <template slot="content">
     <slot></slot>

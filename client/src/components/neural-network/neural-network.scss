@@ -1,0 +1,14 @@
+@import '../../common/style/index';
+
+.display {
+  @extend %vertical-center;
+  text-align: center;
+
+  > * {
+    margin: $margin-size-sm;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+}

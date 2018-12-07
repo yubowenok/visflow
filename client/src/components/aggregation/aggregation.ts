@@ -111,7 +111,7 @@ export default class Aggregation extends SubsetNode {
   }
 
   private aggregate() {
-    const dataset = this.dataset as TabularDataset;
+    const dataset = this.getDataset();
     const column = this.column as number;
     const columnType = dataset.getColumnType(column);
     const columnName = dataset.getColumnName(column);
@@ -161,7 +161,7 @@ export default class Aggregation extends SubsetNode {
 
     const columns = ['group', `${this.mode}(${columnName})`];
     const rows = groups.map(group => [group, aggregator[group]]);
-    this.outputPortMap.out.updatePackage(new SubsetPackage(TabularDataset.fromColumnsAndRows(columns, rows)));
+    this.updateOutput(new SubsetPackage(TabularDataset.fromColumnsAndRows(columns, rows)));
   }
 
   private onSelectAggregationMode(mode: AggregationMode, prevMode: AggregationMode) {

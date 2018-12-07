@@ -1,0 +1,52 @@
+<!-- node-content -->
+<div class="display" v-if="dataset">
+  <div>{{ algorithm }}</div>
+</div>
+
+<!-- option-panel -->
+<div class="warn" v-if="warningMessage">{{ warningMessage }}</div>
+<div>
+  <div>Algorithm</div>
+  <form-select
+    :options="clusteringAlgorithmOptions"
+    v-model="algorithm"
+    @change="onSelectAlgorithm"
+    :clearable="false"
+  ></form-select>
+</div>
+
+<div>
+  <div>Clustering Columns</div>
+  <column-list
+    :columns="numericalColumnSelectOptions"
+    v-model="columns"
+    @change="onSelectColumns"
+  ></column-list>
+</div>
+<hr class="divider">
+<div v-if="algorithm === 'k-means'">
+  <div>
+    Number of Clusters (k)
+    <form-input v-model="kMeansOptions.k"
+      type="int"
+      @change="onInputKMeansK"
+    ></form-input>
+  </div>
+  <div class="section">
+    <b-form-checkbox v-model="kMeansOptions.outputEachIteration">Output Each Iteration</b-form-checkbox>
+  </div>
+  <div class="section" v-if="kMeansOptions.outputEachIteration">
+    Iteration Interval
+    <form-input v-model="kMeansOptions.iterationInterval"
+      @change="onInputKMeansIterationInterval"
+    ></form-input>
+  </div>
+  <div class="section">
+    <b-button variant="outline-secondary" @click="clustering" :disabled="kMeansRunning">
+      Re-Run <i class="fas fa-sync-alt"></i>
+    </b-button>
+    <b-button v-if="kMeansRunning" variant="outline-secondary" @click="stopKMeans">
+      Stop <i class="fas fa-stop"></i>
+    </b-button>
+  </div>
+</div>

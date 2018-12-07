@@ -4,6 +4,7 @@ import FormSelect from '@/components/form-select/form-select';
 export interface ColumnSelectOption {
   label: string;
   value: number;
+  disabled?: boolean;
 }
 
 @Component({

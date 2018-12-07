@@ -3,6 +3,7 @@
  */
 import { Module } from 'vuex';
 import $ from 'jquery';
+import _ from 'lodash';
 
 import Node from '@/components/node/node';
 import Port from '@/components/port/port';
@@ -15,6 +16,8 @@ import * as history from './history';
 import { HistoryInteractionEvent } from '@/store/history/types';
 
 const IS_MAC = navigator.appVersion.match(/mac/i) !== null;
+
+let droppedNodes: Node[] = [];
 
 const initialState: InteractionState = {
   isNodeDragging: false,
@@ -113,6 +116,7 @@ const mutations = {
   },
 
   portDragStarted: (state: InteractionState, port: Port) => {
+    droppedNodes = [];
     state.draggedPort = port;
     const $port = $(port.$el);
     const portOffset = $port.offset() as JQuery.Coordinates;
@@ -129,13 +133,24 @@ const mutations = {
 
   portDragEnded: (state: InteractionState, port: Port) => {
     state.draggedPort = undefined;
-  },
-
-  dropPortOnNode: (state: InteractionState, node: Node) => {
+    if (!droppedNodes.length) {
+      return;
+    }
+    const maxNodeLayer = _.max(droppedNodes.map(droppedNode => droppedNode.layer));
+    const node = droppedNodes.filter(droppedNode => droppedNode.layer === maxNodeLayer)[0];
     store.commit('dataflow/createEdge', {
-      port: state.draggedPort,
+      port,
       node,
     });
+    droppedNodes = [];
+  },
+
+  /**
+   * Saves the dropped node in a list. This is to prevent overlapping nodes being dropped together.
+   * The edge creation is handled in portDragEnded().
+   */
+  dropPortOnNode: (state: InteractionState, node: Node) => {
+    droppedNodes.push(node);
   },
 
   dropPortOnPort: (state: InteractionState, port: Port) => {

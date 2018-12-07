@@ -29,7 +29,7 @@ interface SeriesPlayerSave {
   },
 })
 export default class SeriesPlayer extends SubsetNode {
-  protected NODE_TYPE = 'player';
+  protected NODE_TYPE = 'series-player';
   protected DEFAULT_WIDTH = 80;
   protected DEFAULT_HEIGHT = 60;
   protected RESIZABLE = true;

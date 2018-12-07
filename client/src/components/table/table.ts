@@ -73,9 +73,13 @@ export default class Table extends Visualization {
     if (!this.hasDataset()) {
       return;
     }
-    const dataset = this.dataset as TabularDataset;
-    // Choose the first a few columns to show.
-    this.columns = _.range(Math.min(dataset.numColumns(), DEFAULT_MAX_COLUMNS));
+    if (!this.columns.length) {
+      const dataset = this.getDataset();
+      // Choose the first a few columns to show.
+      this.columns = _.range(Math.min(dataset.numColumns(), DEFAULT_MAX_COLUMNS));
+    } else {
+      this.columns = this.updateColumnsOnDatasetChange(this.columns);
+    }
   }
 
   protected onResize() {

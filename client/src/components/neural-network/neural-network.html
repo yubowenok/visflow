@@ -1,0 +1,92 @@
+<!-- node-content -->
+<div class="display" v-if="dataset">
+  <div>{{ neuralNetworkType[0].toUpperCase() + neuralNetworkType.substr(1) }} for</div>
+  <div class="bold">{{ targetName }}</div>
+  <div class="full-width">based on</div>
+  <div class="bold">{{ featureNames }}</div>
+</div>
+
+<!-- option-panel -->
+<div class="warn" v-if="warningMessage">{{ warningMessage }}</div>
+<div>
+  <div>Type</div>
+  <form-select
+    :options="neuralNetworkTypeOptions"
+    v-model="neuralNetworkType"
+    @change="onSelectNeuralNetworkType"
+  ></form-select>
+</div>
+
+<div>
+  <div>Features</div>
+  <column-list
+    :columns="columnSelectOptions"
+    v-model="features"
+    @change="onSelectFeatures"
+  ></column-list>
+</div>
+<div>
+  <div>Target</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="target"
+    @change="onSelectTarget"
+  ></column-select>
+</div>
+<hr class="divider">
+<div v-if="neuralNetworkType === 'perceptron'">
+  <div>
+    Hidden Layer Number
+    <form-input v-model="perceptronOptions.hiddenLayerNumber"
+      @change="onInputPerceptronHiddenLayerNumber"
+      type="int"
+    ></form-input>
+  </div>
+  <div>
+    Hidden Layer Size
+    <form-input v-model="perceptronOptions.hiddenLayerSize"
+      type="int"
+      @change="onInputPerceptronHiddenLayerSize"
+    ></form-input>
+  </div>
+</div>
+
+<hr class="divider">
+<div class="section">
+  <b-button variant="outline-secondary" @click="startTraining" v-if="!isTraining">
+    Train <i class="fas fa-play"></i>
+  </b-button>
+  <b-button variant="outline-secondary" @click="pauseTraining" v-if="isTraining">
+    Pause <i class="fas fa-pause"></i>
+  </b-button>
+  <b-button variant="outline-secondary" @click="createNetwork">
+    Reset <i class="fas fa-sync-alt"></i>
+  </b-button>
+</div>
+
+<!-- settings-modal -->
+<div class="section">
+  <b-form-checkbox v-model="outputEachEpoch">Output Each Epoch</b-form-checkbox>
+</div>
+<div class="section">
+  Learning Rate
+  <form-input v-model="learningRate"
+    @change="onInputLearningRate"
+    type="float"
+  ></form-input>
+</div>
+<!--
+<div class="section">
+  Batch Size
+  <form-input v-model="batchSize"
+    @change="onInputBatchSize"
+    type="int"
+  ></form-input>
+</div>
+-->
+<div class="section">
+  Epoch Interval
+  <form-input v-model="epochInterval"
+    @change="onInputEpochInterval"
+  ></form-input>
+</div>

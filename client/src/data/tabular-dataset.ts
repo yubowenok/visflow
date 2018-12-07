@@ -133,6 +133,10 @@ export default class TabularDataset {
     return this.columns[index].type === ValueType.DATE;
   }
 
+  public getRow(itemIndex: number): TabularRow {
+    return this.rows[itemIndex];
+  }
+
   public getRows(): TabularRows {
     return this.rows;
   }

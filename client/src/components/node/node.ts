@@ -449,17 +449,19 @@ export default class Node extends Vue {
   }
 
   public getInputPort(id: string): InputPort {
-    if (!(id in this.inputPortMap)) {
-      console.error(`port "${id}" is not an input port of node "${id}"`);
+    const port = this.inputPorts.find(inputPort => inputPort.id === id);
+    if (!port) {
+      console.error(`port "${id}" is not an input port of node ${this.id} (${this.label})`);
     }
-    return this.inputPortMap[id] as InputPort;
+    return port as InputPort;
   }
 
   public getOutputPort(id: string): OutputPort {
-    if (!(id in this.outputPortMap)) {
-      console.error(`port "${id}" is not an output port of node "${id}"`);
+    const port = this.outputPorts.find(outputPort => outputPort.id === id);
+    if (!port) {
+      console.error(`port "${id}" is not an output port of node ${this.id} (${this.label})`);
     }
-    return this.outputPortMap[id] as OutputPort;
+    return port as OutputPort;
   }
 
   /**
@@ -540,6 +542,23 @@ export default class Node extends Vue {
    */
   protected update() {
     console.error(`update() is not implemented for node type "${this.NODE_TYPE}"`);
+  }
+
+  /**
+   * Propagates the output.
+   *
+   * @abstract
+   */
+  protected propagate() {
+    console.error(`propagate() is not implemented for node type "${this.NODE_TYPE}"`);
+  }
+
+  /**
+   * First updates and then propagates.
+   */
+  protected updateAndPropagate() {
+    this.update();
+    this.propagate();
   }
 
   protected created() {
@@ -704,6 +723,23 @@ export default class Node extends Vue {
   }
 
   /**
+   * Inheritting nodes fire this when they change their input/output ports.
+   * So far only script editor is able to change the number of input output ports.
+   */
+  protected onPortsChanged() {
+    this.createPortMap();
+    this.$nextTick(() => {
+      this.mountPorts();
+      this.updatePortCoordinates();
+    });
+  }
+
+  /**
+   * Fires when the settings modal opens.
+   */
+  protected onOpenSettingsModal() {}
+
+  /**
    * We make mounted() private so that inheriting class cannot add mounted behavior.
    * Though vue supports all mounted() to be called sequentially, any inheriting class should update their
    * type-specific data and properties in created() rather than mounted().
@@ -726,9 +762,11 @@ export default class Node extends Vue {
 
   /** Creates a mapping from port id to port component. */
   private createPortMap() {
+    this.inputPortMap = {};
     this.inputPorts.forEach(port => {
       this.inputPortMap[port.id] = port;
     });
+    this.outputPortMap = {};
     this.outputPorts.forEach(port => {
       this.outputPortMap[port.id] = port;
     });
@@ -1206,6 +1244,7 @@ export default class Node extends Vue {
 
   private openSettingsModal() {
     this.isSettingsVisible = true;
+    this.onOpenSettingsModal();
   }
 
   private closeSettingsModal() {

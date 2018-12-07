@@ -147,6 +147,11 @@ export default class ConstantsGenerator extends Node {
     return true;
   }
 
+  protected updateAndPropagate() {
+    this.update();
+    this.portUpdated(this.outputPortMap.out);
+  }
+
   private extract(): ConstantsPackage {
     const pkg = new ConstantsPackage();
     if (this.column === null) {
@@ -164,11 +169,6 @@ export default class ConstantsGenerator extends Node {
     }
     this.extractedConstants = pkg.getConstants().map(val => val.toString());
     return pkg;
-  }
-
-  private updateAndPropagate() {
-    this.update();
-    this.portUpdated(this.outputPortMap.out);
   }
 
   private onInputConstants(constants: string[], prevConstants: string[]) {

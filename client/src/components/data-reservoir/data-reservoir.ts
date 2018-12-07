@@ -115,7 +115,7 @@ export default class DataReservoir extends SubsetNode {
    * Computes the output subset and saves it on the output port.
    * However, it does not release the subset.
    */
-  private updateOutput(items: number[]) {
+  private updateOutputItems(items: number[]) {
     const inputPort = this.inputPortMap.in;
     if (!items.length) {
       if (!inputPort.hasPackage() || !inputPort.getSubsetPackage().hasDataset()) {
@@ -124,7 +124,7 @@ export default class DataReservoir extends SubsetNode {
       return;
     }
     const pkg = inputPort.getSubsetPackage();
-    this.outputPortMap.out.updatePackage(pkg.clone());
+    this.updateOutput(pkg.clone());
   }
 
   /**
@@ -138,14 +138,14 @@ export default class DataReservoir extends SubsetNode {
       return;
     }
     const pkg = inputPort.getSubsetPackage();
-    this.outputPortMap.out.updatePackage(pkg.subset(items));
+    this.updateOutput(pkg.subset(items));
   }
 
   private releaseOutput() {
     const prevItems = this.items.concat();
     this.items = this.computeOutput();
 
-    this.updateOutput(this.items);
+    this.updateOutputItems(this.items);
     this.propagate();
     this.isOutputChanged = false;
     this.commitHistory(history.releaseOutputEvent(this, this.items, prevItems));

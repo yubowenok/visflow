@@ -145,7 +145,7 @@ export default class SetOperator extends SubsetNode {
         pkg = this.difference();
         break;
     }
-    this.outputPortMap.out.updatePackage(pkg);
+    this.updateOutput(pkg);
   }
 
   /**
@@ -154,7 +154,7 @@ export default class SetOperator extends SubsetNode {
    */
   private union(): SubsetPackage {
     const pkgs = this.inputPortMap.in.getSubsetPackageList();
-    const unionPkg = new SubsetPackage(this.dataset as TabularDataset, false);
+    const unionPkg = new SubsetPackage(this.getDataset(), false);
     for (const pkg of pkgs) {
       pkg.getItems().forEach(item => {
         unionPkg.addItem(item);
@@ -174,7 +174,7 @@ export default class SetOperator extends SubsetNode {
     for (const pkg of pkgs) {
       pkg.getItemIndices().forEach(index => count[index] = index in count ? count[index] + 1 : 1);
     }
-    const intersectionPkg = new SubsetPackage(this.dataset as TabularDataset, false);
+    const intersectionPkg = new SubsetPackage(this.getDataset(), false);
     for (const pkg of pkgs) {
       pkg.getItems().forEach(item => {
         if (count[item.index] === pkgs.length) {
