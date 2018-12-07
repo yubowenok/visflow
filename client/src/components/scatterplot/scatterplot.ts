@@ -29,8 +29,8 @@ import * as history from './history';
 
 const DOMAIN_MARGIN = .1;
 interface ScatterplotSave {
-  xColumn: number;
-  yColumn: number;
+  xColumn: number | null;
+  yColumn: number | null;
   areXAxisTicksVisible: boolean;
   areYAxisTicksVisible: boolean;
   axisMargin: boolean;
@@ -70,8 +70,8 @@ export default class Scatterplot extends Visualization {
   protected NODE_TYPE = 'scatterplot';
   protected HAS_SETTINGS = true; // allow transparent background
 
-  private xColumn: number = 0;
-  private yColumn: number = 0;
+  private xColumn: number | null = null;
+  private yColumn: number | null = null;
   private margins: PlotMargins = { ...DEFAULT_PLOT_MARGINS, bottom: 20 };
   private xScale!: Scale;
   private yScale!: Scale;
@@ -190,9 +190,18 @@ export default class Scatterplot extends Visualization {
       return;
     }
     const dataset = this.getDataset();
-    const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type)).slice(0, 2);
-    this.xColumn = numericalColumns.length >= 1 ? numericalColumns[0].index : 0;
-    this.yColumn = numericalColumns.length >= 2 ? numericalColumns[1].index : 0;
+    const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type)).slice(0, 2)
+      .map(column => column.index);
+    if (this.xColumn !== null) {
+      this.xColumn = this.updateColumnOnDatasetChange(this.xColumn);
+    } else {
+      this.xColumn = numericalColumns.shift() || null;
+    }
+    if (this.yColumn !== null) {
+      this.yColumn = this.updateColumnOnDatasetChange(this.yColumn);
+    } else {
+      this.yColumn = numericalColumns.shift() || null;
+    }
   }
 
   private computeBrushedItems(brushPoints: Point[]) {
@@ -222,8 +231,8 @@ export default class Scatterplot extends Visualization {
     this.itemProps = items.map(item => {
       const props: ScatterplotItemProps = {
         index: item.index,
-        x: this.getDataset().getCellForScale(item, this.xColumn),
-        y: this.getDataset().getCellForScale(item, this.yColumn),
+        x: this.getDataset().getCellForScale(item, this.xColumn as number),
+        y: this.getDataset().getCellForScale(item, this.yColumn as number),
         visuals: _.extend({}, DEFAULT_ITEM_VISUALS, item.visuals),
         hasVisuals: !_.isEmpty(item.visuals),
         selected: this.selection.hasItem(item.index),
@@ -281,14 +290,14 @@ export default class Scatterplot extends Visualization {
   private computeScales() {
     const items = this.inputPortMap.in.getSubsetPackage().getItemIndices();
     const dataset = this.getDataset();
-    const xDomain = dataset.getDomain(this.xColumn, this.useDatasetRange ? undefined : items);
-    const yDomain = dataset.getDomain(this.yColumn, this.useDatasetRange ? undefined : items);
+    const xDomain = dataset.getDomain(this.xColumn as number, this.useDatasetRange ? undefined : items);
+    const yDomain = dataset.getDomain(this.yColumn as number, this.useDatasetRange ? undefined : items);
     [this.xScale, this.yScale] = [
-      getScale(dataset.getColumnType(this.xColumn), xDomain,
+      getScale(dataset.getColumnType(this.xColumn as number), xDomain,
         [this.margins.left, this.svgWidth - this.margins.right], {
           domainMargin: this.axisMargin ? DOMAIN_MARGIN : 0,
         }),
-      getScale(dataset.getColumnType(this.yColumn), yDomain,
+      getScale(dataset.getColumnType(this.yColumn as number), yDomain,
         [this.svgHeight - this.margins.bottom, this.margins.top], {
           domainMargin: this.axisMargin ? DOMAIN_MARGIN : 0,
         }),
@@ -302,7 +311,7 @@ export default class Scatterplot extends Visualization {
       ticks: !this.areXAxisTicksVisible ? 0 : undefined,
       transform: getTransform([0, this.svgHeight - this.margins.bottom]),
       label: {
-        text: this.getDataset().getColumnName(this.xColumn),
+        text: this.getDataset().getColumnName(this.xColumn as number),
         transform: getTransform([this.svgWidth - this.margins.right, -LABEL_OFFSET_PX]),
       },
     });
@@ -315,7 +324,7 @@ export default class Scatterplot extends Visualization {
       ticks: !this.areYAxisTicksVisible ? 0 : undefined,
       transform: getTransform([this.margins.left, 0]),
       label: {
-        text: this.getDataset().getColumnName(this.yColumn),
+        text: this.getDataset().getColumnName(this.yColumn as number),
         transform: getTransform([LABEL_OFFSET_PX, this.margins.top], 1, 90),
       },
     });

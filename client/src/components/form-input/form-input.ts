@@ -121,6 +121,9 @@ export default class FormInput extends Vue {
   }
 
   private updateSelectionRange() {
+    if (!this.selectionRange) {
+      return;
+    }
     this.prevSelectionRange = this.selectionRange;
     this.selectionRange = [
       ($(this.$refs.input)[0] as HTMLInputElement).selectionStart as number,

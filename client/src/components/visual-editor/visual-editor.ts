@@ -193,7 +193,7 @@ export default class VisualEditor extends SubsetNode {
   }
 
   protected onDatasetChange() {
-    this.encoding.column = null; // Avoid unexpected encoding on new dataset column.
+    this.encoding.column = this.updateColumnOnDatasetChange(this.encoding.column);
   }
 
   protected update() {

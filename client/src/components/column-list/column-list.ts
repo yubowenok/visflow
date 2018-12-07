@@ -116,7 +116,9 @@ export default class ColumnList extends Vue {
 
   private all() {
     const select = () => {
-      this.selected = this.columns.map(column => column.value);
+      const selected = this.columns.map(column => column.disabled ? null : column.value)
+        .filter(column => column !== null) as number[];
+      this.selected = selected;
       this.onSelect();
     };
     if (this.columns.length > NUM_CLUTTER_COLUMNS) {

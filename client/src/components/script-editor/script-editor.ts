@@ -27,16 +27,17 @@ interface ScriptEditorSave {
 
 const SUCCESS_MESSAGE_DURATION_MS = 3000;
 
-const METHOD_ANNOTATION = `@param {string[] | undefined} columns
-@param {Array<Array<number | string>> | undefined} rows
-@param {HTMLElement | undefined} content
-@param {object | undefined} state
-@returns {{
+const TYPEDEF_ANNOTATION = `@typedef {{
   columns: string[],
   rows: Array<Array<number | string>>
-}}`;
+}} Table`;
+const SINGLE_INPUT_ANNOTATION = '@param {Table | undefined} input';
+const MULTIPLE_INPUTS_ANNOTATION = '@param {Table[]} input';
+const COMMON_ANNOTATION = `@param {HTMLElement | undefined} content
+@param {object | undefined} state
+@returns {Table}`;
 
-const DEFAULT_CODE = `(columns, rows, content, state) => {
+const DEFAULT_CODE = `(input, content, state) => {
   return {
     columns: [],
     rows: [],
@@ -84,7 +85,10 @@ export default class ScriptEditor extends SubsetNode {
   }
 
   get methodAnnotation() {
-    return METHOD_ANNOTATION;
+    let annotation = TYPEDEF_ANNOTATION + '\n';
+    annotation += (this.inputPorts.length === 1 ? SINGLE_INPUT_ANNOTATION : MULTIPLE_INPUTS_ANNOTATION) + '\n';
+    annotation += COMMON_ANNOTATION;
+    return annotation;
   }
 
   public setCode(code: string) {
@@ -147,15 +151,22 @@ export default class ScriptEditor extends SubsetNode {
   }
 
   protected runScript() {
-    const inputPort = this.inputPortMap.in;
-    const pkg = inputPort.hasPackage() ? inputPort.getSubsetPackage() : null;
-    let inputColumns: string[] | undefined;
-    let inputRows: TabularRows | undefined;
-    if (pkg && pkg.hasDataset()) {
-      const dataset = pkg.getDataset() as TabularDataset;
-      inputColumns = dataset.getColumns().map(col => col.name);
-      inputRows = dataset.getRows().map(row => row.concat()); // make a copy to avoid changing the original
-    }
+    const inputs = this.inputPorts.map(inputPort => {
+      const pkg = inputPort.hasPackage() ? (inputPort as SubsetInputPort).getSubsetPackage() : null;
+      let inputColumns: string[] | undefined;
+      let inputRows: TabularRows | undefined;
+      if (pkg && pkg.hasDataset()) {
+        const dataset = pkg.getDataset() as TabularDataset;
+        inputColumns = dataset.getColumns().map(col => col.name);
+        inputRows = dataset.getRows().map(row => row.concat()); // make a copy to avoid changing the original
+      }
+      return {
+        columns: inputColumns,
+        rows: inputRows,
+      };
+    }) || [];
+
+    const input = this.inputPorts.length > 1 ? inputs : inputs[0];
     const code = this.code;
     const renderingContent = this.isRenderingEnabled ? this.$refs.renderingContent : undefined;
     const state = this.isStateEnabled ? this.state : undefined;
@@ -169,7 +180,7 @@ export default class ScriptEditor extends SubsetNode {
             columns: [],
             rows: [],
           };
-          executeResult = method(inputColumns, inputRows, renderingContent, state);
+          executeResult = method(input, renderingContent, state);
           return () => executeResult;
         } catch (err) {
           return () => ({ err });
