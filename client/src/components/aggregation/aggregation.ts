@@ -111,7 +111,7 @@ export default class Aggregation extends SubsetNode {
   }
 
   private aggregate() {
-    const dataset = this.dataset as TabularDataset;
+    const dataset = this.getDataset();
     const column = this.column as number;
     const columnType = dataset.getColumnType(column);
     const columnName = dataset.getColumnName(column);

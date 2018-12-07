@@ -1342,6 +1342,11 @@
   dependencies:
     "@types/superagent" "*"
 
+"@types/synaptic@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@types/synaptic/-/synaptic-1.0.3.tgz#9bb132018cfc27d1476515960c29ce93403df7b1"
+  integrity sha512-YhFSgLpf684br0COiwSfdlH8vrW86kUuYaOWwgjoC5p2kGrdUQotMArk1cBopXQJeDfzsHlZtCWUkUNuHVkbHw==
+
 "@types/tough-cookie@*":
   version "2.3.4"
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.4.tgz#821878b81bfab971b93a265a561d54ea61f9059f"
@@ -12582,6 +12587,11 @@ symbol-tree@^3.2.2:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/symbol-tree/-/symbol-tree-3.2.2.tgz#ae27db38f660a7ae2e1c3b7d1bc290819b8519e6"
   integrity sha1-rifbOPZgp64uHDt9G8KQgZuFGeY=
+
+synaptic@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/synaptic/-/synaptic-1.1.4.tgz#b058163e2e86a3f86fc964ab792496c0642c13d7"
+  integrity sha512-JFtU98VDFI0uBTowgySo+UUEkc7rSVHaxx9D6dR5BK6u81G7uAxcp32Gi2SHciLpFbvJVd1Pfz7aqSNQO4EH9Q==
 
 table@^4.0.3:
   version "4.0.3"

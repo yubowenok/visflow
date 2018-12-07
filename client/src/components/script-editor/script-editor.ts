@@ -189,11 +189,22 @@ export default class ScriptEditor extends SubsetNode {
     )();
     const result = execute();
     if (result.err) {
+      console.error(result.err);
       this.executionError = result.err.toString();
       return;
     }
     const outputTable = result as { columns: string[], rows: TabularRows };
     this.successMessage = this.warningMessage = this.executionError = '';
+
+    outputTable.rows.forEach(row => {
+      if (!(row instanceof Array)) {
+        this.executionError = 'output table rows are not all ararys';
+        return;
+      }
+      if (row.length !== outputTable.columns.length) {
+        this.executionError = 'output table row length does not match number of columns';
+      }
+    });
 
     try {
       this.dataset = outputTable.columns.length ?
@@ -226,7 +237,7 @@ export default class ScriptEditor extends SubsetNode {
   }
 
   private displaySuccessMessage() {
-    const dataset = this.dataset as TabularDataset;
+    const dataset = this.getDataset();
     this.successMessage = `success: ${dataset.numColumns()} column(s), ${dataset.numRows()} row(s)`;
     if (this.messageTimeout !== null) {
       clearTimeout(this.messageTimeout);
@@ -275,6 +286,7 @@ export default class ScriptEditor extends SubsetNode {
   private clearState() {
     this.commitHistory(history.clearStateEvent(this, this.state));
     this.setState({});
+    this.updateAndPropagate();
   }
 
   private addInputPort() {

@@ -97,7 +97,7 @@ export default class SeriesTranspose extends SubsetNode {
   }
 
   private transpose() {
-    const dataset = this.dataset as TabularDataset;
+    const dataset = this.getDataset();
     const keyColumn = this.keyColumn as number;
 
     this.warningMessage = '';
