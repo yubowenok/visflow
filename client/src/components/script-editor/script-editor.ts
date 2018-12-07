@@ -1,6 +1,8 @@
 import { Component } from 'vue-property-decorator';
 import * as d3lib from 'd3';
+import _ from 'lodash';
 
+import ns from '@/store/namespaces';
 import template from './script-editor.html';
 import { injectNodeTemplate } from '../node';
 import AceModal from '../modals/ace-modal/ace-modal';
@@ -8,12 +10,19 @@ import { SubsetNode } from '../subset-node';
 import TabularDataset, { TabularRows } from '@/data/tabular-dataset';
 import { SubsetPackage } from '@/data/package';
 import * as history from './history';
+import FormInput from '@/components/form-input/form-input';
+import { SubsetInputPort } from '../port';
+import { MessageModalOptions } from '@/store/modals/types';
 
 interface ScriptEditorSave {
   code: string;
   isRenderingEnabled: boolean;
+  isStateEnabled: boolean;
   isInstructionVisible: boolean;
   transparentBackground: boolean;
+  state: object;
+  numInputs: number;
+  displayTitle: string;
 }
 
 const SUCCESS_MESSAGE_DURATION_MS = 3000;
@@ -21,12 +30,13 @@ const SUCCESS_MESSAGE_DURATION_MS = 3000;
 const METHOD_ANNOTATION = `@param {string[] | undefined} columns
 @param {Array<Array<number | string>> | undefined} rows
 @param {HTMLElement | undefined} content
+@param {object | undefined} state
 @returns {{
   columns: string[],
   rows: Array<Array<number | string>>
 }}`;
 
-const DEFAULT_CODE = `(columns, rows, content) => {
+const DEFAULT_CODE = `(columns, rows, content, state) => {
   return {
     columns: [],
     rows: [],
@@ -38,6 +48,7 @@ const DEFAULT_CODE = `(columns, rows, content) => {
   template: injectNodeTemplate(template),
   components: {
     AceModal,
+    FormInput,
   },
 })
 export default class ScriptEditor extends SubsetNode {
@@ -48,23 +59,32 @@ export default class ScriptEditor extends SubsetNode {
   protected RESIZABLE = true;
   protected HAS_SETTINGS = true;
 
-  private METHOD_ANNOTATION = METHOD_ANNOTATION;
+  @ns.modals.Mutation('openMessageModal') private openMessageModal!: (options: MessageModalOptions) => void;
 
   // code entered in the editor
   private code = DEFAULT_CODE;
 
+  private displayTitle = '';
   private successMessage = '';
   private executionError = '';
   private warningMessage = '';
+  private settingsWarningMessage = '';
   private messageTimeout: NodeJS.Timer | null = null;
 
   private isInstructionVisible = true;
 
   private isRenderingEnabled = false;
+  private isStateEnabled = false;
+  private state = {};
   private transparentBackground = false;
+  private numInputs = 1;
 
   get imgSrc() {
     return require('@/imgs/script-editor.svg');
+  }
+
+  get methodAnnotation() {
+    return METHOD_ANNOTATION;
   }
 
   public setCode(code: string) {
@@ -75,17 +95,44 @@ export default class ScriptEditor extends SubsetNode {
     this.isRenderingEnabled = value;
   }
 
+  public setStateEnabled(value: boolean) {
+    this.isStateEnabled = value;
+  }
+
+  public setState(state: object) {
+    this.state = state;
+  }
+
+  public setDisplayTitle(title: string) {
+    this.displayTitle = title;
+  }
+
   public setTransparentBackground(value: boolean) {
     this.transparentBackground = value;
     this.backgroundColor = value ? 'none' : 'white';
+  }
+
+  protected createInputPorts() {
+    this.inputPorts = _.range(this.numInputs)
+      .map(index => new SubsetInputPort({
+        data: {
+          id: 'in' + (index === 0 ? '' : index + 1),
+          node: this,
+        },
+        store: this.$store,
+      }));
   }
 
   protected created() {
     this.serializationChain.push((): ScriptEditorSave => ({
       code: this.code,
       isRenderingEnabled: this.isRenderingEnabled,
+      isStateEnabled: this.isStateEnabled,
       isInstructionVisible: this.isInstructionVisible,
       transparentBackground: this.transparentBackground,
+      state: this.state,
+      numInputs: this.numInputs,
+      displayTitle: this.displayTitle,
     }));
     this.deserializationChain.push(nodeSave => {
       const save = nodeSave as ScriptEditorSave;
@@ -111,6 +158,7 @@ export default class ScriptEditor extends SubsetNode {
     }
     const code = this.code;
     const renderingContent = this.isRenderingEnabled ? this.$refs.renderingContent : undefined;
+    const state = this.isStateEnabled ? this.state : undefined;
     const execute = (
       // tslint:disable-next-line only-arrow-functions
       function() {
@@ -121,7 +169,7 @@ export default class ScriptEditor extends SubsetNode {
             columns: [],
             rows: [],
           };
-          executeResult = method(inputColumns, inputRows, renderingContent);
+          executeResult = method(inputColumns, inputRows, renderingContent, state);
           return () => executeResult;
         } catch (err) {
           return () => ({ err });
@@ -144,6 +192,7 @@ export default class ScriptEditor extends SubsetNode {
         this.warningMessage = 'output table is empty';
       } else {
         this.outputPortMap.out.updatePackage(new SubsetPackage(this.dataset));
+        this.propagate();
         this.displaySuccessMessage();
       }
     } catch (parseErr) {
@@ -155,6 +204,10 @@ export default class ScriptEditor extends SubsetNode {
     if (this.isRenderingEnabled) {
       this.runScript();
     }
+  }
+
+  protected onOpenSettingsModal() {
+    this.settingsWarningMessage = '';
   }
 
   private displaySuccessMessage() {
@@ -189,8 +242,49 @@ export default class ScriptEditor extends SubsetNode {
     this.setRenderingEnabled(value);
   }
 
+  private onToggleStateEnabled(value: boolean) {
+    this.commitHistory(history.toggleStateEnabledEvent(this, value));
+    this.setStateEnabled(value);
+  }
+
   private onToggleTransparentBackground(value: boolean) {
     // TODO: move this to node setting?
     this.setTransparentBackground(value);
+  }
+
+  private onInputDisplayTitle(title: string, prevTitle: string) {
+    this.commitHistory(history.inputDisplayTitleEvent(this, title, prevTitle));
+    this.setDisplayTitle(title);
+  }
+
+  private clearState() {
+    this.commitHistory(history.clearStateEvent(this, this.state));
+    this.setState({});
+  }
+
+  private addInputPort() {
+    this.numInputs++;
+    const portId = 'in' + (this.inputPorts.length + 1);
+    const newPort = new SubsetInputPort({
+      data: {
+        id: portId,
+        node: this,
+      },
+      store: this.$store,
+    });
+    this.inputPorts.push(newPort);
+    this.onPortsChanged();
+  }
+
+  private removeInputPort() {
+    const lastInput = this.inputPorts[this.numInputs - 1];
+    if (lastInput.isConnected()) {
+      this.settingsWarningMessage = 'The last input port has connections. ' +
+        'Please disconnect all the connections before removing the port.';
+      return;
+    }
+    this.numInputs--;
+    this.inputPorts.pop();
+    this.onPortsChanged();
   }
 }

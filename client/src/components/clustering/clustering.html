@@ -1,0 +1,28 @@
+<!-- node-content -->
+<div class="display" v-if="dataset">
+  <div>{{ algorithm }}</div>
+</div>
+
+<!-- option-panel -->
+<div class="warn" v-if="warningMessage">{{ warningMessage }}</div>
+<div>
+  <div>Mode</div>
+  <form-select
+    :options="clusteringAlgorithmOptions"
+    v-model="algorithm"
+    @change="onSelectAlgorithm"
+    :clearable="false"
+  ></form-select>
+</div>
+
+<div>
+  <div>Columns</div>
+  <column-list
+    :columns="columnSelectOptions"
+    v-model="column"
+    @change="onSelectColumn"
+  ></column-list>
+</div>
+<div>
+  <b-form-checkbox v-model="">Output Per Iteration</b-form-checkbox>
+</div>

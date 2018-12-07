@@ -151,4 +151,13 @@ export default class SubsetNodeBase extends Node {
     }
     return column < this.dataset.numColumns() ? column : null;
   }
+
+  /**
+   * Returns the columns that are still inside the dataset's columns range.
+   */
+  protected updateColumnsOnDatasetChange(columns: number[]): number[] {
+    return columns
+      .map(column => this.updateColumnOnDatasetChange(column))
+      .filter(column => column !== null) as number[];
+  }
 }
