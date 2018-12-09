@@ -180,6 +180,7 @@ export default class NeuralNetwork extends SubsetNode {
       this.isFirstUpdate = false;
     }
 
+    this.generateDomains();
     this.test();
   }
 
@@ -203,6 +204,7 @@ export default class NeuralNetwork extends SubsetNode {
     this.deserializationChain.push(nodeSave => {
       const save = nodeSave as NeuralNetworkSave;
       this.network = synaptic.Network.fromJSON(save.serializedNetwork);
+      this.isFirstUpdate = false; // Use deserialized network and avoid recreation.
     });
   }
 

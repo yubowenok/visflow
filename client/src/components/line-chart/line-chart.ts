@@ -228,6 +228,7 @@ export default class LineChart extends Visualization {
       this.computeLineProps();
       this.drawLines();
       this.drawPoints();
+      this.drawLegends();
       this.propagateSelection();
     }
     drawBrushBox(this.$refs.brush as SVGElement, !isBrushStop ? brushPoints : []);

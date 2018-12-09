@@ -23,7 +23,7 @@ export default class DataReservoir extends SubsetNode {
 
   protected NODE_TYPE = 'data-reservoir';
   protected DEFAULT_HEIGHT = 40;
-  // protected REVERSE_INPUT_OUTPUT_PORTS = true;
+  protected RESIZABLE = true;
 
   @ns.user.State('username') private username!: string;
   @ns.dataset.Action('getDataset') private dispatchGetDataset!: (options: GetDatasetOptions) => Promise<string>;

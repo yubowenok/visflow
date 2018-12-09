@@ -72,7 +72,6 @@ export const getNodeByType = (injectedType: string, query: InjectedQuery, tracke
 
 export const getNodeByLabelOrType = (injected: string, query: InjectedQuery, tracker: FlowsenseUpdateTracker):
   Node | undefined => {
-  console.log(injected, query.markerMapping);
   if (injected.match(/node_type/)) {
     return getNodeByType(injected, query, tracker);
   } else if (injected.match(/node_label/)) {

@@ -218,9 +218,12 @@ export default class Histogram extends Visualization {
     if (!this.hasDataset()) {
       return;
     }
-    const dataset = this.getDataset();
-    const numericalColumns = dataset.getColumns().filter(column => isNumericalType(column.type));
-    this.column = numericalColumns.length ? numericalColumns[0].index : null;
+    if (this.column !== null) {
+      this.column = this.updateColumnOnDatasetChange(this.column);
+    } else {
+      const numericalColumns = this.getDataset().getColumns().filter(column => isNumericalType(column.type));
+      this.column = numericalColumns.length ? numericalColumns[0].index : null;
+    }
   }
 
   private drawHistogram() {

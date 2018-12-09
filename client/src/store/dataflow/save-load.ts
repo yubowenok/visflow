@@ -131,14 +131,16 @@ export const actions = {
       axiosPost<DiagramSave>('/diagram/load', { filename })
         .then(res => {
           resetDataflow(true);
+          context.commit('interaction/endSystemVisMode', undefined, { root: true });
+
           deserializeDiagram(res.data);
           context.commit('setDiagramName', res.data.diagramName);
           context.commit('setFilename', filename);
 
           showSystemMessage(store, `Diagram loaded: ${res.data.diagramName}`, 'success');
 
-          store.commit('router/replace', `/diagram/${filename}`);
-          store.commit('history/addLog', { type: HistoryLogType.LOAD_DIAGRAM });
+          context.commit('router/replace', `/diagram/${filename}`, { root: true });
+          context.commit('history/addLog', { type: HistoryLogType.LOAD_DIAGRAM }, { root: true });
 
           resolve(res.data.diagramName);
         })
@@ -146,9 +148,9 @@ export const actions = {
           if (err.response && err.response.data === 'no access') {
             showSystemMessage(store, !store.state.user.username ?
               'login to view this diagram' : 'no access to this diagram', 'error');
-            store.dispatch('user/requestLogin', {
+            context.dispatch('user/requestLogin', {
               loginCallback: () => context.dispatch('loadDiagram', filename),
-            });
+            }, { root: true });
             resolve('');
             return;
           }

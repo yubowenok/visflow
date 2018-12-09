@@ -311,16 +311,18 @@ export const deserializeDiagram = (diagram: DiagramSave) => {
 export const dataMutationBoundary = (visible: boolean) => {
   const state = store.state.dataflow;
   const visited = new Set<Node>();
+  const boundary = new Set<Node>();
 
   const traverse = (node: Node, color: string) => {
     if (visited.has(node)) {
       return;
     }
     visited.add(node);
-    node.setBoundaryColor(color);
     if (node.isDataMutated) {
+      boundary.add(node);
       return;
     }
+    node.setBoundaryColor(color);
     for (const to of node.getOutputNodes()) {
       traverse(to, color);
     }
@@ -336,4 +338,8 @@ export const dataMutationBoundary = (visible: boolean) => {
       traverse(node, visible ? colors.shift() as string : '');
     }
   });
+
+  for (const node of boundary) {
+    node.setBoundaryColor(visible ? 'black' : '');
+  }
 };
