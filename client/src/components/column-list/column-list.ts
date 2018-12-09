@@ -56,10 +56,11 @@ export default class ColumnList extends Vue {
 
   @Watch('value')
   private onValueChange() {
-    // if (!this.isSorting) {
-    // We ignore changes to selected from the parent component to avoid binded selected affecting
-    // the selected list while it is being sorted.
-    // }
+    if (this.isSorting) {
+      // We ignore changes to selected from the parent component to avoid binded selected affecting
+      // the selected list while it is being sorted.
+      return;
+    }
     this.prevSelected = this.selected = this.value;
   }
 

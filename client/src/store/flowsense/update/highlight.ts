@@ -25,7 +25,7 @@ export const createHighlightSubdiagram = (tracker: FlowsenseUpdateTracker, value
     {
       mode: VisualEditorMode.ASSIGNMENT,
       visuals: {
-        color: 'darkred',
+        color: '#e31a1a',
       },
     }) as VisualEditor;
   tracker.createNode(visualEditor);

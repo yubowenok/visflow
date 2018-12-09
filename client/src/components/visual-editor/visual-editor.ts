@@ -12,10 +12,11 @@ import ColorInput from '@/components/color-input/color-input';
 import ColumnSelect from '@/components/column-select/column-select';
 import ColorScaleSelect from '@/components/color-scale-select/color-scale-select';
 import ColorScaleDisplay from '@/components/color-scale-display/color-scale-display';
-import { getScale } from '@/components/visualization';
+import { getScale, GetScaleOptions, OrdinalScaleType } from '@/components/visualization';
 import { getColorScale } from '@/common/color-scale';
 import * as history from './history';
 import { NODE_CONTENT_PADDING_PX } from '@/common/constants';
+import { ValueType } from '@/data/parser';
 
 export enum VisualEditorMode {
   ASSIGNMENT = 'assignment',
@@ -247,24 +248,37 @@ export default class VisualEditor extends SubsetNode {
       return pkg;
     }
     const dataset = this.getDataset();
+    const itemIndices = pkg.getItemIndices();
     if (isNumericalVisual(this.encoding.type)) {
       const scale = getScale(
         dataset.getColumnType(this.encoding.column),
-        dataset.getDomain(this.encoding.column, pkg.getItemIndices()),
+        dataset.getDomain(this.encoding.column, itemIndices),
         [this.encoding.numericalScale.min, this.encoding.numericalScale.max],
       );
       pkg.getItems().forEach(item => {
         const value = dataset.getCell(item, this.encoding.column as number);
         _.extend(item.visuals, { [this.encoding.type]: scale(value) });
       });
-    } else {
+    } else { // color visual
       const colorScale = getColorScale(this.encoding.colorScaleId);
       // Create a scale that maps dataset values to [0, 1] to be further used by colorScale.
-      const scale = getScale(
-        dataset.getColumnType(this.encoding.column),
-        dataset.getDomain(this.encoding.column, pkg.getItemIndices()),
-        [0, 1],
-      );
+      let domain;
+      let columnType;
+      let range;
+      const options: GetScaleOptions = { domainMargin: 0 };
+      if (this.encoding.colorScaleId === 'categorical') {
+        // When the color scale is categorical, we need to use an ordinal scale that maps all distinct domain values
+        // to integers in [0, domain.length).
+        columnType = ValueType.STRING;
+        domain = dataset.getDomainValues(this.encoding.column, itemIndices, true);
+        range = _.range(domain.length);
+        options.ordinal = { type: OrdinalScaleType.ORDINAL };
+      } else {
+        columnType = dataset.getColumnType(this.encoding.column);
+        domain = dataset.getDomain(this.encoding.column, itemIndices);
+        range = [0, 1];
+      }
+      const scale = getScale(columnType, domain, range, options);
       pkg.getItems().forEach(item => {
         const value = dataset.getCell(item, this.encoding.column as number);
         const colorScaleValue = scale(value);

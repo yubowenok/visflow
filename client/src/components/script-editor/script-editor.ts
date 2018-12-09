@@ -164,7 +164,12 @@ export default class ScriptEditor extends SubsetNode {
         columns: inputColumns,
         rows: inputRows,
       };
-    }) || [];
+    }).filter(table => table.columns !== undefined) || [];
+
+    if (!inputs.length) {
+      // No inputs reach here yet. It could be in deserialization.
+      return;
+    }
 
     const input = this.inputPorts.length > 1 ? inputs : inputs[0];
     const code = this.code;

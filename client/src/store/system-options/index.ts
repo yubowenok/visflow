@@ -37,7 +37,7 @@ const mutations = {
     state.dataMutationBoundaryVisible = !state.dataMutationBoundaryVisible;
 
     store.commit('dataflow/toggleDataMutationBoundary', state.dataMutationBoundaryVisible);
-    Cookies.set('dataMutationBoundary', state.dataMutationBoundaryVisible ? 'true' : 'false');
+    Cookies.set('dataMutationBoundaryVisible', state.dataMutationBoundaryVisible ? 'true' : 'false');
   },
 };
 
