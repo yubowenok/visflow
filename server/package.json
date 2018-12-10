@@ -16,7 +16,9 @@
     "watch": "concurrently -k -n lint,build,server -c \"yellow.bold,cyan.bold,green.bold\" \"yarn watch-lint\"  \"yarn watch-build\" \"yarn watch-node\"",
     "test": "jest --forceExit --coverage",
     "test-openhandles": "jest --detectOpenHandles --coverage",
-    "watch-test": "jest --watch"
+    "watch-test": "jest --watch",
+    "analyze-experiment": "yarn build && node dist/experiment/analyze.js",
+    "collect-experiment": "yarn build && node dist/experiment/collect.js"
   },
   "dependencies": {
     "bcrypt-nodejs": "^0.0.3",

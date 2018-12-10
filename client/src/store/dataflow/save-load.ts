@@ -106,6 +106,10 @@ export const actions = {
   },
 
   saveAsDiagram(context: ActionContext<DataflowState, RootState>, diagramName: string): Promise<string> {
+    if (context.rootGetters['experiment/isInExperiment']) {
+      // saveAs not available in experiment
+      return Promise.reject('cannot save as digram in experiment');
+    }
     if (!context.rootState.user.username) {
       console.error('saveAsDiagram() cannot be dispatched without login');
       return Promise.reject('login required');

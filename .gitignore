@@ -17,3 +17,6 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+# Experiment result and analysis files
+experiment_*

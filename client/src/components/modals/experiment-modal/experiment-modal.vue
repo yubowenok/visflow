@@ -234,7 +234,7 @@ Please complete the tasks in one sitting to avoid imprecise measurement of task 
 <p>Thank you for completing all the tasks.</p>
 <p>
   As a last step, please take this survey to give us your feedback about the system:
-  <a :href="surveyLink" target="_blank" class="bold">SURVEY LINK</a>
+  <a :href="surveyLink" target="_blank" class="bold" @click="surveyLinkClicked = true">SURVEY LINK</a>
 </p>
 </div>
 
@@ -255,7 +255,7 @@ To proceed to the next step, the diagram will be cleared. Would you like to proc
 </b-container>
 </template>
 <template slot="footer">
-  <b-btn class="float-right" variant="primary" @click="next">
+  <b-btn class="float-right" variant="primary" @click="next" :disabled="isNextDisabled">
     <span v-if="currentStep === 'consentForm'">Agree and Start</span>
     <span v-else-if="currentStep === 'end' || currentStep === 'finish'">Finish</span>
     <span v-else>Continue</span>

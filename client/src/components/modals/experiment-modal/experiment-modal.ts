@@ -41,6 +41,7 @@ export default class ExperimentModal extends Vue {
   private task1Answer = '';
   private task2Answer = '';
   private task3Answer = '';
+  private surveyLinkClicked = false;
 
   get sessionLink(): string {
     return window.location.protocol + '//' + window.location.host +
@@ -58,6 +59,10 @@ export default class ExperimentModal extends Vue {
 
   get currentStep(): string {
     return this.stepIndex === -1 ? 'finish' : EXPERIMENT_STEPS[this.stepIndex];
+  }
+
+  get isNextDisabled() {
+    return this.experimentStep === 'survey' && !this.surveyLinkClicked;
   }
 
   private next() {
