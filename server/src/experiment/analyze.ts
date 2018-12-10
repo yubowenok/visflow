@@ -16,5 +16,29 @@ times.forEach(timeRecord => {
 });
 fs.writeFileSync(def.TIME_DISTRIBUTION_FILE, timeDistributionCsv, 'utf8');
 
-const queries = JSON.parse(fs.readFileSync(def.QUERIES_FILE, 'utf8')) as def.ExperimentFlowsenseQuery[];
+let queries = JSON.parse(fs.readFileSync(def.QUERIES_FILE, 'utf8')) as def.ExperimentFlowsenseQuery[];
 console.log(`${queries.filter(q => q.success).length}/${queries.length} queries`);
+
+queries = JSON.parse(fs.readFileSync(def.QUERIES_REASONS_FILE, 'utf8')) as def.ExperimentFlowsenseQuery[];
+
+const countReason: { [reason: string]: number } = {};
+queries.forEach(query => {
+  if (!query.success) {
+    if (query.reason === undefined) {
+      console.warn('missing reason', query);
+      return;
+    }
+    if (!(query.reason in countReason)) {
+      countReason[query.reason] = 0;
+    }
+    countReason[query.reason]++;
+  }
+});
+let reasonCsv = 'type,reason\n';
+_.each(countReason, (count, reason) => {
+  reasonCsv += reason + ',' + count + '\n';
+});
+fs.writeFileSync(def.REASONS_DISTRIBUTION_FILE, reasonCsv, 'utf8');
+console.log(countReason);
+const countSuccess = queries.filter(q => q.success).length;
+console.log(`${countSuccess}/${queries.length} queries`, `${countSuccess / queries.length}`);
