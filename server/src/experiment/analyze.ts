@@ -6,13 +6,13 @@ import * as def from './def';
 const times = JSON.parse(fs.readFileSync(def.TIMES_FILE, 'utf8')) as def.ExperimentTimes[];
 
 const STEPS = ['visflowTutorial', 'flowsenseTutorial', 'task1', 'task2', 'task3'];
-let timeDistributionCsv = STEPS.join(',') + '\n';
+let timeDistributionCsv = 'filename,' + STEPS.join(',') + '\n';
 times.forEach(timeRecord => {
   const timeValues = STEPS.map(step => {
     const record = timeRecord.times.filter(stepTime => stepTime.step === step)[0];
     return record.time || 0;
   });
-  timeDistributionCsv += timeValues.join(',') + '\n';
+  timeDistributionCsv += timeRecord.filename + ',' + timeValues.join(',') + '\n';
 });
 fs.writeFileSync(def.TIME_DISTRIBUTION_FILE, timeDistributionCsv, 'utf8');
 

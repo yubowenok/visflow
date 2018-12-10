@@ -98,7 +98,13 @@ FlowsenseQuery.find({}, (err, queryEntries) => {
   }
   queryEntries.forEach(queryEntry => {
     const { query, rawQuery } = queryEntry;
+    if (!queryEntry.result) {
+      return;
+    }
     const success = (queryEntry.result as { success: boolean }).success;
+    if (success === undefined) {
+      return;
+    }
     experimentFlowsenseQueries.push({ query, rawQuery, success });
     fs.writeFileSync(def.QUERIES_FILE, JSON.stringify(experimentFlowsenseQueries, undefined, 2), 'utf8');
   });
