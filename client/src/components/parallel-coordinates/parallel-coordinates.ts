@@ -206,13 +206,16 @@ export default class ParallelCoordinates extends Visualization {
       (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
       return;
     }
+    // Axes are drawn with transition, which would affect the width computation.
+    this.isTransitionDisabled = true;
     this.drawAxis(0, this.columns[0]);
     this.updateMargins(() => {
       const maxTickWidth = _.max($(this.$refs.axes as SVGGElement)
-        .find('.axis > .tick > text')
+        .find('.axis > .tick > text, .axis > .label')
         .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
       this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
       (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);
+      this.isTransitionDisabled = false;
     });
   }
 
