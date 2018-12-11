@@ -1,0 +1,25 @@
+@import '../../common/style/index';
+
+.display {
+  @extend %vertical-center;
+
+  > i {
+    margin: $margin-size;
+    margin-left: -$margin-size;
+    color: #333;
+  }
+}
+
+#btn-load-dataset {
+  margin-top: $margin-size;
+  color: #333;
+}
+
+.name {
+  max-width: 80px;
+  @extend %ellipsis-text;
+}
+
+.panel-name {
+  @extend %ellipsis-text;
+}

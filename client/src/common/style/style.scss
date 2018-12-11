@@ -1,0 +1,102 @@
+@import './colors';
+@import './transition';
+
+$font-size: 13px;
+$font-size-sm: .85rem;
+
+$border-radius: 2px;
+
+%list-item {
+  &:focus, &:hover {
+    background-color: $hover-green;
+  }
+
+  &:active {
+    background-color: $theme-green;
+  }
+
+  .fas, .far {
+    width: 1rem;
+    text-align: center;
+    margin-right: .75rem;
+    margin-left: -.75rem;
+    line-height: 1.5em; // vertically center the icon
+
+    &.placeholder {
+      width: 1rem;
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  &.disabled {
+    color: #999;
+    text-decoration: none;
+    cursor: not-allowed;
+    background: none;
+  }
+}
+
+%box-shadow {
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, .05);
+}
+
+%border {
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, .2);
+}
+
+%bold-border {
+  border-width: 2px;
+  border-color: rgba(0, 0, 0, .3);
+}
+
+%extra-bold-border {
+  border-width: 2px;
+  border-color: rgba(0, 0, 0, .45);
+}
+
+%extreme-bold-border {
+  border-width: 2px;
+  border-color: rgba(0, 0, 0, .6);
+}
+
+%ui-font {
+  font-family: 'proxima-nova', Helvetica, Arial, sans-serif;
+}
+
+%box {
+  @extend %box-shadow, %border;
+}
+
+%border-touch-left {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+%border-touch-right {
+  border-right: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+%border-touch-bottom {
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+%transition {
+  transition: $default-transition-time;
+}
+
+%bar {
+  @extend %margin-lr-sm;
+}
+
+%ellipsis-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

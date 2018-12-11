@@ -1,0 +1,44 @@
+@import '../../common/style/index';
+
+.log-panel {
+  position: absolute;
+  background-color: white;
+  overflow: hidden;
+  width: 360px;
+  z-index: $zIndexHistoryPanel;
+  @extend %box, %box-shadow;
+
+  .title {
+    padding: $padding-size;
+  }
+
+  .divider {
+    margin: 0;
+  }
+
+  .log {
+    &:hover {
+      cursor: pointer;
+      background-color: $theme-green-light;
+    }
+  }
+
+  .logs {
+    height: calc(100% - 20px);
+    padding: $padding-size-lg $padding-size-sm;
+    overflow-y: scroll;
+
+    > .current {
+      background-color: $theme-green;
+    }
+  }
+
+  .message {
+    font-size: .9em;
+    margin-left: $margin-size;
+  }
+
+  .buttons > * {
+    margin: $margin-size-sm;
+  }
+}

@@ -1,0 +1,38 @@
+<!-- node-content -->
+<div class="display">
+  <div class="title bold">{{ mode === 'input' ? 'Constants' : 'Extracted' }}</div>
+  <div>{{ constantsDisplayText }}</div>
+</div>
+
+<!-- option-panel -->
+<div v-if="mode === 'input'">
+  Constants
+  <constants-list
+    v-model="inputConstants"
+    @input="onInputConstants"
+    @change="setInputConstants"
+  ></constants-list>
+</div>
+<div v-if="mode === 'extract'">
+  <constants-list
+    :value="extractedConstants"
+    :disabled="true"
+    :type="columnType"
+  ></constants-list>
+  <hr class="divider">
+  <div class="subsection">
+    Column
+    <column-select
+      v-model="column"
+      :columns="columnSelectOptions"
+      @change="onSelectColumn"
+      :clearable="false"
+    ></column-select>
+  </div>
+  <div class="subsection">
+    <b-form-checkbox v-model="distinct" @input="onToggleDistinct">Distinct Constants</b-form-checkbox>
+  </div>
+  <div class="subsection">
+    <b-form-checkbox v-model="sort" @input="onToggleSort">Sort Constants</b-form-checkbox>
+  </div>
+</div>

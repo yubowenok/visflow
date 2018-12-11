@@ -1,0 +1,19 @@
+@import '../../common/style/index';
+
+div {
+  display: block;
+
+  span {
+    word-wrap: break-word;
+  }
+
+  .fa-pen {
+    cursor: pointer;
+    color: #aaa;
+    float: right;
+
+    &:hover {
+      color: #555;
+    }
+  }
+}

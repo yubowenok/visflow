@@ -1,0 +1,89 @@
+@import '../../common/style/index';
+
+.history-panel {
+  position: absolute;
+  min-width: 120px;
+  width: 120px;
+  top: 400px;
+  bottom: $panel-bottom;
+  z-index: $zIndexHistoryPanel;
+  background-color: white;
+  @extend %box, %box-shadow;
+  overflow: hidden;
+
+  .history-events {
+    direction: rtl;
+    height: 100%;
+  }
+
+  .title {
+    padding: $padding-size;
+  }
+
+  .divider {
+    margin: 0;
+  }
+
+  .icon {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    text-align: center;
+    margin-right: $margin-size;
+
+    img {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+
+  .redo {
+    img {
+      opacity: .5;
+    }
+
+    &:hover img {
+      opacity: 1;
+    }
+  }
+
+  .history-event {
+    direction: ltr;
+    border: 1px solid #eee;
+    padding: $padding-size;
+    @extend %ellipsis-text;
+
+    &:hover {
+      cursor: pointer;
+      background-color: #ccc;
+      transition: $default-transition-time;
+    }
+
+    &.redo {
+      color: #ccc;
+
+      &:hover {
+        color: black;
+      }
+    }
+  }
+
+  .undo-group {
+    .history-event:first-child {
+      background-color: $theme-green-light;
+
+      &:hover {
+        background-color: darken($theme-green-light, 10%);
+      }
+    }
+  }
+}
+
+.buttons > button {
+  margin: $margin-size-sm;
+}
+
+#more-redo {
+  float: right;
+  color: #777;
+}

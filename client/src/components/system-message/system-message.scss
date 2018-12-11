@@ -1,0 +1,39 @@
+@import '../../common/style/index';
+
+.message {
+  position: fixed;
+  z-index: $zIndexSystemMessage;
+
+  text-align: center;
+  width: 40%;
+  left: 30%;
+  background: none;
+
+  top: $navbar-height + 5px;
+  @extend %box, %padding;
+
+  .close {
+    font-size: 1.25rem;
+    border: none;
+    padding: 1rem;
+    margin: -1rem -1.5rem -1rem auto;
+    top: 0;
+    color: #333;
+  }
+
+  &.success {
+    @extend %success-message;
+  }
+
+  &.warn {
+    @extend %warn-message;
+  }
+
+  &.error {
+    @extend %error-message;
+  }
+
+  &.info {
+    @extend %info-message;
+  }
+}

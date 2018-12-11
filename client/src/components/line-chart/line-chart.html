@@ -1,0 +1,60 @@
+<!-- node-content -->
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+>
+  <g id="lines" ref="lines"></g>
+  <g ref="points"></g>
+  <g ref="xAxis"></g>
+  <g ref="yAxis"></g>
+  <g id="legends" ref="legends"></g>
+  <g ref="brush"></g>
+</svg>
+<!-- option-panel -->
+<div v-if="areSeriesValuesDuplicated">
+  <div class="warn">Series column has duplicate values</div>
+</div>
+<div>
+  <div>Series Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="seriesColumn"
+    @input="onInputSeriesColumn"
+    :clearable="true"
+  ></column-select>
+</div>
+<div>
+  <div>Value Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="valueColumn"
+    @input="onInputValueColumn"
+    :clearable="true"
+  ></column-select>
+</div>
+<div>
+  <div>Group By Column</div>
+  <column-select
+    :columns="columnSelectOptions"
+    v-model="groupByColumn"
+    @input="onInputGroupByColumn"
+    :clearable="true"
+  ></column-select>
+</div>
+<div>
+  <b-form-checkbox v-model="arePointsVisible" @input="onTogglePointsVisible">Draw Points</b-form-checkbox>
+</div>
+<div>
+  <b-form-checkbox v-model="isCurveDrawing" @input="onToggleCurveDrawing">Draw Curve</b-form-checkbox>
+</div>
+<div>
+  <b-form-checkbox v-model="areLegendsVisible" @input="onToggleLegendsVisible">Legends</b-form-checkbox>
+</div>
+<div>
+  <b-form-checkbox v-model="areXAxisTicksVisible" @input="onToggleXAxisTicksVisible">X Axis Ticks</b-form-checkbox>
+</div>
+<div>
+  <b-form-checkbox v-model="areYAxisTicksVisible" @input="onToggleYAxisTicksVisible">Y Axis Ticks</b-form-checkbox>
+</div>

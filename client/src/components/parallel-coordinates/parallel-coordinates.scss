@@ -1,0 +1,14 @@
+@import '../../common/style/index';
+
+.lines, .brush {
+  /deep/ path {
+    fill: none;
+  }
+}
+
+.brush {
+  /deep/ path {
+    stroke: $selected-color;
+    stroke-width: 2px;
+  }
+}

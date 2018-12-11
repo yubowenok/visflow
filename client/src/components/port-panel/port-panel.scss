@@ -1,0 +1,15 @@
+@import '../../common/style/index';
+
+.port-panel {
+  @extend %right-panel;
+  z-index: $zIndexPortPanel;
+
+  > .header,
+  > .content {
+    @extend %padding;
+  }
+
+  > .divider {
+    @extend %divider;
+  }
+}

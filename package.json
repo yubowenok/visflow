@@ -1,44 +1,23 @@
 {
   "name": "visflow",
-  "version": "1.0.0",
-  "description": "web-based dataflow framework for visual data exploration",
-  "main": "index.php",
-  "dependencies": {
-    "bower": "^1.7.7"
+  "version": "2.0.0",
+  "description": "Web-based Dataflow Framework for Visual Data Exploration",
+  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Bowen Yu"
   },
-  "devDependencies": {
-    "del": "^2.2.0",
-    "google-closure-compiler": "^20170218.0.0",
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-clean-css": "^3.0.2",
-    "gulp-concat": "^2.6.0",
-    "gulp-flatten": "^0.2.0",
-    "gulp-gjslint": "^0.1.5",
-    "gulp-html-replace": "^1.5.5",
-    "gulp-less": "^3.3.0",
-    "gulp-run": "^1.6.12",
-    "gulp-sass": "^2.2.0",
-    "gulp-scss-lint": "^0.4.0",
-    "gulp-scss-lint-stylish2": "^2.0.2",
-    "gulp-util": "^3.0.8",
-    "require-dir": "^0.3.0",
-    "run-sequence": "^1.1.5"
-  },
+  "private": true,
   "scripts": {
-    "prestart": "npm install",
-    "postinstall": "bower install"
+    "docs:build": "vuepress build docs",
+    "docs:dev": "vuepress dev docs",
+    "coverage": "bash coverage.sh"
   },
-  "repository": "git+https://github.com/yubowenok/visflow.git",
-  "keywords": [
-    "visflow",
-    "dataflow",
-    "visualization"
+  "workspaces": [
+    "client",
+    "server",
+    "docs"
   ],
-  "author": "Bowen Yu",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/yubowenok/visflow/issues"
-  },
-  "homepage": "https://visflow.org/"
+  "devDependencies": {
+    "nyc": "^12.0.2"
+  }
 }

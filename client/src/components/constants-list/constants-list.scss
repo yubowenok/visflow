@@ -1,0 +1,58 @@
+@import '../../common/style/index';
+
+.close {
+  font-size: .75rem;
+  padding: .5rem;
+  margin: -.5rem;
+  top: .5rem;
+  position: relative;
+  color: #aaa;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.constant {
+  color: #555;
+  padding: $padding-size-sm $padding-size-lg;
+  background-color: #eee;
+  @extend %margin-tb-sm;
+
+  &:hover {
+    background-color: #ccc;
+    cursor: all-scroll;
+
+    .close {
+      color: black;
+    }
+  }
+}
+
+.disabled > .constant:hover {
+  cursor: default;
+}
+
+.constant-list {
+  max-height: 300px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.controls {
+  margin-top: $margin-size;
+}
+
+.entry {
+  margin-bottom: $margin-size-sm;
+}
+
+#add-list {
+  > i {
+    font-size: .9em;
+  }
+}
+
+#constants-list {
+  width: 100%;
+}

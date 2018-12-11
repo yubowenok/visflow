@@ -1,17 +1,34 @@
 language: node_js
 node_js:
-  - "6.11.1"
+  - "8.11.2"
+services:
+  - mongodb
 
 before_script:
-  - npm install -g gulp
-  - rvm install ruby
-  - gem install scss_lint
+  - yarn install
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 
 script:
-  - gulp all
+  - yarn --cwd client build
+  - yarn --cwd client lint
+  - yarn --cwd client test --coverage
+  - yarn --cwd server build
+  - yarn --cwd server lint
+  - yarn --cwd server test
+  - yarn --cwd docs build
+
+after_script:
+  - yarn coverage
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
 
 cache:
+  yarn: true
   directories:
-  - bower_components
-  - node_modules
+  - client/node_modules
+  - server/node_modules
 
+env:
+  global:
+    - CC_TEST_REPORTER_ID=654a8862c4f6aee42803f7759805fde13aa5dc419be37e0d901068df427372a9

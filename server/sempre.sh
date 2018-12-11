@@ -4,16 +4,18 @@
 
 cd flowsense/sempre
 
-sed '/(include testing.grammar)/d' ../main.grammar > ../main_server.grammar
+# sed '/(include testing.grammar)/d' ../main.grammar > ../main_server.grammar
 
 screen java -cp libsempre/*:lib/* -ea edu.stanford.nlp.sempre.Main\
      -languageAnalyzer corenlp.CoreNLPAnalyzer\
-     -Grammar.inPaths ../main_server.grammar\
+     -Grammar.inPaths ../main.grammar\
      -FeatureExtractor.featureDomains rule\
      -Learner.maxTrainIters 3\
      -server true\
      -Dataset.inPaths\
-       train:../data/train.examples
+       train:../data/train.examples\
+     -Builder.inParamsPath\
+       ../data/params.txt
 
 # Press Ctrl+A-D to detach the screen.
 # Now the server should be able to run http://localhost:8400/sempre

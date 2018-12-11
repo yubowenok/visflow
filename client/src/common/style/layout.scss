@@ -1,0 +1,89 @@
+$navbar-height: 41px;
+
+$min-option-panel-width: 180px;
+$max-option-panel-width: 220px;
+
+$icon-size: 35px;
+$icon-size-lg: 40px;
+
+$line-height: 2rem;
+
+$padding-size-sm: .125rem;
+$padding-size: .25rem;
+$padding-size-lg: $padding-size * 2;
+$padding-tb-size: .25rem;
+$padding-lr-size: 1.5rem;
+$node-content-padding: 5px;
+
+%padding { // left/right padding are wider than top/bottom padding
+  padding: $padding-tb-size $padding-lr-size;
+}
+%padding-lr {
+  padding-left: $padding-lr-size;
+  padding-right: $padding-lr-size;
+}
+%padding-tb {
+  padding-top: $padding-tb-size;
+  padding-bottom: $padding-tb-size;
+}
+
+$margin-size-sm: .1rem;
+$margin-size: .5rem;
+$section-margin: 1.25rem;
+$section-margin-sm: .5rem;
+
+%margin-lr-sm {
+  margin-left: $margin-size-sm;
+  margin-right: $margin-size-sm;
+}
+%margin-tb-sm {
+  margin-top: $margin-size-sm;
+  margin-bottom: $margin-size-sm;
+}
+
+%left-panel {
+  position: fixed;
+  top: $navbar-height + $icon-size / 2;
+  padding: $padding-size;
+  @extend %box, %border-touch-left;
+}
+
+%right-panel {
+  position: fixed;
+  top: $navbar-height + $icon-size / 2;
+  background-color: white;
+  right: 0;
+  min-width: 100px;
+  width: auto;
+  @extend %box, %border-touch-right;
+}
+
+%vertical-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  height: 100%;
+}
+
+%divider {
+  margin: $margin-size 0;
+  border-top: 1px solid #ccc;
+  @extend %box-shadow;
+}
+
+%secondary-divider {
+  margin-left: -$padding-lr-size / 2;
+  margin-right: -$padding-lr-size / 2;
+}
+
+%input-label {
+  @extend %vertical-center;
+
+  height: 2.5rem;
+  justify-content: flex-start;
+}
+
+$modal-datatables-search-width: 200px;
+
+$panel-bottom: $icon-size * 2;

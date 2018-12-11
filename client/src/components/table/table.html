@@ -1,0 +1,21 @@
+<!-- node-content -->
+<data-table ref="table"
+  :config="tableConfig"
+  :rowIds="rowIds"
+  @selectRow="onItemSelect"
+  @deselectRow="onItemDeselect"
+  @mousedown.native="onBrushStart"
+  @mousemove.native="onBrushMove"
+  @mouseup.native="onBrushStop"
+  @mouseleave.native="onBrushLeave"
+></data-table>
+<!-- option-panel -->
+<div>
+  <div class="bold">Columns</div>
+  <column-list
+    :value="columns"
+    @input="setColumns"
+    @change="onSelectColumns"
+    :columns="columnSelectOptions"
+  ></column-list>
+</div>

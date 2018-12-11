@@ -1,0 +1,122 @@
+<!-- node-content -->
+<div v-if="mode === 'assignment'" class="display">
+  <template v-if="visuals.color || visuals.border">
+    <i class="color" :style="displayStyle"></i>
+  </template>
+  <template v-else-if="visuals.size !== null || visuals.width !== null || visuals.opacity !== null">
+    <div v-if="visuals.size !== null">size {{ visuals.size }}</div>
+    <div v-if="visuals.width !== null">width {{ visuals.width }}</div>
+    <div v-if="visuals.opacity !== null">opacity {{ visuals.opacity }}</div>
+  </template>
+  <template v-else >
+    <div>(no visuals)</div>
+  </template>
+</div>
+<div v-if="mode === 'encoding'" class="display">
+  <div class="bold" v-if="dataset && encoding.column !== null">{{ dataset.getColumnName(encoding.column) }}</div>
+  <div v-else>(no column)</div>
+  <template v-if="encoding.type === 'color' || encoding.type === 'border'">
+    <div>{{ encoding.type }}</div>
+    <color-scale-display v-if="encoding.colorScaleId" class="color-scale-display"
+      :id="encoding.colorScaleId"></color-scale-display>
+    <div v-else>(no scale)</div>
+  </template>
+  <template v-else-if="encoding.type === 'size' || encoding.type === 'width' || encoding.type === 'opacity'">
+    <div>{{ encoding.type }}</div>
+    <div>[{{ encoding.numericalScale.min }}, {{ encoding.numericalScale.max }}]</div>
+  </template>
+  <template v-else>
+    <div>(no encoding)</div>
+  </template>
+</div>
+
+<!-- option-panel -->
+<div>
+  Mode
+  <form-select v-model="mode"
+    :options="modeOptions"
+    :clearable="false"
+    @change="onSelectMode"
+  ></form-select>
+</div>
+<hr class="divider">
+<div v-if="mode === 'assignment'">
+  <div class="subsection">
+    Color
+    <color-input v-model="visuals.color"
+      @input="setVisualsColor"
+      @change="onInputVisualsColor"
+    ></color-input>
+  </div>
+  <div class="subsection">
+    Border
+    <color-input v-model="visuals.border"
+      @input="setVisualsBorder"
+      @change="onInputVisualsBorder"
+    ></color-input>
+  </div>
+  <div class="subsection">
+    Size
+    <form-input v-model.number="visuals.size"
+      @input="setVisualsSize"
+      @change="onInputVisualsSize"
+      type="float"
+    ></form-input>
+  </div>
+  <div class="subsection">
+    Width
+    <form-input v-model.number="visuals.width"
+      @input="setVisualsWidth"
+      @change="onInputVisualsWidth"
+      type="float"
+    ></form-input>
+  </div>
+  <div class="subsection">
+    Opacity
+    <form-input v-model.number="visuals.opacity"
+      @input="setVisualsOpacity"
+      @change="onInputVisualsOpacity"
+      type="float"
+    ></form-input>
+  </div>
+</div>
+<div v-if="mode === 'encoding'">
+  <div class="subsection">
+    <div>Column</div>
+    <column-select v-model="encoding.column"
+      :columns="columnSelectOptions"
+      :clearable="false"
+      @change="onSelectEncodingColumn"
+    ></column-select>
+  </div>
+  <div class="subsection">
+    <div>Type</div>
+    <form-select v-model="encoding.type"
+      :options="encodingTypeOptions"
+      :clearable="false"
+      @change="onSelectEncodingType"
+    ></form-select>
+  </div>
+  <div class="subsection" v-if="!isNumericalEncoding">
+    <div>Scale</div>
+    <color-scale-select v-model="encoding.colorScaleId"
+      @change="onSelectEncodingColorScale"
+    ></color-scale-select>
+  </div>
+  <template v-if="isNumericalEncoding">
+    <div class="subsection">
+      Min
+      <form-input v-model.number="encoding.numericalScale.min"
+        @input="setEncodingScaleMin"
+        @change="onInputEncodingScaleMin"
+      ></form-input>
+    </div>
+    <div class="subsection">
+      Max
+      <form-input v-model.number="encoding.numericalScale.max"
+        @input="setEncodingScaleMax"
+        @change="onInputEncodingScaleMax"
+      ></form-input>
+    </div>
+  </template>
+</div>

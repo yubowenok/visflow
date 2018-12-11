@@ -1,0 +1,141 @@
+@import '../../common/style/index';
+
+.flowsense-input {
+  position: absolute;
+
+  margin-top: 6rem;
+
+  left: 20%;
+  width: 60%;
+  z-index: $zIndexFlowsenseInput;
+}
+
+.label {
+  position: absolute;
+  background: #666;
+  color: white;
+  font-size: $font-size-sm;
+  left: .25rem;
+  top: -1.25rem;
+
+  border-top-left-radius: $border-radius;
+  border-top-right-radius: $border-radius;
+
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.tag-row {
+  white-space: pre;
+  position: absolute;
+  top: calc(.375rem + 1px);
+  left: calc(.75rem + 1px);
+  pointer-events: none;
+}
+
+.tag-row,
+.dropdown {
+  span.categorized {
+    pointer-events: all;
+    cursor: pointer;
+    padding: $padding-size-sm;
+    margin: 0 calc(-.125rem + .05rem);
+    border-radius: 2px;
+
+    color: #333;
+    opacity: 0.8;
+
+    &.dataset {
+      background-color: #b8e0f9;
+    }
+    &.node-label {
+      background-color: $theme-green-light;
+    }
+    &.column {
+      background-color: $theme-green;
+    }
+    &.node-type {
+      color: white;
+      background-color: $theme-purple;
+    }
+
+    transition: $default-transition-time;
+  }
+}
+
+.tag-row span.categorized:hover {
+  box-shadow: #777 0 0 1px 1px;
+}
+
+.width-calibration {
+  opacity: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+#input {
+  color: rgba(0, 0, 0, 0);
+  caret-color: black;
+}
+
+#buttons {
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  > div {
+    display: inline-block;
+  }
+
+  button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-color: #ced4da;
+    height: 2.35rem;
+  }
+
+  #mic.active {
+    background-color: $theme-green;
+    border-color: #999;
+  }
+
+  .active {
+    #mic {
+      box-shadow: $theme-green 0 0 5px 5px;
+    }
+  }
+
+  #auto-complete {
+    margin-right: -1px;
+  }
+}
+
+.dropdown {
+  position: absolute;
+  background-color: white;
+  @extend %box;
+
+  .dropdown-item {
+    cursor: pointer;
+
+    @extend %list-item;
+
+    .annotation {
+      font-size: .9em;
+      margin-left: $margin-size;
+    }
+
+    &.highlight {
+      background-color: $theme-green-light;
+    }
+  }
+}
+
+.fa-spin {
+  float: right;
+  position: absolute;
+  top: .5rem;
+  left: -1.75rem;
+  font-size: 1.25rem;
+  color: $theme-green;
+}

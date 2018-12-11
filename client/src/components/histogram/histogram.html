@@ -1,0 +1,40 @@
+<!-- node-content -->
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+>
+  <g ref="bars"></g>
+  <g ref="xAxis"></g>
+  <g ref="yAxis"></g>
+  <g ref="brush"></g>
+</svg>
+<!-- option-panel -->
+<div>
+  <div>Column</div>
+  <column-select
+    v-model="column"
+    :columns="columnSelectOptions"
+    @change="onSelectColumn"
+  >
+  </column-select>
+</div>
+<div>
+  Number of Bins
+  <form-input v-model.number="numBins"
+    :disabled="isNumBinsDisabled"
+    @input="setNumBins"
+    @change="onInputNumBins"
+  ></form-input>
+</div>
+<div>
+  Maximum Count
+  <form-input v-model.number="maxCount"
+    @input="setMaxCount"
+    @change="onInputMaxCount"
+  /></form-input>
+</div>
+<div>
+  <b-form-checkbox v-model="useDatasetRange" @input="onToggleUseDatasetRange">Use Dataset Range</b-form-checkbox>
+</div>

@@ -1,0 +1,55 @@
+@import '../../common/style/index';
+
+.port {
+  width: 15px;
+  height: 15px;
+  background-color: white;
+  @extend %box;
+
+  &.constants {
+    background-color: #ddd;
+  }
+
+  &.hover, &:hover {
+    @extend %bold-border;
+  }
+
+  &.active {
+    @extend %extra-bold-border;
+  }
+
+  &.invalid {
+    background-color: #ff7575;
+  }
+}
+
+.icon {
+  @extend %vertical-center;
+  span {
+    display: flex;
+
+    .fas {
+      color: #555;
+    }
+
+    .fa-circle {
+      font-size: 5px;
+    }
+
+    .fa-square {
+      font-size: 9px;
+    }
+
+    .fa-caret-left,
+    .fa-caret-right {
+      font-size: 15px;
+    }
+
+    .fa-caret-right {
+      margin-left: 1px; // slight offset from left to center the caret
+    }
+    .fa-caret-left {
+      margin-right: 1px; // slight offset from right to center the caret
+    }
+  }
+}

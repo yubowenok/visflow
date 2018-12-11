@@ -1,0 +1,9 @@
+@import 'src/common/style/index';
+
+.node-panel {
+  @extend %left-panel;
+  @extend %padding;
+  z-index: $zIndexNodePanel;
+
+  background: white;
+}

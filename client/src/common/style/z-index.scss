@@ -1,0 +1,28 @@
+$zIndexTooltip: 60000;
+
+$zIndexEnlargedNode: 50000;
+$zIndexProgressModalProgressBar: 50000;
+
+$zIndexModalDialog: 40001;
+$zIndexModalBackdrop: 40000;
+
+$zIndexAppHeader: 30001;
+$zIndexSystemMessage: 30000;
+
+$zIndexCanvasCover: 20000;
+
+$zIndexVueColor: 10001;
+$zIndexContextMenu: 10000;
+
+$zIndexFlowsenseInput: 5006;
+$zIndexQuickNodePanel: 5004;
+$zIndexPortPanel: 5003;
+$zIndexOptionPanel: 5002;
+$zIndexHistoryPanel: 5001;
+$zIndexNodePanel: 5001;
+
+$zIndexCanvasSelectBox: 1000;
+
+$zIndexNodeCover: 1;
+$zIndexPort: -1;
+$zIndexPortGroup: 91; // Larger than jQueryUI resizable handler

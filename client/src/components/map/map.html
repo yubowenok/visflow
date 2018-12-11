@@ -1,0 +1,36 @@
+<!-- node-content -->
+<div ref="map" class="leaflet-map" :style="{ 'pointer-events': this.isNavigating ? '' : 'none' }"></div>
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+  :style="{ 'pointer-events': !this.isNavigating ? '' : 'none' }"
+>
+  <g ref="brush"></g>
+</svg>
+<!-- option-panel -->
+<div>
+  <div>Latitude Column</div>
+  <column-select
+    v-model="latitudeColumn"
+    :columns="numericalColumnSelectOptions"
+    @change="onSelectLatitudeColumn"
+  ></column-select>
+</div>
+<div>
+  <div>Longitude Column</div>
+  <column-select
+    v-model="longitudeColumn"
+    :columns="numericalColumnSelectOptions"
+    @change="onSelectLongitudeColumn"
+  ></column-select>
+</div>
+<div>
+  <b-form-checkbox v-model="isNavigating" @input="onToggleNavigating">Navigation</b-form-checkbox>
+</div>
+<!-- context-menu -->
+<li @click="toggleNavigating">
+  <i :class="['far fa-sm', isNavigating ? 'fa-check-square' :  'fa-square']"></i>Navigation
+  <span class="shortcut">N</span>
+</li>

@@ -1,0 +1,55 @@
+@import '../../common/style/index';
+
+.option-panel {
+  @extend %right-panel;
+  bottom: $panel-bottom;
+  z-index: $zIndexOptionPanel;
+  min-width: $min-option-panel-width;
+
+  * {
+    max-width: $max-option-panel-width;
+  }
+
+  > .divider {
+    @extend %divider;
+  }
+
+  /deep/ button.mini.btn-outline-secondary {
+    text-align: center;
+    min-width: 2rem;
+    font-size: .75rem;
+    margin: $margin-size-sm;
+    padding: $padding-size-sm;
+  }
+
+  > .header {
+    margin-top: $margin-size;
+    @extend %padding;
+
+    button.active {
+      background-color: $theme-green;
+    }
+
+    .divider {
+      @extend %secondary-divider;
+
+      margin-top: $margin-size;
+      margin-bottom: $margin-size;
+    }
+  }
+
+  > .content {
+    @extend %padding;
+
+    height: calc(100% - 100px);
+    overflow-y: auto;
+
+    .divider {
+      @extend %secondary-divider;
+    }
+
+    > div {
+      margin-bottom: $section-margin-sm;
+    }
+  }
+}

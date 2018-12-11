@@ -1,0 +1,27 @@
+@import '../../common/style/index';
+
+.square-icon {
+  height: $icon-size;
+  width: $icon-size;
+}
+
+.flat-icon {
+  height: $icon-size / 2;
+  width: $icon-size;
+}
+
+.node-button {
+  display: inline-block;
+  cursor: pointer;
+  transition: all .1s ease-in-out;
+  margin: $margin-size-sm;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+
+  &.ui-draggable-dragging {
+    transition: none;
+    @extend %border;
+  }
+}

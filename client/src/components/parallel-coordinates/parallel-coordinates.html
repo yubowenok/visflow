@@ -1,0 +1,25 @@
+<!-- node-content -->
+<svg ref="svg"
+  @mousedown="onBrushStart"
+  @mousemove="onBrushMove"
+  @mouseup="onBrushStop"
+  @mouseleave="onBrushLeave"
+>
+  <g ref="lines" class="lines"></g>
+  <g ref="axes"></g>
+  <g ref="brush" class="brush"></g>
+</svg>
+<!-- option-panel -->
+<div>
+  <div class="bold">Columns</div>
+  <column-list
+    v-model="columns"
+    :columns="columnSelectOptions"
+    @input="setColumns"
+    @change="onSelectColumns"
+  ></column-list>
+</div>
+<div>
+  <b-form-checkbox v-model="axisMargin" @input="onToggleAxisMargin">Axis Margin</b-form-checkbox>
+  <b-form-checkbox v-model="useDatasetRange" @input="onToggleUseDatasetRange">Use Dataset Range</b-form-checkbox>
+</div>

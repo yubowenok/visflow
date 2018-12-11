@@ -1,0 +1,34 @@
+@import '../../common/style/index';
+
+.visualization {
+  .content > svg {
+    shape-rendering: geometricPrecision;
+    width: 100%;
+    height: 100%;
+
+    text.label {
+      font-family: Arial, sans-serif;
+      fill: black;
+    }
+
+    .x {
+      text.label {
+        text-anchor: end;
+      }
+    }
+
+    .y {
+      text.label {
+        text-anchor: start;
+      }
+    }
+
+    .brush-box {
+      fill: $selected-color;
+      fill-opacity: .5;
+      pointer-events: none;
+      stroke: #333;
+      stroke-width: 1px;
+    }
+  }
+}

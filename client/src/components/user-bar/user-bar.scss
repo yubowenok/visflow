@@ -1,0 +1,25 @@
+@import '../../common/style/index';
+
+.user-bar {
+  margin-left: $margin-size;
+}
+
+.username > * {
+  @extend %padding-tb;
+  @extend %transition;
+  cursor: pointer;
+
+  &:hover {
+    color: $theme-green;
+  }
+}
+
+.logout {
+  margin-left: $margin-size;
+  border: none;
+  color: #555;
+}
+
+div.row {
+  @extend %margin-tb-sm;
+}

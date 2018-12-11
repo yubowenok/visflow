@@ -1,0 +1,30 @@
+@import '../../common/style/index';
+
+#select {
+  /deep/ {
+    .dropdown-toggle {
+      cursor: all-scroll;
+
+      .selected-tag {
+        @extend %border;
+
+        margin: $margin-size-sm 0;
+
+        .close {
+          top: 0;
+        }
+      }
+    }
+  }
+}
+
+.controls {
+  display: flex;
+  margin-top: $section-margin-sm;
+}
+
+.mini {
+  display: inline-flex;
+  justify-content: center;
+  flex: 0 0 32%;
+}

@@ -1,0 +1,65 @@
+@import '../../common/style/index';
+
+.node {
+  position: absolute;
+  font-size: $font-size-sm;
+  overflow: visible;
+
+  > .content {
+    width: 100%;
+    height: 100%;
+    padding: $node-content-padding; // >= 2px to have anti-alias around the boundary
+    overflow: hidden;
+
+    &.disabled {
+      pointer-events: none;
+    }
+  }
+
+  > .background {
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    width: 100%;
+    height: 100%;
+
+    @extend %box;
+
+    &.selected,
+    &.active {
+      @extend %extra-bold-border;
+    }
+  }
+
+  &:hover {
+    > .background {
+      @extend %bold-border;
+    }
+  }
+
+  .port-group {
+    z-index: $zIndexPortGroup;
+  }
+
+  .port-container {
+    position: absolute;
+  }
+
+  // port class assigned by Port component
+  .port-group.left .port {
+    @extend %border-touch-right;
+  }
+  .port-group.right .port {
+    @extend %border-touch-left;
+  }
+
+  > .icon {
+    @extend %vertical-center;
+
+    img {
+      // use 1px to adjust visual offset...
+      width: $icon-size-lg - 1px;
+      height: $icon-size-lg - 1px;
+    }
+  }
+}

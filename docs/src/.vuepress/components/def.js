@@ -1,0 +1,45 @@
+export const VISUALIZATION_TYPES = [
+  'table',
+  'scatterplot',
+  'parallel-coordinates',
+  'histogram',
+  'heatmap',
+  'line-chart',
+  'network',
+  'map',
+];
+
+export const NODE_NAME = {
+  'data-source': 'Data Source',
+  'table': 'Table',
+  'scatterplot': 'Scatterplot',
+  'parallel-coordinates': 'Parallel Coordinates',
+  'histogram': 'Histogram',
+  'heatmap': 'Heatmap',
+  'line-chart': 'Line Chart',
+  'network': 'Network',
+  'map': 'Map',
+  'visual-editor': 'Visual Editor',
+  'attribute-filter': 'Attribute Filter',
+  'set-operator': 'Set Operator',
+  'constants-generator': 'Constants Generator',
+  'linker': 'Linker',
+};
+
+export const NODE_ICON = {
+  'unknown': '',
+  'data-source': '/data-source.svg',
+  'table': '/table.svg',
+  'scatterplot': '/scatterplot.svg',
+  'parallel-coordinates': '/parallel-coordinates.svg',
+  'histogram': '/histogram.svg',
+  'heatmap': '/heatmap.svg',
+  'line-chart': '/line-chart.svg',
+  'network': '/network.svg',
+  'map': '/map.svg',
+  'visual-editor': '/visual-editor.svg',
+  'attribute-filter': '/attribute-filter.svg',
+  'set-operator': '/set-operator.svg',
+  'constants-generator': '/constants-generator.svg',
+  'linker': '/linker.svg',
+};

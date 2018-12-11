@@ -1,0 +1,15 @@
+@import '../../common/style/index';
+
+.selected-tag {
+  .color-scale-display {
+    width: 90%; // accomodate space for the clear button
+    top: .25rem;
+    position: relative;
+  }
+}
+
+.dropdown-menu {
+  .color-scale-display {
+    width: 100%;
+  }
+}
