@@ -51,6 +51,7 @@ export default class Clustering extends SubsetNode {
   private algorithm: ClusteringAlgorithm = ClusteringAlgorithm.K_MEANS;
   private columns: number[] = [];
 
+  private iterationTimer: NodeJS.Timer | null = null;
   private kMeansRunning = false;
 
   private kMeansOptions: KMeansOptions = {
@@ -162,6 +163,7 @@ export default class Clustering extends SubsetNode {
     };
 
     const iterate = () => {
+      clearTimeout(this.iterationTimer as NodeJS.Timer);
       let changed = false;
       const newLabels = rows.map((row, rowIndex) => {
         const prevLabel = row[d];
@@ -203,14 +205,20 @@ export default class Clustering extends SubsetNode {
       if (this.kMeansOptions.outputEachIteration) {
         output();
         if (this.kMeansRunning) {
-          setTimeout(iterate, this.kMeansOptions.iterationInterval);
+          this.iterationTimer = setTimeout(iterate, this.kMeansOptions.iterationInterval);
         }
       } else {
         iterate();
       }
     };
     this.kMeansRunning = true;
-    iterate();
+    if (this.kMeansOptions.outputEachIteration) {
+      output();
+      if (this.iterationTimer !== null) {
+        clearTimeout(this.iterationTimer);
+      }
+      this.iterationTimer = setTimeout(iterate, this.kMeansOptions.iterationInterval);
+    }
   }
 
   private onSelectAlgorithm(algorithm: ClusteringAlgorithm, prevAlgorithm: ClusteringAlgorithm) {

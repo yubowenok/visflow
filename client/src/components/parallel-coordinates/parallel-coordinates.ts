@@ -211,7 +211,7 @@ export default class ParallelCoordinates extends Visualization {
     this.drawAxis(0, this.columns[0]);
     this.updateMargins(() => {
       const maxTickWidth = _.max($(this.$refs.axes as SVGGElement)
-        .find('.axis > .tick > text, .axis > .label')
+        .find(`#axis-${this.columns[0]} > .tick > text, #axis-${this.columns[0]} > .label`)
         .map((index: number, element: SVGGraphicsElement) => element.getBBox().width)) || 0;
       this.margins.left = DEFAULT_PLOT_MARGINS.left + maxTickWidth;
       (this.xScale as AnyScale).range([this.margins.left, this.svgWidth - this.margins.right]);

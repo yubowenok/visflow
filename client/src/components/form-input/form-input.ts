@@ -121,7 +121,8 @@ export default class FormInput extends Vue {
   }
 
   private updateSelectionRange() {
-    if (!this.selectionRange) {
+    if (!$(this.$refs.input).length) {
+      // Due to animated UI, the input may have been destructed.
       return;
     }
     this.prevSelectionRange = this.selectionRange;
