@@ -71,13 +71,15 @@ Log.find({}, (err, logEntries) => {
       }
       if (log.type === 'experiment-step') {
         const step = log.data.step;
+        stepIndex = def.EXPERIMENT_STEPS.indexOf(step);
         if (step === 'overview') {
           lastTimestamp = log.timestamp;
         } else { // the step has advanced, increase the stepTimes
-          stepTimes[stepIndex] += log.timestamp - lastTimestamp;
+          // Count the time towards the step ahead of this, because when a person clicks next, the time was spent
+          // on the step before the newly reached step.
+          stepTimes[stepIndex - 1] += log.timestamp - lastTimestamp;
           lastTimestamp = log.timestamp;
         }
-        stepIndex = def.EXPERIMENT_STEPS.indexOf(step);
       } else if (log.type === 'load-diagram') {
         // The user refreshes the session. "lastTimestamp" is updated so that we don't count the time the user is out.
         lastTimestamp = log.timestamp;
