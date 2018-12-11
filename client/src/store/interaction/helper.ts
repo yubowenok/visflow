@@ -84,6 +84,7 @@ export const keyStroke = (state: InteractionState, keys: string, evt: JQuery.Eve
     case 'shift+s':
       if (store.state.flowsense.enabled) {
         store.commit('flowsense/openInput');
+        state.shiftPressed = false;
       }
       break;
     default:

@@ -163,7 +163,7 @@ export default class Clustering extends SubsetNode {
     };
 
     const iterate = () => {
-      clearTimeout(this.iterationTimer as NodeJS.Timer);
+      this.clearIterationTimer();
       let changed = false;
       const newLabels = rows.map((row, rowIndex) => {
         const prevLabel = row[d];
@@ -214,10 +214,10 @@ export default class Clustering extends SubsetNode {
     this.kMeansRunning = true;
     if (this.kMeansOptions.outputEachIteration) {
       output();
-      if (this.iterationTimer !== null) {
-        clearTimeout(this.iterationTimer);
-      }
+      this.clearIterationTimer();
       this.iterationTimer = setTimeout(iterate, this.kMeansOptions.iterationInterval);
+    } else {
+      iterate();
     }
   }
 
@@ -233,6 +233,14 @@ export default class Clustering extends SubsetNode {
 
   private stopKMeans() {
     this.kMeansRunning = false;
+    this.clearIterationTimer();
+  }
+
+  private clearIterationTimer() {
+    if (this.iterationTimer !== null) {
+      clearTimeout(this.iterationTimer);
+      this.iterationTimer = null;
+    }
   }
 
   private onInputKMeansK(k: number, prevK: number) {
