@@ -62,6 +62,8 @@ interface EncodingParams {
 export default class VisualEditor extends SubsetNode {
   protected NODE_TYPE = 'visual-editor';
   protected RESIZABLE = true;
+  protected DEFAULT_WIDTH = 60;
+  protected DEFAULT_HEIGHT = 60;
 
   private mode: VisualEditorMode = VisualEditorMode.ASSIGNMENT;
   private visuals: NullableVisualProperties = {
