@@ -15,21 +15,17 @@ footer: BSD-3 Licensed | © 2016-present Bowen Yu
   </p>
 </div>
 
-
-<!-- <p class="text-box" style="padding: 1rem; width: 90%; margin: 0 auto; position: relative;">-->
 VisFlow is a web-based dataflow framework for visual data exploration.
 It employs a [subset dataflow](/dataflow/subsetflow.md) that allows the user to interactively select, manipulate, brush and link data subsets across multiple visualizations.
 VisFlow is simple and intuitive to use and can help fast launch data analyses in a web browser.
+See the video below for a short overview of the system.
 Follow the <router-link to="/get-started/">tutorial</router-link> to start your visualization and data exploration.
 
-<!--
-// Check out the video below to see it in action.
 <div style="width: 80%; margin: 20px auto;">
-<video width="100%" controls="">
-  <source src="/video/intro.mp4" type="/video/mp4"/>
-</video>
+  <video width="100%" controls>
+    <source src="https://visflow.org/files/visflow.mp4"/>
+  </video>
 </div>
--->
 
 **Publication**
 Bowen Yu, and Claudio T. Silva.
