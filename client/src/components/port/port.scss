@@ -21,35 +21,43 @@
   &.invalid {
     background-color: #ff7575;
   }
-}
 
-.icon {
-  @extend %vertical-center;
-  span {
-    display: flex;
+  .icon {
+    @extend %vertical-center;
+    span {
+      display: flex;
 
-    .fas {
-      color: #555;
+      .fas {
+        color: #555;
+      }
+
+      .fa-circle {
+        font-size: 5px;
+      }
+
+      .fa-square {
+        font-size: 9px;
+      }
+
+      .fa-caret-right {
+        margin-left: 1px; // slight offset from left to center the caret
+      }
+      .fa-caret-left {
+        margin-right: 1px; // slight offset from right to center the caret
+      }
+
+      .fa-caret-left,
+      .fa-caret-right {
+        font-size: 14px;
+      }
     }
+  }
 
-    .fa-circle {
-      font-size: 5px;
-    }
-
-    .fa-square {
-      font-size: 9px;
-    }
-
+  // Adjust for minor shifting of fa-caret.
+  &:hover .icon {
     .fa-caret-left,
     .fa-caret-right {
-      font-size: 15px;
-    }
-
-    .fa-caret-right {
-      margin-left: 1px; // slight offset from left to center the caret
-    }
-    .fa-caret-left {
-      margin-right: 1px; // slight offset from right to center the caret
+      margin-top: -1px;
     }
   }
 }

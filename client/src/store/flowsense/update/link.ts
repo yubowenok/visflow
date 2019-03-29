@@ -6,6 +6,7 @@ import { Node } from '@/components/node';
 import Edge from '@/components/edge/edge';
 import { SubsetNode } from '@/components/subset-node';
 import Linker from '@/components/linker/linker';
+import { Visualization } from '@/components/visualization';
 
 
 /**
@@ -25,10 +26,10 @@ export const linkNodes = (tracker: FlowsenseUpdateTracker, value: QueryValue, qu
       tracker.cancel('cannot create linker without source node');
       return;
     }
-    sources = ([{
+    sources = sources.concat([{
       node: focused,
       port: (focused as SubsetNode).getSubsetOutputPort(),
-    }] as QuerySource[]).concat(sources);
+    }] as QuerySource[]);
   } else { // sources.length === 2
     if (spec.filterColumn === undefined) {
       spec.filterColumn = spec.extractColumn;
@@ -36,7 +37,6 @@ export const linkNodes = (tracker: FlowsenseUpdateTracker, value: QueryValue, qu
   }
   const sourceNode = sources[0].node;
   const sourcePort = sources[0].port;
-
   const nodeSave: { extractColumn?: number, filterColumn?: number } = {};
 
   let extractColumn: number | null = null;
@@ -49,6 +49,13 @@ export const linkNodes = (tracker: FlowsenseUpdateTracker, value: QueryValue, qu
     }
     nodeSave.extractColumn = extractColumn;
   }
+
+  // When there is a column to extract but not a column to fill, and a second source node is present,
+  // we have a link pair and should just use the extract column as the filter column.
+  if (spec.filterColumn === undefined && sources[1]) {
+    spec.filterColumn = spec.extractColumn;
+  }
+
   let filterColumn: number | null = null;
   if (spec.filterColumn !== undefined) {
     if (!sources[1]) {
@@ -70,7 +77,9 @@ export const linkNodes = (tracker: FlowsenseUpdateTracker, value: QueryValue, qu
   tracker.createNode(linker);
 
   if (extractColumn !== null) {
-    const edgeFromExtractSource = util.createEdge(sourcePort, linker.getSubsetInputPort(), false) as Edge;
+    const edgeFromExtractSource = util.createEdge(
+      util.isVisualization(sourceNode) ? (sourceNode as Visualization).getSelectionPort() : sourcePort,
+      linker.getSubsetInputPort(), false) as Edge;
     tracker.createEdge(edgeFromExtractSource);
 
     propagateSources.push(sourceNode);

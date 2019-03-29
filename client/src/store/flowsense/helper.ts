@@ -210,6 +210,7 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
     }
     return [ { node, port: (node as SubsetNode).getSubsetOutputPort() } ];
   }
+
   let errored = false;
   const sources = value.source.map(spec => {
     let node: Node | undefined;
@@ -260,6 +261,15 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
   const results = value.target.map(spec => {
     let node: Node | undefined;
     if (spec.isCreate) {
+      // If the query is to add a filter, and we currently focus on visualization,
+      // then apply filter before the visualization.
+      if (value.filters) {
+        node = util.getDefaultSources()[0];
+        if (node && util.isVisualization(node)) {
+          return { node, port: (node as SubsetNode).getSubsetInputPort() };
+        }
+      }
+
       let nodeType = spec.id;
       if (nodeType === FlowsenseDef.DEFAULT_CHART_TYPE) {
         // Choose default chart type here
@@ -390,7 +400,7 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
 
   // Applies chart's column settings when the diagram completes.
   const visualizationTarget = targets.find(target => (target.node as Visualization).isVisualization);
-  if (visualizationTarget) {
+  if (visualizationTarget && !value.filters) {
     update.completeChart(tracker, value, query, sources, visualizationTarget, onlyCreateChart);
     message += (message ? ' ' : '') + 'visualization';
   }

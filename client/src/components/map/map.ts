@@ -18,7 +18,6 @@ import { SELECTED_COLOR } from '@/common/constants';
 import { isNumericalType } from '@/data/util';
 import * as history from './history';
 import { showSystemMessage } from '@/common/util';
-import { ValueType } from '@/data/parser';
 
 const MAP_ATTRIBUTION = `<a href="http://mapbox.com" target="_blank">© Mapbox</a> |
   <a href="http://openstreetmap.org" target="_blank">© OpenStreetMap</a> |
@@ -178,7 +177,7 @@ export default class Map extends Visualization {
   }
 
   protected isDraggable(evt: MouseEvent, ui?: JQueryUI.DraggableEventUIParams) {
-    if (this.isContentVisible && this.isNavigating) {
+    if (this.isContentVisible && this.isNavigating && !this.isAltPressed) {
       return false; // If the map is in navigation mode, then node drag is disabled.
     }
     return this.isDraggableBase(evt);
@@ -310,19 +309,34 @@ export default class Map extends Visualization {
     this.$nextTick(() => (this.map as LeafletMap).invalidateSize());
   }
 
+  private enableZoom() {
+    if (!this.map) {
+      return;
+    }
+    this.map.dragging.enable();
+    this.map.scrollWheelZoom.enable();
+    this.map.boxZoom.enable();
+  }
+
+  private disableZoom() {
+    if (!this.map) {
+      return;
+    }
+    this.map.dragging.disable();
+    this.map.scrollWheelZoom.disable();
+    this.map.boxZoom.disable();
+  }
+
+
   private onMapMousedown(evt: MouseEvent) {
-    if (!this.isNavigating && this.map) {
-      this.map.dragging.disable();
-      this.map.scrollWheelZoom.disable();
-      this.map.boxZoom.disable();
+    if (!this.isNavigating) {
+      this.disableZoom();
     }
   }
 
   private onMapMouseup(evt: MouseEvent) {
-    if (!this.isNavigating && this.map) {
-      this.map.dragging.enable();
-      this.map.scrollWheelZoom.enable();
-      this.map.boxZoom.enable();
+    if (this.isNavigating) {
+      this.enableZoom();
     }
   }
 
