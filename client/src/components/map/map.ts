@@ -262,6 +262,7 @@ export default class Map extends Visualization {
         weight: props.visuals.width,
         fillColor: props.visuals.color,
         opacity: props.visuals.opacity,
+        fillOpacity: props.visuals.opacity,
       });
     });
   }

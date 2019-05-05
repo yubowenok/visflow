@@ -21,7 +21,6 @@ import {
 import { showSystemMessage } from '@/common/util';
 import { AutoLayoutResult } from '@/store/dataflow/layout';
 import { autoLayout as dataflowAutoLayout } from '@/store/dataflow/layout';
-import { QueryValue } from '@/store/flowsense/types';
 import { InjectedQuery } from '@/store/flowsense/helper';
 
 const dataflow = (): DataflowState => store.state.dataflow;

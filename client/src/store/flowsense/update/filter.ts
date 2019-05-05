@@ -90,7 +90,7 @@ export const createFilter = (tracker: FlowsenseUpdateTracker, value: QueryValue,
     const visualization = targets[0].node as Visualization;
     createdFilter.moveBy(
       visualization.getBoundingBox().x - createdFilter.getBoundingBox().x - FILTER_OFFSET_PX,
-      visualization.getBoundingBox().y - createdFilter.getBoundingBox().y + visualization.getBoundingBox().height / 2,
+      visualization.getBoundingBox().y - createdFilter.getBoundingBox().y,
     );
     const edgeToDownflow = util.createEdge(createdFilter.getSubsetOutputPort(),
       (targets[0].node as Visualization).getSubsetInputPort(), false);

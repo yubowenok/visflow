@@ -41,7 +41,7 @@ export const getScale = (type: ValueType, domain: Array<number | string>, range:
                          options?: GetScaleOptions): Scale => {
   options = options || {};
   const domainMargin = options.domainMargin !== undefined ? options.domainMargin : .1;
-  if (options.rangeMargin) {
+  if (options.rangeMargin !== undefined) {
     const span = range[1] - range[0];
     range[0] -= span * options.rangeMargin;
     range[1] += span * options.rangeMargin;

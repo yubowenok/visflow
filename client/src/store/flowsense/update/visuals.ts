@@ -67,8 +67,7 @@ const createVisualEditor = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
       }
 
       // Move the visuals node to the input side of the visualization.
-      visualEditor.moveBy(source.getBoundingBox().x - visualEditor.getBoundingBox().x - VISUAL_EDITOR_X_OFFSET_PX,
-        source.getBoundingBox().height / 2);
+      visualEditor.moveBy(source.getBoundingBox().x - visualEditor.getBoundingBox().x - VISUAL_EDITOR_X_OFFSET_PX, 0);
 
       const inputEdge = inputEdges[0];
       const upflowPort = inputEdge.source;
