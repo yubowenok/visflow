@@ -1,4 +1,5 @@
 <template>
+<form id="table-form-wrapper" autocomplete="off"> <!-- required to disable browser auto-filling the datatable search box -->
 <div id="table" v-global-click="globalClick">
   <div v-show="false"> <!-- Provides table template which DataTables can initialize with. -->
     <!--
@@ -11,6 +12,7 @@
     </table>
   </div>
 </div>
+</form>
 </template>
 
 <style scoped lang="scss" src="./data-table.scss"></style>

@@ -63,13 +63,18 @@ export const createFilter = (tracker: FlowsenseUpdateTracker, value: QueryValue,
     }
     insertBeforeVisualization = true;
 
-    const inputEdge = inputEdges[0];
-    const upflowPort = inputEdge.source;
-    util.removeEdge(inputEdge, false);
-    tracker.removeEdge(inputEdge);
+    if (inputEdges.length) {
+      // Change the input edge to the visualization and insert a filter on it.
+      // If the target visualization is newly created, then do not do this,
+      // as there is no existing input edge going to the visualization.
+      const inputEdge = inputEdges[0];
+      const upflowPort = inputEdge.source;
+      util.removeEdge(inputEdge, false);
+      tracker.removeEdge(inputEdge);
 
-    // Use the upflow of the visualization as the source.
-    sources[0] = { node: upflowPort.node, port: upflowPort };
+      // Use the upflow of the visualization as the source.
+      sources[0] = { node: upflowPort.node, port: upflowPort };
+    }
   }
 
   const source = sources[0].node as SubsetNode;

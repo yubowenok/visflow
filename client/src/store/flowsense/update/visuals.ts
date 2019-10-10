@@ -43,10 +43,14 @@ const createVisualEditor = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
         type: encoding.type,
       };
       encodingColumn = util.getColumnMarkerIndex(query, nodeWithData as SubsetNode, encoding.column);
+
       if (typeof encoding.scale === 'string') {
-        nodeSave.colorScaleId = encoding.scale; // color scale id
+        nodeSave.encoding.colorScaleId = encoding.scale; // color scale id
       } else {
-        nodeSave.numericalScale = encoding.scale; // numerical range
+        nodeSave.encoding.numericalScale = {
+          min: encoding.scale[0], // numerical range
+          max: encoding.scale[1],
+        };
       }
       break;
   }
