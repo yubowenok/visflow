@@ -42,7 +42,8 @@ const createVisualEditor = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
       nodeSave.encoding = {
         type: encoding.type,
       };
-      encodingColumn = util.getColumnMarkerIndex(query, nodeWithData as SubsetNode, encoding.column);
+      encodingColumn = encoding.column === '' ? 0 : // be careful with default scale without column
+        util.getColumnMarkerIndex(query, nodeWithData as SubsetNode, encoding.column);
 
       if (typeof encoding.scale === 'string') {
         nodeSave.encoding.colorScaleId = encoding.scale; // color scale id
@@ -167,7 +168,8 @@ export const updateVisualEditor = (tracker: FlowsenseUpdateTracker, value: Query
     const current = visualEditor.getVisualsEncoding();
 
     const encodingType = encoding.type as VisualPropertyType;
-    const encodingColumn = util.getColumnMarkerIndex(query, visualEditor, encoding.column);
+    const encodingColumn = encoding.column === '' ? 0 : // careful with default encoding without column
+      util.getColumnMarkerIndex(query, visualEditor, encoding.column);
     tracker.changeNodeOption(visualEditorHistory.selectEncodingColumnEvent(visualEditor, encodingColumn,
       current.column));
     visualEditor.setEncodingColumn(encodingColumn);

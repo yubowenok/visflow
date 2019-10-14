@@ -78,10 +78,15 @@ export const createFilter = (tracker: FlowsenseUpdateTracker, value: QueryValue,
   }
 
   const source = sources[0].node as SubsetNode;
-  const columnIndex = util.getColumnMarkerIndex(query, source, filterSpec.column);
-  if (columnIndex === null) {
-    tracker.cancel(`column ${filterSpec.column} cannot be found`);
-    return;
+
+  // If the column is an empty string, then we create a default filter on the default column (first column).
+  let columnIndex = 0;
+  if (filterSpec.column !== '') {
+    columnIndex = util.getColumnMarkerIndex(query, source, filterSpec.column) as number;
+    if (columnIndex === null) {
+      tracker.cancel(`column ${filterSpec.column} cannot be found`);
+      return;
+    }
   }
   nodeSave.column = columnIndex;
 

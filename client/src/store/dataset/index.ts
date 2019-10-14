@@ -12,6 +12,7 @@ const getDatasetFromCache = (cache: DatasetCache, key: string): CachedDataset | 
 const initialState: DatasetState = {
   lastList: [],
   cache: {},
+  hasDataset: false,
 };
 
 const mutations = {
@@ -29,11 +30,12 @@ const mutations = {
 const actions = {
   getDataset(context: ActionContext<DatasetState, RootState>, options: GetDatasetOptions): Promise<string> {
     const username = options.username || '';
-    const key = options.username + ',' + options.filename;
+    const key = username + ',' + options.filename;
     const cached = getDatasetFromCache(context.state.cache, key);
     if (cached) {
       return new Promise(resolve => {
         resolve(cached.data);
+        context.state.hasDataset = true;
       });
     }
 
@@ -45,6 +47,7 @@ const actions = {
             data: res.data,
           });
           resolve(res.data);
+          context.state.hasDataset = true;
         })
         .catch(err => reject(errorMessage(err)));
     });

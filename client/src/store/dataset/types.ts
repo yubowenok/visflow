@@ -1,6 +1,7 @@
 export interface DatasetState {
   cache: DatasetCache;
   lastList: DatasetInfo[];
+  hasDataset: boolean;
 }
 
 export interface DatasetInfo {
