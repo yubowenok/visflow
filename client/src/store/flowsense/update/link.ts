@@ -26,10 +26,12 @@ export const linkNodes = (tracker: FlowsenseUpdateTracker, value: QueryValue, qu
       tracker.cancel('cannot create linker without source node');
       return;
     }
-    sources = sources.concat([{
-      node: focused,
-      port: (focused as SubsetNode).getSubsetOutputPort(),
-    }] as QuerySource[]);
+    if (focused !== null && focused !== sources[0].node) {
+      sources = sources.concat([{
+        node: focused,
+        port: (focused as SubsetNode).getSubsetOutputPort(),
+      }] as QuerySource[]);
+    }
   } else { // sources.length === 2
     if (spec.filterColumn === undefined) {
       spec.filterColumn = spec.extractColumn;
