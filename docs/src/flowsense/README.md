@@ -7,12 +7,19 @@ You may also press the shortcut <shortcut-key :keys="['shift', 'S']"/> to open t
 
 ## Examples
 The input provided to FlowSense must be a natural language sentence that specifies a diagram editing operation.
-Some example inputs include (in the context of the cars dataset):
+The following list shows some example inputs in the context of the car/gdp dataset.
+::: tip Note
+You must load the dataset before trying everything else.
+You may load the dataset by the first input below: load <fs-tag type="dataset" text="car"/> dataset.
+Otherwise the system cannot identify the dataset specific elements such as table column names.
+:::
+
+- load <fs-tag type="dataset" text="car"/> dataset
 - draw a plot
 - show the cars
 - create a <fs-tag type="node-type" text="scatterplot"/> of <fs-tag type="column" text="mpg"/> and <fs-tag type="column" text="cylinders"/>
 - show a <fs-tag type="node-type" text="parallel coordinates"/> for all the columns
-- show <fs-tag type="column" text="GDP(Billion US$)"/> series over <fs-tag type="column" text="year"/> grouped by <fs-tag type="column" text="Country Code"/>
+- show <fs-tag type="column" text="GDP(Billion US$)"/> series over <fs-tag type="column" text="year"/> grouped by <fs-tag type="column" text="Country Code"/> _*gdp dataset_
 - visualize the distribution of <fs-tag type="column" text="mpg"/>
 - show the selection in a <fs-tag type="node-type" text="scatterplot"/>
 - find the cars with maximum <fs-tag type="column" text="mpg"/>
@@ -28,7 +35,6 @@ Some example inputs include (in the context of the cars dataset):
 - link the cars by <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/>
 - connect the <fs-tag type="node-type" text="scatterplot"/> with the <fs-tag type="node-type" text="table"/>
 - disconnect <fs-tag type="node-label" text="node-1"/> from <fs-tag type="node-label" text="node-2"/>
-- load <fs-tag type="dataset" text="car"/> dataset
 
 ## Functionality
 FlowSense facilitates diagram editing and its main goal is to facilitate node and edge creation along with visual property editing.
