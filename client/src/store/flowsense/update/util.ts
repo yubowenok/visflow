@@ -138,6 +138,14 @@ export const createNode = (options: CreateNodeOptions, nodeSave?: object): Node 
 };
 
 /**
+ * Provides removeNode wrapper.
+ */
+export const removeNode = (node: Node, propagate: boolean): Edge[] => {
+  const { removedEdges } = dataflowHelper.removeNode(dataflow(), node, propagate);
+  return removedEdges;
+};
+
+/**
  * Provides createEdge wrapper.
  */
 export const createEdge = (sourcePort: OutputPort, targetPort: InputPort, propagate: boolean): Edge | null => {

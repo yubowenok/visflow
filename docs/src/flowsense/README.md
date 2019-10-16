@@ -1,17 +1,25 @@
 # FlowSense
 
 ![flowsense](./flowsense.png)
-_FlowSense_ is the natural language interface that assists with dataflow diagram editing in VisFlow.
+_FlowSense_ is the natural language interface (NLI) that assists with dataflow diagram editing in VisFlow.
+See the following VAST fast forward video for a short summary of the NLI.
+
+<div style="width: 100%; margin: 20px;">
+  <iframe src="https://player.vimeo.com/video/360154533" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen>
+  </iframe>
+</div>
+
+
 To use FlowSense, right click on the canvas or a diagram element and choose <ui-button text="FlowSense"/>.
 You may also press the shortcut <shortcut-key :keys="['shift', 'S']"/> to open the FlowSense input.
 
 ## Examples
 The input provided to FlowSense must be a natural language sentence that specifies a diagram editing operation.
-The following list shows some example inputs in the context of the car/gdp dataset.
+The following list shows some example inputs in the context of the sample car/gdp dataset.
 ::: tip Note
-You must load the dataset before trying everything else.
+You must load the sample dataset before trying the other natural language inputs.
 You may load the dataset by the first input below: load <fs-tag type="dataset" text="car"/> dataset.
-Otherwise the system cannot identify the dataset specific elements such as table column names.
+The system cannot identify the dataset specific elements such as table column names without a loaded dataset in the dataflow.
 :::
 
 - load <fs-tag type="dataset" text="car"/> dataset
@@ -33,6 +41,7 @@ Otherwise the system cannot identify the dataset specific elements such as table
 - merge the data from <fs-tag type="node-label" text="node-1"/> with <fs-tag type="node-label" text="node-2"/>
 - find the cars with a same <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/>
 - link the cars by <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/>
+- remove <fs-tag type="node-label" text="node-1"/>
 - connect the <fs-tag type="node-type" text="scatterplot"/> with the <fs-tag type="node-type" text="table"/>
 - disconnect <fs-tag type="node-label" text="node-1"/> from <fs-tag type="node-label" text="node-2"/>
 
@@ -50,6 +59,7 @@ The functionality FlowSense performs can be categorized into the following FlowS
 | Highlighting | highlight the selected cars in a <fs-tag type="node-type" text="histogram"/> | View the characteristics of one subset among its superset or another subset |
 | Linking | find the cars with a same <fs-tag type="column" text="name"/> from <fs-tag type="node-label" text="node-1"/> | Perform [linking](/dataflow/linking.md) between two tables |
 | Edge Editing | connect/disconnect the <fs-tag type="node-type" text="scatterplot"/> and <fs-tag type="node-label" text="node-2"/> | Add/remove diagram edges |
+| Node Editing | remove <fs-tag type="node-label" text="node-1"/> | Rremove diagram node |
 | Data Loading | load <fs-tag type="dataset" text="car"/> dataset | Create a data source to load a given dataset |
 | Layout Adjustment | adjust the diagram layout | Automatcially adjust dataflow diagram layout |
 

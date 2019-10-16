@@ -31,11 +31,13 @@ export default class FlowsenseUpdateTracker {
   private injectedQuery: string = '';
   private rawQuery: string = '';
   private createdNodes: Node[] = [];
+  private removedNodes: Node[] = [];
   private createdEdges: Edge[] = [];
   private removedEdges: Edge[] = [];
   private events: HistoryEvent[] = [];
   private nodeOptionEvents: HistoryNodeOptionEvent[] = [];
   private eventIndexToCreatedNode: { [index: number]: Node } = {};
+  private eventIndexToRemovedNode: { [index: number]: Node } = {};
   private nodesToAutoLayout: Node[] = [];
   private nodeToCenterAt: Node | null = null;
   private nodeToConnectToTarget: Node | null = null;
@@ -49,6 +51,12 @@ export default class FlowsenseUpdateTracker {
     this.createdNodes.push(node);
     this.events.push(dataflowHistory.createNodeEvent(node, dataflow().nodes));
     this.eventIndexToCreatedNode[this.events.length - 1] = node;
+  }
+
+  public removeNode(node: Node) {
+    this.removedNodes.push(node);
+    this.events.push(dataflowHistory.removeNodeEvent(node, dataflow().nodes));
+    this.eventIndexToRemovedNode[this.events.length - 1] = node;
   }
 
   public createEdge(edge: Edge) {
