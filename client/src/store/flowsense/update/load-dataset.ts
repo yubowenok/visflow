@@ -42,16 +42,18 @@ export const loadDataset = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
     }
     const edge = util.createEdge(dataSource.getSubsetOutputPort(), targets[0].port, false) as Edge;
     tracker.createEdge(edge);
-
-    if (!isDataSourceCreated) {
-      // Technical caveat: chart column settings are only supported when there exists a data source that
-      // loads the requested dataset. If this is not the case, query injection has no idea of what columns are present
-      // and thus columns cannot be successfully set. This would result in a new plot created with default columns,
-      // ignoring column specifications.
-      setChartColumns(tracker, value, query, targets[0].node as Visualization, dataSource);
-    }
   }
 
   tracker.toAutoLayout(util.getNearbyNodes(dataSource));
+
   util.propagateNodes([dataSource]);
+
+  // First propagate and then apply columns. Otherwise the columns may be overwritten.
+  if (targets.length && !isDataSourceCreated) {
+    // Technical caveat: chart column settings are only supported when there exists a data source that
+    // loads the requested dataset. If this is not the case, query injection has no idea of what columns are present
+    // and thus columns cannot be successfully set. This would result in a new plot created with default columns,
+    // ignoring column specifications.
+    setChartColumns(tracker, value, query, targets[0].node as Visualization, dataSource);
+  }
 };

@@ -47,6 +47,7 @@ export const setChartColumns = (tracker: FlowsenseUpdateTracker, value: QueryVal
       columnIndices.push(groupByColumnIndex);
     }
   }
+
   chart.applyColumns(columnIndices);
 };
 

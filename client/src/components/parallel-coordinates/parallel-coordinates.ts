@@ -93,6 +93,7 @@ export default class ParallelCoordinates extends Visualization {
   }
 
   public applyColumns(columns: number[]) {
+    columns = _.uniq(columns);
     if (!columns.length) {
       this.findDefaultColumns();
     } else {

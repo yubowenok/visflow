@@ -15,6 +15,7 @@ import { Node } from '@/components/node';
 import { Visualization } from '@/components/visualization';
 import FlowsenseUpdateTracker from '@/store/flowsense/update/tracker';
 import { randomInt } from '@/common/util';
+import { ValueType } from '@/data/parser';
 
 
 interface InjectedToken {
@@ -252,7 +253,8 @@ const getQuerySources = (value: QueryValue, query: InjectedQuery, tracker: Flows
  * Parses the query target field and returns the ejected query targets.
  * Creates the target nodes if the specification indicates new node creation.
  */
-const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: FlowsenseUpdateTracker): QueryTarget[] => {
+const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: FlowsenseUpdateTracker,
+                         sources: QuerySource[]): QueryTarget[] => {
   // A query may have no targets.
   if (!value.target) {
     return [];
@@ -287,6 +289,15 @@ const getQueryTargets = (value: QueryValue, query: InjectedQuery, tracker: Flows
           // 3 or more: parallel coordinates
           const numColumns = value.columns ? value.columns.length : 2;
           nodeType = numColumns >= 3 ? 'parallel-coordinates' : (numColumns === 1 ? 'histogram' : 'scatterplot');
+
+          // show table for 1D string data
+          if (numColumns === 1 && sources.length) {
+            const chartSource = sources[0].node as SubsetNode;
+            const columnIndex = util.getColumnMarkerIndex(query, chartSource, (value.columns as string[])[0]) as number;
+            if (chartSource.getDataset().getColumnType(columnIndex) === ValueType.STRING) {
+              nodeType = 'table';
+            }
+          }
         }
       } else if (nodeType === FlowsenseDef.SERIES_CHART_TYPE) {
         nodeType = 'line-chart';
@@ -327,7 +338,7 @@ export const executeQuery = (value: QueryValue, query: InjectedQuery) => {
 
   const tracker = new FlowsenseUpdateTracker(query);
   const sources = getQuerySources(value, query, tracker);
-  const targets = getQueryTargets(value, query, tracker);
+  const targets = getQueryTargets(value, query, tracker, sources || []);
   let message = 'create ';
 
   // undo and redo do not affect diagram layout
