@@ -56,8 +56,11 @@ In IEEE Transactions on Visualization and Computer Graphics (Proc. VAST), 2019.
   author = {B. {Yu} and C. T. {Silva}},
   journal = {IEEE Transactions on Visualization and Computer Graphics},
   title = {FlowSense: A Natural Language Interface for Visual Data Exploration within a Dataflow System},
-  year = {2019},
+  year = {2020},
+  volume = {26},
+  number = {1},
   doi = {10.1109/TVCG.2019.2934668},
+  pages = {1-11},
 }">
 </bibtex>
 </p>
