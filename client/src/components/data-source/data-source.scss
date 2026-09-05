@@ -4,8 +4,7 @@
   @extend %vertical-center;
 
   > i {
-    margin: $margin-size;
-    margin-left: -$margin-size;
+    margin-right: $margin-size;
     color: #333;
   }
 }

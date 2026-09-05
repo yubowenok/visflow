@@ -75,3 +75,20 @@ The distribution files for the documentation are located at ``docs/dist``.
 ### FlowSense Setup
 
 Setting up FlowSense is currently not supported.
+
+### Publication
+Bowen Yu, and Claudio T. Silva.
+_VisFlow – Web-based Visualization Framework for Tabular Data with a Subset Flow Model._
+In IEEE Transactions on Visualization and Computer Graphics (Proc. VAST), 2017.
+```
+@ARTICLE{YuB17,
+  author = {B. {Yu} and C. T. {Silva}},
+  journal = {IEEE Transactions on Visualization and Computer Graphics},
+  title = {VisFlow - Web-based Visualization Framework for Tabular Data with a Subset Flow Model},
+  year = {2017},
+  volume = {23},
+  number = {1},
+  pages = {251-260},
+  doi = {10.1109/TVCG.2016.2598497},
+}
+```

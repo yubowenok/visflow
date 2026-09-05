@@ -42,11 +42,16 @@ const createVisualEditor = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
       nodeSave.encoding = {
         type: encoding.type,
       };
-      encodingColumn = util.getColumnMarkerIndex(query, nodeWithData as SubsetNode, encoding.column);
+      encodingColumn = encoding.column === '' ? 0 : // be careful with default scale without column
+        util.getColumnMarkerIndex(query, nodeWithData as SubsetNode, encoding.column);
+
       if (typeof encoding.scale === 'string') {
-        nodeSave.colorScaleId = encoding.scale; // color scale id
+        nodeSave.encoding.colorScaleId = encoding.scale; // color scale id
       } else {
-        nodeSave.numericalScale = encoding.scale; // numerical range
+        nodeSave.encoding.numericalScale = {
+          min: encoding.scale[0], // numerical range
+          max: encoding.scale[1],
+        };
       }
       break;
   }
@@ -67,8 +72,7 @@ const createVisualEditor = (tracker: FlowsenseUpdateTracker, value: QueryValue, 
       }
 
       // Move the visuals node to the input side of the visualization.
-      visualEditor.moveBy(source.getBoundingBox().x - visualEditor.getBoundingBox().x - VISUAL_EDITOR_X_OFFSET_PX,
-        source.getBoundingBox().height / 2);
+      visualEditor.moveBy(source.getBoundingBox().x - visualEditor.getBoundingBox().x - VISUAL_EDITOR_X_OFFSET_PX, 0);
 
       const inputEdge = inputEdges[0];
       const upflowPort = inputEdge.source;
@@ -164,7 +168,8 @@ export const updateVisualEditor = (tracker: FlowsenseUpdateTracker, value: Query
     const current = visualEditor.getVisualsEncoding();
 
     const encodingType = encoding.type as VisualPropertyType;
-    const encodingColumn = util.getColumnMarkerIndex(query, visualEditor, encoding.column);
+    const encodingColumn = encoding.column === '' ? 0 : // careful with default encoding without column
+      util.getColumnMarkerIndex(query, visualEditor, encoding.column);
     tracker.changeNodeOption(visualEditorHistory.selectEncodingColumnEvent(visualEditor, encodingColumn,
       current.column));
     visualEditor.setEncodingColumn(encodingColumn);

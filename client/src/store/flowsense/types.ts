@@ -49,13 +49,15 @@ export interface FlowsenseResult {
   value: QueryValue;
 }
 
-export interface SourceNodeDescriptor {
+export interface NodeDescriptor {
   id: string; // node label, node type
+}
+
+export interface SourceNodeDescriptor extends NodeDescriptor {
   isSelection?: boolean;
 }
 
-export interface TargetNodeDescriptor {
-  id: string; // node label, node type
+export interface TargetNodeDescriptor extends NodeDescriptor {
   isCreate?: boolean;
 }
 
@@ -103,6 +105,11 @@ export interface EdgeSpecification {
   nodes: Array<SourceNodeDescriptor | TargetNodeDescriptor>;
 }
 
+export interface NodeSpecification {
+  type: 'remove';
+  nodes: NodeDescriptor[];
+}
+
 export interface QueryValue {
   loadDataset?: string;
   autoLayout?: boolean;
@@ -115,6 +122,7 @@ export interface QueryValue {
   link?: LinkSpecification;
   setOperator?: SetOperatorSpecification;
   edge?: EdgeSpecification;
+  node?: NodeSpecification;
   source?: SourceNodeDescriptor[];
   target?: TargetNodeDescriptor[];
   // special operation flags

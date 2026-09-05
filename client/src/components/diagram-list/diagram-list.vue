@@ -11,11 +11,11 @@
 
 <style scoped lang="scss">
 @import '../../common/style/index';
-#table {
-  /deep/ .form-control[type=search] {
-    width: $modal-datatables-search-width;
-  }
-}
+// #table {
+//   /deep/ .form-control[type=search] {
+//     width: $modal-datatables-search-width;
+//   }
+// }
 </style>
 
 <script lang="ts" src="./diagram-list.ts">

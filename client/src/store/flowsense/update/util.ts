@@ -9,6 +9,7 @@ import { INDEX_COLUMN } from '@/common/constants';
 import { Node } from '@/components/node';
 import { OutputPort, InputPort } from '@/components/port';
 import { SubsetNode } from '@/components/subset-node';
+import DataSource from '@/components/data-source/data-source';
 import { Visualization } from '@/components/visualization';
 import { ejectMarker, InjectedQuery, ejectMappableMarker } from '../helper';
 import { focusNode, focusNodes } from '@/store/interaction/helper';
@@ -89,6 +90,15 @@ export const getDefaultSources = (count: number = 1, exceptions?: Node[]): Node[
 };
 
 /**
+ * Finds a data source node that already loads the given "originalname" dataset.
+ */
+export const getDataSource = (filename: string): DataSource | null => {
+  const dataSources = getAllNodes()
+    .filter(node => node.nodeType === 'data-source' && (node as DataSource).hasLoadedDataset(filename));
+  return dataSources.length ? dataSources[0] as DataSource : null;
+};
+
+/**
  * Returns the position where Flowsense is activated. This is the position where the diagram should be extended.
  */
 const getActivePosition = (): Point => {
@@ -125,6 +135,14 @@ export const getCreateNodeOptions = (type: string, options?: FlowsenseCreateNode
  */
 export const createNode = (options: CreateNodeOptions, nodeSave?: object): Node => {
   return dataflowHelper.createNode(dataflow(), options, nodeSave);
+};
+
+/**
+ * Provides removeNode wrapper.
+ */
+export const removeNode = (node: Node, propagate: boolean): Edge[] => {
+  const { removedEdges } = dataflowHelper.removeNode(dataflow(), node, propagate);
+  return removedEdges;
 };
 
 /**

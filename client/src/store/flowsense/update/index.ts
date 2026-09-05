@@ -9,6 +9,7 @@ import { loadDataset } from './load-dataset';
 import { autoLayout } from './layout';
 import { undo, redo } from './edit';
 import { editEdge } from './edge';
+import { editNode } from './node';
 
 export {
   createSetOperator,
@@ -23,4 +24,5 @@ export {
   undo,
   redo,
   editEdge,
+  editNode,
 };

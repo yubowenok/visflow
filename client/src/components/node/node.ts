@@ -430,7 +430,7 @@ export default class Node extends Vue {
    */
   public startUpdate() {
     if (this.isUpdateNecessary() && this.areConnectionsValid()) {
-      console.log('startUpdate', this.label);
+      // console.log('startUpdate', this.label);
       this.update();
     }
   }

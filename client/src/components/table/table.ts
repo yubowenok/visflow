@@ -49,6 +49,7 @@ export default class Table extends Visualization {
   }
 
   public applyColumns(columns: number[]) {
+    columns = _.uniq(columns);
     if (!this.columns.length) {
       this.findDefaultColumns();
     } else {

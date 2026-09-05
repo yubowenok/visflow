@@ -48,6 +48,11 @@ export default class DataSource extends SubsetNode {
     // Nothing to do
   }
 
+  /** Checks if the data source already loads this particular dataset file. */
+  public hasLoadedDataset(filename: string): boolean {
+    return this.datasetInfo !== null && this.datasetInfo.filename === filename;
+  }
+
   protected created() {
     this.serializationChain.push(() => ({
       datasetInfo: this.datasetInfo,

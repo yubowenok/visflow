@@ -1,13 +1,10 @@
 import * as util from './util';
-import { InjectedQuery, QuerySource, QueryTarget } from '../helper';
-import { QueryValue, LinkSpecification, EdgeSpecification, SourceNodeDescriptor, TargetNodeDescriptor } from '../types';
+import { InjectedQuery } from '../helper';
+import { EdgeSpecification, SourceNodeDescriptor, TargetNodeDescriptor } from '../types';
 import FlowsenseUpdateTracker from './tracker';
-import { Node } from '@/components/node';
 import Edge from '@/components/edge/edge';
 import { SubsetNode } from '@/components/subset-node';
-import Linker from '@/components/linker/linker';
 import { Visualization } from '@/components/visualization';
-import { Port } from '@/components/port';
 import { checkEdgeConnectivity } from '@/store/dataflow';
 
 

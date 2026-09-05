@@ -47,6 +47,7 @@ export default class FlowsenseInput extends Vue {
   @ns.flowsense.Action('autoComplete') private dispatchAutoComplete!: (tokens: FlowsenseToken[]) =>
     Promise<FlowsenseToken[][]>;
   @ns.flowsense.Getter('specialUtterances') private flowsenseSpecialUtterances!: FlowsenseCategorizedToken[];
+  @ns.dataset.State('hasDataset') private hasDataset!: boolean;
 
   private tokens: FlowsenseToken[] = [];
   private text = '';
@@ -524,6 +525,10 @@ export default class FlowsenseInput extends Vue {
 
   private onClickQueryCompletion() {
     this.closeAllDropdowns();
+    if (!this.hasDataset) {
+      showSystemMessage(this.$store, 'Please first load a dataset', 'warn');
+      return;
+    }
     this.submitQueryCompletion();
   }
 
