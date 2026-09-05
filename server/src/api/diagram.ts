@@ -1,53 +1,50 @@
 import { Express, Response, Request, NextFunction } from 'express';
-import { check  } from 'express-validator/check';
+import { check } from 'express-validator';
 import fs from 'fs-extra';
-import mongoose from 'mongoose';
 import path from 'path';
 import _ from 'lodash';
 
 import { DATA_PATH, DEMO_USERNAME } from '../config/env';
 import { isAuthenticated } from '../config/passport';
 import { checkValidationResults, randomHash, checkDiagramExists } from '../common/util';
-import Diagram, { DiagramModel } from '../models/diagram';
+import Diagram from '../models/diagram';
 import Log from '../models/log';
 
 const diagramApi = (app: Express) => {
-  app.post('/api/diagram/list/', (req: Request, res: Response, next: NextFunction) => {
-    const username = !req.user ? DEMO_USERNAME : req.user.username;
-    Diagram.find({ username }, (err, diagrams) => {
-      if (err) {
-        return next(err);
-      }
-      res.json(diagrams.map((diagram: DiagramModel) => _.pick(diagram, [
+  app.post('/api/diagram/list/', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const username = !req.user ? DEMO_USERNAME : req.user.username;
+      const diagrams = await Diagram.find({ username });
+      res.json(diagrams.map(diagram => _.pick(diagram, [
         'diagramName',
         'filename',
         'updatedAt',
       ])));
-    });
+    } catch (err) {
+      next(err);
+    }
   });
 
   app.post('/api/diagram/load/', [
     check('filename').isString()
-      .custom((filename, { req }) => {
+      .custom(async (filename: string, { req }) => {
         const username = !req.user ? DEMO_USERNAME : req.user.username;
-        return Diagram.findOne({ username, filename }).then(diagram => {
-          if (!diagram) {
-            return Diagram.findOne({ filename }).then(otherDiagram => {
-              if (otherDiagram) {
-                if (req.user && req.user.isAdmin) {
-                  req.body.username = otherDiagram.username;
-                } else {
-                  return Promise.reject('no access');
-                }
-              } else {
-                return Promise.reject('no such diagram');
-              }
-            });
-          }
-        });
+        const diagram = await Diagram.findOne({ username, filename });
+        if (diagram) {
+          return;
+        }
+        const otherDiagram = await Diagram.findOne({ filename });
+        if (!otherDiagram) {
+          return Promise.reject('no such diagram');
+        }
+        if (req.user && req.user.isAdmin) {
+          req.body.username = otherDiagram.username;
+        } else {
+          return Promise.reject('no access');
+        }
       }),
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
+  ], (req: Request, res: Response) => {
     const filename = req.body.filename;
     const username = req.body.username ? req.body.username : (!req.user ? DEMO_USERNAME : req.user.username);
     const dir = path.join(DATA_PATH, 'diagram/', username);
@@ -64,88 +61,72 @@ const diagramApi = (app: Express) => {
     check('diagram').isString(),
     check('diagramName', 'missing diagram name').exists().isLength({ min: 1 }),
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
-    const username = req.user.username;
-    const filename = randomHash();
-    const prevFilename = req.body.prevFilename;
-    const json = req.body.diagram;
-    const dir = path.join(DATA_PATH, 'diagram/', req.user.username);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirpSync(dir);
-    }
-    fs.writeFileSync(path.join(dir, filename), json);
-    const diagram = new Diagram({
-      username,
-      filename,
-      diagramName: req.body.diagramName,
-    });
-    diagram.save((diagramErr: mongoose.Error) => {
-      if (diagramErr) {
-        return next(diagramErr);
+  ], async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const username = req.user.username;
+      const filename = randomHash();
+      const prevFilename: string | undefined = req.body.prevFilename;
+      const json = req.body.diagram;
+      const dir = path.join(DATA_PATH, 'diagram/', username);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirpSync(dir);
       }
+      fs.writeFileSync(path.join(dir, filename), json);
+      await new Diagram({
+        username,
+        filename,
+        diagramName: req.body.diagramName,
+      }).save();
 
-      // Search for the logs of the old file.
-      Log.findOne({ username, prevFilename }, (logErr, log) => {
-        if (logErr) {
-          return next(logErr);
-        }
-        const logs = !log ? [] : log.logs;
-        const logEntry = new Log({
-          username,
-          filename,
-          logs,
-        });
-        // Copy over the logs to the new file.
-        logEntry.save(logSaveErr => {
-          if (logSaveErr) {
-            return next(logSaveErr);
-          }
-          res.json(filename);
-        });
-      });
-    });
+      // Copy over the logs of the previous diagram, if any, to the new file.
+      const prevLog = prevFilename ? await Log.findOne({ username, filename: prevFilename }) : null;
+      await new Log({
+        username,
+        filename,
+        logs: !prevLog ? [] : prevLog.logs,
+      }).save();
+      res.json(filename);
+    } catch (err) {
+      next(err);
+    }
   });
 
   app.post('/api/diagram/save/', [
     check('diagram').isString(),
     checkDiagramExists,
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
-    Diagram.findOneAndUpdate({ filename: req.body.filename }, { updatedAt: new Date() },
-      (err, diagram) => {
-        if (err) {
-          return next(err);
-        }
-        if (diagram.username !== req.user.username) {
-          res.status(401).send('not authorized to save diagram');
-          return;
-        }
-        const json = req.body.diagram;
-        const file = path.join(DATA_PATH, 'diagram/', diagram.username, diagram.filename);
-        fs.writeFileSync(file, json);
-        res.status(200).end();
-      },
-    );
+  ], async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const diagram = await Diagram.findOneAndUpdate({ filename: req.body.filename }, { updatedAt: new Date() });
+      if (diagram.username !== req.user.username) {
+        res.status(401).send('not authorized to save diagram');
+        return;
+      }
+      const json = req.body.diagram;
+      const file = path.join(DATA_PATH, 'diagram/', diagram.username, diagram.filename);
+      fs.writeFileSync(file, json);
+      res.status(200).end();
+    } catch (err) {
+      next(err);
+    }
   });
 
   app.post('/api/diagram/delete', [
     checkDiagramExists,
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
-    const username = req.user.username;
-    const filename = req.body.filename;
-    Diagram.findOneAndRemove({ filename, username }, (err: mongoose.Error) => {
-      if (err) {
-        next(err);
+  ], async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const username = req.user.username;
+      const filename = req.body.filename;
+      const diagram = await Diagram.findOneAndDelete({ filename, username });
+      if (!diagram) {
+        return res.status(401).send('cannot delete this diagram');
       }
-      const file = path.join(DATA_PATH, 'diagram/', username, filename);
-      fs.unlink(file, fsErr => {
-        if (fsErr) {
-          next(fsErr);
-        }
-        res.status(200).end();
-      });
-    });
+      await fs.unlink(path.join(DATA_PATH, 'diagram/', username, filename));
+      res.status(200).end();
+    } catch (err) {
+      next(err);
+    }
   });
 };
 

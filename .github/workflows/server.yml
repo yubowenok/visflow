@@ -1,0 +1,30 @@
+name: server
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:8.0
+        ports:
+          - 27017:27017
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: corepack enable
+      - run: yarn install --ignore-scripts --ignore-engines --frozen-lockfile
+      - run: yarn --cwd server build
+      - run: yarn --cwd server typecheck
+      - run: yarn --cwd server test
+        env:
+          MONGODB_URI: mongodb://localhost:27017/visflow-test
+          DATA_PATH: ./test-datadir/
+          SESSION_SECRET: ci
+          ALLOW_ORIGIN: http://localhost:8080

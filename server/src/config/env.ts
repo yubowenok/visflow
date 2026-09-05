@@ -21,7 +21,7 @@ if (!fs.existsSync(envFile)) {
   console.warn(`env file "${envFile}" cannot be found`);
 } else {
   console.log(`Using env file "${envFile}"`);
-  dotenv.config({path: envFile});
+  dotenv.config({ path: envFile, quiet: true });
 }
 
 export const ENVIRONMENT = process.env.NODE_ENV;

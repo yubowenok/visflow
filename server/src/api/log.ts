@@ -1,6 +1,5 @@
 import { Express, Response, Request, NextFunction } from 'express';
-import { check  } from 'express-validator/check';
-import _ from 'lodash';
+import { check } from 'express-validator';
 
 import { DEMO_USERNAME } from '../config/env';
 import { checkValidationResults, checkDiagramExists } from '../common/util';
@@ -12,56 +11,44 @@ const logApi = (app: Express) => {
   app.post('/api/log/save', [
     check('logs').isArray(),
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
-    const username = !req.user ? DEMO_USERNAME : req.user.username;
-    const filename = req.body.filename;
-    const newLogs = req.body.logs;
-    Log.count({ username, filename }, (err, count) => {
-      let logs = newLogs;
-      if (count > 0) {
-        Log.findOne({ username, filename }, (errFindLog, log) => {
-          logs = log.logs.concat(newLogs);
-          Log.findOneAndUpdate({ username, filename }, { logs }, (errUpdateLog) => {
-            if (errUpdateLog) {
-              return next(errUpdateLog);
-            }
-            res.status(200).send();
-          });
-        });
-        return;
+  ], async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const username = !req.user ? DEMO_USERNAME : req.user.username;
+      const filename = req.body.filename;
+      const newLogs = req.body.logs;
+      const log = await Log.findOne({ username, filename });
+      if (log) {
+        await Log.findOneAndUpdate({ username, filename }, { logs: log.logs.concat(newLogs) });
+        return res.status(200).send();
       }
       // No log exists. Create one.
-      const logEntry = new Log({
+      await new Log({
         username,
         filename,
-        logs,
-      });
-      logEntry.save(mongooseErr => {
-        if (mongooseErr) {
-          return next(mongooseErr);
-        }
-        res.status(200).send();
-      });
-    });
+        logs: newLogs,
+      }).save();
+      res.status(200).send();
+    } catch (err) {
+      next(err);
+    }
   });
 
   app.post('/api/log/load', [
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !req.user.isAdmin) {
-      return res.status(401).send('not authorized to view log');
-    }
-    const username = req.user.username;
-    const filename = req.body.filename;
-    Log.findOne({ filename }, (err, log) => {
-      if (err) {
-        return next(err);
+  ], async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user || !req.user.isAdmin) {
+        return res.status(401).send('not authorized to view log');
       }
+      const filename = req.body.filename;
+      const log = await Log.findOne({ filename });
       if (!log) {
         return res.json([]);
       }
       res.json(log.logs);
-    });
+    } catch (err) {
+      next(err);
+    }
   });
 };
 

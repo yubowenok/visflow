@@ -1,38 +1,37 @@
 import passport from 'passport';
-import passportLocal from 'passport-local';
-import bcrypt from 'bcrypt-nodejs';
+import { Strategy as LocalStrategy } from 'passport-local';
+import bcrypt from 'bcryptjs';
 import { Request, Response, NextFunction } from 'express';
 
-import User, { UserModel } from '../models/user';
+import User, { UserDocument } from '../models/user';
 
-passport.serializeUser<UserModel, string>((user, done) => {
-  done(undefined, user._id);
+passport.serializeUser((user, done) => {
+  done(null, (user as UserDocument)._id.toString());
 });
 
-passport.deserializeUser((id: string, done) => {
-  User.findById(id, (err, user) => {
-    done(err, user);
-  });
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
 });
 
-passport.use(new passportLocal.Strategy({ usernameField: 'username' }, (username, password, done) => {
-  User.findOne({ username: username.toLowerCase() }, (err: Error, user: UserModel | undefined) => {
-    if (err) {
-      return done(err);
-    }
+passport.use(new LocalStrategy({ usernameField: 'username' }, async (username, password, done) => {
+  try {
+    const user = await User.findOne({ username: username.toLowerCase() });
     if (!user) {
-      return done(undefined, false, { message: 'invalid username or password' });
+      return done(null, false, { message: 'invalid username or password' });
     }
-    bcrypt.compare(password, user.password, (bcryptErr: Error, isMatch: boolean) => {
-      if (bcryptErr) {
-        return done(bcryptErr);
-      }
-      if (isMatch) {
-        return done(undefined, user);
-      }
-      return done(undefined, false, { message: 'invalid username or password' });
-    });
-  });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (isMatch) {
+      return done(null, user);
+    }
+    return done(null, false, { message: 'invalid username or password' });
+  } catch (err) {
+    return done(err);
+  }
 }));
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {

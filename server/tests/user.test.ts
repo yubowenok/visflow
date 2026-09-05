@@ -11,73 +11,72 @@ describe('POST /api/user/signup', () => {
     email: 'abc@visflow.org',
   };
 
-  it('should signup successfully', (done) => {
-    request(app)
+  beforeAll(async () => {
+    await User.deleteMany({ username: 'abc' });
+  });
+
+  it('should signup successfully', () => {
+    return request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData))
       .expect({
         username: signupData.username,
         email: signupData.email,
       })
-      .expect(200, done);
+      .expect(200);
   });
 
-  it('should not signup because of duplicate username', (done) => {
-    request(app)
+  it('should not signup because of duplicate username', () => {
+    return request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData, { email: 'other@visflow.org' }))
-      .expect(400, done);
+      .expect(400);
   });
 
-  it('should not signup because of duplicate email', (done) => {
-    request(app)
+  it('should not signup because of duplicate email', async () => {
+    await request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData, { username: 'xyz' }))
       .expect(400);
 
     // remove the signed-up user
-    User.findOneAndRemove({ username: 'abc' }, err => {
-      if (err) {
-        throw err;
-      }
-      done();
-    });
+    await User.findOneAndDelete({ username: 'abc' });
   });
 
-  it('should not signup because username is too short', (done) => {
-    request(app)
+  it('should not signup because username is too short', () => {
+    return request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData, { username: 'x' }))
-      .expect(400, done);
+      .expect(400);
   });
 
-  it('should not signup because username has leading digit', (done) => {
-    request(app)
+  it('should not signup because username has leading digit', () => {
+    return request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData, { username: '1xyz' }))
-      .expect(400, done);
+      .expect(400);
   });
 
-  it('should not signup because password is too short', (done) => {
-    request(app)
+  it('should not signup because password is too short', () => {
+    return request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData, { password: '123', confirmPassword: '123' }))
-      .expect(400, done);
+      .expect(400);
   });
 
-  it('should not signup because passwords do not match', (done) => {
-    request(app)
+  it('should not signup because passwords do not match', () => {
+    return request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData, { password: '123456', confirmPassword: '111111' }))
-      .expect(400, done);
+      .expect(400);
   });
 
-  it('should not signup because email is invalid', (done) => {
-    request(app)
+  it('should not signup because email is invalid', () => {
+    return request(app)
       .post('/api/user/signup')
       .send(_.extend({}, signupData, { email: 'xyz' }))
-      .expect(400, done);
+      .expect(400);
   });
 });
 
-afterAll(appShutdown);
+afterAll(() => appShutdown());

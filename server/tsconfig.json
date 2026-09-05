@@ -1,28 +1,20 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "esModuleInterop": true,
-    "target": "es6",
-    "noImplicitAny": true,
     "moduleResolution": "node",
+    "esModuleInterop": true,
+    "target": "es2022",
+    "lib": ["es2022"],
+    "noImplicitAny": true,
+    "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@src/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"],
+      "@src/*": ["src/*"]
     },
-    "types": [
-      "jest"
-    ],
-    "typeRoots": [
-      "node_modules/*",
-      "src/typings/*"
-    ]
+    "types": ["node", "jest"]
   },
   "include": [
     "src/**/*",

@@ -1,21 +1,22 @@
-import mongoose from 'mongoose';
+import { Schema, model, HydratedDocument } from 'mongoose';
 
-export interface DiagramModel extends mongoose.Document {
+export interface IDiagram {
   username: string;
   diagramName: string; // user-readable diagram name
   filename: string; // system filename, random hash
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const diagramSchema = new mongoose.Schema({
+export type DiagramDocument = HydratedDocument<IDiagram>;
+
+const diagramSchema = new Schema<IDiagram>({
   username: String,
   filename: String,
   diagramName: String,
 }, { timestamps: true });
 
-diagramSchema.index({
-  filename: 1,
-}, { unique: true });
+diagramSchema.index({ filename: 1 }, { unique: true });
 
-const Diagram = mongoose.model<DiagramModel>('Diagram', diagramSchema);
+const Diagram = model<IDiagram>('Diagram', diagramSchema);
 export default Diagram;
