@@ -22,6 +22,8 @@ jobs:
       - run: yarn install --ignore-scripts --ignore-engines --frozen-lockfile
       - run: yarn --cwd server build
       - run: yarn --cwd server typecheck
+      # The client is not built in this workflow; the server's root route serves client/dist/index.html.
+      - run: mkdir -p client/dist && echo '<!DOCTYPE html><title>VisFlow</title>' > client/dist/index.html
       - run: yarn --cwd server test
         env:
           MONGODB_URI: mongodb://localhost:27017/visflow-test
