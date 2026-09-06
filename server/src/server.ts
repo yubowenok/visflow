@@ -12,7 +12,9 @@ const server = app.listen(app.get('port'), () => {
 });
 
 const shutdown = () => {
-  server.close(appShutdown);
+  server.close(() => {
+    appShutdown().catch(err => console.error(err));
+  });
 };
 
 process.on('SIGINT', shutdown);

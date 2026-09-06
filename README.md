@@ -1,6 +1,6 @@
 # VisFlow - Web-Based Dataflow Framework for Visual Data Exploration
 
-[![Build Status](https://travis-ci.org/yubowenok/visflow.svg?branch=master)](https://travis-ci.org/yubowenok/visflow)
+[![server](https://github.com/yubowenok/visflow/actions/workflows/server.yml/badge.svg)](https://github.com/yubowenok/visflow/actions/workflows/server.yml)
 
 This is the installation guide for building and deploying new VisFlow instance.
 For VisFlow usage, please see the [documentation](https://visflow.org/docs).

@@ -1,24 +1,34 @@
-
 import mongoose from 'mongoose';
-import bluebird from 'bluebird';
+import MongoStore from 'connect-mongo';
 import { Request, Response, NextFunction } from 'express';
-import session from 'express-session';
 
 import { MONGODB_URI } from './config/env';
 
-export const connectMongo = () => {
-  mongoose.Promise = bluebird;
-  mongoose.connect(MONGODB_URI, { useNewUrlParser: true })
-    .then(() => {})
-    .catch(err => console.error('cannot connect to MongoDB', err));
+// Reject unknown fields in query filters instead of silently dropping them.
+mongoose.set('strictQuery', true);
+
+let connection: Promise<typeof mongoose> | undefined;
+
+/**
+ * Connects to MongoDB once and returns the pending/complete connection promise.
+ * A failed connection is logged, not thrown: the server keeps running and API calls
+ * are rejected by isMongooseConnected until the database comes back.
+ */
+export const connectMongo = (): Promise<typeof mongoose> => {
+  if (!connection) {
+    connection = mongoose.connect(MONGODB_URI);
+    connection.catch(err => console.error('cannot connect to MongoDB', err));
+  }
+  return connection;
 };
 
+/**
+ * Session store sharing the mongoose connection's MongoClient.
+ */
 export const sessionStore = () => {
-  const MongoStore = require('connect-mongo')(session);
-  return new MongoStore({
-    mongooseConnection: mongoose.connection,
-    autoReconnect: true,
-  });
+  const clientPromise = connectMongo().then(m => m.connection.getClient());
+  clientPromise.catch(() => {}); // rejection is surfaced per request by connect-mongo
+  return MongoStore.create({ clientPromise });
 };
 
 export const isMongooseConnected = (req: Request, res: Response, next: NextFunction) => {
@@ -28,6 +38,6 @@ export const isMongooseConnected = (req: Request, res: Response, next: NextFunct
   return res.status(500).send('lost connection to db');
 };
 
-export const disconnectMongo = () => {
-  mongoose.disconnect();
+export const disconnectMongo = (): Promise<void> => {
+  return mongoose.disconnect();
 };

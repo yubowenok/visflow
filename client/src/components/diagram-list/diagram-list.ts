@@ -36,7 +36,7 @@ export default class DiagramList extends Vue {
         {
           targets: 2,
           render: (filename: string) => {
-            return '<button class="btn btn-outline-secondary trash"' +
+            return '<button class="btn btn-outline-secondary trash" ' +
               `data-filename="${filename}">` +
               '<i class="fas fa-trash"></i></button>';
           },
@@ -48,7 +48,7 @@ export default class DiagramList extends Vue {
         $(this).find('button.trash')
           .off('click') // turn off the handler in case of redrawing the same element
           .click(evt => {
-            const filename = $(evt.target).data('filename') as string;
+            const filename = $(evt.currentTarget).data('filename') as string;
             diagramList.deleteDiagram(filename);
             evt.stopPropagation();
           });

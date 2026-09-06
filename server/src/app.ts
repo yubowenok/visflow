@@ -1,16 +1,13 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import compression from 'compression';  // compresses requests
 import session from 'express-session';
-import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import lusca from 'lusca';
 import cors from 'cors';
 import path from 'path';
 import passport from 'passport';
-import expressValidator from 'express-validator';
 import { PORT, ALLOW_ORIGIN, SESSION_SECRET, ENVIRONMENT } from './config/env';
 import { connectMongo, disconnectMongo, sessionStore } from './mongo';
-import { Response, Request } from 'express';
 
 // must import passport config for passport to take effect
 import './config/passport';
@@ -27,7 +24,7 @@ connectMongo();
 // Server config
 app.set('port', PORT || 3000);
 app.use(cors({
-  origin: (origin: string | undefined, callback: (err: Error, allow?: boolean) => void) => {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     if (ENVIRONMENT === 'test') {
       // accept any origin in tests
       callback(null, true);
@@ -44,9 +41,8 @@ app.use(cors({
 
 app.use(morgan(ENVIRONMENT === 'production' ? 'combined' : 'dev'));
 app.use(compression());
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(expressValidator());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true }));
 app.use(session({
   resave: true,
   saveUninitialized: true,
@@ -71,8 +67,8 @@ app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
 });
 
-export const appShutdown = () => {
-  disconnectMongo();
+export const appShutdown = (): Promise<void> => {
+  return disconnectMongo();
 };
 
 export default app;

@@ -1,0 +1,38 @@
+# Local development databases for VisFlow.
+#   docker compose up -d mongo                       # MongoDB 8.0 on localhost:27017 (matches server/.env)
+#   docker compose --profile legacy up -d mongo40    # MongoDB 4.0 on localhost:27040 (old-driver baseline)
+#   docker compose --profile legacy up -d mongo7     # MongoDB 7.0 on localhost:27070
+#   docker compose down                              # stop; data stays in the named volumes
+services:
+  mongo:
+    image: mongo:8.0
+    container_name: visflow-mongo
+    ports:
+      - "127.0.0.1:27017:27017"
+    volumes:
+      - visflow-mongo8:/data/db
+    restart: unless-stopped
+
+  mongo7:
+    image: mongo:7.0
+    container_name: visflow-mongo7
+    profiles: ["legacy"]
+    ports:
+      - "127.0.0.1:27070:27017"
+    volumes:
+      - visflow-mongo7:/data/db
+
+  mongo40:
+    image: mongo:4.0
+    container_name: visflow-mongo40
+    platform: linux/amd64   # pre-4.4 images have no arm64 build
+    profiles: ["legacy"]
+    ports:
+      - "127.0.0.1:27040:27017"
+    volumes:
+      - visflow-mongo40:/data/db
+
+volumes:
+  visflow-mongo8:
+  visflow-mongo7:
+  visflow-mongo40:

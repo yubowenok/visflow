@@ -1,4 +1,4 @@
-import request, { SuperTest, Test } from 'supertest';
+import request from 'supertest';
 import fs from 'fs-extra';
 import path from 'path';
 import _ from 'lodash';
@@ -14,16 +14,17 @@ const testUser = {
   confirmPassword: '123456',
   email: 'dataset_test_user@visflow.org',
 };
+const testCsv = './tests/dataset.test.csv';
 const datasetDir = path.join(DATA_PATH, '/dataset');
 const userDatasetDir = path.join(datasetDir, testUser.username);
 
-let agent: SuperTest<Test>;
+let agent: ReturnType<typeof request.agent>;
 let filename1: string;
 let filename2: string;
 
-beforeAll(() => {
-  const user = new User(testUser);
-  user.save();
+beforeAll(async () => {
+  await User.deleteMany({ username: testUser.username });
+  await new User(testUser).save();
   agent = request.agent(app);
 });
 
@@ -32,27 +33,24 @@ describe('upload datasets', () => {
     expect(fs.existsSync(datasetDir)).toBeFalsy();
   });
 
-  it('should not upload dataset without login', done => {
-    agent.post('/api/dataset/upload')
-      .attach('dataset', './tests/dataset.test.csv')
-      .expect(401, done);
+  it('should not upload dataset without login', () => {
+    return agent.post('/api/dataset/upload')
+      .attach('dataset', testCsv)
+      .expect(401);
   });
 
-  it('should upload dataset with login', done => {
-    agent.post('/api/user/login')
+  it('should upload dataset with login', async () => {
+    await agent.post('/api/user/login')
       .send(_.pick(testUser, ['username', 'password']))
-      .end(err => {
-        expect(err).toBeFalsy();
-
-        agent.post('/api/dataset/upload')
-          .attach('dataset', './tests/dataset.test.csv')
-          .expect((res: { body: { filename: string, originalname: string } }) => {
-            expect(res.body).toEqual(expect.objectContaining({ originalname: 'dataset.test.csv' }));
-            expect(res.body).toHaveProperty('filename');
-            filename1 = res.body.filename;
-          })
-          .expect(200, done);
-      });
+      .expect(200);
+    await agent.post('/api/dataset/upload')
+      .attach('dataset', testCsv)
+      .expect((res: request.Response) => {
+        expect(res.body).toEqual(expect.objectContaining({ originalname: 'dataset.test.csv' }));
+        expect(res.body).toHaveProperty('filename');
+        filename1 = res.body.filename;
+      })
+      .expect(200);
   });
 
   it('dataset folder should exist', () => {
@@ -67,15 +65,15 @@ describe('upload datasets', () => {
     expect(fs.readdirSync(userDatasetDir).length).toBe(1);
   });
 
-  it('should upload the same dataset again', done => {
-    agent.post('/api/dataset/upload')
-      .attach('dataset', './tests/dataset.test.csv')
-      .expect((res: { body: { filename: string, originalname: string } }) => {
+  it('should upload the same dataset again', () => {
+    return agent.post('/api/dataset/upload')
+      .attach('dataset', testCsv)
+      .expect((res: request.Response) => {
         expect(res.body).toEqual(expect.objectContaining({ originalname: 'dataset.test.csv' }));
         expect(res.body).toHaveProperty('filename');
         filename2 = res.body.filename;
       })
-      .expect(200, done);
+      .expect(200);
   });
 
   it('user\'s dataset folder should have two files', () => {
@@ -84,9 +82,9 @@ describe('upload datasets', () => {
 });
 
 describe('list datasets', () => {
-  it('should list two datasets', done => {
-    agent.post('/api/dataset/list')
-      .expect((res: Response) => {
+  it('should list two datasets', () => {
+    return agent.post('/api/dataset/list')
+      .expect((res: request.Response) => {
         expect(res.body).toHaveLength(2);
         expect(res.body).toContainEqual(expect.objectContaining({
           filename: filename1,
@@ -97,76 +95,65 @@ describe('list datasets', () => {
           originalname: 'dataset.test.csv',
         }));
       })
-      .expect(200, done);
+      .expect(200);
   });
 });
 
 describe('delete a dataset', () => {
-  it('should delete one dataset', done => {
-    agent.post('/api/dataset/delete')
+  it('should delete one dataset', () => {
+    return agent.post('/api/dataset/delete')
       .send({ filename: filename2 })
-      .expect(200, done);
+      .expect(200);
   });
 
   it('user\'s dataset folder should have one file after deletion', () => {
     expect(fs.readdirSync(userDatasetDir).length).toBe(1);
   });
 
-  it('should not delete non-existing dataset', done => {
-    agent.post('/api/dataset/delete')
+  it('should not delete non-existing dataset', () => {
+    return agent.post('/api/dataset/delete')
       .send({ filename: filename2 })
-      .expect(400, done);
+      .expect(400);
   });
 });
 
 describe('list dataset after deletion', () => {
-  it('should list one dataset', done => {
-    agent.post('/api/dataset/list')
-      .expect((res: Response) => {
+  it('should list one dataset', () => {
+    return agent.post('/api/dataset/list')
+      .expect((res: request.Response) => {
         expect(res.body).toHaveLength(1);
         expect(res.body).toContainEqual(expect.objectContaining({
           filename: filename1,
           originalname: 'dataset.test.csv',
         }));
       })
-      .expect(200, done);
+      .expect(200);
   });
 });
 
 describe('get dataset', () => {
-  it('should get a file', done => {
-    agent.post('/api/dataset/get')
+  it('should get a file', () => {
+    return agent.post('/api/dataset/get')
       .send({ filename: filename1 })
       .expect('content-type', 'application/octet-stream')
-      .expect((res: Response) => {
-        const fileContent = fs.readFileSync('./dataset.test.csv');
-        expect(res.body.toString()).toEqual(fileContent);
+      .expect((res: request.Response) => {
+        expect(res.body.toString()).toEqual(fs.readFileSync(testCsv).toString());
       })
-      .expect(200, done);
+      .expect(200);
   });
 
-  it('should not get non-existing file', done => {
-    agent.post('/api/dataset/get')
+  it('should not get non-existing file', () => {
+    return agent.post('/api/dataset/get')
       .send({ filename: filename2 })
-      .expect(400, done);
+      .expect(400);
   });
 });
 
-afterAll(done => {
+afterAll(async () => {
   if (fs.existsSync(datasetDir)) {
     fs.removeSync(datasetDir);
   }
-
-  User.findOneAndRemove({ username: testUser.username }, err => {
-    if (err) {
-      throw err;
-    }
-    Dataset.find({ username: testUser.username }).remove(err2 => {
-      if (err2) {
-        throw err2;
-      }
-      appShutdown();
-      done();
-    });
-  });
+  await User.findOneAndDelete({ username: testUser.username });
+  await Dataset.deleteMany({ username: testUser.username });
+  await appShutdown();
 });

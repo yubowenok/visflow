@@ -1,50 +1,33 @@
-import bcrypt from 'bcrypt-nodejs';
-import mongoose from 'mongoose';
-import { NextFunction } from 'express';
+import bcrypt from 'bcryptjs';
+import { Schema, model, HydratedDocument } from 'mongoose';
 
 const PASSWORD_SALT_ROUND = 10;
 
-export interface UserModel extends mongoose.Document {
+export interface IUser {
   username: string;
   email: string;
   password: string;
-  isAdmin: boolean;
-  updatedAt: Date;
+  isAdmin?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const userSchema = new mongoose.Schema({
+export type UserDocument = HydratedDocument<IUser>;
+
+const userSchema = new Schema<IUser>({
   username: { type: String, unique: true },
   email: { type: String, unique: true },
   password: String,
   isAdmin: Boolean,
 }, { timestamps: true });
 
-userSchema.index({ username: 1 }, { unique: true });
-
-const hashPassword = (password: string, callback: (err: Error, hash: string) => void) => {
-  bcrypt.genSalt(PASSWORD_SALT_ROUND, (err: Error, salt: string) => {
-    if (err) {
-      return callback(err, '');
-    }
-    bcrypt.hash(password, salt, undefined, (mongooseErr: mongoose.Error, hash) => {
-      if (mongooseErr) {
-        return callback(mongooseErr, '');
-      }
-      callback(null, hash);
-    });
-  });
-};
-
-userSchema.pre('save', function(next: NextFunction) { // Must user funciton to access "this".
-  const user = this as UserModel;
-  hashPassword(user.password, (err, hash) => {
-    if (err) {
-      return next(err);
-    }
-    user.password = hash;
-    next();
-  });
+// Hash the password whenever it is set or changed (signup, changePassword).
+userSchema.pre('save', async function() {
+  if (!this.isModified('password')) {
+    return;
+  }
+  this.password = await bcrypt.hash(this.password, PASSWORD_SALT_ROUND);
 });
 
-const User = mongoose.model<UserModel>('User', userSchema);
+const User = model<IUser>('User', userSchema);
 export default User;

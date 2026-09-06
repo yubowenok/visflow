@@ -1,85 +1,53 @@
 import { Express, Response, Request, NextFunction } from 'express';
-import request, { RequestCallback } from 'request';
-import { check  } from 'express-validator/check';
-import _ from 'lodash';
-import mongoose from 'mongoose';
+import { check } from 'express-validator';
+import { Model } from 'mongoose';
 
 import { FLOWSENSE_URL } from '../config/env';
-import { FlowsenseQuery, FlowsenseAutoCompletion } from '../models/flowsense';
+import { FlowsenseQuery, FlowsenseAutoCompletion, IFlowsense } from '../models/flowsense';
 import { checkValidationResults, urlJoin } from '../common/util';
+
+/**
+ * Forwards the query to the FlowSense backend, logs the query and its result, and relays the result.
+ */
+const forwardToFlowsense = (endpoint: string, LogModel: Model<IFlowsense>) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    if (!FLOWSENSE_URL) {
+      return res.status(500).send('FlowSense not available');
+    }
+    const query = req.body.query;
+    const rawQuery = req.body.rawQuery;
+    try {
+      const response = await fetch(urlJoin(FLOWSENSE_URL, endpoint), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query, rawQuery }),
+      });
+      const text = await response.text();
+      let body: unknown = text;
+      try {
+        body = JSON.parse(text);
+      } catch (e) {
+        // FlowSense returned a non-JSON body; relay it as is.
+      }
+      await new LogModel({ query, rawQuery, result: body as object }).save();
+      res.send(body);
+    } catch (err) {
+      next(err);
+    }
+  };
 
 const flowsenseApi = (app: Express) => {
   app.post('/api/flowsense/query', [
     check('query').isString(),
     check('rawQuery').isString(),
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
-    if (!FLOWSENSE_URL) {
-      return res.status(500).send('FlowSense not available');
-    }
-    const query = req.body.query;
-    const rawQuery = req.body.rawQuery;
-
-    request.post({
-      url: urlJoin(FLOWSENSE_URL, 'query'),
-      json: {
-        query,
-        rawQuery,
-      },
-    }, (err, response, body) => {
-      if (err) {
-        return next(err);
-      }
-      const processedQuery = new FlowsenseQuery({
-        query,
-        rawQuery,
-        result: body,
-      });
-      // Log the query and its result.
-      processedQuery.save((mongooseErr: mongoose.Error) => {
-        if (mongooseErr) {
-          return next(mongooseErr);
-        }
-        res.send(body);
-      });
-    });
-  });
+  ], forwardToFlowsense('query', FlowsenseQuery));
 
   app.post('/api/flowsense/auto-complete', [
     check('query').isString(),
     check('rawQuery').isString(),
     checkValidationResults,
-  ], (req: Request, res: Response, next: NextFunction) => {
-    if (!FLOWSENSE_URL) {
-      return res.status(500).send('FlowSense not available');
-    }
-    const query = req.body.query;
-    const rawQuery = req.body.rawQuery;
-
-    request.post({
-      url: urlJoin(FLOWSENSE_URL, 'auto-complete'),
-      json: {
-        query,
-        rawQuery,
-      },
-    }, (err, response, body) => {
-      if (err) {
-        return next(err);
-      }
-      const processedAutoCompletion = new FlowsenseAutoCompletion({
-        query,
-        rawQuery,
-        result: body,
-      });
-      // Log the query and its auto completion.
-      processedAutoCompletion.save((mongooseErr: mongoose.Error) => {
-        if (mongooseErr) {
-          return next(mongooseErr);
-        }
-        res.send(body);
-      });
-    });
-  });
+  ], forwardToFlowsense('auto-complete', FlowsenseAutoCompletion));
 };
 
 export default flowsenseApi;

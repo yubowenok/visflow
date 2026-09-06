@@ -1,14 +1,16 @@
 import request from 'supertest';
-import app from '@src/app';
+import app, { appShutdown } from '@src/app';
 
 describe('GET /', () => {
-  it('should return root HTML', (done) => {
-    request(app)
+  it('should return root HTML', () => {
+    return request(app)
       .get('/')
       .expect('Content-Type', /html/)
-      .expect((res: Response) => {
+      .expect((res: request.Response) => {
         expect(res.text).toContain('VisFlow');
       })
-      .expect(200, done);
+      .expect(200);
   });
 });
+
+afterAll(() => appShutdown());
