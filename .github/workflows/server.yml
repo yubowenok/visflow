@@ -13,11 +13,28 @@ jobs:
         image: mongo:8.0
         ports:
           - 27017:27017
+        # MongoDB refuses to start on kernels 6.19 - 7.0.13, which the runners now use, because
+        # tcmalloc violates the rseq ABI there; disabling glibc's rseq registration avoids it.
+        # Pinning the runner image does not help, since containers share the host kernel.
+        # See https://jira.mongodb.org/browse/SERVER-121912
+        env:
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
+        # The mongo image ships no HEALTHCHECK, so without this the job happily runs the whole
+        # suite against a mongod that died on startup.
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 10s
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          # Without this, setup-node serves whatever 22.x the runner has cached (22.23.3 at the
+          # time of writing), which is below the floor the server's engines field requires.
+          check-latest: true
       - run: corepack enable
       - run: yarn install --ignore-scripts --ignore-engines --frozen-lockfile
       - run: yarn --cwd server build
