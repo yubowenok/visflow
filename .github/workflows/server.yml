@@ -7,12 +7,22 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to Ubuntu 26.04, whose kernel (6.19+) stops mongo:8.0 from
+    # starting at all. See https://jira.mongodb.org/browse/SERVER-121912
+    runs-on: ubuntu-24.04
     services:
       mongo:
         image: mongo:8.0
         ports:
           - 27017:27017
+        # The mongo image ships no HEALTHCHECK, so without this the job happily runs the whole
+        # suite against a mongod that died on startup.
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+          --health-start-period 10s
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
