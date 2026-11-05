@@ -7,14 +7,18 @@ on:
 
 jobs:
   test:
-    # Pinned: ubuntu-latest moved to Ubuntu 26.04, whose kernel (6.19+) stops mongo:8.0 from
-    # starting at all. See https://jira.mongodb.org/browse/SERVER-121912
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     services:
       mongo:
         image: mongo:8.0
         ports:
           - 27017:27017
+        # MongoDB refuses to start on kernels 6.19 - 7.0.13, which the runners now use, because
+        # tcmalloc violates the rseq ABI there; disabling glibc's rseq registration avoids it.
+        # Pinning the runner image does not help, since containers share the host kernel.
+        # See https://jira.mongodb.org/browse/SERVER-121912
+        env:
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
         # The mongo image ships no HEALTHCHECK, so without this the job happily runs the whole
         # suite against a mongod that died on startup.
         options: >-
