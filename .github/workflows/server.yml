@@ -14,11 +14,12 @@ jobs:
         ports:
           - 27017:27017
         # MongoDB refuses to start on kernels 6.19 - 7.0.13, which the runners now use, because
-        # tcmalloc violates the rseq ABI there; disabling glibc's rseq registration avoids it.
+        # tcmalloc violates the rseq ABI there. On these runners mongod starts only with
+        # glibc.pthread.rseq=1 set explicitly; with the tunable unset or set to 0 it refuses.
         # Pinning the runner image does not help, since containers share the host kernel.
         # See https://jira.mongodb.org/browse/SERVER-121912
         env:
-          GLIBC_TUNABLES: glibc.pthread.rseq=0
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
         # The mongo image ships no HEALTHCHECK, so without this the job happily runs the whole
         # suite against a mongod that died on startup.
         options: >-
