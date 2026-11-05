@@ -6,7 +6,7 @@
   "license": "BSD-3-Clause",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": "^22.23.4 || ^24.22.1 || >=26.12.1"
   },
   "scripts": {
     "serve": "yarn build && NODE_ENV=production node dist/server.js",
