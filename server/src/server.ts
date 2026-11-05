@@ -1,3 +1,6 @@
+// must come first, so an unsupported Node release exits before anything else starts
+import './config/node-version';
+
 import errorHandler from 'errorhandler';
 
 import app, { appShutdown } from './app';
