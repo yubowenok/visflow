@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import compression from 'compression';  // compresses requests
 import session from 'express-session';
 import morgan from 'morgan';
@@ -45,7 +45,9 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
   resave: true,
-  saveUninitialized: true,
+  // Only sessions that carry something (a login) are stored, so anonymous requests and probes
+  // neither write to Mongo nor get a cookie.
+  saveUninitialized: false,
   secret: SESSION_SECRET,
   store: sessionStore(),
   cookie: { maxAge: 24 * 60 * 60 * 1000 },
@@ -69,7 +71,12 @@ app.use('/api', (req: Request, res: Response) => {
 
 app.use('/', express.static(path.join(__dirname, '../../client/dist')));
 
-app.get('*', (req: Request, res: Response) => {
+// Client routes never contain a dot, so a path segment with one is a file express.static did not
+// find or a dotfile it ignores (e.g. /.env, /config.json); 404 it rather than serve the client page.
+app.get('*', (req: Request, res: Response, next: NextFunction) => {
+  if (/\/[^/]*\./.test(req.path)) {
+    return next();
+  }
   res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
 });
 

@@ -7,6 +7,8 @@ describe('unmatched /api paths', () => {
       .get('/api/.env')
       .expect((res: request.Response) => {
         expect(res.text).not.toContain('VisFlow');
+        // An anonymous probe must not create a session.
+        expect(res.headers['set-cookie']).toBeUndefined();
       })
       .expect(404);
   });
@@ -20,16 +22,14 @@ describe('unmatched /api paths', () => {
   it('should 404 an unmatched POST under /api', () => {
     return request(app)
       .post('/api/does-not-exist')
-      .expect(404);
+      // The body tells the /api handler apart from Express's default "Cannot POST" 404.
+      .expect(404, 'not found');
   });
 
   it('should still reach a real API route', () => {
-    // Whatever this answers (401 without a session), it must not be the catch-all 404.
     return request(app)
       .post('/api/user/whoami')
-      .expect((res: request.Response) => {
-        expect(res.status).not.toBe(404);
-      });
+      .expect(200, { username: '', email: '' });
   });
 });
 
@@ -43,6 +43,17 @@ describe('non-API paths', () => {
       })
       .expect(200);
   });
+
+  it.each(['/.env', '/.git/config', '/config.json', '//api/.env'])(
+    'should 404 the file probe %s rather than serve the client page',
+    (probe: string) => {
+      return request(app)
+        .get(probe)
+        .expect((res: request.Response) => {
+          expect(res.text).not.toContain('VisFlow');
+        })
+        .expect(404);
+    });
 });
 
 afterAll(() => appShutdown());
