@@ -61,6 +61,12 @@ datasetApi(app);
 flowsenseApi(app);
 logApi(app);
 
+// Unmatched paths under /api must 404 here. Otherwise they fall through to the client-page
+// catch-all below, which answers probes such as /api/.env with index.html and a 200.
+app.use('/api', (req: Request, res: Response) => {
+  res.status(404).send('not found');
+});
+
 app.use('/', express.static(path.join(__dirname, '../../client/dist')));
 
 app.get('*', (req: Request, res: Response) => {
