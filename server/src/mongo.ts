@@ -23,12 +23,22 @@ export const connectMongo = (): Promise<typeof mongoose> => {
 };
 
 /**
+ * connect-mongo sets up its collection and TTL index lazily, on the first store operation. Held
+ * here so disconnectMongo can wait for it: closing the shared MongoClient while that setup is in
+ * flight fails with MongoClientClosedError.
+ */
+let storeReady: Promise<void> = Promise.resolve();
+
+/**
  * Session store sharing the mongoose connection's MongoClient.
  */
 export const sessionStore = () => {
   const clientPromise = connectMongo().then(m => m.connection.getClient());
   clientPromise.catch(() => {}); // rejection is surfaced per request by connect-mongo
-  return MongoStore.create({ clientPromise });
+  const store = MongoStore.create({ clientPromise });
+  // A read of an absent session is enough to drive the lazy setup to completion.
+  storeReady = new Promise<void>(resolve => store.get('startup-probe', () => resolve()));
+  return store;
 };
 
 export const isMongooseConnected = (req: Request, res: Response, next: NextFunction) => {
@@ -38,6 +48,7 @@ export const isMongooseConnected = (req: Request, res: Response, next: NextFunct
   return res.status(500).send('lost connection to db');
 };
 
-export const disconnectMongo = (): Promise<void> => {
-  return mongoose.disconnect();
+export const disconnectMongo = async (): Promise<void> => {
+  await storeReady;
+  await mongoose.disconnect();
 };
