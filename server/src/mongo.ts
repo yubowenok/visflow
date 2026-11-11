@@ -23,12 +23,30 @@ export const connectMongo = (): Promise<typeof mongoose> => {
 };
 
 /**
+ * connect-mongo sets up its collection and TTL index lazily, on the first store operation. Held
+ * here so disconnectMongo can wait for it: closing the shared MongoClient while that setup is in
+ * flight makes it throw (MongoNotConnectedError and similar), so shutdown ends in an error instead
+ * of a clean exit.
+ */
+let storeReady: Promise<void> = Promise.resolve();
+
+/**
  * Session store sharing the mongoose connection's MongoClient.
  */
 export const sessionStore = () => {
   const clientPromise = connectMongo().then(m => m.connection.getClient());
   clientPromise.catch(() => {}); // rejection is surfaced per request by connect-mongo
-  return MongoStore.create({ clientPromise });
+  const store = MongoStore.create({ clientPromise });
+  // A read of an absent session is enough to drive the lazy setup to completion. The timer keeps
+  // this wait from hanging if the probe never calls back, but it does not shorten shutdown: with
+  // MongoDB unreachable, mongoose.disconnect() itself waits out server selection (30s by default),
+  // so pm2's kill timeout ends the process instead. Nothing is lost then. The timer is unref'd so
+  // it cannot hold the process open.
+  storeReady = new Promise<void>(resolve => {
+    store.get('startup-probe', () => resolve());
+    setTimeout(resolve, 2000).unref();
+  });
+  return store;
 };
 
 export const isMongooseConnected = (req: Request, res: Response, next: NextFunction) => {
@@ -38,6 +56,7 @@ export const isMongooseConnected = (req: Request, res: Response, next: NextFunct
   return res.status(500).send('lost connection to db');
 };
 
-export const disconnectMongo = (): Promise<void> => {
-  return mongoose.disconnect();
+export const disconnectMongo = async (): Promise<void> => {
+  await storeReady;
+  await mongoose.disconnect();
 };

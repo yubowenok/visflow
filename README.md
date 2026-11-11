@@ -8,6 +8,9 @@ For VisFlow usage, please see the [documentation](https://visflow.org/docs).
 VisFlow uses [yarn](https://yarnpkg.com/en/) to build.
 Run ``yarn install`` first to install all node dependencies.
 
+VisFlow runs on the Node.js version in [`.nvmrc`](.nvmrc); ``nvm use`` picks it up, and the server's
+``engines`` field states the minimum patch release on each supported line.
+
 ## Development Web Client and Server
 
 The VisFlow system has three essential components:
