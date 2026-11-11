@@ -8,7 +8,8 @@
   },
   "private": true,
   "scripts": {
-    "coverage": "bash coverage.sh"
+    "coverage": "bash coverage.sh",
+    "audit:deps": "node scripts/dependency-audit.mjs"
   },
   "workspaces": [
     "client",
